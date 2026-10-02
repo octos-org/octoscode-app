@@ -163,12 +163,13 @@ fn settled_task(store: &Store) -> Option<TaskSnapshot> {
 /// card's own vocabulary), and the card's authored copy is capitalized
 /// ("Running" / "Done") — a raw wire state must not paint lowercase.
 pub(crate) fn status_word(state: &str) -> String {
+    use crate::i18n::tr;
     match state {
-        "pending" => "Pending".to_owned(),
-        "running" => "Running".to_owned(),
-        "done" | "completed" => "Done".to_owned(),
-        "failed" => "Failed".to_owned(),
-        "cancelled" | "canceled" => "Stopped".to_owned(),
+        "pending" => tr("Pending").to_owned(),
+        "running" => tr("Running").to_owned(),
+        "done" | "completed" => tr("Done").to_owned(),
+        "failed" => tr("Failed").to_owned(),
+        "cancelled" | "canceled" => tr("Stopped").to_owned(),
         other => other.to_owned(),
     }
 }

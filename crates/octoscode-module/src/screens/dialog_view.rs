@@ -27,6 +27,7 @@ use crate::screens::autonomy::{self as au, AutonomyState};
 use crate::screens::board3::fleetview::Status;
 use crate::screens::board3::ui::{self, tok, Btn, Dsl, Face, Frame, ShellIds, Txt, W};
 use crate::screens::dialog::{self as dlg, Confirm, Dialog, Form};
+use crate::i18n::{tr, tr1, tr_with};
 
 /// The family's chrome ids: the walks address `dialog_frame`,
 /// `dialog_scroll` and `dialog_close`; the judge tour closes overlays by
@@ -280,17 +281,17 @@ fn pill_w(label: &str) -> f64 {
 /// one row, full-width pills stacked, the last (primary) first.
 fn actions(b: &mut B<'_>, items: &[(&str, &str, String, Btn)], avail: f64) {
     let need: f64 =
-        items.iter().map(|(_, l, _, _)| pill_w(l)).sum::<f64>() + 8.0 * items.len().saturating_sub(1) as f64;
+        items.iter().map(|(_, l, _, _)| pill_w(tr(l))).sum::<f64>() + 8.0 * items.len().saturating_sub(1) as f64;
     let row = b.d.anon();
     if need <= avail {
         b.d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} spacing: 8");
         for (base, label, ev, kind) in items {
-            b.pill(base, label, ev, *kind, W::Fit);
+            b.pill(base, tr(label), ev, *kind, W::Fit);
         }
     } else {
         b.d.view(&row, "width: Fill height: Fit flow: Down spacing: 8");
         for (base, label, ev, kind) in items.iter().rev() {
-            b.pill(base, label, ev, *kind, W::Fill);
+            b.pill(base, tr(label), ev, *kind, W::Fill);
         }
     }
     b.close();
@@ -320,7 +321,7 @@ fn open(b: &mut B<'_>, title_local: &str, title: &str, scope: &str, notice: Opti
     let row = b.d.anon();
     b.d.view(&row, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
     let room = b.width - 2.0 * b.pad - 36.0;
-    b.text(title_local, &ui::fit_w(title, room, 17.0, Face::Semibold), &ui::title().w(W::Fill));
+    b.text(title_local, &ui::fit_w(tr(title), room, 17.0, Face::Semibold), &ui::title().w(W::Fill));
     ui::close_glyph_id(b.d, IDS.close, dlg::ACTION_CLOSE);
     b.close();
     // The header's height as the body's cap sees it (the row, the scope
@@ -332,7 +333,7 @@ fn open(b: &mut B<'_>, title_local: &str, title: &str, scope: &str, notice: Opti
         chrome += 15.0;
     }
     if let Some((text, alert)) = notice {
-        let text = dlg::display_error(text);
+        let text = tr(&dlg::display_error(text)).to_owned();
         b.gap(6.0);
         let ink = if *alert { tok::RED_TEXT } else { tok::MUTED };
         b.text("dialog_notice", &text, &Txt::new(12.5, Face::Regular, ink).w(W::Fill).wrap());
@@ -455,10 +456,10 @@ fn models(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
                 let pr = b.d.anon();
                 b.d.view(&pr, "width: Fill height: Fit flow: Right spacing: 8");
                 if test {
-                    b.pill("btn_test", "Test route", "models.test_route", Btn::Outline, W::Fill);
+                    b.pill("btn_test", tr("Test route"), "models.test_route", Btn::Outline, W::Fill);
                 }
                 if discover {
-                    b.pill("btn_discover", "Discover models", "models.discover", Btn::Outline, W::Fill);
+                    b.pill("btn_discover", tr("Discover models"), "models.discover", Btn::Outline, W::Fill);
                 }
                 b.close();
             }
@@ -523,7 +524,7 @@ fn context(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         }
         let r = b.d.anon();
         b.d.view(&r, "width: Fill height: 34 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-        b.text(lid, label, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
+        b.text(lid, tr(label), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
         b.text(vid, value, &Txt::new(12.5, Face::Medium, tok::TEXT));
         b.close();
     }
@@ -533,19 +534,22 @@ fn context(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     let detail = life.as_ref().and_then(|l| l.detail.clone()).unwrap_or(Value::Null);
     let kind = life.as_ref().map(|l| l.kind.trim_start_matches("context/").to_owned());
     let line = match kind.as_deref() {
-        Some("compaction_started") => Some(format!(
-            "Compacting context · {}",
-            detail.get("trigger").and_then(|t| t.as_str()).unwrap_or("manual")
+        Some("compaction_started") => Some(tr1(
+            "Compacting context · {value0}",
+            detail.get("trigger").and_then(|t| t.as_str()).unwrap_or("manual"),
         )),
         _ if detail.get("token_estimate_before").is_some() || detail.get("compaction").is_some() => {
             let c = detail.get("compaction").cloned().unwrap_or(detail.clone());
             let before = c.get("token_estimate_before").and_then(|v| v.as_u64());
             let after = c.get("token_estimate_after").and_then(|v| v.as_u64());
             let status = c.get("status").and_then(|v| v.as_str()).unwrap_or("completed");
-            Some(format!(
-                "Last compaction: {status} · {} → {} tokens",
-                before.map(fmt_count).unwrap_or_else(|| "—".into()),
-                after.map(fmt_count).unwrap_or_else(|| "not reported".into()),
+            Some(tr_with(
+                "Last compaction: {value0} · {value1} → {value2} tokens",
+                &[
+                    ("value0", status),
+                    ("value1", &before.map(fmt_count).unwrap_or_else(|| "—".into())),
+                    ("value2", &after.map(fmt_count).unwrap_or_else(|| tr("not reported").into())),
+                ],
             ))
         }
         _ => None,
@@ -564,7 +568,7 @@ fn context(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         if can_mode {
             let mr = b.d.anon();
             b.d.view(&mr, "width: Fit height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-            b.text("t_comp", "Compaction:", &Txt::new(12.5, Face::Regular, tok::MUTED));
+            b.text("t_comp", tr("Compaction:"), &Txt::new(12.5, Face::Regular, tok::MUTED));
             let mode = crate::screens::models::compact_mode(&session);
             segmented(
                 b,
@@ -575,7 +579,7 @@ fn context(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
                         "seg_heur",
                         "t_heur",
                         "seg_heur_hit",
-                        "Heuristic",
+                        tr("Heuristic"),
                         "context.mode.heuristic".into(),
                         mode.as_deref() == Some("heuristic"),
                     ),
@@ -590,7 +594,7 @@ fn context(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         if can_compact {
             b.pill(
                 "btn_compact",
-                "Compact now",
+                tr("Compact now"),
                 &format!("{}context.compact_now", dlg::ACTION_ASK),
                 Btn::Outline,
                 W::Fit,
@@ -948,7 +952,7 @@ pub fn goal_badge(status: &str) -> (String, (&'static str, &'static str)) {
         // `describeGoalStatus` returns an unknown status verbatim.
         other => (other, (tok::MUTED, tok::CHIP)),
     };
-    (word.to_owned(), ink)
+    (tr(word).to_owned(), ink)
 }
 
 /// autonomy-03: no goal → the web's "No active goal for this session."
@@ -959,11 +963,11 @@ pub fn goal_badge(status: &str) -> (String, (&'static str, &'static str)) {
 fn goal(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(String, bool)>) {
     open(b, "t_title", "Goal", &scope_line(b.dlg, ctx), notice);
     let Some(g) = st.goal.as_ref() else {
-        b.text("t_goal", "No active goal for this session.", &para(tok::MUTED));
+        b.text("t_goal", tr("No active goal for this session."), &para(tok::MUTED));
         b.gap(14.0);
         let r = b.d.anon();
         b.d.view(&r, "width: Fill height: Fit flow: Right");
-        b.pill("pause_btn", "Set goal", &format!("{}goal.set", dlg::ACTION_FORM), Btn::Primary, W::Fit);
+        b.pill("pause_btn", tr("Set goal"), &format!("{}goal.set", dlg::ACTION_FORM), Btn::Primary, W::Fit);
         b.close();
         finish(b);
         return;
@@ -980,14 +984,14 @@ fn goal(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(Strin
     let used = g["tokens_used"].as_u64().unwrap_or(0);
     let budget = g["token_budget"].as_u64().unwrap_or(0);
     let budget_text = if budget == 0 {
-        "server default".to_owned()
+        tr("server default").to_owned()
     } else {
         format!("{} / {}", au::format_tokens(used), au::format_tokens(budget))
     };
     fn fact(b: &mut B<'_>, l: &str, v: &str, label: &str, value: &str) {
         let r = b.d.anon();
         b.d.view(&r, "width: Fill height: 24 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-        b.text(l, label, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
+        b.text(l, tr(label), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
         b.text(v, value, &Txt::new(12.5, Face::Medium, tok::TEXT));
         b.close();
     }
@@ -1003,11 +1007,11 @@ fn goal(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(Strin
     b.d.view(&ar, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
     if can_transition {
         let (label, ev) = if status == "active" { ("Pause", "goal.pause") } else { ("Resume", "goal.resume") };
-        b.pill("pause_btn", label, ev, Btn::Outline, W::Fit);
-        b.pill("stop_btn", "Stop", "goal.stop", Btn::Outline, W::Fit);
+        b.pill("pause_btn", tr(label), ev, Btn::Outline, W::Fit);
+        b.pill("stop_btn", tr("Stop"), "goal.stop", Btn::Outline, W::Fit);
     }
     b.d.gap(W::Fill, 1.0);
-    b.link("clear_goal", "Clear goal", Some("goal.clear"), tok::RED_TEXT);
+    b.link("clear_goal", tr("Clear goal"), Some("goal.clear"), tok::RED_TEXT);
     b.close();
     b.close();
     finish(b);
@@ -1022,7 +1026,7 @@ fn goal(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(Strin
 fn loops(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(String, bool)>) {
     open(b, "t_title", "Loops", &scope_line(b.dlg, ctx), notice);
     if st.loops.is_empty() {
-        b.text("loops_empty", "No loops in this session.", &para(tok::MUTED));
+        b.text("loops_empty", tr("No loops in this session."), &para(tok::MUTED));
     } else {
         b.list_card("loops_card");
         let text_w = b.card_w() - (16.0 + 3.0 * (ROW_HIT + ROW_GAP)) - 8.0;
@@ -1063,7 +1067,7 @@ fn loops(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(Stri
         b.close();
     }
     b.gap(8.0);
-    b.link("new_loop", "+ New loop", Some(&format!("{}loop.create", dlg::ACTION_FORM)), tok::BLUE_TEXT);
+    b.link("new_loop", tr("+ New loop"), Some(&format!("{}loop.create", dlg::ACTION_FORM)), tok::BLUE_TEXT);
     finish(b);
 }
 
@@ -1075,7 +1079,7 @@ fn loops(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(Stri
 fn monitors(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(String, bool)>) {
     open(b, "t_title", "Monitors", &scope_line(b.dlg, ctx), notice);
     if st.monitors.is_empty() {
-        b.text("monitors_footer_label", "No monitors in this session.", &para(tok::MUTED));
+        b.text("monitors_footer_label", tr("No monitors in this session."), &para(tok::MUTED));
     } else {
         b.list_card("monitors_card");
         let text_w = b.card_w() - 2.0 * (ROW_HIT + ROW_GAP) - 8.0;
@@ -1126,13 +1130,16 @@ fn monitors(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(S
         b.gap(8.0);
         b.text(
             "monitors_footer_label",
-            &format!("{total} {} · {active} active", if total == 1 { "monitor" } else { "monitors" }),
+            &tr_with(
+                if total == 1 { "{value0} monitor · {value1} active" } else { "{value0} monitors · {value1} active" },
+                &[("value0", &total.to_string()), ("value1", &active.to_string())],
+            ),
             &ui::meta().w(W::Fill),
         );
     }
     if au::gated(ctx.store, "monitors", "monitor/create") {
         b.gap(8.0);
-        b.link("new_monitor", "+ New monitor", Some(&format!("{}monitor.create", dlg::ACTION_FORM)), tok::BLUE_TEXT);
+        b.link("new_monitor", tr("+ New monitor"), Some(&format!("{}monitor.create", dlg::ACTION_FORM)), tok::BLUE_TEXT);
     }
     finish(b);
 }
@@ -1163,7 +1170,7 @@ fn fleet(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     if rows.is_empty() {
         // #32c item 11: with no peer the goal heading goes too (an empty
         // slice heads nothing).
-        empty_box(b, "fleet_empty", f::FLEET_EMPTY);
+        empty_box(b, "fleet_empty", tr(f::FLEET_EMPTY));
     } else {
         // The session goal heads its peers (the Fleet pane's group heading).
         if let Some(goal) = f::query_binding(ctx, "fleet.goal").and_then(|v| v.as_str().map(str::to_owned)) {
@@ -1172,7 +1179,7 @@ fn fleet(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
             b.gap(8.0);
         }
         b.list_card("fleet_card");
-        let steer_w = ui::text_w("Steer", 13.0, Face::Regular) + 4.0;
+        let steer_w = ui::text_w(tr("Steer"), 13.0, Face::Regular) + 4.0;
         for (i, p) in rows.iter().enumerate() {
             if i > 0 {
                 b.d.hairline();
@@ -1190,7 +1197,7 @@ fn fleet(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
             b.chip(&format!("{id}_status"), &word, peer_ink(p.status));
             let (label, tap) = (b.id(&format!("{id}_steer")), b.id(&format!("{id}_steer_hit")));
             let ev = format!("peer.steer#{i}");
-            b.d.link_ids(&format!("{label}_box"), &label, &tap, "Steer", Some(&ev), 13.0, tok::BLUE_TEXT);
+            b.d.link_ids(&format!("{label}_box"), &label, &tap, tr("Steer"), Some(&ev), 13.0, tok::BLUE_TEXT);
             b.close();
         }
         b.close();
@@ -1243,7 +1250,7 @@ fn tasks(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     let runs = f::running_tasks(ctx.store);
     let dones = f::settled_tasks(ctx.store);
     if runs.is_empty() && dones.is_empty() {
-        b.text("tasks_empty", f::TASKS_EMPTY, &para(tok::MUTED));
+        b.text("tasks_empty", tr(f::TASKS_EMPTY), &para(tok::MUTED));
         finish(b);
         return;
     }
@@ -1275,7 +1282,7 @@ fn tasks(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         let line_w = b.card_w() - 24.0 - 10.0;
         match lines.iter().rposition(|l| !l.trim().is_empty()) {
             // No output yet: the waiting line alone — no caret under it.
-            None => b.text(&format!("{id}_log0"), "Waiting for output\u{2026}", &Txt::new(12.0, Face::Regular, tok::MUTED)),
+            None => b.text(&format!("{id}_log0"), tr("Waiting for output\u{2026}"), &Txt::new(12.0, Face::Regular, tok::MUTED)),
             Some(last) => {
                 for (k, l) in lines.iter().enumerate().take(last + 1) {
                     let text = ui::fit_w(if l.is_empty() { " " } else { l }, line_w, 12.0, Face::Mono);
@@ -1296,7 +1303,7 @@ fn tasks(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         b.close();
         let ar = b.d.anon();
         b.d.view(&ar, "width: Fill height: Fit flow: Right");
-        b.pill(&format!("{id}_cancel"), "Cancel", &format!("task.cancel#{i}"), Btn::Outline, W::Fit);
+        b.pill(&format!("{id}_cancel"), tr("Cancel"), &format!("task.cancel#{i}"), Btn::Outline, W::Fit);
         b.close();
         b.close();
     }
@@ -1338,9 +1345,9 @@ fn review(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         rv::blocked_reason(ctx.store, &ui)
     };
     let head = match (status, blocked) {
-        (Some(s), _) => s,
-        (None, Some(r)) => r.to_owned(),
-        (None, None) => "Ready to review the current project changes.".to_owned(),
+        (Some(s), _) => tr(&s).to_owned(),
+        (None, Some(r)) => tr(r).to_owned(),
+        (None, None) => tr("Ready to review the current project changes.").to_owned(),
     };
     let card = b.id("run_status_card");
     b.d.surface(
@@ -1356,18 +1363,18 @@ fn review(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     b.close();
     if !running {
         b.gap(14.0);
-        b.text("review_not_preview", dlg::REVIEW_NOT_A_PREVIEW, &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill).wrap());
+        b.text("review_not_preview", tr(dlg::REVIEW_NOT_A_PREVIEW), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill).wrap());
         b.gap(8.0);
-        b.text("review_results", dlg::REVIEW_RESULTS_HERE, &para(tok::MUTED));
+        b.text("review_results", tr(dlg::REVIEW_RESULTS_HERE), &para(tok::MUTED));
         b.gap(14.0);
         let lid = b.id("prompt_label");
-        ui::field_label(b.d, &lid, "Review instructions (optional)");
+        ui::field_label(b.d, &lid, tr("Review instructions (optional)"));
         b.gap(6.0);
         b.d.input_multiline(
             dlg::REVIEW_PROMPT_INPUT,
             dlg::REVIEW_PROMPT_INPUT,
             "",
-            "Leave empty to review the current project changes.",
+            tr("Leave empty to review the current project changes."),
             96.0,
         );
     }
@@ -1388,7 +1395,7 @@ fn confirm_card(b: &mut B<'_>, ctx: &Ctx<'_>, c: &Confirm) {
         b.text("cf_detail", &c.detail, &Txt::new(13.5, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
         b.gap(6.0);
     }
-    b.text("cf_body", &c.body, &para(tok::MUTED));
+    b.text("cf_body", tr(&c.body), &para(tok::MUTED));
     b.gap(18.0);
     let avail = b.inner;
     actions(
@@ -1416,7 +1423,7 @@ fn form_card(b: &mut B<'_>, ctx: &Ctx<'_>, f: &Form) {
                     format!("fm_seg_{m}"),
                     format!("fm_seg_{m}_label"),
                     format!("fm_seg_{m}_control"),
-                    *label,
+                    tr(label),
                     format!("{}{m}", dlg::ACTION_FORM_MODE),
                     *m == mode,
                 )
@@ -1432,22 +1439,22 @@ fn form_card(b: &mut B<'_>, ctx: &Ctx<'_>, f: &Form) {
     for (k, (id, placeholder, value)) in f.fields.iter().enumerate() {
         if let Some(label) = f.labels.get(k).filter(|l| !l.is_empty()) {
             let lid = b.id(&format!("{id}_label"));
-            ui::field_label(b.d, &lid, label);
+            ui::field_label(b.d, &lid, tr(label));
             b.gap(6.0);
         }
-        b.input(id, value, placeholder);
+        b.input(id, value, tr(placeholder));
         b.gap(10.0);
     }
     if !f.help.is_empty() {
-        b.text("cf_body", &f.help, &para(tok::MUTED));
+        b.text("cf_body", tr(&f.help), &para(tok::MUTED));
     }
     if !f.note.is_empty() {
         b.gap(6.0);
-        b.text("ff_note", &f.note, &Txt::new(12.0, Face::Regular, tok::FAINT).w(W::Fill).wrap());
+        b.text("ff_note", tr(&f.note), &Txt::new(12.0, Face::Regular, tok::FAINT).w(W::Fill).wrap());
     }
     if let Some(err) = &f.error {
         b.gap(8.0);
-        b.text("ff_error", err, &para(tok::RED_TEXT));
+        b.text("ff_error", tr(err), &para(tok::RED_TEXT));
     }
     b.gap(16.0);
     let avail = b.inner;

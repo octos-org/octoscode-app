@@ -443,7 +443,13 @@ pub fn set_confirm(c: Option<Confirm>) {
 /// the row the action names (`None`: the action does not ask, or its row is
 /// gone). The Profile is the connection's (`profile.current()`).
 pub fn confirmation_for(action: &str, store: &octoscode_store::Store) -> Option<Confirm> {
-    let profile = store.domains.profile.current().unwrap_or_else(|| "this Profile".to_owned());
+    let profile = store.domains.profile.current().unwrap_or_else(|| crate::i18n::tr("this Profile").to_owned());
+    // The web composes the Profile line word by word (SkillsDialog.tsx:318-330):
+    // t("Applies to Profile") + profile + t("and rebuilds its server skill runtime.") + …
+    let applies = |tail: &str| {
+        use crate::i18n::tr;
+        format!("{} {profile} {} {}", tr("Applies to Profile"), tr("and rebuilds its server skill runtime."), tr(tail))
+    };
     if action == "context.compact_now" {
         return Some(Confirm {
             dialog: Dialog::Context,
@@ -463,10 +469,7 @@ pub fn confirmation_for(action: &str, store: &octoscode_store::Store) -> Option<
             action: action.to_owned(),
             title: "Confirm removal".to_owned(),
             detail: name,
-            body: format!(
-                "Applies to Profile {profile} and rebuilds its server skill runtime. \
-                 Reinstall from the original source to recover the removed skill."
-            ),
+            body: applies("Reinstall from the original source to recover the removed skill."),
             confirm_label: "Confirm remove".to_owned(),
         });
     }
@@ -477,11 +480,11 @@ pub fn confirmation_for(action: &str, store: &octoscode_store::Store) -> Option<
         dialog: Dialog::Skills,
         action: action.to_owned(),
         title: "Confirm server installation".to_owned(),
-        detail: format!("{repo} · branch {}", if branch.is_empty() { "main" } else { branch }),
-        body: format!(
-            "Applies to Profile {profile} and rebuilds its server skill runtime. \
-             Existing skills are not forcibly overwritten."
+        detail: crate::i18n::tr_with(
+            "{value0} · branch {value1}",
+            &[("value0", repo), ("value1", if branch.is_empty() { "main" } else { branch })],
         ),
+        body: applies("Existing skills are not forcibly overwritten."),
         confirm_label: "Confirm install".to_owned(),
     };
     if action == "skills.install_source" {

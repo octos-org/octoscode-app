@@ -160,8 +160,8 @@ fn usage_line(estimate: Option<u64>, window: Option<u64>) -> String {
         }
     }
     match (estimate, window) {
-        (Some(e), Some(w)) if w > 0 => format!("{} of {} tokens", k(e), k(w)),
-        (Some(e), _) => format!("{} tokens", k(e)),
+        (Some(e), Some(w)) if w > 0 => crate::i18n::tr_with("{value0} of {value1} tokens", &[("value0", &k(e)), ("value1", &k(w))]),
+        (Some(e), _) => crate::i18n::tr1("{value0} tokens", &k(e)),
         _ => "—".to_owned(),
     }
 }
@@ -207,19 +207,19 @@ fn title_case(id: &str) -> String {
 /// family label next to the route; the authored head reads
 /// "DeepSeek • Official API").
 pub(crate) fn provider_head(m: &ProfileLlmModel) -> String {
-    format!("{} • {}", family_label(&m.provider), m.route.as_deref().unwrap_or("default route"))
+    format!("{} • {}", family_label(&m.provider), m.route.as_deref().unwrap_or(crate::i18n::tr("default route")))
 }
 
 pub(crate) fn provider_count(models: &[&ProfileLlmModel]) -> String {
     let n = models.len();
-    format!("{n} model{}" , if n == 1 { "" } else { "s" })
+    crate::i18n::tr1(if n == 1 { "{value0} model" } else { "{value0} models" }, &n.to_string())
 }
 
 /// A model row: `"{model} (default)"` marks the selected route — the atlas
 /// `t_flash "deepseek-v4-flash (default)"` (`ProfileLlmModel.selected`).
 pub(crate) fn model_row(m: &ProfileLlmModel) -> String {
     if m.selected {
-        format!("{} (default)", m.model)
+        format!("{} {}", m.model, crate::i18n::tr("(default)"))
     } else {
         m.model.clone()
     }

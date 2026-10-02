@@ -252,6 +252,12 @@ pub fn tr1(source: &str, value0: &str) -> String {
     tr_with(source, &[("value0", value0)])
 }
 
+/// [`tr1`] through a context entry ([`tr_ctx`]): a duration's "{value0}m"
+/// (18 分钟) is not the sidebar's "{value0}m" ago (18 分钟前).
+pub fn tr1_ctx(ctx: &str, source: &str, value0: &str) -> String {
+    interpolate(tr_ctx(ctx, source), &[("value0", value0)])
+}
+
 /// The web's `/\{([^{}]+)\}/g` replacement (ui-text.tsx:29-35).
 pub fn interpolate(text: &str, params: &[(&str, &str)]) -> String {
     if params.is_empty() {

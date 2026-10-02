@@ -69,12 +69,17 @@ const CONVERTED: &[&str] = &[
     "screens/launch.rs",
     "screens/fleet.rs",
     "screens/onboarding.rs",
+    "screens/dialog.rs",
+    "screens/autonomy.rs",
+    "screens/review.rs",
+    "screens/skill_jobs.rs",
+    "components.rs",
 ];
 
 /// The phase-2 ceiling: bypasses left in the rest of the crate (A24 phase 1
 /// measured `screens/`; phase 2 counts every file and resolves string
 /// constants too). Lower it as files are converted; it must reach 0.
-const REMAINING_CEILING: usize = 36;
+const REMAINING_CEILING: usize = 21;
 
 /// (call prefix, text-argument indices). A prefix starting with `.` or `::`
 /// matches a method / path call; otherwise the name must stand alone.
@@ -397,7 +402,7 @@ fn args_of(code: &str, open: usize) -> Vec<(usize, usize)> {
 /// translated.
 fn tr_spans(arg: &str) -> Vec<(usize, usize)> {
     let mut out = Vec::new();
-    for w in ["tr(", "tr1(", "tr_with(", "tr_in(", "tr_ctx(", "text_in(", "keep(", "t(", "t1("] {
+    for w in ["tr(", "tr1(", "tr_with(", "tr_in(", "tr_ctx(", "tr1_ctx(", "text_in(", "keep(", "t(", "t1("] {
         let mut from = 0;
         while let Some(at) = arg[from..].find(w).map(|n| n + from) {
             from = at + 1;
@@ -741,7 +746,7 @@ fn wrapped_literals_in(rel: Option<&str>, src: &str) -> Vec<(usize, String)> {
     let code = code_only(src);
     let b = code.as_bytes();
     let mut out = Vec::new();
-    for w in ["tr(", "tr1(", "tr_with(", "tr_ctx(", "t(", "t1("] {
+    for w in ["tr(", "tr1(", "tr_with(", "tr_ctx(", "tr1_ctx(", "t(", "t1("] {
         let mut from = 0;
         while let Some(at) = code[from..].find(w).map(|n| n + from) {
             from = at + 1;
@@ -752,7 +757,7 @@ fn wrapped_literals_in(rel: Option<&str>, src: &str) -> Vec<(usize, String)> {
                 continue;
             }
             let args = args_of(&code, at + w.len() - 1);
-            let (ctx, source) = if w == "tr_ctx(" {
+            let (ctx, source) = if w == "tr_ctx(" || w == "tr1_ctx(" {
                 let ctx = args.first().and_then(|&(a, z)| {
                     let t = code[a..z].trim();
                     (t.starts_with('"') && t.ends_with('"')).then(|| unescape(&t[1..t.len() - 1]))

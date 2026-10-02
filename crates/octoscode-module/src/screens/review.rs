@@ -444,10 +444,11 @@ pub fn query(_ctx: &Ctx<'_>, id: &str) -> Option<Value> {
                     // "Reviewing {files} files · {agents} specialists": the
                     // file count is the folded preview's, the specialist count
                     // the accepted review/start receipt's (agent_count).
-                    Some(a) if !st.files.is_empty() => {
-                        Some(format!("Reviewing {} files · {a} specialists", st.files.len()))
-                    }
-                    Some(a) => Some(format!("Reviewing · {a} specialists")),
+                    Some(a) if !st.files.is_empty() => Some(crate::i18n::tr_with(
+                        "Reviewing {value0} files · {value1} specialists",
+                        &[("value0", &st.files.len().to_string()), ("value1", &a.to_string())],
+                    )),
+                    Some(a) => Some(crate::i18n::tr1("Reviewing · {value0} specialists", &a.to_string())),
                     None => None,
                 }?
             }
