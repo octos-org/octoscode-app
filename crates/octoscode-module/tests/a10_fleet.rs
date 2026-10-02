@@ -701,3 +701,70 @@ async fn a_staged_peer_opens_in_the_background_and_closes_for_good() {
     tokio::time::sleep(Duration::from_millis(200)).await;
     assert_eq!(opens(&server), 1, "the replayed stage never re-opens a closed peer");
 }
+
+/// A30 follow-up (the dock's wrong-target class, row 250's too): a Fleet row
+/// tap drawn for approval A never answers approval B. The fixture's peer
+/// waits on A; the server re-issues it as B (A cancelled, B requested on the
+/// SAME turn) — between the tap and the send, and again before a tap on the
+/// stale row. Zero frames both times, the row says why; a fresh draw
+/// answers the current approval exactly once.
+#[tokio::test]
+async fn a_fleet_row_tap_drawn_for_approval_a_never_answers_approval_b() {
+    const A: &str = "01a0eb92-9444-7101-aa6f-10065886f57e";
+    const B: &str = "01a0eb92-9444-7101-aa6f-0000000000b2";
+    const C: &str = "01a0eb92-9444-7101-aa6f-0000000000c3";
+    let _s = serial();
+    fresh();
+    let server = Server::start().await;
+    let conv = connect(&server).await;
+    open_fleet(&conv).await;
+    host::input_changed("fleet.brief", "Review the reconnect diff");
+    host::perform("b3.fleet.lane", 0, &conv.store);
+    let job = spawn_of(host::perform("b3.fleet.start", 0, &conv.store));
+    host::run(job, &conv).await.expect("start");
+    let pending = |id: &str| conv.store.domains.peer.row(PEER).is_some_and(|r| r.request_id.as_deref() == Some(id));
+    assert!(wait_until(|| pending(A)).await, "the peer waits on A");
+    let reissue = |old: &str, new: &str, command: &str| {
+        let mut req = body("approval/requested");
+        req["approval_id"] = json!(new);
+        req["typed_details"] = json!({"kind": "command", "command": {"command_line": command}});
+        vec![
+            ("approval/cancelled".to_owned(), json!({"session_id": PEER, "approval_id": old, "turn_id": ADOPTED_TURN, "reason": "superseded"})),
+            ("approval/requested".to_owned(), req),
+        ]
+    };
+    let note = || host::state().fleet.row_note.get(PEER).cloned().unwrap_or_default();
+    // (a) The tap is current (drawn for A); B replaces A before the send.
+    host::lower_open(&conv.store).expect("lowers");
+    let idx = host::state().fleet.drawn.iter().position(|r| r.key == PEER).expect("drawn");
+    let job = spawn_of(host::perform("b3.fleet.approve", idx, &conv.store));
+    server.knobs.lock().unwrap().kick = reissue(A, B, "git push --force origin main");
+    conv.client().request("test/kick", json!({})).await.expect("kick");
+    assert!(wait_until(|| pending(B)).await);
+    let _ = host::run(job, &conv).await;
+    assert!(
+        server.sent("peer/control").is_empty(),
+        "a tap drawn for A never answers B: {:?}",
+        server.sent("peer/control")
+    );
+    assert_eq!(note(), "This peer changed. Review it and tap again.", "the row says why");
+    // (b) A stale draw: the pane still shows B when C replaces it.
+    host::lower_open(&conv.store).expect("lowers");
+    let idx = host::state().fleet.drawn.iter().position(|r| r.key == PEER).expect("drawn");
+    server.knobs.lock().unwrap().kick = reissue(B, C, "rm -rf ~/.cache");
+    conv.client().request("test/kick", json!({})).await.expect("kick");
+    assert!(wait_until(|| pending(C)).await);
+    if let Outcome::Spawn(job) = host::perform("b3.fleet.deny", idx, &conv.store) {
+        let _ = host::run(job, &conv).await;
+    }
+    assert!(server.sent("peer/control").is_empty(), "a stale tap sends nothing");
+    assert_eq!(note(), "This peer changed. Review it and tap again.");
+    // (c) A fresh draw answers the current approval exactly once.
+    host::lower_open(&conv.store).expect("lowers");
+    let idx = host::state().fleet.drawn.iter().position(|r| r.key == PEER).expect("drawn");
+    let job = spawn_of(host::perform("b3.fleet.approve", idx, &conv.store));
+    host::run(job, &conv).await.expect("approve C");
+    let c = server.sent("peer/control");
+    assert_eq!(c.len(), 1, "exactly ONE frame");
+    assert_eq!(c[0]["command"]["approval_id"], json!(C), "the approval the row shows now");
+}

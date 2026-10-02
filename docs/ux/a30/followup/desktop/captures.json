@@ -1,0 +1,38 @@
+[
+ {
+  "name": "desktop-02-expanded",
+  "state": "expanded: working / waiting + card / finished",
+  "png": "docs/ux/a30/followup/desktop/desktop-02-expanded.png",
+  "sidebar": "docs/ux/a30/followup/desktop/desktop-02-expanded-sidebar.png"
+ },
+ {
+  "name": "desktop-02b-dark-expanded",
+  "state": "dark look: working / waiting + card / finished",
+  "png": "docs/ux/a30/followup/desktop/desktop-02b-dark-expanded.png",
+  "sidebar": "docs/ux/a30/followup/desktop/desktop-02b-dark-expanded-sidebar.png"
+ },
+ {
+  "name": "desktop-03-collapsed",
+  "state": "collapsed pill",
+  "png": "docs/ux/a30/followup/desktop/desktop-03-collapsed.png",
+  "sidebar": "docs/ux/a30/followup/desktop/desktop-03-collapsed-sidebar.png"
+ },
+ {
+  "name": "desktop-04-zh-expanded",
+  "state": "zh expanded",
+  "png": "docs/ux/a30/followup/desktop/desktop-04-zh-expanded.png",
+  "sidebar": "docs/ux/a30/followup/desktop/desktop-04-zh-expanded-sidebar.png"
+ },
+ {
+  "name": "desktop-05-zh-collapsed",
+  "state": "zh collapsed",
+  "png": "docs/ux/a30/followup/desktop/desktop-05-zh-collapsed.png",
+  "sidebar": "docs/ux/a30/followup/desktop/desktop-05-zh-collapsed-sidebar.png"
+ },
+ {
+  "name": "desktop-race-refused-on-the-card",
+  "state": "race: a decision drawn for a re-issued approval, refused on the card",
+  "png": "docs/ux/a30/followup/desktop/race/desktop-race-refused-on-the-card.png",
+  "sidebar": "docs/ux/a30/followup/desktop/race/desktop-race-refused-on-the-card-sidebar.png"
+ }
+]

@@ -192,6 +192,9 @@ pub struct FlowUi {
     tool_output: Vec<String>,
     /// The turn currently in flight, with when it started.
     active_turn: Option<(String, Instant)>,
+    /// A22 — the Session that live turn belongs to (`None` only for the test
+    /// helpers): a turn-scoped control acts on its OWN Session's turn.
+    active_turn_session: Option<String>,
     /// **Per-turn** terminal results, keyed by turn id (card #21j). A later
     /// turn's terminal can never change an earlier turn's settled row, which is
     /// the defect the gate showed: turn 1 (completed) rendered "Interrupted"
@@ -224,6 +227,10 @@ pub struct FlowUi {
     code_copied: Option<(String, usize, Instant)>,
     /// A7 — not-sent / interrupted text waiting for its composer to empty.
     parked_restores: Vec<(String, String)>,
+    /// A22 row 236 — the live turn of each Session the person LEFT, with its
+    /// start: the foreground shows the selected Session's own turn only, and
+    /// gets this one back (its time intact) when the person returns.
+    parked_live: HashMap<String, (String, Instant)>,
 }
 
 impl FlowUi {
@@ -245,6 +252,20 @@ impl FlowUi {
 
     pub fn active_turn(&self) -> Option<String> {
         self.active_turn.as_ref().map(|(id, _)| id.clone())
+    }
+
+    /// A22 — the window's live turn when it is `session`'s (a turn recorded
+    /// without a Session — the test helpers — answers for any).
+    pub fn live_turn_in(&self, session: &str) -> Option<String> {
+        self.active_turn
+            .as_ref()
+            .filter(|_| self.active_turn_session.as_deref().is_none_or(|s| s == session))
+            .map(|(id, _)| id.clone())
+    }
+
+    /// A22 — the Session of the window's live turn.
+    pub fn active_turn_session(&self) -> Option<String> {
+        self.active_turn_session.clone()
     }
 
     pub fn turn_active(&self) -> bool {
@@ -489,6 +510,41 @@ impl FlowUi {
     pub fn abandon_turn(&mut self, turn_id: &str) {
         if matches!(&self.active_turn, Some((id, _)) if id == turn_id) {
             self.active_turn = None;
+            self.active_turn_session = None;
+        }
+    }
+
+    /// A22 row 236 — the window switched from `from` to `to`: the live turn
+    /// of `from` stays with its record (parked), and the foreground's live
+    /// turn becomes `to`'s own (`to_live`, its queue's active turn), with the
+    /// start it had when the person left it. The web selects a record and
+    /// shows ITS queue (`installSelectedRecord`, `use-octos-session.ts:
+    /// 2774-2800`); one global live turn leaked a background Session's
+    /// STOP / "Working" into the Session on screen.
+    pub fn switch_live(&mut self, from: &str, to: &str, to_live: Option<String>) {
+        if from == to {
+            return;
+        }
+        if let Some(live) = self.active_turn.take() {
+            // Parked under the Session it belongs to.
+            let owner = self.active_turn_session.take().unwrap_or_else(|| from.to_owned());
+            self.parked_live.insert(owner, live);
+        }
+        let parked = self.parked_live.remove(to);
+        self.active_turn = to_live.map(|id| match parked {
+            Some((pid, started)) if pid == id => (id, started),
+            _ => (id, Instant::now()),
+        });
+        self.active_turn_session = self.active_turn.as_ref().map(|_| to.to_owned());
+    }
+
+    /// A22 row 203 — the live turn `turn_id` actually started at `at` (its
+    /// `turn/started` waited in a candidate's buffer).
+    pub fn backdate_live(&mut self, turn_id: &str, at: Instant) {
+        if let Some((id, started)) = self.active_turn.as_mut() {
+            if id == turn_id && at < *started {
+                *started = at;
+            }
         }
     }
 
@@ -711,7 +767,7 @@ pub struct Conversation {
     weak_self: Mutex<std::sync::Weak<Conversation>>,
     /// A7 — queue heads to start when no shared handle is attached yet
     /// (drained by [`Conversation::pump`]).
-    pending_starts: Mutex<Vec<octoscode_store::domains::composer::PromptTurn>>,
+    pending_starts: Mutex<Vec<(String, octoscode_store::domains::composer::PromptTurn)>>,
     /// A7 — the connection was live before the last transition (a drop
     /// suspends the transport generation; the next Live reconciles).
     was_live: Mutex<bool>,
@@ -743,7 +799,39 @@ pub struct Conversation {
     /// is persisted for them yet, so Core's "unknown session" means "no
     /// history", never a read to retry.
     fresh_ids: Mutex<std::collections::HashSet<String>>,
+    /// A22 row 203 — the Session being prepared ([`Candidate`]).
+    candidate: Mutex<Option<Candidate>>,
+    /// A22 row 203 — a candidate that failed closed on its buffer bound:
+    /// (Session, generation). That open's history read never commits it
+    /// (`candidate-session.ts:155-161`: the candidate is disposed).
+    overflowed: Mutex<Option<(String, u64)>>,
 }
+
+/// A22 row 203 — a candidate Session: its `session/open` went out and the
+/// history read that open asks for has not committed yet. The web prepares
+/// a candidate before it is shown (`candidate-session.ts:73-220`; on the
+/// pooled socket `active-session-runtime.ts:74-207`, which is the native
+/// shape: one socket, the isolation is in what reaches the product state):
+/// every notification of the candidate's own scope is BUFFERED from the open
+/// on (`:140-157` — scope-filtered, so a foreign flood cannot use its bound),
+/// the hydrate commits, and only then are the buffered events drained in
+/// order (`#emitCandidateProjection`, `:647-681`), the ones the hydrate
+/// already holds dropped as stale (`durable-session.ts:160-180`: a buffered
+/// envelope at or below the hydrate cursor). A failed open or history read
+/// fails closed: the buffer is dropped (`:93-110`, `:215-219`); more than
+/// [`CANDIDATE_LIMIT`] events fail it too.
+#[derive(Debug)]
+struct Candidate {
+    session: String,
+    /// The authority generation (`open_seq`) of the open that began it.
+    generation: u64,
+    /// The buffered events, with when each arrived.
+    staged: Vec<(TransportEvent, Instant)>,
+    started: Instant,
+}
+
+/// `CANDIDATE_NOTIFICATION_LIMIT` (`candidate-session.ts:11`).
+pub const CANDIDATE_LIMIT: usize = 4_096;
 
 /// A19b — what the conversation shows for a Session before its history is
 /// on screen ([`Conversation::history`]).
@@ -774,6 +862,45 @@ pub const HISTORY_WAIT: std::time::Duration = std::time::Duration::from_secs(20)
 
 /// Core's `UNKNOWN_SESSION` (octos-core `ui_protocol.rs:802-811`).
 const UNKNOWN_SESSION_CODE: i64 = -32100;
+
+/// A22 row 203 — the Session a notification belongs to for candidate
+/// staging (the web's scope filter, `scope.ts:7-52`: the Session's id, no
+/// topic — a topic frame belongs to that topic's record).
+fn candidate_scope(payload: &UiNotification) -> Option<String> {
+    let scoped = match payload {
+        UiNotification::EnvelopeV2(frame) => frame.topic.as_deref().is_none_or(|t| t.trim().is_empty())
+            .then(|| frame.session_id.0.clone()),
+        UiNotification::ReplayLossy(e) => Some(e.session_id.0.clone()),
+        other => crate::screens::peers::notification_session(other),
+    };
+    scoped.filter(|s| !s.is_empty())
+}
+
+/// A22 — the live turn of `session`, from per-Session state only: the
+/// window's live turn when it is this Session's, else this Session's turn
+/// controller's active turn (dispatched or adopted) with no terminal, else a
+/// turn the server started in this Session that has not ended. A turn of
+/// another Session is never the answer (the web's interrupt acts on the
+/// SELECTED record's own queue, `use-turn-controller.ts:860-930`).
+pub fn live_turn_in(store: &Store, ui: &FlowUi, session: &str) -> Option<String> {
+    let unsettled = |t: &String| store.domains.turn.terminal(t).is_none();
+    ui.live_turn_in(session)
+        .filter(unsettled)
+        .or_else(|| store.domains.composer.snapshot(session).active.map(|t| t.turn_id).filter(unsettled))
+        .or_else(|| store.domains.turn.in_flight_owned_by(session))
+}
+
+/// A22 — the check every turn-scoped request passes before it is sent:
+/// `turn` is a live turn OF `session` (by any of [`live_turn_in`]'s sources,
+/// each per Session). On a mismatch nothing is sent.
+pub fn is_live_turn(store: &Store, ui: &FlowUi, session: &str, turn: &str) -> bool {
+    if turn.is_empty() || store.domains.turn.terminal(turn).is_some() {
+        return false;
+    }
+    ui.live_turn_in(session).as_deref() == Some(turn)
+        || store.domains.composer.snapshot(session).active.is_some_and(|t| t.turn_id == turn)
+        || (store.domains.turn.is_in_flight(turn) && store.domains.turn.owner(turn).as_deref() == Some(session))
+}
 
 /// A4 — the HTTP origin for the media endpoints (`media.ts:14-35`): `ws` ->
 /// `http`, `wss` -> `https`, no query, and a socket path
@@ -962,9 +1089,202 @@ impl Conversation {
                 open_watch: Mutex::new(None),
                 history: Mutex::new(HashMap::new()),
                 fresh_ids: Mutex::new(std::collections::HashSet::new()),
+                candidate: Mutex::new(None),
+                overflowed: Mutex::new(None),
             },
             evt_rx,
         ))
+    }
+
+    // ------------------------------------------------ A22 row 203: candidates
+
+    /// Begin preparing `session` (its open is about to go out under the
+    /// current generation). A newer open replaces an older candidate (the
+    /// web aborts it, `use-octos-session.ts:3099-3101`) — its buffer is
+    /// dropped — except a re-open of the SAME Session (the history retry,
+    /// a reconnect), which keeps the events buffered so far: none is lost.
+    fn begin_candidate(&self, session: &str) {
+        let generation = self.generation();
+        let mut c = self.candidate.lock().unwrap();
+        let staged = match c.take() {
+            Some(old) if old.session == session => old.staged,
+            Some(old) => {
+                if !old.staged.is_empty() {
+                    makepad_widgets::log!(
+                        "[octoscode] candidate {}: replaced by {session} — {} buffered events dropped",
+                        old.session,
+                        old.staged.len()
+                    );
+                }
+                Vec::new()
+            }
+            None => Vec::new(),
+        };
+        *c = Some(Candidate { session: session.to_owned(), generation, staged, started: Instant::now() });
+    }
+
+    /// The Session currently being prepared, if any (test seam + logs).
+    pub fn candidate_session(&self) -> Option<String> {
+        self.candidate.lock().unwrap().as_ref().map(|c| c.session.clone())
+    }
+
+    /// Buffer `evt` when it is one of the candidate's own events (the web's
+    /// scope filter, `scope.ts:7-52`: the Session's id, no topic — a topic
+    /// frame belongs to that topic's record). Returns whether it was
+    /// buffered. A candidate whose history read outlived [`HISTORY_WAIT`]
+    /// (the window already says so) or whose buffer overflowed fails closed.
+    fn stage_for_candidate(&self, evt: &TransportEvent, payload: &UiNotification) -> bool {
+        let Some(session) = candidate_scope(payload) else { return false };
+        let failed = {
+            let mut c = self.candidate.lock().unwrap();
+            let Some(cand) = c.as_mut().filter(|c| c.session == session) else { return false };
+            if cand.started.elapsed() > HISTORY_WAIT {
+                // The history read never answered: the window says so and
+                // stays on the Session — what waited applies now, in order.
+                makepad_widgets::log!(
+                    "[octoscode] candidate {session}: its history never committed — releasing {} buffered events",
+                    cand.staged.len()
+                );
+                drop(c);
+                self.release_candidate(&session, None);
+                return false;
+            }
+            if cand.staged.len() >= CANDIDATE_LIMIT {
+                *self.overflowed.lock().unwrap() = Some((session.clone(), cand.generation));
+                *c = None;
+                true
+            } else {
+                // The transport's event is not `Clone`; its notification is.
+                let copy = match evt {
+                    TransportEvent::DurableNotification { cursor, .. } => {
+                        TransportEvent::DurableNotification { payload: payload.clone(), cursor: cursor.clone() }
+                    }
+                    _ => TransportEvent::EphemeralNotification { payload: payload.clone() },
+                };
+                cand.staged.push((copy, Instant::now()));
+                false
+            }
+        };
+        if failed {
+            // `candidate-session.ts:155-161`: fail closed, said.
+            self.history_failed(&session, "The candidate session emitted too many events while opening.".to_owned());
+        }
+        true
+    }
+
+    /// A22 row 203 — a candidate that failed closed STAYS closed until its
+    /// Session is opened again (every open moves the generation): the web
+    /// disposes it and no record takes its events (`candidate-session.ts:
+    /// 155-161`); natively the window shows the failure, and live events
+    /// drawn under it would be a partial transcript with no history.
+    fn closed_candidate(&self, payload: &UiNotification) -> bool {
+        let Some(session) = candidate_scope(payload) else { return false };
+        let generation = self.generation();
+        self.overflowed.lock().unwrap().as_ref().is_some_and(|(s, g)| *s == session && *g == generation)
+    }
+
+    /// The candidate's history committed: drain its buffer in wire order
+    /// through the ordinary dispatch, dropping what the hydrate already
+    /// holds (`durable-session.ts:160-180`: same stream, cursor at or below
+    /// the hydrate's). The per-thread window seeded by the hydrate's
+    /// `projection_thread_sequences` drops any other replayed duplicate.
+    fn release_candidate(&self, session: &str, covered: Option<(&str, u64)>) {
+        let staged = {
+            let mut c = self.candidate.lock().unwrap();
+            match c.as_ref() {
+                Some(cand) if cand.session == session => c.take().map(|c| c.staged).unwrap_or_default(),
+                _ => return,
+            }
+        };
+        let total = staged.len();
+        let mut stale = 0usize;
+        for (evt, arrived) in staged {
+            let cursor = match &evt {
+                TransportEvent::DurableNotification { payload: UiNotification::EnvelopeV2(f), cursor } => {
+                    cursor.as_ref().or(f.envelope.cursor.as_ref()).map(|c| (c.stream.clone(), c.seq))
+                }
+                _ => None,
+            };
+            if let (Some((stream, seq)), Some((hs, hseq))) = (cursor, covered) {
+                if stream == hs && seq <= hseq {
+                    stale += 1;
+                    continue;
+                }
+            }
+            let out = self.dispatch(&evt);
+            // A turn that started while it waited started THEN, not at its
+            // release (its "Worked for" counts from its arrival).
+            if let FlowEvent::TurnStarted(turn) = &out {
+                self.ui.lock().unwrap().backdate_live(turn, arrived);
+            }
+            self.trace.record(self.started, Direction::In, trace_method(&evt), None, Some(format!("released {out:?}")));
+        }
+        if total > 0 {
+            makepad_widgets::log!(
+                "[octoscode] candidate {session}: history committed — released {} buffered events ({stale} already in the history)",
+                total - stale
+            );
+        }
+    }
+
+    /// A22 row 236 — `session`'s open committed (its history settled): a
+    /// record of this connection, which keeps running in the background
+    /// once another Session is selected.
+    fn commit_record(&self, session: &str) {
+        self.store.domains.session.note_record(session);
+    }
+
+    /// A22 row 236 — the turn of `session` that is still running: its queue's
+    /// active turn with no terminal yet, else a turn the server started in it.
+    fn foreground_turn_of(&self, session: &str) -> Option<String> {
+        self.store
+            .domains
+            .composer
+            .snapshot(session)
+            .active
+            .map(|t| t.turn_id)
+            .filter(|t| self.store.domains.turn.terminal(t).is_none())
+            .or_else(|| self.store.domains.turn.in_flight_owned_by(session))
+    }
+
+    /// A22 — the live turn of `session` ([`live_turn_in`]).
+    pub fn live_turn_of(&self, session: &str) -> Option<String> {
+        live_turn_in(&self.store, &self.ui.lock().unwrap(), session)
+    }
+
+    /// A22 — whether `turn` is a live turn of `session` ([`is_live_turn`]).
+    pub fn is_live_turn_of(&self, session: &str, turn: &str) -> bool {
+        is_live_turn(&self.store, &self.ui.lock().unwrap(), session, turn)
+    }
+
+    /// A22 row 236 — the background RECORD an event belongs to: a Session
+    /// this connection opened (and committed) that is not the one on screen
+    /// (the web routes every pooled event to its own record's reducer; only
+    /// the selected record forwards to the product view,
+    /// `use-octos-session.ts:2884-2900`). A topic frame is its topic's.
+    fn background_owner(&self, payload: &UiNotification) -> Option<String> {
+        let session = match payload {
+            UiNotification::EnvelopeV2(frame) => frame
+                .topic
+                .as_deref()
+                .is_none_or(|t| t.trim().is_empty())
+                .then(|| frame.session_id.0.clone()),
+            other => crate::screens::peers::notification_session(other),
+        }?;
+        if session.is_empty() || self.store.active_session().as_deref() == Some(session.as_str()) {
+            return None;
+        }
+        self.store.domains.session.is_record(&session).then_some(session)
+    }
+
+    /// The candidate's open or history read failed: fail closed, its buffer
+    /// is dropped (`candidate-session.ts:103-110`).
+    fn dispose_candidate(&self, session: &str, why: &str) {
+        let mut c = self.candidate.lock().unwrap();
+        if c.as_ref().is_some_and(|cand| cand.session == session) {
+            let n = c.take().map(|c| c.staged.len()).unwrap_or(0);
+            makepad_widgets::log!("[octoscode] candidate {session}: {why} — {n} buffered events dropped");
+        }
     }
 
     /// A19b — what the conversation of `session` shows before its history is
@@ -1024,6 +1344,8 @@ impl Conversation {
             .and_then(|s| s.as_str())
             .map(str::to_owned)
             .unwrap_or_else(|| self.session_id());
+        // A22 row 203 — a refused open fails the candidate closed.
+        self.dispose_candidate(&session, "the open was refused");
         let mut h = self.history.lock().unwrap();
         if let Some(e) = h.get_mut(&session) {
             if e.failed.is_none() {
@@ -1051,13 +1373,22 @@ impl Conversation {
 
     fn history_failed(&self, session: &str, reason: String) {
         makepad_widgets::log!("[octoscode] history of {session} could not be read: {reason}");
-        let mut h = self.history.lock().unwrap();
-        let e = h.entry(session.to_owned()).or_insert_with(|| HistoryRead {
-            started: Instant::now(),
-            retried: true,
-            failed: None,
-        });
-        e.failed = Some(reason);
+        {
+            let mut h = self.history.lock().unwrap();
+            let e = h.entry(session.to_owned()).or_insert_with(|| HistoryRead {
+                started: Instant::now(),
+                retried: true,
+                failed: None,
+            });
+            e.failed = Some(reason);
+        }
+        // A22 row 203 — the history read failed, but the window stays on
+        // this Session with the failure shown (A19b): it IS the product
+        // authority, so its buffered live events apply in order (the web
+        // never shows a failed candidate — natively the switch already
+        // happened, and dropping them would lose live state of the Session on
+        // screen: another client's turn, a replay-loss marker).
+        self.release_candidate(session, None);
     }
 
     /// A19b — a `session/hydrate` the server refused. The error names its
@@ -1090,6 +1421,9 @@ impl Conversation {
         if unknown && self.fresh_ids.lock().unwrap().contains(&session) {
             // A Session this client just created: nothing persisted yet.
             self.history.lock().unwrap().remove(&session);
+            // A22 row 203 — an empty history: its events need not wait.
+            self.release_candidate(&session, None);
+            self.commit_record(&session);
             return;
         }
         let retry = {
@@ -1449,6 +1783,9 @@ impl Conversation {
             let mut seq = self.open_seq.lock().unwrap();
             *seq += 1;
         }
+        // A22 row 203 — the opened Session is a candidate until its history
+        // commits: its live events wait (see `Candidate`).
+        self.begin_candidate(&session_id.0);
         // #P4g1 row 204: remember what THIS open asked for, so the reply arm
         // can fail closed on a different returned workspace.
         *self.pending_open_cwd.lock().unwrap() = cwd.clone();
@@ -1495,11 +1832,27 @@ impl Conversation {
         // shows "Loading conversation…" until its history settles, never the
         // empty welcome for the open's round trip.
         self.history_pending(&session_id.0);
-        // A20 — a switch never carries one Session's live-prompt flags into
-        // another (the per-Session records stay in the ledger).
-        if self.store.active_session().as_deref() != Some(session_id.0.as_str()) {
-            self.ui.lock().unwrap().clear_interaction_flags();
+        // A22 row 236 — the foreground follows the selected Session: the one
+        // left keeps its own live turn (now a background record), the new
+        // one shows its own (if a turn of it is still running), and it is
+        // read (`select`: `record.unread = false`, session-record-manager.ts:449).
+        let previous = self.store.active_session().unwrap_or_default();
+        let live = self.foreground_turn_of(&session_id.0);
+        {
+            let mut ui = self.ui.lock().unwrap();
+            ui.switch_live(&previous, &session_id.0, live);
+            // A20 — a switch never carries one Session's live-prompt flags
+            // into another (the per-Session records stay in the ledger).
+            // A22 — they then read the selected Session's own pending
+            // interaction (its showing approval / its question), if any.
+            if previous != session_id.0 {
+                ui.clear_interaction_flags();
+                let approval = self.store.domains.approval.showing(&session_id.0).is_some();
+                let question = self.store.domains.approval.question_for(&session_id.0).is_some();
+                ui.set_pending_for_test(approval, question);
+            }
         }
+        self.store.domains.session.set_unread(&session_id.0, false);
         self.store.set_active(Some(session_id.0.clone()));
         if let Err(e) = self.refresh_sessions().await {
             ::log::warn!("octoscode: session/list after open: {e}");
@@ -1560,7 +1913,7 @@ impl Conversation {
         );
         {
             let mut ui = self.ui.lock().unwrap();
-            ui.begin_turn(&turn_id, self.started);
+            ui.begin_turn_in(&self.session_id(), &turn_id);
             ui.set_draft_inner(String::new());
         }
         match self.client.request("turn/start", params).await {
@@ -1645,7 +1998,7 @@ impl Conversation {
         // `:413`), so the composer shows STOP before the ACK lands.
         {
             let mut ui = self.ui.lock().unwrap();
-            ui.begin_turn(&turn_id, self.started);
+            ui.begin_turn_in(&owner, &turn_id);
             // Card #13 §4: the draft clears on send, so the composer is empty
             // for the next prompt (the web clears it when the turn is
             // dispatched). The text is already captured in `params`.
@@ -1677,9 +2030,26 @@ impl Conversation {
     /// shape: `{session_id, expected_turn_id, input:[{kind:"text",text}]}`
     /// (`domains/turn.rs:141`, web `steer.ts:41`).
     pub async fn steer(&self, text: &str) -> Result<serde_json::Value, ClientError> {
-        let expected = self.ui.lock().unwrap().active_turn();
+        // A22 — the window's Session and ITS live turn (never the window's
+        // last live turn of another Session).
+        let session = self.session_id();
+        let Some(expected) = self.live_turn_of(&session) else {
+            makepad_widgets::log!("[octoscode] turn/steer not sent: {session} has no live turn");
+            return Ok(serde_json::Value::Null);
+        };
+        self.steer_in(&session, &expected, text).await
+    }
+
+    /// A22 — `turn/steer` into `expected`, a live turn OF `session` (the
+    /// Session the steer was issued in). Checked before it is sent; on a
+    /// mismatch nothing is sent.
+    pub async fn steer_in(&self, session: &str, expected: &str, text: &str) -> Result<serde_json::Value, ClientError> {
+        if !self.is_live_turn_of(session, expected) {
+            makepad_widgets::log!("[octoscode] turn/steer not sent: {expected} is not a live turn of {session}");
+            return Ok(serde_json::Value::Null);
+        }
         let params = serde_json::json!({
-            "session_id": self.session_id(),
+            "session_id": session,
             "expected_turn_id": expected,
             "input": [{"kind": "text", "text": text}],
         });
@@ -1687,14 +2057,30 @@ impl Conversation {
         self.client.request("turn/steer", params).await
     }
 
-    /// `turn/interrupt` — `{session_id, turn_id}` (`ui_protocol.rs:2097`).
+    /// `turn/interrupt` — `{session_id, turn_id}` (`ui_protocol.rs:2097`) for
+    /// the window's Session ([`Conversation::interrupt_in`]).
     pub async fn interrupt(&self, turn_id: &str) -> Result<serde_json::Value, ClientError> {
+        let session = self.session_id();
+        self.interrupt_in(&session, turn_id).await
+    }
+
+    /// A22 — `turn/interrupt` for `turn_id` of `session`, the Session the
+    /// Stop was pressed in (it may have left the window since). Sent only
+    /// when `turn_id` is a live turn OF `session` ([`is_live_turn`]); on a
+    /// mismatch nothing is sent — a Stop never reaches another Session's turn.
+    pub async fn interrupt_in(&self, session: &str, turn_id: &str) -> Result<serde_json::Value, ClientError> {
+        if !self.is_live_turn_of(session, turn_id) {
+            makepad_widgets::log!(
+                "[octoscode] turn/interrupt not sent: {turn_id} is not a live turn of {session}"
+            );
+            return Ok(serde_json::Value::Null);
+        }
         // A7 — the turn controller's interrupt gate (`use-turn-controller.ts:
         // 860-930`) for a turn the composer admitted: a start Core has not
         // accepted yet is never interrupted ("Turn is still starting"), a turn
         // already interrupting is not asked twice, and the interrupted prompt
         // is stashed for ITS OWN terminal.
-        let session = self.session_id();
+        let session = session.to_owned();
         let composer = &self.store.domains.composer;
         let known = composer.snapshot(&session).active.map(|a| a.turn_id).as_deref() == Some(turn_id);
         if known {
@@ -1957,6 +2343,18 @@ impl Conversation {
             let PayloadV2::TurnTerminal { outcome, error, .. } = &env.payload else { continue };
             use octos_core::ui_protocol::TurnTerminalOutcome as O;
             let holds = held.contains(env.turn_id.as_str());
+            // A22 row 236 — a held turn's retained terminal is part of the
+            // Session's terminal record, in stream order (the web's hydrated
+            // timeline carries its `terminal:<turn>` entries).
+            if holds {
+                let wire = match outcome {
+                    O::Completed => "completed",
+                    O::Errored => "errored",
+                    O::Interrupted => "interrupted",
+                    O::RateLimited => "rate_limited",
+                };
+                self.store.domains.turn.note_session_terminal(session, &env.turn_id, wire);
+            }
             let name = match outcome {
                 O::Completed => {
                     discarded = !holds;
@@ -2192,6 +2590,10 @@ impl Conversation {
         // A15 — the dropped socket's in-flight hydrates are never answered.
         self.hydrate_gen.lock().unwrap().clear();
         *self.open_seq.lock().unwrap() += 1;
+        // A22 row 203 — the re-open is prepared like any open: the Session's
+        // live events wait for its hydrate (the web's recovery buffer,
+        // `active-session-runtime.ts` `#enqueueRecovery`).
+        self.begin_candidate(&session);
         *self.pending_open_cwd.lock().unwrap() = cwd.clone();
         let params = SessionOpenParams {
             session_id: octos_core::SessionKey(session.clone()),
@@ -2255,15 +2657,52 @@ impl Conversation {
     /// workspace is known: octos keeps a workspace's Sessions in
     /// `<cwd>/.octos/<profile>`, and the legacy unscoped listing does not see
     /// them — the live smoke's Session stayed "New chat" after several turns.
+    ///
+    /// A22 row 228 — and only what the web PROJECTS from that reply
+    /// ([`crate::screens::catalog`]): an attested catalog's full Sessions of
+    /// the requested profile (`workspace-session-catalog.ts:66-92`,
+    /// `:197-209`), merged with the Sessions this app opened
+    /// (`Sessions::set_catalog`; `SessionSidebar.tsx:116-140`). An unattested
+    /// scoped reply leaves that workspace `unscoped` (nothing projected); the
+    /// legacy global listing is never a product catalog. Returns the number of
+    /// catalog rows projected. A failed read changes nothing (the web keeps
+    /// the last attested rows, `:210-222`).
     pub async fn refresh_sessions(&self) -> Result<usize, ClientError> {
+        let params = self.catalog_params();
         let result = self
             .client
-            .call::<octoscode_client::domains::session::SessionList>(self.catalog_params())
+            .call::<octoscode_client::domains::session::SessionList>(params.clone())
             .await?;
-        let sessions = result.into_sessions();
-        let n = sessions.len();
-        self.store.set_sessions(sessions);
-        Ok(n)
+        Ok(self.fold_listing(&params, result))
+    }
+
+    /// A22 row 228 — fold one `session/list` reply through the catalog
+    /// projection (see [`Conversation::refresh_sessions`]).
+    fn fold_listing(
+        &self,
+        params: &octoscode_client::domains::session::SessionListParams,
+        result: octoscode_client::domains::session::SessionListResult,
+    ) -> usize {
+        use crate::screens::catalog::{project, Listing};
+        let sessions = &self.store.domains.session;
+        match project(params, result, |id| sessions.is_known(id)) {
+            Listing::Catalog { workspace, rows } => {
+                let n = rows.len();
+                sessions.set_catalog(&workspace, rows);
+                n
+            }
+            Listing::Unscoped { workspace, rows } => {
+                ::log::info!(
+                    "octoscode: session/list for {workspace} is not attested for this profile — {rows} rows not projected"
+                );
+                sessions.set_catalog(&workspace, Vec::new());
+                0
+            }
+            Listing::Legacy { rows } => {
+                ::log::info!("octoscode: legacy session/list ({rows} rows) is not a workspace catalog — not projected");
+                0
+            }
+        }
     }
 
     /// A15 — the catalog's params: `{cwd, profile_id}` for the active
@@ -2700,12 +3139,26 @@ impl Conversation {
                         }
                         // A19 — a restore that lands elsewhere is refused.
                         self.settle_open_watch(Err(format!("the server opened {actual} instead of {req}")));
+                        // A22 row 203 — another workspace's events are not this
+                        // Session's: the candidate fails closed, its buffer dropped.
+                        self.dispose_candidate(&r.opened.session_id.0, "the server opened another workspace");
                         // A19b — and the Session says why, instead of loading on.
                         self.history_failed(
                             &r.opened.session_id.0,
                             "The server opened a different workspace from this conversation's.".to_owned(),
                         );
                         return FlowEvent::Other("session/open-workspace-mismatch".to_owned());
+                    }
+                }
+                // A22 row 203 — the reply names the Session the candidate is
+                // (one socket answers the opens in order; the latest is it).
+                {
+                    let generation = self.generation();
+                    let mut c = self.candidate.lock().unwrap();
+                    if let Some(cand) = c.as_mut().filter(|c| c.generation == generation) {
+                        if cand.session != r.opened.session_id.0 {
+                            cand.session = r.opened.session_id.0.clone();
+                        }
                     }
                 }
                 if let Some(root) = &r.opened.workspace_root {
@@ -2724,12 +3177,18 @@ impl Conversation {
                 // reply's `reasoning_effort` (session-composer-drafts.ts:40),
                 // and the show-thinking preference applies to the first opened
                 // Session (App.tsx:524-537).
-                if let Some(level) = &r.opened.reasoning_effort {
-                    if let Ok(serde_json::Value::String(e)) = serde_json::to_value(level) {
-                        self.store
-                            .domains
-                            .session
-                            .set_thinking_effort(&r.opened.session_id.0, &e);
+                // A22 row 216 — ONCE per record (`get(record)`, `:36-49`): a
+                // re-open of a Session this connection already holds (a
+                // switch back, a reconnect) never overwrites the effort the
+                // person chose since ("restores server thinking choice once").
+                if crate::screens::composer_drafts::seed_record(self, &r.opened.session_id.0) {
+                    if let Some(level) = &r.opened.reasoning_effort {
+                        if let Ok(serde_json::Value::String(e)) = serde_json::to_value(level) {
+                            self.store
+                                .domains
+                                .session
+                                .set_thinking_effort(&r.opened.session_id.0, &e);
+                        }
                     }
                 }
                 crate::screens::board3::thinking::apply_pref_once(&self.store, &r.opened.session_id.0);
@@ -2805,6 +3264,9 @@ impl Conversation {
                 } else {
                     // A19b — no history read is coming: nothing to wait for.
                     self.history.lock().unwrap().remove(&r.opened.session_id.0);
+                    // A22 row 203 — nor anything for its events to wait on.
+                    self.release_candidate(&r.opened.session_id.0, None);
+                    self.commit_record(&r.opened.session_id.0);
                 }
                 // A15 — and the catalog re-lists for the opened Session's
                 // workspace, now that it is known (the web's `refreshKey`
@@ -2837,13 +3299,13 @@ impl Conversation {
                 FlowEvent::WorkspaceOpened(r.opened.session_id.0.clone())
             }
             TransportEvent::SessionsListed { sessions } => {
-                if let Ok(rows) = serde_json::from_value::<
-                    Vec<octoscode_client::domains::session::SessionListRow>,
-                >(sessions.clone())
-                {
-                    self.store
-                        .set_sessions(rows.into_iter().map(Into::into).collect());
-                }
+                // A22 row 228 — the transport's own `ListSessions` asks the
+                // legacy global listing (no `{cwd, profile_id}`): never a
+                // product catalog (`use-workspace-product.ts:60-63`), so
+                // nothing of it is projected; logged by name, not dropped
+                // silently.
+                let rows = sessions.as_array().map(Vec::len).unwrap_or(0);
+                ::log::info!("octoscode: transport session/list: {rows} legacy rows, not a workspace catalog — not projected");
                 FlowEvent::Other("session/list".to_owned())
             }
             TransportEvent::DurableNotification { payload, .. }
@@ -2854,6 +3316,28 @@ impl Conversation {
                 // (`peerSessionEventFor`, session-peer-coordinator.ts:139).
                 if crate::screens::peers::fold_frame(&self.store, payload) {
                     return FlowEvent::Other(format!("peer-session {}", payload.method()));
+                }
+                // A22 row 203 — a candidate that failed closed takes none of
+                // its Session's events until that Session is opened again.
+                if self.closed_candidate(payload) {
+                    return FlowEvent::Other(format!("failed-candidate {}", payload.method()));
+                }
+                // A22 row 203 — a candidate's own events wait for its
+                // history (released in order by the hydrate arm below).
+                if self.stage_for_candidate(evt, payload) {
+                    return FlowEvent::Other(format!("staged {}", payload.method()));
+                }
+                // A22 row 236 — a background record's own event folds into
+                // ITS state (transcript, terminals, interactions, its queue,
+                // which advances there) and marks it unread; the Session on
+                // screen is never touched by it (no live turn, no catalog
+                // re-list, no resync of its own).
+                if let Some(owner) = self.background_owner(payload) {
+                    self.registry.lock().unwrap().dispatch(payload);
+                    self.composer_observe(payload);
+                    self.store.domains.session.set_unread(&owner, true);
+                    makepad_widgets::SignalToUI::set_ui_signal();
+                    return FlowEvent::Other(format!("background {} {}", payload.method(), owner));
                 }
                 // #P4g1 rows 205/213: the runtime scope gate. The durable
                 // projection (projection/envelope, protocol/replay_lossy)
@@ -2872,7 +3356,26 @@ impl Conversation {
                     );
                     return FlowEvent::Other(format!("wrong-session {}", payload.method()));
                 }
-                let ev = self.note_notification(payload);
+                // A22 — the window's live turn, its approval / question
+                // flags and its activity follow ONLY the Session on screen: a
+                // frame of another Session (one this app opened and left, not
+                // a record) never makes its turn the window's — a Stop pressed
+                // there would name that other Session's turn. It still folds
+                // into its own Session's state below.
+                let frame_session = crate::screens::peers::notification_session(payload).filter(|s| !s.is_empty());
+                let foreign = frame_session
+                    .as_deref()
+                    .is_some_and(|s| self.store.active_session().as_deref() != Some(s));
+                let ev = if foreign {
+                    ::log::debug!(
+                        "octoscode: {} of {} is not the window's Session: folded, not shown live",
+                        payload.method(),
+                        frame_session.as_deref().unwrap_or_default()
+                    );
+                    FlowEvent::Other(format!("other-session {}", payload.method()))
+                } else {
+                    self.note_notification(payload)
+                };
                 // A15 — a turn starting or finishing re-lists the catalog
                 // (the web's `refreshKey` carries the active turn id,
                 // `App.tsx:753-760`): the server's title for a new Session
@@ -2954,6 +3457,18 @@ impl Conversation {
                             }
                             return FlowEvent::Other("session/hydrate-stale-authority".to_owned());
                         }
+                        // A22 row 203 — the candidate this read was asked for
+                        // failed closed (its buffer bound): never committed.
+                        let failed_candidate = {
+                            let o = self.overflowed.lock().unwrap();
+                            o.as_ref().is_some_and(|(s, g)| s == session_id && Some(*g) == requested_gen)
+                        };
+                        if failed_candidate {
+                            ::log::warn!(
+                                "octoscode: session/hydrate for {session_id}: its candidate failed closed — not committed"
+                            );
+                            return FlowEvent::Other("session/hydrate-candidate-failed".to_owned());
+                        }
                         if h.session_id.0 != *session_id {
                             ::log::warn!(
                                 "octoscode: session/hydrate returned session {} for requested {session_id} — hydrate commit rejected",
@@ -2989,6 +3504,12 @@ impl Conversation {
                             self.store.domains.config.mark_recovered(&session_id);
                             // A19b — the history is in: settled.
                             self.history.lock().unwrap().remove(session_id.as_str());
+                            // A22 row 203 — the candidate is prepared: its
+                            // buffered live events follow the history, in
+                            // order, minus what the history already holds.
+                            self.release_candidate(session_id, Some((h.cursor.stream.as_str(), h.cursor.seq)));
+                            // A22 row 236 — a record from now on.
+                            self.commit_record(session_id);
                             ::log::info!(
                                 "octoscode: session/hydrate folded for {session_id} (+{added} rows)"
                             );
@@ -3078,10 +3599,14 @@ impl Conversation {
     }
 
     fn note_notification(&self, n: &UiNotification) -> FlowEvent {
+        // A22 — the Session a live turn belongs to: the frame's own, else
+        // (a topicless legacy frame) the window's.
+        let active = self.store.active_session().unwrap_or_default();
+        let sid = |s: &str| if s.is_empty() { active.clone() } else { s.to_owned() };
         let mut ui = self.ui.lock().unwrap();
         match n {
             UiNotification::TurnStarted(e) => {
-                ui.begin_turn(&e.turn_id.0.to_string(), self.started);
+                ui.begin_turn_in(&sid(&e.session_id.0), &e.turn_id.0.to_string());
                 FlowEvent::TurnStarted(e.turn_id.0.to_string())
             }
             UiNotification::TurnCompleted(e) => {
@@ -3098,7 +3623,7 @@ impl Conversation {
                 }
             }
             UiNotification::MessageDelta(e) => {
-                ui.touch_turn(&e.turn_id.0.to_string());
+                ui.touch_turn_in(&sid(&e.session_id.0), &e.turn_id.0.to_string());
                 FlowEvent::Delta {
                     turn_id: e.turn_id.0.to_string(),
                     bytes: e.text.len(),
@@ -3133,7 +3658,7 @@ impl Conversation {
                 let turn_id = frame.envelope.turn_id.clone();
                 match &frame.envelope.payload {
                     PayloadV2::AssistantDelta { text, .. } => {
-                        ui.touch_turn(&turn_id);
+                        ui.touch_turn_in(&sid(&frame.session_id.0), &turn_id);
                         FlowEvent::Delta { turn_id, bytes: text.len() }
                     }
                     PayloadV2::ToolStart { tool_call_id, name, .. } => {
@@ -3212,6 +3737,13 @@ impl FlowUi {
     /// Mark a turn live (test support; production uses `begin_turn`).
     pub fn begin_turn_now(&mut self, turn_id: &str) {
         self.active_turn = Some((turn_id.to_owned(), Instant::now()));
+        self.active_turn_session = None;
+    }
+
+    /// A22 — mark `turn_id` live in `session` (test support; production uses
+    /// `begin_turn_in`).
+    pub fn begin_turn_now_in(&mut self, session: &str, turn_id: &str) {
+        self.begin_turn_in(session, turn_id);
     }
 
     /// End the live turn (test support; production uses `end_turn`). Ends
@@ -3251,17 +3783,21 @@ impl FlowUi {
 
     /// A turn becomes live. A `turn/started` names the turn, so the id is
     /// authoritative — a new turn supersedes whatever was live.
-    fn begin_turn(&mut self, turn_id: &str, _started: Instant) {
+    fn begin_turn_in(&mut self, session: &str, turn_id: &str) {
         self.active_turn = Some((turn_id.to_owned(), Instant::now()));
+        self.active_turn_session = Some(session.to_owned());
     }
 
     /// A delta arrived for `turn_id`. If no turn is live yet (a delta can beat
     /// `turn/started`), this turn becomes live. A delta for a DIFFERENT turn
     /// never hijacks the live one — the live L1/L2 defect was a stale frame
     /// clearing/replacing a running turn (LESSONS 5).
-    fn touch_turn(&mut self, turn_id: &str) {
+    fn touch_turn_in(&mut self, session: &str, turn_id: &str) {
         match &self.active_turn {
-            None => self.active_turn = Some((turn_id.to_owned(), Instant::now())),
+            None => {
+                self.active_turn = Some((turn_id.to_owned(), Instant::now()));
+                self.active_turn_session = Some(session.to_owned());
+            }
             Some((id, _)) if id == turn_id => {}
             Some(_) => {}
         }
@@ -3283,6 +3819,7 @@ impl FlowUi {
                 end.worked = Some(started.elapsed());
                 end.completed_at = Some(SystemTime::now());
                 self.active_turn = None;
+                self.active_turn_session = None;
                 self.last_settled_turn = Some(turn_id.to_owned());
             }
             // A terminal for another turn, or no live turn: do not touch the

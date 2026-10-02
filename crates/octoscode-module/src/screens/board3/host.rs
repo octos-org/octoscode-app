@@ -341,7 +341,14 @@ pub enum Job {
     /// this operation id (a retry reuses it).
     FleetStart { operation_id: String, lane: String, brief: String },
     /// A10 — ONE `peer/control` for a Fleet row (row key, roster identity).
-    FleetRow { key: String, identity: String, action: crate::screens::peers::RowAction, text: String },
+    FleetRow {
+        key: String,
+        identity: String,
+        action: crate::screens::peers::RowAction,
+        text: String,
+        /// A30 follow-up — the ids the row's control was drawn for.
+        drawn: Option<crate::screens::fleet_driver::DrawnTarget>,
+    },
     /// A10 — the console's explicit seat acquire / release (next external).
     FleetSeatAcquire,
     FleetSeatRelease,
@@ -1058,7 +1065,9 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
             Ok(format!("{lanes:?}; {inv:?}"))
         }
         Job::FleetStart { operation_id, lane, brief } => super::fleetview::run_start(conv, operation_id, lane, brief).await,
-        Job::FleetRow { key, identity, action, text } => super::fleetview::run_row(conv, key, identity, action, text).await,
+        Job::FleetRow { key, identity, action, text, drawn } => {
+            super::fleetview::run_row(conv, key, identity, action, text, drawn).await
+        }
         // The web re-walks after an acquire or a release
         // (`refreshControlInventory`), so the next CAS reads the revision the
         // lease moved, and the disclosure follows it.

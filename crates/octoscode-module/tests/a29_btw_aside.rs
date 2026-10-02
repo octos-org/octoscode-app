@@ -185,7 +185,10 @@ impl Server {
 
 fn answer(method: &str, p: &Value, btw_feature: bool) -> Value {
     let session = p["session_id"].as_str().unwrap_or(X).to_owned();
-    let mut features = vec!["state.session_hydrate.v1"];
+    // (A22 row 228: the sidebar projects only an ATTESTED scoped catalog —
+    // the server advertises the cwd-scoped listing and answers it with the
+    // scope it read, as octos a6ea8505 does)
+    let mut features = vec!["state.session_hydrate.v1", "session.workspace_cwd.v1"];
     if btw_feature {
         features.push("session/btw");
     }
@@ -212,7 +215,7 @@ fn answer(method: &str, p: &Value, btw_feature: bool) -> Value {
         "session/list" => json!({"sessions": [
             {"id": X, "title": X_TITLE, "message_count": 4, "updated_at": "2026-10-02T09:00:00Z", "active_turn": false},
             {"id": Y, "title": Y_TITLE, "message_count": 2, "updated_at": "2026-10-02T08:00:00Z", "active_turn": false}
-        ]}),
+        ], "workspace_root": "/home/user/src/octos", "profile_id": PROFILE}),
         "turn/start" => json!({"accepted": true}),
         _ => json!({}),
     }

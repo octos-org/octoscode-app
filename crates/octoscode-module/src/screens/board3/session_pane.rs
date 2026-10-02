@@ -1003,7 +1003,9 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
     if let Some(rt) = &runtime {
         kv(d, "b3_sc_runtime", tr("Session runtime"), rt, inner_w);
     }
-    if let (Some(rt), true) = (&runtime, store.domains.turn.in_flight_count() > 0) {
+    // A22 row 236 — this Session's own live turn, not a background one.
+    let own_live = store.active_session().is_some_and(|s| store.domains.turn.in_flight_in(&s) > 0);
+    if let (Some(rt), true) = (&runtime, own_live) {
         kv(d, "b3_sc_turn_model", tr("This response is using:"), rt, inner_w);
     }
     // The restart truth (`profileDefaultNeedsRestart`, `product-projection.ts:

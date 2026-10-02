@@ -55,6 +55,18 @@ pub struct SessionListRow {
 pub struct SessionListResult {
     #[serde(default)]
     pub sessions: Vec<SessionListRow>,
+    /// A22 row 228 — the server's ATTESTATION of a scoped listing: the
+    /// canonical workspace root whose `<root>/.octos/<profile_id>` it read.
+    /// Absent for the legacy global listing (octos-core a6ea8505
+    /// `SessionListResult`: "a client must not place rows under a workspace
+    /// unless this attests the scope"; web
+    /// `workspace-session-catalog.ts:197-209`).
+    #[serde(default)]
+    pub workspace_root: Option<String>,
+    /// The profile whose project store was read; present exactly when
+    /// `workspace_root` is.
+    #[serde(default)]
+    pub profile_id: Option<String>,
 }
 
 impl Method for SessionList {
@@ -66,7 +78,7 @@ impl Method for SessionList {
 /// The params actually sent. The legacy listing sends none; the resume
 /// picker scopes the catalog the web's way, `{cwd, profile_id}`
 /// (`features/resume/resume-binding.ts:199-202`).
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize)]
 pub struct SessionListParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cwd: Option<String>,

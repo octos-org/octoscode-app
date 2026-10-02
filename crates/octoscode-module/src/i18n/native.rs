@@ -755,6 +755,9 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Take control of this session to do this", "需要先取得此会话的控制权"),
     // fleet_driver::row_control's fail-closed label
     ("That action is not available right now.", "此操作当前不可用。"),
+    // fleet_driver::CHANGED_DRAWN (A30 follow-up): a control drawn for a request / turn the peer has
+    // since replaced is refused on the card (the dock's and the Fleet's stale-control refusal)
+    ("This peer changed. Review it and tap again.", "此同侪已变化，请查看后重试。"),
     // ---- A28 (merged from main): the diff review (row 23; board 4 frames 1/1b/2); each row's English source in a comment.
     // DiffReviewDialog.tsx:107-109 plainNotice (the web renders it without t()); board 4 frame 1b
     ("Large preview shown as plain text. All lines are included.", "大型预览以纯文本显示，已包含所有行。"),
@@ -919,6 +922,8 @@ pub static GLOSSARY_EXEMPT: &[(&str, &str)] = &[
     ("A background response needs your input. Return to OctosCode to review it.", "review"),
     ("A background response needs attention. Return to OctosCode to review it.", "review"),
     ("A background response finished. Return to OctosCode to review it.", "review"),
+    // A30's stale-control refusal: "review it" is look at the changed row (查看).
+    ("This peer changed. Review it and tap again.", "review"),
 ];
 
 /// The native Chinese for `source`, if it is native copy (A31's helper; the

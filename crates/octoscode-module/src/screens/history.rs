@@ -291,7 +291,9 @@ pub fn blocked_reason(store: &Store, session_id: &str, mode: HistoryMode) -> Opt
     // judged on the per-session signals alone — that is what makes row 4's rule
     // hold: a busy sibling in the same workspace blocks, a busy record in
     // ANOTHER workspace does not.
-    let live_turn = store.domains.turn.in_flight_count() > 0;
+    // A22 row 236 — the bound Session's own live turns (a background
+    // Session's turn is attributed to it, never to the bound record).
+    let live_turn = store.domains.turn.in_flight_in(session_id) > 0;
     let busy = |id: &str, own: bool| -> bool {
         // A live turn for this session (`SessionInfo.active_turn`).
         store

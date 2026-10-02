@@ -1,0 +1,66 @@
+PASS app up against a22_serve
+PASS 228: the catalog rows are drawn
+PASS 228: exactly the full Sessions of a22 (+ the opened one) — ['Startup chat', 'Review the hydrate path', 'Build the release', 'Run the test suite', 'Pick a branch']
+PASS 228: no other profile's row, no bare id, no legacy id — []
+PASS 228 wire: the catalog is read {cwd, profile_id} — [{}, {'cwd': '/home/user/a22-ws', 'profile_id': 'a22'}]
+PASS 228 layout: every row title inside its row
+PASS 228 layout: rows >= 28 px tall — [32, 32, 32, 32, 32]
+  shot docs/ux/a22/desktop-01-228-catalog.png
+PASS 203: CLICK the 'Review the hydrate path' row
+PASS 203: 'Loading conversation…' while the history is held
+PASS 203: the live turn is NOT drawn before its history (buffered)
+  shot docs/ux/a22/desktop-02-203-loading.png
+PASS 203: the live answer completes after the history
+PASS 203: history first, then the live turn — each prompt once — ['First prompt: where does the hydrate start?', 'Second prompt: and the cursor?', 'Third prompt: live from another client'] twice=[]
+PASS 203: the replayed answer the history holds is drawn once — ['The hydrate cursor is adopted max-wins.', 'The live answer arrived after the history.']
+PASS 203 wire: the live events went out BEFORE the history reply — push@15 reply@19
+PASS 203 wire: one open, one history read for the Session — opens 1, history reads 1
+PASS 203 layout: transcript rows inside the conversation column — [[359, 250, 660, 18], [740, 352, 263, 18], [775, 202, 228, 18]]
+  shot docs/ux/a22/desktop-03-203-history-then-live.png
+PASS 216: back to 'Startup chat' (CLICK)
+PASS 216: /thinking opens Thinking effort
+PASS 216: the open reply's effort is shown (High)
+PASS 216: CLICK Low
+  shot docs/ux/a22/desktop-04-216-thinking-low.png
+PASS 216: switch away (CLICK 'Review the hydrate path')
+PASS 216: and back (CLICK 'Startup chat')
+PASS 216 wire: the Session was re-opened (its reply names High again) — 3
+PASS 216: /thinking again
+PASS 216: the re-open did not overwrite the person's Low
+  shot docs/ux/a22/desktop-05-216-thinking-kept-low.png
+PASS 216: the long turn runs (Stop shows)
+PASS 216: the first prompt queued
+PASS 216: /thinking while it runs
+PASS 216: CLICK High
+PASS 216: the second prompt queued
+PASS 216: both refused when the long turn ends — 2
+PASS 216 wire: each captured its effort at admission — ['low', 'high']
+PASS 216: the first comes back to the empty composer — 'first [refuse]'
+  shot docs/ux/a22/desktop-06-216-first-returned.png
+PASS 216 wire: the returned first prompt carries its own Low — ['low', 'low']
+PASS 216: then the second comes back, in order — 'second [refuse]'
+PASS 216 wire: the returned second prompt carries its own High — ['high', 'high']
+PASS 236: CLICK 'Build the release'
+PASS 236: the build runs
+PASS 236: the build's status strip shows its own live turn (not 'Ready') — 'Responding'
+PASS 236: a prompt waits behind it
+PASS 236: CLICK 'Run the test suite'
+PASS 236: CLICK 'Pick a branch'
+PASS 236: CLICK 'Startup chat'
+PASS 236: background dots — build running, tests failed, branch waiting — {'Startup chat': 'done', 'Pick a branch': 'wait', 'Run the test suite': 'fail', 'Build the release': 'run', 'Review the hydrate path': 'done'}
+PASS 236: the Session on screen is not live for their work
+PASS 236: the status strip on screen reads 'Ready' — never the build's live turn — 'Ready'
+PASS 236: the Session on screen is 'Startup chat' — 'Startup chat'
+  shot docs/ux/a22/desktop-07-236-background-grouped.png
+  shot docs/ux/a22/desktop-08-236-background-flat.png
+PASS 236 wire: the queued prompt started in its own Session while another is selected — ['a22:api:build']
+PASS 236: the build reads done (completed in background) — {'Startup chat': 'done', 'Pick a branch': 'wait', 'Run the test suite': 'fail', 'Build the release': 'done', 'Review the hydrate path': 'done'}
+PASS 236: tests still failed, branch still waiting
+PASS 236 layout: 'Startup chat' dot left of its title, centred on the row — dot [72, 266, 13, 13] title [92, 264, 194, 17] row [64, 256, 260, 32]
+PASS 236 layout: 'Pick a branch' dot left of its title, centred on the row — dot [75, 301, 7, 7] title [92, 296, 194, 17] row [64, 288, 260, 32]
+PASS 236 layout: 'Run the test suite' dot left of its title, centred on the row — dot [75, 333, 7, 7] title [92, 328, 194, 17] row [64, 320, 260, 32]
+PASS 236 layout: 'Build the release' dot left of its title, centred on the row — dot [72, 362, 13, 13] title [92, 360, 194, 17] row [64, 352, 260, 32]
+PASS 236 layout: 'Review the hydrate path' dot left of its title, centred on the row — dot [72, 394, 13, 13] title [92, 392, 194, 17] row [64, 384, 260, 32]
+  shot docs/ux/a22/desktop-09-236-background-done.png
+== WALK a22 sessions desktop: 55/55 passed
+   state dir (serve log, trace): <tmp>

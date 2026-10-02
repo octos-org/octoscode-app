@@ -81,7 +81,8 @@ fn open_reply(session: &str, advertise: bool) -> Value {
             "capabilities_schema_version": 1,
             "supported_methods": methods,
             "supported_notifications": ["turn/started"],
-            "supported_features": []
+            // A22 row 228: the scoped catalog, as octos a6ea8505 offers it.
+            "supported_features": ["session.workspace_cwd.v1"]
         }
     }})
 }
@@ -159,9 +160,17 @@ async fn serve(stream: TcpStream, seen: Arc<Mutex<Seen>>, script: Script) {
         let session = params["session_id"].as_str().unwrap_or("a9:main").to_owned();
         let reply: Result<Value, Value> = match method.as_str() {
             "session/open" => Ok(open_reply(&session, script.advertise_task_list)),
-            "session/list" => Ok(json!({"sessions": script.sessions.iter().map(|(id, title)| json!({
-                "id": id, "title": title, "message_count": 2, "updated_at": "2026-10-01T09:00:00Z"
-            })).collect::<Vec<_>>()})),
+            "session/list" => {
+                let mut l = json!({"sessions": script.sessions.iter().map(|(id, title)| json!({
+                    "id": id, "title": title, "message_count": 2, "updated_at": "2026-10-01T09:00:00Z"
+                })).collect::<Vec<_>>()});
+                // A22 row 228: a `{cwd, profile_id}` read is ATTESTED.
+                if let (Some(cwd), Some(profile)) = (params["cwd"].as_str(), params["profile_id"].as_str()) {
+                    l["workspace_root"] = json!(cwd);
+                    l["profile_id"] = json!(profile);
+                }
+                Ok(l)
+            }
             "task/list" => task_reply(&session),
             _ => Ok(json!({})),
         };
@@ -206,6 +215,9 @@ async fn connected(server: &FakeServer) -> (Arc<Conversation>, tokio::sync::mpsc
             _ => break,
         }
     }
+    // A22 row 228: the opened workspace's catalog (the production open's
+    // `spawn_catalog_refresh("open")`; this test drives no runtime handle).
+    conv.refresh_sessions().await.expect("session/list");
     (Arc::new(conv), events)
 }
 
@@ -220,10 +232,10 @@ fn lock() -> std::sync::MutexGuard<'static, ()> {
 fn board_sessions() -> Vec<(String, String)> {
     vec![
         ("a9:main".into(), "Fix steer queue drop on reconnect".into()),
-        ("a9:fork".into(), "Add session fork".into()),
-        ("a9:bump".into(), "Bump octos-core to a6ea8505".into()),
-        ("a9:wrong".into(), "Review PR #2566".into()),
-        ("a9:bad".into(), "Why is hydrate slow?".into()),
+        ("a9:api:fork".into(), "Add session fork".into()),
+        ("a9:api:bump".into(), "Bump octos-core to a6ea8505".into()),
+        ("a9:api:wrong".into(), "Review PR #2566".into()),
+        ("a9:api:bad".into(), "Why is hydrate slow?".into()),
         // Another Profile's session is never a target.
         ("other:x".into(), "Foreign".into()),
     ]
@@ -244,17 +256,17 @@ async fn activity_reads_every_confirmed_session_and_fails_closed_per_session() {
     assert!(activity::read_once(&conv, gen).await, "published");
 
     // One task/list per confirmed session of THIS Profile; nothing opened.
-    assert_eq!(server.asked_sessions(), ["a9:bad", "a9:bump", "a9:fork", "a9:main", "a9:wrong"]);
+    assert_eq!(server.asked_sessions(), ["a9:api:bad", "a9:api:bump", "a9:api:fork", "a9:api:wrong", "a9:main"]);
     assert_eq!(server.params_of("session/open").len(), opens_before, "the scan never opens a session");
     for p in server.params_of("task/list") {
         assert_eq!(p.as_object().unwrap().len(), 1, "only {{session_id}}: {p}");
     }
     {
         let st = activity::state();
-        assert_eq!(st.unavailable.iter().map(String::as_str).collect::<Vec<_>>(), ["a9:wrong", "a9:bad"]);
+        assert_eq!(st.unavailable.iter().map(String::as_str).collect::<Vec<_>>(), ["a9:api:wrong", "a9:api:bad"]);
         assert_eq!(st.error.as_deref(), Some("2 Session task snapshots unavailable"));
-        assert!(!st.tasks.contains_key("a9:wrong"), "a wrong-session snapshot is never shown");
-        assert_eq!(st.labels.get("a9:fork").map(String::as_str), Some("Add session fork"));
+        assert!(!st.tasks.contains_key("a9:api:wrong"), "a wrong-session snapshot is never shown");
+        assert_eq!(st.labels.get("a9:api:fork").map(String::as_str), Some("Add session fork"));
     }
     // The dialog: running first, then failed, then done; the counts.
     let low = activity::lower(&conv.store).expect("open");
@@ -267,8 +279,8 @@ async fn activity_reads_every_confirmed_session_and_fails_closed_per_session() {
         shown,
         [
             ("a9:main".to_owned(), "running".to_owned()),
-            ("a9:bump".to_owned(), "failed".to_owned()),
-            ("a9:fork".to_owned(), "done".to_owned()),
+            ("a9:api:bump".to_owned(), "failed".to_owned()),
+            ("a9:api:fork".to_owned(), "done".to_owned()),
         ]
     );
     for label in ["All 3", "Running 1", "Failed 1", "Done 1", "2 Session task snapshots unavailable"] {
@@ -282,7 +294,7 @@ async fn activity_reads_every_confirmed_session_and_fails_closed_per_session() {
 #[tokio::test]
 async fn reads_are_batched_four_at_a_time_without_a_session_wall() {
     let _g = lock();
-    let sessions: Vec<(String, String)> = (0..15).map(|i| (format!("a9:s{i}"), format!("Session {i}"))).collect();
+    let sessions: Vec<(String, String)> = (0..15).map(|i| (format!("a9:api:s{i}"), format!("Session {i}"))).collect();
     let server = FakeServer::start(Script { sessions, advertise_task_list: true, task_delay: Duration::from_millis(60) }).await;
     let (conv, _ev) = connected(&server).await;
     let gen = match activity::perform(activity::ACTION_OPEN, 0, &conv.store) {
@@ -347,10 +359,10 @@ async fn a_row_opens_its_owning_session_through_the_sidebar_path() {
     activity::lower(&conv.store);
     // Row 1 is a9:bump's failed task: Open session -> its store index (the
     // `thread.open` the sidebar's rows use).
-    let index = conv.store.sessions().iter().position(|s| s.id == "a9:bump").unwrap();
+    let index = conv.store.sessions().iter().position(|s| s.id == "a9:api:bump").unwrap();
     assert_eq!(
         activity::perform(activity::ACTION_ROW, 1, &conv.store),
-        Outcome::OpenSession { index, session: "a9:bump".into() }
+        Outcome::OpenSession { index, session: "a9:api:bump".into() }
     );
     assert!(!activity::is_open(), "the dialog closes on its action");
     // The current session's row inspects instead (task/output/read advertised).
