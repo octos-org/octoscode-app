@@ -41,6 +41,7 @@ import time
 import urllib.parse
 
 from a10_lib import Walk, checks_line, dialog_checks, run_session
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request, type_secret's /t included)
 
 WHICH = sys.argv[1] if len(sys.argv) > 1 else "main"
 MODE = sys.argv[2] if len(sys.argv) > 2 else "desktop"
