@@ -15,6 +15,7 @@ import os
 import pathlib
 import subprocess
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import os as _os, sys as _sys
@@ -57,6 +58,16 @@ class Walk:
         try:
             with urllib.request.urlopen(self.base + path, timeout=timeout) as r:
                 return r.read().decode()
+        except urllib.error.HTTPError as e:
+            # An input route with wait=1 answers 404 when the frame it waited
+            # on was coalesced: the input itself was delivered (walk_env's
+            # App.get, and the judge tour's rule since 4c3e51e8). A21: the
+            # A19 live walk's scroll-read crashed on one.
+            if e.code == 404 and path.startswith(("/click", "/t?", "/k?", "/m?")):
+                return ""
+            if tolerant:
+                return ""
+            raise
         except Exception:
             if tolerant:
                 return ""

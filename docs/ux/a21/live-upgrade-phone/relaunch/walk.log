@@ -1,0 +1,11 @@
+PASS the relaunch goes straight back to the Session
+PASS wire: no launch/resolve on a restore
+PASS wire: the remembered Session is opened with its profile — [{"cwd": "<scratch>/a21-live/upgrade/ws", "profile_id": "dsflash", "sandbox": null, "session_id": "dsflash:main"}]
+PASS wire: nothing created
+PASS its history is in the conversation (the earlier prompt's bubble)
+SHOT 01-restored-phone
+redacted 01-restored-phone: ['hd_path']
+PASS the full history by scrolling: all 10 distinct prompts of the Session — missing []
+scroll-read 119 distinct transcript texts
+== 6/6 checks passed
+== A19 live restore (phone): PASS
