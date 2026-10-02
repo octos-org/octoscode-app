@@ -20,6 +20,7 @@ import urllib.request
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
 from snapsafe import scrub as _scrub  # noqa: E402
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 TOL = 1.5
 
