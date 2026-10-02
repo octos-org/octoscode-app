@@ -465,7 +465,10 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, store: &Store) {
             scopes_card(d, st);
         }
     }
-    link_card(d, st);
+    // The card's text column: the dialog's inner width, less the scroll
+    // gutter (10), the card's insets (2 x 14) and the field's (2 x 10).
+    let field_w = width - 2.0 * ui::dialog_pad(frame, width) - 10.0 - 28.0 - 20.0;
+    link_card(d, st, field_w);
     d.close();
     ui::body_close(d);
     // The board's bottom-right Refresh pill.
@@ -594,7 +597,18 @@ fn scopes_card(d: &mut Dsl, st: &InspState) {
     d.close();
 }
 
-fn link_card(d: &mut Dsl, st: &InspState) {
+/// The link field's type (the board's mono value).
+pub const LINK_PX: f64 = 12.0;
+
+/// A13 (judge: the link showed as an 8-line percent-encoded block) — the
+/// conversation link on ONE line, shortened in the middle so its scheme and
+/// the session id at its end stay readable. Copy writes the full link
+/// (`perform("b3.insp.copy")` -> `Outcome::Clipboard(st.link)`).
+pub fn link_line(link: &str, field_w: f64) -> String {
+    ui::fit_middle(link, field_w, LINK_PX, Face::Mono)
+}
+
+fn link_card(d: &mut Dsl, st: &InspState, field_w: f64) {
     ui::card_open(d, "b3_insp_link", 8.0);
     let head = d.anon();
     d.view(&head, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}");
@@ -615,10 +629,19 @@ fn link_card(d: &mut Dsl, st: &InspState) {
             &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
         );
     } else {
-        // A8 — the full link in a read-only, selectable field: the web's
-        // clipboard-denied fallback (`CopySessionLink.tsx:71-85`) made
-        // permanent, since a native clipboard write cannot report a refusal.
-        d.readonly_text("b3_insp_link_value", &st.link, true);
+        // A8 kept the full link visible (the web's clipboard-denied
+        // fallback, `CopySessionLink.tsx:71-85`); A13: on one line, with a
+        // middle ellipsis, in the same grey field. The Copy button above
+        // writes the whole link.
+        d.surface(
+            "b3_insp_link_value_field",
+            "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 10 right: 10 top: 0 bottom: 0}",
+            tok::SURFACE2,
+            8.0,
+            Some("#d9d9dcff"),
+        );
+        d.text("b3_insp_link_value", &link_line(&st.link, field_w), &Txt::new(LINK_PX, Face::Mono, tok::TEXT).w(W::Fill));
+        d.close();
     }
     if st.copied {
         d.text("b3_insp_copied", "Conversation link copied.", &Txt::new(12.0, Face::Regular, tok::GREEN));
@@ -731,6 +754,34 @@ mod tests {
             .into_owned();
         assert_eq!(dec, r#"["/home/user/octos","dsflash","dsflash:main"]"#);
         assert!(conversation_link("", "p", "s").is_none(), "incomplete reference");
+    }
+
+    /// A13 — the link shows on one line: shortened in the middle to the
+    /// field's width (head and tail kept, one `…`), whole when it fits; the
+    /// Copy outcome is still the full link.
+    #[test]
+    fn the_link_line_is_one_middle_ellipsized_line() {
+        let link = conversation_link(
+            "/home/user/src/octos-org/octoscode-app/workspace",
+            "dsflash",
+            "dsflash:main",
+        )
+        .unwrap();
+        for field_w in [238.0, 520.0, 702.0] {
+            let shown = link_line(&link, field_w);
+            assert!(ui::text_w(&shown, LINK_PX, Face::Mono) <= field_w, "{field_w}: {shown}");
+            assert_eq!(shown.matches('…').count(), 1, "{shown}");
+            let (head, tail) = shown.split_once('…').unwrap();
+            assert!(link.starts_with(head) && link.ends_with(tail), "{shown}");
+            assert!(head.starts_with("octoscode://session"), "the scheme and path stay: {shown}");
+            assert!(tail.ends_with("main%22%5D") && tail.chars().count() >= 10, "the session id's end stays: {shown}");
+            // The head leads (two thirds of the room), the tail is not starved.
+            let (h, t) = (head.chars().count(), tail.chars().count());
+            assert!(h >= t && h <= 2 * t + 2, "{h} / {t}: {shown}");
+        }
+        assert_eq!(link_line("octoscode://session?s=x", 238.0), "octoscode://session?s=x", "a short link stays whole");
+        let mut st = InspState { link: link.clone(), ..Default::default() };
+        assert_eq!(perform(&mut st, "b3.insp.copy"), Outcome::Clipboard(link), "Copy writes the full link");
     }
 
     #[test]

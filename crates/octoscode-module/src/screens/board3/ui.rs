@@ -161,6 +161,108 @@ pub fn fit_w(s: &str, px_budget: f64, px: f64, face: Face) -> String {
     out
 }
 
+/// A13 — shorten `s` IN THE MIDDLE so its estimated run fits `px_budget`:
+/// the head and the tail stay (a link keeps its scheme and the session id at
+/// its end), joined by one `…`. Unchanged when it already fits.
+pub fn fit_middle(s: &str, px_budget: f64, px: f64, face: Face) -> String {
+    let budget = px_budget * 0.97;
+    if text_w(s, px, face) <= budget {
+        return s.to_owned();
+    }
+    let k = px * weight_factor(face);
+    let room = (budget - char_em('…', face) * k).max(0.0);
+    let chars: Vec<char> = s.chars().collect();
+    // The head takes up to two thirds of the room (a link's scheme and path
+    // name what it is); the tail takes what is left.
+    let mut head = 0usize;
+    let mut used = 0.0;
+    while head < chars.len() {
+        let cw = char_em(chars[head], face) * k;
+        if used + cw > room * 2.0 / 3.0 {
+            break;
+        }
+        used += cw;
+        head += 1;
+    }
+    let mut tail = chars.len();
+    while tail > head {
+        let cw = char_em(chars[tail - 1], face) * k;
+        if used + cw > room {
+            break;
+        }
+        used += cw;
+        tail -= 1;
+    }
+    let mut out: String = chars[..head].iter().collect();
+    out.push('…');
+    out.extend(chars[tail..].iter());
+    out
+}
+
+/// A13 (judge: raw protocol errors in dialogs) — is this error text
+/// developer wording rather than a sentence written for people? The
+/// client's own errors carry the JSON-RPC method and a transport wrapper
+/// (`octoscode_client::ClientError`: `{method}: rpc error …`, `{method}: bad
+/// result: …`, `{method}: transport: …`); the web's scope checks throw
+/// "Invalid or wrong-scope …" (`packages/client/src/inventory.ts:179-190`).
+pub fn is_protocol_error(s: &str) -> bool {
+    let t = s.trim();
+    let method_prefix = t.split_once(": ").is_some_and(|(head, _)| {
+        head.contains('/')
+            && !head.starts_with('/')
+            && head.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || matches!(c, '/' | '_' | '.' | '-'))
+    });
+    method_prefix
+        || ["rpc error", "bad result", ": transport: ", "wrong-scope", "missing field", "invalid type", "unknown variant"]
+            .iter()
+            .any(|k| t.contains(k))
+}
+
+/// A13 — a failure as people read it: a plain-language lead naming what
+/// failed (`lead`), then the cause the web would print (`cause.message`,
+/// e.g. `InventoryDialog.tsx:56-61`, capped at 512 characters like the web)
+/// on a smaller muted line under it, so the information stays but no longer
+/// leads. Ids: `{id}` is the lead, `{id}_detail` the cause.
+pub fn failure(d: &mut Dsl, id: &str, lead: &str, cause: &str) {
+    let cause = clean_cause(cause);
+    let col = d.anon();
+    d.view(&col, "width: Fill height: Fit flow: Down spacing: 2");
+    d.text(id, lead, &Txt::new(13.0, Face::Medium, tok::RED).w(W::Fill).wrap());
+    if !cause.is_empty() && cause != lead {
+        d.text(&format!("{id}_detail"), &cause, &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    }
+    d.close();
+}
+
+/// A13 — an error line that may be either: developer wording
+/// ([`is_protocol_error`]) gets the plain `lead` over it ([`failure`]); a
+/// message already written for people ("History belongs to another
+/// Session.") shows alone, red, as before.
+pub fn error_line(d: &mut Dsl, id: &str, lead: &str, msg: &str) {
+    if is_protocol_error(msg) {
+        failure(d, id, lead, msg);
+    } else {
+        d.text(id, &clean_cause(msg), &Txt::new(12.5, Face::Regular, tok::RED).w(W::Fill).wrap());
+    }
+}
+
+/// A13 — a dialog's error: when the dialog recorded what failed for THIS
+/// error text (`failed` = the plain lead and the cause it was recorded
+/// with), the lead with the cause muted under it ([`failure`]); otherwise
+/// [`error_line`] (an error set elsewhere never inherits a stale lead).
+pub fn dialog_error(d: &mut Dsl, id: &str, e: &str, failed: Option<&(&'static str, String)>, fallback: &str) {
+    match failed.filter(|(_, cause)| cause == e) {
+        Some((lead, _)) => failure(d, id, lead, e),
+        None => error_line(d, id, fallback, e),
+    }
+}
+
+/// Whitespace collapsed (the web renders the cause in a `<p>`), capped at
+/// 512 characters (`.slice(0, 512)`).
+fn clean_cause(s: &str) -> String {
+    s.split_whitespace().collect::<Vec<_>>().join(" ").chars().take(512).collect()
+}
+
 /// Escape a runtime string for a DSL string literal (`text: "…"`). Debug
 /// formatting escapes quotes, backslashes and control characters.
 pub fn lit(s: &str) -> String {
@@ -1086,6 +1188,57 @@ pub fn leaf(path: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A13 — developer wording is recognised (the client's method-prefixed
+    /// rpc / decode / transport errors, the web's scope refusals); sentences
+    /// for people are not.
+    #[test]
+    fn protocol_errors_are_told_from_sentences_for_people() {
+        for raw in [
+            "session/hydrate: bad result: missing field `session_id`",
+            "tool/status/list: rpc error -32601 (method not found)",
+            "session/open: transport: channel closed",
+            "Invalid or wrong-scope tool status",
+            "agent/status/read: returned agent \"a2\"",
+        ] {
+            assert!(is_protocol_error(raw), "{raw}");
+        }
+        for plain in [
+            "History changed. Reload the checkpoint picker.",
+            "The Session became active. Wait before rewinding.",
+            "Couldn't delete the session: session is busy",
+            "A confirmed session and profile are required",
+            "Upload was not confirmed (500).",
+        ] {
+            assert!(!is_protocol_error(plain), "{plain}");
+        }
+        // failure(): the lead first (red, medium), the cause muted under it,
+        // whitespace collapsed and capped at 512 characters like the web.
+        let mut d = Dsl::new();
+        failure(&mut d, "x_error", "Couldn't read the tools for this session.", &format!("a/b: rpc error 1 ({})", "z ".repeat(400)));
+        let dsl = d.finish();
+        let lead = dsl.find("x_error := Label").unwrap();
+        let detail = dsl.find("x_error_detail := Label").unwrap();
+        assert!(lead < detail && dsl[lead..detail].contains(tok::RED) && dsl[detail..].contains(tok::MUTED));
+        let cause = dsl[detail..].split("text: \"").nth(1).unwrap().split('"').next().unwrap();
+        assert_eq!(cause.chars().count(), 512);
+        // error_line(): a plain message shows alone.
+        let mut d = Dsl::new();
+        error_line(&mut d, "y_error", "Lead", "Couldn't delete the session: session is busy");
+        let dsl = d.finish();
+        assert!(!dsl.contains("Lead") && !dsl.contains("y_error_detail"), "{dsl}");
+    }
+
+    /// A13 — the middle ellipsis keeps both ends and fits the budget.
+    #[test]
+    fn fit_middle_keeps_the_head_and_the_tail() {
+        let s = "abcdefghijklmnopqrstuvwxyz0123456789";
+        let out = fit_middle(s, 120.0, 12.0, Face::Mono);
+        assert!(text_w(&out, 12.0, Face::Mono) <= 120.0, "{out}");
+        let (head, tail) = out.split_once('…').unwrap();
+        assert!(s.starts_with(head) && s.ends_with(tail) && !head.is_empty() && !tail.is_empty(), "{out}");
+        assert_eq!(fit_middle("short", 120.0, 12.0, Face::Mono), "short");
+    }
 
     #[test]
     fn taps_are_in_the_shape_the_shared_tap_path_reads() {

@@ -14,7 +14,13 @@
 //!   name, never inline in the body; Download; images preview);
 //! * SYSTEM NOTICES at the turn's end — the store's `system.notice` entries
 //!   (turn errors, non-clean terminals, `warning`, background completions,
-//!   hydrated system rows: `entry-model.ts:70-78` `addSystemMessage`).
+//!   hydrated system rows: `entry-model.ts:70-78` `addSystemMessage`);
+//! * COMMAND RECEIPTS (A13) — a `palette::REPORT_KIND` entry ("/status is not
+//!   available in this native build — nothing was sent to the model.", an
+//!   unknown command, a refused argument) is a compact notice line, never
+//!   answer-size prose. The web appends a local command report as a SYSTEM
+//!   entry (`App.tsx` `showLocalReport` -> `addSystemMessage`), drawn in the
+//!   tertiary ink at 13 px (`styles.css` `.entry-system`).
 use std::sync::Arc;
 
 use octoscode_store::timeline::{EntryKind, TimelineEntry};
@@ -37,6 +43,10 @@ pub enum TRow {
     Notice(u64),
     /// A delivered file (timeline entry id).
     File(u64),
+    /// A13 — a command receipt (timeline entry id of a
+    /// `palette::REPORT_KIND` entry): the compact notice line that replaces
+    /// the answer-prose row A1's base model gives a receipt turn.
+    Receipt(u64),
 }
 
 impl TRow {
@@ -141,7 +151,12 @@ pub fn timeline_folded(store: &Arc<Store>, live: bool, folded: &[String]) -> Vec
         // live working row) when a turn has no answer yet.
         match row.kind {
             ItemKind::AssistantProse => {
-                out.push(TRow::Base(row));
+                // A13: a receipt turn's "answer" is the receipt itself — it
+                // takes the compact notice row, not the prose renderer.
+                match receipt_entry(&entries, &row) {
+                    Some(id) => out.push(TRow::Receipt(id)),
+                    None => out.push(TRow::Base(row)),
+                }
                 out.extend(pending_files.drain(..).map(TRow::File));
                 out.extend(pending_notices.drain(..).map(TRow::Notice));
             }
@@ -161,6 +176,18 @@ pub fn timeline_folded(store: &Arc<Store>, live: bool, folded: &[String]) -> Vec
         out.extend(x.notices.into_iter().map(TRow::Notice));
     }
     out
+}
+
+/// A13 — the entry id when `row` is a prose row standing for a command
+/// receipt (`palette::REPORT_KIND`). A1's base model picks a turn's final
+/// assistant text OR receipt for its prose row (`screen.rs`, #P4d3); every
+/// receipt rides its own synthetic turn (`palette::next_receipt_turn`), so
+/// the pick of a receipt turn is that receipt.
+fn receipt_entry(entries: &[TimelineEntry], row: &Row) -> Option<u64> {
+    entries
+        .get(row.index)
+        .filter(|e| e.kind == crate::screens::palette::REPORT_KIND)
+        .map(|e| e.id)
 }
 
 fn entry(store: &Store, id: u64) -> Option<TimelineEntry> {
@@ -324,6 +351,10 @@ pub fn lower(row: &TRow, store: &Store) -> String {
             d.close();
             d.close();
         }
+        TRow::Receipt(id) => {
+            let Some(e) = entry(store, *id) else { return String::new() };
+            receipt_row(&mut d, *id, &e.text);
+        }
         TRow::File(id) => {
             let Some(e) = entry(store, *id) else { return String::new() };
             let path = e.data.get("path").and_then(|p| p.as_str()).unwrap_or(&e.text).to_owned();
@@ -378,6 +409,36 @@ pub fn lower(row: &TRow, store: &Store) -> String {
         }
     }
     d.finish()
+}
+
+/// A13 — a receipt's type: the web's system entry is 13 px tertiary ink
+/// (`styles.css` `.entry-system .entry-content`); a receipt has no title, so
+/// its one line takes the small size of the timeline's secondary text.
+pub const RECEIPT_PX: f64 = 12.5;
+/// One receipt text line's height (the glyph box centres on the first line).
+const RECEIPT_LINE: f64 = 16.0;
+
+/// A13 — one command receipt as a compact notice line: the info glyph in a
+/// box one text line tall (it stays on the FIRST line when the receipt
+/// wraps on a phone), then the receipt's own words, wrapping, in the
+/// secondary ink. Several receipts in a row stack 6 px apart like a log,
+/// visibly subordinate to the conversation. The text keeps its exact words
+/// (walks and tests look receipts up by them) under `b3_tl_receipt_{id}`.
+fn receipt_row(d: &mut Dsl, id: u64, text: &str) {
+    d.view(
+        "b3_tl_receipt",
+        "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.0} padding: Inset{left: 0 right: 0 top: 3 bottom: 3}",
+    );
+    let glyph = d.anon();
+    d.view(&glyph, &format!("width: 14 height: {RECEIPT_LINE} flow: Overlay align: Align{{x: 0.5 y: 0.5}}"));
+    d.icon(&format!("b3_tl_receipt_icon_{id}"), "b3_info.svg", 14.0, tok::MUTED);
+    d.close();
+    d.text(
+        &format!("b3_tl_receipt_{id}"),
+        text,
+        &Txt::new(RECEIPT_PX, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
+    );
+    d.close();
 }
 
 /// Download (or preview) one delivered file through `GET /api/files`, saving
@@ -463,6 +524,7 @@ mod tests {
                 TRow::Thinking(_) => "thinking".into(),
                 TRow::Notice(_) => "notice".into(),
                 TRow::File(_) => "file".into(),
+                TRow::Receipt(_) => "receipt".into(),
             })
             .collect();
         assert_eq!(
@@ -474,6 +536,60 @@ mod tests {
         assert!(rows.contains(&TRow::File(file)) && rows.contains(&TRow::Notice(notice)));
         // The base model is untouched underneath.
         assert_eq!(crate::screen::timeline_rows(&s, false).len(), 4);
+    }
+
+    /// A13 (judge: "/status is not available…" receipts piled up as
+    /// answer-size prose) — each receipt is its own compact notice row, in
+    /// arrival order after the answer it follows; the answer itself stays
+    /// prose; the base model underneath is unchanged.
+    #[test]
+    fn command_receipts_are_compact_notice_rows_not_answer_prose() {
+        use crate::screens::palette::{next_receipt_turn, REPORT_KIND};
+        let s = store();
+        let tl = &s.domains.session.timeline;
+        tl.upsert_user_message("s", "t1", "why 5?", serde_json::json!({}));
+        tl.append("s", Some("t1".into()), EntryKind::ASSISTANT_TEXT, "Because of the loop.".into());
+        s.domains.turn.set_terminal("t1", "completed");
+        let status = "/status is not available in this native build — nothing was sent to the model.";
+        let r1 = tl.append("s", Some(next_receipt_turn()), REPORT_KIND, status.into());
+        let r2 = tl.append(
+            "s",
+            Some(next_receipt_turn()),
+            REPORT_KIND,
+            "Unsupported command: /bogus — kept in the composer, nothing was sent to the model.".into(),
+        );
+        let rows = timeline(&s, false);
+        let receipts: Vec<u64> = rows
+            .iter()
+            .filter_map(|r| match r {
+                TRow::Receipt(id) => Some(*id),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(receipts, [r1, r2], "one receipt row each, in arrival order, after the answer");
+        let prose = rows
+            .iter()
+            .filter(|r| matches!(r, TRow::Base(b) if b.kind == ItemKind::AssistantProse))
+            .count();
+        assert_eq!(prose, 1, "only the real answer renders as prose");
+        assert!(matches!(rows.last(), Some(TRow::Receipt(id)) if *id == r2), "receipts land at the end, in view");
+        // The base model still carries both receipts as its prose picks (A1's
+        // row model is untouched; the board-3 layer restyles them).
+        let base = crate::screen::timeline_rows(&s, false);
+        assert_eq!(base.iter().filter(|r| r.kind == ItemKind::AssistantProse).count(), 3);
+        // The row keeps the receipt's exact words, small and muted, with the
+        // info glyph — never the answer's Markdown renderer.
+        let dsl = lower(&TRow::Receipt(r1), &s);
+        assert!(dsl.contains(&format!("b3_tl_receipt_{r1} := Label")), "{dsl}");
+        assert!(dsl.contains(&ui::lit(status)), "the exact receipt text");
+        assert!(dsl.contains("b3_info.svg"), "the info glyph");
+        assert!(dsl.contains(tok::MUTED), "the secondary ink");
+        assert!(dsl.contains(&ui::text_style(Face::Regular, RECEIPT_PX)), "the small size");
+        assert!(RECEIPT_PX < 15.0, "smaller than the answer body (15 px)");
+        assert!(!dsl.contains("Markdown"), "not answer prose");
+        assert_eq!(dsl.matches('{').count(), dsl.matches('}').count());
+        // The layout spaces it like answer prose (A1's lead gap rules).
+        assert_eq!(TRow::Receipt(r1).layout_kind(), ItemKind::AssistantProse);
     }
 
     #[test]

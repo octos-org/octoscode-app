@@ -297,6 +297,19 @@ fn session_of(conv: &crate::flow::Conversation) -> String {
 /// Record a failure as the panel's alert line — only while the op stays
 /// authorized (`#runGuarded`: "records the error only while the op stays
 /// authorized"; a newer epoch drops it).
+/// A13 — the plain lead over a failed agents read: the family error names
+/// its method (`fail`), so the lead says which read failed; the cause shows
+/// muted under it (`ui::error_line`).
+pub fn failure_lead(e: &str) -> &'static str {
+    match e.split_once(": ").map(|(method, _)| method) {
+        Some("agent/status/read") => "Couldn't read the agent's status.",
+        Some("agent/output/read") => "Couldn't read the agent's output.",
+        Some("agent/artifact/list") => "Couldn't list the agent's artifacts.",
+        Some("agent/artifact/read") => "Couldn't open the agent's artifact.",
+        _ => "Couldn't load this session's agents.",
+    }
+}
+
 fn fail(store: &Store, epoch: u64, method: &str, e: impl std::fmt::Display) -> String {
     let msg = format!("{method}: {e}");
     store.domains.autonomy.record_error(FAMILY, epoch, &msg);
@@ -833,7 +846,7 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
     }
     if let Some(e) = store.domains.autonomy.error(FAMILY) {
         d.gap(W::Fill, 6.0);
-        d.text("b3_agents_error", &e, &Txt::new(12.5, Face::Regular, tok::RED).w(W::Fill).wrap());
+        ui::error_line(d, "b3_agents_error", failure_lead(&e), &e);
     }
     ui::body_close(d);
     ui::shell_close(d);
@@ -842,6 +855,20 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A13 — a failed agents read leads with which read failed, in plain
+    /// words; the family error (method-prefixed) stays under it, muted.
+    #[test]
+    fn a_failed_agents_read_names_the_read_in_plain_words() {
+        assert_eq!(failure_lead("agent/list: rpc error -32601 (method not found)"), "Couldn't load this session's agents.");
+        assert_eq!(failure_lead("agent/output/read: transport: channel closed"), "Couldn't read the agent's output.");
+        assert_eq!(failure_lead("agent/status/read: returned agent \"a2\""), "Couldn't read the agent's status.");
+        assert_eq!(failure_lead("agent/artifact/read: returned another artifact"), "Couldn't open the agent's artifact.");
+        let mut d = Dsl::new();
+        ui::error_line(&mut d, "b3_agents_error", failure_lead("agent/list: rpc error -32601 (x)"), "agent/list: rpc error -32601 (x)");
+        let dsl = d.finish();
+        assert!(dsl.contains("Couldn't load this session's agents.") && dsl.contains("b3_agents_error_detail"), "{dsl}");
+    }
 
     #[test]
     fn the_spawn_text_is_the_webs() {

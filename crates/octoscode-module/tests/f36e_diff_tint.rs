@@ -133,8 +133,18 @@ fn the_literal_tint_hexes_differ_between_light_and_dark() {
 /// `diff_tint_hexes()` is what the lowering calls, and it must return the
 /// branch's pair. This pins the helper to the palette `resolved()` reports, so a
 /// `match` that ignores the branch cannot pass.
+/// A13: the tests here that flip the process-wide theme preference run one at
+/// a time (`theme::test_lock` is `#[cfg(test)]`, out of reach of this binary):
+/// on 4 test threads `the_helper_agrees_with_the_hardcoded_layers` read the
+/// light pair right after setting dark (the full suite failed once that way).
+fn theme_flip_lock() -> std::sync::MutexGuard<'static, ()> {
+    static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    LOCK.lock().unwrap_or_else(|p| p.into_inner())
+}
+
 #[test]
 fn the_helper_follows_the_resolved_palette() {
+    let _flip = theme_flip_lock();
     for want in ["light", "dark"] {
         theme::set_preference(want);
         let expected = if want == "light" {
@@ -304,6 +314,7 @@ fn the_shell_drives_the_palette_pair_from_the_line_mark() {
 /// so editing one without the other fails here rather than silently drifting.
 #[test]
 fn the_helper_agrees_with_the_hardcoded_layers() {
+    let _flip = theme_flip_lock();
     theme::set_preference("light");
     let (la, ld) = theme::diff_tint_hexes();
     theme::set_preference("dark");

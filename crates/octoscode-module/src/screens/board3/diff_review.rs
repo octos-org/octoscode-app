@@ -204,6 +204,15 @@ fn empty_box(d: &mut Dsl, id: &str, head: Option<&str>, body: &str, alert: bool)
     d.close();
 }
 
+/// A13 — one diff row's width: the gutters (old, new, prefix), the widest
+/// line's code (the mono face: 0.6 em per character, exact) and the row's
+/// insets — never narrower than the file card (`min_w`), so a short hunk's
+/// tints still span the card.
+pub fn line_row_w<'a>(lines: impl Iterator<Item = &'a str>, min_w: f64) -> f64 {
+    let code = lines.map(|l| ui::text_w(l, 11.5, Face::Mono)).fold(0.0_f64, f64::max);
+    (12.0 + 30.0 + 6.0 + 30.0 + 6.0 + 10.0 + 6.0 + code + 2.0 + 12.0).max(min_w).ceil()
+}
+
 pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
     let width = frame.dialog_w(760.0);
     let compact = frame.compact(width);
@@ -322,8 +331,26 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
                 d.view(&hrow, "width: Fill height: Fit flow: Down padding: Inset{left: 12 right: 12 top: 8 bottom: 4}");
                 d.text(&format!("{hid}_header"), &h.header, &Txt::new(11.5, Face::Mono, tok::BLUE).w(W::Fill).wrap());
                 d.close();
-                let lines = d.anon();
-                d.view(&lines, "width: Fill height: Fit flow: Down padding: Inset{bottom: 6}");
+                // A13 (judge, 360 px: "Args::\nparse()") — the hunk's lines
+                // stay WHOLE and scroll sideways together (the web's
+                // `.diff-hunk { overflow: auto }`, `.diff-lines { min-width:
+                // max-content }`, `.diff-line > code { white-space: pre }`):
+                // every row is as wide as the widest line, so the tints line
+                // up when scrolled.
+                let take = h.lines.len().min(MAX_LINES.saturating_sub(drawn));
+                let row_w = line_row_w(h.lines[..take].iter().map(|l| l.content.as_str()), inner_w - 2.0);
+                // An overflowing hunk keeps room under its last line for the
+                // bar: the bar sits at the bottom of the box's CONTENT, so the
+                // room is the inner column's padding (the scroll view's own
+                // padding is not part of its content).
+                let bottom = if row_w > inner_w - 2.0 + 0.5 { 14 } else { 6 };
+                d.open(
+                    &format!("{hid}_scroll"),
+                    "ScrollXView",
+                    "width: Fill height: Fit flow: Down\nscroll_bars.scroll_bar_x.bar_side_margin: 4\nscroll_bars.scroll_bar_x.draw_bg.color: #d1d1d6ff\nscroll_bars.scroll_bar_x.draw_bg.color_hover: #aeaeb2ff\nscroll_bars.scroll_bar_x.draw_bg.color_drag: #aeaeb2ff",
+                );
+                let col = d.anon();
+                d.view(&col, &format!("width: Fit height: Fit flow: Down padding: Inset{{bottom: {bottom}}}"));
                 for (li, l) in h.lines.iter().enumerate() {
                     if drawn >= MAX_LINES {
                         break;
@@ -335,14 +362,21 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
                         DiffPreviewLineKind::Context => (tok::TRANSPARENT, " ", tok::MUTED),
                     };
                     let lid = format!("{hid}_l{li}");
-                    d.surface(&lid, "width: Fill height: Fit flow: Right spacing: 6 padding: Inset{left: 12 right: 12 top: 2 bottom: 2}", fill, 0.0, None);
+                    d.surface(
+                        &lid,
+                        &format!("width: {row_w} height: Fit flow: Right spacing: 6 padding: Inset{{left: 12 right: 12 top: 2 bottom: 2}}"),
+                        fill,
+                        0.0,
+                        None,
+                    );
                     let num = |n: Option<u32>| n.map(|n| n.to_string()).unwrap_or_default();
                     d.text(&format!("{lid}_old"), &num(l.old_line), &Txt::new(11.0, Face::Mono, tok::FAINT).w(W::Px(30.0)));
                     d.text(&format!("{lid}_new"), &num(l.new_line), &Txt::new(11.0, Face::Mono, tok::FAINT).w(W::Px(30.0)));
                     d.text(&format!("{lid}_prefix"), prefix, &Txt::new(11.5, Face::Mono, ink).w(W::Px(10.0)));
-                    d.text(&format!("{lid}_code"), &l.content, &Txt::new(11.5, Face::Mono, tok::TEXT).w(W::Fill).wrap());
+                    d.text(&format!("{lid}_code"), &l.content, &Txt::new(11.5, Face::Mono, tok::TEXT));
                     d.close();
                 }
+                d.close();
                 d.close();
             }
             d.close();
@@ -385,5 +419,47 @@ mod tests {
         assert_eq!(totals(&r), (1, 1));
         assert_eq!(wire(&r.status), "ready");
         assert_eq!(wire(&r.source), "pending_store");
+    }
+
+    /// A13 (judge, 360 px: "Args::\nparse()") — a hunk's lines never wrap:
+    /// they sit whole in one `ScrollXView`, every row as wide as the widest
+    /// line (so the tints line up), and never narrower than the card.
+    #[test]
+    fn hunk_lines_stay_whole_and_scroll_sideways_together() {
+        let long = "    let args = Args::parse(); // the whole call stays on its line";
+        let r: DiffPreviewGetResult = serde_json::from_value(json!({
+            "status": "ready", "source": "pending_store",
+            "preview": {"session_id": "s", "preview_id": "01920000-0000-7000-8000-0000000000f1", "files": [
+                {"path": "src/main.rs", "status": "modified", "hunks": [{"header": "@@ -1,2 +1,2 @@", "lines": [
+                    {"kind": "removed", "content": "fn main() {", "old_line": 1},
+                    {"kind": "added", "content": long, "new_line": 1},
+                    {"kind": "context", "content": "}", "old_line": 2, "new_line": 2}
+                ]}]}
+            ]}
+        }))
+        .unwrap();
+        let st = DiffReviewState { preview_id: Some("01920000-0000-7000-8000-0000000000f1".into()), result: Some(r), ..Default::default() };
+        for frame in [Frame::DESKTOP, Frame { avail_w: 360.0, avail_h: 780.0 }] {
+            let mut d = Dsl::new();
+            build(&mut d, &st, &frame, &Store::new());
+            let dsl = d.finish();
+            let at = dsl.find("b3_diff_file_0_h0_scroll := ScrollXView {").expect("one sideways box per hunk");
+            let rows: Vec<&str> = (0..3)
+                .map(|i| {
+                    let lid = format!("b3_diff_file_0_h0_l{i} := DesignSurface {{\nwidth: ");
+                    let p = dsl.find(&lid).unwrap_or_else(|| panic!("row {i}"));
+                    assert!(p > at, "row {i} is inside the box");
+                    dsl[p + lid.len()..].split(' ').next().unwrap()
+                })
+                .collect();
+            assert!(rows.iter().all(|w| *w == rows[0]), "equal row widths: {rows:?}");
+            let w: f64 = rows[0].parse().unwrap();
+            assert!(w >= ui::text_w(long, 11.5, Face::Mono) + 100.0, "the widest line fits its row: {w}");
+            let code = dsl.find("b3_diff_file_0_h0_l1_code := Label {\nwidth: Fit").expect("the code is one Fit line");
+            assert!(dsl[code..].starts_with("b3_diff_file_0_h0_l1_code := Label {\nwidth: Fit height: Fit padding: 0 text:"));
+            assert!(!dsl[code..code + 300].contains("wrap: true"), "never wraps");
+            assert_eq!(dsl.matches('{').count(), dsl.matches('}').count(), "balanced");
+        }
+        assert_eq!(line_row_w(["x"].into_iter(), 500.0), 500.0, "never narrower than the card");
     }
 }

@@ -381,7 +381,12 @@ def main():
     click("b3_insp_copy_btn")
     check("inspector: 'Conversation link copied.'", wait(lambda: seen("b3_insp_copied", "Conversation link copied.")))
     link = seen("b3_insp_link_value")
-    check("inspector: the full link stays visible in a read-only field", bool(link) and link.startswith("octoscode://session?s="), str(link)[:60])
+    # A13: the link stays visible on ONE line, shortened in the middle (the
+    # judge's 8-line percent-encoded block); Copy writes the whole link.
+    lr = rect("b3_insp_link_value")
+    check("inspector: the link stays visible on one line (whole, or head…tail when longer than its field)",
+          bool(link) and link.startswith("octoscode://session") and bool(lr) and lr[3] <= 20,
+          f"{str(link)[:60]} {lr}")
     shot("08-inspector")
     click("b3_close", scroll=False)
     check("inspector closes", wait(lambda: not shown("b3_insp_scope")))

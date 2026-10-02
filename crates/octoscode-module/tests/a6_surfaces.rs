@@ -242,6 +242,7 @@ fn shape(store: &Arc<Store>) -> Vec<String> {
             rows::TRow::Thinking(_) => "thinking".into(),
             rows::TRow::Notice(_) => "notice".into(),
             rows::TRow::File(_) => "file".into(),
+            rows::TRow::Receipt(_) => "receipt".into(),
         })
         .collect()
 }
