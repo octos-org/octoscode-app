@@ -309,7 +309,9 @@ pub fn error_line(d: &mut Dsl, id: &str, lead: &str, msg: &str) {
     if is_protocol_error(msg) {
         failure(d, id, lead, msg);
     } else {
-        d.text(id, &clean_cause(msg), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+        // A24: a message written for people is product copy (its key);
+        // server text is no key and reads as written.
+        d.text(id, &clean_cause(tr(msg)), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
 }
 
@@ -1208,6 +1210,29 @@ pub fn rel_time(now_ms: u64, then_ms: u64) -> String {
     let days = hours / 24;
     if days < 7 {
         return format!("{days}d");
+    }
+    short_date(then_ms)
+}
+
+/// A24 — a past moment as people read it, in the current language: "just
+/// now", "5m ago", "3h ago", "2d ago" (刚刚 / 5 分钟前 / 3 小时前 / 2 天前),
+/// then a short date past a week (no "ago" after a date).
+pub fn rel_ago(now_ms: u64, then_ms: u64) -> String {
+    let secs = now_ms.saturating_sub(then_ms) / 1000;
+    if secs < 60 {
+        return tr("just now").to_owned();
+    }
+    let mins = secs / 60;
+    if mins < 60 {
+        return crate::i18n::tr1("{value0}m ago", &mins.to_string());
+    }
+    let hours = mins / 60;
+    if hours < 24 {
+        return crate::i18n::tr1("{value0}h ago", &hours.to_string());
+    }
+    let days = hours / 24;
+    if days < 7 {
+        return crate::i18n::tr1("{value0}d ago", &days.to_string());
     }
     short_date(then_ms)
 }

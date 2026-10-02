@@ -31,6 +31,7 @@ use octoscode_store::Store;
 
 use super::host::{Job, Outcome};
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::tr;
 
 /// The error family the panel's alert line reads (`agentsError`).
 pub const FAMILY: &str = "agents";
@@ -586,19 +587,19 @@ fn actions(d: &mut Dsl, prefix: &str, base: &str, suffix: &str, caps: &Caps, ena
     let ev = |verb: &str| format!("{base}{verb}{suffix}");
     let kind = |on: bool| if on { Btn::Outline } else { Btn::OutlineOff };
     if caps.status {
-        d.button(&format!("{prefix}_status"), "Read status", &ev("status"), kind(enabled), W::Fit, 30.0);
+        d.button(&format!("{prefix}_status"), tr("Read status"), &ev("status"), kind(enabled), W::Fit, 30.0);
     }
     if caps.output {
-        d.button(&format!("{prefix}_output"), "Read output", &ev("output"), kind(enabled), W::Fit, 30.0);
+        d.button(&format!("{prefix}_output"), tr("Read output"), &ev("output"), kind(enabled), W::Fit, 30.0);
     }
     if caps.artifacts {
-        d.button(&format!("{prefix}_artifacts"), "List artifacts", &ev("artifacts"), kind(enabled), W::Fit, 30.0);
+        d.button(&format!("{prefix}_artifacts"), tr("List artifacts"), &ev("artifacts"), kind(enabled), W::Fit, 30.0);
     }
     if caps.interrupt {
-        d.button(&format!("{prefix}_interrupt"), "Interrupt agent", &ev("interrupt"), kind(enabled && controllable), W::Fit, 30.0);
+        d.button(&format!("{prefix}_interrupt"), tr("Interrupt agent"), &ev("interrupt"), kind(enabled && controllable), W::Fit, 30.0);
     }
     if caps.close {
-        danger_button(d, &format!("{prefix}_close"), "Close agent", &ev("close"), enabled && controllable);
+        danger_button(d, &format!("{prefix}_close"), tr("Close agent"), &ev("close"), enabled && controllable);
     }
     d.close();
 }
@@ -656,7 +657,7 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
     // Header: "Agents" + refresh + close; the session it lists under it.
     let row = d.anon();
     d.view(&row, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4");
-    d.text("b3_title", "Agents", &ui::title().w(W::Fill));
+    d.text("b3_title", tr("Agents"), &ui::title().w(W::Fill));
     if caps.list {
         ui::icon_button(d, "b3_agents_refresh", "b3_refresh.svg", 16.0, "b3.agents.refresh");
     }
@@ -669,7 +670,7 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
     if !caps.any() {
         d.text(
             "b3_agents_unsupported",
-            "This server does not advertise agent controls.",
+            tr("This server does not advertise agent controls."),
             &ui::meta().w(W::Fill).wrap(),
         );
         ui::body_close(d);
@@ -679,30 +680,30 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
     // ---- Request parallel agents (`AgentPanel.tsx:102-164`).
     if caps.list && caps.turn_start {
         ui::card_open(d, "b3_agents_spawn", 10.0);
-        ui::section_title(d, "b3_agents_spawn_title", "Request parallel agents");
+        ui::section_title(d, "b3_agents_spawn_title", tr("Request parallel agents"));
         let fields = format!("b3_agents_form_{}", st.form_gen);
         if compact {
             d.view(&fields, "width: Fill height: Fit flow: Down spacing: 10");
-            field(d, "", "Agent count", "b3_agents_count", "agents.count", &st.count_snap, "1", false, W::Fill);
+            field(d, "", tr("Agent count"), "b3_agents_count", "agents.count", &st.count_snap, "1", false, W::Fill);
         } else {
             d.view(&fields, "width: Fill height: Fit flow: Right spacing: 10");
-            field(d, "", "Agent count", "b3_agents_count", "agents.count", &st.count_snap, "1", false, W::Px(110.0));
+            field(d, "", tr("Agent count"), "b3_agents_count", "agents.count", &st.count_snap, "1", false, W::Px(110.0));
         }
-        field(d, "", "Agent task", "b3_agents_task", "agents.task", &st.task_snap, "Describe the task for the agents", false, W::Fill);
+        field(d, "", tr("Agent task"), "b3_agents_task", "agents.task", &st.task_snap, tr("Describe the task for the agents"), false, W::Fill);
         d.close();
-        d.text("b3_agents_spawn_hint", SPAWN_HINT, &ui::meta().w(W::Fill).wrap());
+        d.text("b3_agents_spawn_hint", tr(SPAWN_HINT), &ui::meta().w(W::Fill).wrap());
         if let Some(e) = &st.spawn_error {
-            d.text("b3_agents_spawn_error", e, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+            d.text("b3_agents_spawn_error", tr(e), &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
         }
         // Both variants are emitted; the live gate shows one ([`visibility`]:
         // no remount while typing, which would rebuild the focused input).
         let foot = d.anon();
         d.view(&foot, "width: Fill height: Fit flow: Overlay align: Align{x: 1.0 y: 0.5}");
         d.view("b3_agents_spawn_off", "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
-        d.button("b3_agents_spawn_disabled", "Request parallel agents", "b3.agents.spawn", Btn::Disabled, W::Fit, 34.0);
+        d.button("b3_agents_spawn_disabled", tr("Request parallel agents"), "b3.agents.spawn", Btn::Disabled, W::Fit, 34.0);
         d.close();
         d.view("b3_agents_spawn_on", "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
-        d.button("b3_agents_spawn_go", "Request parallel agents", "b3.agents.spawn", Btn::Primary, W::Fit, 34.0);
+        d.button("b3_agents_spawn_go", tr("Request parallel agents"), "b3.agents.spawn", Btn::Primary, W::Fit, 34.0);
         d.close();
         d.close();
         d.close();
@@ -710,11 +711,11 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
     }
     // ---- The roster (`:165-195`).
     if caps.list {
-        ui::field_label(d, "b3_agents_roster_label", "Agents");
+        ui::field_label(d, "b3_agents_roster_label", tr("Agents"));
         if st.loading && agents.is_empty() {
-            d.text("b3_agents_loading", "Loading agents…", &ui::meta());
+            d.text("b3_agents_loading", tr("Loading agents…"), &ui::meta());
         } else if agents.is_empty() {
-            d.text("b3_agents_empty", EMPTY, &ui::meta().w(W::Fill));
+            d.text("b3_agents_empty", tr(EMPTY), &ui::meta().w(W::Fill));
         }
         for (i, a) in agents.iter().enumerate() {
             let id = format!("b3_agents_row_{i}");
@@ -724,9 +725,9 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
             d.text(&format!("{id}_name"), &ui::fit_w(&a.nickname, inner_w - 120.0, 13.0, Face::Semibold), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
             status_chip(d, &format!("{id}_status"), &a.status);
             d.close();
-            meta_row(d, &format!("{id}_role"), "Role", &a.role, inner_w, compact);
+            meta_row(d, &format!("{id}_role"), tr("Role"), &a.role, inner_w, compact);
             let last = a.last_task.clone().or_else(|| a.title.clone()).unwrap_or_else(|| "—".into());
-            meta_row(d, &format!("{id}_last"), "Last task", &last, inner_w, compact);
+            meta_row(d, &format!("{id}_last"), tr("Last task"), &last, inner_w, compact);
             if let Some(tail) = a.output_tail.as_deref().filter(|t| !t.trim().is_empty()) {
                 pre(d, &format!("{id}_tail"), tail);
             }
@@ -742,13 +743,13 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
     let h = d.anon();
     d.view(&h, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 6");
     d.icon("", if st.by_id_open { "b3_chevron_down_dark.svg" } else { "b3_chevron_right_dark.svg" }, 13.0, tok::TEXT);
-    d.text("b3_agents_by_id_label", "Inspect or control an agent by ID", &Txt::new(13.0, Face::Regular, tok::TEXT));
+    d.text("b3_agents_by_id_label", tr("Inspect or control an agent by ID"), &Txt::new(13.0, Face::Regular, tok::TEXT));
     d.close();
     d.tap("b3_agents_by_id", "b3.agents.by_id");
     d.close();
     if st.by_id_open {
         ui::card_open(d, "b3_agents_by_id_card", 10.0);
-        field(d, "", "Agent ID", "b3_agents_query", "agents.id", &st.query_snap, "agent id", true, W::Fill);
+        field(d, "", tr("Agent ID"), "b3_agents_query", "agents.id", &st.query_snap, tr("agent id"), true, W::Fill);
         // The id's actions are enabled only for a non-blank id: both rows are
         // emitted and the live gate shows one (no remount while typing).
         let both = d.anon();
@@ -761,31 +762,31 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
         d.close();
         d.close();
         if caps.artifact_read {
-            field(d, "", "Artifact path", "b3_agents_path", "agents.path", &st.path_snap, "path/to/artifact", true, W::Fill);
+            field(d, "", tr("Artifact path"), "b3_agents_path", "agents.path", &st.path_snap, "path/to/artifact", true, W::Fill);
             let foot = d.anon();
             d.view(&foot, "width: Fill height: Fit flow: Overlay");
             d.view("b3_agents_path_off", "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
-            d.button("b3_agents_read_path_disabled", "Read artifact by path", "b3.agents.id.read_path", Btn::OutlineOff, W::Fit, 30.0);
+            d.button("b3_agents_read_path_disabled", tr("Read artifact by path"), "b3.agents.id.read_path", Btn::OutlineOff, W::Fit, 30.0);
             d.close();
             d.view("b3_agents_path_on", "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
-            d.button("b3_agents_read_path", "Read artifact by path", "b3.agents.id.read_path", Btn::Outline, W::Fit, 30.0);
+            d.button("b3_agents_read_path", tr("Read artifact by path"), "b3.agents.id.read_path", Btn::Outline, W::Fit, 30.0);
             d.close();
             d.close();
         }
         d.close();
     }
     if viewer.detail_busy {
-        d.text("b3_agents_detail_busy", "Reading agent details…", &ui::meta());
+        d.text("b3_agents_detail_busy", tr("Reading agent details…"), &ui::meta());
     }
     if let Some(a) = &viewer.status {
         d.gap(W::Fill, 8.0);
         ui::card_open(d, "b3_agents_status_card", 6.0);
-        card_title(d, "b3_agents_status_title", &format!("Status — {}", a.agent_id), inner_w);
-        meta_row(d, "b3_agents_status_status", "Status", &a.status, inner_w, compact);
-        meta_row(d, "b3_agents_status_session", "Owner session", &a.session_id, inner_w, compact);
-        meta_row(d, "b3_agents_status_profile", "Profile", &a.profile_id, inner_w, compact);
-        meta_row(d, "b3_agents_status_backend", "Backend", &a.backend_kind, inner_w, compact);
-        meta_row(d, "b3_agents_status_count", "Artifacts", &a.artifact_count.to_string(), inner_w, compact);
+        card_title(d, "b3_agents_status_title", &format!("{} {}", tr("Status —"), a.agent_id), inner_w);
+        meta_row(d, "b3_agents_status_status", tr("Status"), &a.status, inner_w, compact);
+        meta_row(d, "b3_agents_status_session", tr("Owner session"), &a.session_id, inner_w, compact);
+        meta_row(d, "b3_agents_status_profile", tr("Profile"), &a.profile_id, inner_w, compact);
+        meta_row(d, "b3_agents_status_backend", tr("Backend"), &a.backend_kind, inner_w, compact);
+        meta_row(d, "b3_agents_status_count", tr("Artifacts"), &a.artifact_count.to_string(), inner_w, compact);
         if let Some(s) = a.summary.as_deref().filter(|s| !s.trim().is_empty()) {
             d.text("b3_agents_status_summary", s, &ui::body().w(W::Fill).wrap());
         }
@@ -794,9 +795,9 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
     if let Some((agent, rows)) = &viewer.artifacts {
         d.gap(W::Fill, 8.0);
         ui::card_open(d, "b3_agents_artifacts_card", 6.0);
-        card_title(d, "b3_agents_artifacts_title", &format!("Artifacts — {agent}"), inner_w);
+        card_title(d, "b3_agents_artifacts_title", &format!("{} {agent}", tr("Artifacts —")), inner_w);
         if rows.is_empty() {
-            d.text("b3_agents_artifacts_empty", "No artifacts available.", &ui::meta().w(W::Fill));
+            d.text("b3_agents_artifacts_empty", tr("No artifacts available."), &ui::meta().w(W::Fill));
         }
         for (j, r) in rows.iter().enumerate() {
             let line = d.anon();
@@ -804,7 +805,7 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
             let text = format!("{} — {} · {}", r.title, r.kind, r.status);
             d.text(&format!("b3_agents_artifact_{j}"), &ui::fit_w(&text, inner_w - 130.0, 12.5, Face::Regular), &Txt::new(12.5, Face::Regular, tok::TEXT).w(W::Fill));
             if caps.artifact_read {
-                d.button(&format!("b3_agents_artifact_read_{j}"), "Read artifact", &format!("b3.agents.artifact#{j}"), Btn::Outline, W::Fit, 30.0);
+                d.button(&format!("b3_agents_artifact_read_{j}"), tr("Read artifact"), &format!("b3.agents.artifact#{j}"), Btn::Outline, W::Fit, 30.0);
             }
             d.close();
         }
@@ -813,25 +814,25 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
     if let Some(v) = &viewer.artifact {
         d.gap(W::Fill, 8.0);
         ui::card_open(d, "b3_agents_artifact_card", 6.0);
-        card_title(d, "b3_agents_artifact_title", &format!("Artifact — {} / {}", v.agent_id, v.artifact.id), inner_w);
+        card_title(d, "b3_agents_artifact_title", &format!("{} {} / {}", tr("Artifact —"), v.agent_id, v.artifact.id), inner_w);
         d.text("b3_agents_artifact_name", &v.artifact.title, &ui::body().w(W::Fill).wrap());
         match &v.content {
             Some(c) => pre(d, "b3_agents_artifact_content", c),
-            None => d.text("b3_agents_artifact_none", "No readable content available.", &ui::meta()),
+            None => d.text("b3_agents_artifact_none", tr("No readable content available."), &ui::meta()),
         }
         d.close();
     }
     if let Some(o) = &viewer.output {
         d.gap(W::Fill, 8.0);
         ui::card_open(d, "b3_agents_output_card", 6.0);
-        card_title(d, "b3_agents_output_title", &format!("Output — {}", o.agent_id), inner_w);
+        card_title(d, "b3_agents_output_title", &format!("{} {}", tr("Output —"), o.agent_id), inner_w);
         pre(d, "b3_agents_output_text", if o.text.is_empty() { " " } else { &o.text });
         if o.has_more {
             let foot = d.anon();
             d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
             d.button(
                 "b3_agents_output_more",
-                "Load more",
+                tr("Load more"),
                 "b3.agents.output_more",
                 if viewer.output_busy { Btn::OutlineOff } else { Btn::Outline },
                 W::Fit,

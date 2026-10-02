@@ -19,6 +19,7 @@ use std::sync::Mutex;
 
 use super::activity::Lowered;
 use super::board3::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::{tr, tr1};
 
 /// The crash report link (`FatalErrorBoundary.tsx:86`, this app's issues).
 pub const REPORT_URL: &str = "https://github.com/octos-org/octoscode-app/issues/new";
@@ -190,11 +191,13 @@ pub fn lower_crash(frame: &Frame) -> Option<Lowered> {
         16.0,
         Some(tok::HAIRLINE),
     );
-    d.text("a9_cr_eyebrow", "OCTOSCODE STOPPED RENDERING", &Txt::new(11.0, Face::Medium, tok::MUTED));
-    d.text("a9_cr_title", "Client view unavailable", &Txt::new(22.0, Face::Semibold, tok::TEXT));
+    // A24: the web's eyebrow is "Octoscode Web stopped rendering"; the
+    // native copy names the app (an uppercase eyebrow in English).
+    d.text("a9_cr_eyebrow", &tr("OctosCode stopped rendering").to_uppercase(), &Txt::new(11.0, Face::Medium, tok::MUTED));
+    d.text("a9_cr_title", tr("Client view unavailable"), &Txt::new(22.0, Face::Semibold, tok::TEXT));
     d.text(
         "a9_cr_body",
-        "The client could not recover this view. Closing its connection may have stopped running work. Octos keeps persisted history; unsent drafts and queued messages may be lost when you reload.",
+        tr("The client could not recover this view. Closing its connection may have stopped running work. Octos keeps persisted history; unsent drafts and queued messages may be lost when you reload."),
         &Txt::new(14.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     // The redacted diagnostics (`<pre aria-label="Redacted crash diagnostics">`).
@@ -208,15 +211,15 @@ pub fn lower_crash(frame: &Frame) -> Option<Lowered> {
     d.text("a9_cr_report", &c.report, &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
     d.close();
     d.view("a9_cr_actions", "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 0.0 y: 0.5} margin: Inset{top: 4}");
-    d.button("a9_cr_reload", "Reload app", ACTION_RELOAD, Btn::Primary, W::Fit, 40.0);
+    d.button("a9_cr_reload", tr("Reload app"), ACTION_RELOAD, Btn::Primary, W::Fit, 40.0);
     let copy_label = match c.copy {
         CopyState::Idle => "Copy diagnostics",
         CopyState::Copied => "Copied",
         CopyState::Failed => "Copy failed",
     };
-    d.button("a9_cr_copy", copy_label, ACTION_COPY, Btn::Outline, W::Px(ui::text_w("Copy diagnostics", 13.0, Face::Medium) + 32.0), 40.0);
+    d.button("a9_cr_copy", tr(copy_label), ACTION_COPY, Btn::Outline, W::Px(ui::text_w(tr("Copy diagnostics"), 13.0, Face::Medium) + 32.0), 40.0);
     d.close();
-    d.link("a9_cr_report_link", "Report this crash ↗", Some(ACTION_REPORT), 13.0);
+    d.link("a9_cr_report_link", tr("Report this crash ↗"), Some(ACTION_REPORT), 13.0);
     d.close(); // card
     d.close(); // root
     let taps = d.taps.clone();
@@ -292,20 +295,20 @@ fn panel(d: &mut Dsl, u: &Unavailable, w: f64, modal: bool) {
         d.close();
     }
     d.view("a9_un_col", "width: Fill height: Fit flow: Down spacing: 10 padding: Inset{left: 22 right: 22 top: 22 bottom: 20}");
-    d.text("a9_un_title", &format!("{} unavailable", u.name), &Txt::new(18.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
+    d.text("a9_un_title", &tr1("{value0} unavailable", tr(&u.name)), &Txt::new(18.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
     d.text(
         "a9_un_p0",
-        "This view could not be displayed. Other parts of the app remain available.",
+        tr("This view could not be displayed. Other parts of the app remain available."),
         &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill).wrap(),
     );
     d.text(
         "a9_un_p1",
-        "Reload the app to try again. Reloading may stop running work and discard drafts and queued messages.",
+        tr("Reload the app to try again. Reloading may stop running work and discard drafts and queued messages."),
         &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     d.view("a9_un_actions", "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 1.0 y: 0.5} margin: Inset{top: 6}");
-    d.button("a9_un_close", "Close", ACTION_CLOSE, Btn::Outline, W::Fit, 36.0);
-    d.button("a9_un_reload", "Reload app", ACTION_RELOAD, Btn::Primary, W::Fit, 36.0);
+    d.button("a9_un_close", tr("Close"), ACTION_CLOSE, Btn::Outline, W::Fit, 36.0);
+    d.button("a9_un_reload", tr("Reload app"), ACTION_RELOAD, Btn::Primary, W::Fit, 36.0);
     d.close();
     d.close(); // col
     d.close(); // panel

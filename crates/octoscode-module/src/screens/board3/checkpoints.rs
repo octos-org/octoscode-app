@@ -24,6 +24,7 @@ use crate::screens::history::{self, ConversationCheckpoint, HistoryMode};
 
 use super::host::Outcome;
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::{tr, tr1};
 
 #[derive(Debug, Clone)]
 pub struct CkState {
@@ -464,7 +465,7 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
     let pad = ui::dialog_pad(frame, width);
     let inner_w = width - 2.0 * pad;
     ui::shell_open(d, frame, width);
-    ui::header(d, mode.title(), "b3.close");
+    ui::header(d, tr(mode.title()), "b3.close");
     let session = store.domains.session.active().unwrap_or_default();
     d.text("b3_ck_scope", &session, &Txt::new(11.5, Face::Mono, tok::MUTED).w(W::Fill));
     d.gap(W::Fill, 10.0);
@@ -472,27 +473,27 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
         HistoryMode::Undo => "Restore server-owned files to a saved snapshot. This can replace workspace changes; conversation messages are not rewound.",
         _ => "Copy the conversation into a new session in the same workspace. This does not create a Git worktree or a workspace copy.",
     };
-    d.text("b3_ck_consequence", consequence, &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill).wrap());
+    d.text("b3_ck_consequence", tr(consequence), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill).wrap());
     d.gap(W::Fill, 12.0);
     ui::body_open(d, frame, width, 120.0);
     if st.loading {
-        d.text("b3_ck_loading", "Loading server history…", &ui::meta());
+        d.text("b3_ck_loading", tr("Loading server history…"), &ui::meta());
     }
     if let Some(why) = &st.blocked {
-        d.text("b3_ck_blocked", why, &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
+        d.text("b3_ck_blocked", tr(why), &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
     }
     if st.applying {
-        d.text("b3_ck_applying", "Applying and refreshing the owning Session…", &ui::meta());
+        d.text("b3_ck_applying", tr("Applying and refreshing the owning Session…"), &ui::meta());
     }
     let locked = st.blocked.is_some() || st.loading || st.applying || st.completed;
     match mode {
         HistoryMode::Undo => {
             let list = st.snapshots.clone().unwrap_or_default();
             if st.snapshots.is_some() && !list.enabled {
-                d.text("b3_ck_snap_off", "Automatic snapshots are disabled. Existing snapshots remain available.", &ui::meta().w(W::Fill).wrap());
+                d.text("b3_ck_snap_off", tr("Automatic snapshots are disabled. Existing snapshots remain available."), &ui::meta().w(W::Fill).wrap());
             }
             if !st.loading && list.snapshots.is_empty() {
-                d.text("b3_ck_empty", "No workspace snapshots available.", &ui::meta());
+                d.text("b3_ck_empty", tr("No workspace snapshots available."), &ui::meta());
             }
             if !list.snapshots.is_empty() {
                 d.surface("b3_ck_list", "width: Fill height: Fit flow: Down", tok::SURFACE, 12.0, Some(tok::HAIRLINE));
@@ -511,18 +512,15 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
                         &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill),
                     );
                     let when = match snap.timestamp_unix {
-                        t if t > 0 => {
-                            let r = ui::rel_time(ui::now_ms(), t as u64 * 1000);
-                            if r == "now" { "just now".to_owned() } else if r.ends_with(['m', 'h', 'd']) { format!("{r} ago") } else { r }
-                        }
+                        t if t > 0 => ui::rel_ago(ui::now_ms(), t as u64 * 1000),
                         _ => snap.id.clone(),
                     };
                     d.text(&format!("{rid}_when"), &when, &Txt::new(11.5, Face::Regular, tok::MUTED));
                     d.close();
                     if locked || !list.available {
-                        d.text("", "Restore", &Txt::new(13.0, Face::Regular, tok::DISABLED_INK));
+                        d.text("", tr("Restore"), &Txt::new(13.0, Face::Regular, tok::DISABLED_INK));
                     } else {
-                        d.link(&format!("{rid}_restore"), "Restore", Some(&format!("b3.ck.snap#{i}")), 13.0);
+                        d.link(&format!("{rid}_restore"), tr("Restore"), Some(&format!("b3.ck.snap#{i}")), 13.0);
                     }
                     d.close();
                 }
@@ -534,33 +532,34 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
                 d.surface("b3_ck_confirm", "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}", tok::SURFACE2, 12.0, Some(tok::HAIRLINE));
                 d.text(
                     "b3_ck_confirm_q",
-                    &format!("Restore “{label}” in this workspace?"),
+                    &tr1("Restore “{value0}” in this workspace?", &label),
                     &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill).wrap(),
                 );
                 let row = d.anon();
                 d.view(&row, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5}");
-                d.button("b3_ck_cancel", "Cancel", "b3.ck.snap_cancel", Btn::Outline, W::Fit, 32.0);
+                d.button("b3_ck_cancel", tr("Cancel"), "b3.ck.snap_cancel", Btn::Outline, W::Fit, 32.0);
                 let kind = if st.applying { Btn::Disabled } else { Btn::Primary };
-                d.button("b3_ck_confirm_btn", "Confirm workspace restore", "b3.ck.snap_confirm", kind, W::Fit, 32.0);
+                // The web composes it: t("Confirm") + " " + t("workspace restore").
+                d.button("b3_ck_confirm_btn", &format!("{} {}", tr("Confirm"), tr("workspace restore")), "b3.ck.snap_confirm", kind, W::Fit, 32.0);
                 d.close();
                 d.close();
             }
         }
         _ => {
-            ui::field_label(d, "b3_ck_fork_label", "New conversation name");
+            ui::field_label(d, "b3_ck_fork_label", tr("New conversation name"));
             d.gap(W::Fill, 6.0);
             d.input("b3_ck_fork_name", "ck.fork", &st.fork_name_snap, "fork-name", false, 38.0);
             d.gap(W::Fill, 6.0);
             d.text(
                 "b3_ck_fork_help",
-                "Up to 50 UTF-8 bytes. No #, :, /, control characters, or the reserved name “default”.",
+                tr("Up to 50 UTF-8 bytes. No #, :, /, control characters, or the reserved name “default”."),
                 &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
             );
             d.gap(W::Fill, 12.0);
             // Both variants are emitted; the live gate shows one (no remount
             // while typing — `visibility`).
             let armed = st.fork_armed_with(&st.fork_name_snap);
-            let label = if st.applying { "Creating…" } else { "Create conversation fork" };
+            let label = tr(if st.applying { "Creating…" } else { "Create conversation fork" });
             d.view("b3_ck_fork_off", &format!("width: Fit height: Fit flow: Down visible: {}", !armed));
             d.button("b3_ck_fork_disabled", label, "b3.ck.fork", Btn::Disabled, W::Fit, 36.0);
             d.close();
@@ -571,7 +570,7 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
     }
     if let Some(n) = &st.notice {
         d.gap(W::Fill, 10.0);
-        d.text("b3_ck_notice", n, &Txt::new(12.5, Face::Regular, tok::GREEN_TEXT).w(W::Fill).wrap());
+        d.text("b3_ck_notice", tr(n), &Txt::new(12.5, Face::Regular, tok::GREEN_TEXT).w(W::Fill).wrap());
     }
     if st.error.is_some() {
         d.gap(W::Fill, 10.0);
@@ -579,16 +578,16 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
     }
     if let Some(child) = &st.forked {
         d.gap(W::Fill, 6.0);
-        d.text("b3_ck_forked", &format!("Fork: {child}"), &Txt::new(11.5, Face::Mono, tok::MUTED).w(W::Fill));
+        d.text("b3_ck_forked", &format!("{} {child}", tr("Fork:")), &Txt::new(11.5, Face::Mono, tok::MUTED).w(W::Fill));
     }
     if !st.completed {
         d.gap(W::Fill, 12.0);
         let foot = d.anon();
         d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 14");
         if st.loading || st.applying {
-            d.text("", "Reload history", &Txt::new(13.0, Face::Regular, tok::DISABLED_INK));
+            d.text("", tr("Reload history"), &Txt::new(13.0, Face::Regular, tok::DISABLED_INK));
         } else {
-            d.link("b3_ck_reload", "Reload history", Some("b3.ck.reload"), 13.0);
+            d.link("b3_ck_reload", tr("Reload history"), Some("b3.ck.reload"), 13.0);
         }
         d.close();
     }
@@ -610,19 +609,19 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
     let pad = ui::dialog_pad(frame, width);
     let inner_w = width - 2.0 * pad;
     ui::shell_open(d, frame, width);
-    ui::header(d, "Conversation history", "b3.close");
+    ui::header(d, tr("Conversation history"), "b3.close");
     let session = store.domains.session.active().unwrap_or_default();
     d.text("b3_ck_scope", &session, &Txt::new(11.5, Face::Mono, tok::MUTED).w(W::Fill));
     d.gap(W::Fill, 12.0);
     ui::body_open(d, frame, width, 64.0);
     if st.loading {
-        d.text("b3_ck_loading", "Loading server history…", &ui::meta());
+        d.text("b3_ck_loading", tr("Loading server history…"), &ui::meta());
     }
     if st.applying {
-        d.text("b3_ck_applying", "Applying and refreshing the owning Session…", &ui::meta());
+        d.text("b3_ck_applying", tr("Applying and refreshing the owning Session…"), &ui::meta());
     }
     if let Some(why) = &st.blocked {
-        d.text("b3_ck_blocked", why, &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
+        d.text("b3_ck_blocked", tr(why), &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
     }
     error_view(d, st);
     if let Some(n) = &st.notice {
@@ -631,7 +630,7 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
     // A13: a failed read knows nothing about the turns — the empty line
     // would contradict the error above it.
     if st.rows.is_empty() && !st.loading && st.error.is_none() {
-        d.text("b3_ck_empty", "No user turns to rewind.", &ui::meta());
+        d.text("b3_ck_empty", tr("No user turns to rewind."), &ui::meta());
     }
     // One bordered list, hairlines between rows (the board's grouped box).
     if !st.rows.is_empty() {
@@ -649,19 +648,15 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
             let col = d.anon();
             d.view(&col, "width: Fill height: Fit flow: Down spacing: 3");
             let when = match at {
-                Some(ms) => {
-                    let r = ui::rel_time(now, *ms);
-                    if r == "now" { "just now".to_owned() } else { format!("{r} ago") }
-                }
-                None => format!(
-                    "{} message{}",
-                    cp.user_message_count,
-                    if cp.user_message_count == 1 { "" } else { "s" }
+                Some(ms) => ui::rel_ago(now, *ms),
+                None => tr1(
+                    if cp.user_message_count == 1 { "{value0} message" } else { "{value0} messages" },
+                    &cp.user_message_count.to_string(),
                 ),
             };
             d.text(&format!("{rid}_when"), &when, &Txt::new(11.5, Face::Regular, tok::MUTED));
-            let preview = if cp.preview.is_empty() { "(attachment prompt)".to_owned() } else { cp.preview.clone() };
-            let label = if live { "Current live turn".to_owned() } else { preview };
+            let preview = if cp.preview.is_empty() { tr("(attachment prompt)").to_owned() } else { cp.preview.clone() };
+            let label = if live { tr("Current live turn").to_owned() } else { preview };
             d.text(
                 &format!("{rid}_preview"),
                 &super::inventory::fit(&label, inner_w - 160.0, 13.0, false),
@@ -671,9 +666,9 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
             if live {
                 d.icon(&format!("{rid}_check"), "b3_check.svg", 18.0, tok::TEXT);
             } else if st.blocked.is_none() {
-                d.link(&format!("{rid}_restore"), "Restore", Some(&format!("b3.ck.restore#{i}")), 13.0);
+                d.link(&format!("{rid}_restore"), tr("Restore"), Some(&format!("b3.ck.restore#{i}")), 13.0);
             } else {
-                d.text("", "Restore", &Txt::new(13.0, Face::Regular, tok::DISABLED_INK));
+                d.text("", tr("Restore"), &Txt::new(13.0, Face::Regular, tok::DISABLED_INK));
             }
             d.close();
         }
@@ -683,22 +678,28 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
         if let Some((cp, _)) = st.rows.get(i) {
             d.gap(W::Fill, 12.0);
             d.surface("b3_ck_confirm", "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}", tok::SURFACE2, 12.0, Some(tok::HAIRLINE));
-            d.text("b3_ck_confirm_q", &format!("Rewind to checkpoint #{}?", cp.checkpoint), &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill));
+            d.text("b3_ck_confirm_q", &tr1("Rewind to checkpoint #{value0}?", &cp.checkpoint.to_string()), &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill));
             if cp.user_message_count > 1 {
                 d.text(
                     "",
-                    &format!("This turn contains {} user messages. They belong to one thread and will be removed together.", cp.user_message_count),
+                    // The web composes it around the count (HistoryDialog.tsx:203-208).
+                    &format!(
+                        "{} {} {}",
+                        tr("This turn contains"),
+                        cp.user_message_count,
+                        tr("user messages. They belong to one thread and will be removed together.")
+                    ),
                     &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
                 );
             }
             if cp.media_count > 0 {
-                d.text("", "The prompt contained attachments; reattach them before resending.", &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+                d.text("", tr("The prompt contained attachments; reattach them before resending."), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
             }
             let row = d.anon();
             d.view(&row, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5}");
-            d.button("b3_ck_cancel", "Cancel", "b3.ck.cancel", Btn::Outline, W::Fit, 32.0);
+            d.button("b3_ck_cancel", tr("Cancel"), "b3.ck.cancel", Btn::Outline, W::Fit, 32.0);
             let kind = if st.applying { Btn::Disabled } else { Btn::Primary };
-            d.button("b3_ck_confirm_btn", "Confirm conversation rewind", "b3.ck.confirm", kind, W::Fit, 32.0);
+            d.button("b3_ck_confirm_btn", &format!("{} {}", tr("Confirm"), tr("conversation rewind")), "b3.ck.confirm", kind, W::Fit, 32.0);
             d.close();
             d.close();
         }
@@ -706,15 +707,15 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
     d.gap(W::Fill, 12.0);
     d.text(
         "b3_ck_note",
-        "Restoring removes that turn and every later one; its prompt returns to the composer to edit and resend. Workspace files are not restored.",
+        tr("Restoring removes that turn and every later one; its prompt returns to the composer to edit and resend. Workspace files are not restored."),
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     d.gap(W::Fill, 10.0);
     let foot = d.anon();
     d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 14");
-    d.link("b3_ck_copy_md", "Copy as Markdown", Some("b3.ck.copy_md"), 13.0);
+    d.link("b3_ck_copy_md", tr("Copy as Markdown"), Some("b3.ck.copy_md"), 13.0);
     if let Some(l) = &st.copy_label {
-        d.text("b3_ck_copy_state", l, &Txt::new(12.0, Face::Regular, tok::MUTED));
+        d.text("b3_ck_copy_state", tr(l), &Txt::new(12.0, Face::Regular, tok::MUTED));
     }
     d.close();
     ui::body_close(d);
