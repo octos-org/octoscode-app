@@ -17,10 +17,10 @@
 #
 # Usage:
 #   scripts/apply-makepad-patches.sh [--check] <root> [<root>...]
-# e.g. (the integrator's three trees + the APK's cargo-makepad):
-#   scripts/apply-makepad-patches.sh ~/home/oa.noindex/host-<name>/.sources \
-#       ~/home/oa.noindex/octosense-fork/.sources ~/home/oa.noindex/apk-build/.sources \
-#       ~/home/oa.noindex/apk-build/.mk
+# e.g. (the integrator's three trees + the APK's cargo-makepad; N = the
+# oa.noindex work root):
+#   scripts/apply-makepad-patches.sh $N/host-<name>/.sources \
+#       $N/octosense-fork/.sources $N/apk-build/.sources $N/apk-build/.mk
 #
 # Back to clean upstream: `patch -R -p1 -d <tree>/makepad < patches/makepad/<p>.patch`
 # (or `git -C <tree>/makepad checkout -- . && git clean -fd platform/src`).
