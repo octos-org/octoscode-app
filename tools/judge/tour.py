@@ -237,9 +237,11 @@ def tour_live():
     # settings sections
     if click("settings_open_hit"):
         capture("settings-general")
-        for sec in ("Permissions", "Model", "Sandbox", "Connection", "Preferences", "About"):
-            if click_text(sec):
-                capture(f"settings-{sec.lower()}")
+        # By id: the desktop nav row (set_nav_<id>) or, on phone, the icon-only
+        # rail (set_rail_<id>) — the rail has no text to click.
+        for sec in ("permissions", "model", "sandbox", "connection", "preferences", "about"):
+            if click(f"set_nav_{sec}") or click(f"set_rail_{sec}"):
+                capture(f"settings-{sec}")
         close_overlays()
     if click("review_open_hit"):
         capture("review")
