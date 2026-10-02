@@ -2648,9 +2648,29 @@ impl OctoscodeView {
                 };
                 if let Ok(mut ui) = screens_ui.lock() {
                     ui.token.clear();
+                    // A11: the attempt that went live is over — the card
+                    // that returns reads "Connect", not "Connecting…".
+                    ui.connecting = false;
                     // A1: the per-origin token store forgets it too, or the
                     // next start would prefill the forgotten credential.
                     credentials::forget_token(&ui.server);
+                }
+                // A11: the card's mounted field still held the forgotten token
+                // (an identical card DSL is not remounted): empty it in place,
+                // so the form really returns empty (walk 112) and a Connect
+                // cannot resend it.
+                self.view
+                    .text_input(cx, &[live_id!(screen_splash), live_id!(connect_token)])
+                    .set_text(cx, "");
+                // A11: Forget is pressed inside Settings > Connection; the web
+                // returns to "Connect to Octos" with no dialog left. The
+                // Settings panel closes too (its dimmer stayed over the
+                // first-run chrome).
+                let flow_ui = self.bridge.lock().unwrap().ui.clone();
+                if let Ok(mut u) = flow_ui.lock() {
+                    if u.settings_open() {
+                        u.toggle_settings();
+                    }
                 }
                 store.set_connection("Offline".to_owned(), false);
                 self.connect_key = None;
