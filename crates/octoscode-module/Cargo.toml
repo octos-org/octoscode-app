@@ -30,6 +30,8 @@ serde_json = { workspace = true }
 tokio = { workspace = true, features = ["time"] }
 log = { workspace = true }
 url = "2"
+# #A2 board 1: p4-05's "Paired  Today, 9:41 PM" in the device's own zone.
+chrono = "0.4"
 
 [dev-dependencies]
 # The fake WS server (card #12 §1 fake test, §5 headless proof). Same

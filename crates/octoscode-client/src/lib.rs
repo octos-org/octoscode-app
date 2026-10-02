@@ -19,6 +19,9 @@
 mod method;
 pub mod domains;
 pub mod features;
+// #A2 board 1: the one-use pairing exchange (POST <origin>/pair/claim) —
+// HTTP before any socket exists, so it sits beside the protocol client.
+pub mod pairing;
 pub mod protocol_id;
 pub mod registry;
 pub mod trace;

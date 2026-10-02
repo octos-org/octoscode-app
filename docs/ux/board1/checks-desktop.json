@@ -1,0 +1,383 @@
+{
+ "entry_connect": {
+  "entry": "b1_connect_pair",
+  "rect": [
+   333,
+   444,
+   161,
+   30
+  ],
+  "text": "Pair with a link instead",
+  "pass": true
+ },
+ "p4-01_pair": {
+  "view": [
+   54,
+   76,
+   990,
+   603
+  ],
+  "card": [
+   329,
+   124,
+   440,
+   506
+  ],
+  "margins_lr": [
+   275,
+   275
+  ],
+  "margins_tb": [
+   48,
+   49
+  ],
+  "card_inside_view": true,
+  "centred": true,
+  "width_rule": true,
+  "outside_card": [],
+  "controls_lt_28": [],
+  "overlaps": [],
+  "content_pad_lr": [
+   28,
+   28
+  ],
+  "pass": true
+ },
+ "p4-03_link_problem": {
+  "view": [
+   54,
+   76,
+   990,
+   603
+  ],
+  "card": [
+   329,
+   178,
+   440,
+   399
+  ],
+  "margins_lr": [
+   275,
+   275
+  ],
+  "margins_tb": [
+   102,
+   102
+  ],
+  "card_inside_view": true,
+  "centred": true,
+  "width_rule": true,
+  "outside_card": [],
+  "controls_lt_28": [],
+  "overlaps": [],
+  "content_pad_lr": [
+   28,
+   28
+  ],
+  "pass": true
+ },
+ "p4-04_cant_pair": {
+  "view": [
+   54,
+   76,
+   990,
+   603
+  ],
+  "card": [
+   329,
+   224,
+   440,
+   307
+  ],
+  "margins_lr": [
+   275,
+   275
+  ],
+  "margins_tb": [
+   148,
+   148
+  ],
+  "card_inside_view": true,
+  "centred": true,
+  "width_rule": true,
+  "outside_card": [],
+  "controls_lt_28": [],
+  "overlaps": [],
+  "content_pad_lr": [
+   28,
+   28
+  ],
+  "pass": true
+ },
+ "p4-02_pairing": {
+  "view": [
+   54,
+   76,
+   990,
+   603
+  ],
+  "card": [
+   329,
+   203,
+   440,
+   349
+  ],
+  "margins_lr": [
+   275,
+   275
+  ],
+  "margins_tb": [
+   127,
+   127
+  ],
+  "card_inside_view": true,
+  "centred": true,
+  "width_rule": true,
+  "outside_card": [],
+  "controls_lt_28": [],
+  "overlaps": [],
+  "content_pad_lr": [
+   28,
+   28
+  ],
+  "pass": true
+ },
+ "paired_live": {
+  "log": "pairing: connected \u2014 the paired token is live",
+  "pass": true
+ },
+ "entry_settings_connection": {
+  "entry": "b1_set_connection",
+  "rect": [
+   813,
+   361,
+   112,
+   32
+  ],
+  "text": null,
+  "pass": true
+ },
+ "p4-05_connection": {
+  "view": [
+   54,
+   76,
+   990,
+   603
+  ],
+  "card": [
+   329,
+   215,
+   440,
+   324
+  ],
+  "margins_lr": [
+   275,
+   275
+  ],
+  "margins_tb": [
+   139,
+   140
+  ],
+  "card_inside_view": true,
+  "centred": true,
+  "width_rule": true,
+  "outside_card": [],
+  "controls_lt_28": [],
+  "overlaps": [],
+  "content_pad_lr": [
+   28,
+   68
+  ],
+  "pass": true
+ },
+ "entry_settings_model": {
+  "entry": "b1_set_provider",
+  "rect": [
+   813,
+   357,
+   112,
+   32
+  ],
+  "text": null,
+  "pass": true
+ },
+ "p4-06_provider": {
+  "view": [
+   54,
+   76,
+   990,
+   603
+  ],
+  "card": [
+   319,
+   107,
+   460,
+   541
+  ],
+  "margins_lr": [
+   265,
+   265
+  ],
+  "margins_tb": [
+   31,
+   31
+  ],
+  "card_inside_view": true,
+  "centred": true,
+  "width_rule": true,
+  "outside_card": [],
+  "controls_lt_28": [],
+  "overlaps": [],
+  "content_pad_lr": [
+   28,
+   28
+  ],
+  "pass": true
+ },
+ "p4-07_rejected": {
+  "view": [
+   54,
+   76,
+   990,
+   603
+  ],
+  "card": [
+   319,
+   96,
+   460,
+   583
+  ],
+  "margins_lr": [
+   265,
+   265
+  ],
+  "margins_tb": [
+   20,
+   0
+  ],
+  "card_inside_view": true,
+  "centred": true,
+  "width_rule": true,
+  "outside_card": [],
+  "controls_lt_28": [],
+  "overlaps": [],
+  "content_pad_lr": [
+   28,
+   28
+  ],
+  "pass": true
+ },
+ "provider_saved_back_in_settings": {
+  "pass": true
+ },
+ "entry_add_workspace": {
+  "entry": "sb_add_hit",
+  "rect": [
+   64,
+   637,
+   260,
+   34
+  ],
+  "text": null,
+  "pass": true
+ },
+ "p4-08_browser": {
+  "view": [
+   54,
+   76,
+   990,
+   603
+  ],
+  "card": [
+   279,
+   150,
+   540,
+   455
+  ],
+  "margins_lr": [
+   225,
+   225
+  ],
+  "margins_tb": [
+   74,
+   74
+  ],
+  "card_inside_view": true,
+  "centred": true,
+  "width_rule": true,
+  "outside_card": [],
+  "controls_lt_28": [],
+  "overlaps": [],
+  "content_pad_lr": [
+   28,
+   28
+  ],
+  "pass": true
+ },
+ "p4-09_refused": {
+  "view": [
+   54,
+   76,
+   990,
+   603
+  ],
+  "card": [
+   279,
+   216,
+   540,
+   323
+  ],
+  "margins_lr": [
+   225,
+   225
+  ],
+  "margins_tb": [
+   140,
+   140
+  ],
+  "card_inside_view": true,
+  "centred": true,
+  "width_rule": true,
+  "outside_card": [],
+  "controls_lt_28": [],
+  "overlaps": [],
+  "content_pad_lr": [
+   28,
+   42
+  ],
+  "pass": true
+ },
+ "picker": {
+  "view": [
+   54,
+   76,
+   990,
+   603
+  ],
+  "card": [
+   279,
+   138,
+   540,
+   478
+  ],
+  "margins_lr": [
+   225,
+   225
+  ],
+  "margins_tb": [
+   62,
+   63
+  ],
+  "card_inside_view": true,
+  "centred": true,
+  "width_rule": true,
+  "outside_card": [],
+  "controls_lt_28": [],
+  "overlaps": [],
+  "content_pad_lr": [
+   28,
+   28
+  ],
+  "pass": true
+ }
+}
