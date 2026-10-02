@@ -652,14 +652,16 @@ pub fn relative_label(then_ms: u64, now_ms: u64) -> String {
     const MIN: u64 = 60_000;
     const HOUR: u64 = 3_600_000;
     const DAY: u64 = 86_400_000;
+    // A24: the web prints these buckets without t() ("3d" in its Chinese
+    // UI too); natively they read 刚刚 / N 分钟前 / N 小时前 / N 天前.
     if elapsed < MIN {
-        "now".to_owned()
+        crate::i18n::tr("now").to_owned()
     } else if elapsed < HOUR {
-        format!("{}m", elapsed / MIN)
+        crate::i18n::tr1("{value0}m", &(elapsed / MIN).to_string())
     } else if elapsed < DAY {
-        format!("{}h", elapsed / HOUR)
+        crate::i18n::tr1("{value0}h", &(elapsed / HOUR).to_string())
     } else if elapsed < 7 * DAY {
-        format!("{}d", elapsed / DAY)
+        crate::i18n::tr1("{value0}d", &(elapsed / DAY).to_string())
     } else {
         short_date(then_ms)
     }
@@ -672,6 +674,10 @@ fn short_date(ms: u64) -> String {
     const MONTHS: [&str; 12] = [
         "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
+    // The web's Intl short month + day in the interface language ("10月1日").
+    if crate::i18n::is_zh() {
+        return format!("{m}月{d}日");
+    }
     format!("{} {}", MONTHS[(m - 1) as usize], d)
 }
 

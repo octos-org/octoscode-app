@@ -606,6 +606,11 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Type the steering text in the composer first, then choose Steer.", "请先在输入框中输入引导文字，然后选择引导。"),
     // ---- the fallback renderer's send button (fallback.rs; the web's "Queue" key is the noun 队列)
     ("verb|Queue", "加入队列"),
+    // ---- the sidebar's relative times (relative-time.ts buckets, printed without t() on the web)
+    ("now", "刚刚"),
+    ("{value0}m", "{value0} 分钟前"),
+    ("{value0}h", "{value0} 小时前"),
+    ("{value0}d", "{value0} 天前"),
 ];
 
 /// The web catalog's vocabulary: each English term (matched as a word,
