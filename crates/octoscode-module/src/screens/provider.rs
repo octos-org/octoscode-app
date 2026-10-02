@@ -1126,10 +1126,26 @@ fn model_rows(v: &mut Ui, l: &Layout, ui: &ProviderUi, list: &[String], action: 
             } else {
                 String::new()
             };
+            // A model id that does not fit beside the check (a long catalog
+            // id + "(default)" on a phone) wraps onto a second line in a
+            // taller row instead of ending in an ellipsis. The label gets the
+            // control width less the borders, insets, gap and the 23 px check;
+            // the kit's estimate runs ~15% short of the board-1 label's
+            // measured run (claude-3-5-haiku-20241022 (default): 237
+            // estimated, ~282 drawn), hence the 1.2.
+            let room = l.content_w - 2.0 - 14.0 - 12.0 - 10.0 - 23.0;
+            let two = super::board3::ui::text_w(&label, 14.0, super::board3::ui::Face::Regular) * 1.2 > room;
+            let text_id = format!("{id_base}_t{i}");
+            let text = Text::new(&text_id, &label).px(14.0).fill();
             format!(
                 "View {{ width: Fill height: {} flow: Overlay\nView {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 14 right: 12}} spacing: 10\n{}{}}}\n{hit}}}\n",
-                if l.phone { 46 } else { 40 },
-                Text::new(&format!("{id_base}_t{i}"), &label).px(14.0).fill().one_line().dsl(),
+                match (l.phone, two) {
+                    (true, true) => 68,
+                    (true, false) => 46,
+                    (false, true) => 62,
+                    (false, false) => 40,
+                },
+                if two { text.dsl() } else { text.one_line().dsl() },
                 kit::svg("", if on { "b1_check_on.svg" } else { "b1_check_off.svg" }, 23.0),
             )
         })
@@ -1780,6 +1796,24 @@ mod tests {
         assert_eq!(unrouted(), Vec::<&str>::new());
         assert!(is_action("provider.model.7") && is_routed("provider.option.3") && is_action("provider.fetched.0"));
         assert!(!is_action("provider.model.x"));
+    }
+
+    #[test]
+    fn a_long_model_row_wraps_in_a_taller_row_never_an_ellipsis() {
+        let mut ui = ProviderUi::new("anthropic");
+        ui.mode = Mode::Add;
+        ui.config_empty = true;
+        ui.model = "claude-3-5-haiku-20241022".to_owned();
+        ui.default_model = Some(ui.model.clone());
+        let list = vec!["claude-3-5-haiku-20241022".to_owned(), "claude-opus-4".to_owned()];
+        let phone = Layout::of(super::super::board1::Surface::Provider, 360.0, 776.0);
+        let rows = model_rows(&mut Ui::default(), &phone, &ui, &list, "provider.model", "b1_prov_model", true);
+        assert!(rows[0].contains("claude-3-5-haiku-20241022 (default)") && rows[0].contains("height: 68"), "{}", rows[0]);
+        assert!(rows[0].contains("Right{wrap: true}") && !rows[0].contains("Ellipsis"), "{}", rows[0]);
+        assert!(rows[1].contains("height: 46") && rows[1].contains("Ellipsis"), "{}", rows[1]);
+        let desk = Layout::of(super::super::board1::Surface::Provider, 990.0, 603.0);
+        let rows = model_rows(&mut Ui::default(), &desk, &ui, &list, "provider.model", "b1_prov_model", true);
+        assert!(rows.iter().all(|r| r.contains("height: 40")), "the desktop card fits both on one line");
     }
 
     #[test]
