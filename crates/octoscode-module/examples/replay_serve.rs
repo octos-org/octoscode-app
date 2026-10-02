@@ -1327,6 +1327,9 @@ mod onboarding {
     #[derive(Default)]
     pub struct World {
         pub created: Option<String>,
+        /// `--fail-once <method>`: that method's FIRST request is refused
+        /// (the catalog's failure card and its Retry in the walk).
+        pub fail_once: std::collections::BTreeSet<String>,
     }
 
     pub fn handles(method: &str) -> bool {
@@ -1392,6 +1395,9 @@ mod onboarding {
     }
 
     pub fn reply(w: &mut World, catalog: &Value, method: &str, p: &Value) -> Result<Value, Value> {
+        if w.fail_once.remove(method) {
+            return Err(json!({"code": -32603, "message": "the model catalog is still loading — try again"}));
+        }
         Ok(match method {
             "onboarding/workspace_list" => json!({
                 "canonical_path": FOLDER, "parent_path": "/srv/work", "writable": true,
@@ -1557,7 +1563,10 @@ async fn main() {
     } else {
         Value::Null
     };
-    let onb_world = std::sync::Arc::new(std::sync::Mutex::new(onboarding::World::default()));
+    let onb_world = std::sync::Arc::new(std::sync::Mutex::new(onboarding::World {
+        fail_once: args.windows(2).filter(|w| w[0] == "--fail-once").map(|w| w[1].clone()).collect(),
+        ..Default::default()
+    }));
     let standalone = if label == "fleet" || label == "onboarding" {
         // The fleet fixture's inbound frames are replies + peer-session
         // frames, never standalone notifications; the onboarding walk opens
@@ -1918,6 +1927,11 @@ async fn main() {
                 match method.as_str() {
                     "session/open" => {
                         opens += 1;
+                        // A17 — the walk's wire proof of the onboarded open
+                        // (its id, folder and profile).
+                        if label == "onboarding" {
+                            println!("[replay-serve] -> session/open (onboarding) {}", v["params"]);
+                        }
                         let requested = v["params"]["session_id"]
                             .as_str()
                             .unwrap_or(&recorded)

@@ -1024,7 +1024,16 @@ fn options_list(d: &mut Dsl, st: &State, which: Select, mono: bool, px_w: f64, m
     for (i, opt) in opts.iter().enumerate() {
         let on = opt.id == chosen;
         let id = format!("b3_onb_opt_{i}");
-        d.surface(&format!("{id}_box"), "width: Fill height: Fit flow: Overlay", if on { tok::SURFACE2 } else { tok::TRANSPARENT }, 7.0, None);
+        // Centred: a touch platform raises the row's tap target to 44 px
+        // (measured on the phone page: a one-line row 31 -> 44), and the
+        // content must sit in its middle, not at its top.
+        d.surface(
+            &format!("{id}_box"),
+            "width: Fill height: Fit flow: Overlay align: Align{x: 0.0 y: 0.5}",
+            if on { tok::SURFACE2 } else { tok::TRANSPARENT },
+            7.0,
+            None,
+        );
         let row = d.anon();
         d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 10 right: 10 top: 8 bottom: 8}");
         let text_col = d.anon();
