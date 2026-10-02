@@ -177,6 +177,57 @@ pub fn permission_seat_label(store: &Store) -> Option<String> {
     permission_options(store).into_iter().next().map(|o| o.name())
 }
 
+/// A10 — the composer's Stop control (web `TurnStopButton`): what the round
+/// send/stop control shows and does for the Session's foreground turn.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StopState {
+    /// No turn: the send arrow submits.
+    Idle,
+    /// A local `turn/start` Core has not accepted yet: status, not an
+    /// interruptible turn — the control is inert ("Starting…").
+    Starting,
+    /// An accepted, interruptible turn: Stop sends ONE `turn/interrupt`.
+    Stop,
+    /// The interrupt is in flight: the control locks ("Stopping…").
+    Stopping,
+    /// The server does not offer `turn/interrupt`: no Stop control (a typed
+    /// draft can still be queued with the send arrow).
+    Unavailable,
+}
+
+impl StopState {
+    /// The status word the transcript's activity row shows instead of the
+    /// elapsed time (`App.tsx:2633` `turnStarting ? "Starting…"`; the web's
+    /// Stop pill reads "Stopping…").
+    pub fn word(self) -> Option<&'static str> {
+        match self {
+            StopState::Starting => Some("Starting…"),
+            StopState::Stopping => Some("Stopping…"),
+            _ => None,
+        }
+    }
+}
+
+/// `TurnStopButton`'s projection from the composer store's turn controller
+/// (A7: `dispatching_turn` / `interrupting_turn`), the flow's live turn and
+/// the advertised `turn/interrupt`.
+pub fn stop_state(store: &Store, active_turn: Option<&str>) -> StopState {
+    let session = session_of(store);
+    let composer = &store.domains.composer;
+    let active = composer.snapshot(&session).active.map(|a| a.turn_id).or_else(|| active_turn.map(str::to_owned));
+    let Some(active) = active else { return StopState::Idle };
+    if composer.dispatching_turn(&session).as_deref() == Some(active.as_str()) {
+        return StopState::Starting;
+    }
+    if !has(store, "turn/interrupt") {
+        return StopState::Unavailable;
+    }
+    if composer.interrupting_turn(&session).as_deref() == Some(active.as_str()) {
+        return StopState::Stopping;
+    }
+    StopState::Stop
+}
+
 fn identity(m: &ProfileLlmModel) -> Identity {
     Identity { model: m.model.clone(), provider: m.provider.clone(), route: m.route.clone() }
 }
@@ -1004,6 +1055,35 @@ mod tests {
             ],
         );
         s
+    }
+
+    /// `TurnStopButton` over the composer store's real transitions: Starting
+    /// (not interruptible) -> Stop -> Stopping (locked); no interrupt
+    /// capability -> no Stop; Starting is status even then.
+    #[test]
+    fn the_stop_control_follows_the_turn_controller() {
+        use octoscode_store::domains::composer::{PromptTurn, StartOutcome};
+        let s = store();
+        s.domains.session.set_active(Some("dsflash:main".into()));
+        let mut methods = s.domains.config.supported_methods();
+        methods.push("turn/interrupt".into());
+        s.domains.config.set_supported_methods(methods.clone());
+        let c = &s.domains.composer;
+        assert_eq!(stop_state(&s, None), StopState::Idle);
+        c.submit("dsflash:main", PromptTurn::local("t-1", "fix the parser"));
+        assert!(c.begin_dispatch("dsflash:main", "t-1").is_some());
+        assert_eq!(stop_state(&s, Some("t-1")), StopState::Starting);
+        assert_eq!(StopState::Starting.word(), Some("Starting…"));
+        c.finish_dispatch("dsflash:main", "t-1", StartOutcome::Accepted);
+        assert_eq!(stop_state(&s, Some("t-1")), StopState::Stop);
+        assert!(c.begin_interrupt("dsflash:main", "t-1"));
+        assert_eq!(stop_state(&s, Some("t-1")), StopState::Stopping);
+        assert!(!c.begin_interrupt("dsflash:main", "t-1"), "locked: one interrupt");
+        c.interrupt_failed("dsflash:main", "t-1");
+        assert_eq!(stop_state(&s, Some("t-1")), StopState::Stop, "a failed interrupt unlocks");
+        // The server offers no interrupt: no Stop control.
+        s.domains.config.set_supported_methods(methods.into_iter().filter(|m| m != "turn/interrupt").collect());
+        assert_eq!(stop_state(&s, Some("t-1")), StopState::Unavailable);
     }
 
     #[test]

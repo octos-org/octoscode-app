@@ -1063,6 +1063,7 @@ pub fn composer(c: &ComposerView, m: &Metrics) -> String {
          i0_composer_5 := View{{width: {COMPOSER_CONTROL} height: {COMPOSER_CONTROL} margin: Inset{{left: {gap}}} \
          flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n\
          RoundedView{{width: 32 height: 32 draw_bg +: {{color: #000000ff border_radius: 16.0}}}}\n\
+         composer_stop_busy := RoundedView{{width: 32 height: 32 visible: false draw_bg +: {{color: #c7c7ccff border_radius: 16.0}}}}\n\
          composer_send_icon := View{{width: 16 height: 16 flow: Overlay\n{send_icon}}}\n\
          composer_stop_icon := View{{width: 16 height: 16 flow: Overlay visible: false\n{stop_icon}}}\n\
          {send_hit}}}\n\

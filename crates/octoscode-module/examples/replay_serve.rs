@@ -332,6 +332,11 @@ struct SeatSim {
     models: Vec<Value>,
     selects: Vec<Value>,
     r2_select: Value,
+    /// r26's recorded interrupted `turn_terminal` envelope (re-pointed at
+    /// the app's turn when it presses Stop).
+    r26_terminal: Value,
+    /// Envelope sequence for the terminals this simulator emits.
+    seq: u64,
 }
 
 impl SeatSim {
@@ -358,7 +363,12 @@ impl SeatSim {
             .filter(|f| f.dir == "in" && f.method == "profile/llm/select")
             .map(|f| f.body.clone())
             .collect();
-        SeatSim { current: list["current"].clone(), profiles: list["profiles"].clone(), models, selects, r2_select }
+        let r26_terminal = fixture("r26-interrupted-a6ea8505.jsonl")
+            .into_iter()
+            .find(|f| f.dir == "in" && f.body["payload"]["type"] == "turn_terminal" && f.body["payload"]["data"]["outcome"] == "interrupted")
+            .map(|f| f.body)
+            .unwrap_or_default();
+        SeatSim { current: list["current"].clone(), profiles: list["profiles"].clone(), models, selects, r2_select, r26_terminal, seq: 0 }
     }
 
     /// The reply (or the JSON-RPC error) for one seat method.
@@ -1572,6 +1582,44 @@ async fn main() {
                             }
                             None => send(&tx, frame).await,
                         }
+                    }
+                    // A10 — the Stop control's walk: a start Core accepts
+                    // only after `--slow turn/start=<ms>` (Starting…), a turn
+                    // that stays live, an interrupt answered after `--slow
+                    // turn/interrupt=<ms>` (Stopping…) and then r26's recorded
+                    // interrupted terminal for the app's own turn.
+                    "turn/start" if seat_sim.is_some() => {
+                        let ms = slow.get("turn/start").copied().unwrap_or(0);
+                        println!("[replay-serve] -> turn/start (a10: accepted after {ms} ms; live until interrupted) {}", v["params"]["turn_id"]);
+                        let frame = serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {"accepted": true}});
+                        let tx2 = tx.clone();
+                        tokio::spawn(async move {
+                            tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                            let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                        });
+                    }
+                    "turn/interrupt" if seat_sim.is_some() => {
+                        let ms = slow.get("turn/interrupt").copied().unwrap_or(0);
+                        let sim = seat_sim.as_mut().expect("a10");
+                        sim.seq += 1;
+                        let seq = 900_000 + sim.seq;
+                        let turn = v["params"]["turn_id"].clone();
+                        let mut term = sim.r26_terminal.clone();
+                        term["turn_id"] = turn.clone();
+                        term["thread_id"] = turn.clone();
+                        term["session_id"] = Value::from(active_session.clone());
+                        term["seq"] = Value::from(seq);
+                        term["cursor"] = serde_json::json!({"seq": seq, "stream": active_session});
+                        println!("[replay-serve] -> turn/interrupt (a10: answered after {ms} ms, then r26's interrupted terminal) {turn}");
+                        let reply = serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {}});
+                        let note = serde_json::json!({"jsonrpc": "2.0", "method": "projection/envelope", "params": term});
+                        let tx2 = tx.clone();
+                        tokio::spawn(async move {
+                            tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                            let _ = tx2.lock().await.send(Message::Text(reply.to_string().into())).await;
+                            tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+                            let _ = tx2.lock().await.send(Message::Text(note.to_string().into())).await;
+                        });
                     }
                     "profile/llm/list" if seat_sim.is_some() && v["params"].get("session_id").is_some() => {
                         let sim = seat_sim.as_mut().expect("a10");

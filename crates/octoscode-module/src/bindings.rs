@@ -209,7 +209,16 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             .into_iter()
             .map(|e| e.kind.tag().to_owned())
             .collect::<Vec<_>>()),
-        "turn.activity" => json!(ui.turn_activity()),
+        // A10 — "Starting…" while Core has not accepted the start (status,
+        // not an interruptible turn), "Stopping…" while the interrupt is in
+        // flight; else the elapsed activity.
+        "turn.activity" => {
+            let active = ui.active_turn();
+            match crate::screens::board3::seats::stop_state(store, active.as_deref()).word() {
+                Some(w) if active.is_some() => json!(w),
+                _ => json!(ui.turn_activity()),
+            }
+        }
         "composer.draft" => json!(ui.draft()),
         "composer.placeholder" => json!(COMPOSER_PLACEHOLDER),
         // A10 — the model seat (web `ModelControl`): the selected model's

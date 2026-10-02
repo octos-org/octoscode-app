@@ -452,6 +452,21 @@ def run_session(walk_fn, *, mode: str, outdir: str, port: int = 8420, replay_por
     })
     if mode == "phone":
         e["OCTOSENSE_WINDOW_SIZE"] = "360x780"
+    # Brief §8 (test isolation): every launched app keeps its state in a
+    # per-run temp dir, never the operator's home (drafts, credentials,
+    # preferences, notification consent, recents, show-thinking, downloads).
+    iso = state / f"iso-{port}-{int(time.time() * 1000)}"
+    for sub in ("credentials", "recents", "downloads"):
+        (iso / sub).mkdir(parents=True, exist_ok=True)
+    e.update({
+        "OCTOSCODE_DRAFTS_FILE": str(iso / "composer-drafts.json"),
+        "OCTOSCODE_CREDENTIALS_DIR": str(iso / "credentials"),
+        "OCTOSCODE_PREF_PATH": str(iso / "display.json"),
+        "OCTOSCODE_NOTIFICATIONS_FILE": str(iso / "notifications.json"),
+        "OCTOSCODE_RECENTS_DIR": str(iso / "recents"),
+        "OCTOSCODE_SHOW_THINKING_FILE": str(iso / "show-thinking.json"),
+        "OCTOSCODE_DOWNLOAD_DIR": str(iso / "downloads"),
+    })
     if replay_port:
         bin_ = pathlib.Path(os.environ.get("CARGO_TARGET_DIR") or (ROOT / "target")) / "debug" / "examples" / "replay_serve"
         log = open(state / f"replay-{replay_port}.log", "w")

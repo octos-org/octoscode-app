@@ -3157,12 +3157,41 @@ impl OctoscodeView {
             }
             Ok(false) => {}
         }
+        // A10 — the web's `TurnStopButton` states on the same control:
+        // Stop (black), Starting… / Stopping… (inert, greyed), no Stop when
+        // the server offers no interrupt (the arrow queues a typed draft).
+        let (stop, drafted) = {
+            let b = self.bridge.lock().unwrap();
+            let (active, draft) = {
+                let ui = b.ui.lock().unwrap();
+                (ui.active_turn(), ui.draft())
+            };
+            let stop = if composer_live {
+                screens::board3::seats::stop_state(&b.store, active.as_deref())
+            } else {
+                screens::board3::seats::StopState::Idle
+            };
+            (stop, !draft.trim().is_empty())
+        };
+        use screens::board3::seats::StopState;
+        let (send_icon, stop_icon, busy, control) = match stop {
+            StopState::Idle => (true, false, false, true),
+            StopState::Stop => (false, true, false, true),
+            StopState::Starting | StopState::Stopping => (false, true, true, true),
+            StopState::Unavailable => (true, false, false, drafted),
+        };
         self.view
             .widget(cx, &[live_id!(composer_splash), live_id!(composer_send_icon)])
-            .set_visible(cx, !composer_live);
+            .set_visible(cx, send_icon);
         self.view
             .widget(cx, &[live_id!(composer_splash), live_id!(composer_stop_icon)])
-            .set_visible(cx, composer_live);
+            .set_visible(cx, stop_icon);
+        self.view
+            .widget(cx, &[live_id!(composer_splash), live_id!(composer_stop_busy)])
+            .set_visible(cx, busy);
+        self.view
+            .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_5)])
+            .set_visible(cx, control);
         self.sync_seats(cx);
         // #29d — the Stage C screens (board 2.8/2.11/2.12) mount into the review
         // column's temporary slot while #28e's shell (drawer + palette overlay)
@@ -5194,18 +5223,25 @@ impl Widget for OctoscodeView {
                 // control is STOP (scene 08 / Codex) and sends `turn/interrupt`
                 // (the L1 fix); otherwise it submits the draft.
                 if self.view.button(cx, ids!(send_hit)).clicked(actions) {
-                    makepad_widgets::log!("[octoscode] send_hit clicked");
-                    let live = {
+                    let (live, stop) = {
                         let b = self.bridge.lock().unwrap();
                         let ctx = bindings::Ctx::new(&b.store, &b.ui);
-                        bindings::query(&ctx, "turn.active")
+                        let live = bindings::query(&ctx, "turn.active")
                             .and_then(|v| v.as_bool())
-                            .unwrap_or(false)
+                            .unwrap_or(false);
+                        let active = b.ui.lock().unwrap().active_turn();
+                        (live, screens::board3::seats::stop_state(&b.store, active.as_deref()))
                     };
-                    if live {
-                        self.perform_action(cx, bindings::ACTION_INTERRUPT, 0);
-                    } else {
-                        self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
+                    makepad_widgets::log!("[octoscode] send_hit clicked (live={live}, stop={stop:?})");
+                    use screens::board3::seats::StopState;
+                    match (live, stop) {
+                        // A10 — Starting… / Stopping… are inert (the web's
+                        // disabled TurnStopButton): nothing is sent.
+                        (true, StopState::Starting | StopState::Stopping) => {}
+                        // No interrupt offered: the arrow queues the draft.
+                        (true, StopState::Unavailable) => self.perform_action(cx, bindings::ACTION_SUBMIT, 0),
+                        (true, _) => self.perform_action(cx, bindings::ACTION_INTERRUPT, 0),
+                        (false, _) => self.perform_action(cx, bindings::ACTION_SUBMIT, 0),
                     }
                 }
                 // A10 — the composer's two seats (web `SessionControlBar`):
