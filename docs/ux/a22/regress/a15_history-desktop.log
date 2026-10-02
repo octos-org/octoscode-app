@@ -14,7 +14,7 @@ PASS layout: the row title stays inside its row — [92, 300, 194, 17] in [64, 2
   shot tmp/a22-regress/a15/desktop-02-sidebar-titled.png
 PASS CLICK New chat
 PASS new chat: an empty Session
-PASS wire: the new Session's open hydrated too — dsflash:api:01a0febf-cedc-7552-84e3-24a5a9ed6542
+PASS wire: the new Session's open hydrated too — dsflash:api:01a0fed3-01a1-7603-9fba-a9d32a1b9326
 PASS defaults line: what a New chat gets (nothing stored: the server's defaults) — 'New chat defaults · Server defaults · deepseek-v4-flash · Thinking: On'
 PASS layout: the defaults line inside its strip — [351, 144, 605, 16] in [335, 129, 709, 47]
 PASS layout: one line on desktop — [351, 144, 605, 16]

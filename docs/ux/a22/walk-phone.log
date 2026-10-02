@@ -15,7 +15,7 @@ PASS 203: history first, then the live turn — each prompt once — ['First pro
 PASS 203: the replayed answer the history holds is drawn once — ['The hydrate cursor is adopted max-wins.', 'It starts in the open reply arm.', 'The live answer arrived after the history.']
 PASS 203 wire: the live events went out BEFORE the history reply — push@15 reply@19
 PASS 203 wire: one open, one history read for the Session — opens 1, history reads 1
-PASS 203 layout: transcript rows inside the conversation column — [[16, 374, 328, 19], [110, 127, 218, 43], [16, 200, 328, 19]]
+PASS 203 layout: transcript rows inside the conversation column — [[16, 374, 328, 19], [146, 300, 182, 44], [16, 200, 328, 19]]
   shot docs/ux/a22/phone-03-203-history-then-live.png
 PASS 216: back to 'Startup chat' (CLICK)
 PASS 216: /thinking opens Thinking effort

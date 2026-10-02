@@ -1,8 +1,8 @@
 == native walk a12_reconnect [desktop] (tools/walk/a12_reconnect_walk.py)
 -- run 1: exit 0 in 24 s
 PASS server up — port 8498
-[makepad-remote] listening on 127.0.0.1:8494 pid=45421 app=octosense grabs=<abs>/octosense-45421 token_file=<abs>/port-8494.token
-[headless] up: pid 45421  port 8494  log <abs>/port-8494.log
+[makepad-remote] listening on 127.0.0.1:8494 pid=96623 app=octosense grabs=<abs>/octosense-96623 token_file=<abs>/port-8494.token
+[headless] up: pid 96623  port 8494  log <abs>/port-8494.log
 PASS app launched (hidden, isolated state)
 PASS the shell is up and live
 PASS strip Ready — 'Ready'
@@ -11,7 +11,7 @@ PASS the unsent draft is in the composer — 'unsent words survive the outage'
 PASS outage: the banner appears — after 0.3s
 PASS outage: the banner shows — [359, 431, 661, 56]
 PASS outage: 'Reconnecting to Octos' — 'Reconnecting to Octos'
-PASS outage: the detail names the server in use + the retry count — 'Connection lost · retry 6 · 127.0.0.1:8498'
+PASS outage: the detail names the server in use + the retry count — 'Connection lost · retry 7 · 127.0.0.1:8498'
 PASS outage: the shell stays (no Connect card)
 PASS outage: the sidebar stays (desktop)
 PASS outage: the strip says Reconnecting — 'Reconnecting'
@@ -57,4 +57,4 @@ PASS server back
 PASS the card's Connect dials that same server and the shell returns
   shot <repo>/tmp/a22-regress/scratch/a12_reconnect-desktop/out/desktop-9-reconnected-from-card.png
 == WALK a12 reconnect desktop (replay, TERM): 46/46 passed
-   state dir (trace, serve log): <abs>/a12walk.6f4z8arp
+   state dir (trace, serve log): <abs>/a12walk.nulmlmri
