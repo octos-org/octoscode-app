@@ -532,18 +532,21 @@ pub fn item_copies(
     Ok(out)
 }
 
-/// A1 — three settled tool calls on `turn` (list the root, list `.octos`,
-/// read the workspace file), written the way the live client writes them:
-/// a TOOL_CALL timeline entry carrying the call id, and the tool domain's
-/// start/end records. A capture seed (`OCTOSCODE_SYNTHETIC_TOOLS`), never
-/// called on the live path.
-pub fn seed_tool_calls(store: &octoscode_store::Store, session: &str, turn: &str) {
+/// A1 — three tool calls on `turn` (list the root, list `.octos`, read the
+/// workspace file), written the way the live client writes them: a
+/// TOOL_CALL timeline entry carrying the call id, and the tool domain's
+/// start/end records. `live` leaves the last call running and marks the
+/// session's turn live (the running-turn capture). A capture seed
+/// (`OCTOSCODE_SYNTHETIC_TOOLS`), never called on the live path.
+pub fn seed_tool_calls(store: &octoscode_store::Store, session: &str, turn: &str, live: bool) {
     let calls = [
-        ("seed-c1", "list_dir", "path: \".\"", "2 entries in .:\n[dir]  .octos\n[file] .octos-workspace.toml"),
-        ("seed-c2", "list_dir", "path: \".octos\"", "2 entries in .octos:\n[dir]  dsflash\n[file] active-profile"),
-        ("seed-c3", "read_file", "path: \".octos-workspace.toml\"", "[workspace]\nkind = \"session\""),
+        ("list_dir", "path: \".\"", "2 entries in .:\n[dir]  .octos\n[file] .octos-workspace.toml"),
+        ("list_dir", "path: \".octos\"", "2 entries in .octos:\n[dir]  dsflash\n[file] active-profile"),
+        ("read_file", "path: \".octos-workspace.toml\"", "[workspace]\nkind = \"session\""),
     ];
-    for (id, name, args, out) in calls {
+    let last = calls.len() - 1;
+    for (k, (name, args, out)) in calls.into_iter().enumerate() {
+        let id = format!("seed-{turn}-{k}");
         store.domains.session.timeline.append_data(
             session,
             Some(turn.to_owned()),
@@ -551,9 +554,43 @@ pub fn seed_tool_calls(store: &octoscode_store::Store, session: &str, turn: &str
             name.to_owned(),
             serde_json::json!({ "tool_call_id": id }),
         );
-        store.domains.tool.call_started(id, name, Some(args));
-        store.domains.tool.call_ended(id, "complete", Some(out), Some(120));
+        store.domains.tool.call_started(&id, name, Some(args));
+        if !(live && k == last) {
+            store.domains.tool.call_ended(&id, "complete", Some(out), Some(120));
+        }
     }
+    if live {
+        store.domains.turn.started(turn);
+        let mut sessions = store.sessions();
+        for s in &mut sessions {
+            if s.id == session {
+                s.active_turn = true;
+            }
+        }
+        store.set_sessions(sessions);
+    }
+}
+
+/// A1 — a settled Chinese turn after the fixture's first (the CJK capture
+/// seed, `OCTOSCODE_SYNTHETIC_TOOLS=zh`): the prompt and the answer a live
+/// dsflash turn returned to it, with its three tool calls.
+pub fn seed_zh_turn(store: &octoscode_store::Store, session: &str, turn: &str) {
+    let prompt = "请用中文回答。每次只调用一个工具：先列出当前目录，再列出 .octos，最后读取 \
+        .octos-workspace.toml。然后给出一个小标题、三个要点（路径用行内代码），最后用 toml \
+        代码块引用 [workspace] 段。";
+    let answer = "## 工作区结构一览\n\n\
+        - 根目录 `.` 只有两项：隐藏目录 `.octos` 和配置文件 `.octos-workspace.toml`。\n\
+        - `.octos` 内含子目录 `dsflash` 和文件 `active-profile`，后者记录当前生效的档案名。\n\
+        - `.octos-workspace.toml` 共 217 行，开头声明 `schema_version = 1`，并把工作区类型定为会话级。\n\n\
+        ```toml\n[workspace]\nkind = \"session\"\n```";
+    let tl = &store.domains.session.timeline;
+    tl.upsert_user_message(session, turn, prompt, serde_json::json!({}));
+    seed_tool_calls(store, session, turn, false);
+    tl.append(session, Some(turn.to_owned()), octoscode_store::EntryKind::ASSISTANT_TEXT, answer.to_owned());
+    tl.finalize_assistant(session, turn, answer);
+    tl.close_turn(session, turn);
+    store.domains.turn.started(turn);
+    store.domains.turn.set_terminal(turn, "completed");
 }
 
 /// A1 pseudo-copies: live facts the fluid rows draw that no authored `copy`

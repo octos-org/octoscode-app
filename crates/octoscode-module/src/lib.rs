@@ -1017,14 +1017,22 @@ fn seed_synthetic_live(store: &Arc<Store>) {
         answer.to_owned(),
     );
     tl.finalize_assistant(&first, "t1", answer);
-    // A1: `OCTOSCODE_SYNTHETIC_TOOLS` adds the turn's tool calls (the
-    // capture seed for the tool card without spending a live turn).
-    if std::env::var("OCTOSCODE_SYNTHETIC_TOOLS").is_ok() {
-        components::seed_tool_calls(store, &first, "t1");
+    // A1 capture seeds (no transport): `OCTOSCODE_SYNTHETIC_TOOLS` adds the
+    // turn's tool calls; `=running` keeps the turn live (last call running),
+    // `=zh` adds a settled Chinese turn after it.
+    let tools = std::env::var("OCTOSCODE_SYNTHETIC_TOOLS").ok();
+    let live_turn = tools.as_deref() == Some("running");
+    if tools.is_some() {
+        components::seed_tool_calls(store, &first, "t1", live_turn);
     }
-    tl.close_turn(&first, "t1");
-    store.domains.turn.started("t1");
-    store.domains.turn.set_terminal("t1", "completed");
+    if !live_turn {
+        tl.close_turn(&first, "t1");
+        store.domains.turn.started("t1");
+        store.domains.turn.set_terminal("t1", "completed");
+    }
+    if tools.as_deref() == Some("zh") {
+        components::seed_zh_turn(store, &first, "t2");
+    }
 
     // GOALS / LOOPS / FLEET (board 4 frame 3). #31a item 2: an EMPTY session
     // must show only THREADS — OCTOSCODE_SYNTHETIC_EMPTY=1 skips the autonomy

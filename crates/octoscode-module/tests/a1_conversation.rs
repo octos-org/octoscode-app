@@ -25,7 +25,7 @@ fn settled_turn_with_tools() -> Arc<Store> {
     store.set_active(Some("s1".into()));
     let tl = &store.domains.session.timeline;
     tl.upsert_user_message("s1", "t1", "list the workspace", serde_json::json!({}));
-    components::seed_tool_calls(&store, "s1", "t1");
+    components::seed_tool_calls(&store, "s1", "t1", false);
     tl.append("s1", Some("t1".into()), EntryKind::ASSISTANT_TEXT, "Two entries.".into());
     tl.finalize_assistant("s1", "t1", "Two entries.");
     tl.close_turn("s1", "t1");
@@ -109,4 +109,66 @@ fn the_clickable_rows_carry_their_own_fixed_height_hits() {
     let worked = octoscode_module::fluid::worked_for("0", "Worked for 2s", 3, true, &m);
     let row = worked.find("View{width: Fill height: 28 flow: Overlay").expect("a 28 px overlay row");
     assert!(worked[row..].contains("worked_hit := Button{width: Fill height: Fill"), "{worked}");
+}
+
+/// The running seed: the last call still runs and the turn is live — the
+/// rows end with the working row, no "Worked for" header yet, and the last
+/// tool row says Running.
+#[test]
+fn a_live_turn_ends_with_the_working_row() {
+    let store = Arc::new(Store::new());
+    store.set_sessions(vec![Session {
+        id: "s1".into(),
+        title: Some("t".into()),
+        message_count: 1,
+        updated_at: None,
+        last_prompt: None,
+        active_turn: false,
+    }]);
+    store.set_active(Some("s1".into()));
+    store.domains.session.timeline.upsert_user_message("s1", "t1", "go", serde_json::json!({}));
+    components::seed_tool_calls(&store, "s1", "t1", true);
+    let ui = Arc::new(Mutex::new(FlowUi::default()));
+    let live = {
+        let ctx = Ctx::new(&store, &ui);
+        octoscode_module::bindings::query(&ctx, "turn.active").and_then(|v| v.as_bool()).unwrap_or(false)
+    };
+    assert!(live, "the seeded turn is live");
+    let rows = screen::timeline_rows_folded(&store, live, &[]);
+    let kinds: Vec<ItemKind> = rows.iter().map(|r| r.kind).collect();
+    assert_eq!(
+        kinds,
+        vec![ItemKind::UserBubble, ItemKind::ToolCell, ItemKind::ToolCell, ItemKind::ToolCell, ItemKind::WorkingRow]
+    );
+    let copies = {
+        let ctx = Ctx::new(&store, &ui);
+        components::item_copies(ItemKind::ToolCell, &ctx, 2, Some("t1")).expect("tool copies")
+    };
+    let dsl = components::lower(ItemKind::ToolCell, "2", &copies).expect("lowers");
+    assert!(dsl.contains("text: \"Running\""), "{dsl}");
+    assert!(dsl.contains("icon_spinner.svg"), "the running mark: {dsl}");
+}
+
+/// The Chinese seed lowers with the sans CJK face (never the calligraphic
+/// WenKai as the first CJK member) in both the bubble and the answer.
+#[test]
+fn the_chinese_turn_lowers_with_the_sans_cjk_face() {
+    let store = settled_turn_with_tools();
+    components::seed_zh_turn(&store, "s1", "t2");
+    let ui = Arc::new(Mutex::new(FlowUi::default()));
+    let rows = screen::timeline_rows_folded(&store, false, &[]);
+    let zh: Vec<_> = rows.iter().filter(|r| r.turn.as_deref() == Some("t2")).collect();
+    assert_eq!(zh.len(), 7, "bubble, worked-for, 3 tools, answer, actions");
+    for row in zh.iter().filter(|r| matches!(r.kind, ItemKind::UserBubble | ItemKind::AssistantProse)) {
+        let copies = {
+            let ctx = Ctx::new(&store, &ui);
+            components::item_copies(row.kind, &ctx, row.index, row.turn.as_deref()).expect("copies")
+        };
+        let dsl = components::lower(row.kind, "9", &copies).expect("lowers");
+        let noto = dsl.find("NotoSansSC").expect("the sans CJK member");
+        if let Some(wenkai) = dsl.find("LXGWWenKai") {
+            assert!(noto < wenkai, "WenKai only as the lazy rare-glyph fallback");
+        }
+        assert!(dsl.contains("工作区") || dsl.contains("请用中文回答"), "the Chinese text rides the row");
+    }
 }
