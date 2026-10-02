@@ -813,7 +813,8 @@ fn error_line(d: &mut Dsl, id: &str, message: &str, retry: &str) {
     // A24: an explicit width, >= 28 px: "重试" is two 12 px glyphs, so a Fit
     // box measured 24 px wide in Chinese (under the 28 px hit floor).
     let retry_w = (ui::text_w(tr("Retry"), 12.0, Face::Semibold) + 8.0).max(28.0).ceil();
-    d.view(&b, &format!("width: {retry_w} height: 28 flow: Overlay align: Align{{x: 0.5 y: 0.5}} padding: Inset{{left: 4 right: 4}}"));
+    // No padding: the tap fills the whole box (the label is centred).
+    d.view(&b, &format!("width: {retry_w} height: 28 flow: Overlay align: Align{{x: 0.5 y: 0.5}}"));
     d.text(&format!("{id}_retry_label"), tr("Retry"), &Txt::new(12.0, Face::Semibold, tok::RED_TEXT));
     d.tap(&format!("{id}_retry"), retry);
     d.close();

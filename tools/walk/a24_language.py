@@ -105,10 +105,14 @@ def cjk_checks(W: Walk, sn, frames: list[str]) -> dict:
             box = min(cands, key=lambda b: b[2] * b[3])
             if r[0] + r[2] > box[0] + box[2] + 1.5:
                 overflow.append((w["t"], r, box))
-        # One line ~ font * 1.2-1.35: estimate the run at that font.
-        font = r[3] / 1.3
+        # A wrapped label is several lines (~16-24 px each): estimate the run
+        # at a line's SMALLEST plausible font against the box's capacity
+        # (width x lines), so only a clear shortfall (an ellipsized or cut
+        # run) is flagged; a Fit label measures its own run.
+        lines = max(1, round(r[3] / 19.0))
+        font = min((r[3] / lines) / 1.6, 15.0)
         est = sum(em(c) for c in w["t"]) * font
-        if r[3] < font * 1.8 and est > r[2] * 1.18 + 6:
+        if est > r[2] * lines * 1.12 + 6:
             trunc.append((w["t"], r, round(est)))
     for i, a in enumerate(labels):
         for b in labels[i + 1:]:
@@ -137,10 +141,15 @@ def capture(W: Walk, name: str, frames: list[str], surface: str):
     time.sleep(0.6)
     sn = W.snap()
     c = cjk_checks(W, sn, frames)
-    W.check(f"{surface}: no clipped or overflowing Chinese label ({name})", c["ok"] and c["cjk"] > 0, line(c))
+    # A surface whose copy has no web key keeps English (cjk=0): nothing to
+    # clip, and the count says so in the line.
+    W.check(f"{surface}: no clipped or overflowing Chinese label ({name})", c["ok"], line(c))
     png = W.shot(name)
+    # The shown labels' texts and rects (never an input's buffer: no secret
+    # can ride this list).
     (W.out / f"{name}.snap.txt").write_text("\n".join(
-        f"{w.get('i')}\t{w.get('ty')}\t{w['r']}\t{w.get('t')}" for w in sn if W.shown(w) and w.get("t")) + "\n")
+        f"{w.get('i')}\t{w.get('ty')}\t{w['r']}\t{w.get('t')}" for w in sn
+        if W.shown(w) and w.get("t") and w.get("ty") in ("Label", "Button")) + "\n")
     SUMMARY.append({"name": name, "surface": surface, "png": str(png), "checks": line(c), "ok": c["ok"]})
     return c
 
@@ -194,8 +203,8 @@ def frames_for_settings():
 
 def run_live(W: Walk):
     W.check("connected", W.wait(lambda: W.composer() is not None, 40))
-    W.check("start: English (the device default here)", has(W, "Settings" if MODE != "phone" else "Add workspace"),
-            f"{texts(W)[:12]}")
+    W.check("start: English (the device default here)", has(W, "Chat", "Ready"),
+            f"{[t for t in texts(W) if t][:12]}")
     W.check("Settings opens (CLICK)", open_settings(W))
     W.check("Preferences shows (CLICK)", section(W, "preferences"))
     r_en, on_en = segment(W, "lang_en")
@@ -209,8 +218,9 @@ def run_live(W: Walk):
     W.mark()
     click_segment(W, "lang_zh")
     W.check("switch: 简体中文 CLICK", W.logged("a24 language -> zh (switched)"))
-    W.check("switch: the Settings sheet reads Chinese", has(W, "语言", "Vim 编辑", "通用", "权限"),
-            f"{[t for t in texts(W) if is_cjk(t)][:10]}")
+    # The phone sheet's nav is an icon rail: its section names are not text.
+    want = ("语言", "Vim 编辑") if MODE == "phone" else ("语言", "Vim 编辑", "通用", "权限")
+    W.check("switch: the Settings sheet reads Chinese", has(W, *want), f"{[t for t in texts(W) if is_cjk(t)][:10]}")
     _, on = segment(W, "lang_zh")
     W.check("switch: 简体中文 reads selected", on == "简体中文", f"{on!r}")
     W.check("switch: the status line says the change is unsaved", bool(W.text("prefs_status")), W.text("prefs_status"))
@@ -241,17 +251,31 @@ def run_live(W: Walk):
         if W.wait(lambda: bool(W.visible("b3_dialog")), 5):
             W.check("seats: the permission menu reads Chinese", has(W, "权限"), f"{W.text('b3_title')!r}")
             capture(W, "zh-permission-menu", ["b3_dialog"], "composer permission menu")
-            W.key("Escape")
-    # The slash menu.
-    if W.palette_run("", "/model") is False:
-        W.note("slash menu not opened by palette_run; trying a bare '/'")
-    W.key("Escape")
+            # The web's outside press dismisses the popover.
+            W.click("hd_title")
+            W.check("seats: an outside press closes the menu", W.wait(lambda: not W.visible("b3_dialog"), 6))
+    # The slash menu: its descriptions in Chinese (the web's command keys).
+    c = W.composer()
+    if c:
+        x, y, w_, h = c["r"]
+        W.click_xy(x + w_ / 2, y + h / 2)
+        W.clear_field()
+        W.type_text("/")
+        if W.wait(lambda: bool(W.visible("palette_row_desc")), 6):
+            W.check("slash menu: the descriptions read Chinese",
+                    W.wait(lambda: any(is_cjk(w.get("t") or "") for w in W.visible("palette_row_desc")), 4),
+                    f"{[w.get('t') for w in W.visible('palette_row_desc')][:4]}")
+            capture(W, "zh-slash-menu", ["palette_dock", "palette_list", "palette"], "slash menu")
+        W.key("Escape")
+        W.clear_field(4)
+        W.dismiss_keyboard("hd_title")
     # Board 1: Disconnect -> the Connect card in Chinese, then pairing.
     open_settings(W)
     section(W, "connection")
     W.mark()
-    W.click("settings_disconnect")
-    if W.wait(lambda: bool(W.visible("connect_card")), 10):
+    W.check("board 1: Disconnect CLICK", W.click_in("settings_disconnect", "set_body"))
+    W.check("board 1: the Connect card returns", W.wait(lambda: bool(W.visible("connect_card")), 12))
+    if W.visible("connect_card"):
         W.check("board 1: the Connect card reads Chinese", has(W, "连接 Octos"), f"{W.text('connect_title')!r}")
         capture(W, "zh-connect", ["connect_card"], "Connect card (board 1)")
         if W.click("b1_connect_pair"):
@@ -267,8 +291,8 @@ def run_live(W: Walk):
     W.mark()
     click_segment(W, "lang_en")
     W.check("restore: English CLICK", W.logged("a24 language -> en (switched)"))
-    W.check("restore: the sheet reads English again", has(W, "Language", "Vim editing", "General", "Permissions"),
-            f"{[t for t in texts(W) if is_cjk(t)][:6]}")
+    want = ("Language", "Vim editing") if MODE == "phone" else ("Language", "Vim editing", "General", "Permissions")
+    W.check("restore: the sheet reads English again", has(W, *want), f"{[t for t in texts(W) if is_cjk(t)][:6]}")
     W.check("restore: no Chinese left on the sheet", not [t for t in texts(W) if is_cjk(t) and t != "简体中文"],
             f"{[t for t in texts(W) if is_cjk(t)]}")
     W.shot("en-restored")
