@@ -320,6 +320,24 @@ impl Timeline {
         id
     }
 
+    /// A15 — move entry `id` to just before the first entry of `turn` when it
+    /// sits after it: a hydrated terminal notice of a turn that ran BEFORE
+    /// `turn` (the fold appends it after the persisted rows; the web places a
+    /// message-less terminal turn "before the next turn", `model.ts:240-270`).
+    /// Nothing is deleted or rewritten. Returns whether it moved.
+    pub fn move_before_turn(&self, session: &str, id: u64, turn: &str) -> bool {
+        let mut map = self.inner.lock().unwrap();
+        let Some(entries) = map.get_mut(session) else { return false };
+        let Some(from) = entries.iter().position(|e| e.id == id) else { return false };
+        let Some(to) = entries.iter().position(|e| e.turn_id.as_deref() == Some(turn)) else { return false };
+        if from < to {
+            return false;
+        }
+        let e = entries.remove(from);
+        entries.insert(to, e);
+        true
+    }
+
     /// A6 — a delivered file, idempotent per (turn, file name): the web keys
     /// the row `file-attached:<turn>:<name>` (`timeline/model.ts:604-615`), so
     /// a `file_attached` frame and the persisted answer's `meta.media` naming

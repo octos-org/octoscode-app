@@ -1570,19 +1570,43 @@ impl Conversation {
         // gap. Natively the SAME notice the live terminal draws, under the
         // same `terminal:<turn>` id (`turn::terminal_notice`), so a turn
         // stopped live is never noted twice.
-        for env in h.replayed_projection_envelopes.iter().flatten() {
-            if let PayloadV2::TurnTerminal { outcome, error, .. } = &env.payload {
-                use octos_core::ui_protocol::TurnTerminalOutcome as O;
-                let name = match outcome {
-                    O::Completed => continue,
-                    O::Errored => "errored",
-                    O::Interrupted => "interrupted",
-                    O::RateLimited => "rate_limited",
-                };
-                let before = timeline.len(session);
-                let err = error.as_ref().map(|e| (e.code.as_str(), e.message.as_str()));
-                octoscode_client::domains::turn::terminal_notice(&self.store, session, &env.turn_id, name, err, None);
-                added += timeline.len(session) - before;
+        // The turns in stream order, by their retained terminal (Core keeps
+        // every thread's terminal, even a compacted one's): a restored notice
+        // goes before the next turn this transcript holds, where the web puts
+        // a message-less terminal turn ("before the next turn").
+        let mut terminals: Vec<(u64, &octos_core::ui_protocol::EnvelopeV2)> = h
+            .replayed_projection_envelopes
+            .iter()
+            .flatten()
+            .filter(|e| matches!(e.payload, PayloadV2::TurnTerminal { .. }))
+            .map(|e| (e.cursor.as_ref().map(|c| c.seq).unwrap_or(e.seq), e))
+            .collect();
+        terminals.sort_by_key(|(seq, _)| *seq);
+        for (k, (_, env)) in terminals.iter().enumerate() {
+            let PayloadV2::TurnTerminal { outcome, error, .. } = &env.payload else { continue };
+            use octos_core::ui_protocol::TurnTerminalOutcome as O;
+            let name = match outcome {
+                O::Completed => continue,
+                O::Errored => "errored",
+                O::Interrupted => "interrupted",
+                O::RateLimited => "rate_limited",
+            };
+            let before = timeline.len(session);
+            let err = error.as_ref().map(|e| (e.code.as_str(), e.message.as_str()));
+            octoscode_client::domains::turn::terminal_notice(&self.store, session, &env.turn_id, name, err, None);
+            added += timeline.len(session) - before;
+            let entries = timeline.entries(session);
+            let key = format!("terminal:{}", env.turn_id);
+            let notice = entries
+                .iter()
+                .find(|e| e.data.get("notice_id").and_then(|v| v.as_str()) == Some(key.as_str()))
+                .map(|e| e.id);
+            let next = terminals[k + 1..]
+                .iter()
+                .map(|(_, e)| e.turn_id.as_str())
+                .find(|t| entries.iter().any(|e| e.turn_id.as_deref() == Some(*t)));
+            if let (Some(id), Some(next)) = (notice, next) {
+                timeline.move_before_turn(session, id, next);
             }
         }
         if tool_envs.is_empty() {

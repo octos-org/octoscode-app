@@ -200,6 +200,8 @@ impl Core {
         p.rows.push(row(3, "assistant", &answer));
         p.tool_envs.push(frames[3].1.clone());
         p.tool_envs.push(frames[4].1.clone());
+        // Core retains every thread's terminal record (even a compacted one's).
+        p.projection_envs.push(frames[7].1.clone());
         p.thread_seq.insert(turn.to_owned(), 7);
         p.title.get_or_insert_with(|| prompt.chars().take(50).collect());
         p.last_prompt = Some(prompt.to_owned());
@@ -559,5 +561,35 @@ async fn a_stopped_turn_keeps_its_stopped_notice_once_after_a_restart() {
     assert_ne!(b, session);
     open(&second, &mut ev2, &core, &session).await;
     assert_eq!(notices(&second).len(), 1, "one notice per stopped turn");
+    // The next prompt streams AFTER the stopped turn: the notice stays above it.
+    let later = run_turn(&second, &mut ev2, "And now?").await;
+    let order = |c: &Conversation| -> (usize, usize, usize) {
+        use octoscode_module::screens::board3::rows::{timeline, TRow};
+        let rows = timeline(&c.store, false);
+        let bubble = |turn: &str| {
+            rows.iter()
+                .position(|r| matches!(r, TRow::Base(b) if b.kind == ItemKind::UserBubble && b.turn.as_deref() == Some(turn)))
+                .expect("bubble")
+        };
+        let notice = rows
+            .iter()
+            .position(|r| match r {
+                TRow::Notice(id) => c.store.domains.session.timeline.entries(&session).iter().any(|e| e.id == *id && e.turn_id.as_deref() == Some(stopped)),
+                _ => false,
+            })
+            .expect("notice");
+        let first_turn = c.store.domains.session.timeline.of_kind(&session, EntryKind::USER_MESSAGE)[0].turn_id.clone().unwrap();
+        (bubble(&first_turn), notice, bubble(&later))
+    };
+    let (a, n, c) = order(&second);
+    assert!(a < n && n < c, "live: first turn, stopped notice, later turn ({a}, {n}, {c})");
     quit(&second);
+    // A cold restart folds every row first and the notice after them: it is
+    // moved back before the next turn the transcript holds (stream order of
+    // the retained terminals), never left below the later turn.
+    let (third, _ev3) = launch(&core).await;
+    let (a, n, c) = order(&third);
+    assert!(a < n && n < c, "cold restart: first turn, stopped notice, later turn ({a}, {n}, {c})");
+    assert_eq!(notices(&third).len(), 1);
+    quit(&third);
 }
