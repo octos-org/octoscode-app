@@ -180,8 +180,16 @@ script_mod! {
                         // gradient is DISABLED (`color_2` < -0.5): at
                         // #00000000 it mixed toward the theme's focus stop
                         // after a click and washed the disclosed row white.
+                        // No margin, padding or label box: a Button's own
+                        // content (an empty label's line + the theme padding)
+                        // sized this Fit row on the phone shell — measured
+                        // 48 px hits over 40 px tool rows, 14 px gaps
+                        // splitting the tool card.
                         row_hit := Button {
                             width: Fill height: Fill text: ""
+                            margin: 0 padding: 0
+                            label_walk: Walk{width: 0 height: 0}
+                            icon_walk: Walk{width: 0 height: 0}
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000008
                             draw_bg.color_down: #00000010
@@ -1028,6 +1036,11 @@ fn seed_synthetic_live(store: &Arc<Store>) {
         answer.to_owned(),
     );
     tl.finalize_assistant(&first, "t1", answer);
+    // A1: `OCTOSCODE_SYNTHETIC_TOOLS` adds the turn's tool calls (the
+    // capture seed for the tool card without spending a live turn).
+    if std::env::var("OCTOSCODE_SYNTHETIC_TOOLS").is_ok() {
+        components::seed_tool_calls(store, &first, "t1");
+    }
     tl.close_turn(&first, "t1");
     store.domains.turn.started("t1");
     store.domains.turn.set_terminal("t1", "completed");

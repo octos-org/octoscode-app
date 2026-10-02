@@ -532,6 +532,30 @@ pub fn item_copies(
     Ok(out)
 }
 
+/// A1 — three settled tool calls on `turn` (list the root, list `.octos`,
+/// read the workspace file), written the way the live client writes them:
+/// a TOOL_CALL timeline entry carrying the call id, and the tool domain's
+/// start/end records. A capture seed (`OCTOSCODE_SYNTHETIC_TOOLS`), never
+/// called on the live path.
+pub fn seed_tool_calls(store: &octoscode_store::Store, session: &str, turn: &str) {
+    let calls = [
+        ("seed-c1", "list_dir", "path: \".\"", "2 entries in .:\n[dir]  .octos\n[file] .octos-workspace.toml"),
+        ("seed-c2", "list_dir", "path: \".octos\"", "2 entries in .octos:\n[dir]  dsflash\n[file] active-profile"),
+        ("seed-c3", "read_file", "path: \".octos-workspace.toml\"", "[workspace]\nkind = \"session\""),
+    ];
+    for (id, name, args, out) in calls {
+        store.domains.session.timeline.append_data(
+            session,
+            Some(turn.to_owned()),
+            octoscode_store::EntryKind::TOOL_CALL,
+            name.to_owned(),
+            serde_json::json!({ "tool_call_id": id }),
+        );
+        store.domains.tool.call_started(id, name, Some(args));
+        store.domains.tool.call_ended(id, "complete", Some(out), Some(120));
+    }
+}
+
 /// A1 pseudo-copies: live facts the fluid rows draw that no authored `copy`
 /// slot carries (the cache keys on them like on any copy).
 pub const TOOL_TITLE: &str = "@tool.title";

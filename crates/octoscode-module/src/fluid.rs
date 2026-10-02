@@ -198,6 +198,7 @@ pub fn hit(id: &str, radius: f64) -> String {
     // over a disclosed tool row. Focus stays transparent for the same reason.
     format!(
         "{id} := Button{{width: Fill height: Fill text: \"\" margin: 0 padding: 0 \
+         label_walk: Walk{{width: 0 height: 0}} icon_walk: Walk{{width: 0 height: 0}} \
          draw_bg.color: #00000000 draw_bg.color_hover: #0000000a draw_bg.color_down: #00000014 \
          draw_bg.color_focus: #00000000 draw_bg.color_disabled: #00000000 \
          draw_bg.color_2: vec4(-1.0, -1.0, -1.0, -1.0) draw_bg.border_size: 0.0 draw_bg.border_radius: {radius} \
