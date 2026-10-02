@@ -390,6 +390,16 @@ def main():
     w.check("zh: answered", w.wait(lambda: bool(w.text("btw_aside_answer")), 15))
     panel_checks(w, "zh answered")
     capture(w, "10-zh-answered")
+    w.check("zh: CLICK the chevron", w.click("btw_aside_toggle_hit"))
+    if w.mode == "phone":
+        w.check("zh folded: one row, the question keeps its room",
+                w.wait(lambda: not w.visible("btw_aside_body") and not w.visible("btw_aside_state"), 4))
+    else:
+        w.check("zh folded: 旁问 — /btw · question · 已回答 · 关闭",
+                w.wait(lambda: not w.visible("btw_aside_body") and w.text("btw_aside_state") == "已回答", 4),
+                repr(w.text("btw_aside_state")))
+    panel_checks(w, "zh folded")
+    capture(w, "11-zh-folded")
     sys.exit(w.summary())
 
 
