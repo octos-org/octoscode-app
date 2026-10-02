@@ -1,0 +1,55 @@
+[replay-serve] screens: 52 recorded replies: ["agent/artifact/list", "agent/interrupt", "agent/list", "agent/output/read", "agent/status/read", "config/capabilities/list", "content/list", "launch/resolve", "loop/create", "loop/delete", "loop/fire_now", "loop/list", "loop/pause", "loop/resume", "mcp/status/list", "monitor/create", "monitor/delete", "monitor/list", "monitor/pause", "monitor/resume", "onboarding/workspace_create", "onboarding/workspace_list", "peer/gather", "peer/prepare", "permission/profile/list", "permission/profile/set", "profile/llm/catalog", "profile/llm/delete", "profile/llm/list", "profile/llm/select", "profile/llm/upsert", "profile/local/create", "profile/skills/list", "profile/skills/remove", "profile/sub_providers/list", "profile/sub_providers/remove", "profile/sub_providers/upsert", "server/shutdown", "session/compact", "session/compact/mode/set", "session/delete", "session/files.list", "session/fork", "session/goal/clear", "session/goal/get", "session/goal/set", "session/list", "session/rollback", "session/status/read", "snapshot/list", "task/list", "turn/start"]
+[replay-serve] scenario=skill-jobs fixture=r1-autonomy-a6ea8505.jsonl: 91 frames; recorded session `dsflash:main`; 2 recorded turns ["01a0e769-55e5-7d40-be9c-9e340e3afb97", "01a0e769-67b9-7753-a1a7-da2d5fbbb444"]; 0 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8620/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] skill-jobs: home dsflash:main, seeded=true, 2 announced
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- session/hydrate (id=2)
+[replay-serve] <- session/list (id=3)
+[replay-serve] <- session/hydrate (id=4)
+[replay-serve] <- permission/profile/list (id=5)
+[replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] <- profile/llm/list (id=6)
+[replay-serve] -> profile/llm/list (recorded reply)
+[replay-serve] <- profile/skills/list (id=7)
+[replay-serve] -> profile/skills/list (skill-jobs: two installed)
+[replay-serve] <- profile/sub_providers/list (id=8)
+[replay-serve] -> profile/sub_providers/list (recorded reply)
+[replay-serve] <- session/status/read (id=9)
+[replay-serve] -> session/status/read (recorded reply)
+[replay-serve] <- permission/profile/list (id=10)
+[replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] => skill/action/job/updated "dsflash" "dsflash:imports" "running"
+[replay-serve] => skill/action/job/updated "acme" "dsflash:main" "running"
+[replay-serve] <- profile/llm/list (id=11)
+[replay-serve] -> profile/llm/list (recorded reply)
+[replay-serve] <- skill/action/job/list (id=12)
+[replay-serve] -> skill/action/job/list dsflash:main (5 jobs) {"profile_id":"dsflash","session_id":"dsflash:main"}
+[replay-serve] => skill/action/job/updated (before the list reply) "job-q3" "succeeded"
+[replay-serve] => skill/action/job/updated (before the list reply) "job-notes" "queued"
+[replay-serve] <- profile/skills/list (id=13)
+[replay-serve] -> profile/skills/list (skill-jobs: two installed)
+[replay-serve] <- profile/sub_providers/list (id=14)
+[replay-serve] -> profile/sub_providers/list (recorded reply)
+[replay-serve] -> skill/action/job/list reply sent (after the racing updates)
+[replay-serve] => skill/action/job/updated (live) "job-report" "succeeded"
+[replay-serve] => skill/action/job/updated (live) "job-notes" "running"
+[replay-serve] <- session/open (id=15)
+[replay-serve] <- session/list (id=16)
+[replay-serve] <- session/hydrate (id=17)
+[replay-serve] <- session/list (id=18)
+[replay-serve] <- session/hydrate (id=19)
+[replay-serve] <- session/status/read (id=20)
+[replay-serve] -> session/status/read (recorded reply)
+[replay-serve] <- permission/profile/list (id=21)
+[replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] <- profile/llm/list (id=22)
+[replay-serve] -> profile/llm/list (recorded reply)
+[replay-serve] <- skill/action/job/list (id=23)
+[replay-serve] -> skill/action/job/list dsflash:imports (2 jobs) {"profile_id":"dsflash","session_id":"dsflash:imports"}
+[replay-serve] <- profile/skills/list (id=24)
+[replay-serve] -> profile/skills/list (skill-jobs: two installed)
+[replay-serve] <- profile/sub_providers/list (id=25)
+[replay-serve] -> profile/sub_providers/list (recorded reply)

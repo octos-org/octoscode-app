@@ -298,11 +298,17 @@ async fn feature_negotiation_sends_the_webs_list() {
     assert!(caps_seen, "the session/open capabilities must arrive");
 
     let hs = server.handshake.lock().unwrap().clone();
-    // The web sends one `ui_feature=` per feature (`url.ts:24-28`).
+    // The web sends one `ui_feature=` per feature (`url.ts:24-28`). A31:
+    // the native client sends the web's list, in order, then its own extras
+    // (`skill.action_jobs.v1`, without which octos never sends
+    // `skill/action/job/updated` — parity row 15).
+    let mut want: Vec<&str> = WEB_FEATURES.to_vec();
+    want.extend_from_slice(octoscode_client::features::NATIVE_UI_FEATURES);
     assert_eq!(
-        hs.query_features, WEB_FEATURES,
-        "the query params must be the web's list, in order"
+        hs.query_features, want,
+        "the query params must be the web's list, in order, then the native extras"
     );
+    assert_eq!(octoscode_client::features::NATIVE_UI_FEATURES, ["skill.action_jobs.v1"]);
     // And our transport also sets the header (additive; server accepts either).
     let header = hs.features_header.expect("x-octos-ui-features header");
     for f in WEB_FEATURES {

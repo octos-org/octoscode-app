@@ -17,7 +17,8 @@
 //! | `peer.rs` | peer/prepare, peer/gather, peer/dispatch, peer/control; notifications peer/staged, peer/closed |
 //! | `profile.rs` | profile/local/create, profile/llm/* (7), profile/skills/* (4), profile/sub_providers/* (3); onboarding/* (2) |
 //! | `media.rs` | visual/* (3), voice/* (2), content/* (3), file/attached, smart_home/* (5) |
-//! | `config.rs` | config/capabilities/list; plus the misc singletons (cron/*, diff/preview/get, launch/resolve, memory/*, permission/profile/*, plan/updated, progress/updated, projection/envelope, protocol/replay_lossy, queue/state, router/*, server/shutdown, skill/action/job/updated, snapshot/*, system/status.get, thread/graph/get, user_question/*, warning, background/activity, mcp/status/list) |
+//! | `config.rs` | config/capabilities/list; plus the misc singletons (cron/*, diff/preview/get, launch/resolve, memory/*, permission/profile/*, plan/updated, progress/updated, projection/envelope, protocol/replay_lossy, queue/state, router/*, server/shutdown, snapshot/*, system/status.get, thread/graph/get, user_question/*, warning, background/activity, mcp/status/list) |
+//! | `skill_jobs.rs` | A31: skill/action/job/list; notification skill/action/job/updated (the Skills dialog's Background jobs, parity row 15) |
 pub mod approval;
 pub mod autonomy;
 pub mod config;
@@ -28,6 +29,8 @@ pub mod peer;
 pub mod profile;
 pub mod review;
 pub mod session;
+// A31: background skill-action jobs (parity row 15).
+pub mod skill_jobs;
 pub mod task;
 pub mod tool;
 pub mod turn;
@@ -50,6 +53,8 @@ pub fn register_all(registry: &mut Registry, store: Arc<Store>) {
     profile::register(registry, store.clone());
     media::register(registry, store.clone());
     config::register(registry, store.clone());
+    // A31: `skill/action/job/updated` (parity row 15), no longer ignored.
+    skill_jobs::register(registry, store.clone());
     // Card #22 §2: the no-silent-drops guard records unhandled kinds here.
     registry.set_store(store);
     register_ignored(registry);
@@ -82,8 +87,9 @@ pub fn register_all(registry: &mut Registry, store: Arc<Store>) {
 ///   lifecycle snapshot, `autonomy.rs`); these two are high-frequency tails with
 ///   no consumer — the artifact metadata that matters arrives via
 ///   `agent/artifact/list`, which autonomy owns.
-/// - `skill/action/job/updated` — `SkillActionJobUpdatedEvent`
-///   `ui_protocol.rs:6464`. No web consumer; job state is read on demand.
+///
+/// A31: `skill/action/job/updated` left this list — the Skills dialog's
+/// "Background jobs" section consumes it (`skill_jobs.rs`, parity row 15).
 pub fn register_ignored(registry: &mut Registry) {
     registry.ignore("router/status", "web ignores; routing shown in logs only");
     registry.ignore("router/failover", "web ignores; routing shown in logs only");
@@ -100,9 +106,5 @@ pub fn register_ignored(registry: &mut Registry) {
     registry.ignore(
         "agent/artifact/updated",
         "web ignores; artifact metadata read via agent/artifact/list",
-    );
-    registry.ignore(
-        "skill/action/job/updated",
-        "web ignores; job state read on demand",
     );
 }

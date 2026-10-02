@@ -96,6 +96,13 @@ pub static ALIASES: &[Alias] = &[
     ),
     a("No recent workspaces yet.", "No recent workspace paths", "features/workspace-create/NewSessionWorkspacePicker.tsx:287"),
     a("Browse folders\u{2026}", "Browse\u{2026}", "features/workspace-create/NewSessionWorkspacePicker.tsx:360"),
+    // ---- A31: the Skills dialog (web features/skills/SkillsDialog.tsx)
+    a("Skills", "Profile skills", "features/skills/SkillsDialog.tsx:146"),
+    a("Installed", "Installed skills", "features/skills/SkillsDialog.tsx:174"),
+    a("Registry", "Skill registry", "features/skills/SkillsDialog.tsx:205"),
+    // generic: a registry row's button reads "Review installation of <name>"
+    // (it opens the confirm card, like the native "Install" pill)
+    a("Install", "Review installation", "features/skills/SkillsDialog.tsx:267"),
 ];
 
 /// The web key a native string renders through, if it is an alias.

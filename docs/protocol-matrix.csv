@@ -89,7 +89,7 @@ session/status/read,?,,,,octos-core/src/ui_protocol.rs:1031,apps/web/src/feature
 session/tasks.list,request,,,,octos-core/src/ui_protocol.rs:1228,,0,absent,,
 session/title.set,request,,,,octos-core/src/ui_protocol.rs:1233,,0,absent,,
 session/workspace.get,request,,,,octos-core/src/ui_protocol.rs:1231,,0,absent,,
-skill/action/job/updated,notification,,,,octos-core/src/ui_protocol.rs:1190,,0,handled,octoscode-client/src/domains/mod.rs,
+skill/action/job/updated,notification,,,,octos-core/src/ui_protocol.rs:1190,,0,handled,octoscode-client/src/domains/skill_jobs.rs;octoscode-store/src/domains/skill_jobs.rs,
 smart_home/camera.stream_start,request,,,,octos-core/src/ui_protocol.rs:1350,,0,absent,,
 smart_home/camera.stream_stop,request,,,,octos-core/src/ui_protocol.rs:1352,,0,absent,,
 smart_home/device.command,request,,,,octos-core/src/ui_protocol.rs:1348,,0,absent,,

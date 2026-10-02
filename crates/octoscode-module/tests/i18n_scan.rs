@@ -45,7 +45,7 @@ const CONVERTED: &[&str] = &[
 
 /// The phase-2 ceiling: bypasses left in the rest of `screens/` (A24 phase 1
 /// measured this). Lower it as screens are converted; it must reach 0.
-const REMAINING_CEILING: usize = 311;
+const REMAINING_CEILING: usize = 302; // A31: the Skills dialog's own copy (dialog_view.rs `skills`) 314 -> 305; A28: the diff review (board3/diff_review.rs) -> 302
 
 /// (call prefix, text-argument indices). A prefix starting with `.` or `::`
 /// matches a method / path call; otherwise the name must stand alone.
