@@ -6,18 +6,18 @@
 //! The web keeps exactly these three facts in its tab connection state
 //! (`src-web/apps/web/src/features/connection/preferences.ts:59-70`
 //! `TabConnectionPreferences {sessionId, profileId, cwd}`, bounded at
-//! `:23-29`), taken from every committed open (`app/App.tsx:976-992`:
+//! `:23-29`), taken from every committed open (`app/App.tsx:974-992`:
 //! `opened.session_id`, `opened.active_profile_id`, `opened.workspace_root`)
 //! and saved with the connection (`preferences.ts:99-141`). A fresh
 //! connection carries none of them (`connection-bootstrap.ts:17-23`,
 //! `profileId: ""`). A reload restores the remembered Session DIRECTLY —
 //! `autoStartKind` "restore" (`connection-bootstrap.ts:44-48`),
-//! `session.restore(connection)` (`App.tsx:812-842`), `beginConnection(input,
+//! `session.restore(connection)` (`App.tsx:814-845`), `beginConnection(input,
 //! true)` -> `openCandidateSession(restoreTarget)` only when `sessionId` and
-//! `cwd` are both known (`use-octos-session.ts:2956-3008`), with the
+//! `cwd` are both known (`use-octos-session.ts:2956-2961`, `:2978-3001`), with the
 //! remembered `profile_id` on the open (`active-session-runtime.ts:1021-1025`)
 //! and no `launch/resolve`. A refused restore clears them
-//! (`App.tsx:952-974`); a new identity — another endpoint or another token —
+//! (`App.tsx:947-974`); a new identity — another endpoint or another token —
 //! starts with none (`ConnectionGate.tsx:266-307`), and Forget clears them
 //! (`ConnectionGate.tsx:319-356`).
 //!
@@ -58,7 +58,7 @@ pub struct Remembered {
 }
 
 impl Remembered {
-    /// The web restores only a complete target (`use-octos-session.ts:2985-2987`:
+    /// The web restores only a complete target (`use-octos-session.ts:2978-2981`:
     /// `config.sessionId && config.cwd`), within its bounds.
     pub fn is_restorable(&self) -> bool {
         let ok = |s: &str, max: usize| !s.trim().is_empty() && s.len() <= max;
@@ -193,7 +193,7 @@ pub fn on_connect_identity(server: &str, token: &str) -> bool {
     had
 }
 
-/// The open reply's three facts (`App.tsx:976-992`), kept for `server`.
+/// The open reply's three facts (`App.tsx:974-992`), kept for `server`.
 pub fn note_opened(server: &str, profile: &str, session: &str, cwd: Option<&str>) {
     let r = Remembered {
         profile_id: profile.trim().to_owned(),
@@ -298,7 +298,7 @@ mod tests {
         let _ = std::fs::remove_dir_all(f.parent().unwrap());
     }
 
-    /// `use-octos-session.ts:2985-2987`: no restore without a session id AND a
+    /// `use-octos-session.ts:2978-2981`: no restore without a session id AND a
     /// workspace; the web's bounds apply.
     #[test]
     fn an_incomplete_target_is_never_kept() {

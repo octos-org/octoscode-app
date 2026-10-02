@@ -395,7 +395,7 @@ async fn a_fresh_connection_sends_no_profile_id_and_no_profile_shows_the_onboard
 /// Session at once under the profile it names — straight to a session. The
 /// committed open is remembered, and a later launch in another folder then
 /// carries the active profile (the web's committed config,
-/// `active-session-runtime.ts:1504-1514` `committedSessionConfig`).
+/// `active-session-runtime.ts:1503-1514` `committedSessionConfig`).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn an_existing_setup_goes_straight_to_a_session_and_the_open_is_remembered() {
     let (_g, dir) = lock("existing");
@@ -440,7 +440,7 @@ async fn an_existing_setup_goes_straight_to_a_session_and_the_open_is_remembered
 /// The card's second proof: a remembered profile is SENT — on the connection
 /// and on the open — and the app goes straight to its Session: no probe, no
 /// capability detour, nothing created (the web's restore,
-/// `use-octos-session.ts:2985-2999`).
+/// `use-octos-session.ts:2978-3001`).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn a_remembered_profile_is_sent_and_goes_straight_to_its_session() {
     let (_g, dir) = lock("restore");
@@ -478,7 +478,7 @@ async fn a_remembered_profile_is_sent_and_goes_straight_to_its_session() {
 
 /// A remembered Session the server refuses (its profile is gone) is
 /// forgotten and the launch starts fresh with NO profile id (the web's
-/// `restoreRejected` clears profile, Session and workspace, `App.tsx:952-974`).
+/// `restoreRejected` clears profile, Session and workspace, `App.tsx:947-974`).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn a_refused_restore_is_forgotten_and_the_launch_starts_fresh() {
     let (_g, dir) = lock("refused");

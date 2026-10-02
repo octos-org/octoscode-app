@@ -336,7 +336,7 @@ pub enum Start {
     /// `<profile>:main` opens and is remembered.
     Created(String),
     /// The remembered open for this server, restored directly — no
-    /// `launch/resolve` (`use-octos-session.ts:2985-2999`).
+    /// `launch/resolve` (`use-octos-session.ts:2978-3001`).
     Restore(super::remembered::Remembered),
     /// The one-time migration from the previous build
     /// (`super::remembered` module doc).
@@ -413,7 +413,7 @@ pub enum Started {
 const OPEN_WAIT: std::time::Duration = std::time::Duration::from_secs(20);
 
 /// The web's authenticate (`active-session-runtime.ts:482-532`, the read at
-/// `:505`): the server's capability object BEFORE any Session, so the launch
+/// `:507`): the server's capability object BEFORE any Session, so the launch
 /// probe's gate (`advertised`) and the onboarding's (`onboarding::supported`)
 /// read the server's own answer.
 pub async fn read_capabilities(conv: &crate::flow::Conversation) -> Result<usize, String> {
@@ -457,7 +457,7 @@ async fn server_working_directory(conv: &crate::flow::Conversation) -> Option<St
 ///
 /// * `Explicit` — the dev/test override: `<profile>:main` at `cwd`.
 /// * `Restore` — the remembered Session, opened directly; a refusal clears it
-///   and launches fresh (the web's `restoreRejected`, `App.tsx:952-974`).
+///   and launches fresh (the web's `restoreRejected`, `App.tsx:947-974`).
 /// * `Migrate` — once: the previous build's landing (`remembered` doc).
 /// * `Fresh` — the web's launch with NO profile id for the startup
 ///   workspace: `cwd` (`OCTOS_WORKSPACE_CWD`), else the server's working

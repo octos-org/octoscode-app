@@ -714,7 +714,7 @@ pub struct Conversation {
     /// catalog (a turn's end arrives both bare and as an envelope).
     catalog_edge: Mutex<Option<String>>,
     /// A19 — every accepted open is remembered for this server (the web's
-    /// tab state, `App.tsx:976-992`; `screens::remembered`). Off unless the
+    /// tab state, `App.tsx:974-992`; `screens::remembered`). Off unless the
     /// host turns it on, so a test conversation never writes the file.
     remember_opens: Mutex<bool>,
     /// A19 — the next `session/open`'s outcome, for a caller that must know
@@ -2461,7 +2461,7 @@ impl Conversation {
                 // carries `opened.session_id`): the server's titles.
                 self.spawn_catalog_refresh("open");
                 // A19 — the committed open is what the next launch restores
-                // (the web: `App.tsx:976-992` session id, active profile and
+                // (the web: `App.tsx:974-992` session id, active profile and
                 // workspace root into the saved connection).
                 if *self.remember_opens.lock().unwrap() {
                     let profile = r
