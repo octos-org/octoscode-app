@@ -1,0 +1,1551 @@
+run,surface,id,text,before_fg,before_bg,before_ratio,before_verdict,after_fg,after_bg,after_ratio,after_verdict
+desktop-dark-approval,approval-card,hd_title,Why does main.rs print 5?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-approval,approval-card,hd_tab_chat_on,Chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,hd_tab_traj_off,Trajectory,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-approval,approval-card,hd_copy_label,Copy as Markdown,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,hd_review_label,Review,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,hd_settings_label,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,i0_userbubble_0,Run the build with sudo.,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-approval,approval-card,b3_tl_think_1_summary,The user asks to run `sudo -n true`. This is a sandbox polic,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,b3_tl_think_1_meta,1 s · 135 words,#6e6e73,#ffffff,5.07,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-approval,approval-card,b3_tl_fold_expand_label,Expand all,#2f6feb,#1c1f22,3.62,FAIL,#679efe,#1c1f22,6.23,pass
+desktop-dark-approval,approval-card,b3_tl_fold_collapse_label,Collapse all,#2f6feb,#1c1f22,3.62,FAIL,#679efe,#1c1f22,6.23,pass
+desktop-dark-approval,approval-card,i0_workingrow_label,Working · 2s,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-approval,approval-card,cv_ap_title,M9 approval fixture,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,cv_ap_risk,low risk,#98989d,#1c1c1e,5.93,pass,#98989d,#1c1c1e,5.93,pass
+desktop-dark-approval,approval-card,cv_ap_cmd,printf m9-approval-e2e,#f5f5f7,#1c1c1e,15.63,pass,#f5f5f7,#1c1c1e,15.63,pass
+desktop-dark-approval,approval-card,cv_ap_tool,shell · command,#a1a1a6,#1c1f22,6.44,pass,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-approval,approval-card,cv_ap_hint,Y / S / N,#a1a1a6,#1c1f22,6.44,pass,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-approval,approval-card,cv_ap_deny_label,Deny,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,cv_ap_session_label,Approve for session,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,cv_ap_once_label,Approve once,#1c1f22,#f5f5f7,15.20,pass,#1c1f22,#f5f5f7,15.20,pass
+desktop-dark-approval,approval-card,-,OctosCode,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,1,New chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,sb_search,Search chats,#8e8e93,#1c1f22,5.08,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-approval,approval-card,sg_text_on,By workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,sg_text_off,All,#98989d,#2c2c2e,4.85,pass,#98989d,#2c2c2e,4.85,pass
+desktop-dark-approval,approval-card,sb_sort_label,Recent,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,sb_g_label,workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,sb_r_title,Why does main.rs print 5?,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-approval,approval-card,1,Add workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-approval,approval-card,fleet_nav_label,Fleet,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,hd_title,Why does main.rs print 5?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,hd_path,<WORKSPACE>,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,fresh-chat,hd_tab_chat_on,Chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,hd_tab_traj_off,Trajectory,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,fresh-chat,hd_copy_label,Copy as Markdown,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,hd_review_label,Review,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,hd_settings_label,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,hd_defaults_text,New chat defaults · Server defaults · Default model · Thinki,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,-,Change,#2f6feb,#1c1f22,3.62,FAIL,#679efe,#1c1f22,6.23,pass
+desktop-dark-chrome,fresh-chat,empty_title,What should we build in <WORKSPACE>?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,empty_hint,"Describe a change, investigate a bug, or ask how the code wo",#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,fresh-chat,empty_chip,<WORKSPACE>,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,b3_strip_model,Model not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-chrome,fresh-chat,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-chrome,fresh-chat,b3_strip_caption,"Model, permissions, sandbox",#6e6e73,#1c1f22,3.26,FAIL,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,fresh-chat,i0_composer_0,Ask Octos anything,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,fresh-chat,i0_composer_2_0,Ask for approval,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,i0_composer_4,Select a model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,-,OctosCode,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,1,New chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,sb_search,Search chats,#8e8e93,#1c1f22,5.08,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,fresh-chat,sg_text_on,By workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,sg_text_off,All,#98989d,#2c2c2e,4.85,pass,#98989d,#2c2c2e,4.85,pass
+desktop-dark-chrome,fresh-chat,sb_sort_label,Recent,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,sb_r_title,Why does main.rs print 5?,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,fresh-chat,sb_g_label,<WORKSPACE>,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,1,Add workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,fresh-chat,fleet_nav_label,Fleet,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,model-menu,b3_title,Model,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-dark-chrome,model-menu,b3_model_error_text,profile/llm/list returned another session,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+desktop-dark-chrome,model-menu,b3_model_error_retry_label,Retry,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+desktop-dark-chrome,permission-menu,b3_title,Permission,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-dark-chrome,permission-menu,b3_perm_error_text,permission/profile/list returned another session,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+desktop-dark-chrome,permission-menu,b3_perm_error_retry_label,Retry,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+desktop-dark-chrome,session-pane,b3_title,Session settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-chrome,session-pane,b3_sc_scope,dsflash:main,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-dark-chrome,session-pane,b3_sc_model_title,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-chrome,session-pane,b3_sc_model_help,"Changing the model changes the shared profile, not just this",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-dark-chrome,session-pane,b3_sc_saved_label,Saved for this profile:,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-dark-chrome,session-pane,b3_sc_saved_value,(no model selected),#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-chrome,session-pane,b3_sc_perm_title,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-chrome,session-pane,b3_sc_perm_help,Applies from your next message. A response that is already r,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-dark-chrome,session-pane,b3_sc_perm_none,Not supported by this server,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-dark-chrome,session-pane,b3_sc_policy_label,Approval policy,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-dark-chrome,session-pane,b3_sc_policy_seg_0_label,On request,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+desktop-dark-chrome,session-pane,b3_sc_policy_seg_1_label,Never ask,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+desktop-dark-chrome,session-pane,b3_sc_sandbox_title,Sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-chrome,session-pane,b3_sc_sandbox_none,Not supported by this server,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-dark-chrome,session-pane,b3_sc_sandbox_note,Set when the session opens — start a new session to change i,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-dark-chrome,session-pane,b3_sc_newsession_label,New session with…,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+desktop-dark-chrome,session-pane,b3_sc_thinking_title,Show thinking,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-chrome,session-pane,b3_sc_thinking_help,"Thinking appears in this Session's transcript, collapsed by ",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-dark-chrome,session-pane,b3_sc_models_empty,No models are available.,,,,,#61666b,#ffffff,5.80,pass
+desktop-dark-chrome,settings-about,-,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-about,nv_label,General,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-about,nv_label,Permissions,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-about,nv_label,Model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-about,nv_label,Sandbox,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-about,nv_label,Connection,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-about,nv_label,Preferences,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-about,nv_label,About,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,settings-about,set_title,About,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-about,set_about_version,Version 0.1.0,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-about,-,Server,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-about,set_about_server,127.0.0.1:8462 · 106 protocol methods advertised,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-connection,-,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-connection,nv_label,General,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-connection,nv_label,Permissions,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-connection,nv_label,Model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-connection,nv_label,Sandbox,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-connection,nv_label,Connection,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,settings-connection,nv_label,Preferences,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-connection,nv_label,About,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-connection,set_title,Connection,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-connection,-,Octos server,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-connection,set_conn_value,127.0.0.1:8462 · Connected,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-connection,-,Connection,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-connection,-,Disconnect keeps this server remembered. Forget removes the ,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-connection,1,Disconnect,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,settings-connection,1,Forget server,#c4141b,#1c1f22,2.73,FAIL,#ff6b6b,#1c1f22,5.97,pass
+desktop-dark-chrome,settings-connection,-,This device,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-connection,1,Details,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-connection,-,Pairing and the saved access token,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-general,-,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,nv_label,General,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,settings-general,nv_label,Permissions,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,nv_label,Model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,nv_label,Sandbox,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,nv_label,Connection,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,nv_label,Preferences,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,nv_label,About,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,set_title,General,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,-,Desktop notifications,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,-,Notify when a turn needs you or finishes while OctosCode is ,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-general,-,Theme,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,vb_text,Dark,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,-,Octos server,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,set_server_status,Connected,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-general,set_server_value,127.0.0.1:8462,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,-,Current workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,set_ws_path,<WORKSPACE>,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-general,set_ws_value,<WORKSPACE>,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,-,Profile,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,1,The Octos profile backing this session.,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-general,set_profile_value,dsflash,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-general,-,Stop server…,#d1242f,#1c1f22,3.16,FAIL,#ff6b6b,#1c1f22,5.97,pass
+desktop-dark-chrome,settings-general,1,Shuts down Octos on this computer,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-model,-,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,nv_label,General,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,nv_label,Permissions,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,nv_label,Model,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,settings-model,nv_label,Sandbox,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,nv_label,Connection,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,nv_label,Preferences,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,nv_label,About,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,set_title,Model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,-,Model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,vb_text,Default model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,-,Thinking,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,sg_text_off,Off,#98989d,#2c2c2e,4.85,pass,#98989d,#2c2c2e,4.85,pass
+desktop-dark-chrome,settings-model,sg_text_on,On,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,sg_text_off,High,#98989d,#2c2c2e,4.85,pass,#98989d,#2c2c2e,4.85,pass
+desktop-dark-chrome,settings-model,1,Shows the model's reasoning while it works,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-model,-,All models,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,1,Open,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,-,Each provider's models,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-model,-,Model providers,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,1,Edit,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-model,-,The provider route and its API key,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-permissions,-,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-permissions,nv_label,General,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-permissions,nv_label,Permissions,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,settings-permissions,nv_label,Model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-permissions,nv_label,Sandbox,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-permissions,nv_label,Connection,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-permissions,nv_label,Preferences,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-permissions,nv_label,About,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-permissions,set_title,Permissions,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-permissions,-,Ask for approval,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-permissions,-,No network · asks before risky commands,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-permissions,-,Auto-approve in workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-permissions,-,"No network · never asks, refuses risky commands",#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-permissions,-,Full access,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-permissions,-,No prompts · full read/write/network,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-permissions,set_perm_readback,Server: permissions not reported yet,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-permissions,-,Advanced…,#2f6feb,#1c1f22,3.62,FAIL,#679efe,#1c1f22,6.23,pass
+desktop-dark-chrome,settings-preferences,-,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-preferences,nv_label,General,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-preferences,nv_label,Permissions,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-preferences,nv_label,Model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-preferences,nv_label,Sandbox,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-preferences,nv_label,Connection,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-preferences,nv_label,Preferences,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,settings-preferences,nv_label,About,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-preferences,set_title,Preferences,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-preferences,-,Vim editing,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-preferences,-,Use Vim-style normal and insert modes in the composer.,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-preferences,-,Changes apply immediately. Save remembers them on this devic,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-preferences,1,Save preferences,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,settings-sandbox,-,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-sandbox,nv_label,General,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-sandbox,nv_label,Permissions,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-sandbox,nv_label,Model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-sandbox,nv_label,Sandbox,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,settings-sandbox,nv_label,Connection,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-sandbox,nv_label,Preferences,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-sandbox,nv_label,About,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-sandbox,set_title,Sandbox,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-sandbox,-,Workspace write,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-sandbox,-,Allow writes inside the workspace,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-sandbox,-,Network access,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-sandbox,-,Allow outbound network requests,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-sandbox,-,Session sandbox,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-sandbox,-,Open new chats in the server's session sandbox,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-sandbox,-,Re-opening a session never re-applies these defaults. They a,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,settings-stop-confirm,-,Stop the Octos server?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-stop-confirm,1,All sessions on this computer stop. Running turns are interr,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-stop-confirm,1,Cancel,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,settings-stop-confirm,stop_confirm_label,Stop server,#ffffff,#e5383b,4.23,FAIL,#ffffff,#d1242f,5.24,pass
+desktop-dark-chrome,sort-menu,sb_sort_label,Oldest,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,hd_title,Why does main.rs print 5?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,hd_path,<WORKSPACE>,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-completed,hd_tab_chat_on,Chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,hd_tab_traj_off,Trajectory,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-completed,hd_copy_label,Copy as Markdown,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,hd_review_label,Review,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,hd_settings_label,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,i0_answeractions_3,now,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-completed,i0_workedfor_label,Worked for 0s,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-completed,i0_userbubble_0,Why does main.rs print 5?,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,turn-completed,b3_tl_think_1_summary,The user is asking the same question repeatedly. Just answer,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,b3_tl_think_1_meta,0 s · 13 words,#6e6e73,#ffffff,5.07,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-completed,i2_assistantprose,"`main.rs` prints a single line, `5`: `main` calls `println!(",#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,b3_strip_model,Model not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-chrome,turn-completed,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-chrome,turn-completed,b3_strip_caption,"Model, permissions, sandbox",#6e6e73,#1c1f22,3.26,FAIL,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-completed,i0_composer_0,Ask Octos anything,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-completed,i0_composer_2_0,Ask for approval,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,i0_composer_4,Select a model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,-,OctosCode,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,1,New chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,sb_search,Search chats,#8e8e93,#1c1f22,5.08,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-completed,sg_text_on,By workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,sg_text_off,All,#98989d,#2c2c2e,4.85,pass,#98989d,#2c2c2e,4.85,pass
+desktop-dark-chrome,turn-completed,sb_sort_label,Recent,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,sb_r_title,Why does main.rs print 5?,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,turn-completed,sb_g_label,<WORKSPACE>,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,1,Add workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-completed,fleet_nav_label,Fleet,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,hd_title,Why does main.rs print 5?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,hd_path,<WORKSPACE>,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-stopped,hd_tab_chat_on,Chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,hd_tab_traj_off,Trajectory,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-stopped,hd_copy_label,Copy as Markdown,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,hd_review_label,Review,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,hd_settings_label,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,i0_answeractions_3,now,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-stopped,b3_tl_think_4_summary,The user asks again for the 600-word explanation. I gave it ,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,b3_tl_think_4_meta,0 s · 65 words,#6e6e73,#ffffff,5.07,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-stopped,i2_assistantprose,"`main.rs` prints a single line, `5`: `main` calls `println!(",#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,i3_userbubble_0,Explain the borrow checker in one paragraph.,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,turn-stopped,i0_workedfor_label,Interrupted,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-stopped,b3_tl_notice_title_5,Turn stopped,#1d1d1f,#1c1f22,1.02,FAIL,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,b3_tl_notice_body_5,turn interrupted by client,#6e6e73,#1c1f22,3.26,FAIL,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-stopped,b3_strip_model,Model not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-chrome,turn-stopped,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-chrome,turn-stopped,b3_strip_caption,"Model, permissions, sandbox",#6e6e73,#1c1f22,3.26,FAIL,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-stopped,i0_composer_0,Ask Octos anything,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-stopped,i0_composer_2_0,Ask for approval,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,i0_composer_4,Select a model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,-,OctosCode,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,1,New chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,sb_search,Search chats,#8e8e93,#1c1f22,5.08,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-chrome,turn-stopped,sg_text_on,By workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,sg_text_off,All,#98989d,#2c2c2e,4.85,pass,#98989d,#2c2c2e,4.85,pass
+desktop-dark-chrome,turn-stopped,sb_sort_label,Recent,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,sb_r_title,Why does main.rs print 5?,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-chrome,turn-stopped,sb_g_label,<WORKSPACE>,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,1,Add workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,turn-stopped,fleet_nav_label,Fleet,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,workspace-menu,-,New chat here,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,workspace-menu,-,Rename,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-chrome,workspace-menu,-,Remove from sidebar,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,hd_title,Why does main.rs print 5?,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan,hd_tab_chat_on,Chat,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,hd_tab_traj_off,Trajectory,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan,hd_copy_label,Copy as Markdown,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,hd_review_label,Review,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,hd_settings_label,Settings,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,i0_workingrow_label,Working · 2s,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan,i0_userbubble_0,Plan the release.,,,,,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-plan,plan,cv_pl_title,Plan · Wire --help to document it,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,cv_pl_summary,1 of 3 done,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan,cv_pl_item_0,Add the --version flag,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,cv_pl_status_0,Done,,,,,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-plan,plan,cv_pl_item_1,Wire --help to document it,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,cv_pl_status_1,In progress,,,,,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-plan,plan,cv_pl_item_2,Add a test for the flag,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan,cv_pl_status_2,Pending,,,,,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-plan,plan,cv_pl_updated,Updated 3d ago,,,,,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-plan,plan,b3_strip_model,deepseek-v4-flash,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,b3_strip_state,Responding,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,b3_strip_perm,Permissions not reported,,,,,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-plan,plan,b3_strip_caption,"Model, permissions, sandbox",,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan,i0_composer_0,Ask Octos anything,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan,i0_composer_2_0,Ask for approval,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,i0_composer_4,Select a model,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,-,OctosCode,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,1,New chat,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,sb_search,Search chats,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan,sg_text_on,By workspace,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,sg_text_off,All,,,,,#98989d,#2c2c2e,4.85,pass
+desktop-dark-plan,plan,sb_sort_label,Recent,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,sb_g_label,workspace,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,sb_r_title,Why does main.rs print 5?,,,,,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-plan,plan,1,Add workspace,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan,fleet_nav_label,Fleet,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,hd_title,Why does main.rs print 5?,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan-stopped,hd_tab_chat_on,Chat,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,hd_tab_traj_off,Trajectory,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan-stopped,hd_copy_label,Copy as Markdown,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,hd_review_label,Review,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,hd_settings_label,Settings,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,i0_userbubble_0,Plan the release.,,,,,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-plan,plan-stopped,b3_tl_fold_expand_label,Expand all,,,,,#679efe,#1c1f22,6.23,pass
+desktop-dark-plan,plan-stopped,b3_tl_fold_collapse_label,Collapse all,,,,,#679efe,#1c1f22,6.23,pass
+desktop-dark-plan,plan-stopped,i0_answeractions_3,now,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan-stopped,i3_assistantprose,"Plan recorded — 3 steps: (1) add the `--version` flag, (2) w",,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,b3_tl_think_2_summary,"The plan was recorded. Now stop, per instruction. But the to",,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,b3_tl_think_2_meta,0 s · 59 words,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan-stopped,i0_toolcell_title,update_plan,,,,,#f5f5f7,#1c1c1e,15.63,pass
+desktop-dark-plan,plan-stopped,i0_toolcell_status,Done · 0 s,,,,,#98989d,#1c1c1e,5.93,pass
+desktop-dark-plan,plan-stopped,i0_workedfor_label,Worked for 4s,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan-stopped,i0_workedfor_dot,·,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan-stopped,i0_workedfor_count,1 tool call,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan-stopped,b3_strip_model,deepseek-v4-flash,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,b3_strip_state,Ready,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,b3_strip_perm,Permissions not reported,,,,,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-plan,plan-stopped,b3_strip_caption,"Model, permissions, sandbox",,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan-stopped,i0_composer_0,Plan the release.,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,i0_composer_2_0,Ask for approval,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,i0_composer_4,Select a model,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,-,OctosCode,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,1,New chat,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,sb_search,Search chats,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-plan,plan-stopped,sg_text_on,By workspace,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,sg_text_off,All,,,,,#98989d,#2c2c2e,4.85,pass
+desktop-dark-plan,plan-stopped,sb_sort_label,Recent,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,sb_g_label,workspace,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,sb_r_title,Why does main.rs print 5?,,,,,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-plan,plan-stopped,1,Add workspace,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-plan,plan-stopped,fleet_nav_label,Fleet,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,model-menu,hd_defaults_text,New chat defaults · Server defaults · DeepSeek V4 Flash · Th,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,model-menu,i0_composer_4,DeepSeek V4 Flash,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,model-menu,b3_title,Model,,,,,#5f646b,#ffffff,5.96,pass
+desktop-dark-seats,model-menu,b3_model_group_0,Deepseek,,,,,#5f646b,#ffffff,5.96,pass
+desktop-dark-seats,model-menu,b3_model_opt_0_name,DeepSeek V4 Flash,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,model-menu,b3_model_opt_0_desc,deepseek-v4-flash · deepseek,,,,,#5f646b,#ffffff,5.96,pass
+desktop-dark-seats,model-menu,b3_model_opt_1_name,DeepSeek V4 Flash,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,model-menu,b3_model_opt_1_desc,deepseek-v4-flash · r2-route,,,,,#5f646b,#ffffff,5.96,pass
+desktop-dark-seats,model-menu,b3_model_group_1,Moonshot,,,,,#5f646b,#ffffff,5.96,pass
+desktop-dark-seats,model-menu,b3_model_opt_2_name,Kimi K3,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,model-menu,b3_model_opt_2_desc,kimi-k3,,,,,#5f646b,#ffffff,5.96,pass
+desktop-dark-seats,model-menu,b3_model_group_2,Zhipu,,,,,#5f646b,#ffffff,5.96,pass
+desktop-dark-seats,model-menu,b3_model_opt_3_name,GLM-4 Flash,,,,,#a1a1a6,#ffffff,2.57,exempt
+desktop-dark-seats,model-menu,b3_model_opt_3_desc,This configured model is unavailable.,,,,,#5f646b,#ffffff,5.96,pass
+desktop-dark-seats,permission-menu,b3_title,Permission,,,,,#5f646b,#ffffff,5.96,pass
+desktop-dark-seats,permission-menu,b3_perm_opt_0_name,Write · Network allowed,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,permission-menu,b3_perm_opt_1_name,Read · Network blocked,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,permission-menu,b3_perm_opt_2_name,Write · Network blocked,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,permission-menu,b3_perm_opt_3_name,Full access · Network allowed,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,seats-composer,hd_title,Why does main.rs print 5?,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,hd_path,<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/ds,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-seats,seats-composer,hd_tab_chat_on,Chat,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,hd_tab_traj_off,Trajectory,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-seats,seats-composer,hd_copy_label,Copy as Markdown,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,hd_review_label,Review,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,hd_settings_label,Settings,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,hd_defaults_text,New chat defaults · Server defaults · deepseek-v4-flash · Th,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,-,Change,,,,,#679efe,#1c1f22,6.23,pass
+desktop-dark-seats,seats-composer,empty_title,What should we build in workspace?,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,empty_hint,"Describe a change, investigate a bug, or ask how the code wo",,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-seats,seats-composer,empty_chip,workspace,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,b3_strip_model,deepseek-v4-flash,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,b3_strip_state,Ready,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,b3_strip_perm,Workspace write,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,b3_strip_caption,"Model, permissions, sandbox",,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-seats,seats-composer,i0_composer_0,Ask Octos anything,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-seats,seats-composer,i0_composer_2_0,Write · Network allowed,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,i0_composer_4,deepseek-v4-flash,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,-,OctosCode,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,1,New chat,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,sb_search,Search chats,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-seats,seats-composer,sg_text_on,By workspace,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,sg_text_off,All,,,,,#98989d,#2c2c2e,4.85,pass
+desktop-dark-seats,seats-composer,sb_sort_label,Recent,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,sb_g_label,workspace,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,sb_r_title,Why does main.rs print 5?,,,,,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-seats,seats-composer,1,Add workspace,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,seats-composer,fleet_nav_label,Fleet,,,,,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-seats,session-pane,b3_title,Session settings,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,session-pane,b3_sc_scope,dsflash:main,,,,,#61666b,#ffffff,5.80,pass
+desktop-dark-seats,session-pane,b3_sc_model_title,Model,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,session-pane,b3_sc_model_help,"Changing the model changes the shared profile, not just this",,,,,#61666b,#ffffff,5.80,pass
+desktop-dark-seats,session-pane,b3_sc_saved_label,Saved for this profile:,,,,,#61666b,#ffffff,5.80,pass
+desktop-dark-seats,session-pane,b3_sc_saved_value,DeepSeek V4 Flash,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,session-pane,b3_sc_runtime_label,Session runtime,,,,,#61666b,#ffffff,5.80,pass
+desktop-dark-seats,session-pane,b3_sc_runtime_value,deepseek-v4-flash,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,session-pane,b3_sc_model_0_title,DeepSeek V4 Flash,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,session-pane,b3_sc_model_0_sub,deepseek · deepseek,,,,,#61666b,#ffffff,5.80,pass
+desktop-dark-seats,session-pane,b3_sc_model_1_title,DeepSeek V4 Flash,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,session-pane,b3_sc_model_1_sub,deepseek · r2-route,,,,,#61666b,#ffffff,5.80,pass
+desktop-dark-seats,session-pane,b3_sc_model_2_title,Kimi K3,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,session-pane,b3_sc_model_2_sub,moonshot · moonshot,,,,,#61666b,#ffffff,5.80,pass
+desktop-dark-seats,session-pane,b3_sc_model_3_title,GLM-4 Flash,,,,,#a1a1a6,#ffffff,2.57,exempt
+desktop-dark-seats,session-pane,b3_sc_model_3_sub,zhipu · unavailable,,,,,#61666b,#ffffff,5.80,pass
+desktop-dark-seats,session-pane,b3_sc_perm_title,Permissions,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-seats,session-pane,b3_sc_perm_help,Applies from your next message. A response that is already r,,,,,#61666b,#ffffff,5.80,pass
+desktop-dark-seats,session-pane,b3_sc_perm_0_title,Write · Network allowed,,,,,#1d1d1f,#ffffff,16.83,pass
+desktop-dark-surfaces,question-card,hd_title,Why does main.rs print 5?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,question-card,hd_tab_chat_on,Chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,hd_tab_traj_off,Trajectory,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,question-card,hd_copy_label,Copy as Markdown,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,hd_review_label,Review,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,hd_settings_label,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,i0_workingrow_label,Working · 2s,#98989d,#1c1f22,5.77,pass,,,,
+desktop-dark-surfaces,question-card,b3_tl_think_10_summary,The user asks me to use the ask_user_question tool. Let me d,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,b3_tl_think_10_meta,0 s · 43 words,#6e6e73,#ffffff,5.07,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,question-card,cv_q_eyebrow,Octos needs a decision,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,cv_q_title,Which color would you like to pick?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,cv_q_0_header,COLOR CHOICE,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,question-card,cv_q_0_hint,"Choose one, or write your own",#a1a1a6,#1c1f22,6.44,pass,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-surfaces,question-card,cv_q_0_opt_0_label,Blue,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,cv_q_0_opt_0_desc,"Calm, cool, classic — a safe default for most uses.",#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,question-card,cv_q_0_opt_1_label,Green,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,cv_q_0_opt_1_desc,Natural and balanced; reads as fresh and relaxed.,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,question-card,cv_q_0_opt_2_label,Red,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,cv_q_0_opt_2_desc,Bold and high-energy; draws attention quickly.,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,question-card,cv_q_0_opt_3_label,Purple,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,cv_q_0_opt_3_desc,Creative and distinctive; a less common pick.,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,question-card,cv_q_0_other_label,Other,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,question-card,cv_q_0_other,Type another answer,#a1a1a6,#1c1f22,6.44,pass,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-surfaces,question-card,cv_q_stop_label,Stop turn · Esc,#2f6feb,#1c1f22,3.62,FAIL,#679efe,#1c1f22,6.23,pass
+desktop-dark-surfaces,question-card,cv_q_consequence,Sends this answer and resumes the turn,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,question-card,cv_q_reason,Choose an option to continue,#a1a1a6,#1c1f22,6.44,pass,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-surfaces,question-card,cv_q_submit_off_label,Submit answer,#a1a1a6,#e9e9eb,2.12,exempt,#a1a1a6,#2c2c2e,5.42,pass
+desktop-dark-surfaces,question-card,-,OctosCode,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,1,New chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,sb_search,Search chats,#8e8e93,#1c1f22,5.08,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,question-card,sg_text_on,By workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,sg_text_off,All,#98989d,#2c2c2e,4.85,pass,#98989d,#2c2c2e,4.85,pass
+desktop-dark-surfaces,question-card,sb_sort_label,Recent,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,sb_r_title,Why does main.rs print 5?,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-surfaces,question-card,sb_g_label,workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,1,Add workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,fleet_nav_label,Fleet,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,question-card,i0_workingrow_label,Working · 1s,,,,,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,reasoning-answer,hd_title,Why does main.rs print 5?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,reasoning-answer,hd_tab_chat_on,Chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,hd_tab_traj_off,Trajectory,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,reasoning-answer,hd_copy_label,Copy as Markdown,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,hd_review_label,Review,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,hd_settings_label,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,b3_tl_fold_expand_label,Expand all,#2f6feb,#1c1f22,3.62,FAIL,#679efe,#1c1f22,6.23,pass
+desktop-dark-surfaces,reasoning-answer,b3_tl_fold_collapse_label,Collapse all,#2f6feb,#1c1f22,3.62,FAIL,#679efe,#1c1f22,6.23,pass
+desktop-dark-surfaces,reasoning-answer,i2_assistantprose,17 times 23 equals 391.,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,i0_answeractions_3,now,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,reasoning-answer,b3_tl_think_1_summary,Simple: 391.,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,b3_tl_think_1_meta,0 s · 2 words,#6e6e73,#ffffff,5.07,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,reasoning-answer,i0_workedfor_label,Worked for 0s,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,reasoning-answer,i0_userbubble_0,Why does main.rs print 5?,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-surfaces,reasoning-answer,b3_strip_model,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-surfaces,reasoning-answer,b3_strip_caption,"Model, permissions, sandbox",#6e6e73,#1c1f22,3.26,FAIL,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,reasoning-answer,i0_composer_0,Ask Octos anything,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,reasoning-answer,i0_composer_2_0,Ask for approval,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,i0_composer_4,Select a model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,-,OctosCode,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,1,New chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,sb_search,Search chats,#8e8e93,#1c1f22,5.08,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,reasoning-answer,sg_text_on,By workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,sg_text_off,All,#98989d,#2c2c2e,4.85,pass,#98989d,#2c2c2e,4.85,pass
+desktop-dark-surfaces,reasoning-answer,sb_sort_label,Recent,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,sb_r_title,Why does main.rs print 5?,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-surfaces,reasoning-answer,sb_g_label,workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,1,Add workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,reasoning-answer,fleet_nav_label,Fleet,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,hd_title,Why does main.rs print 5?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,tool-and-files,hd_tab_chat_on,Chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,hd_tab_traj_off,Trajectory,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,tool-and-files,hd_copy_label,Copy as Markdown,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,hd_review_label,Review,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,hd_settings_label,Settings,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,i0_answeractions_3,now,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,tool-and-files,i0_workedfor_label,Worked for 0s,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,tool-and-files,i0_workedfor_dot,·,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,tool-and-files,i0_workedfor_count,1 tool call,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,tool-and-files,b3_tl_think_4_summary,The user asks to run the same command again. Just run it and,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,b3_tl_think_4_meta,0 s · 14 words,#6e6e73,#ffffff,5.07,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,tool-and-files,b3_tl_file_name_6,r23-report.pdf,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,b3_tl_file_meta_6,2 KiB,#6e6e73,#ffffff,5.07,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,tool-and-files,b3_tl_file_download_6_label,Download,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,b3_tl_file_name_7,coverage.png,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,b3_tl_file_meta_7,96 KiB,#6e6e73,#ffffff,5.07,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,tool-and-files,b3_tl_file_preview_7_label,Preview,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,b3_tl_file_download_7_label,Download,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,i8_assistantprose,Output: `r23-tool-ok`,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,i0_toolcell_title,bash,#f5f5f7,#1c1c1e,15.63,pass,#f5f5f7,#1c1c1e,15.63,pass
+desktop-dark-surfaces,tool-and-files,i0_toolcell_dot,·,#98989d,#1c1c1e,5.93,pass,#98989d,#1c1c1e,5.93,pass
+desktop-dark-surfaces,tool-and-files,i0_toolcell_target,echo r23-tool-ok,#98989d,#1c1c1e,5.93,pass,#98989d,#1c1c1e,5.93,pass
+desktop-dark-surfaces,tool-and-files,i0_toolcell_status,Done · 0 s,#98989d,#1c1c1e,5.93,pass,#98989d,#1c1c1e,5.93,pass
+desktop-dark-surfaces,tool-and-files,b3_strip_model,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+desktop-dark-surfaces,tool-and-files,b3_strip_caption,"Model, permissions, sandbox",#6e6e73,#1c1f22,3.26,FAIL,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,tool-and-files,i0_composer_0,Ask Octos anything,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,tool-and-files,i0_composer_2_0,Ask for approval,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,i0_composer_4,Select a model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,-,OctosCode,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,1,New chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,sb_search,Search chats,#8e8e93,#1c1f22,5.08,pass,#98989d,#1c1f22,5.77,pass
+desktop-dark-surfaces,tool-and-files,sg_text_on,By workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,sg_text_off,All,#98989d,#2c2c2e,4.85,pass,#98989d,#2c2c2e,4.85,pass
+desktop-dark-surfaces,tool-and-files,sb_sort_label,Recent,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,sb_r_title,Why does main.rs print 5?,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+desktop-dark-surfaces,tool-and-files,sb_g_label,workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,1,Add workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-dark-surfaces,tool-and-files,fleet_nav_label,Fleet,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+desktop-light-approval,approval-card,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-approval,approval-card,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-approval,approval-card,hd_copy_label,Copy as Markdown,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,hd_review_label,Review,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,hd_settings_label,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,i0_workingrow_label,Working · 2s,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-approval,approval-card,b3_tl_think_1_summary,The user asks to run `sudo -n true`. This is a sandbox polic,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,b3_tl_think_1_meta,1 s · 135 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-approval,approval-card,i0_userbubble_0,Run the build with sudo.,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+desktop-light-approval,approval-card,b3_tl_fold_expand_label,Expand all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+desktop-light-approval,approval-card,b3_tl_fold_collapse_label,Collapse all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+desktop-light-approval,approval-card,cv_ap_title,M9 approval fixture,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,cv_ap_risk,low risk,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+desktop-light-approval,approval-card,cv_ap_cmd,printf m9-approval-e2e,#1d1d1f,#f7f7f8,15.72,pass,#1d1d1f,#f7f7f8,15.72,pass
+desktop-light-approval,approval-card,cv_ap_tool,shell · command,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-approval,approval-card,cv_ap_hint,Y / S / N,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-approval,approval-card,cv_ap_deny_label,Deny,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,cv_ap_session_label,Approve for session,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,cv_ap_once_label,Approve once,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+desktop-light-approval,approval-card,-,OctosCode,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,1,New chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,sb_search,Search chats,#8e8e93,#ffffff,3.26,FAIL,#61666b,#ffffff,5.80,pass
+desktop-light-approval,approval-card,sg_text_on,By workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,sg_text_off,All,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+desktop-light-approval,approval-card,sb_sort_label,Recent,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,sb_g_label,workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,sb_r_title,Why does main.rs print 5?,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-approval,approval-card,1,Add workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-approval,approval-card,fleet_nav_label,Fleet,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,hd_path,<WORKSPACE>,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,fresh-chat,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,fresh-chat,hd_copy_label,Copy as Markdown,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,hd_review_label,Review,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,hd_settings_label,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,hd_defaults_text,New chat defaults · Server defaults · Default model · Thinki,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,-,Change,#2f6feb,#ffffff,4.57,pass,#2f6feb,#ffffff,4.57,pass
+desktop-light-chrome,fresh-chat,empty_title,What should we build in <WORKSPACE>?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,empty_hint,"Describe a change, investigate a bug, or ask how the code wo",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,fresh-chat,empty_chip,<WORKSPACE>,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,b3_strip_model,Model not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-chrome,fresh-chat,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-chrome,fresh-chat,b3_strip_caption,"Model, permissions, sandbox",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,fresh-chat,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,fresh-chat,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,-,OctosCode,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,1,New chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,sb_search,Search chats,#8e8e93,#ffffff,3.26,FAIL,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,fresh-chat,sg_text_on,By workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,sg_text_off,All,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+desktop-light-chrome,fresh-chat,sb_sort_label,Recent,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,sb_g_label,<WORKSPACE>,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,sb_r_title,Why does main.rs print 5?,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-chrome,fresh-chat,1,Add workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,fresh-chat,fleet_nav_label,Fleet,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,model-menu,b3_title,Model,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-chrome,model-menu,b3_model_error_text,profile/llm/list returned another session,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+desktop-light-chrome,model-menu,b3_model_error_retry_label,Retry,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+desktop-light-chrome,permission-menu,b3_title,Permission,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-chrome,permission-menu,b3_perm_error_text,permission/profile/list returned another session,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+desktop-light-chrome,permission-menu,b3_perm_error_retry_label,Retry,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+desktop-light-chrome,session-pane,b3_title,Session settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,session-pane,b3_sc_scope,dsflash:main,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,session-pane,b3_sc_model_title,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,session-pane,b3_sc_model_help,"Changing the model changes the shared profile, not just this",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,session-pane,b3_sc_saved_label,Saved for this profile:,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,session-pane,b3_sc_saved_value,(no model selected),#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,session-pane,b3_sc_perm_title,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,session-pane,b3_sc_perm_help,Applies from your next message. A response that is already r,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,session-pane,b3_sc_perm_none,Not supported by this server,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,session-pane,b3_sc_policy_label,Approval policy,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,session-pane,b3_sc_policy_seg_0_label,On request,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+desktop-light-chrome,session-pane,b3_sc_policy_seg_1_label,Never ask,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+desktop-light-chrome,session-pane,b3_sc_sandbox_title,Sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,session-pane,b3_sc_sandbox_none,Not supported by this server,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,session-pane,b3_sc_sandbox_note,Set when the session opens — start a new session to change i,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,session-pane,b3_sc_newsession_label,New session with…,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+desktop-light-chrome,session-pane,b3_sc_thinking_title,Show thinking,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,session-pane,b3_sc_thinking_help,"Thinking appears in this Session's transcript, collapsed by ",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,session-pane,b3_sc_models_empty,No models are available.,,,,,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-about,-,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-about,nv_label,General,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-about,nv_label,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-about,nv_label,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-about,nv_label,Sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-about,nv_label,Connection,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-about,nv_label,Preferences,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-about,nv_label,About,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-chrome,settings-about,set_title,About,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-about,set_about_version,Version 0.1.0,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-about,-,Server,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-about,set_about_server,127.0.0.1:8462 · 106 protocol methods advertised,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-connection,-,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-connection,nv_label,General,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-connection,nv_label,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-connection,nv_label,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-connection,nv_label,Sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-connection,nv_label,Connection,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-chrome,settings-connection,nv_label,Preferences,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-connection,nv_label,About,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-connection,set_title,Connection,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-connection,-,Octos server,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-connection,set_conn_value,127.0.0.1:8462 · Connected,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-connection,-,Connection,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-connection,-,Disconnect keeps this server remembered. Forget removes the ,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-connection,1,Disconnect,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-chrome,settings-connection,1,Forget server,#c4141b,#ffffff,6.06,pass,#c4141b,#ffffff,6.06,pass
+desktop-light-chrome,settings-connection,-,This device,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-connection,1,Details,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-connection,-,Pairing and the saved access token,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-general,-,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,nv_label,General,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-chrome,settings-general,nv_label,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,nv_label,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,nv_label,Sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,nv_label,Connection,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,nv_label,Preferences,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,nv_label,About,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,set_title,General,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,-,Desktop notifications,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,-,Notify when a turn needs you or finishes while OctosCode is ,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-general,-,Theme,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,vb_text,Light,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,-,Octos server,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,set_server_status,Connected,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-general,set_server_value,127.0.0.1:8462,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,-,Current workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,set_ws_path,<WORKSPACE>,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-general,set_ws_value,<WORKSPACE>,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,-,Profile,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,1,The Octos profile backing this session.,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-general,set_profile_value,dsflash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-general,-,Stop server…,#d1242f,#ffffff,5.24,pass,#d1242f,#ffffff,5.24,pass
+desktop-light-chrome,settings-general,1,Shuts down Octos on this computer,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-model,-,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,nv_label,General,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,nv_label,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,nv_label,Model,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-chrome,settings-model,nv_label,Sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,nv_label,Connection,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,nv_label,Preferences,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,nv_label,About,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,set_title,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,-,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,vb_text,Default model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,-,Thinking,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,sg_text_off,Off,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+desktop-light-chrome,settings-model,sg_text_on,On,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,sg_text_off,High,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+desktop-light-chrome,settings-model,1,Shows the model's reasoning while it works,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-model,-,All models,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,1,Open,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,-,Each provider's models,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-model,-,Model providers,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,1,Edit,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-model,-,The provider route and its API key,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-permissions,-,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-permissions,nv_label,General,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-permissions,nv_label,Permissions,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-chrome,settings-permissions,nv_label,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-permissions,nv_label,Sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-permissions,nv_label,Connection,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-permissions,nv_label,Preferences,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-permissions,nv_label,About,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-permissions,set_title,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-permissions,-,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-permissions,-,No network · asks before risky commands,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-permissions,-,Auto-approve in workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-permissions,-,"No network · never asks, refuses risky commands",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-permissions,-,Full access,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-permissions,-,No prompts · full read/write/network,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-permissions,set_perm_readback,Server: permissions not reported yet,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-permissions,-,Advanced…,#2f6feb,#ffffff,4.57,pass,#2f6feb,#ffffff,4.57,pass
+desktop-light-chrome,settings-preferences,-,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-preferences,nv_label,General,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-preferences,nv_label,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-preferences,nv_label,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-preferences,nv_label,Sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-preferences,nv_label,Connection,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-preferences,nv_label,Preferences,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-chrome,settings-preferences,nv_label,About,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-preferences,set_title,Preferences,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-preferences,-,Vim editing,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-preferences,-,Use Vim-style normal and insert modes in the composer.,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-preferences,-,Changes apply immediately. Save remembers them on this devic,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-preferences,1,Save preferences,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-chrome,settings-sandbox,-,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-sandbox,nv_label,General,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-sandbox,nv_label,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-sandbox,nv_label,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-sandbox,nv_label,Sandbox,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-chrome,settings-sandbox,nv_label,Connection,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-sandbox,nv_label,Preferences,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-sandbox,nv_label,About,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-sandbox,set_title,Sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-sandbox,-,Workspace write,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-sandbox,-,Allow writes inside the workspace,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-sandbox,-,Network access,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-sandbox,-,Allow outbound network requests,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-sandbox,-,Session sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-sandbox,-,Open new chats in the server's session sandbox,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-sandbox,-,Re-opening a session never re-applies these defaults. They a,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,settings-stop-confirm,-,Stop the Octos server?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-stop-confirm,1,All sessions on this computer stop. Running turns are interr,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-stop-confirm,1,Cancel,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,settings-stop-confirm,stop_confirm_label,Stop server,#ffffff,#e5383b,4.23,FAIL,#ffffff,#d1242f,5.24,pass
+desktop-light-chrome,sort-menu,sb_sort_label,Oldest,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,hd_path,<WORKSPACE>,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-completed,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-completed,hd_copy_label,Copy as Markdown,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,hd_review_label,Review,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,hd_settings_label,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,i2_assistantprose,"`main.rs` prints a single line, `5`: `main` calls `println!(",#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,i0_workedfor_label,Worked for 0s,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-completed,i0_answeractions_3,now,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-completed,b3_tl_think_1_summary,The user is asking the same question repeatedly. Just answer,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,b3_tl_think_1_meta,0 s · 13 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-completed,i0_userbubble_0,Why does main.rs print 5?,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+desktop-light-chrome,turn-completed,b3_strip_model,Model not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-chrome,turn-completed,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-chrome,turn-completed,b3_strip_caption,"Model, permissions, sandbox",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-completed,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-completed,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,-,OctosCode,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,1,New chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,sb_search,Search chats,#8e8e93,#ffffff,3.26,FAIL,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-completed,sg_text_on,By workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,sg_text_off,All,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+desktop-light-chrome,turn-completed,sb_sort_label,Recent,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,sb_g_label,<WORKSPACE>,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,sb_r_title,Why does main.rs print 5?,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-chrome,turn-completed,1,Add workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-completed,fleet_nav_label,Fleet,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,hd_path,<WORKSPACE>,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-stopped,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-stopped,hd_copy_label,Copy as Markdown,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,hd_review_label,Review,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,hd_settings_label,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,i0_answeractions_3,now,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-stopped,i0_workedfor_label,Interrupted,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-stopped,b3_tl_think_4_summary,The user asks again for the 600-word explanation. I gave it ,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,b3_tl_think_4_meta,0 s · 65 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-stopped,i2_assistantprose,"`main.rs` prints a single line, `5`: `main` calls `println!(",#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,b3_tl_notice_title_5,Turn stopped,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,b3_tl_notice_body_5,turn interrupted by client,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-stopped,i3_userbubble_0,Explain the borrow checker in one paragraph.,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+desktop-light-chrome,turn-stopped,b3_strip_model,Model not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-chrome,turn-stopped,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-chrome,turn-stopped,b3_strip_caption,"Model, permissions, sandbox",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-stopped,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-stopped,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,-,OctosCode,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,1,New chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,sb_search,Search chats,#8e8e93,#ffffff,3.26,FAIL,#61666b,#ffffff,5.80,pass
+desktop-light-chrome,turn-stopped,sg_text_on,By workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,sg_text_off,All,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+desktop-light-chrome,turn-stopped,sb_sort_label,Recent,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,sb_g_label,<WORKSPACE>,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,sb_r_title,Why does main.rs print 5?,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-chrome,turn-stopped,1,Add workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,turn-stopped,fleet_nav_label,Fleet,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,workspace-menu,-,New chat here,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,workspace-menu,-,Rename,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-chrome,workspace-menu,-,Remove from sidebar,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan,hd_copy_label,Copy as Markdown,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,hd_review_label,Review,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,hd_settings_label,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,i0_userbubble_0,Plan the release.,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+desktop-light-plan,plan,i0_workingrow_label,Working · 2s,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan,cv_pl_title,Plan · Wire --help to document it,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,cv_pl_summary,1 of 3 done,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan,cv_pl_item_0,Add the --version flag,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,cv_pl_status_0,Done,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-plan,plan,cv_pl_item_1,Wire --help to document it,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,cv_pl_status_1,In progress,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-plan,plan,cv_pl_item_2,Add a test for the flag,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan,cv_pl_status_2,Pending,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-plan,plan,cv_pl_updated,Updated 3d ago,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-plan,plan,b3_strip_model,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,b3_strip_state,Responding,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-plan,plan,b3_strip_caption,"Model, permissions, sandbox",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,-,OctosCode,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,1,New chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,sb_search,Search chats,#8e8e93,#ffffff,3.26,FAIL,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan,sg_text_on,By workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,sg_text_off,All,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+desktop-light-plan,plan,sb_sort_label,Recent,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,sb_r_title,Why does main.rs print 5?,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-plan,plan,sb_g_label,workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,1,Add workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan,fleet_nav_label,Fleet,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan-stopped,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan-stopped,hd_copy_label,Copy as Markdown,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,hd_review_label,Review,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,hd_settings_label,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,i3_assistantprose,"Plan recorded — 3 steps: (1) add the `--version` flag, (2) w",#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,i0_answeractions_3,now,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan-stopped,b3_tl_think_2_summary,"The plan was recorded. Now stop, per instruction. But the to",#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,b3_tl_think_2_meta,0 s · 59 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan-stopped,i0_workedfor_label,Worked for 4s,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan-stopped,i0_workedfor_dot,·,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan-stopped,i0_workedfor_count,1 tool call,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan-stopped,b3_tl_fold_expand_label,Expand all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+desktop-light-plan,plan-stopped,b3_tl_fold_collapse_label,Collapse all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+desktop-light-plan,plan-stopped,i0_toolcell_title,update_plan,#1d1d1f,#f7f7f8,15.72,pass,#1d1d1f,#f7f7f8,15.72,pass
+desktop-light-plan,plan-stopped,i0_toolcell_status,Done · 0 s,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+desktop-light-plan,plan-stopped,i0_userbubble_0,Plan the release.,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+desktop-light-plan,plan-stopped,b3_strip_model,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-plan,plan-stopped,b3_strip_caption,"Model, permissions, sandbox",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan-stopped,i0_composer_0,Plan the release.,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,-,OctosCode,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,1,New chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,sb_search,Search chats,#8e8e93,#ffffff,3.26,FAIL,#61666b,#ffffff,5.80,pass
+desktop-light-plan,plan-stopped,sg_text_on,By workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,sg_text_off,All,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+desktop-light-plan,plan-stopped,sb_sort_label,Recent,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,sb_r_title,Why does main.rs print 5?,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-plan,plan-stopped,sb_g_label,workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,1,Add workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-plan,plan-stopped,fleet_nav_label,Fleet,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,model-menu,hd_defaults_text,New chat defaults · Server defaults · DeepSeek V4 Flash · Th,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,model-menu,i0_composer_4,DeepSeek V4 Flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,model-menu,b3_title,Model,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-seats,model-menu,b3_model_group_0,Deepseek,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-seats,model-menu,b3_model_opt_0_name,DeepSeek V4 Flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,model-menu,b3_model_opt_0_desc,deepseek-v4-flash · deepseek,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-seats,model-menu,b3_model_opt_1_name,DeepSeek V4 Flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,model-menu,b3_model_opt_1_desc,deepseek-v4-flash · r2-route,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-seats,model-menu,b3_model_group_1,Moonshot,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-seats,model-menu,b3_model_opt_2_name,Kimi K3,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,model-menu,b3_model_opt_2_desc,kimi-k3,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-seats,model-menu,b3_model_group_2,Zhipu,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-seats,model-menu,b3_model_opt_3_name,GLM-4 Flash,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#ffffff,2.57,exempt
+desktop-light-seats,model-menu,b3_model_opt_3_desc,This configured model is unavailable.,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-seats,permission-menu,b3_title,Permission,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-seats,permission-menu,b3_perm_opt_0_name,Write · Network allowed,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,permission-menu,b3_perm_opt_1_name,Read · Network blocked,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,permission-menu,b3_perm_opt_2_name,Write · Network blocked,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,permission-menu,b3_perm_opt_3_name,Full access · Network allowed,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,hd_path,<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/ds,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,seats-composer,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,seats-composer,hd_copy_label,Copy as Markdown,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,hd_review_label,Review,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,hd_settings_label,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,hd_defaults_text,New chat defaults · Server defaults · deepseek-v4-flash · Th,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,-,Change,#2f6feb,#ffffff,4.57,pass,#2f6feb,#ffffff,4.57,pass
+desktop-light-seats,seats-composer,empty_title,What should we build in workspace?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,empty_hint,"Describe a change, investigate a bug, or ask how the code wo",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,seats-composer,empty_chip,workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,b3_strip_model,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,b3_strip_perm,Workspace write,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,b3_strip_caption,"Model, permissions, sandbox",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,seats-composer,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,seats-composer,i0_composer_2_0,Write · Network allowed,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,i0_composer_4,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,-,OctosCode,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,1,New chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,sb_search,Search chats,#8e8e93,#ffffff,3.26,FAIL,#61666b,#ffffff,5.80,pass
+desktop-light-seats,seats-composer,sg_text_on,By workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,sg_text_off,All,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+desktop-light-seats,seats-composer,sb_sort_label,Recent,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,sb_g_label,workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,sb_r_title,Why does main.rs print 5?,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-seats,seats-composer,1,Add workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,seats-composer,fleet_nav_label,Fleet,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,session-pane,b3_title,Session settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,session-pane,b3_sc_scope,dsflash:main,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,session-pane,b3_sc_model_title,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,session-pane,b3_sc_model_help,"Changing the model changes the shared profile, not just this",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,session-pane,b3_sc_saved_label,Saved for this profile:,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,session-pane,b3_sc_saved_value,DeepSeek V4 Flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,session-pane,b3_sc_runtime_label,Session runtime,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,session-pane,b3_sc_runtime_value,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,session-pane,b3_sc_model_0_title,DeepSeek V4 Flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,session-pane,b3_sc_model_0_sub,deepseek · deepseek,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,session-pane,b3_sc_model_1_title,DeepSeek V4 Flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,session-pane,b3_sc_model_1_sub,deepseek · r2-route,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,session-pane,b3_sc_model_2_title,Kimi K3,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,session-pane,b3_sc_model_2_sub,moonshot · moonshot,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,session-pane,b3_sc_model_3_title,GLM-4 Flash,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#ffffff,2.57,exempt
+desktop-light-seats,session-pane,b3_sc_model_3_sub,zhipu · unavailable,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,session-pane,b3_sc_perm_title,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-seats,session-pane,b3_sc_perm_help,Applies from your next message. A response that is already r,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-seats,session-pane,b3_sc_perm_0_title,Write · Network allowed,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,question-card,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,question-card,hd_copy_label,Copy as Markdown,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,hd_review_label,Review,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,hd_settings_label,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,b3_tl_think_10_summary,The user asks me to use the ask_user_question tool. Let me d,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,b3_tl_think_10_meta,0 s · 43 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,question-card,i0_workingrow_label,Working · 1s,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,question-card,cv_q_eyebrow,Octos needs a decision,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,cv_q_title,Which color would you like to pick?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,cv_q_0_header,COLOR CHOICE,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,question-card,cv_q_0_hint,"Choose one, or write your own",#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-surfaces,question-card,cv_q_0_opt_0_label,Blue,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,cv_q_0_opt_0_desc,"Calm, cool, classic — a safe default for most uses.",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,question-card,cv_q_0_opt_1_label,Green,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,cv_q_0_opt_1_desc,Natural and balanced; reads as fresh and relaxed.,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,question-card,cv_q_0_opt_2_label,Red,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,cv_q_0_opt_2_desc,Bold and high-energy; draws attention quickly.,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,question-card,cv_q_0_opt_3_label,Purple,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,cv_q_0_opt_3_desc,Creative and distinctive; a less common pick.,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,question-card,cv_q_0_other_label,Other,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,question-card,cv_q_0_other,Type another answer,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-surfaces,question-card,cv_q_stop_label,Stop turn · Esc,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+desktop-light-surfaces,question-card,cv_q_consequence,Sends this answer and resumes the turn,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,question-card,cv_q_reason,Choose an option to continue,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-surfaces,question-card,cv_q_submit_off_label,Submit answer,#a1a1a6,#e9e9eb,2.12,exempt,#a1a1a6,#e9e9eb,2.12,exempt
+desktop-light-surfaces,question-card,-,OctosCode,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,1,New chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,sb_search,Search chats,#8e8e93,#ffffff,3.26,FAIL,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,question-card,sg_text_on,By workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,sg_text_off,All,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+desktop-light-surfaces,question-card,sb_sort_label,Recent,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,sb_g_label,workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,sb_r_title,Why does main.rs print 5?,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-surfaces,question-card,1,Add workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,question-card,fleet_nav_label,Fleet,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,reasoning-answer,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,reasoning-answer,hd_copy_label,Copy as Markdown,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,hd_review_label,Review,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,hd_settings_label,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,i0_answeractions_3,now,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,reasoning-answer,b3_tl_think_1_summary,Simple: 391.,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,b3_tl_think_1_meta,0 s · 2 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,reasoning-answer,i0_workedfor_label,Worked for 0s,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,reasoning-answer,i0_userbubble_0,Why does main.rs print 5?,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+desktop-light-surfaces,reasoning-answer,b3_tl_fold_expand_label,Expand all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+desktop-light-surfaces,reasoning-answer,b3_tl_fold_collapse_label,Collapse all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+desktop-light-surfaces,reasoning-answer,i2_assistantprose,17 times 23 equals 391.,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,b3_strip_model,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-surfaces,reasoning-answer,b3_strip_caption,"Model, permissions, sandbox",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,reasoning-answer,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,reasoning-answer,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,-,OctosCode,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,1,New chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,sb_search,Search chats,#8e8e93,#ffffff,3.26,FAIL,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,reasoning-answer,sg_text_on,By workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,sg_text_off,All,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+desktop-light-surfaces,reasoning-answer,sb_sort_label,Recent,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,sb_g_label,workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,sb_r_title,Why does main.rs print 5?,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-surfaces,reasoning-answer,1,Add workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,reasoning-answer,fleet_nav_label,Fleet,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,tool-and-files,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,tool-and-files,hd_copy_label,Copy as Markdown,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,hd_review_label,Review,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,hd_settings_label,Settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,i0_workedfor_label,Worked for 0s,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,tool-and-files,i0_workedfor_dot,·,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,tool-and-files,i0_workedfor_count,1 tool call,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,tool-and-files,i0_toolcell_title,bash,#1d1d1f,#f7f7f8,15.72,pass,#1d1d1f,#f7f7f8,15.72,pass
+desktop-light-surfaces,tool-and-files,i0_toolcell_dot,·,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+desktop-light-surfaces,tool-and-files,i0_toolcell_target,echo r23-tool-ok,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+desktop-light-surfaces,tool-and-files,i0_toolcell_status,Done · 0 s,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+desktop-light-surfaces,tool-and-files,i8_assistantprose,Output: `r23-tool-ok`,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,b3_tl_file_name_6,r23-report.pdf,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,b3_tl_file_meta_6,2 KiB,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,tool-and-files,b3_tl_file_download_6_label,Download,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,b3_tl_file_name_7,coverage.png,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,b3_tl_file_meta_7,96 KiB,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,tool-and-files,b3_tl_file_preview_7_label,Preview,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,b3_tl_file_download_7_label,Download,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,b3_tl_think_4_summary,The user asks to run the same command again. Just run it and,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,b3_tl_think_4_meta,0 s · 14 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,tool-and-files,i0_answeractions_3,now,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,tool-and-files,b3_strip_model,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+desktop-light-surfaces,tool-and-files,b3_strip_caption,"Model, permissions, sandbox",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,tool-and-files,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,tool-and-files,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,-,OctosCode,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,1,New chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,sb_search,Search chats,#8e8e93,#ffffff,3.26,FAIL,#61666b,#ffffff,5.80,pass
+desktop-light-surfaces,tool-and-files,sg_text_on,By workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,sg_text_off,All,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+desktop-light-surfaces,tool-and-files,sb_sort_label,Recent,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,sb_g_label,workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,sb_r_title,Why does main.rs print 5?,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+desktop-light-surfaces,tool-and-files,1,Add workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+desktop-light-surfaces,tool-and-files,fleet_nav_label,Fleet,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-dark-chrome,fresh-chat,hd_title,Why does main.rs print 5?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,fresh-chat,hd_path,<WORKSPACE>,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,fresh-chat,hd_tab_chat_on,Chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,fresh-chat,hd_tab_traj_off,Trajectory,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,fresh-chat,hd_defaults_text,New chat defaults · Server defaults · …,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,fresh-chat,-,Change,#2f6feb,#1c1f22,3.62,FAIL,#679efe,#1c1f22,6.23,pass
+phone-dark-chrome,fresh-chat,empty_title,What should we build in <WORKSPACE>?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,fresh-chat,empty_hint,"Describe a change, investigate a bug, or ask how the code wo",#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,fresh-chat,empty_chip,<WORKSPACE>,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,fresh-chat,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,fresh-chat,b3_strip_model,Model not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+phone-dark-chrome,fresh-chat,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+phone-dark-chrome,fresh-chat,i0_composer_0,Ask Octos anything,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,fresh-chat,i0_composer_2_0,Ask for approval,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,fresh-chat,i0_composer_4,Select a model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,model-menu,b3_title,Model,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-dark-chrome,model-menu,b3_model_error_text,profile/llm/list returned another session,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+phone-dark-chrome,model-menu,b3_model_error_retry_label,Retry,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+phone-dark-chrome,permission-menu,b3_title,Permission,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-dark-chrome,permission-menu,b3_perm_error_text,permission/profile/list returned another session,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+phone-dark-chrome,permission-menu,b3_perm_error_retry_label,Retry,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+phone-dark-chrome,session-pane,b3_title,Session settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-dark-chrome,session-pane,b3_sc_scope,dsflash:main,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-dark-chrome,session-pane,b3_sc_model_title,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-dark-chrome,session-pane,b3_sc_model_help,"Changing the model changes the shared profile, not just this",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-dark-chrome,session-pane,b3_sc_saved_label,Saved for this profile:,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-dark-chrome,session-pane,b3_sc_saved_value,(no model selected),#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-dark-chrome,session-pane,b3_sc_perm_title,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-dark-chrome,session-pane,b3_sc_perm_help,Applies from your next message. A response that is already r,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-dark-chrome,session-pane,b3_sc_perm_none,Not supported by this server,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-dark-chrome,session-pane,b3_sc_policy_label,Approval policy,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-dark-chrome,session-pane,b3_sc_policy_seg_0_label,On request,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+phone-dark-chrome,session-pane,b3_sc_policy_seg_1_label,Never ask,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+phone-dark-chrome,session-pane,b3_sc_sandbox_title,Sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-dark-chrome,session-pane,b3_sc_sandbox_none,Not supported by this server,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-dark-chrome,session-pane,b3_sc_sandbox_note,Set when the session opens — start a new session to change i,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-dark-chrome,session-pane,b3_sc_newsession_label,New session with…,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+phone-dark-chrome,session-pane,b3_sc_thinking_title,Show thinking,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-dark-chrome,session-pane,b3_sc_thinking_help,"Thinking appears in this Session's transcript, collapsed by ",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-dark-chrome,session-pane,b3_sc_adv_label,Advanced,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-dark-chrome,session-pane,b3_sc_models_empty,No models are available.,,,,,#61666b,#ffffff,5.80,pass
+phone-dark-chrome,settings-about,set_title,About,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-about,-,OctosCode,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-about,set_about_version,Version 0.1.0,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-about,-,Server,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-about,set_about_server,127.0.0.1:8462 · 106 protocol methods advertised,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-connection,set_title,Connection,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-connection,-,Octos server,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-connection,set_conn_value,127.0.0.1:8462 · Connected,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-connection,-,Connection,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-connection,-,Disconnect keeps this server remembered. Forget removes the ,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-connection,1,Disconnect,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+phone-dark-chrome,settings-connection,1,Forget server,#c4141b,#1c1f22,2.73,FAIL,#ff6b6b,#1c1f22,5.97,pass
+phone-dark-chrome,settings-connection,-,This device,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-connection,1,Details,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-connection,-,Pairing and the saved access token,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-general,set_title,General,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-general,-,Desktop notifications,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-general,-,Notify when a turn needs you or finishes while OctosCode is ,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-general,-,Theme,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-general,vb_text,Dark,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-general,-,Octos server,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-general,set_server_status,Connected,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-general,set_server_value,127.0.0.1:8462,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-general,-,Current workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-general,set_ws_path,<WORKSPACE>,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-general,set_ws_value,<WORKSPACE>,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-general,-,Profile,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-general,1,The Octos profile backing this session.,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-general,set_profile_value,dsflash,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-general,-,Stop server…,#d1242f,#1c1f22,3.16,FAIL,#ff6b6b,#1c1f22,5.97,pass
+phone-dark-chrome,settings-general,1,Shuts down Octos on this computer,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-model,set_title,Model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-model,-,Model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-model,vb_text,Default model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-model,-,Thinking,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-model,sg_text_off,Off,#98989d,#2c2c2e,4.85,pass,#98989d,#2c2c2e,4.85,pass
+phone-dark-chrome,settings-model,sg_text_on,On,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-model,sg_text_off,High,#98989d,#2c2c2e,4.85,pass,#98989d,#2c2c2e,4.85,pass
+phone-dark-chrome,settings-model,1,Shows the model's reasoning while it works,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-model,-,All models,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-model,1,Open,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-model,-,Each provider's models,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-model,-,Model providers,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-model,1,Edit,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-model,-,The provider route and its API key,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-permissions,set_title,Permissions,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-permissions,-,Ask for approval,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-permissions,-,No network · asks before risky commands,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-permissions,-,Auto-approve in workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-permissions,-,"No network · never asks, refuses risky commands",#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-permissions,-,Full access,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-permissions,-,No prompts · full read/write/network,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-permissions,set_perm_readback,Server: permissions not reported yet,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-permissions,-,Advanced…,#2f6feb,#1c1f22,3.62,FAIL,#679efe,#1c1f22,6.23,pass
+phone-dark-chrome,settings-preferences,set_title,Preferences,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-preferences,-,Vim editing,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-preferences,-,Use Vim-style normal and insert modes in the composer.,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-preferences,-,Changes apply immediately. Save remembers them on this devic,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-preferences,1,Save preferences,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+phone-dark-chrome,settings-sandbox,set_title,Sandbox,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-sandbox,-,Workspace write,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-sandbox,-,Allow writes inside the workspace,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-sandbox,-,Network access,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-sandbox,-,Allow outbound network requests,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-sandbox,-,Session sandbox,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-sandbox,-,Open new chats in the server's session sandbox,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-sandbox,-,Re-opening a session never re-applies these defaults. They a,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,settings-stop-confirm,i0_answeractions_3,"Oct 2, 6:55 AM",#f5f5f7,#1c1f22,15.20,pass,,,,
+phone-dark-chrome,settings-stop-confirm,-,Stop the Octos server?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-stop-confirm,1,All sessions on this computer stop. Running turns are interr,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-stop-confirm,1,Cancel,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,settings-stop-confirm,stop_confirm_label,Stop server,#ffffff,#e5383b,4.23,FAIL,#ffffff,#d1242f,5.24,pass
+phone-dark-chrome,settings-stop-confirm,i0_answeractions_3,"Oct 2, 7:06 AM",,,,,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,sidebar-drawer,-,OctosCode,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,sidebar-drawer,1,New chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,sidebar-drawer,sb_search,Search chats,#8e8e93,#1c1f22,5.08,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,sidebar-drawer,sg_text_on,By workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,sidebar-drawer,sg_text_off,All,#98989d,#2c2c2e,4.85,pass,#98989d,#2c2c2e,4.85,pass
+phone-dark-chrome,sidebar-drawer,sb_sort_label,Recent,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,sidebar-drawer,sb_r_title,Why does main.rs print 5?,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+phone-dark-chrome,sidebar-drawer,sb_g_label,<WORKSPACE>,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,sidebar-drawer,1,Add workspace,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,sidebar-drawer,fleet_nav_label,Fleet,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-completed,hd_title,Why does main.rs print 5?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-completed,hd_path,<WORKSPACE>,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,turn-completed,hd_tab_chat_on,Chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-completed,hd_tab_traj_off,Trajectory,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,turn-completed,b3_tl_think_1_summary,The user is asking the sa…,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-completed,b3_tl_think_1_meta,0 s · 13 words,#6e6e73,#ffffff,5.07,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,turn-completed,i0_userbubble_0,Why does main.rs print 5?,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+phone-dark-chrome,turn-completed,i2_assistantprose,"`main.rs` prints a single line, `5`: `main` calls `println!(",#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-completed,i0_answeractions_3,now,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,turn-completed,i0_workedfor_label,Worked for 0s,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,turn-completed,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-completed,b3_strip_model,Model not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+phone-dark-chrome,turn-completed,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+phone-dark-chrome,turn-completed,i0_composer_0,Ask Octos anything,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,turn-completed,i0_composer_2_0,Ask for approval,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-completed,i0_composer_4,Select a model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-stopped,hd_title,Why does main.rs print 5?,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-stopped,hd_path,<WORKSPACE>,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,turn-stopped,hd_tab_chat_on,Chat,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-stopped,hd_tab_traj_off,Trajectory,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,turn-stopped,i3_userbubble_0,Explain the borrow checker in one paragraph.,#f5f5f7,#2c2c2e,12.80,pass,#f5f5f7,#2c2c2e,12.80,pass
+phone-dark-chrome,turn-stopped,i0_answeractions_3,now,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,turn-stopped,i2_assistantprose,"`main.rs` prints a single line, `5`: `main` calls `println!(",#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-stopped,b3_tl_think_4_summary,The user asks again for th…,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-stopped,b3_tl_think_4_meta,0 s · 65 words,#6e6e73,#ffffff,5.07,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,turn-stopped,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-stopped,b3_strip_model,Model not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+phone-dark-chrome,turn-stopped,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#1c1f22,6.44,pass
+phone-dark-chrome,turn-stopped,i0_composer_0,Ask Octos anything,#98989d,#1c1f22,5.77,pass,#98989d,#1c1f22,5.77,pass
+phone-dark-chrome,turn-stopped,i0_composer_2_0,Ask for approval,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-dark-chrome,turn-stopped,i0_composer_4,Select a model,#f5f5f7,#1c1f22,15.20,pass,#f5f5f7,#1c1f22,15.20,pass
+phone-light-approval,approval-card,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-approval,approval-card,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-approval,approval-card,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-approval,approval-card,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-approval,approval-card,i0_workingrow_label,Working · 2s,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-approval,approval-card,b3_tl_fold_expand_label,Expand all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+phone-light-approval,approval-card,b3_tl_fold_collapse_label,Collapse all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+phone-light-approval,approval-card,b3_tl_think_1_summary,The user asks to run `su…,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-approval,approval-card,b3_tl_think_1_meta,1 s · 135 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-approval,approval-card,i0_userbubble_0,Run the build with sudo.,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+phone-light-approval,approval-card,cv_ap_title,M9 approval fixture,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-approval,approval-card,cv_ap_risk,low risk,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+phone-light-approval,approval-card,cv_ap_cmd,printf m9-approval-e2e,#1d1d1f,#f7f7f8,15.72,pass,#1d1d1f,#f7f7f8,15.72,pass
+phone-light-approval,approval-card,cv_ap_tool,shell · command,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-approval,approval-card,cv_ap_once_label,Approve once,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+phone-light-approval,approval-card,cv_ap_session_label,Approve for session,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-approval,approval-card,cv_ap_deny_label,Deny,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-approval,approval-card,cv_ap_hint,Y / S / N,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-chrome,fresh-chat,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,fresh-chat,hd_path,<WORKSPACE>,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,fresh-chat,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,fresh-chat,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,fresh-chat,hd_defaults_text,New chat defaults · Server defaults · …,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,fresh-chat,-,Change,#2f6feb,#ffffff,4.57,pass,#2f6feb,#ffffff,4.57,pass
+phone-light-chrome,fresh-chat,empty_title,What should we build in <WORKSPACE>?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,fresh-chat,empty_hint,"Describe a change, investigate a bug, or ask how the code wo",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,fresh-chat,empty_chip,<WORKSPACE>,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,fresh-chat,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,fresh-chat,b3_strip_model,Model not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-chrome,fresh-chat,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-chrome,fresh-chat,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,fresh-chat,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,fresh-chat,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,model-menu,b3_title,Model,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-chrome,model-menu,b3_model_error_text,profile/llm/list returned another session,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+phone-light-chrome,model-menu,b3_model_error_retry_label,Retry,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+phone-light-chrome,permission-menu,b3_title,Permission,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-chrome,permission-menu,b3_perm_error_text,permission/profile/list returned another session,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+phone-light-chrome,permission-menu,b3_perm_error_retry_label,Retry,#cf222e,#fdecec,4.69,pass,#c50f0f,#fdecec,5.33,pass
+phone-light-chrome,session-pane,b3_title,Session settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,session-pane,b3_sc_scope,dsflash:main,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,session-pane,b3_sc_model_title,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,session-pane,b3_sc_model_help,"Changing the model changes the shared profile, not just this",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,session-pane,b3_sc_saved_label,Saved for this profile:,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,session-pane,b3_sc_saved_value,(no model selected),#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,session-pane,b3_sc_perm_title,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,session-pane,b3_sc_perm_help,Applies from your next message. A response that is already r,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,session-pane,b3_sc_perm_none,Not supported by this server,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,session-pane,b3_sc_policy_label,Approval policy,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,session-pane,b3_sc_policy_seg_0_label,On request,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+phone-light-chrome,session-pane,b3_sc_policy_seg_1_label,Never ask,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+phone-light-chrome,session-pane,b3_sc_sandbox_title,Sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,session-pane,b3_sc_sandbox_none,Not supported by this server,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,session-pane,b3_sc_sandbox_note,Set when the session opens — start a new session to change i,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,session-pane,b3_sc_newsession_label,New session with…,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+phone-light-chrome,session-pane,b3_sc_thinking_title,Show thinking,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,session-pane,b3_sc_thinking_help,"Thinking appears in this Session's transcript, collapsed by ",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,session-pane,b3_sc_adv_label,Advanced,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,session-pane,b3_sc_models_empty,No models are available.,,,,,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-about,set_title,About,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-about,-,OctosCode,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-about,set_about_version,Version 0.1.0,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-about,-,Server,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-about,set_about_server,127.0.0.1:8462 · 106 protocol methods advertised,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-connection,set_title,Connection,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-connection,-,Octos server,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-connection,set_conn_value,127.0.0.1:8462 · Connected,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-connection,-,Connection,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-connection,-,Disconnect keeps this server remembered. Forget removes the ,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-connection,1,Disconnect,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+phone-light-chrome,settings-connection,1,Forget server,#c4141b,#ffffff,6.06,pass,#c4141b,#ffffff,6.06,pass
+phone-light-chrome,settings-connection,-,This device,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-connection,1,Details,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-connection,-,Pairing and the saved access token,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-general,set_title,General,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-general,-,Desktop notifications,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-general,-,Notify when a turn needs you or finishes while OctosCode is ,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-general,-,Theme,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-general,vb_text,Light,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-general,-,Octos server,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-general,set_server_status,Connected,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-general,set_server_value,127.0.0.1:8462,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-general,-,Current workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-general,set_ws_path,<WORKSPACE>,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-general,set_ws_value,<WORKSPACE>,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-general,-,Profile,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-general,1,The Octos profile backing this session.,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-general,set_profile_value,dsflash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-general,-,Stop server…,#d1242f,#ffffff,5.24,pass,#d1242f,#ffffff,5.24,pass
+phone-light-chrome,settings-general,1,Shuts down Octos on this computer,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-model,set_title,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-model,-,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-model,vb_text,Default model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-model,-,Thinking,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-model,sg_text_off,Off,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+phone-light-chrome,settings-model,sg_text_on,On,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-model,sg_text_off,High,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+phone-light-chrome,settings-model,1,Shows the model's reasoning while it works,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-model,-,All models,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-model,1,Open,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-model,-,Each provider's models,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-model,-,Model providers,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-model,1,Edit,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-model,-,The provider route and its API key,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-permissions,set_title,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-permissions,-,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-permissions,-,No network · asks before risky commands,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-permissions,-,Auto-approve in workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-permissions,-,"No network · never asks, refuses risky commands",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-permissions,-,Full access,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-permissions,-,No prompts · full read/write/network,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-permissions,set_perm_readback,Server: permissions not reported yet,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-permissions,-,Advanced…,#2f6feb,#ffffff,4.57,pass,#2f6feb,#ffffff,4.57,pass
+phone-light-chrome,settings-preferences,set_title,Preferences,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-preferences,-,Vim editing,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-preferences,-,Use Vim-style normal and insert modes in the composer.,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-preferences,-,Changes apply immediately. Save remembers them on this devic,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-preferences,1,Save preferences,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+phone-light-chrome,settings-sandbox,set_title,Sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-sandbox,-,Workspace write,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-sandbox,-,Allow writes inside the workspace,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-sandbox,-,Network access,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-sandbox,-,Allow outbound network requests,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-sandbox,-,Session sandbox,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-sandbox,-,Open new chats in the server's session sandbox,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-sandbox,-,Re-opening a session never re-applies these defaults. They a,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,settings-stop-confirm,i0_answeractions_3,"Oct 2, 6:50 AM",#1d1d1f,#ffffff,16.83,pass,,,,
+phone-light-chrome,settings-stop-confirm,-,Stop the Octos server?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-stop-confirm,1,All sessions on this computer stop. Running turns are interr,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-stop-confirm,1,Cancel,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,settings-stop-confirm,stop_confirm_label,Stop server,#ffffff,#e5383b,4.23,FAIL,#ffffff,#d1242f,5.24,pass
+phone-light-chrome,sidebar-drawer,-,OctosCode,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,sidebar-drawer,1,New chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,sidebar-drawer,sb_search,Search chats,#8e8e93,#ffffff,3.26,FAIL,#61666b,#ffffff,5.80,pass
+phone-light-chrome,sidebar-drawer,sg_text_on,By workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,sidebar-drawer,sg_text_off,All,#6e6e73,#f0f0f2,4.46,FAIL,#61666b,#f0f0f2,5.10,pass
+phone-light-chrome,sidebar-drawer,sb_sort_label,Recent,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,sidebar-drawer,sb_r_title,Why does main.rs print 5?,#1d1d1f,#f0f0f2,14.79,pass,#1d1d1f,#f0f0f2,14.79,pass
+phone-light-chrome,sidebar-drawer,sb_g_label,<WORKSPACE>,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,sidebar-drawer,1,Add workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,sidebar-drawer,fleet_nav_label,Fleet,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-completed,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-completed,hd_path,<WORKSPACE>,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,turn-completed,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-completed,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,turn-completed,b3_tl_think_1_summary,The user is asking the sa…,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-completed,b3_tl_think_1_meta,0 s · 13 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,turn-completed,i0_workedfor_label,Worked for 0s,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,turn-completed,i2_assistantprose,"`main.rs` prints a single line, `5`: `main` calls `println!(",#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-completed,i0_userbubble_0,Why does main.rs print 5?,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+phone-light-chrome,turn-completed,i0_answeractions_3,now,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,turn-completed,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-completed,b3_strip_model,Model not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-chrome,turn-completed,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-chrome,turn-completed,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,turn-completed,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-completed,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-stopped,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-stopped,hd_path,<WORKSPACE>,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,turn-stopped,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-stopped,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,turn-stopped,i2_assistantprose,"`main.rs` prints a single line, `5`: `main` calls `println!(",#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-stopped,b3_tl_think_4_summary,The user asks again for th…,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-stopped,b3_tl_think_4_meta,0 s · 65 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,turn-stopped,i3_userbubble_0,Explain the borrow checker in one paragraph.,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+phone-light-chrome,turn-stopped,i0_answeractions_3,now,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,turn-stopped,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-stopped,b3_strip_model,Model not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-chrome,turn-stopped,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-chrome,turn-stopped,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-chrome,turn-stopped,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-chrome,turn-stopped,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-plan,plan,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-plan,plan,i0_workingrow_label,Working · 2s,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-plan,plan,i0_userbubble_0,Plan the release.,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+phone-light-plan,plan,cv_pl_title,Plan · Wire --help to docum…,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan,cv_pl_summary,1 of 3 done,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-plan,plan,cv_pl_item_0,Add the --version flag,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan,cv_pl_status_0,Done,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-plan,plan,cv_pl_item_1,Wire --help to document it,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan,cv_pl_status_1,In progress,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-plan,plan,cv_pl_item_2,Add a test for the flag,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-plan,plan,cv_pl_status_2,Pending,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-plan,plan,cv_pl_updated,Updated 3d ago,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-plan,plan,b3_strip_state,Responding,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan,b3_strip_model,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-plan,plan,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-plan,plan,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan-stopped,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan-stopped,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-plan,plan-stopped,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan-stopped,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-plan,plan-stopped,b3_tl_fold_expand_label,Expand all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+phone-light-plan,plan-stopped,b3_tl_fold_collapse_label,Collapse all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+phone-light-plan,plan-stopped,b3_tl_think_2_summary,The plan was recorded. No…,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan-stopped,b3_tl_think_2_meta,0 s · 59 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-plan,plan-stopped,i0_workedfor_label,Worked for 3s,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-plan,plan-stopped,i0_workedfor_dot,·,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-plan,plan-stopped,i0_workedfor_count,1 tool call,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-plan,plan-stopped,i3_assistantprose,"Plan recorded — 3 steps: (1) add the `--version` flag, (2) w",#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan-stopped,i0_userbubble_0,Plan the release.,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+phone-light-plan,plan-stopped,i0_answeractions_3,now,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-plan,plan-stopped,i0_toolcell_title,update_plan,#1d1d1f,#f7f7f8,15.72,pass,#1d1d1f,#f7f7f8,15.72,pass
+phone-light-plan,plan-stopped,i0_toolcell_status,Done · 0 s,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+phone-light-plan,plan-stopped,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan-stopped,b3_strip_model,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan-stopped,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-plan,plan-stopped,i0_composer_0,Plan the release.,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan-stopped,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-plan,plan-stopped,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,model-menu,i0_composer_4,DeepSeek V4 Flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,model-menu,b3_title,Model,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-seats,model-menu,b3_model_group_0,Deepseek,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-seats,model-menu,b3_model_opt_0_name,DeepSeek V4 Flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,model-menu,b3_model_opt_0_desc,deepseek-v4-flash · deepseek,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-seats,model-menu,b3_model_opt_1_name,DeepSeek V4 Flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,model-menu,b3_model_opt_1_desc,deepseek-v4-flash · r2-route,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-seats,model-menu,b3_model_group_1,Moonshot,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-seats,model-menu,b3_model_opt_2_name,Kimi K3,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,model-menu,b3_model_opt_2_desc,kimi-k3,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-seats,model-menu,b3_model_group_2,Zhipu,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-seats,model-menu,b3_model_opt_3_name,GLM-4 Flash,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#ffffff,2.57,exempt
+phone-light-seats,model-menu,b3_model_opt_3_desc,This configured model is unavailable.,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-seats,permission-menu,b3_title,Permission,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-seats,permission-menu,b3_perm_opt_0_name,Write · Network allowed,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,permission-menu,b3_perm_opt_1_name,Read · Network blocked,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,permission-menu,b3_perm_opt_2_name,Write · Network blocked,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,permission-menu,b3_perm_opt_3_name,Full access · Network allowed,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,seats-composer,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,seats-composer,hd_path,<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/ds,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-seats,seats-composer,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,seats-composer,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-seats,seats-composer,hd_defaults_text,New chat defaults · Server defaults · …,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,seats-composer,-,Change,#2f6feb,#ffffff,4.57,pass,#2f6feb,#ffffff,4.57,pass
+phone-light-seats,seats-composer,empty_title,What should we build in workspace?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,seats-composer,empty_hint,"Describe a change, investigate a bug, or ask how the code wo",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-seats,seats-composer,empty_chip,workspace,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,seats-composer,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,seats-composer,b3_strip_model,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,seats-composer,b3_strip_perm,Workspace write,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,seats-composer,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-seats,seats-composer,i0_composer_2_0,Write,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,seats-composer,i0_composer_4,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,session-pane,b3_title,Session settings,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,session-pane,b3_sc_scope,dsflash:main,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-seats,session-pane,b3_sc_model_title,Model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,session-pane,b3_sc_model_help,"Changing the model changes the shared profile, not just this",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-seats,session-pane,b3_sc_saved_label,Saved for this profile:,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-seats,session-pane,b3_sc_saved_value,DeepSeek V4 Flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,session-pane,b3_sc_runtime_label,Session runtime,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-seats,session-pane,b3_sc_runtime_value,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,session-pane,b3_sc_model_0_title,DeepSeek V4 Flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,session-pane,b3_sc_model_0_sub,deepseek · deepseek,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-seats,session-pane,b3_sc_model_1_title,DeepSeek V4 Flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,session-pane,b3_sc_model_1_sub,deepseek · r2-route,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-seats,session-pane,b3_sc_model_2_title,Kimi K3,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,session-pane,b3_sc_model_2_sub,moonshot · moonshot,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-seats,session-pane,b3_sc_model_3_title,GLM-4 Flash,#a1a1a6,#ffffff,2.57,FAIL,#a1a1a6,#ffffff,2.57,exempt
+phone-light-seats,session-pane,b3_sc_model_3_sub,zhipu · unavailable,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-seats,session-pane,b3_sc_perm_title,Permissions,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,session-pane,b3_sc_perm_help,Applies from your next message. A response that is already r,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-seats,session-pane,b3_sc_perm_0_title,Write · Network allowed,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,session-pane,b3_sc_perm_1_title,Read · Network blocked,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,session-pane,b3_sc_perm_2_title,Write · Network blocked,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,session-pane,b3_sc_perm_3_title,Full access · Network allowed,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-seats,session-pane,b3_sc_perm_3_sub,Asks before it is applied,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,question-card,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,question-card,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,question-card,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,question-card,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,question-card,b3_tl_think_4_summary,The user asks to run the s…,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,question-card,b3_tl_think_4_meta,0 s · 14 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,question-card,cv_q_eyebrow,Octos needs a decision,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,question-card,cv_q_title,Which color would you like to pick?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,question-card,cv_q_0_header,COLOR CHOICE,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,question-card,cv_q_0_hint,"Choose one, or write your own",#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-surfaces,question-card,cv_q_0_opt_0_label,Blue,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,question-card,cv_q_0_opt_0_desc,"Calm, cool, classic — a safe default for most uses.",#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,question-card,cv_q_0_opt_1_label,Green,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,question-card,cv_q_0_opt_1_desc,Natural and balanced; reads as fresh and relaxed.,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,question-card,cv_q_0_opt_2_label,Red,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,question-card,cv_q_0_opt_2_desc,Bold and high-energy; draws attention quickly.,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,question-card,cv_q_0_opt_3_label,Purple,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,question-card,cv_q_0_opt_3_desc,Creative and distinctive; a less common pick.,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,question-card,cv_q_0_other_label,Other,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,question-card,cv_q_0_other,Type another answer,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-surfaces,question-card,cv_q_consequence,Sends this answer and resumes the turn,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,question-card,cv_q_reason,Choose an option to continue,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-surfaces,question-card,cv_q_submit_off_label,Submit answer,#a1a1a6,#e9e9eb,2.12,exempt,#a1a1a6,#e9e9eb,2.12,exempt
+phone-light-surfaces,question-card,cv_q_stop_label,Stop turn,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,reasoning-answer,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,reasoning-answer,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,reasoning-answer,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,reasoning-answer,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,reasoning-answer,b3_tl_fold_expand_label,Expand all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+phone-light-surfaces,reasoning-answer,b3_tl_fold_collapse_label,Collapse all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+phone-light-surfaces,reasoning-answer,b3_tl_think_1_summary,Simple: 391.,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,reasoning-answer,b3_tl_think_1_meta,0 s · 2 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,reasoning-answer,i2_assistantprose,17 times 23 equals 391.,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,reasoning-answer,i0_answeractions_3,now,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,reasoning-answer,i0_userbubble_0,Why does main.rs print 5?,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+phone-light-surfaces,reasoning-answer,i0_workedfor_label,Worked for 0s,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,reasoning-answer,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,reasoning-answer,b3_strip_model,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,reasoning-answer,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-surfaces,reasoning-answer,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,reasoning-answer,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,reasoning-answer,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,tool-and-files,hd_title,Why does main.rs print 5?,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,tool-and-files,hd_path,<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,tool-and-files,hd_tab_chat_on,Chat,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,tool-and-files,hd_tab_traj_off,Trajectory,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,tool-and-files,b3_tl_think_1_summary,Simple: 391.,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,tool-and-files,b3_tl_think_1_meta,0 s · 2 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,tool-and-files,i2_assistantprose,17 times 23 equals 391.,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,tool-and-files,b3_tl_think_4_summary,The user asks to run the s…,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,tool-and-files,b3_tl_think_4_meta,0 s · 14 words,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,tool-and-files,i0_workedfor_label,Worked for 0s,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,tool-and-files,i0_workedfor_dot,·,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,tool-and-files,i0_workedfor_count,1 tool call,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,tool-and-files,i3_userbubble_0,Explain the borrow checker in one paragraph.,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+phone-light-surfaces,tool-and-files,i0_toolcell_title,bash,#1d1d1f,#f7f7f8,15.72,pass,#1d1d1f,#f7f7f8,15.72,pass
+phone-light-surfaces,tool-and-files,i0_toolcell_dot,·,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+phone-light-surfaces,tool-and-files,i0_toolcell_target,echo r23-tool-ok,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+phone-light-surfaces,tool-and-files,i0_toolcell_status,Done · 0 s,#6e6e73,#f7f7f8,4.74,pass,#61666b,#f7f7f8,5.42,pass
+phone-light-surfaces,tool-and-files,b3_tl_fold_expand_label,Expand all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+phone-light-surfaces,tool-and-files,b3_tl_fold_collapse_label,Collapse all,#2f6feb,#ffffff,4.57,pass,#3564c6,#ffffff,5.54,pass
+phone-light-surfaces,tool-and-files,i0_answeractions_3,now,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,tool-and-files,i0_userbubble_0,Why does main.rs print 5?,#ffffff,#000000,21.00,pass,#ffffff,#000000,21.00,pass
+phone-light-surfaces,tool-and-files,b3_strip_state,Ready,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,tool-and-files,b3_strip_model,deepseek-v4-flash,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,tool-and-files,b3_strip_perm,Permissions not reported,#a1a1a6,#ffffff,2.57,FAIL,#5f646b,#ffffff,5.96,pass
+phone-light-surfaces,tool-and-files,i0_composer_0,Ask Octos anything,#6e6e73,#ffffff,5.07,pass,#61666b,#ffffff,5.80,pass
+phone-light-surfaces,tool-and-files,i0_composer_2_0,Ask for approval,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass
+phone-light-surfaces,tool-and-files,i0_composer_4,Select a model,#1d1d1f,#ffffff,16.83,pass,#1d1d1f,#ffffff,16.83,pass

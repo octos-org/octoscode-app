@@ -179,10 +179,15 @@ def measure(nodes: list, decoded, png_w: int, png_h: int, within=(), clip=(), ex
         bg = Counter(px).most_common(1)[0][0]
         ink_at = [(x, p) for x, p in zip(xs, px) if ratio(p, bg) >= INK_MIN]
         if n.get("ty") == "TextInput" and ink_at:
-            # A field's rect also holds its icon (the sidebar search's
-            # magnifier sits in the left padding): the text is the column run
-            # with the most ink, runs split by a gap of >= 5 logical px.
-            ink_at = largest_run(ink_at, max(2, int(5 * k)))
+            # A field's rect also holds its border and its icon (the sidebar
+            # search's magnifier sits in the left padding): past a 2 px inset
+            # (the border), the text is the column run with the most clear
+            # ink (>= 1.5:1, so the border's 1.26:1 hairline cannot join the
+            # runs), runs split by a gap of >= 5 logical px.
+            lo, hi = x0 + int(2 * k), x1 - int(2 * k)
+            clear = [(x, p) for x, p in ink_at if lo <= x < hi and ratio(p, bg) >= 1.5]
+            if clear:
+                ink_at = largest_run(clear, max(2, int(5 * k)))
         ink = [(ratio(p, bg), p) for _, p in ink_at]
         kind = kind_of(n)
         rec = {"id": n.get("i", ""), "ty": n.get("ty", ""), "text": t, "rect": r, "bg": hexc(bg), "kind": kind,
@@ -211,7 +216,7 @@ def measure(nodes: list, decoded, png_w: int, png_h: int, within=(), clip=(), ex
 def write_tsv(path: pathlib.Path, rows: list[dict]) -> None:
     lines = ["id\tty\tkind\ttext\trect\tbg\tfg\tratio\tneed\tverdict"]
     for m in rows:
-        lines.append("\t".join([m["id"], m["ty"], m["kind"], m["text"][:60].replace("\t", " "),
+        lines.append("\t".join([m["id"], m["ty"], m["kind"], " ".join(m["text"].split())[:60],
                                 ",".join(str(round(v)) for v in m["rect"]), m["bg"], m["fg"],
                                 f"{m['ratio']:.2f}", f"{m['need']:.1f}", m["verdict"]]))
     path.write_text("\n".join(lines) + "\n")
