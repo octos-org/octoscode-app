@@ -496,7 +496,14 @@ impl Conversation {
     /// `cancelQueuedPrompt`: remove a not-yet-dispatched prompt; the active
     /// turn and the server are untouched.
     pub fn remove_queued(&self, turn_id: &str) -> bool {
-        let removed = self.store.domains.composer.remove_pending(&self.session_id(), turn_id);
+        let session = self.session_id();
+        self.remove_queued_in(&session, turn_id)
+    }
+
+    /// A22 — the queued chip's ✕ for `session`, the Session whose chip was
+    /// tapped: removes its own pending prompt only.
+    pub fn remove_queued_in(&self, session: &str, turn_id: &str) -> bool {
+        let removed = self.store.domains.composer.remove_pending(session, turn_id);
         makepad_widgets::SignalToUI::set_ui_signal();
         removed
     }
@@ -505,6 +512,13 @@ impl Conversation {
     /// for the held turn, the answer validated against the session and turn.
     pub async fn check_turn_state(&self) {
         let session = self.session_id();
+        self.check_turn_state_in(&session).await
+    }
+
+    /// A22 — "Check status" for `session`, the Session whose recovery notice
+    /// was tapped (its own held turn; the window may have moved on).
+    pub async fn check_turn_state_in(&self, session: &str) {
+        let session = session.to_owned();
         let advertised = self
             .store
             .domains
@@ -554,6 +568,13 @@ impl Conversation {
     /// nothing is stopped or resent; queued prompts send next.
     pub fn continue_without_turn(&self) {
         let session = self.session_id();
+        self.continue_without_turn_in(&session)
+    }
+
+    /// A22 — "Continue without it" for `session`, the Session whose recovery
+    /// notice was tapped: its own held turn is released, its own queue sends.
+    pub fn continue_without_turn_in(&self, session: &str) {
+        let session = session.to_owned();
         let held = self.store.domains.composer.snapshot(&session).active.map(|a| a.turn_id);
         let fx = self.store.domains.composer.continue_without(&session);
         if let Some(t) = held {
@@ -595,7 +616,7 @@ impl Conversation {
             self.spawn_dispatch(session, turn);
         }
         if fx.check_state.is_some() {
-            self.spawn_check();
+            self.spawn_check(session);
         }
         makepad_widgets::SignalToUI::set_ui_signal();
     }
@@ -636,10 +657,11 @@ impl Conversation {
         }
     }
 
-    fn spawn_check(&self) {
+    fn spawn_check(&self, session: &str) {
         let me = self.weak_self.lock().unwrap().upgrade();
+        let session = session.to_owned();
         if let (Some(me), Ok(handle)) = (me, tokio::runtime::Handle::try_current()) {
-            handle.spawn(async move { me.check_turn_state().await });
+            handle.spawn(async move { me.check_turn_state_in(&session).await });
         }
     }
 

@@ -66,7 +66,8 @@ fn opened(session: &str, cwd: &str) -> Value {
         "capabilities": {
             "version": {"protocol": "octos-ui/v1alpha1", "schema_version": 1, "jsonrpc": "2.0"},
             "capabilities_schema_version": 2,
-            "supported_methods": ["session/open", "session/hydrate", "session/list", "turn/start", "turn/interrupt", "turn/steer"],
+            "supported_methods": ["session/open", "session/hydrate", "session/list", "turn/start", "turn/interrupt", "turn/steer",
+                                  "turn/state/get"],
             "supported_notifications": ["turn/started", "projection/envelope"],
             "supported_features": ["state.session_hydrate.v1", "projection.envelope.v2", "session.workspace_cwd.v1",
                                    "event.turn_steer_dropped.v1"]
@@ -123,8 +124,15 @@ impl Core {
                             }
                             "turn/start" => {
                                 let turn = p["turn_id"].as_str().unwrap_or("").to_owned();
+                                if p["input"][0]["text"].as_str().unwrap_or("").contains("[hold]") {
+                                    continue; // a lost acknowledgement: never answered
+                                }
                                 let _ = tx.send(ok(json!({"accepted": true})));
                                 Core::stream(world.clone(), tx.clone(), session, turn, 60);
+                            }
+                            "turn/state/get" => {
+                                let turn = p["turn_id"].as_str().unwrap_or("").to_owned();
+                                let _ = tx.send(ok(json!({"session_id": session, "turn_id": turn, "state": "completed"})));
                             }
                             "turn/steer" => {
                                 // Accepted only into the named Session's own
@@ -408,5 +416,57 @@ async fn a_steer_reaches_only_the_live_turn_of_the_session_it_was_issued_in() {
     perform(&conv, effect).await;
     until("X's own steer reached the wire", || steers(&core).len() == 2).await;
     assert_eq!((steers(&core)[1]["session_id"].clone(), steers(&core)[1]["expected_turn_id"].clone()), (json!(x), json!(tx)));
+    quit(&conv);
+}
+
+/// The queued chip's ✕ and the recovery notice's "Check status" / "Continue
+/// without it" (A22 audit): tapped in X and run after the window moved to Y,
+/// each acts on X's own queue / held turn — never on Y's.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn the_queue_and_recovery_controls_act_on_the_session_they_were_tapped_in() {
+    // A lost acknowledgement is held for recovery after 1.5 s here.
+    std::env::set_var("OCTOSCODE_TURN_START_TIMEOUT_MS", "1500");
+    let core = Core::start().await;
+    let conv = launch(&core).await;
+    let x = conv.session_id();
+    let y = "a22:api:y";
+
+    // ✕: a prompt queued in X behind a long turn.
+    let _tx = run_long_turn(&conv, &core, "a long job in X").await;
+    conv.set_draft("remove me");
+    conv.submit_draft().await.expect("queue");
+    until("X's prompt is queued", || conv.store.domains.composer.snapshot(&x).pending.len() == 1).await;
+    let head = conv.store.domains.composer.snapshot(&x).pending[0].turn_id.clone();
+    open(&conv, y).await;
+    assert!(conv.remove_queued_in(&x, &head), "X's chip removes X's queued prompt");
+    assert!(conv.store.domains.composer.snapshot(&x).pending.is_empty());
+    until("X's long turn ends", || conv.store.domains.composer.snapshot(&x).active.is_none()).await;
+    assert!(!core.params_of("turn/start").iter().any(|p| p["turn_id"] == json!(head)), "the removed prompt was never sent");
+
+    // Check status: a turn in X whose start was never acknowledged.
+    open(&conv, &x).await;
+    conv.set_draft("[hold] lost ack");
+    conv.submit_draft().await.expect("submit");
+    until("X holds the turn for recovery", || conv.store.domains.composer.recovery(&x).is_some()).await;
+    let held = conv.store.domains.composer.recovery(&x).unwrap().turn_id;
+    conv.set_draft("waits behind the held turn");
+    // (Admission refuses while a turn is held: the text stays; nothing queues.)
+    open(&conv, y).await;
+    conv.check_turn_state_in(&x).await;
+    let asked = core.params_of("turn/state/get");
+    assert_eq!(asked.len(), 1, "{asked:?}");
+    assert_eq!((asked[0]["session_id"].clone(), asked[0]["turn_id"].clone()), (json!(x), json!(held)), "{}", asked[0]);
+    until("X's held turn settled from the lookup", || conv.store.domains.composer.recovery(&x).is_none()).await;
+    assert!(conv.store.domains.composer.recovery(y).is_none());
+
+    // Continue without it: another held turn in X, released from Y's window.
+    open(&conv, &x).await;
+    conv.set_draft("[hold] lost again");
+    conv.submit_draft().await.expect("submit");
+    until("X holds the second turn", || conv.store.domains.composer.recovery(&x).is_some()).await;
+    open(&conv, y).await;
+    conv.continue_without_turn_in(&x);
+    assert!(conv.store.domains.composer.recovery(&x).is_none(), "X's own hold is released");
+    assert!(conv.store.domains.composer.snapshot(&x).active.is_none());
     quit(&conv);
 }

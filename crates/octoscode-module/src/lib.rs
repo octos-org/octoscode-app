@@ -3782,17 +3782,19 @@ impl OctoscodeView {
             }
             "remove" => {
                 if let Some(head) = store.domains.composer.snapshot(&session).pending.first() {
-                    let removed = conv.remove_queued(&head.turn_id);
+                    let removed = conv.remove_queued_in(&session, &head.turn_id);
                     makepad_widgets::log!("[octoscode] queued prompt {} removed: {removed}", head.turn_id);
                 }
             }
+            // A22 — the notice of the Session it was tapped in.
             "check" => {
+                let s = session.clone();
                 rt.spawn(async move {
-                    conv.check_turn_state().await;
+                    conv.check_turn_state_in(&s).await;
                     SignalToUI::set_ui_signal();
                 });
             }
-            "continue" => conv.continue_without_turn(),
+            "continue" => conv.continue_without_turn_in(&session),
             _ => {}
         }
     }
