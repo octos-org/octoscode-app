@@ -182,7 +182,7 @@ async fn a_permission_preset_sends_the_webs_update_for_the_active_session() {
         params["update"],
         json!({"mode": "danger_full_access", "network": "allow", "approval_policy": "never"})
     );
-    assert_eq!(settings::preset_of(&store), settings::Preset::Full, "the radios follow the save");
+    assert_eq!(settings::preset_of(&store), Some(settings::Preset::Full), "the radios follow the save");
 }
 
 #[tokio::test]

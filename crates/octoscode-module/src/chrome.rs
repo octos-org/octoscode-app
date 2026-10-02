@@ -980,7 +980,11 @@ script_mod! {
                     }
                 }
 
-                // ----- Permissions (board 8)
+                // ----- Permissions (board 8). A15: the help says what octos
+                // enforces — on-request asks only when its command policy
+                // flags a command (sudo, rm -rf, force push, hard reset), and
+                // `never` refuses those instead of approving them; the
+                // readback under the presets is the server's own report.
                 sec_permissions := View{
                     width: Fill height: Fit flow: Down visible: false
                     View{
@@ -994,7 +998,7 @@ script_mod! {
                             }
                             View{
                                 width: Fill height: Fit flow: Down padding: Inset{left: 30}
-                                OcRowHelp{text: "Server asks before shell, write and network"}
+                                OcRowHelp{text: "No network · asks before risky commands"}
                             }
                         }
                         perm_ask := OcHit{}
@@ -1010,7 +1014,7 @@ script_mod! {
                             }
                             View{
                                 width: Fill height: Fit flow: Down padding: Inset{left: 30}
-                                OcRowHelp{text: "Approve actions in this workspace"}
+                                OcRowHelp{text: "No network · never asks, refuses risky commands"}
                             }
                         }
                         perm_workspace := OcHit{}
@@ -1034,7 +1038,7 @@ script_mod! {
                     OcRule{}
                     View{
                         width: Fill height: Fit flow: Down spacing: 6 padding: Inset{top: 14}
-                        set_perm_readback := OcMuted{width: Fill text: "Server: ask before shell, write and network"}
+                        set_perm_readback := OcMuted{width: Fill text: "Server: permissions not reported yet"}
                         set_perm_state := OcMuted{width: Fill text: "" visible: false}
                         View{
                             width: 96 height: 30 flow: Overlay align: Align{x: 0.0 y: 0.5}
@@ -1992,12 +1996,14 @@ impl ChromeRuntime {
             }
         }
         show(cx, view, ids!(set_stop_row), settings::can_stop_server(store));
-        // Permissions.
-        let preset = st.saving.unwrap_or_else(|| settings::preset_of(store));
-        set_radio(cx, view, live_id!(pm_ask_radio), preset == settings::Preset::Ask);
-        set_radio(cx, view, live_id!(pm_ws_radio), preset == settings::Preset::Workspace);
-        set_radio(cx, view, live_id!(pm_full_radio), preset == settings::Preset::Full);
-        text(cx, view, ids!(set_perm_readback), preset.readback());
+        // Permissions. A15: the radio the SERVER's selection matches (none
+        // when it matches no preset, e.g. Write · Network allowed), and the
+        // readback is what the server reports, not a preset's static copy.
+        let preset = st.saving.or_else(|| settings::preset_of(store));
+        set_radio(cx, view, live_id!(pm_ask_radio), preset == Some(settings::Preset::Ask));
+        set_radio(cx, view, live_id!(pm_ws_radio), preset == Some(settings::Preset::Workspace));
+        set_radio(cx, view, live_id!(pm_full_radio), preset == Some(settings::Preset::Full));
+        text(cx, view, ids!(set_perm_readback), &settings::permission_readback(store));
         let state_line = if st.saving.is_some() {
             Some("Saving…".to_owned())
         } else {

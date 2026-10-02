@@ -215,7 +215,10 @@ async fn undo_lists_snapshots_confirms_then_restores_and_rehydrates() {
         other => panic!("{other:?}"),
     };
     host::run(job, &conv).await.expect("restore");
-    let after: Vec<String> = server.methods().into_iter().skip(1).filter(|m| m != "session/list").collect();
+    // A15 — the open itself hydrates first (every open loads its history,
+    // the web's open -> hydrate); the undo's own order starts at its list.
+    let after: Vec<String> =
+        server.methods().into_iter().skip_while(|m| m != "snapshot/list").filter(|m| m != "session/list").collect();
     assert_eq!(
         after,
         ["snapshot/list", "snapshot/list", "snapshot/restore", "session/hydrate"],
