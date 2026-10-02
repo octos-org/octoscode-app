@@ -314,6 +314,47 @@ mod tests {
         }
     }
 
+    /// Parity row "Render settled GFM (headings, lists, tables, strong) and
+    /// keep raw HTML inert" on the production chain: the store's settled
+    /// answer -> the display order -> the row's copies -> the fluid lowering
+    /// (the calls `lib.rs` draw_walk makes through `screen::Cache`) -> the
+    /// app VM. The answer reaches ONE native `Markdown` region verbatim
+    /// (makepad's parser renders headings / strong / tables / lists and
+    /// drops raw HTML: markdown.rs `Options::ENABLE_TABLES`, `InlineHtml`
+    /// keeps only sub/sup), and the lowered region evaluates.
+    #[test]
+    fn a_settled_gfm_answer_lowers_to_one_markdown_region_that_evaluates() {
+        use std::sync::{Arc, Mutex};
+        let store = Arc::new(octoscode_store::Store::new());
+        store.set_sessions(vec![octoscode_store::Session {
+            id: "s1".into(),
+            title: Some("t".into()),
+            message_count: 2,
+            updated_at: None,
+            last_prompt: None,
+            active_turn: false,
+        }]);
+        store.set_active(Some("s1".into()));
+        crate::components::seed_gfm_turn(&store, "s1", "t1");
+        let ui = Arc::new(Mutex::new(crate::flow::FlowUi::default()));
+        let rows = crate::screen::timeline_rows_folded(&store, false, &[]);
+        let prose = rows
+            .iter()
+            .find(|r| r.kind == crate::components::ItemKind::AssistantProse)
+            .expect("the settled answer row");
+        let copies = {
+            let ctx = crate::bindings::Ctx::new(&store, &ui);
+            crate::components::item_copies(prose.kind, &ctx, prose.index, prose.turn.as_deref()).expect("copies")
+        };
+        let dsl = crate::components::lower(prose.kind, "0", &copies).expect("lowers");
+        assert_eq!(dsl.matches("Markdown{").count(), 1, "one native Markdown region: {dsl}");
+        let body = format!("body: {:?}", crate::components::GFM_SAMPLE);
+        assert!(dsl.contains(&body), "the answer reaches the Markdown region verbatim: {dsl}");
+        assert!(dsl.contains("heading_base_scale"), "headings get the prose scale");
+        let mut cx = cx_with_vocabulary();
+        assert!(eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl).is_ok(), "the GFM answer region evaluates");
+    }
+
     #[test]
     fn the_prelude_wraps_the_component_in_a_slot_sized_view() {
         // Card #21c item 3: the wrapper is a stacking (`Down`) `Fit` view, so a

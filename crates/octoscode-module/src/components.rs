@@ -593,6 +593,32 @@ pub fn seed_zh_turn(store: &octoscode_store::Store, session: &str, turn: &str) {
     store.domains.turn.set_terminal(turn, "completed");
 }
 
+/// A1 — the GFM sample the web's `MarkdownBody` test renders (heading,
+/// strong, a table, an ordered list) plus raw HTML that must stay inert
+/// (`OCTOSCODE_SYNTHETIC_TOOLS=gfm`, a settled turn after the fixture's).
+pub const GFM_SAMPLE: &str = "# Workspace summary\n\n\
+    The root holds **two** entries:\n\n\
+    | Path | Kind |\n\
+    |---|---|\n\
+    | `.octos` | directory |\n\
+    | `.octos-workspace.toml` | file |\n\n\
+    1. `.octos/dsflash` keeps the session state.\n\
+    2. `.octos/active-profile` names the profile.\n\n\
+    <script>alert(\"raw HTML\")</script>\n\n\
+    Inline <b>tags</b> stay plain text.";
+
+/// A1 — a settled turn whose answer is [`GFM_SAMPLE`] (the markdown
+/// capture seed), with no tool calls.
+pub fn seed_gfm_turn(store: &octoscode_store::Store, session: &str, turn: &str) {
+    let tl = &store.domains.session.timeline;
+    tl.upsert_user_message(session, turn, "Summarize the workspace as a table.", serde_json::json!({}));
+    tl.append(session, Some(turn.to_owned()), octoscode_store::EntryKind::ASSISTANT_TEXT, GFM_SAMPLE.to_owned());
+    tl.finalize_assistant(session, turn, GFM_SAMPLE);
+    tl.close_turn(session, turn);
+    store.domains.turn.started(turn);
+    store.domains.turn.set_terminal(turn, "completed");
+}
+
 /// A1 pseudo-copies: live facts the fluid rows draw that no authored `copy`
 /// slot carries (the cache keys on them like on any copy).
 pub const TOOL_TITLE: &str = "@tool.title";

@@ -1030,8 +1030,10 @@ fn seed_synthetic_live(store: &Arc<Store>) {
         store.domains.turn.started("t1");
         store.domains.turn.set_terminal("t1", "completed");
     }
-    if tools.as_deref() == Some("zh") {
-        components::seed_zh_turn(store, &first, "t2");
+    match tools.as_deref() {
+        Some("zh") => components::seed_zh_turn(store, &first, "t2"),
+        Some("gfm") => components::seed_gfm_turn(store, &first, "t2"),
+        _ => {}
     }
 
     // GOALS / LOOPS / FLEET (board 4 frame 3). #31a item 2: an EMPTY session
