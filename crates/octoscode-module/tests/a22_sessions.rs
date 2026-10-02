@@ -56,6 +56,8 @@ enum Reply {
     /// Frames now, the result `delay_ms` later (a history read that settles
     /// after the person moved on).
     Late { before: Vec<Value>, delay_ms: u64, result: Value },
+    /// Frames now, the result once the test opens `gate`.
+    Held { before: Vec<Value>, gate: Arc<tokio::sync::Notify>, result: Value },
 }
 
 type Script = Arc<dyn Fn(&str, &Value) -> Reply + Send + Sync>;
@@ -126,6 +128,16 @@ impl Core {
                                 let (tx, frame) = (tx.clone(), ok(result).to_string());
                                 tokio::spawn(async move {
                                     tokio::time::sleep(Duration::from_millis(delay_ms)).await;
+                                    let _ = tx.send(frame);
+                                });
+                            }
+                            Reply::Held { before, gate, result } => {
+                                for f in before {
+                                    let _ = tx.send(f.to_string());
+                                }
+                                let (tx, frame) = (tx.clone(), ok(result).to_string());
+                                tokio::spawn(async move {
+                                    gate.notified().await;
                                     let _ = tx.send(frame);
                                 });
                             }
@@ -214,13 +226,22 @@ fn empty_history(session: &str) -> Value {
 /// (`while let Some(evt) = evt_rx.recv()` -> `on_event`), then the startup
 /// `open_workspace(cwd)`; returns once the Session's history settled.
 async fn launch(core: &Core) -> Arc<Conversation> {
+    launch_logged(core).await.0
+}
+
+/// [`launch`], keeping the flow's verdict for every event (`on_event`'s
+/// `FlowEvent`, as text) so a test can wait on one.
+async fn launch_logged(core: &Core) -> (Arc<Conversation>, Arc<Mutex<Vec<String>>>) {
     let (conv, mut events) = Conversation::connect(&core.base, "dummy", PROFILE, Some(CWD.to_owned()), None).expect("connect");
     let conv = Arc::new(conv);
     conv.attach();
     let drv = conv.clone();
+    let log: Arc<Mutex<Vec<String>>> = Arc::default();
+    let sink = log.clone();
     tokio::spawn(async move {
         while let Some(evt) = events.recv().await {
-            let _ = drv.on_event(evt);
+            let out = drv.on_event(evt);
+            sink.lock().unwrap().push(format!("{out:?}"));
         }
     });
     conv.open_workspace(Some(CWD.to_owned())).await.expect("session/open");
@@ -229,7 +250,7 @@ async fn launch(core: &Core) -> Arc<Conversation> {
         conv.store.is_live() && conv.history(&s) == octoscode_module::flow::History::Ready
     })
     .await;
-    conv
+    (conv, log)
 }
 
 /// A sidebar click / switch: `open_session` with the Session's folder (the
@@ -502,39 +523,92 @@ async fn row_203_a_candidates_live_events_wait_for_its_history_then_release_in_o
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn row_203_a_candidate_fails_closed_on_the_4097th_buffered_event() {
     use octoscode_module::flow::{History, CANDIDATE_LIMIT};
+    use std::sync::atomic::{AtomicUsize, Ordering};
     let _g = lock();
     let b = "a22:api:flood";
+    let reads = Arc::new(AtomicUsize::new(0));
+    let r2 = reads.clone();
+    let gate = Arc::new(tokio::sync::Notify::new());
+    let g2 = gate.clone();
     let core = Core::start(Arc::new(move |method, p| {
         let session = p["session_id"].as_str().unwrap_or("").to_owned();
         match method {
             "session/open" => Reply::Ok(opened(&session, p["cwd"].as_str().unwrap_or(CWD), None)),
-            "session/hydrate" if session == b && messages_read(p) => Reply::Around {
+            // The first history read of B is surrounded by a flood of its
+            // live events; a later one (the re-open) is answered plainly.
+            // (its reply waits until the app has taken the whole flood in:
+            // the transport hands a reply over with a non-blocking send and
+            // drops one that finds its 64-slot event channel full — not this
+            // test's subject)
+            "session/hydrate" if session == b && messages_read(p) && r2.fetch_add(1, Ordering::SeqCst) == 0 => Reply::Held {
                 before: (1..=CANDIDATE_LIMIT as u64 + 1)
                     .map(|i| env(b, T3, i, 14 + i, json!({"type": "assistant_delta", "data": {"text": "x", "assistant_segment_id": "s"}})))
                     .collect(),
+                gate: g2.clone(),
                 result: hydrated(b, 14, vec![row(1, "user", "First prompt", T1), row(2, "assistant", "Answer one", T1)], &[(T1, 2)]),
-                after: vec![],
             },
+            "session/hydrate" if session == b && messages_read(p) => Reply::Ok(hydrated(
+                b,
+                4114,
+                vec![row(1, "user", "First prompt", T1), row(2, "assistant", "Answer one", T1)],
+                &[(T1, 2)],
+            )),
             "session/hydrate" => Reply::Ok(empty_history(&session)),
             "session/list" => Reply::Ok(json!({"sessions": []})),
             _ => Reply::Ok(json!({})),
         }
     }))
     .await;
-    let conv = launch(&core).await;
+    let (conv, verdicts) = launch_logged(&core).await;
     conv.open_session(b, Some(CWD.to_owned())).await.expect("session/open");
     until("the candidate failed closed", || {
         matches!(conv.history(b), History::Failed(ref r) if r == "The candidate session emitted too many events while opening.")
     })
     .await;
     // The history read is answered after the flood: it never commits.
-    until("B's history read was answered", || core.params_of("session/hydrate").iter().any(|p| p["session_id"] == json!(b))).await;
+    gate.notify_one();
+    until("B's history reply was judged", || {
+        verdicts.lock().unwrap().iter().any(|v| v.contains("session/hydrate-candidate-failed"))
+    })
+    .await;
     quiet().await;
     assert!(matches!(conv.history(b), History::Failed(_)), "still failed: {:?}", conv.history(b));
+    // B's live events keep coming after the failure: the failed candidate
+    // stays closed — none is drawn under its failure.
+    // (they continue B's stream: the flood ended at cursor 4111)
+    for i in 1..=3u64 {
+        let f = env(b, T3, CANDIDATE_LIMIT as u64 + 1 + i, 4111 + i,
+            json!({"type": "assistant_delta", "data": {"text": "late ", "assistant_segment_id": "s"}}));
+        core.notify(f["method"].as_str().unwrap(), f["params"].clone());
+    }
+    quiet().await;
+    let reached = |conv: &Conversation| -> Vec<(String, String)> {
+        conv.store
+            .domains
+            .session
+            .timeline
+            .entries(b)
+            .into_iter()
+            .take(6)
+            .map(|e| (format!("{:?}", e.kind), e.text.chars().take(40).collect()))
+            .collect()
+    };
     assert!(
-        conv.store.domains.session.timeline.entries(b).is_empty(),
-        "none of the buffered events (nor the uncommitted history) reached the transcript"
+        reached(&conv).is_empty(),
+        "none of the buffered events, the uncommitted history or the later live events reached the transcript: {:?}",
+        reached(&conv)
     );
+    // Opened again (the failure notice's own advice: "Reopen it from the
+    // sidebar"): a new open, a new candidate, its history commits, and B's
+    // live events are B's again.
+    conv.open_session(b, Some(CWD.to_owned())).await.expect("session/open again");
+    until("B is ready after the re-open", || conv.history(b) == History::Ready).await;
+    // (the next event after the re-open's history: cursor 4115 follows its 4114)
+    let f = env(b, T2, 1, 4115, json!({"type": "assistant_delta", "data": {"text": "after the re-open", "assistant_segment_id": "s4"}}));
+    core.notify(f["method"].as_str().unwrap(), f["params"].clone());
+    until("B's live event is drawn again", || reached(&conv).iter().any(|(_, t)| t.contains("after the re-open"))).await;
+    let texts: Vec<String> = reached(&conv).into_iter().map(|(_, t)| t).collect();
+    assert!(texts.iter().any(|t| t == "First prompt") && !texts.iter().any(|t| t.starts_with('x') || t.starts_with("late")), "{texts:?}");
     quit(&conv);
 }
 
