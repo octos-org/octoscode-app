@@ -339,10 +339,15 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
                 // up when scrolled.
                 let take = h.lines.len().min(MAX_LINES.saturating_sub(drawn));
                 let row_w = line_row_w(h.lines[..take].iter().map(|l| l.content.as_str()), inner_w - 2.0);
+                // An overflowing hunk keeps room under its last line for the
+                // bar (it draws over the box's bottom edge).
+                let bottom = if row_w > inner_w - 2.0 + 0.5 { 16 } else { 6 };
                 d.open(
                     &format!("{hid}_scroll"),
                     "ScrollXView",
-                    "width: Fill height: Fit flow: Down padding: Inset{bottom: 6}\nscroll_bars.scroll_bar_x.bar_side_margin: 4\nscroll_bars.scroll_bar_x.draw_bg.color: #d1d1d6ff\nscroll_bars.scroll_bar_x.draw_bg.color_hover: #aeaeb2ff\nscroll_bars.scroll_bar_x.draw_bg.color_drag: #aeaeb2ff",
+                    &format!(
+                        "width: Fill height: Fit flow: Down padding: Inset{{bottom: {bottom}}}\nscroll_bars.scroll_bar_x.bar_side_margin: 4\nscroll_bars.scroll_bar_x.draw_bg.color: #d1d1d6ff\nscroll_bars.scroll_bar_x.draw_bg.color_hover: #aeaeb2ff\nscroll_bars.scroll_bar_x.draw_bg.color_drag: #aeaeb2ff"
+                    ),
                 );
                 for (li, l) in h.lines.iter().enumerate() {
                     if drawn >= MAX_LINES {
