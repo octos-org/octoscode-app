@@ -522,6 +522,8 @@ def run_session(walk_fn, *, mode: str, outdir: str, port: int | None = None, rep
         "OCTOSCODE_DOWNLOAD_DIR": str(iso / "downloads"),
         "OCTOSCODE_DRIVER_ID_PATH": str(iso / "driver-id"),
         "OCTOSCODE_PANE_ADVANCED_FILE": str(iso / "session-pane-advanced.json"),
+        # A19: the remembered profile/Session/workspace per server origin.
+        "OCTOSCODE_CONNECTION_FILE": str(iso / "connection-v1.json"),
         "OCTOSCODE_DISPLAY_PREFS_PATH": str(iso / "display-v1.json"),
     })
     if replay_port:

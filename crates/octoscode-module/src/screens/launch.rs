@@ -178,6 +178,12 @@ pub async fn create(conv: &crate::flow::Conversation, cwd: String) -> Launched {
     // : {})`): a fresh connection has none (`connection-bootstrap.ts:21`), so
     // Core's answer decides — `no_profile` on a server with no profile yet.
     let reply = conv.client().request("launch/resolve", resolve_params(&cwd, &conv.profile())).await;
+    // A19 — the decision on the protocol trace too (OCTOSCODE_TRACE_FILE; a
+    // generic reply is not traced inbound, and this one carries no secret).
+    match &reply {
+        Ok(v) => conv.client().trace().inbound("launch/resolve", v),
+        Err(e) => conv.client().trace().inbound("launch/resolve", &json!({"error": e.to_string()})),
+    }
     // A newer launch took the transition while this one resolved.
     if !is_current(lease) {
         return Launched::Stale;
@@ -419,6 +425,11 @@ pub async fn read_capabilities(conv: &crate::flow::Conversation) -> Result<usize
         .map_err(|e| format!("config/capabilities/list: {e}"))?
         .capabilities;
     let n = caps.supported_methods.len();
+    // On the protocol trace: the counts and the features (no secret).
+    conv.client().trace().inbound(
+        "config/capabilities/list",
+        &json!({"supported_methods": n, "supported_features": caps.supported_features}),
+    );
     conv.store.domains.config.set_supported_methods(caps.supported_methods);
     conv.store.domains.config.set_supported_features(caps.supported_features.clone());
     conv.store.set_capabilities(caps.supported_features);

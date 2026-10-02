@@ -122,6 +122,7 @@ def env():
         "OCTOSCODE_SHOW_THINKING_FILE": f"{st}/show-thinking.json", "OCTOSCODE_DOWNLOAD_DIR": f"{st}/downloads",
         "OCTOSCODE_RECENTS_DIR": f"{st}/recents", "OCTOSCODE_DISPLAY_PREFS_PATH": f"{st}/display-v1.json",
         "OCTOSCODE_PANE_ADVANCED_FILE": f"{st}/pane-advanced.json", "OCTOSCODE_DRIVER_ID_PATH": f"{st}/driver-id",
+        "OCTOSCODE_CONNECTION_FILE": f"{st}/connection-v1.json",
         "OCTOS_BASE_URL": SERVE, "OCTOS_BEARER": tok, "OCTOS_PROFILE_ID": os.environ.get("LIVE_PROFILE", "dsflash"),
         "OCTOS_WORKSPACE_CWD": os.path.join(LIVE, "ws"),
         "OCTOSCODE_DESIGN_DIR": os.path.join(ROOT, "design"), "MAKEPAD_WM_TEST_APP": "octoscode",
