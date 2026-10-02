@@ -56,6 +56,12 @@ struct Script {
     fail_sets: usize,
     /// `session/hydrate` answers an empty history.
     empty_history: bool,
+    /// `session/list` rows (the resume catalog).
+    list_rows: Vec<Value>,
+    /// Sessions whose `session/hydrate` comes back empty.
+    empty_for: Vec<String>,
+    /// Hold `session/hydrate` replies back this long (ms).
+    hydrate_delay_ms: u64,
     mode: String,
     network: String,
     approval: String,
@@ -115,7 +121,7 @@ fn reply(method: &str, p: &Value, script: &Mutex<Script>) -> Result<Value, Value
     }
     Ok(match method {
         "session/open" => json!({"opened": {
-            "session_id": session, "active_profile_id": PROFILE, "workspace_root": "/home/user/octos",
+            "session_id": session, "active_profile_id": PROFILE, "workspace_root": p["cwd"].as_str().unwrap_or("/home/user/octos"),
             "cursor": {"stream": session, "seq": 1},
             "capabilities": {
                 "version": {"protocol": "octos-ui/v1alpha1", "schema_version": 1, "jsonrpc": "2.0"},
@@ -125,7 +131,7 @@ fn reply(method: &str, p: &Value, script: &Mutex<Script>) -> Result<Value, Value
                 "supported_features": features
             }
         }}),
-        "session/list" => json!({"sessions": []}),
+        "session/list" => json!({"sessions": s.list_rows}),
         "session/status/read" => json!({
             "session_id": session, "profile_id": PROFILE,
             "model": {"model": s.model, "provider": "deepseek", "selected": true},
@@ -203,10 +209,10 @@ fn reply(method: &str, p: &Value, script: &Mutex<Script>) -> Result<Value, Value
         "turn/state/get" => json!({"session_id": session, "turn_id": p["turn_id"], "state": "unknown", "committed_seqs": []}),
         // The recorded r43a hydrate shape (messages with seq/role/content).
         "session/hydrate" => json!({"session_id": session, "cursor": {"stream": session, "seq": 3},
-            "messages": if s.empty_history { json!([]) } else { json!([
-                {"seq": 1, "role": "user", "content": "Fix the steer queue drop on reconnect"},
-                {"seq": 2, "role": "tool", "content": "cargo test: ok"},
-                {"seq": 3, "role": "assistant", "content": "The queue now re-drains after the socket is back."}
+            "messages": if s.empty_history || s.empty_for.contains(&session) { json!([]) } else { json!([
+                {"seq": 1, "role": "user", "content": "Fix the steer queue drop on reconnect", "persisted_at": "2026-10-01T09:00:00Z"},
+                {"seq": 2, "role": "tool", "content": "cargo test: ok", "persisted_at": "2026-10-01T09:00:01Z"},
+                {"seq": 3, "role": "assistant", "content": "The queue now re-drains after the socket is back.", "persisted_at": "2026-10-01T09:00:02Z"}
             ]) }}),
         _ => json!({}),
     })
@@ -227,6 +233,10 @@ async fn serve(stream: TcpStream, seen: Arc<Mutex<Vec<(String, Value)>>>, script
             Ok(r) => json!({"jsonrpc": "2.0", "id": v["id"].clone(), "result": r}),
             Err(e) => json!({"jsonrpc": "2.0", "id": v["id"].clone(), "error": e}),
         };
+        let delay = if method == "session/hydrate" { script.lock().unwrap().hydrate_delay_ms } else { 0 };
+        if delay > 0 {
+            tokio::time::sleep(Duration::from_millis(delay)).await;
+        }
         let _ = tx.send(Message::Text(frame.to_string().into())).await;
     }
 }
@@ -597,4 +607,99 @@ async fn the_header_copy_reads_canonical_history_and_reports_each_phase() {
     assert_eq!(copy_button::run(req, &conv).await, Phase::Empty);
     assert_eq!(copy_button::phase(&session).label(), "Nothing to copy");
     assert!(host::take_clipboard().is_none(), "nothing written");
+}
+
+fn catalog(rows: &[(&str, &str, u64)]) -> Vec<Value> {
+    rows.iter()
+        .map(|(id, title, n)| json!({"id": id, "title": title, "message_count": n, "updated_at": "2026-10-01T10:00:00Z"}))
+        .collect()
+}
+
+#[tokio::test]
+async fn resume_refuses_an_empty_history_and_puts_the_previous_session_back() {
+    let _g = lock();
+    let server = FakeServer::start(Script {
+        list_rows: catalog(&[("a8:api:hollow", "Listed with messages", 4)]),
+        empty_for: vec!["a8:api:hollow".into()],
+        ..Default::default()
+    })
+    .await;
+    let (conv, mut ev) = connected(&server).await;
+    let before = conv.session_id();
+    host::run(spawn_of(host::command("resume", "", &conv).unwrap()), &conv).await.unwrap();
+    host::perform("b3.resume.select", 0, &conv.store);
+    host::input_changed("resume.confirm", "Listed with messages");
+    let job = spawn_of(host::perform("b3.resume.confirm", 0, &conv.store));
+    assert!(host::run(job, &conv).await.is_err(), "an empty hydrate of advertised history fails");
+    drain(&conv, &mut ev).await;
+    assert_eq!(
+        host::state().resume.error.as_deref(),
+        Some("Historical identity was not resolved. The listed conversation was not resumed.")
+    );
+    assert_eq!(conv.session_id(), before, "the previous Session is put back");
+    assert_eq!(conv.store.active_session().as_deref(), Some(before.as_str()), "the placeholder is not left selected");
+    assert!(conv.store.sessions().iter().any(|s| s.id == "a8:api:hollow"), "the server's catalog row stays listed");
+    assert_eq!(server.params_of("session/hydrate").last().unwrap()["include"], json!(["messages"]));
+    assert!(server.params_of("turn/start").is_empty(), "resuming never starts a turn");
+}
+
+#[tokio::test]
+async fn resume_blocks_a_pooled_same_id_collision_and_unscoped_ids_before_open() {
+    let _g = lock();
+    let server = FakeServer::start(Script {
+        list_rows: catalog(&[("a8:api:shared", "Retained elsewhere", 2), ("a8:bare", "Legacy id", 2), ("a8:api:ok", "Good one", 2)]),
+        ..Default::default()
+    })
+    .await;
+    let (conv, mut ev) = connected(&server).await;
+    let main = conv.session_id();
+    // This app already holds `a8:api:shared` under ANOTHER workspace…
+    conv.open_session("a8:api:shared", Some("/home/user/other".into())).await.unwrap();
+    drain(&conv, &mut ev).await;
+    conv.open_session(&main, Some("/home/user/octos".into())).await.unwrap();
+    drain(&conv, &mut ev).await;
+    let opens = server.params_of("session/open").len();
+    host::run(spawn_of(host::command("resume", "", &conv).unwrap()), &conv).await.unwrap();
+    let st = host::state();
+    let reason = |id: &str| st.resume.candidates.iter().find(|c| c.id == id).and_then(|c| c.blocked.clone());
+    assert_eq!(
+        reason("a8:api:shared").as_deref(),
+        Some("This Session ID is already retained under another workspace or Profile. It cannot be rebound on the shared connection.")
+    );
+    assert!(reason("a8:bare").unwrap().starts_with("This catalog ID does not identify a full Session"), "no channel is guessed");
+    assert_eq!(reason("a8:api:ok"), None);
+    let shared = st.resume.candidates.iter().position(|c| c.id == "a8:api:shared").unwrap();
+    drop(st);
+    host::perform("b3.resume.select", shared, &conv.store);
+    assert_eq!(host::state().resume.selected, None, "a blocked row never arms");
+    assert_eq!(server.params_of("session/open").len(), opens, "nothing opened");
+}
+
+#[tokio::test]
+async fn resume_rejects_a_double_submit_and_a_selection_switch_while_the_hydrate_is_pending() {
+    let _g = lock();
+    let server = FakeServer::start(Script {
+        list_rows: catalog(&[("a8:api:first", "First", 2), ("a8:api:second", "Second", 2)]),
+        hydrate_delay_ms: 400,
+        ..Default::default()
+    })
+    .await;
+    let (conv, _ev) = connected(&server).await;
+    host::run(spawn_of(host::command("resume", "", &conv).unwrap()), &conv).await.unwrap();
+    host::perform("b3.resume.select", 0, &conv.store);
+    let first = host::state().resume.candidates[0].clone();
+    host::input_changed("resume.confirm", &first.title);
+    let job = spawn_of(host::perform("b3.resume.confirm", 0, &conv.store));
+    let conv = Arc::new(conv);
+    let c2 = conv.clone();
+    let running = tokio::spawn(async move { host::run(job, &c2).await });
+    tokio::time::sleep(Duration::from_millis(100)).await; // the hydrate is held back
+    assert_eq!(host::perform("b3.resume.confirm", 0, &conv.store), Outcome::Done, "a second submit is refused");
+    assert_eq!(host::state().resume.error.as_deref(), Some("A history opening is already pending."));
+    host::perform("b3.resume.select", 1, &conv.store);
+    assert_eq!(host::state().resume.selected, Some(0), "the selection does not switch while pending");
+    running.await.unwrap().expect("the one opening completes");
+    let opened: Vec<Value> = server.params_of("session/open").into_iter().filter(|p| p["session_id"] == json!(first.id)).collect();
+    assert_eq!(opened.len(), 1, "exactly one opening");
+    assert_eq!(conv.session_id(), first.id);
 }

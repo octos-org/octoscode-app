@@ -78,21 +78,62 @@ impl ResumeState {
     }
 }
 
-/// `resume-binding.ts:53-100`, natively: the id must be scoped to the
-/// captured Profile (`<profile>:<chat>`); a bare or foreign id is refused
-/// rather than guessed.
-pub fn blocked_reason(id: &str, profile: &str, known_closed: bool) -> Option<String> {
-    if known_closed {
-        return Some("This retained Session is closed.".into());
+/// A8 — what the block reasons read (`resume-binding.ts:140-171`): the
+/// captured scope, the Sessions this app already holds (each with the
+/// workspace it was opened in), the one still opening, the closed ones and
+/// the advertised methods.
+#[derive(Debug, Clone, Default)]
+pub struct ResumeCtx {
+    pub profile: String,
+    pub workspace: String,
+    /// (session id, the workspace it was opened in) for every retained Session.
+    pub retained: Vec<(String, Option<String>)>,
+    pub opening: Option<String>,
+    pub closed: Vec<String>,
+    /// `session/open` AND `session/hydrate` advertised.
+    pub advertised: bool,
+}
+
+pub const COLLISION: &str = "This Session ID is already retained under another workspace or Profile. It cannot be rebound on the shared connection.";
+pub const CLOSED: &str = "This retained Session is closed.";
+pub const STILL_OPENING: &str = "This Session is still opening. Wait for its existing preparation to finish before resuming it.";
+pub const NOT_FULL: &str = "This catalog ID does not identify a full Session in the captured Profile. An authoritative full ID is required; no Profile or channel will be guessed.";
+pub const UNADVERTISED: &str = "The server does not advertise scoped Session opening and hydration.";
+pub const PENDING: &str = "A history opening is already pending.";
+pub const NOT_RESOLVED: &str = "Historical identity was not resolved. The listed conversation was not resumed.";
+
+/// `blockedReason` (`resume-binding.ts:152-171`), in the web's order: a
+/// pooled same-ID collision under another workspace (`conflict`, `:140-151`),
+/// a closed retained Session, a retained one (resumable), one still
+/// opening, an id that is not a full Session of the captured Profile (the
+/// identity grammar, `screens::session_identity`), the unadvertised methods.
+pub fn blocked_reason(id: &str, ctx: &ResumeCtx) -> Option<String> {
+    let retained = ctx.retained.iter().find(|(rid, _)| rid == id);
+    if let Some((_, Some(root))) = retained {
+        if !ctx.workspace.is_empty() && *root != ctx.workspace {
+            return Some(COLLISION.into());
+        }
     }
-    if profile.is_empty() || !id.starts_with(&format!("{profile}:")) || id.len() <= profile.len() + 1 {
-        return Some("This catalog ID does not identify a full Session in the captured Profile. An authoritative full ID is required; no Profile or channel will be guessed.".into());
+    if ctx.closed.iter().any(|c| c == id) {
+        return Some(CLOSED.into());
+    }
+    if ctx.opening.as_deref() == Some(id) {
+        return Some(STILL_OPENING.into());
+    }
+    if retained.is_some_and(|(_, root)| root.is_some()) {
+        return None;
+    }
+    if ctx.profile.is_empty() || !crate::screens::session_identity::is_full_session_for_profile(id, &ctx.profile) {
+        return Some(NOT_FULL.into());
+    }
+    if !ctx.advertised {
+        return Some(UNADVERTISED.into());
     }
     None
 }
 
 /// Sort newest first by `updated_at` (string order, as the web).
-pub fn from_rows(rows: Vec<octoscode_client::domains::session::SessionListRow>, profile: &str, current: &str) -> Vec<Candidate> {
+pub fn from_rows(rows: Vec<octoscode_client::domains::session::SessionListRow>, ctx: &ResumeCtx, current: &str) -> Vec<Candidate> {
     let mut rows = rows;
     rows.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
     rows.into_iter()
@@ -104,7 +145,7 @@ pub fn from_rows(rows: Vec<octoscode_client::domains::session::SessionListRow>, 
                 .filter(|t| !t.trim().is_empty())
                 .unwrap_or_else(|| r.id.clone());
             Candidate {
-                blocked: blocked_reason(&r.id, profile, false),
+                blocked: blocked_reason(&r.id, ctx),
                 updated_ms: r.updated_at.as_deref().and_then(ui::parse_iso_ms),
                 id: r.id,
                 title,
@@ -141,6 +182,25 @@ pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
         profile_id: Some(profile.clone()),
     };
     let result = conv.client().call::<SessionList>(params).await;
+    let ctx = ResumeCtx {
+        profile: profile.clone(),
+        workspace: workspace.clone(),
+        retained: conv
+            .store
+            .sessions()
+            .into_iter()
+            .map(|s| {
+                let root = conv.store.domains.session.workspace_root(&s.id);
+                (s.id, root)
+            })
+            .collect(),
+        opening: None,
+        closed: Vec::new(),
+        advertised: {
+            let m = conv.store.domains.config.supported_methods();
+            m.iter().any(|x| x == "session/open") && m.iter().any(|x| x == "session/hydrate")
+        },
+    };
     let mut st = super::host::state();
     if st.resume.ticket != ticket {
         return Ok("A newer history listing replaced this request.".into());
@@ -152,7 +212,13 @@ pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
                 st.resume.error = Some("History catalog is too large to inspect safely.".into());
                 return Err("too large".into());
             }
-            st.resume.candidates = from_rows(r.sessions, &profile, &session);
+            if r.sessions.iter().enumerate().any(|(i, a)| r.sessions[..i].iter().any(|b| b.id == a.id)) {
+                // `resume-binding.ts:207-212`: duplicate ids are ambiguous.
+                st.resume.candidates.clear();
+                st.resume.error = Some("The history catalog contains duplicate ambiguous IDs.".into());
+                return Err("duplicate ids".into());
+            }
+            st.resume.candidates = from_rows(r.sessions, &ctx, &session);
             st.resume.selected = None;
             st.resume.confirm.clear();
             st.resume.confirm_snap.clear();
@@ -165,29 +231,74 @@ pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
     }
 }
 
-/// Open the confirmed candidate — `session/open` + the canonical hydrate the
-/// flow runs on every open; NO turn is started.
+/// Open the confirmed candidate — `session/open`, then VERIFY its canonical
+/// history (`resume-binding.ts:264-306`: `session/hydrate` with messages; the
+/// reply must name this Session, and a candidate the catalog listed with
+/// messages must not come back empty). NO turn is started. A failed
+/// verification puts the previous Session back and drops the placeholder
+/// row — only when the placeholder is idle and was not already known (the
+/// web evicts only its idle placeholder, never a pre-existing record).
 pub async fn open(conv: &crate::flow::Conversation, id: String) -> Result<String, String> {
-    let cwd = {
+    use octoscode_client::domains::session::SessionHydrate;
+    let (cwd, listed) = {
         let st = super::host::state();
-        (!st.resume.workspace.is_empty()).then(|| st.resume.workspace.clone())
+        let listed = st.resume.candidates.iter().find(|c| c.id == id).map(|c| c.message_count).unwrap_or(0);
+        ((!st.resume.workspace.is_empty()).then(|| st.resume.workspace.clone()), listed)
     };
-    let r = conv.open_session(&id, cwd).await;
+    let previous = conv.session_id();
+    let previous_cwd = conv.store.domains.session.workspace_root(&previous);
+    // A record this app already holds (an open reply named its workspace)
+    // is never evicted; a catalog row stays in the list either way.
+    let retained_before = conv.store.domains.session.workspace_root(&id).is_some();
+    let row_before = conv.store.sessions().iter().any(|s| s.id == id);
+    let opened = conv.open_session(&id, cwd).await;
+    let verified = match &opened {
+        Ok(_) => {
+            let history = conv
+                .client()
+                .call::<SessionHydrate>(octos_core::ui_protocol::SessionHydrateParams {
+                    session_id: octos_core::SessionKey(id.clone()),
+                    after: None,
+                    include: vec!["messages".to_owned()],
+                })
+                .await;
+            match history {
+                Ok(h) => h.session_id.0 == id && h.messages.as_ref().is_some_and(|m| listed == 0 || !m.is_empty()),
+                Err(_) => false,
+            }
+        }
+        Err(_) => false,
+    };
+    if !verified {
+        // The placeholder: idle (no turn of its own) and new to this app.
+        let idle = conv.store.domains.session.timeline.len(&id) == 0 && conv.ui_ref().lock().unwrap().active_turn().is_none();
+        if opened.is_ok() && idle && !retained_before && previous != id {
+            let _ = conv.open_session(&previous, previous_cwd).await;
+            if !row_before {
+                conv.store.domains.session.forget(&id);
+            }
+        }
+        let mut st = super::host::state();
+        st.resume.opening = false;
+        st.resume.error = Some(NOT_RESOLVED.into());
+        return Err(format!("resume {id}: history not verified"));
+    }
     let mut st = super::host::state();
     st.resume.opening = false;
-    match r {
-        Ok(opened) => {
-            st.open = None; // the web closes the picker on success
-            Ok(format!("resumed {opened} (no turn started)"))
-        }
-        Err(e) => {
-            st.resume.error = Some("Historical identity was not resolved. The listed conversation was not resumed.".into());
-            Err(e)
-        }
-    }
+    st.open = None; // the web closes the picker on success
+    Ok(format!("resumed {id} (history verified, no turn started)"))
 }
 
 pub fn perform(st: &mut ResumeState, action: &str, index: usize) -> Outcome {
+    // A8 — while an opening is pending (its hydrate may be delayed), a second
+    // submit and a selection switch are refused (`ResumeDialog.tsx:93`, the
+    // binding's `opening` gate `resume-binding.ts:233-236`).
+    if st.opening {
+        if action == "b3.resume.confirm" {
+            st.error = Some(PENDING.into());
+        }
+        return Outcome::Done;
+    }
     match action {
         "b3.resume.select" => {
             let Some(c) = st.candidates.get(index) else { return Outcome::Done };
@@ -225,9 +336,12 @@ pub fn input_changed(st: &mut ResumeState, key: &str, text: &str) {
     match key {
         "resume.search" => {
             st.query = text.to_owned();
-            // `ResumeDialog`: a query change clears the selection + confirm.
-            st.selected = None;
-            st.confirm.clear();
+            // `ResumeDialog`: a query change clears the selection + confirm —
+            // but never while the selected candidate is opening (A8).
+            if !st.opening {
+                st.selected = None;
+                st.confirm.clear();
+            }
         }
         "resume.confirm" => st.confirm = text.to_owned(),
         _ => {}
@@ -397,19 +511,20 @@ mod tests {
 
     fn state() -> ResumeState {
         let rows = vec![
-            row("dsflash:a", "Add session fork", "2026-09-30T10:00:00Z"),
-            row("dsflash:b", "Fix steer queue drop on reconnect", "2026-10-01T10:00:00Z"),
-            row("other:c", "Foreign row", "2026-10-01T11:00:00Z"),
+            row("dsflash:api:a", "Add session fork", "2026-09-30T10:00:00Z"),
+            row("dsflash:api:b", "Fix steer queue drop on reconnect", "2026-10-01T10:00:00Z"),
+            row("other:api:c", "Foreign row", "2026-10-01T11:00:00Z"),
             row("dsflash:main", "Current", "2026-10-01T12:00:00Z"),
         ];
-        ResumeState { candidates: from_rows(rows, "dsflash", "dsflash:main"), profile: "dsflash".into(), ..Default::default() }
+        let ctx = ResumeCtx { profile: "dsflash".into(), advertised: true, ..Default::default() };
+        ResumeState { candidates: from_rows(rows, &ctx, "dsflash:main"), profile: "dsflash".into(), ..Default::default() }
     }
 
     #[test]
     fn candidates_are_newest_first_unverified_and_exclude_the_current_session() {
         let st = state();
         let ids: Vec<&str> = st.candidates.iter().map(|c| c.id.as_str()).collect();
-        assert_eq!(ids, ["other:c", "dsflash:b", "dsflash:a"]);
+        assert_eq!(ids, ["other:api:c", "dsflash:api:b", "dsflash:api:a"]);
         assert!(st.candidates[0].blocked.is_some(), "a foreign-profile id is never guessed");
         assert!(st.candidates[1].blocked.is_none());
     }
@@ -430,7 +545,7 @@ mod tests {
         assert!(st.armed());
         assert_eq!(
             perform(&mut st, "b3.resume.confirm", 0),
-            Outcome::Spawn(super::super::host::Job::ResumeOpen("dsflash:b".into()))
+            Outcome::Spawn(super::super::host::Job::ResumeOpen("dsflash:api:b".into()))
         );
     }
 
@@ -458,5 +573,51 @@ mod tests {
         assert!(taps.iter().any(|(_, e)| e == "b3.resume.select#1"));
         assert!(!taps.iter().any(|(_, e)| e == "b3.resume.select#0"), "blocked row has no tap");
         assert_eq!(crate::screens::taps::split_row("b3.resume.select#1"), ("b3.resume.select", Some(1)));
+    }
+}
+
+#[cfg(test)]
+mod a8_tests {
+    use super::*;
+
+    #[test]
+    fn the_block_reasons_follow_the_web_order() {
+        let ctx = ResumeCtx {
+            profile: "p".into(),
+            workspace: "/home/user/a".into(),
+            retained: vec![("p:api:other-ws".into(), Some("/home/user/b".into())), ("p:legacy".into(), Some("/home/user/a".into()))],
+            opening: Some("p:api:busy".into()),
+            closed: vec!["p:api:gone".into()],
+            advertised: true,
+        };
+        assert_eq!(blocked_reason("p:api:other-ws", &ctx).as_deref(), Some(COLLISION), "a pooled same-ID collision is blocked before open");
+        assert_eq!(blocked_reason("p:api:gone", &ctx).as_deref(), Some(CLOSED));
+        assert_eq!(blocked_reason("p:api:busy", &ctx).as_deref(), Some(STILL_OPENING));
+        assert_eq!(blocked_reason("p:legacy", &ctx), None, "a Session this app already holds here is resumable");
+        assert_eq!(blocked_reason("p:bare", &ctx).as_deref(), Some(NOT_FULL), "no Profile or channel is guessed");
+        assert_eq!(blocked_reason("p:api:fresh", &ctx), None);
+        let off = ResumeCtx { advertised: false, ..ctx };
+        assert_eq!(blocked_reason("p:api:fresh", &off).as_deref(), Some(UNADVERTISED));
+    }
+
+    #[test]
+    fn a_pending_opening_refuses_a_second_submit_and_a_selection_switch() {
+        let rows: Vec<octoscode_client::domains::session::SessionListRow> = serde_json::from_value(serde_json::json!([
+            {"id": "p:api:a", "title": "A", "message_count": 1, "updated_at": "2026-10-01T10:00:00Z"},
+            {"id": "p:api:b", "title": "B", "message_count": 1, "updated_at": "2026-10-01T09:00:00Z"}
+        ]))
+        .unwrap();
+        let ctx = ResumeCtx { profile: "p".into(), advertised: true, ..Default::default() };
+        let mut st = ResumeState { candidates: from_rows(rows, &ctx, "p:main"), ..Default::default() };
+        perform(&mut st, "b3.resume.select", 0);
+        input_changed(&mut st, "resume.confirm", "A");
+        assert!(matches!(perform(&mut st, "b3.resume.confirm", 0), Outcome::Spawn(_)));
+        assert!(st.opening);
+        assert_eq!(perform(&mut st, "b3.resume.confirm", 0), Outcome::Done, "double submit refused");
+        assert_eq!(st.error.as_deref(), Some(PENDING));
+        perform(&mut st, "b3.resume.select", 1);
+        assert_eq!(st.selected, Some(0), "the selection cannot switch while the hydrate is pending");
+        input_changed(&mut st, "resume.search", "b");
+        assert_eq!(st.selected, Some(0), "a query change does not drop it either");
     }
 }

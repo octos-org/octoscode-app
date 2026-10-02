@@ -1312,7 +1312,10 @@ impl Conversation {
     /// (`session-identity.ts:23`). We mint `<profile>:<uuid>` (the uuid from
     /// `TurnId`, a UUID newtype octos-core already exposes — no new dep).
     pub fn fresh_session_id_for(profile: &str) -> String {
-        format!("{profile}:{}", TurnId::new().0)
+        // A8 — a FULL Session id (`<profile>:api:<chat>`, the web's
+        // `bindWebSessionIdToProfile` shape), so the identity grammar
+        // (`screens::session_identity`) recognises what this app created.
+        crate::screens::session_identity::fresh_full_id(profile, &TurnId::new().0.to_string())
     }
 
     /// Open a specific session id — the resume path (an id the server listed),

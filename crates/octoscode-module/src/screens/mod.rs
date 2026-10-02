@@ -44,6 +44,8 @@ pub mod sidebar;
 pub mod settings;
 // A8: the new-session defaults (persisted per endpoint, applied at creation only).
 pub mod session_defaults;
+// A8: the full-Session identity grammar (Core split_base_key + channels).
+pub mod session_identity;
 // #35b item 1: the ONE card-tap wiring every docked screen shares (connect.rs
 // delegates here; the palette/theme mount paths call it directly).
 pub mod taps;

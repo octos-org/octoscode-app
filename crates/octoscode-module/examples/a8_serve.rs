@@ -324,8 +324,8 @@ async fn ws(stream: TcpStream, cfg: Cfg, world: Arc<Mutex<World>>) {
                 "session/hydrate" => Ok(json!({
                     "session_id": session, "cursor": {"stream": session, "seq": 2},
                     "messages": if session == "a8:main" { json!([
-                        {"seq": 1, "role": "user", "content": "Fix the steer queue drop on reconnect"},
-                        {"seq": 2, "role": "assistant", "content": "The queue now re-drains after the socket is back."}
+                        {"seq": 1, "role": "user", "content": "Fix the steer queue drop on reconnect", "persisted_at": "2026-10-01T09:00:00Z"},
+                        {"seq": 2, "role": "assistant", "content": "The queue now re-drains after the socket is back.", "persisted_at": "2026-10-01T09:00:01Z"}
                     ]) } else { json!([]) }
                 })),
                 "thread/graph/get" => Ok(json!({"session_id": session, "cursor": {"stream": session, "seq": 1}, "threads": [], "orphans": []})),
