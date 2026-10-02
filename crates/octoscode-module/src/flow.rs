@@ -1126,6 +1126,23 @@ impl Conversation {
         // ported 47-command registry, act on the match. A PATH-shaped input
         // ("/home/user/x/y", "/c/d") is a PROMPT and reaches the model verbatim —
         // the old arm refused every leading-slash input, paths included.
+        // A5 — the web's `isLocalShellBang` (`intent.ts:175`): a `!command`
+        // runs on the TUI host only, so it is REPORTED and never sent to the
+        // model; the text stays editable (`local-report.ts:97`).
+        if crate::screens::palette::is_local_shell_bang(&text) {
+            let session = self.session_id();
+            self.store.domains.session.timeline.append(
+                &session,
+                Some(crate::screens::palette::next_receipt_turn()),
+                crate::screens::palette::REPORT_KIND,
+                "Local shell unavailable — Octoscode's ! command runs on the TUI host. \
+                 This app cannot execute a local process, so nothing was sent."
+                    .to_owned(),
+            );
+            makepad_widgets::SignalToUI::set_ui_signal();
+            ::log::info!("octoscode: local shell bang: receipt appended, draft kept");
+            return Ok(String::new());
+        }
         match crate::screens::palette::match_command(&text) {
             None => {}
             // A5 — a known, runnable command is LOCAL: it runs its native

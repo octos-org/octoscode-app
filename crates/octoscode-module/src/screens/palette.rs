@@ -274,6 +274,20 @@ pub fn match_command(input: &str) -> Option<CommandMatch> {
     }
 }
 
+/// A5 — the web's `isLocalShellBang` (`intent.ts:175`): after NFKC-style
+/// folding of the full-width `！` and dropping leading whitespace and
+/// format characters (`\p{Cf}`: zero-width spaces/joiners, BOM, word
+/// joiner, bidi marks), the input starts with `!`.
+pub fn is_local_shell_bang(input: &str) -> bool {
+    let is_format = |c: char| {
+        matches!(c, '\u{00AD}' | '\u{061C}' | '\u{180E}' | '\u{200B}'..='\u{200F}'
+            | '\u{202A}'..='\u{202E}' | '\u{2060}'..='\u{2064}' | '\u{2066}'..='\u{206F}' | '\u{FEFF}')
+    };
+    input
+        .trim_start_matches(|c: char| c.is_whitespace() || is_format(c))
+        .starts_with(['!', '\u{FF01}'])
+}
+
 /// The [`COMMANDS`] row that runs web command `name` (by name or alias).
 pub fn command_index(name: &str) -> Option<usize> {
     let name = name.trim_start_matches('/');

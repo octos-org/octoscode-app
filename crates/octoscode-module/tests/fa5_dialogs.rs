@@ -504,6 +504,29 @@ fn a_late_context_notification_never_regresses_the_occupancy() {
     assert_eq!(state["token_estimate"].as_u64(), Some(estimate));
 }
 
+/// A `!command` is the web's `local-shell-unavailable` intent
+/// (`intent.ts:59/175`): submitted from the composer it is REPORTED — no
+/// `turn/start` reaches the wire — and the text stays editable.
+#[tokio::test]
+async fn a_local_shell_bang_is_reported_and_never_sent() {
+    assert!(palette::is_local_shell_bang("!ls -la"));
+    assert!(palette::is_local_shell_bang(" \u{200B}！git status"), "format chars + full-width");
+    assert!(!palette::is_local_shell_bang("why does ! mean not?"));
+    let server = Server::start(vec![("session/open".into(), recorded_open())]).await;
+    let conv = connect(&server).await;
+    conv.set_draft("!ls -la");
+    let id = conv.submit_draft().await.expect("a report, not an error");
+    assert!(id.is_empty(), "no turn started");
+    assert!(server.sent("turn/start").is_none(), "nothing reached the model");
+    assert_eq!(conv.ui().lock().unwrap().draft(), "!ls -la", "the text stays editable");
+    let session = conv.store.active_session().unwrap_or_default();
+    let entries = conv.store.domains.session.timeline.entries(&session);
+    assert!(
+        entries.iter().any(|e| e.kind == palette::REPORT_KIND && e.text.starts_with("Local shell unavailable")),
+        "the receipt row"
+    );
+}
+
 /// `/stop` (aliases `/interrupt`, `/esc`) is the web's interrupt intent
 /// (`registry.ts:272`): a palette row gated on `turn/interrupt` whose effect
 /// is the composer Stop button's own action, and typed it runs locally.

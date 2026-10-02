@@ -974,6 +974,14 @@ fn live_skills(tree: &mut UiNode, ctx: &Ctx<'_>) {
     let installed = ctx.store.domains.profile.installed_skills();
     let registry = ctx.store.domains.profile.registry_packages();
     const PITCH: f64 = 64.0;
+    // Skills are the server Profile's (the web's "Server Profile: <id>" scope
+    // line, `SkillsDialog.tsx:154`): the title names the Profile.
+    if let Some(profile) = ctx.store.domains.profile.current() {
+        if let Some(n) = find_mut(tree, "t_title") {
+            n.attrs.text = Some(format!("Skills · {profile}"));
+            n.attrs.w = Some(280.0);
+        }
+    }
     let n = installed.len().min(3);
     // Rows n..3 go (name, version, remove, and the divider above each).
     let row_ids = |i: usize| -> Vec<String> {
@@ -1024,11 +1032,39 @@ fn live_skills(tree: &mut UiNode, ctx: &Ctx<'_>) {
             set_h(tree, "card_registry", h - 70.0);
         }
     }
-    // Versions right after the name column; "—" when not reported.
+    // The web's installed row (`SkillsDialog.tsx:179-185`): the name, then
+    // "<version> · N tools" and the source repo. The version slot becomes that
+    // secondary line under the name (the pair centred on the row, the Remove
+    // link beside it), so every field shows and nothing is fabricated.
     for i in 0..n {
-        let id = format!("t_ver{}", 6 + i);
-        if installed[i].version.is_none() {
-            set_text(tree, &id, "—");
+        let s = &installed[i];
+        let (name_id, ver_id) = (format!("t_name{}", 3 + i), format!("t_ver{}", 6 + i));
+        let (Some((nx, ny, _, nh)), Some((rx, _, _, _))) =
+            (rect_of(tree, &name_id), rect_of(tree, &format!("t_remove{i}")))
+        else {
+            continue;
+        };
+        let tools = if s.tool_count == 1 { "1 tool".to_owned() } else { format!("{} tools", s.tool_count) };
+        let mut line = format!("{} · {tools}", s.version.as_deref().unwrap_or("Version not reported"));
+        if let Some(repo) = s.source_repo.as_deref().filter(|r| !r.is_empty()) {
+            line = format!("{line} · {repo}");
+        }
+        let (w, size) = (rx - 10.0 - nx, 12.5_f32);
+        if let Some(n) = find_mut(tree, &name_id) {
+            n.attrs.y = Some(ny - 9.0);
+        }
+        if let Some(n) = find_mut(tree, &ver_id) {
+            let a = &mut n.attrs;
+            a.text = Some(ellipsize(&line, w, size as f64));
+            a.x = Some(nx);
+            a.y = Some(ny - 9.0 + nh + 1.0);
+            a.w = Some(w as f32);
+            a.h = Some(17.0);
+            a.size = Some(size);
+            a.weight = Some(400);
+            a.color = Some(0xff6e_6e73);
+            a.alignx = Some(0.0);
+            a.variant = None;
         }
     }
 }
@@ -2124,6 +2160,10 @@ pub fn seed_fixture(store: &octoscode_store::Store) {
         store.domains.session.set_active(Some("dsflash:main".into()));
         "dsflash:main".to_owned()
     });
+    // The recorded server Profile (the r1/r2 recordings' `dsflash`).
+    if store.domains.profile.current().is_none() {
+        store.domains.profile.set_current("dsflash".into());
+    }
     let model = |provider: &str, route: &str, model: &str, selected: bool| ProfileLlmModel {
         model: model.into(),
         provider: provider.into(),
@@ -2143,16 +2183,16 @@ pub fn seed_fixture(store: &octoscode_store::Store) {
         model("zai", "Coding Plan", "glm-4.5", false),
         model("zai", "Coding Plan", "glm-4.5-air", false),
     ]);
-    let skill = |name: &str, version: &str| InstalledSkill {
+    let skill = |name: &str, version: &str, tools: u64| InstalledSkill {
         name: name.into(),
         version: Some(version.into()),
-        tool_count: 2,
-        source_repo: None,
+        tool_count: tools,
+        source_repo: Some(format!("octos/{name}")),
     };
     store.domains.profile.set_installed_skills(vec![
-        skill("rust-review", "1.2.0"),
-        skill("git-helper", "0.9.1"),
-        skill("docs-writer", "2.0.0"),
+        skill("rust-review", "1.2.0", 3),
+        skill("git-helper", "0.9.1", 2),
+        skill("docs-writer", "2.0.0", 1),
     ]);
     let pkg = |name: &str, version: &str| SkillPackage {
         name: name.into(),
@@ -2396,6 +2436,31 @@ mod tests {
         // Open / close drop a pending confirmation.
         apply(&Effect::Close);
         assert!(pending_confirm().is_none());
+    }
+
+    /// An installed skill row shows every field the web shows
+    /// (`SkillsDialog.tsx:179-185`): name, then "<version> · N tools" and the
+    /// source repo on the line under it, ending before the Remove link.
+    #[test]
+    fn an_installed_skill_shows_version_tools_and_repo() {
+        let _s = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        let (tree, _) = live_tree(Dialog::Skills, &ctx).expect("skills");
+        for (i, s) in store.domains.profile.installed_skills().iter().take(3).enumerate() {
+            let line = find(&tree, &format!("t_ver{}", 6 + i)).and_then(|n| n.attrs.text.clone()).unwrap_or_default();
+            let want = format!(
+                "{} · {} tool{} · {}",
+                s.version.as_deref().unwrap(),
+                s.tool_count,
+                if s.tool_count == 1 { "" } else { "s" },
+                s.source_repo.as_deref().unwrap()
+            );
+            assert_eq!(line, want);
+            let (x, _, w, _) = rect_of(&tree, &format!("t_ver{}", 6 + i)).unwrap();
+            let (rx, _, _, _) = rect_of(&tree, &format!("t_remove{i}")).unwrap();
+            assert!(x + w <= rx - 9.9, "the line ends before Remove");
+        }
     }
 
     /// With nothing folded, no dialog shows the atlas SAMPLE copy: each
