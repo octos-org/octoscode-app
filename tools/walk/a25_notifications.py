@@ -38,6 +38,30 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import a10_lib  # noqa: E402
 from a10_lib import inside, overlap  # noqa: E402
 
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported).
+WALK = {
+    "name": "a25_notifications",
+    "title": "desktop notifications: the Settings row's states, a notice when a turn finishes while the window "
+             "is not focused, the click opens its Session, focus acknowledges",
+    "modes": ["desktop", "phone"],
+    "app": "self",
+    "runs": [{"argv": ["{mode}", "{out}"], "env": {"A10_PORT": "{port}", "A10_REPLAY_PORT": "{fport}"}}],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 1500,
+    "rows": {
+        4: {"checks": ["granted: off until the Settings action", "granted: the toggle asks the OS once and turns on",
+                       "granted: off again without asking the OS", "click: a focused window never notifies"],
+            "partial": "the browser tab title is not a native surface (row 319)"},
+        5: {"checks": ["click: the finished turn posted ONE notice", "click: later syncs cannot notify twice",
+                       "click: window focus acknowledges", "click: returning (focus) withdraws the notice"],
+            "partial": "the title count is not a native surface; a hidden window never gains focus, so focus is "
+                       "the test-only hook octoscode.attention.focus (the WindowGotFocus handler)"},
+        6: {"checks": ["denied: the toggle stays off and the message is an alert"],
+            "partial": "Disconnect clearing attention is unit-tested "
+                       "(attention::tests::disconnect_and_identity_change_reset_and_withdraw), not walked"},
+    },
+}
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 OUT = pathlib.Path(sys.argv[2]) if len(sys.argv) > 2 else ROOT / "docs" / "ux" / "a25"
 WHICH = sys.argv[1] if len(sys.argv) > 1 else "both"
@@ -389,6 +413,12 @@ def phase_click(w: a10_lib.Walk) -> None:
     m = log.mark()
     send("One more")
     w.check("click: unfocused again, the next finished turn notifies", log.wait(m, "attention(fake os): posted", 30))
+
+    # attention.spec.ts:155 — returning to the window (focus) withdraws it.
+    m = log.mark()
+    hook(w, "octoscode.attention.focus:1")
+    w.check("click: returning (focus) withdraws the notice",
+            log.wait(m, f"closed {NOTICE_A}", 4) and log.wait(m, "window focused — acknowledged", 2))
 
 
 def header_title(w: a10_lib.Walk) -> str:

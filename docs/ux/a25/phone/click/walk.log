@@ -3,13 +3,13 @@
     log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
     log: [I] apps/octoscode/module/src/attention.rs:936:9 - [octoscode] attention: start (platform api true, focused false)
     log: [I] apps/octoscode/module/src/attention.rs:856:9 - [octoscode] attention(fake os): authorization not-determined requested=false
-    log: [I] apps/octoscode/module/src/lib.rs:1585:13 - [octoscode] startup: Explicit("dsflash:main")
-    log: [I] apps/octoscode/module/src/flow.rs:1022:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
     log: [I] apps/octoscode/module/src/lib.rs:3289:17 - [octoscode] composer remounted
-    log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
-    log: [I] apps/octoscode/module/src/lib.rs:3387:38 - [octoscode] chrome: 3 profile reads folded
     log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
     log: [I] apps/octoscode/module/src/lib.rs:3704:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:1585:13 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/flow.rs:1022:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
+    log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
+    log: [I] apps/octoscode/module/src/lib.rs:3387:38 - [octoscode] chrome: 3 profile reads folded
     log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
     log: [I] apps/octoscode/module/src/attention.rs:982:9 - [octoscode] attention: os Authorization { status: NotDetermined, requested: false, error: None }
     log: [I] apps/octoscode/module/src/lib.rs:3289:17 - [octoscode] composer remounted
@@ -31,10 +31,10 @@ TYPE 'Summarize the task list'
 KEY Return
     log: [I] apps/octoscode/module/src/lib.rs:5257:21 - [octoscode] draft synced: 23 chars
     log: [I] apps/octoscode/module/src/lib.rs:5934:17 - [octoscode] key ReturnKey -> ComposerSubmit
-    log: [I] apps/octoscode/module/src/flow_controller.rs:186:9 - [octoscode] turn/start 01a0fdb1-dbc2-7480-bbab-683f08fd37fe: Accepted
-    log: [I] apps/octoscode/module/src/flow.rs:2531:43 - [octoscode] turn started: 01a0fdb1-dbc2-7480-bbab-683f08fd37fe
+    log: [I] apps/octoscode/module/src/flow_controller.rs:186:9 - [octoscode] turn/start 01a0fdc1-332e-7566-8334-7f603bdf8783: Accepted
+    log: [I] apps/octoscode/module/src/flow.rs:2531:43 - [octoscode] turn started: 01a0fdc1-332e-7566-8334-7f603bdf8783
     log: [I] apps/octoscode/module/src/attention.rs:892:9 - [octoscode] attention(fake os): posted octoscode-attention:dsflash:main | Fix steer queue drop on reconnect | A background response finished. Return to OctosCode to review it.
-    log: [I] apps/octoscode/module/src/attention.rs:955:13 - [octoscode] attention: completed turn 01a0fdb1-dbc2-7480-bbab-683f08fd37fe of dsflash:main needs attention (focused false)
+    log: [I] apps/octoscode/module/src/attention.rs:955:13 - [octoscode] attention: completed turn 01a0fdc1-332e-7566-8334-7f603bdf8783 of dsflash:main needs attention (focused false)
 PASS click: the finished turn posted ONE notice for its Session (title = the Session, the web's body) — ention(fake os): posted octoscode-attention:dsflash:main | Fix steer queue drop on reconnect | A background response finished. Return to OctosCode to review it.
 PASS click: posting never focused the app
 PASS click: later syncs cannot notify twice
@@ -45,10 +45,10 @@ CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
 CLICK the 'Add session fork' row at (156,348)
     log: [I] apps/octoscode/module/src/lib.rs:4175:13 - [octoscode] chrome: Action("session.open", 1)
     log: [I] apps/octoscode/module/src/lib.rs:1922:21 - [octoscode] sidebar action: session.open row 1
+    log: [I] apps/octoscode/module/src/flow.rs:1022:9 - [octoscode] history of dsflash:fork could not be read: session/hydrate returned an invalid result: missing field `session_id`
     log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:fork restored (following)
     log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
     log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
-    log: [I] apps/octoscode/module/src/flow.rs:1022:9 - [octoscode] history of dsflash:fork could not be read: session/hydrate returned an invalid result: missing field `session_id`
 PASS click: switched to another Session by its sidebar row — header='Add session fork'
 PASS click: the notice was not withdrawn by the switch
 HOOK /event?data=octoscode.attention.click:octoscode-attention:dsflash:main
@@ -57,9 +57,9 @@ HOOK /event?data=octoscode.attention.click:octoscode-attention:dsflash:main
     log: [I] apps/octoscode/module/src/attention.rs:895:9 - [octoscode] attention(fake os): closed octoscode-attention:dsflash:main
     log: [I] apps/octoscode/module/src/lib.rs:4152:17 - [octoscode] attention: notice click -> open dsflash:main (row 0)
     log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
     log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
     log: [I] apps/octoscode/module/src/flow.rs:1022:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
-    log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
 PASS click: the click opened the notice's Session — header='Fix steer queue drop on reconnect'
 PASS click: the clicked notice was withdrawn
 SHOT click-routed
@@ -71,8 +71,8 @@ TYPE 'And now the follow-up'
 KEY Return
     log: [I] apps/octoscode/module/src/lib.rs:5257:21 - [octoscode] draft synced: 21 chars
     log: [I] apps/octoscode/module/src/lib.rs:5934:17 - [octoscode] key ReturnKey -> ComposerSubmit
-    log: [I] apps/octoscode/module/src/flow_controller.rs:186:9 - [octoscode] turn/start 01a0fdb1-edcb-7100-bde4-28cbfde4f895: Accepted
-    log: [I] apps/octoscode/module/src/flow.rs:2531:43 - [octoscode] turn started: 01a0fdb1-edcb-7100-bde4-28cbfde4f895
+    log: [I] apps/octoscode/module/src/flow.rs:2531:43 - [octoscode] turn started: 01a0fdc1-462d-72f6-97a5-0d478fc7e33a
+    log: [I] apps/octoscode/module/src/flow_controller.rs:186:9 - [octoscode] turn/start 01a0fdc1-462d-72f6-97a5-0d478fc7e33a: Accepted
 PASS click: a focused window never notifies for the Session it shows — turn/start sent 2x (the turn played)
 HOOK /event?data=octoscode.attention.focus:0
 CLICK i0_composer_0 r=[28, 743, 304, 29] at (180,758)
@@ -80,9 +80,13 @@ TYPE 'One more'
 KEY Return
     log: [I] apps/octoscode/module/src/lib.rs:5257:21 - [octoscode] draft synced: 8 chars
     log: [I] apps/octoscode/module/src/lib.rs:5934:17 - [octoscode] key ReturnKey -> ComposerSubmit
-    log: [I] apps/octoscode/module/src/flow_controller.rs:186:9 - [octoscode] turn/start 01a0fdb2-0975-7450-b816-c965c9db8399: Accepted
-    log: [I] apps/octoscode/module/src/flow.rs:2531:43 - [octoscode] turn started: 01a0fdb2-0975-7450-b816-c965c9db8399
+    log: [I] apps/octoscode/module/src/flow_controller.rs:186:9 - [octoscode] turn/start 01a0fdc1-6214-76b6-84a0-8ee86805d741: Accepted
+    log: [I] apps/octoscode/module/src/flow.rs:2531:43 - [octoscode] turn started: 01a0fdc1-6214-76b6-84a0-8ee86805d741
     log: [I] apps/octoscode/module/src/attention.rs:892:9 - [octoscode] attention(fake os): posted octoscode-attention:dsflash:main | Fix steer queue drop on reconnect | A background response finished. Return to OctosCode to review it.
-    log: [I] apps/octoscode/module/src/attention.rs:955:13 - [octoscode] attention: completed turn 01a0fdb2-0975-7450-b816-c965c9db8399 of dsflash:main needs attention (focused false)
+    log: [I] apps/octoscode/module/src/attention.rs:955:13 - [octoscode] attention: completed turn 01a0fdc1-6214-76b6-84a0-8ee86805d741 of dsflash:main needs attention (focused false)
 PASS click: unfocused again, the next finished turn notifies
-== 12/12 checks passed
+HOOK /event?data=octoscode.attention.focus:1
+    log: [I] apps/octoscode/module/src/attention.rs:970:13 - [octoscode] attention: window focused — acknowledged
+    log: [I] apps/octoscode/module/src/attention.rs:895:9 - [octoscode] attention(fake os): closed octoscode-attention:dsflash:main
+PASS click: returning (focus) withdraws the notice
+== 13/13 checks passed

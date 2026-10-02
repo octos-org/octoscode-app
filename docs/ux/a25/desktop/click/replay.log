@@ -13,7 +13,7 @@
 [replay-serve] <- profile/sub_providers/list (id=8)
 [replay-serve] <- session/status/read (id=9)
 [replay-serve] <- turn/start (id=10)
-[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdb0-e9b7-739f-9428-9a134a2d28fc (5 recorded frames)
+[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdc0-3b59-73e9-9ff3-bdd499896c66 (5 recorded frames)
 [replay-serve] <- session/list (id=11)
 [replay-serve] <- session/list (id=12)
 [replay-serve] <- session/open (id=13)
@@ -28,20 +28,20 @@
 [replay-serve] <- session/open (id=20)
 [replay-serve] <- session/list (id=21)
 [replay-serve] holding the switch's session/list for 6 s
-[replay-serve] <- permission/profile/list (id=22)
-[replay-serve] <- session/status/read (id=23)
-[replay-serve] <- session/hydrate (id=24)
-[replay-serve] <- session/list (id=25)
+[replay-serve] <- session/status/read (id=22)
+[replay-serve] <- session/hydrate (id=23)
+[replay-serve] <- session/list (id=24)
 [replay-serve] holding the switch's session/list for 6 s
-[replay-serve] <- session/hydrate (id=26)
+[replay-serve] <- session/hydrate (id=25)
+[replay-serve] <- permission/profile/list (id=26)
 [replay-serve] <- turn/start (id=27)
-[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdb0-ffb7-704d-b0ad-235584bc0ce9 (5 recorded frames)
+[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdc0-5644-7762-a570-170a24f39087 (5 recorded frames)
 [replay-serve] <- session/list (id=28)
 [replay-serve] holding the switch's session/list for 6 s
 [replay-serve] <- session/list (id=29)
 [replay-serve] holding the switch's session/list for 6 s
 [replay-serve] <- turn/start (id=30)
-[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdb1-1b50-7068-97ae-300361f72d69 (5 recorded frames)
+[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdc0-71f0-7768-b71c-bddaef3f7a19 (5 recorded frames)
 [replay-serve] <- session/list (id=31)
 [replay-serve] holding the switch's session/list for 6 s
 [replay-serve] <- session/list (id=32)
