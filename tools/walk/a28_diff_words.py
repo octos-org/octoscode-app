@@ -78,6 +78,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 FIXTURE = ROOT / "crates" / "octoscode-client" / "tests" / "fixtures" / "a28-diff-words-synthetic.jsonl"
 NOTE = {"en": "Large preview shown as plain text. All lines are included.",
         "zh": "大型预览以纯文本显示，已包含所有行。"}
+ZH_EYEBROW = "服务器确认的差异预览"  # the web's zh.ts for "Authoritative diff preview"
 CW = 11.5 * 0.6  # the mono face's advance at the code size (px)
 # The web's own changed words for the fixture (diff-presentation.ts run by
 # node on these exact lines; see docs/ux/a28/README.md).
@@ -133,30 +134,26 @@ def id_marks(runs, lid):
     return [words[m] for m in sorted(words)]
 
 
-def reveal(W, wid, step=900, tries=40):
-    """Wheel the review body until `wid` lies wholly inside it (downward
-    first, then back up): the user's own gesture. Positive dy scrolls down."""
+def reveal(W, wid, step=900, tries=30, first=1):
+    """Wheel the review body until `wid` lies wholly inside it: the user's
+    own gesture (positive dy scrolls down), `first` direction first, then
+    the other way. The wheel clamps at the ends, so overshooting is safe."""
     vp = W.rect(VP)
     if not vp:
         return False
     x, y = vp[0] + 40, vp[1] + vp[3] / 2
-    for direction in (1, -1):
+    for direction in (first, -first):
         for _ in range(tries):
-            sn = W.snap()
-            r = W.rect(wid, sn=sn)
+            r = W.rect(wid)
             if r and inside(r, vp, tol=0.5):
                 return True
             if r:
-                # Shown but cut: a small step toward it.
+                # Drawn but cut by an edge: one exact step toward it.
                 dy = (r[1] + r[3] - (vp[1] + vp[3]) + 8) if r[1] + r[3] > vp[1] + vp[3] else (r[1] - vp[1] - 8)
             else:
                 dy = step * direction
-            before = [w["r"] for w in sn if w.get("i") == "b3_diff_file_0" and W.shown(w)]
             W.get(f"/m?k=scroll&x={x:.0f}&y={y:.0f}&dy={dy:.0f}&wait=1", tolerant=True)
-            time.sleep(0.15)
-            after = [w["r"] for w in W.snap() if w.get("i") == "b3_diff_file_0" and W.shown(w)]
-            if r is None and before and after and before == after:
-                break  # at the end of the range this way
+            time.sleep(0.12)
     return bool(W.rect(wid) and inside(W.rect(wid), vp, tol=0.5))
 
 
@@ -261,6 +258,16 @@ def geometry(W, name, sn):
         W.check(f"{name}: desktop shows the preview id", bool(W.text("b3_diff_preview_id", sn)))
     c = dialog_checks(sn, "b3_dialog", ("b3_diff_", "b3_title", "b3_close"), viewport=VP)
     W.check(f"{name}: dialog numeric checks (no clipped label, no overlap, controls >= 28 px)", c["ok"], checks_line(c))
+    if LANG == "zh":
+        # The copy is Chinese (the web's catalog, the native supplement) and
+        # every CJK label is whole: as wide as its glyphs (1 em each, Noto
+        # Sans SC) and inside its box.
+        eb, eb_r = W.text("b3_diff_eyebrow", sn), W.rect("b3_diff_eyebrow", sn=sn)
+        rl, rl_r, rb = W.text("b3_diff_refresh_label", sn), W.rect("b3_diff_refresh_label", sn=sn), W.rect("b3_diff_refresh_box", sn=sn)
+        W.check(f"{name}: zh copy, CJK labels whole (eyebrow, Refresh)",
+                eb == ZH_EYEBROW and bool(eb_r) and eb_r[2] >= len(eb) * 11 * 0.95
+                and rl == "刷新" and bool(rl_r and rb) and inside(rl_r, rb) and rl_r[2] >= 2 * 13 * 0.95,
+                f"eyebrow={eb!r} {eb_r} refresh={rl!r} {rl_r} in {rb}")
 
 
 # --------------------------------------------------------------- the walk
@@ -328,7 +335,7 @@ def words_checks(W, name):
     # until scrolled sideways (they are checked by id above).
     W.check("words: each mark lies in its row on its words' columns (x, width)",
             seen >= (9 if MODE == "desktop" else 3) and not geo_bad, f"marks drawn={seen} " + "; ".join(geo_bad[:3]))
-    reveal(W, "b3_diff_file_0_h0_l0")
+    reveal(W, "b3_diff_file_0_h0_l0", first=-1)
     # Colour, from the app's own pixels.
     try:
         img, k, sn2 = grab(W)
@@ -444,7 +451,7 @@ def scrolled_to_last(W, blocks):
     last = blocks[-1]["i"]
     ok = reveal(W, last, step=1500, tries=30)
     W.shot(f"large-end-{MODE}")
-    reveal(W, "b3_diff_plain_note", step=1500, tries=30)
+    reveal(W, "b3_diff_plain_note", step=1500, tries=30, first=-1)
     return ok
 
 

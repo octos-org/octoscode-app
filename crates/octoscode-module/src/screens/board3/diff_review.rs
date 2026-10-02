@@ -595,12 +595,13 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
     d.open(
         ui::B3_IDS.scroll,
         "ScrollYView",
-        &format!("width: Fill height: Fill flow: Down padding: Inset{{left: {body_pad} top: 6 right: {} bottom: 16}}", body_pad - 2.0),
+        &format!("width: Fill height: Fill flow: Down padding: Inset{{left: {body_pad} top: 6 right: {body_pad} bottom: 16}}"),
     );
     d.view("b3_diff_body", "width: Fill height: Fit flow: Down spacing: 12");
-    // The content width (a file card's): the box less the body's insets (the
-    // scroll bar overlays the right one). Measured: card 903 in a 941 box.
-    let inner_w = width - body_pad - (body_pad - 2.0);
+    // The content width (a file card's): the box less the body's equal
+    // insets (the scroll bar overlays the right one). Measured: a 941 box
+    // with 20 + 18 insets laid its cards out 903 wide.
+    let inner_w = width - 2.0 * body_pad;
     if st.preview_id.is_none() {
         // Native: the entry exists before any preview does.
         let body_text = if advertised(store) { NO_PREVIEW_BODY } else { NO_METHOD };
