@@ -24,6 +24,8 @@ pub mod inspector;
 pub mod inventory;
 pub mod resume;
 pub mod rows;
+// A8 — the Session settings pane (session-config rows).
+pub mod session_pane;
 pub mod strip;
 pub mod switcher;
 pub mod thinking;

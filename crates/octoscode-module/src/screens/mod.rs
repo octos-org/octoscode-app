@@ -11,12 +11,20 @@ pub mod board1_kit;
 pub mod board3;
 pub mod browser;
 pub mod connect;
+// A8: the header's "Copy as Markdown" (CopyConversationButton phases).
+pub mod copy_button;
 // A5: the dialog host — the Stage-B screens reachable from the palette and
 // the sidebar, lowered slot-relative, wired by node id.
 pub mod dialog;
+// A8: per-Session composer drafts, durable per authenticated principal.
+pub mod drafts;
+// A8: the external-driver disclosure walk (session/driver/get operations chain).
+pub mod driver_discovery;
 pub mod fleet;
 pub mod history;
 pub mod keys;
+// A8: the workspace launch (launch/resolve, the decision panel, the lease).
+pub mod launch;
 pub mod media;
 pub mod models;
 // #D1: the five native-pairing cards (p4-01..p4-05) — one owner per action id.
@@ -36,6 +44,10 @@ pub mod sidebar;
 // #D2b / A3: board 2's settings half (screens 6-12) — one owner for the
 // settings cards' ids AND the native Settings chrome's.
 pub mod settings;
+// A8: the new-session defaults (persisted per endpoint, applied at creation only).
+pub mod session_defaults;
+// A8: the full-Session identity grammar (Core split_base_key + channels).
+pub mod session_identity;
 // #35b item 1: the ONE card-tap wiring every docked screen shares (connect.rs
 // delegates here; the palette/theme mount paths call it directly).
 pub mod taps;
