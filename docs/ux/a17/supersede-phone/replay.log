@@ -43,7 +43,7 @@
 [replay-serve] <- launch/resolve (id=22)
 [replay-serve] -> launch/resolve (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"dsflash"}
 [replay-serve] <- session/open (id=23)
-[replay-serve] -> session/open (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"coding-2","session_id":"coding-2:api:01a0fc8d-b22d-745d-b6b1-ddd0148b160e"}
+[replay-serve] -> session/open (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"coding-2","session_id":"coding-2:api:01a0fca0-5cb0-7416-8dfc-31a4b75809ae"}
 [replay-serve] <- session/list (id=24)
 [replay-serve] <- session/hydrate (id=25)
 [replay-serve] <- session/list (id=26)

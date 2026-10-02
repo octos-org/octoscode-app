@@ -10,9 +10,9 @@
 [replay-serve] <- session/hydrate (id=4)
 [replay-serve] <- permission/profile/list (id=5)
 [replay-serve] <- profile/llm/list (id=6)
-[replay-serve] <- session/status/read (id=7)
-[replay-serve] <- profile/skills/list (id=8)
-[replay-serve] <- profile/sub_providers/list (id=9)
+[replay-serve] <- profile/skills/list (id=7)
+[replay-serve] <- profile/sub_providers/list (id=8)
+[replay-serve] <- session/status/read (id=9)
 [replay-serve] <- onboarding/workspace_list (id=10)
 [replay-serve] -> onboarding/workspace_list (onboarding) {"path":null}
 [replay-serve] <- onboarding/workspace_list (id=11)
@@ -36,7 +36,7 @@
 [replay-serve] <- profile/llm/upsert (id=18)
 [replay-serve] -> profile/llm/upsert (onboarding) {"api_key":"sk-t…(13)","profile_id":"coding-2","selection":{"family_id":"deepseek","model_id":"deepseek-v4-pro","route":{"api_key_env":"DEEPSEEK_API_KEY","api_type":"openai","label":"Official API","route_id":"deepseek"}},"set_primary":true}
 [replay-serve] <- session/open (id=19)
-[replay-serve] -> session/open (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"coding-2","session_id":"coding-2:api:01a0fc99-0f54-77f0-9d36-34145f8b3d3f"}
+[replay-serve] -> session/open (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"coding-2","session_id":"coding-2:api:01a0fc9f-4aea-713d-bf05-66d5c5276993"}
 [replay-serve] <- session/list (id=20)
 [replay-serve] <- session/hydrate (id=21)
 [replay-serve] <- session/list (id=22)

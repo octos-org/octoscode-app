@@ -36,7 +36,7 @@
 [replay-serve] <- profile/llm/upsert (id=18)
 [replay-serve] -> profile/llm/upsert (onboarding) {"api_key":"sk-t…(13)","profile_id":"coding-2","selection":{"family_id":"deepseek","model_id":"deepseek-v4-pro","route":{"api_key_env":"DEEPSEEK_API_KEY","api_type":"openai","label":"Official API","route_id":"deepseek"}},"set_primary":true}
 [replay-serve] <- session/open (id=19)
-[replay-serve] -> session/open (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"coding-2","session_id":"coding-2:api:01a0fc99-78b2-7474-8ca0-770e612ba464"}
+[replay-serve] -> session/open (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"coding-2","session_id":"coding-2:api:01a0fca0-1b6d-7012-8044-4fa50a0dfcf2"}
 [replay-serve] <- session/list (id=20)
 [replay-serve] <- session/hydrate (id=21)
 [replay-serve] <- session/list (id=22)
