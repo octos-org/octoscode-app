@@ -91,7 +91,7 @@ impl crate::OctoscodeView {
             Ok(false) => {}
         }
         publish(live_id!(traj_splash), &traj_dsl, &mut taps_out);
-        if sf::trajectory_refresh_needed(&store) {
+        if sf::claim_trajectory_refresh(&store) {
             self.surfaces_outcome(cx, Outcome::Spawn(Job::Refresh));
         }
 

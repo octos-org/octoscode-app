@@ -326,6 +326,21 @@ pub fn trajectory_refresh_needed(store: &Store) -> bool {
         && traj().lock().unwrap_or_else(|p| p.into_inner()).refreshed_for.as_deref() != Some(session.as_str())
 }
 
+/// [`trajectory_refresh_needed`], claimed: the session is marked refreshed
+/// BEFORE the job is spawned. The spawn re-syncs the shell synchronously
+/// (`surfaces_outcome` -> `sync_labels` -> `surfaces_live`), so a mark left
+/// to the job raced it — and a server advertising neither `task/list` nor
+/// `session/status/read` (the job's early return) never marked it at all:
+/// the shell re-entered itself until the stack overflowed (a Trajectory
+/// click on the plan-only fixture).
+pub fn claim_trajectory_refresh(store: &Store) -> bool {
+    if !trajectory_refresh_needed(store) {
+        return false;
+    }
+    traj().lock().unwrap_or_else(|p| p.into_inner()).refreshed_for = store.active_session();
+    true
+}
+
 /// Feed a live notification to the open task detail (`observeNotification`,
 /// `use-supervision.ts:477-525`: `task/output/delta` for the session).
 pub fn observe(n: &octos_core::app_ui::AppUiBackendEvent, active_session: Option<&str>) {
@@ -458,7 +473,7 @@ pub fn perform(action: &str, index: usize, store: &Store, ui: &Arc<Mutex<FlowUi>
                 return Outcome::Done;
             }
             state().tab = Tab::Trajectory;
-            if trajectory_refresh_needed(store) {
+            if claim_trajectory_refresh(store) {
                 Outcome::Spawn(Job::Refresh)
             } else {
                 Outcome::Done
@@ -825,6 +840,28 @@ mod tests {
         let g = L.lock().unwrap_or_else(|p| p.into_inner());
         reset();
         g
+    }
+
+    /// A Trajectory click on a server advertising the plan but neither
+    /// `task/list` nor `session/status/read` claims ONE refresh for the
+    /// session: the shell's synchronous re-sync after the spawn finds it
+    /// claimed (it re-entered itself until the stack overflowed).
+    #[test]
+    fn a_plan_only_trajectory_claims_one_refresh() {
+        let _g = lock();
+        let s = live_store();
+        s.domains.config.set_supported_methods(Vec::new());
+        let ui = Arc::new(Mutex::new(FlowUi::default()));
+        assert!(tabs_available(&s), "the plan alone shows the tabs");
+        assert!(!claim_trajectory_refresh(&s), "the Chat tab claims nothing");
+        assert_eq!(perform("cv.tab.trajectory", 0, &s, &ui), Outcome::Spawn(Job::Refresh));
+        assert!(showing_trajectory(&s));
+        assert!(!claim_trajectory_refresh(&s), "the re-sync finds the refresh claimed");
+        assert_eq!(perform("cv.tab.trajectory", 0, &s, &ui), Outcome::Done, "a second click spawns nothing");
+        // Another session is refreshed once in its turn.
+        s.set_active(Some("s2".into()));
+        assert!(claim_trajectory_refresh(&s));
+        assert!(!claim_trajectory_refresh(&s));
     }
 
     #[test]
