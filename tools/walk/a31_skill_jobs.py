@@ -121,8 +121,12 @@ def read_rows(W: Walk, n: int) -> list:
     rows = []
     for i in range(n):
         ids = row_ids(i)
-        if not W.visible(ids["name"]):
-            W.scroll_into(ids["row"], VP)
+        # The whole row, its message lines too: the instrument reports a row
+        # the viewport's edge cuts with its CLIPPED rect (which then looks
+        # "inside"), so bring what follows the row into view, then the row.
+        W.scroll_into(f"{P}job_{i + 1}_skill" if i + 1 < n else f"{P}t_inst_head", VP)
+        if not W.visible(ids["skill"]):
+            W.scroll_into(ids["skill"], VP)
         sn = W.snap()
         rec = {k: W.text(v, sn=sn) for k, v in ids.items() if k not in ("row", "chip")}
         rr, nr, cr, tr = (W.rect(ids[k], sn=sn) for k in ("row", "name", "chip", "time"))
@@ -249,16 +253,18 @@ def seeded(W: Walk, zh: bool = False) -> None:
     problems = [(i, r["problems"]) for i, r in enumerate(rows) if r["problems"]]
     W.check(f"{tag}: every row's labels inside the row; name clear of the chip, chip clear of the time; no cut name",
             not problems, f"{problems}")
-    chip_r = {round(r["chip_r"]) for r in rows if r["chip_r"]}
-    time_r = {round(r["time_r"]) for r in rows if r["time_r"]}
-    W.check(f"{tag}: the chips and the times form two right-aligned columns", len(chip_r) == 1 and len(time_r) == 1,
-            f"chip right edges {sorted(chip_r)}, time right edges {sorted(time_r)}")
+    chip_r = [r["chip_r"] for r in rows if r["chip_r"]]
+    time_r = [r["time_r"] for r in rows if r["time_r"]]
+    spread = lambda v: (max(v) - min(v)) if v else 99  # noqa: E731
+    W.check(f"{tag}: the chips and the times form two right-aligned columns (within 1.5 px)",
+            len(chip_r) == len(rows) and len(time_r) == len(rows) and spread(chip_r) <= 1.5 and spread(time_r) <= 1.5,
+            f"chip right edges {sorted(set(round(v, 1) for v in chip_r))}, time right edges {sorted(set(round(v, 1) for v in time_r))}")
     text = all_dialog_text(W, len(SEEDED))
     W.check(f"{tag}: another Session's job and another Profile's never show", not any(f in text for f in FOREIGN),
             f"{[f for f in FOREIGN if f in text]}")
     if zh:
         return
-    W.scroll_into(f"{P}t_inst_head", VP)
+    W.scroll_into(f"{P}t_name4", VP)
     numeric(W, "seeded scrolled to Installed")
     W.check("seeded: Installed follows with the Profile's two skills",
             W.text(f"{P}t_name3") == "source-skill" and W.text(f"{P}t_name4") == "deck-skill",

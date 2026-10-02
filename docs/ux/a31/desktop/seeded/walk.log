@@ -1,0 +1,170 @@
+== seeded 1. /skills: the dialog reads its jobs for its Profile + Session
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:413:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:1376:9 - [octoscode] a24 language at launch: en
+    log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+    log: [I] apps/octoscode/module/src/attention.rs:938:9 - [octoscode] attention: start (platform api true, focused false)
+    log: [I] apps/octoscode/module/src/lib.rs:1623:13 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/flow.rs:1049:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
+    log: [I] apps/octoscode/module/src/lib.rs:3360:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4161:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3458:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4161:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3777:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:3360:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/attention.rs:984:9 - [octoscode] attention: os Authorization { status: Unavailable, requested: false, error: None }
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'ski'
+CLICK palette_row_name '/skills' r=[286, 252, 54, 28]
+PASS seeded: the /skills palette row CLICK opens Skills with its Background jobs
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6014:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 1 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5335:21 - [octoscode] draft synced: 4 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5510:25 - [octoscode] palette row 0 clicked
+    log: [I] apps/octoscode/module/src/lib.rs:2673:17 - [octoscode] palette run /skills -> dialog.open.skills
+    log: [I] apps/octoscode/module/src/lib.rs:2466:9 - [octoscode] dialog action: dialog.open.skills
+    log: [I] apps/octoscode/module/src/lib.rs:2466:9 - [octoscode] dialog action: dialog.refresh.profile
+    log: [I] apps/octoscode/module/src/lib.rs:2466:9 - [octoscode] dialog action: dialog.refresh.skill_jobs
+    log: [I] apps/octoscode/module/src/lib.rs:2611:29 - [octoscode] dialog load dialog.refresh.profile: 3 reads
+    log: [I] apps/octoscode/module/src/lib.rs:2871:33 - [octoscode] dialog skills mounted: frame 720x570 scale 1.000, 4 tap(s)
+    log: [I] apps/octoscode/module/src/lib.rs:2871:33 - [octoscode] dialog skills mounted: frame 720x570 scale 1.000, 4 tap(s)
+    log: [I] apps/octoscode/module/src/lib.rs:2611:29 - [octoscode] dialog load dialog.refresh.skill_jobs: 5 job(s) listed for dsflash:main
+    log: [I] apps/octoscode/module/src/lib.rs:2871:33 - [octoscode] dialog skills mounted: frame 720x570 scale 1.000, 4 tap(s)
+PASS seeded: the host ran the on-open job read (log)
+PASS seeded: wire: skill/action/job/list names the dialog's Profile and Session — [{'profile_id': 'dsflash', 'session_id': 'dsflash:main'}]
+PASS seeded: wire: the server sent two newer updates BEFORE the list reply (the race)
+PASS seeded: the rows arrive (report.pdf first, q3-review Done) — 'report.pdf' '✓ Done'
+PASS seeded: the heading and the active count — 'Background jobs' · '1 running · 1 queued'
+PASS seeded: no note (this server seeds the section)
+PASS seeded: the section is at the top, above Installed — card=[209, 244, 670, 397] installed=None
+PASS seeded open: numeric checks — frame=720x568 centre_dx=0.0 margins L=20 R=20 labels=35 outside=0 overlaps=0 controls=0 under28=0
+SHOT 01-seeded-desktop
+PASS seeded: newest first — ['report.pdf', 'notes.md', 'q3-review.pdf', 'scan-007.pdf', 'q3-board.pptx', 'archive.zip']
+PASS seeded: every status's chip: queued, running, succeeded, failed, cancelled, abandoned — ['● Running', '○ Queued', '✓ Done', '✕ Failed', '✕ Stopped', '✕ Stopped']
+PASS seeded: Done shows the job's output — ('Imported 14 pages', None)
+PASS seeded: Failed shows the lead, then the error as a muted cause — ("Couldn't finish this job.", 'pdftotext exited with status 1')
+PASS seeded: abandoned reads Stopped with the restart cause — ('The server restarted before this job finished.', None)
+PASS seeded: queued, running and cancelled rows carry no message — [(None, None), (None, None), (None, None)]
+PASS seeded: the skill and action line (mono) — source-skill · source.import
+PASS seeded: the times (since each job's last change) — ['now', 'now', '2m', '5m', '20m', '1h']
+PASS race: the stale list (q3-review still running there) did not regress the newer update
+PASS race: notes.md, announced before the reply and absent from it, survived it
+PASS seeded: every row's labels inside the row; name clear of the chip, chip clear of the time; no cut name — []
+PASS seeded: the chips and the times form two right-aligned columns (within 1.5 px) — chip right edges [818, 819], time right edges [864, 865]
+PASS seeded: another Session's job and another Profile's never show — []
+PASS seeded scrolled to Installed: numeric checks — frame=720x568 centre_dx=0.0 margins L=20 R=20 labels=28 outside=0 overlaps=0 controls=2 under28=0
+PASS seeded: Installed follows with the Profile's two skills — 'source-skill' 'deck-skill'
+SHOT 02-seeded-installed-desktop
+== seeded 2. a live update while the dialog is open
+PASS live: notes.md starts and report.pdf finishes, without reopening — notes.md ● Running / report.pdf ✓ Done
+PASS live: the finished job shows its output — 'Imported 9 pages'
+PASS live: the count follows (1 running) — '1 running'
+PASS live: numeric checks — frame=720x568 centre_dx=0.0 margins L=20 R=20 labels=35 outside=0 overlaps=0 controls=0 under28=0
+SHOT 03-live-desktop
+CLICK dialog_close r=[861, 115, 28, 28] at (875,129)
+== seeded 3. the Session scope: the other Session's row CLICK, /skills again
+CLICK sb_r_title 'Import the Q3 reports' r=[92, 332, 195, 17]
+PASS scope: the other Session's sidebar row CLICK switches to it — 'Import the Q3 reports'
+    log: [I] apps/octoscode/module/src/lib.rs:2871:33 - [octoscode] dialog skills mounted: frame 720x570 scale 1.000, 4 tap(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5438:25 - [octoscode] dialog tap: dialog.close
+    log: [I] apps/octoscode/module/src/lib.rs:2466:9 - [octoscode] dialog action: dialog.close
+    log: [I] apps/octoscode/module/src/lib.rs:6234:17 - [octoscode] nav tap: dialog.close
+    log: [I] apps/octoscode/module/src/lib.rs:4248:13 - [octoscode] chrome: Action("session.open", 1)
+    log: [I] apps/octoscode/module/src/lib.rs:1967:21 - [octoscode] sidebar action: session.open row 1
+    log: [I] apps/octoscode/module/src/flow.rs:1049:9 - [octoscode] history of dsflash:imports could not be read: session/hydrate returned an invalid result: missing field `session_id`
+    log: [I] apps/octoscode/module/src/lib.rs:4161:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:imports restored (following)
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'ski'
+CLICK palette_row_name '/skills' r=[286, 252, 54, 28]
+PASS scope: the /skills palette row CLICK opens Skills with its Background jobs
+PASS scope: wire: the list names the other Session — [{'profile_id': 'dsflash', 'session_id': 'dsflash:main'}, {'profile_id': 'dsflash', 'session_id': 'dsflash:imports'}]
+PASS scope: the other Session's dialog shows its own jobs (invoice.pdf running, statement.pdf done) — 'invoice.pdf' 'statement.pdf'
+PASS scope: none of the first Session's jobs (nor the other Profile's) show — []
+PASS scope: the count is this Session's (1 running) — '1 running'
+PASS other Session: numeric checks — frame=720x568 centre_dx=0.0 margins L=20 R=20 labels=23 outside=0 overlaps=0 controls=2 under28=0
+SHOT 04-other-session-desktop
+CLICK dialog_close r=[861, 115, 28, 28] at (875,129)
+== 35/35 checks passed

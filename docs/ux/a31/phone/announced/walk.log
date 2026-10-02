@@ -1,0 +1,35 @@
+== announced 1. no skill.action_jobs.v1: the jobs announced since connecting, and the note
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:413:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:1376:9 - [octoscode] a24 language at launch: en
+    log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+    log: [I] apps/octoscode/module/src/attention.rs:938:9 - [octoscode] attention: start (platform api true, focused false)
+    log: [I] apps/octoscode/module/src/lib.rs:1623:13 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/flow.rs:1049:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
+    log: [I] apps/octoscode/module/src/lib.rs:3360:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4161:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3458:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4161:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3777:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:3360:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/attention.rs:984:9 - [octoscode] attention: os Authorization { status: Unavailable, requested: false, error: None }
+    log: [I] apps/octoscode/module/src/lib.rs:3360:17 - [octoscode] composer remounted
+CLICK composer r=[28, 743, 304, 29]
+TYPE '/'
+TYPE 'ski'
+CLICK palette_row_name '/skills' r=[30, 260, 54, 28]
+PASS announced: the /skills palette row CLICK opens Skills with its Background jobs
+PASS announced: the rows are the announced jobs, newest first — 'report.pdf' 'scan-007.pdf'
+PASS announced: the muted note says only announced jobs show — "Only jobs announced since the app connected are shown; this server doesn't list earlier jobs."
+PASS announced: wire: no skill/action/job/list is read — []
+PASS announced: chips and count — ● Running ✕ Failed 1 running
+PASS announced: another Session's job and another Profile's never show — []
+PASS announced: numeric checks — frame=328x746 centre_dx=0.0 margins L=16 R=16 labels=27 outside=0 overlaps=0 controls=2 under28=0
+SHOT 05-announced-phone
+== announced 2. a live update still applies
+PASS announced: live: notes.md starts, report.pdf finishes — 'notes.md' '✓ Done'
+PASS announced live: numeric checks — frame=328x746 centre_dx=0.0 margins L=16 R=16 labels=32 outside=0 overlaps=0 controls=2 under28=0
+SHOT 06-announced-live-phone
+CLICK dialog_close r=[300, 109, 28, 28] at (314,123)
+== 9/9 checks passed
