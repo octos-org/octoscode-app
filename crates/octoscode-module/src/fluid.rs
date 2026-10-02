@@ -993,7 +993,8 @@ pub struct ConnectView {
 /// Ids the host routes: `connect_server` / `connect_token` (inputs →
 /// `input.server` / `input.token`), `connect_btn` (→ `connect`),
 /// `connect_solo` (→ `connect.use_local_solo`), `connect_server_error`
-/// (the live validation line, set by the host without a remount).
+/// (the live validation line, set by the host without a remount), and A2's
+/// `b1_connect_pair` (→ `b1.open.pairing`, routed by `board1::collect`).
 pub fn connect_card(c: &ConnectView, m: &Metrics, left: f64) -> String {
     let phone = m.density == Density::Phone;
     let (pad_x, pad_top) = if phone { (20.0, 24.0) } else { (32.0, 28.0) };
@@ -1090,7 +1091,10 @@ pub fn connect_card(c: &ConnectView, m: &Metrics, left: f64) -> String {
          View{{width: Fill height: 14}}\n\
          {token_cap}{token_field}\
          View{{width: Fill height: Fit padding: Inset{{top: 8}}\n{note}}}\n\
-         connect_btn_wrap := View{{width: Fill height: 44 flow: Overlay align: Align{{x: 0.5 y: 0.5}} margin: Inset{{top: 22}}\n\
+         connect_pair_wrap := View{{width: Fit height: 30 flow: Overlay align: Align{{x: 0.0 y: 0.5}} \
+         margin: Inset{{top: 8 left: -6}} padding: Inset{{left: 6 right: 6}}\n\
+         {pair_label}{pair_hit}}}\n\
+         connect_btn_wrap := View{{width: Fill height: 44 flow: Overlay align: Align{{x: 0.5 y: 0.5}} margin: Inset{{top: 16}}\n\
          RoundedView{{width: Fill height: Fill draw_bg +: {{color: #000000ff border_radius: 22.0}}}}\n\
          {btn_label}\
          {btn_hit}}}\n\
@@ -1126,6 +1130,17 @@ pub fn connect_card(c: &ConnectView, m: &Metrics, left: f64) -> String {
             MUTED,
             "width: Fit height: Fit",
         ),
+        // #A2 (board 1): the Connect screen's way into pairing — the id and
+        // copy `screens::board1::entry_controls` routes (`b1_connect_pair` ->
+        // `b1.open.pairing`), under the token hint as A2 placed it.
+        pair_label = label(
+            "connect_pair_label",
+            "Pair with a link instead",
+            &style(Face::Medium, 14.0, 20.0),
+            "#2f6febff",
+            "width: Fit height: Fit",
+        ),
+        pair_hit = hit("b1_connect_pair", 6.0),
         btn_label = label(
             "connect_btn_label",
             if c.connecting { "Connecting…" } else { "Connect" },
@@ -1365,6 +1380,25 @@ mod tests {
         assert_eq!(worked_for("0", "", 0, true, &m), "View{width: Fill height: 0}\n", "nothing to say: no band");
         let timed = worked_for("0", "Worked for 2s ›", 3, true, &m);
         assert!(timed.contains("text: \"Worked for 2s\"") && timed.contains("text: \"·\""));
+    }
+
+    /// A2's pairing entry is on the first-run card lib.rs mounts (this card,
+    /// not the retired setup-01 lowering): its id is the one
+    /// `screens::board1::entry_controls` routes to `b1.open.pairing`.
+    #[test]
+    fn the_connect_card_carries_the_pairing_entry() {
+        let c = ConnectView { server: "http://127.0.0.1:50190".into(), ..Default::default() };
+        for m in [desk(), Metrics::for_window(360.0, false)] {
+            let dsl = connect_card(&c, &m, 261.0);
+            assert!(dsl.contains("b1_connect_pair := Button{"), "{dsl}");
+            assert!(dsl.contains("text: \"Pair with a link instead\""));
+            let pair = dsl.find("b1_connect_pair").unwrap();
+            assert!(dsl.find("Stored for this server only").unwrap() < pair, "under the token hint");
+            assert!(pair < dsl.find("connect_btn := Button").unwrap(), "above the Connect pill");
+        }
+        assert!(crate::screens::board1::entry_controls()
+            .iter()
+            .any(|(id, action)| id == "b1_connect_pair" && action == "b1.open.pairing"));
     }
 
     #[test]

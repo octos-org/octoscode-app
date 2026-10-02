@@ -201,9 +201,12 @@ def connect(rows, rep):
     out = [w["i"] for w in texts if not inside(w["r"], c)]
     rep.check("no clipped text", not out, f"{len(texts)} card texts inside the card; out: {out}",
               f"text {len(texts)}/{len(texts) - len(out)} inside")
-    hits = [w for w in rows if w["ty"] == "Button" and w["i"] in ("connect_btn", "connect_solo", "connect_eye")]
+    ids = ("connect_btn", "connect_solo", "connect_eye", "b1_connect_pair")
+    hits = [w for w in rows if w["ty"] == "Button" and w["i"] in ids]
     small = [(w["i"], w["r"][2], w["r"][3]) for w in hits if w["r"][2] < 27.5 or w["r"][3] < 27.5]
-    rep.check("controls >= 28 px", not small and len(hits) == 3, f"{[(w['i'], w['r'][2], w['r'][3]) for w in hits]}",
+    # The pairing entry (A2) is counted when the build carries it.
+    want = len({w["i"] for w in hits} | {"connect_btn", "connect_solo", "connect_eye"})
+    rep.check("controls >= 28 px", not small and len(hits) == want, f"{[(w['i'], w['r'][2], w['r'][3]) for w in hits]}",
               f"{len(hits)} controls>=28")
     field_s = find(rows, "connect_server")
     field_t = find(rows, "connect_token")
