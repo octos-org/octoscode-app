@@ -719,6 +719,8 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ),
     ("Type the goal's objective first.", "请先输入目标内容。"),
     ("The token budget is a whole number of tokens, such as 100000.", "令牌预算必须是整数，例如 100000。"),
+    // ---- the transcript's working row (flow.rs turn_activity)
+    ("Working \u{b7} {value0}s", "工作中 \u{b7} {value0} 秒"),
 ];
 
 /// The web catalog's vocabulary: each English term (matched as a word,

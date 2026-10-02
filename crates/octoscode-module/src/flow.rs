@@ -255,7 +255,7 @@ impl FlowUi {
     /// through `answer.worked_for` instead.
     pub fn turn_activity(&self) -> String {
         match &self.active_turn {
-            Some((_, started)) => format!("Working · {}s", started.elapsed().as_secs()),
+            Some((_, started)) => crate::i18n::tr1("Working · {value0}s", &started.elapsed().as_secs().to_string()),
             None => String::new(),
         }
     }
