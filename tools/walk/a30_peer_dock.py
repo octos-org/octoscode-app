@@ -340,7 +340,9 @@ def dock_checks(W: Walk, name: str, sn=None) -> bool:
     tree_room = tree[3]
     # The judge's tree check: at least two SESSION rows laid out wholly inside
     # the tree (the group header aside) — never squeezed to its header.
-    session_rows = [w["r"] for w in shown if w.get("i") == "sb_r_open" and inside(w["r"], tree, 0.5)]
+    # (A 32-px row at full height: the instrument reports a clipped row's cut
+    # rect, so a sliver at the tree's edge does not count.)
+    session_rows = [w["r"] for w in shown if w.get("i") == "sb_r_open" and inside(w["r"], tree, 0.5) and w["r"][3] >= 31]
     ok = not outside and not over and not under and order and aligned and len(session_rows) >= 2
     detail = (f"dock={[round(x) for x in slot]} tree_h={round(tree_room)} session_rows={len(session_rows)} "
               f"order={order} labels={len(labels)} "

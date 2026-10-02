@@ -77,6 +77,20 @@ def main() -> None:
             panel(load("desktop/desktop-04-zh-expanded-sidebar.png"), "native zh · desktop expanded"),
         ]),
     ]
+    # A30 follow-up (judge): the 990x603 desktop column before / after (the
+    # tree keeps 2 session rows) and a refused stale control said on the card.
+    followup = OUT / "followup"
+    if (followup / "desktop" / "desktop-02-expanded-sidebar.png").exists():
+        fu = lambda rel: Image.open(followup / rel)  # noqa: E731
+        made.append(sheet("followup-desktop", [
+            panel(r6, "board 4 · region 6"),
+            panel(load("desktop/desktop-02-expanded-sidebar.png"), "before · tree squeezed to its header"),
+            panel(fu("desktop/desktop-02-expanded-sidebar.png"), "after · 2 session rows + the card"),
+            panel(fu("desktop/race/desktop-race-refused-on-the-card-sidebar.png"), "after · a stale tap said on the card"),
+        ]))
+        (followup / "side-by-side-desktop.png").write_bytes((OUT / "side-by-side-followup-desktop.png").read_bytes())
+        (OUT / "side-by-side-followup-desktop.png").unlink()
+        made[-1] = followup / "side-by-side-desktop.png"
     for m in made:
         print(m.relative_to(ROOT))
 
