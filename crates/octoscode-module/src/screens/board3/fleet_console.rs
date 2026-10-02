@@ -120,7 +120,7 @@ pub fn console_rows(store: &Store) -> Vec<(String, String, &'static str)> {
 
 fn glyph(activity: &str) -> (&'static str, &'static str) {
     match activity {
-        "live" => ("✻", "streaming"),
+        "live" => ("●", "streaming"),
         "blocked" => ("⚠", "needs you"),
         "done" => ("✓", "done"),
         "reaped" => ("✕", "reaped"),

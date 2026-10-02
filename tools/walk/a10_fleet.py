@@ -63,10 +63,15 @@ def seek(W: Walk, wid: str, steps: int = 40) -> bool:
         return True
     for _ in range(6):
         wheel(W, -600)
+    last = None
     for _ in range(steps):
         at = where(W, wid)
         if at == "in":
             return True
+        r = W.rect(wid)
+        if at.startswith("cut") and r == last:
+            return True  # the scroll is at its end: this IS the whole widget
+        last = r
         wheel(W, -60 if at == "cut-top" else 60 if at == "cut-bottom" else 90)
     ok = wholly(W, wid)
     if not ok:
@@ -265,8 +270,9 @@ def walk(W: Walk) -> None:
     opened = click_logged(W, f"b3_fleet_finished_{g}", "b3.fleet.finished")
     time.sleep(0.6)
     W.check("fleet: the Finished (2) disclosure CLICK shows the stopped and the failed rows",
-            opened and "Stopped" in status_of(W, r3) and "Failed" in status_of(W, 2),
-            f"stopped={status_of(W, r3)!r} failed={status_of(W, 2)!r}")
+            opened and "Stopped" in status_of(W, r3) and "Failed" in status_of(W, 2)
+            and seek(W, "b3_fleet_row_2_note") and W.text("b3_fleet_row_2_note") == "That model is not configured on this server",
+            f"stopped={status_of(W, r3)!r} failed={status_of(W, 2)!r} reason={W.text('b3_fleet_row_2_note')!r}")
     numeric(W, "finished")
     seek(W, f"b3_fleet_finished_{g}")
     W.shot(f"05-finished-{MODE}")

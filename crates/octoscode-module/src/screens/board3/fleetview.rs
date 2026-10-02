@@ -98,7 +98,9 @@ impl Status {
     pub fn glyph(self) -> &'static str {
         match self {
             Status::Requested | Status::Starting | Status::StillStarting => "○",
-            Status::Working => "✻",
+            // The web's "✻" (U+273B) is not in the bundled faces (it drew as
+            // a tofu box): the solid dot reads as "active" in every face.
+            Status::Working => "●",
             Status::WaitingApproval | Status::WaitingAnswer => "⚠",
             Status::Finished => "✓",
             Status::Stopped | Status::Failed => "✕",
@@ -934,6 +936,9 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
     // or the last action's bounded copy.
     let note = if r.turn_changed {
         Some((t("Peer started a new turn"), tok::AMBER))
+    } else if let (Status::Failed, Some(reason)) = (r.status, r.error.as_ref()) {
+        // A failed start says why (the bounded refusal copy, never a code).
+        Some((reason.clone(), tok::RED))
     } else if let Some(n) = st.row_note.get(&r.key) {
         let refused = matches!(r.control, Some(RowControl::Refused { .. })) || !matches!(n.as_str(), "Sent" | "Stop requested");
         Some((t(n), if refused { tok::RED } else { tok::GREEN }))
@@ -1080,6 +1085,9 @@ pub fn build(d: &mut Dsl, st: &mut FleetState, frame: &Frame, store: &Store) {
             }
         }
     }
+    // The scroll's own bottom padding is not part of its scroll extent: a
+    // trailing gap keeps the last control off the window's bottom edge.
+    d.gap(W::Fill, 24.0);
     d.close(); // col
     d.close(); // scroll
     d.close(); // panel
