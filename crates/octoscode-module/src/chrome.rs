@@ -1069,7 +1069,7 @@ script_mod! {
                         width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
                         View{
                             width: Fill height: 32 flow: Overlay
-                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Sandbox"}}
+                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Session sandbox"}}
                             View{width: Fill height: Fill align: Align{x: 1.0 y: 0.5} tg_sb_read := OcToggle{}}
                         }
                         // Help text wraps only as a direct child of a Down

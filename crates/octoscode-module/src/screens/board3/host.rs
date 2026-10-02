@@ -79,6 +79,9 @@ pub struct State {
     pub vim: super::vim::VimState,
     /// A8 — the Session settings pane.
     pub pane: super::session_pane::PaneState,
+    /// A8 — the dialog the board-3 splash last mounted (None after an open or
+    /// a close), so a remount of the SAME dialog keeps its scroll position.
+    pub mounted: Option<Dialog>,
     /// Text a finished job wants on the clipboard (the host writes it on the
     /// UI thread, where `cx` lives).
     pub pending_clipboard: Option<String>,
@@ -99,6 +102,7 @@ impl Default for State {
             strip: Default::default(),
             vim: Default::default(),
             pane: Default::default(),
+            mounted: None,
             pending_clipboard: None,
         }
     }
@@ -293,10 +297,33 @@ pub fn routes(action: &str) -> bool {
     action.starts_with("b3.")
 }
 
+/// A8 — the body scroll a same-dialog remount must restore after its first
+/// layout (`lib.rs` draw_walk applies it).
+static PENDING_SCROLL: Mutex<Option<f64>> = Mutex::new(None);
+
+pub fn set_pending_scroll(y: f64) {
+    *PENDING_SCROLL.lock().unwrap_or_else(|p| p.into_inner()) = Some(y);
+}
+
+pub fn take_pending_scroll() -> Option<f64> {
+    PENDING_SCROLL.lock().unwrap_or_else(|p| p.into_inner()).take()
+}
+
+/// A8 — the host is about to mount the open dialog: whether the splash
+/// already shows this same dialog (a state-change remount, whose scroll
+/// position the host keeps) — false for a fresh open.
+pub fn note_mounted() -> bool {
+    let mut st = state();
+    let same = st.mounted.is_some() && st.mounted == st.open;
+    st.mounted = st.open;
+    same
+}
+
 /// Open `dialog` and return its load job.
 pub fn open(dialog: Dialog) -> Outcome {
     let mut st = state();
     st.open = Some(dialog);
+    st.mounted = None;
     match dialog {
         Dialog::Inventory => {
             st.inv.on_open();
@@ -352,6 +379,7 @@ pub fn close() {
         st = state();
     }
     st.open = None;
+    st.mounted = None;
 }
 
 fn active_drafts() -> Option<std::sync::Arc<crate::screens::media::AttachmentDraftStore>> {

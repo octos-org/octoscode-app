@@ -3413,14 +3413,38 @@ impl OctoscodeView {
             .map(|(n, k)| (LiveId::from_str(n), k.clone()))
             .collect();
         let splash = self.view.splash(cx, ids!(board3_splash));
+        // A8 — a state change remounts the dialog; keep the body's scroll
+        // position when it is the SAME dialog (a toggle low in the Session
+        // settings pane must not jump the pane back to its top).
+        let scroll_path = [live_id!(board3_splash), live_id!(b3_scroll)];
+        // The body's first child sits at `scroll_view.y - scroll` (the body has
+        // no top padding), which reads the offset on every makepad the module
+        // builds against.
+        let keep_scroll = {
+            let sv = self.view.widget(cx, &scroll_path);
+            let top = sv.area().rect(cx).pos.y;
+            let mut first = None;
+            sv.children(&mut |_, child| {
+                if first.is_none() {
+                    first = Some(child.area().rect(cx).pos.y);
+                }
+            });
+            dvec2(0.0, first.map(|y| (top - y).max(0.0)).unwrap_or(0.0))
+        };
+        let same_dialog = screens::board3::host::note_mounted();
         match self.mounts.mount(cx, &splash, &lowered.dsl) {
             Err(e) => makepad_widgets::log!("[octoscode] board3 mount: {e}"),
-            Ok(true) => makepad_widgets::log!(
-                "[octoscode] board3 mounted {:?}: {} tap(s), {} input(s)",
-                screens::board3::host::open_dialog(),
-                self.b3_taps.len(),
-                self.b3_inputs.len()
-            ),
+            Ok(true) => {
+                if same_dialog && keep_scroll.y > 0.0 {
+                    screens::board3::host::set_pending_scroll(keep_scroll.y);
+                }
+                makepad_widgets::log!(
+                    "[octoscode] board3 mounted {:?}: {} tap(s), {} input(s)",
+                    screens::board3::host::open_dialog(),
+                    self.b3_taps.len(),
+                    self.b3_inputs.len()
+                )
+            }
             Ok(false) => {}
         }
         self.board3_visibility(cx, &store);
@@ -4399,6 +4423,14 @@ impl Widget for OctoscodeView {
         // old column until some unrelated event).
         let shell = cx.owning_window_or_root_pass_size();
         self.track_conversation_geometry(cx, shell);
+        // A8 — a remounted board-3 dialog gets its body scroll back once this
+        // frame laid it out (a scroll set before the layout clamps to 0).
+        if let Some(y) = screens::board3::host::take_pending_scroll() {
+            self.view
+                .view(cx, &[live_id!(board3_splash), live_id!(b3_scroll)])
+                .set_scroll_pos(cx, dvec2(0.0, y));
+            self.view.redraw(cx);
+        }
         DrawStep::done()
     }
 

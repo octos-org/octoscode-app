@@ -204,14 +204,24 @@ fn wire_net(n: octoscode_store::domains::profile::PermissionNetworkPolicy) -> &'
     }
 }
 
-/// `[current, ...profiles]` deduped (the current selection first).
+/// The presets the server offers, in ITS order, with the current selection
+/// prepended only when it is not one of them (the web's `[current,
+/// ...profiles]`, `permission-projection.ts:31-50`, kept stable for a radio
+/// list: a pick must not reshuffle the rows under the pointer).
 pub fn perm_options(store: &Store) -> Vec<PermOption> {
+    let to = |sel: octoscode_store::domains::profile::PermissionProfileSelection| PermOption {
+        mode: wire_mode(sel.mode).into(),
+        network: wire_net(sel.network).into(),
+    };
     let mut out: Vec<PermOption> = Vec::new();
-    let cur = store.domains.profile.permission();
-    for sel in cur.into_iter().chain(store.domains.profile.permission_profiles()) {
-        let o = PermOption { mode: wire_mode(sel.mode).into(), network: wire_net(sel.network).into() };
+    for o in store.domains.profile.permission_profiles().into_iter().map(to) {
         if !out.contains(&o) {
             out.push(o);
+        }
+    }
+    if let Some(cur) = store.domains.profile.permission().map(to) {
+        if !out.contains(&cur) {
+            out.insert(0, cur);
         }
     }
     out
@@ -892,6 +902,7 @@ pub fn build(d: &mut Dsl, st: &PaneState, frame: &Frame, store: &Store) {
     // The readback (`:56-66`): the stamp's value, else what this client set
     // (not verified); no line at all when nothing is known.
     let readback = st.status.as_ref().and_then(|s| s.approval_policy.clone());
+    let has_readback = readback.is_some() || st.approval_set_here.is_some();
     match (readback, &st.approval_set_here) {
         (Some(p), _) => kv(d, "b3_sc_policy", "Approval policy:", &p, inner_w),
         (None, Some(p)) => {
@@ -910,7 +921,10 @@ pub fn build(d: &mut Dsl, st: &PaneState, frame: &Frame, store: &Store) {
             .unwrap_or(usize::MAX);
         let row = d.anon();
         d.view(&row, "width: Fill height: Fit flow: Down spacing: 6 padding: Inset{top: 4}");
-        d.text("b3_sc_policy_label", "Approval policy", &Txt::new(12.0, Face::Medium, tok::MUTED));
+        // The readback line above already names the control.
+        if !has_readback {
+            d.text("b3_sc_policy_label", "Approval policy", &Txt::new(12.0, Face::Medium, tok::MUTED));
+        }
         let opts: Vec<(&str, String)> = vec![
             ("On request", "b3.sc.approval.on-request".into()),
             ("Never ask", "b3.sc.approval.never".into()),
@@ -1012,14 +1026,29 @@ fn risk_confirm(d: &mut Dsl, o: &PermOption, ack: bool) {
     );
     let net = if o.network == "allow" { "Network allowed" } else { "Network blocked" };
     d.text("b3_sc_risk_facts", &format!("Filesystem access: Full access · Network access: {net}"), &Txt::new(12.0, Face::Medium, tok::TEXT).w(W::Fill).wrap());
+    // The web's acknowledgement is a checkbox ("Tick the box above…"): the
+    // whole row is its 28+ px tap target.
+    d.view("b3_sc_risk_ack_box", "width: Fill height: Fit flow: Overlay");
     let row = d.anon();
-    d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
-    d.toggle("b3_sc_risk_ack", ack, "b3.sc.risk.ack");
+    d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{top: 4 bottom: 4}");
+    d.surface(
+        "b3_sc_risk_ack_check",
+        "width: 18 height: 18 flow: Overlay align: Align{x: 0.5 y: 0.5}",
+        if ack { tok::BLUE } else { tok::SURFACE },
+        4.0,
+        Some(if ack { tok::BLUE } else { "#aeaeb2ff" }),
+    );
+    if ack {
+        d.icon("b3_sc_risk_ack_tick", "b3_check_white.svg", 12.0, tok::WHITE);
+    }
+    d.close();
     d.text(
         "b3_sc_risk_ack_label",
         "I understand that this session can make unrestricted changes.",
         &Txt::new(12.0, Face::Regular, tok::TEXT).w(W::Fill).wrap(),
     );
+    d.close();
+    d.tap("b3_sc_risk_ack", "b3.sc.risk.ack");
     d.close();
     if !ack {
         help(d, "b3_sc_risk_hint", "Tick the box above to enable this button.");
@@ -1154,6 +1183,40 @@ mod tests {
         assert!(matches!(perform(&mut st, "b3.sc.risk.confirm", 0, &store), Outcome::Spawn(Job::PanePerm(_))));
         assert_eq!(st.perm_save, Some(SaveState::Saving));
         assert_eq!(perform(&mut st, "b3.sc.perm", 1, &store), Outcome::Done, "a second save while saving is refused");
+    }
+
+    /// The pane's DSL evaluates in the app VM (the mount path), loading and
+    /// loaded, desktop and phone frames.
+    #[test]
+    fn the_pane_evaluates_in_the_app_vm() {
+        use makepad_widgets::*;
+        let mut cx = Cx::new(Box::new(|_, _| {}));
+        cx.with_vm(makepad_widgets::script_mod);
+        cx.with_vm(octoscript_widgets::design::script_mod);
+        cx.with_vm(octoscript_widgets::kit::script_mod);
+        let store = Store::new();
+        store.set_active(Some("s".into()));
+        store.domains.config.set_supported_methods(vec![PERM_SET.into(), LLM_LIST.into(), STATUS_METHOD.into()]);
+        let loaded = PaneState {
+            status: Some(StatusFacts { model: Some("deepseek-v4-flash".into()), approval_policy: Some("on-request".into()), ..Default::default() }),
+            models: parse_models(&json!({"llm": {"primary": {"model_id": "m", "family_id": "f", "route_id": "r", "selected": true, "available": true}, "fallbacks": []}})),
+            advanced_open: true,
+            ..Default::default()
+        };
+        for st in [PaneState { loading: true, ..Default::default() }, loaded] {
+            for frame in [Frame::DESKTOP, Frame { avail_w: 360.0, avail_h: 700.0 }] {
+                let mut d = Dsl::new();
+                build(&mut d, &st, &frame, &store);
+                let dsl = d.finish();
+                assert!(
+                    crate::mount::eval_component(&mut cx, makepad_widgets::MAIN_SPLASH_VM_ID, &dsl).is_ok(),
+                    "the pane DSL evaluates"
+                );
+            }
+        }
+        let mut d = Dsl::new();
+        super::super::thinking::build(&mut d, &Frame::DESKTOP, &store);
+        assert!(crate::mount::eval_component(&mut cx, makepad_widgets::MAIN_SPLASH_VM_ID, &d.finish()).is_ok());
     }
 
     #[test]

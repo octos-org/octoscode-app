@@ -170,9 +170,36 @@ pub async fn load_status(conv: &crate::flow::Conversation) -> Result<String, Str
             .or_else(|| m.get("model").and_then(|t| t.as_str()))
             .map(str::to_owned)
     });
-    let mut st = super::host::state();
-    if let Some(m) = &model {
-        st.strip.model = Some((session.clone(), m.clone()));
+    {
+        let mut st = super::host::state();
+        if let Some(m) = &model {
+            st.strip.model = Some((session.clone(), m.clone()));
+        }
+    }
+    // A8 — the permission fact: the web reads the session's permission
+    // profile when it opens (`refreshPermission`, use-octos-session's open
+    // path), so the strip names the mode from the start instead of
+    // "Permissions not reported" until the pane is opened.
+    if conv.store.domains.config.supported_methods().iter().any(|m| m == "permission/profile/list") {
+        use octoscode_client::domains::profile::PermissionProfileList;
+        if let Ok(r) = conv
+            .client()
+            .call::<PermissionProfileList>(octos_core::ui_protocol::PermissionProfileListParams {
+                session_id: octos_core::SessionKey(session.clone()),
+            })
+            .await
+        {
+            if r.session_id.0 == session {
+                use octoscode_store::domains::profile::PermissionProfileSelection as Sel;
+                let sel = |s: &octos_core::ui_protocol::PermissionProfileSelection| {
+                    serde_json::to_value(s).ok().and_then(|v| serde_json::from_value::<Sel>(v).ok())
+                };
+                if let Some(cur) = sel(&r.current) {
+                    let profiles: Vec<Sel> = r.profiles.iter().filter_map(sel).collect();
+                    conv.store.domains.profile.set_permission(cur, profiles);
+                }
+            }
+        }
     }
     Ok(model.unwrap_or_else(|| "no model reported".into()))
 }
