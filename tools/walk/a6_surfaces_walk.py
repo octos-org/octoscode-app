@@ -324,11 +324,25 @@ def layout(name, card_id, buttons, labels, frame_id=None):
     return card
 
 
+def clear_composer():
+    """Empty the composer: it may hold a RESTORED prompt (an interrupted turn's
+    text comes back, like the web), so a new prompt must not be typed into it
+    at the cursor. End + one Backspace per character (the instrument's
+    synthetic Cmd+A does not reach the TextInput's select-all)."""
+    n = len(text("i0_composer_0"))
+    if n:
+        get("/k?c=end&wait=1")
+        for _ in range(n + 1):
+            get("/k?c=backspace&wait=1")
+        time.sleep(0.35)
+
+
 def send_prompt(n):
     composer = "i0_composer_0"
     if not wait(lambda: shown(composer), 20):
         return check(f"turn {n + 1}: composer shown", False)
     click(composer)
+    clear_composer()
     type_text(PROMPTS[n])
     key("return")
     started = wait(lambda: any("ComposerSubmit" in l for l in app_logs()), 10)
@@ -576,6 +590,11 @@ def walk_questions():
         check("CLICK Stop turn -> turn/interrupt on the wire", wire)
         settled = wait(lambda: not shown("cv_q_card") and shown("i0_composer_0"), 15)
         check("the turn settles: the card closes, the composer is back", settled)
+        # The web restores an interrupted turn's prompt into the composer
+        # (A7's interrupt restore); the next send must clear it first.
+        restored = wait(lambda: text("i0_composer_0").strip() == PROMPTS[2], 8)
+        check("Stop turn restores the interrupted prompt into the composer", restored,
+              repr(text("i0_composer_0"))[:80])
 
 
 def approval_layout(name):
