@@ -589,9 +589,16 @@ def run(serve):
     hyd = [t for t in trace()[n_trace:] if t.get("method") == "session/hydrate" and t.get("dir") == "in"]
     check("recovered: and re-hydrated (the canonical history came back)",
           any((t.get("body") or {}).get("session_id") == session0 for t in hyd), f"{len(hyd)} hydrate replies")
-    check("recovered: the header names the same conversation", text("hd_title") == title0, f"{text('hd_title')!r} vs {title0!r}")
+    # The Session id is the identity (checked above). Since A15 the server titles a Session from its first prompt, so an
+    # untitled "New chat" header may come back carrying that title: same conversation, newer title.
+    t1 = text("hd_title")
+    check("recovered: the header names the same conversation",
+          t1 == title0 or (title0 in ("", "New chat") and bool(t1) and t1 != "New chat"), f"{t1!r} vs {title0!r}")
     if TURNS:
-        texts = [w.get("t") or "" for w in snap() if w.get("v", 1) != 0 and w["r"][2] > 0]
+        # Transcript rows only: the header title and the sidebar row now repeat the first prompt (A15's server titles).
+        chrome = ("hd_", "sb_", "sg_", "b3_strip", "i0_composer", "composer_")
+        texts = [w.get("t") or "" for w in snap() if w.get("v", 1) != 0 and w["r"][2] > 0
+                 and not str(w.get("i") or "").startswith(chrome)]
         check("recovered: the timeline survived (turn 1 is still there)",
               any("what is 2 + 3" in t or "2 + 3 = 5" in t for t in texts))
         check("recovered: the re-hydrate did not duplicate turn 1",

@@ -274,31 +274,24 @@ def main():
     time.sleep(6)
     capture("restart-first")
 
-    def has_history():
-        t = " ".join(t for _, t in texts())
-        return "judge.txt" in t or "main.rs" in t or "lighthouse" in t
+    # The transcript is virtualized: only rows in view are laid out, so read it by scrolling (never the header title,
+    # which octos derives from the first prompt and can name an earlier conversation's words).
+    def earlier_turns():
+        seen = transcript_scrolled()
+        return seen, [k for k in ("judge.txt", "main.rs", "done") if k in seen], ("lighthouse" in seen or "Turn stopped" in seen)
 
-    hist = wait(has_history, 20)
-    if not hist:
+    time.sleep(4)
+    seen, back, stop_back = earlier_turns()
+    if len(back) < 3:
         rows = [w for w in snap() if w.get("i") == "sb_r_open" and shown(w)]
         if rows:
             click_w(rows[0])
-            hist = wait(has_history, 20)
+            time.sleep(4)
             capture("restart-reopened")
-    check("restart: the session's earlier turns are shown after reopening", hist)
-    if hist:
-        # A15: read the TRANSCRIPT, not the header / sidebar title (octos
-        # titles the Session by its first prompt, which names judge.txt), and
-        # walk the virtualized list from the bottom up: /snap only lays out
-        # the rows in view. The stopped turn: octos persists nothing for an
-        # interrupted turn (no user row; only its turn_terminal record is
-        # retained), so its "Turn stopped" notice is the stop's evidence when
-        # the prompt itself cannot come back.
-        seen = transcript_scrolled()
-        back = [k for k in ("judge.txt", "main.rs", "done") if k in seen]
-        stop_back = "lighthouse" in seen or "Turn stopped" in seen
-        check("restart: every earlier turn is back (file, CJK, queue, stop)", len(back) == 3 and stop_back,
-              f"found {back}, stop {'yes' if stop_back else 'no'}")
+            seen, back, stop_back = earlier_turns()
+    check("restart: the session's earlier turns are shown after reopening", bool(back), f"found {back}")
+    check("restart: every earlier turn is back (file, CJK, queue, stop)", len(back) == 3 and stop_back,
+          f"found {back}, stop {'yes' if stop_back else 'no'}")
     capture("restart-history")
     s, d = turn("Reply with one short sentence: what is 2 + 3?", 90)
     check("restart: the next prompt streams and completes", s and d)
