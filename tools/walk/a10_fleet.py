@@ -98,20 +98,31 @@ def click_logged(W: Walk, wid: str, needle: str, expect=None, secs: float = 8.0)
     return ok and logged and seen
 
 
+# The phone shell's soft keyboard: its own hide key (the chevron at the
+# keyboard bar's right end, `PhoneHit::HideKeyboard`, mobile_surface.rs) in
+# the 402x874 phone window. While the keyboard is up the shell lifts the
+# module's content above it, so /snap rects are off until it is hidden; with
+# the keyboard down this point is outside the module view (x > 360).
+PHONE_HIDE_KEYBOARD = (377, 573)
+
+
+def hide_keyboard(W: Walk) -> None:
+    if W.mode == "phone":
+        W.note("TAP the keyboard's hide key")
+        W.click_xy(*PHONE_HIDE_KEYBOARD)
+        time.sleep(0.6)
+
+
 def type_into(W: Walk, wid: str, text: str, neutral: str = "b3_title") -> None:
-    """Focus `wid`, type, then (phone) drop the shell's soft keyboard by a
-    tap on a neutral label NEAR the field — the keyboard covers the lower
-    screen, and a label scrolled out of view cannot be tapped."""
+    """Focus `wid`, type, then (phone) put the soft keyboard away with its own
+    hide key, as a person does before reaching a control under it. `neutral`
+    is kept for the call sites' readability."""
     seek(W, wid)
     r = W.rect(wid)
     if r:
         W.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
         W.type_text(text)
-        if W.mode == "phone":
-            if not W.visible(neutral):
-                seek(W, neutral)
-            W.dismiss_keyboard(neutral)
-            time.sleep(0.4)
+        hide_keyboard(W)
 
 
 def replay_lines(W: Walk, needle: str) -> list[str]:
@@ -208,9 +219,12 @@ def walk(W: Walk) -> None:
             and len(replay_lines(W, "<- session/driver/acquire")) == 1 and len(replay_lines(W, "<- peer/prepare")) == 1
             and any("expected_revision=42" in l for l in replay_lines(W, "-> session/driver/acquire")),
             "; ".join(replay_lines(W, "(fleet sim)")[-3:]))
+    # The union order: the walked dispatch is row 0, the adopted roster row 1.
+    adopted = W.wait(lambda: seek(W, "b3_fleet_row_1_label", steps=20)
+                     and W.text("b3_fleet_row_1_label") == "Peer 2 · gpt-5.4", 15)
     W.check("fleet: the adopted row 'Peer 2 · gpt-5.4' appears and the brief clears",
-            W.wait(lambda: row_of(W, "Peer 2 · gpt-5.4") is not None, 8)
-            and W.text("b3_fleet_brief") in ("", "Describe the task for the peer"))
+            adopted and seek(W, "b3_fleet_brief") and W.text("b3_fleet_brief") in ("", "Describe the task for the peer"),
+            f"row1={W.text('b3_fleet_row_1_label')!r}")
     waiting = W.wait(lambda: "Waiting for your approval" in status_of(W, 1), 10)
     W.check("fleet: the adopted session's own frames drive it to 'Waiting for your approval'",
             waiting, f"status={status_of(W, 1)!r}")
@@ -316,20 +330,12 @@ def walk(W: Walk) -> None:
             click_logged(W, "b3_fleet_gather", "b3.fleet.gather", lambda: "Peer synthesis queued" in W.text("b3_fleet_announce"), 10)
             and len(replay_lines(W, "<- peer/gather")) == 1 and len(replay_lines(W, "<- turn/start")) == before + 1)
 
-    W.note("== 10. the control seat (PeerControlPanel): a live master turn + the held seat's pending work")
-    W.check("fleet: Back closes the pane", click_logged(W, "b3_fleet_back", "b3.close", lambda: not W.visible("b3_fleet_panel")))
-    W.wait(lambda: W.composer() is not None, 8)
-    c = W.composer()
-    if c:
-        r = c["r"]
-        W.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
-        W.type_text("Coordinate the fleet")
-        W.wait_shown("send_hit", 4)
-        W.click("send_hit")  # the composer's own Send (Return is a newline on a phone)
-    W.check("fleet: a composer turn goes out (the master's live turn)",
-            W.wait(lambda: len(replay_lines(W, "<- turn/start")) == before + 2, 8),
-            f"turn/start x{len(replay_lines(W, '<- turn/start'))}")
-    W.check("fleet: Fleet entry CLICK reopens the pane", open_fleet(W))
+    W.note("== 10. the control seat (PeerControlPanel): the master's live turn (the gather's synthesis) + the held seat's pending work")
+    W.check("fleet: Back closes the pane and the composer returns",
+            click_logged(W, "b3_fleet_back", "b3.close", lambda: not W.visible("b3_fleet_panel"))
+            and W.wait(lambda: W.composer() is not None, 8))
+    W.check("fleet: Fleet entry CLICK reopens the pane (the composer is hidden under it)",
+            open_fleet(W) and W.composer() is None)
     if not seek(W, "b3_fleet_disclosure_mode"):
         click_logged(W, "b3_fleet_advanced", "b3.fleet.advanced", lambda: shown(W, "b3_fleet_disclosure_mode"))
     W.check("fleet: the control seat mounts (held seat + pending work + live turn)", shown(W, "b3_fleet_seat_title"))
