@@ -204,6 +204,15 @@ pub fn tr_with(source: &str, params: &[(&str, &str)]) -> String {
     text_in(language(), source, params)
 }
 
+/// Copy shown in English ON PURPOSE in every language: one control must
+/// read in one language, and a native-only control whose siblings have no
+/// web key (Settings > Model's "Off | On | High") stays English rather than
+/// mixing "Off | On | 高". The source scan accepts it as a decision, not a
+/// bypass; a web key for every sibling turns it into `tr()`.
+pub fn keep(source: &str) -> &str {
+    source
+}
+
 /// `t(source, {value0})` — the web's generated keys name their one
 /// placeholder `{value0}`.
 pub fn tr1(source: &str, value0: &str) -> String {

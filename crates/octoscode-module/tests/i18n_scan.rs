@@ -367,7 +367,7 @@ fn args_of(code: &str, open: usize) -> Vec<(usize, usize)> {
 /// translated.
 fn tr_spans(arg: &str) -> Vec<(usize, usize)> {
     let mut out = Vec::new();
-    for w in ["tr(", "tr1(", "tr_with(", "tr_in(", "text_in("] {
+    for w in ["tr(", "tr1(", "tr_with(", "tr_in(", "text_in(", "keep("] {
         let mut from = 0;
         while let Some(at) = arg[from..].find(w).map(|n| n + from) {
             from = at + 1;

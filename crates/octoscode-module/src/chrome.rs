@@ -2087,9 +2087,12 @@ impl ChromeRuntime {
         // Model.
         text(cx, view, &[live_id!(set_model), live_id!(vb_text)], &settings::model_of(store));
         let thinking = settings::thinking_of(store);
-        set_segment(cx, view, live_id!(th_off), tr("Off"), thinking == settings::Thinking::Off);
-        set_segment(cx, view, live_id!(th_on), tr("On"), thinking == settings::Thinking::On);
-        set_segment(cx, view, live_id!(th_high), tr("High"), thinking == settings::Thinking::High);
+        // A24: the web has no key for "Off" / "On": this one control stays
+        // English rather than read "Off | On | 高" (i18n::keep).
+        use crate::i18n::keep;
+        set_segment(cx, view, live_id!(th_off), keep("Off"), thinking == settings::Thinking::Off);
+        set_segment(cx, view, live_id!(th_on), keep("On"), thinking == settings::Thinking::On);
+        set_segment(cx, view, live_id!(th_high), keep("High"), thinking == settings::Thinking::High);
         show(cx, view, ids!(set_models_row), crate::screens::dialog::advertises(store, "profile/llm/list"));
         // Sandbox (new-chat defaults).
         set_toggle(cx, view, live_id!(tg_sb_write), st.sandbox.workspace_write);

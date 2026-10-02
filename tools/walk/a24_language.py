@@ -270,8 +270,11 @@ def run_live(W: Walk):
         W.clear_field(4)
         W.dismiss_keyboard("hd_title")
     # Board 1: Disconnect -> the Connect card in Chinese, then pairing.
+    time.sleep(1.0)  # the phone keyboard's hide animation
     open_settings(W)
-    section(W, "connection")
+    if not section(W, "connection"):
+        time.sleep(0.8)
+        section(W, "connection")
     W.mark()
     W.check("board 1: Disconnect CLICK", W.click_in("settings_disconnect", "set_body"))
     W.check("board 1: the Connect card returns", W.wait(lambda: bool(W.visible("connect_card")), 12))
