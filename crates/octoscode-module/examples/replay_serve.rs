@@ -810,10 +810,21 @@ async fn main() {
                         "turn/start" => {
                             send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {"accepted": true}})).await;
                             let mut frames = surfaces::turn_frames(&all_frames, played);
-                            // The recorded turn's canonical user message
-                            // carries what the app actually sent (some
-                            // recordings redact it), so it settles onto the
-                            // app's own optimistic bubble.
+                            // The recorded turn plays AS the app's turn: its id
+                            // (the turn/start `turn_id`, which a real server
+                            // adopts) replaces the recorded one in every frame,
+                            // and the canonical user message carries what the
+                            // app actually sent (some recordings redact it) —
+                            // so it settles onto the app's own optimistic row.
+                            let recorded_turn = surfaces::TURNS[played.min(surfaces::TURNS.len() - 1)];
+                            if let Some(app_turn) = params["turn_id"].as_str().filter(|t| !t.is_empty()) {
+                                for (f, _) in frames.iter_mut() {
+                                    let text = f.body.to_string().replace(recorded_turn, app_turn);
+                                    if let Ok(v) = serde_json::from_str(&text) {
+                                        f.body = v;
+                                    }
+                                }
+                            }
                             if let Some(typed) = params["input"][0]["text"].as_str().filter(|t| !t.is_empty()) {
                                 for (f, _) in frames.iter_mut() {
                                     if f.method == "projection/envelope" && f.body["payload"]["type"] == "user_message" {

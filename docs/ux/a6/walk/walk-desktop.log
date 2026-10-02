@@ -12,8 +12,8 @@ PASS expanded thinking: no hover tint after the click — header (255, 255, 255)
   shot docs/ux/a6/walk/desktop-02-thinking-expanded.png
 PASS CLICK again -> folded
 PASS turn 2: CLICK composer + type + Return -> turn/start
-PASS turn 2: delivered files are attachment rows — ['b3_tl_file_download_6', 'b3_tl_file_download_7']
-PASS files: r23-report.pdf (2 KiB) and coverage.png — ['r23-report.pdf', 'coverage.png'] ['2 KiB', '96 KiB']
+PASS turn 2: delivered files are attachment rows — ['b3_tl_file_download_7', 'b3_tl_file_download_6']
+PASS files: r23-report.pdf (2 KiB) and coverage.png — ['coverage.png', 'r23-report.pdf'] ['96 KiB', '2 KiB']
 PASS CLICK the tool row -> its output discloses — ['12:29 - [octoscode] tool.toggle: call_00_1nHw0JiGHc6HQdxNySqu4250 open']
   shot docs/ux/a6/walk/desktop-03-tool-expanded.png
 PASS CLICK Download -> GET /api/files on the wire, saved to the download dir — saved=True wire=True

@@ -176,14 +176,7 @@ def window_size():
 def shot(name):
     SHOT_N[0] += 1
     path = OUT / f"{MODE}-{SHOT_N[0]:02d}-{name}.png"
-    data = None
-    for _ in range(4):  # the grab can 404 while a frame is in flight
-        try:
-            with urllib.request.urlopen(BASE + "/g?raw=1", timeout=30) as r:
-                data = r.read()
-            break
-        except urllib.error.HTTPError:
-            time.sleep(0.5)
+    data = grab()
     if data is None:
         say(f"  (no capture for {name})")
         return None
@@ -250,16 +243,23 @@ def png_pixels(raw):
     return w, h, bpp, rows
 
 
-def pixel_at(x, y):
-    """The window's colour at logical (x, y) from a fresh full-size /g."""
-    raw = None
-    for _ in range(4):
+def grab(tries=12):
+    """The window's PNG (`/g?raw=1`); the grab can 404 while a frame is in
+    flight, so it is retried."""
+    for _ in range(tries):
         try:
             with urllib.request.urlopen(BASE + "/g?raw=1", timeout=30) as r:
-                raw = r.read()
-            break
+                return r.read()
         except urllib.error.HTTPError:
             time.sleep(0.5)
+    return None
+
+
+def pixel_at(x, y):
+    """The window's colour at logical (x, y) from a fresh full-size /g."""
+    raw = grab()
+    if raw is None:
+        return None
     w, h, bpp, rows = png_pixels(raw)
     sz = window_size() or [w, h]
     sx, sy = w / float(sz[0]), h / float(sz[1])
@@ -433,7 +433,8 @@ def walk_thinking():
         # equals the transcript ground beside the row.
         head = pixel_at(r[0] + r[2] - 6, r[1] + 3)
         ground = pixel_at(r[0] + r[2] - 6, r[1] - 3)
-        check("expanded thinking: no hover tint after the click", max(abs(a - b) for a, b in zip(head, ground)) <= 2,
+        check("expanded thinking: no hover tint after the click",
+              head and ground and max(abs(a - b) for a, b in zip(head, ground)) <= 2,
               f"header {head} vs ground {ground}")
     shot("thinking-expanded")
     click(f"{row}_tap")

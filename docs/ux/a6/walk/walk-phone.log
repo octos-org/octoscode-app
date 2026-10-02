@@ -21,9 +21,9 @@ PASS CLICK Preview -> the image shows in its row — b3_tl_file_img_7
 PASS preview: the image keeps its aspect inside its row — [16, 475, 328, 185] in [16, 371, 328, 96]
   shot docs/ux/a6/walk/phone-04-files.png
 PASS fold bar shown at the transcript head
-PASS CLICK Expand all -> every visible block opens — {'b3_tl_think_1': 42, 'b3_tl_think_4': 42} -> {'b3_tl_think_1': 80, 'b3_tl_think_4': 68}
+PASS CLICK Expand all -> every visible block opens — {'b3_tl_think_4': 42, 'b3_tl_think_1': 42} -> {'b3_tl_think_4': 68, 'b3_tl_think_1': 80}
   shot docs/ux/a6/walk/phone-05-expand-all.png
-PASS CLICK Collapse all -> every block folds — heights {'b3_tl_think_1': 42, 'b3_tl_think_4': 42} (folded {'b3_tl_think_1': 42, 'b3_tl_think_4': 42})
+PASS CLICK Collapse all -> every block folds — heights {'b3_tl_think_4': 42, 'b3_tl_think_1': 42} (folded {'b3_tl_think_4': 42, 'b3_tl_think_1': 42})
   shot docs/ux/a6/walk/phone-06-collapse-all.png
 PASS turn 3: CLICK composer + type + Return -> turn/start
 PASS turn 3: the question takes the composer over
