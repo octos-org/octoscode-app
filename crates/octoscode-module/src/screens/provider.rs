@@ -1104,7 +1104,8 @@ fn select_field(v: &mut Ui, l: &Layout, ui: &ProviderUi, which: Select, label: &
                 )
             })
             .collect();
-        let max_h = (rows.len() > 5).then_some((row_h * 5) as f64);
+        // Five full rows and their four hairlines.
+        let max_h = (rows.len() > 5).then_some((row_h * 5 + 4) as f64);
         v.push(kit::gap(6.0));
         v.push(kit::list_card_scroll("b1_prov_options", &rows, max_h));
     }
@@ -1112,7 +1113,7 @@ fn select_field(v: &mut Ui, l: &Layout, ui: &ProviderUi, which: Select, label: &
 
 /// One Models row (board 1 #6): the chosen model checked, "(default)" when
 /// it is (or becomes) the Profile's primary.
-fn model_rows(v: &mut Ui, l: &Layout, ui: &ProviderUi, list: &[String], action: &str, id_base: &str, interactive: bool) -> Vec<String> {
+fn model_rows(v: &mut Ui, l: &Layout, ui: &ProviderUi, list: &[String], action: &str, id_base: &str, interactive: bool) -> Vec<(String, f64)> {
     let chosen = ui.model_id();
     list.iter()
         .enumerate()
@@ -1137,19 +1138,26 @@ fn model_rows(v: &mut Ui, l: &Layout, ui: &ProviderUi, list: &[String], action: 
             let two = super::board3::ui::text_w(&label, 14.0, super::board3::ui::Face::Regular) * 1.2 > room;
             let text_id = format!("{id_base}_t{i}");
             let text = Text::new(&text_id, &label).px(14.0).fill();
-            format!(
-                "View {{ width: Fill height: {} flow: Overlay\nView {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 14 right: 12}} spacing: 10\n{}{}}}\n{hit}}}\n",
-                match (l.phone, two) {
-                    (true, true) => 68,
-                    (true, false) => 46,
-                    (false, true) => 62,
-                    (false, false) => 40,
-                },
+            let h = match (l.phone, two) {
+                (true, true) => 68.0,
+                (true, false) => 46.0,
+                (false, true) => 62.0,
+                (false, false) => 40.0,
+            };
+            let row = format!(
+                "View {{ width: Fill height: {h} flow: Overlay\nView {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 14 right: 12}} spacing: 10\n{}{}}}\n{hit}}}\n",
                 if two { text.dsl() } else { text.one_line().dsl() },
                 kit::svg("", if on { "b1_check_on.svg" } else { "b1_check_off.svg" }, 23.0),
-            )
+            );
+            (row, h)
         })
         .collect()
+}
+
+/// A list of more than five rows scrolls inside a box five FULL rows tall
+/// (their own heights, a wrapped row included, and the four hairlines).
+fn five_rows_h(rows: &[(String, f64)]) -> Option<f64> {
+    (rows.len() > 5).then(|| rows.iter().take(5).map(|(_, h)| h).sum::<f64>() + 4.0)
 }
 
 /// The Models list (board 1 #6), the endpoint's models after a fetch
@@ -1159,8 +1167,8 @@ fn models_section(v: &mut Ui, l: &Layout, ui: &ProviderUi, read_only: bool) {
     v.push(kit::gap(if l.phone { 8.0 } else { 6.0 }));
     let models: Vec<String> = ui.models.clone();
     let rows = model_rows(v, l, ui, &models, "provider.model", "b1_prov_model", !read_only);
-    let row_h = if l.phone { 46.0 } else { 40.0 };
-    let max_h = (rows.len() > 5).then_some(row_h * 5.0);
+    let max_h = five_rows_h(&rows);
+    let rows: Vec<String> = rows.into_iter().map(|(r, _)| r).collect();
     if rows.is_empty() {
         v.push(Text::new("b1_prov_models_none", "No catalog models for this provider.").px(14.0).color(kit::MUTED).fill().dsl());
     } else {
@@ -1176,7 +1184,8 @@ fn models_section(v: &mut Ui, l: &Layout, ui: &ProviderUi, read_only: bool) {
         v.push(kit::gap(6.0));
         let fetched = ui.fetched.clone();
         let rows = model_rows(v, l, ui, &fetched, "provider.fetched", "b1_prov_fetched", !read_only);
-        let max_h = (rows.len() > 5).then_some(row_h * 5.0);
+        let max_h = five_rows_h(&rows);
+        let rows: Vec<String> = rows.into_iter().map(|(r, _)| r).collect();
         v.push(kit::list_card_scroll("b1_prov_fetched_list", &rows, max_h));
     }
     if let Some(f) = &ui.fetch_feedback {
@@ -1808,12 +1817,16 @@ mod tests {
         let list = vec!["claude-3-5-haiku-20241022".to_owned(), "claude-opus-4".to_owned()];
         let phone = Layout::of(super::super::board1::Surface::Provider, 360.0, 776.0);
         let rows = model_rows(&mut Ui::default(), &phone, &ui, &list, "provider.model", "b1_prov_model", true);
-        assert!(rows[0].contains("claude-3-5-haiku-20241022 (default)") && rows[0].contains("height: 68"), "{}", rows[0]);
-        assert!(rows[0].contains("Right{wrap: true}") && !rows[0].contains("Ellipsis"), "{}", rows[0]);
-        assert!(rows[1].contains("height: 46") && rows[1].contains("Ellipsis"), "{}", rows[1]);
+        assert!(rows[0].0.contains("claude-3-5-haiku-20241022 (default)") && rows[0].0.contains("height: 68") && rows[0].1 == 68.0, "{}", rows[0].0);
+        assert!(rows[0].0.contains("Right{wrap: true}") && !rows[0].0.contains("Ellipsis"), "{}", rows[0].0);
+        assert!(rows[1].0.contains("height: 46") && rows[1].0.contains("Ellipsis"), "{}", rows[1].0);
         let desk = Layout::of(super::super::board1::Surface::Provider, 990.0, 603.0);
         let rows = model_rows(&mut Ui::default(), &desk, &ui, &list, "provider.model", "b1_prov_model", true);
-        assert!(rows.iter().all(|r| r.contains("height: 40")), "the desktop card fits both on one line");
+        assert!(rows.iter().all(|(r, h)| r.contains("height: 40") && *h == 40.0), "the desktop card fits both on one line");
+        // Six rows: the scroll box shows five FULL rows (the wrapped one included) and their hairlines.
+        let six: Vec<(String, f64)> = [68.0, 46.0, 46.0, 46.0, 46.0, 46.0].iter().map(|h| (String::new(), *h)).collect();
+        assert_eq!(five_rows_h(&six), Some(68.0 + 4.0 * 46.0 + 4.0));
+        assert_eq!(five_rows_h(&six[..5]), None);
     }
 
     #[test]
