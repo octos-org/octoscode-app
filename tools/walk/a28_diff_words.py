@@ -65,7 +65,7 @@ WALK = {
              "partial": "selection and the dark theme are web-only (the dialog kit is light); the mobile width is walked"},
         36: ["large: the note 'Large preview shown as plain text. All lines are included.'",
              "large: no run and no word mark anywhere (all or nothing)",
-             "large: every line is included (522 lines, the last one scrolled into view)"],
+             "large: every line is included (all 520 Cargo.lock lines, the last one scrolled into view)"],
         37: ["conf: no grammar -> plain runs only, word marks on 500 / 250"],
     },
 }
@@ -170,6 +170,12 @@ def darkest(img, k, r):
             if sum(p) < sum(best):
                 best = p
     return best
+
+
+def shows(t, full):
+    """`t` is `full` or its ellipsized head (a phone title is cut to fit)."""
+    t = (t or "").strip()
+    return t == full or (t.endswith("…") and len(t) > 4 and full.startswith(t[:-1].rstrip()))
 
 
 def near(a, b, tol=14):
@@ -329,23 +335,32 @@ def mark_words(sn, runs, marks, lid):
 
 def phone_sideways(W):
     """Phone: a hunk wider than the sheet scrolls sideways (A13)."""
+    # The instrument reports CLIPPED rects, so "wider than the sheet" reads
+    # as: the long line's first run is drawn, its last run is clipped away,
+    # and every drawn run sits on ONE row (no wrap).
+    lid = "b3_diff_file_0_h0_l9"
     sn = W.snap()
     sv = W.rect("b3_diff_file_0_h0_scroll", sn=sn)
-    row = W.rect("b3_diff_file_0_h0_l9", sn=sn)
-    run0 = next((w for _, _, w in runs_of(sn).get("b3_diff_file_0_h0_l9", []) if W.shown(w)), None)
+    rr = runs_of(sn).get(lid, [])
+    shown = [w for _, _, w in rr if W.shown(w)]
+    one_row = len({round(w["r"][1]) for w in shown}) == 1
     W.check("phone: the Rust hunk is wider than the sheet (its rows scroll sideways, never wrap)",
-            bool(sv and row and row[2] > sv[2] + 20), f"scroll={sv} row={row}")
-    if not (sv and run0):
+            bool(sv and rr and W.shown(rr[0][2]) and not W.shown(rr[-1][2]) and one_row),
+            f"scroll={sv} runs={len(rr)} drawn={len(shown)} one_row={one_row}")
+    if not (sv and shown):
         return
+    run0, last = shown[0], rr[-1][2]
     x0 = run0["r"][0]
-    for _ in range(4):
+    for _ in range(6):
         W.get(f"/m?k=scroll&x={sv[0] + sv[2] / 2:.0f}&y={sv[1] + sv[3] / 2:.0f}&dx=120&wait=1", tolerant=True)
         time.sleep(0.2)
     sn = W.snap()
-    after = next((w for _, _, w in runs_of(sn).get("b3_diff_file_0_h0_l9", []) if w.get("i") == run0.get("i")), None)
+    by_id = {w.get("i"): w for _, _, w in runs_of(sn).get(lid, [])}
+    after, last_after = by_id.get(run0.get("i")), by_id.get(last.get("i"))
     x1 = after["r"][0] if after and W.shown(after) else None
-    moved = x1 is None or x1 < x0 - 20
-    W.check("phone: a sideways scroll moves the hunk's lines together", moved, f"x {x0} -> {x1}")
+    moved = (x1 is None or x1 < x0 - 20) and bool(last_after and W.shown(last_after))
+    W.check("phone: a sideways scroll moves the hunk's lines together", moved,
+            f"first run x {x0} -> {x1}; last run drawn={bool(last_after and W.shown(last_after))}")
     W.shot(f"words-scrolled-{MODE}")
     for _ in range(4):
         W.get(f"/m?k=scroll&x={sv[0] + sv[2] / 2:.0f}&y={sv[1] + sv[3] / 2:.0f}&dx=-120&wait=1", tolerant=True)
@@ -364,7 +379,7 @@ def large_checks(W, name):
                     key=lambda w: int(re.findall(r"_b(\d+)_", w["i"])[0]))
     text = "\n".join((w.get("t") or "") for w in blocks)
     want = "\n".join(l["content"] for l in LARGE["files"][0]["hunks"][0]["lines"])
-    W.check("large: every line is included (522 lines, the last one scrolled into view)",
+    W.check("large: every line is included (all 520 Cargo.lock lines, the last one scrolled into view)",
             text == want and scrolled_to_last(W, blocks), f"lines={text.count(chr(10)) + 1 if text else 0} "
             f"want={want.count(chr(10)) + 1} blocks={len(blocks)}")
     try:
@@ -394,10 +409,10 @@ def walk(W: Walk) -> None:
     W.check("approval: the command approval takes the composer over", W.wait(lambda: bool(W.visible("cv_ap_card")), 25))
     W.click("cv_ap_deny")
     W.check("approval: Deny -> the typed DIFF approval with 'Review diff'",
-            W.wait(lambda: W.text("cv_ap_title").startswith("Apply a patch to steer_queue.rs")
+            W.wait(lambda: shows(W.text("cv_ap_title"), "Apply a patch to steer_queue.rs, octos.conf and steer.md")
                    and bool(W.visible("cv_ap_diff")), 10), repr(W.text("cv_ap_title")))
     W.check("words: 'Review diff' CLICK opens the review on ONE diff/preview/get",
-            W.click("cv_ap_diff") and W.wait(lambda: W.text("b3_title") == WORDS["title"], 10)
+            W.click("cv_ap_diff") and W.wait(lambda: shows(W.text("b3_title"), WORDS["title"]), 10)
             and W.replay_saw("diff/preview/get", 4) == 1, f"title={W.text('b3_title')!r}")
     W.wait(lambda: bool(runs_of(W.snap())), 6)
     time.sleep(0.8)
@@ -409,7 +424,7 @@ def walk(W: Walk) -> None:
             and W.wait(lambda: bool(W.visible("cv_ap_session")), 6))
 
     W.note("== the header Review control re-opens the announced preview")
-    ok = W.click("review_open_hit") and W.wait(lambda: W.text("b3_title") == WORDS["title"], 10)
+    ok = W.click("review_open_hit") and W.wait(lambda: shows(W.text("b3_title"), WORDS["title"]), 10)
     W.check("header: Review CLICK re-opens the same preview (one more read)",
             ok and W.replay_saw("diff/preview/get", 0) == 2)
     W.wait(lambda: bool(marks_of(W.snap())), 6)
@@ -421,10 +436,10 @@ def walk(W: Walk) -> None:
     W.note("== the large preview: past the bound, nothing is decorated")
     W.click("cv_ap_session")
     W.check("approval: Approve for session -> the large diff approval",
-            W.wait(lambda: W.text("cv_ap_title").startswith("Apply a patch to Cargo.lock")
+            W.wait(lambda: shows(W.text("cv_ap_title"), "Apply a patch to Cargo.lock and Cargo.toml")
                    and bool(W.visible("cv_ap_diff")), 12), repr(W.text("cv_ap_title")))
     W.check("large: 'Review diff' CLICK opens the large preview",
-            W.click("cv_ap_diff") and W.wait(lambda: W.text("b3_title") == LARGE["title"], 10)
+            W.click("cv_ap_diff") and W.wait(lambda: shows(W.text("b3_title"), LARGE["title"]), 10)
             and W.replay_saw("diff/preview/get", 4) == 3, f"title={W.text('b3_title')!r}")
     W.wait(lambda: bool(W.visible("b3_diff_plain_note")), 8)
     time.sleep(0.8)

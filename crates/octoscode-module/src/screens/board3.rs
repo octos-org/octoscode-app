@@ -21,6 +21,8 @@ pub mod research;
 pub mod seats;
 pub mod routes;
 pub mod diff_review;
+// A28 — row 23: word marks + per-file syntax colours (diff-presentation.ts).
+pub mod diff_words;
 pub mod checkpoints;
 // A10: the Fleet's Advanced session controller and its zh catalog.
 pub mod fleet_console;

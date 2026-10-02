@@ -45,6 +45,16 @@ pub const NO_PREVIEW_BODY: &str =
     "A preview appears here once this Session proposes file changes, such as an approval that edits files.";
 pub const NO_METHOD: &str = "This server does not provide diff previews.";
 pub const NATIVE_REVIEW: &str = "Code review…";
+/// A28 — `DiffReviewDialog.tsx` `plainNotice`: the bound's note.
+pub const PLAIN_NOTE: &str = "Large preview shown as plain text. All lines are included.";
+/// A28 — a word mark's fill (FAILING-FIRST STUB values).
+pub const MARK_ADDED: &str = "#bbeacbff";
+pub const MARK_REMOVED: &str = "#fac1c1ff";
+
+/// A28 — the composited mark fill (FAILING-FIRST STUB).
+pub fn mark_fill(_added: bool) -> &'static str {
+    ""
+}
 /// The rendering bound (the web renders every line; a native label per line
 /// is bounded so a huge preview cannot stall the frame — the remainder is
 /// counted, never silently dropped).

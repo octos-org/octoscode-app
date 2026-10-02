@@ -1,0 +1,46 @@
+# A28 failing-first: tests/a28_diff_words.rs against the signature stubs (commit before the port)
+# cargo test -p octoscode-module --test a28_diff_words
+running 11 tests
+test never_interprets_source_or_drops_embedded_line_endings ... ok
+test does_not_pair_unequal_blocks_or_cross_context_boundaries ... FAILED
+test uses_the_grammar_and_preserves_multiline_context_on_each_side ... FAILED
+test the_bound_is_all_or_nothing_across_files ... FAILED
+test word_marks_match_the_web_on_every_fixture ... FAILED
+test bounds_both_total_preview_work_and_quadratic_word_comparison ... FAILED
+test desktop_dialog_and_the_phone_full_screen_sheet ... FAILED
+test the_review_draws_syntax_runs_and_word_marks ... FAILED
+test the_review_copy_is_chinese_in_zh ... FAILED
+test a_preview_past_the_bound_is_plain_and_complete ... FAILED
+test hostile_source_stays_text_in_the_dsl ... FAILED
+failures:
+thread 'does_not_pair_unequal_blocks_or_cross_context_boundaries' (242662096) panicked at crates/octoscode-module/tests/a28_diff_words.rs:280:5:
+assertion `left == right` failed
+  left: [[], []]
+ right: [["oldName"], ["newName"]]
+thread 'uses_the_grammar_and_preserves_multiline_context_on_each_side' (242662102) panicked at crates/octoscode-module/tests/a28_diff_words.rs:320:5:
+thread 'the_bound_is_all_or_nothing_across_files' (242662099) panicked at crates/octoscode-module/tests/a28_diff_words.rs:618:5:
+thread 'word_marks_match_the_web_on_every_fixture' (242662103) panicked at crates/octoscode-module/tests/a28_diff_words.rs:356:5:
+assertion `left == right` failed
+  left: []
+ right: ["Duration::from_millis", "500"]
+thread 'bounds_both_total_preview_work_and_quadratic_word_comparison' (242662094) panicked at crates/octoscode-module/tests/a28_diff_words.rs:291:5:
+401 lines do not
+thread 'desktop_dialog_and_the_phone_full_screen_sheet' (242662095) panicked at crates/octoscode-module/tests/a28_diff_words.rs:661:9:
+assertion `left == right` failed: 990x603: width: 760 height: Fit flow: Down padding: Inset{left: 20 right: 20 top: 20 bottom: 20}
+  left: Some("760")
+ right: Some("942")
+thread 'the_review_draws_syntax_runs_and_word_marks' (242662101) panicked at crates/octoscode-module/tests/a28_diff_words.rs:522:13:
+assertion `left == right` failed: b3_diff_file_0_h0_l0
+  left: ""
+ right: "    fn redeliver(&mut self, conn: &Conn) -> Result<()> {"
+thread 'the_review_copy_is_chinese_in_zh' (242662100) panicked at crates/octoscode-module/tests/a28_diff_words.rs:693:5:
+assertion `left == right` failed
+  left: Some("Authoritative diff preview")
+ right: Some("服务器确认的差异预览")
+thread 'a_preview_past_the_bound_is_plain_and_complete' (242662093) panicked at crates/octoscode-module/tests/a28_diff_words.rs:579:50:
+thread 'hostile_source_stays_text_in_the_dsl' (242662097) panicked at crates/octoscode-module/tests/a28_diff_words.rs:645:5:
+assertion `left == right` failed
+  left: ""
+ right: "x\" }\nb3_pwned := Label{text: \"pwned\"} \\ {"
+failures:
+test result: FAILED. 1 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
