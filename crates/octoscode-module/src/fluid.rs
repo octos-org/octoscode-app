@@ -1486,7 +1486,7 @@ pub fn connect_card_with_offer(
              View{{width: 20 height: 20 align: Align{{x: 0.5 y: 0.5}}\n{icon}}}\n\
              View{{width: Fill height: Fit flow: Down spacing: 10\n\
              {msg}\
-             connect_offer_wrap := View{{width: Fit height: Fit flow: Overlay\n\
+             connect_offer_wrap := View{{width: Fit height: 32 flow: Overlay\n\
              RoundedView{{width: Fit height: 32 flow: Right align: Align{{x: 0.5 y: 0.5}} \
              padding: Inset{{left: 14 right: 14}} \
              draw_bg +: {{color: {SURFACE} border_radius: 16.0 border_size: 1.0 border_color: {INK}}}\n\
