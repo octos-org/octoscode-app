@@ -54,6 +54,8 @@ WALK = {
         220: ["entry_add_workspace", "p4-08: the server's hidden", "p4-08: a second tap drills",
               "p4-08: the breadcrumb drills"],
         221: ["p4-09"],
+        222: ["p4-08: New folder creates it and moves into it",
+              "p4-08: Use this folder starts the session in the created folder"],
         223: ["p4-08: picking a subfolder"],
     },
 }
@@ -431,13 +433,29 @@ def main():
     # The browser's back lands on the picker (the web's add -> choose)
     click_until("b1_br_back", "b1_pk_browse"); time.sleep(0.8)
     capture("picker")
-    click_until("b1_pk_browse", "b1_br_row_0"); click("b1_br_row_0"); click("b1_br_use")
+    click_until("b1_pk_browse", "b1_br_row_0")
+    # A11 (row 222): New folder -> a name -> Create moves into it -> Use this
+    # folder starts the session there.
+    click_until("b1_br_newfolder", "b1_br_newname")
+    click("b1_br_newname"); typ("walk-made")
+    submit("b1_br_create")
+    end = time.time() + 8
+    while time.time() < end and (find("b1_br_path") or {}).get("t") != "/home/user/code/walk-made":
+        time.sleep(0.25)
+    made, empty = (find("b1_br_path") or {}).get("t"), (find("b1_br_empty") or {}).get("t")
+    report("p4-08: New folder creates it and moves into it",
+           made == "/home/user/code/walk-made" and empty == "No subfolders here.", f"path {made!r}, {empty!r}")
+    click("b1_br_use")
     wait("b1_card", 10, gone=True)
+    end = time.time() + 8
+    while time.time() < end and not any("walk-made" in (w.get("t") or "") for w in snap()):
+        time.sleep(0.25)
+    shown_in = [w.get("t") for w in snap() if "walk-made" in (w.get("t") or "")]
+    report("p4-08: Use this folder starts the session in the created folder", bool(shown_in), f"{shown_in[:2]}")
     log = [l for l in json.loads(get("/log?n=400"))["l"] if "board1" in l or "pairing" in l]
     open(f"{OUT}/walk.log", "w").write("\n".join(log) + "\n")
     json.dump(CHECKS, open(f"{OUT}/checks.json", "w"), indent=1)
     print("walk complete; checks pass:", {k: v.get("pass") for k, v in CHECKS.items()})
-    report("picker: Browse -> a folder -> Use this folder starts a session (the dialog closes)", True)
 
 
 if __name__ != "__main__":
