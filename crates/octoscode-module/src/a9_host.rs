@@ -295,10 +295,19 @@ impl OctoscodeView {
         }
         store.set_connection("Offline".to_owned(), false);
         if kind == a9_settings::LeaveKind::Forget {
+            // A21 — the web's `resetIdentity` (`App.tsx:680-693`): the
+            // composer's unsent text goes with the identity (its stores are
+            // cleared by forget_saved below; the confirmation already warned
+            // "This input has not been saved").
+            if let Ok(mut u) = self.bridge.lock().unwrap().ui.lock() {
+                u.set_draft_inner(String::new());
+            }
             let mut ui = screens.lock().unwrap_or_else(|e| e.into_inner());
             a9_settings::forget_saved(&ui.server);
-            let fresh = crate::screens::connect::ConnectUi::default();
-            ui.server = fresh.server;
+            // A21 — back to the web's `initialConnection`: the DEFAULT
+            // endpoint (`connection-bootstrap.ts:11-23`; OCTOS_BASE_URL is the
+            // build's VITE_OCTOS_DEFAULT_ENDPOINT, else the built-in one).
+            ui.server = crate::screens::bootstrap::default_endpoint();
             ui.token.clear();
             ui.endpoint_error = None;
             ui.failure = None;
@@ -323,6 +332,9 @@ impl OctoscodeView {
                     ui.token = t;
                 }
             }
+            // A21 — no unattended restore at the next launch
+            // (`ConnectionGate.tsx:308-318`); the server and token stay.
+            crate::screens::bootstrap::note_disconnect();
             ui.failure = None;
             ui.raw_error = None;
             ui.connecting = false;

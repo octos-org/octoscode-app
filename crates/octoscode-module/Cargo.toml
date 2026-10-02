@@ -32,6 +32,9 @@ log = { workspace = true }
 url = "2"
 # #A2 board 1: p4-05's "Paired  Today, 9:41 PM" in the device's own zone.
 chrono = "0.4"
+# A21: the tab drafts' identity is a digest of (origin, token) — the file
+# never holds the token itself (already in Cargo.lock via the transport).
+sha2 = "0.10"
 
 [dev-dependencies]
 # The fake WS server (card #12 §1 fake test, §5 headless proof). Same
