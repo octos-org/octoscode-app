@@ -256,6 +256,64 @@ mod tests {
         );
     }
 
+    /// A1: every fluid builder's DSL evaluates in the app VM, at the desktop
+    /// and the phone density. A builder that names a property its widget does
+    /// not have (an `Svg` with `visible:`) failed the whole Connect card's
+    /// eval at runtime; this catches that class before a launch.
+    #[test]
+    fn every_fluid_builder_evaluates_in_the_app_vm() {
+        use crate::conv_layout::Metrics;
+        use crate::fluid::*;
+        let mut cx = cx_with_vocabulary();
+        // The controls: the same Svg evaluates, and with `visible:` (the bug
+        // this test exists for) it does not.
+        let svg = |extra: &str| {
+            format!(
+                "x := Svg{{width: 12 height: 12 {extra}draw_svg.svg: file_resource({:?})}}\n",
+                icon("chevron_right.svg").display().to_string()
+            )
+        };
+        assert!(eval_component(&mut cx, MAIN_SPLASH_VM_ID, &svg("")).is_ok(), "the control Svg evaluates");
+        assert!(
+            eval_component(&mut cx, MAIN_SPLASH_VM_ID, &svg("visible: false ")).is_err(),
+            "an Svg cannot take `visible`"
+        );
+        for m in [Metrics::for_window(990.0, true), Metrics::for_window(360.0, false)] {
+            let tool = ToolView {
+                title: "read_file".into(),
+                target: "README.md".into(),
+                state: "done".into(),
+                secs: Some(2),
+                output: "line".into(),
+            };
+            let builders = [
+                ("composer", composer(
+                    &ComposerView {
+                        placeholder: "Ask Octos anything".into(),
+                        approval: "Ask for approval".into(),
+                        model: "v4-flash".into(),
+                    },
+                    &m,
+                )),
+                ("connect", connect_card(&ConnectView { server: "http://127.0.0.1:50190".into(), ..Default::default() }, &m, 261.0)),
+                ("bubble", user_bubble("0", "请用中文回答 hello", &m, false)),
+                ("prose", assistant_prose("0", "**hi** `code`\n\n- a\n- b", &m)),
+                ("tool", tool_row("0", &tool, GroupPos::Single, true, &m)),
+                ("worked", worked_for("0", "Worked for 2s", 2, false, &m)),
+                ("working", working_row("0", "Working…", &m)),
+                ("actions", answer_actions("0", "now", &m)),
+                ("empty", empty_state(Some("octos"), &m)),
+            ];
+            for (name, ui) in builders {
+                assert!(
+                    eval_component(&mut cx, MAIN_SPLASH_VM_ID, &ui).is_ok(),
+                    "{name} at {:?} must evaluate",
+                    m.density
+                );
+            }
+        }
+    }
+
     #[test]
     fn the_prelude_wraps_the_component_in_a_slot_sized_view() {
         // Card #21c item 3: the wrapper is a stacking (`Down`) `Fit` view, so a

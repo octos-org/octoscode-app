@@ -702,6 +702,67 @@ pub struct ComposerView {
     pub model: String,
 }
 
+/// The plus, mic and send controls of the composer row (px, square).
+pub const COMPOSER_CONTROL: f64 = 32.0;
+/// The model picker's chevron and its gap to the label.
+const COMPOSER_CHEVRON: f64 = 12.0;
+const COMPOSER_CHEVRON_GAP: f64 = 4.0;
+/// The control row's two labels: the web's session strip type
+/// (`SessionConfig.module.css:3-19`, 500 13px/20px) at every density.
+const COMPOSER_ROW_PX: f64 = 13.0;
+const COMPOSER_ROW_LINE: f64 = 20.0;
+
+/// The composer control row's spacing and the width each label may take.
+///
+/// The web keeps its actions whole (`.composer-actions { flex: none }`,
+/// `styles.css:928-933`) and lets the strip text ellipsize
+/// (`SessionConfig.module.css:37-42`). Makepad's row does not shrink a `Fit`
+/// child, so the labels carry an explicit max: the card width minus every
+/// fixed part, two thirds for the approval pill. Measured at 360x780 before
+/// this budget: the row needed 362 px of a 336 px card and the send control
+/// was cut to 15 px.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ComposerRowFit {
+    /// The row's side padding.
+    pub pad_x: f64,
+    /// The gap between two neighbouring controls (the spacer carries none).
+    pub gap: f64,
+    /// The approval pill's side padding.
+    pub pill_pad: f64,
+    /// The model picker's side padding.
+    pub model_pad: f64,
+    /// The approval label's max width (it ellipsizes past it).
+    pub approval_max: f64,
+    /// The model label's max width (it ellipsizes past it).
+    pub model_max: f64,
+}
+
+impl ComposerRowFit {
+    /// Every part of the row that is not one of the two labels.
+    pub fn fixed_w(&self) -> f64 {
+        // plus | pill | spacer | model | mic | send: four gaps.
+        2.0 * self.pad_x
+            + 3.0 * COMPOSER_CONTROL
+            + 4.0 * self.gap
+            + 2.0 * self.pill_pad
+            + 2.0 * self.model_pad
+            + COMPOSER_CHEVRON_GAP
+            + COMPOSER_CHEVRON
+    }
+}
+
+pub fn composer_row_fit(m: &Metrics) -> ComposerRowFit {
+    let (pad_x, gap, pill_pad, model_pad) = match m.density {
+        Density::Desktop => (10.0, 6.0, 12.0, 6.0),
+        Density::Phone => (8.0, 4.0, 10.0, 2.0),
+    };
+    let mut fit = ComposerRowFit { pad_x, gap, pill_pad, model_pad, approval_max: 0.0, model_max: 0.0 };
+    let labels = (m.composer_w - fit.fixed_w()).max(0.0);
+    fit.model_max = (labels * 0.36).clamp(40.0, 160.0).floor();
+    fit.approval_max = (labels - fit.model_max).max(40.0).floor();
+    fit
+}
+
 /// The composer card (`styles.css:785-850` `.composer`): one rounded card,
 /// the input on top, ONE control row under it — `+` and the approval pill on
 /// the left, the model picker, mic and the round send control on the right.
@@ -716,13 +777,19 @@ pub struct ComposerView {
 pub fn composer(c: &ComposerView, m: &Metrics) -> String {
     let s = scale(m.density);
     let input_px = s.body;
-    let icon_btn = |hit_id: &str, file: &str, size: f64| {
+    let fit = composer_row_fit(m);
+    let gap = fit.gap;
+    let icon_btn = |hit_id: &str, file: &str, size: f64, left: f64| {
         format!(
-            "View{{width: 32 height: 32 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n\
+            "View{{width: {COMPOSER_CONTROL} height: {COMPOSER_CONTROL} margin: Inset{{left: {left}}} \
+             flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n\
              {svg}{hit}}}\n",
             svg = svg(&format!("{hit_id}_icon"), &format!("components/composer/assets/{file}"), size, MUTED),
             hit = hit(hit_id, 16.0),
         )
+    };
+    let one_line = |max: f64| {
+        format!("width: Fit height: Fit max_width: {max} max_lines: 1 text_overflow: TextOverflow.Ellipsis")
     };
     format!(
         "i0_composer := RoundedView{{width: Fill height: Fit flow: Down padding: 0\n\
@@ -738,20 +805,23 @@ pub fn composer(c: &ComposerView, m: &Metrics) -> String {
          draw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 \
          color_down: #2f6feb40 color_empty: #2f6feb33 color_disabled: #2f6feb33}}\n\
          }}\n}}\n\
-         i0_composer_row := View{{width: Fill height: 48 flow: Right align: Align{{y: 0.5}} spacing: 6 \
-         padding: Inset{{left: 10 right: 10 bottom: 4}}\n\
+         i0_composer_row := View{{width: Fill height: 48 flow: Right align: Align{{y: 0.5}} spacing: 0 \
+         padding: Inset{{left: {pad_x} right: {pad_x} bottom: 4}}\n\
          {plus}\
-         i0_composer_2 := View{{width: Fit height: 30 flow: Overlay\n\
-         RoundedView{{width: Fit height: 30 flow: Right align: Align{{y: 0.5}} padding: Inset{{left: 12 right: 12}} \
+         i0_composer_2 := View{{width: Fit height: 30 margin: Inset{{left: {gap}}} flow: Overlay\n\
+         RoundedView{{width: Fit height: 30 flow: Right align: Align{{y: 0.5}} \
+         padding: Inset{{left: {pill_pad} right: {pill_pad}}} \
          draw_bg +: {{color: {SURFACE} border_radius: 15.0 border_size: 1.0 border_color: {BORDER}}}\n\
          {approval}}}\n\
          {approval_hit}}}\n\
          View{{width: Fill height: 1}}\n\
-         i0_composer_model := View{{width: Fit height: 30 flow: Right align: Align{{y: 0.5}} spacing: 4 \
-         padding: Inset{{left: 6 right: 6}}\n\
+         i0_composer_model := View{{width: Fit height: 30 margin: Inset{{left: {gap}}} flow: Right \
+         align: Align{{y: 0.5}} spacing: {COMPOSER_CHEVRON_GAP} \
+         padding: Inset{{left: {model_pad} right: {model_pad}}}\n\
          {model}{model_chev}}}\n\
          {mic}\
-         i0_composer_5 := View{{width: 32 height: 32 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n\
+         i0_composer_5 := View{{width: {COMPOSER_CONTROL} height: {COMPOSER_CONTROL} margin: Inset{{left: {gap}}} \
+         flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n\
          RoundedView{{width: 32 height: 32 draw_bg +: {{color: #000000ff border_radius: 16.0}}}}\n\
          composer_send_icon := View{{width: 16 height: 16 flow: Overlay\n{send_icon}}}\n\
          composer_stop_icon := View{{width: 16 height: 16 flow: Overlay visible: false\n{stop_icon}}}\n\
@@ -760,24 +830,27 @@ pub fn composer(c: &ComposerView, m: &Metrics) -> String {
         min_h = (s.body_line + 4.0).round(),
         placeholder = c.placeholder,
         input_style = style(Face::Regular, input_px, s.body_line),
-        plus = icon_btn("plus_hit", "icon_plus1.svg", 18.0),
+        pad_x = fit.pad_x,
+        pill_pad = fit.pill_pad,
+        model_pad = fit.model_pad,
+        plus = icon_btn("plus_hit", "icon_plus1.svg", 18.0, 0.0),
         approval = label(
             "i0_composer_2_0",
             &c.approval,
-            &style(Face::Regular, s.small, s.small_line),
+            &style(Face::Regular, COMPOSER_ROW_PX, COMPOSER_ROW_LINE),
             INK,
-            "width: Fit height: Fit",
+            &one_line(fit.approval_max),
         ),
         approval_hit = hit("approval_pill_hit", 15.0),
         model = label(
             "i0_composer_4",
             &c.model,
-            &style(Face::Medium, s.small, s.small_line),
+            &style(Face::Medium, COMPOSER_ROW_PX, COMPOSER_ROW_LINE),
             INK,
-            "width: Fit height: Fit",
+            &one_line(fit.model_max),
         ),
-        model_chev = svg("i0_composer_4_chev", "chevron_down.svg", 12.0, MUTED),
-        mic = icon_btn("mic_hit", "icon_mic1.svg", 18.0),
+        model_chev = svg("i0_composer_4_chev", "chevron_down.svg", COMPOSER_CHEVRON, MUTED),
+        mic = icon_btn("mic_hit", "icon_mic1.svg", 18.0, gap),
         send_icon = svg("i0_composer_5_0", "components/composer/assets/icon_send.svg", 16.0, "#ffffffff"),
         // The running turn's STOP glyph (conversation-08 `stop2`): shown by
         // the host while `turn.active`, so the DSL never changes per turn.
@@ -1116,6 +1189,53 @@ mod tests {
         // ending must not change the mount string and remount the input.
         assert!(dsl.contains("composer_send_icon := View") && dsl.contains("composer_stop_icon := View"));
         assert!(dsl.contains("assets/icon_stop"), "the running turn's stop glyph");
+    }
+
+    /// Measured at 360x780 (OCTOSENSE_WINDOW_SIZE): the row asked 362 px of
+    /// a 336 px card and `send_hit` was cut to 15x32. The budget keeps every
+    /// control whole and lets the two labels ellipsize instead.
+    #[test]
+    fn the_composer_row_fits_its_card_at_every_width() {
+        // The rendered widths at 13 px (desktop /snap): "Ask for approval"
+        // 101 px, "v4-flash" 52 px.
+        const APPROVAL_W: f64 = 101.0;
+        const MODEL_W: f64 = 52.0;
+        for (w, sidebar) in [(320.0, false), (360.0, false), (412.0, false), (990.0, true), (1376.0, true)] {
+            let m = Metrics::for_window(w, sidebar);
+            let fit = composer_row_fit(&m);
+            assert!(
+                fit.fixed_w() + fit.approval_max + fit.model_max <= m.composer_w + 0.5,
+                "{w}: {} + {} + {} > card {}",
+                fit.fixed_w(),
+                fit.approval_max,
+                fit.model_max,
+                m.composer_w
+            );
+            if w >= 360.0 {
+                assert!(fit.approval_max >= APPROVAL_W, "{w}: the default pill label must not ellipsize");
+                assert!(fit.model_max >= MODEL_W, "{w}: the default model label must not ellipsize");
+            }
+        }
+        let phone = Metrics::for_window(360.0, false);
+        let c = ComposerView {
+            placeholder: "Ask Octos anything".into(),
+            approval: "Ask for approval".into(),
+            model: "v4-flash".into(),
+        };
+        let dsl = composer(&c, &phone);
+        assert!(dsl.contains("spacing: 0 padding: Inset{left: 8 right: 8"), "{dsl}");
+        let fit = composer_row_fit(&phone);
+        for (id, max) in [("i0_composer_2_0", fit.approval_max), ("i0_composer_4", fit.model_max)] {
+            let at = dsl.find(&format!("{id} := Label{{")).unwrap();
+            let head = &dsl[at..at + dsl[at..].find('\n').unwrap()];
+            assert!(
+                head.contains(&format!("max_width: {max} max_lines: 1 text_overflow: TextOverflow.Ellipsis")),
+                "{head}"
+            );
+            assert!(dsl[at..].contains("font_size: 9.75"), "13 px: the web's strip type");
+        }
+        // The send disc keeps its 32 px box (it is never the one that gives).
+        assert!(dsl.contains("i0_composer_5 := View{width: 32 height: 32 margin: Inset{left: 4}"), "{dsl}");
     }
 
     #[test]
