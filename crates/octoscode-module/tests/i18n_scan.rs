@@ -584,7 +584,15 @@ fn list_copy_without_a_web_key() {
     for rel in CONVERTED {
         let code = code_only(&read(rel));
         for w in ["tr(\"", "tr1(\"", "tr_with(\""] {
-            for part in code.split(w).skip(1) {
+            let mut parts = code.split(w);
+            let mut before = parts.next().unwrap_or("").to_owned();
+            for part in parts {
+                // A call, not the tail of another name (`push_str("…")`).
+                let called = !before.ends_with(|c: char| c.is_alphanumeric() || c == '_');
+                before = part.to_owned();
+                if !called {
+                    continue;
+                }
                 let b = part.as_bytes();
                 let end = skip_string(&[b"\"".as_slice(), b].concat(), 0).unwrap_or(1);
                 let value = unescape(&part[..end.saturating_sub(2).min(part.len())]);
