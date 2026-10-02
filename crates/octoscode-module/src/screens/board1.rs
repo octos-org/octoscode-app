@@ -196,6 +196,12 @@ struct Host {
     picker: PickerUi,
     /// The connect a pairing claim handed over is in flight.
     awaiting_connect: bool,
+    /// The open reply's `supported_methods`, from the last [`note_context`].
+    methods: Vec<String>,
+    /// A surface was open at the last [`take_ime_reset`].
+    was_open: bool,
+    /// The view was rebuilt since the last [`take_ime_reset`].
+    ime_reset: bool,
 }
 
 fn host() -> MutexGuard<'static, Host> {
@@ -323,14 +329,21 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
             push_surface(Surface::Pairing);
         }
         "b1.open.provider" => {
+            // Each operation on its own advertised method (row 37): the open
+            // reply's `supported_methods`, failing closed.
+            let methods = host().methods.clone();
+            let caps = provider::Caps::from_methods(&methods);
             {
                 let mut p = provider::state();
                 p.edited = false;
                 p.busy = false;
+                p.caps = caps;
                 p.accept();
             }
             push_surface(Surface::Provider);
-            out.push(Work::ProviderLoad);
+            if caps.read || caps.catalog {
+                out.push(Work::ProviderLoad);
+            }
         }
         "b1.open.picker" => {
             {
@@ -623,9 +636,10 @@ fn wrap(body: Ui, l: &Layout) -> Ui {
 /// rebuilds it (see [`is_typing`]).
 pub fn view(w: f64, h: f64) -> Option<String> {
     let surface = top()?;
-    let rebuild = {
+    let (rebuild, structural) = {
         let hh = host();
-        hh.dirty || hh.size != (w, h) || hh.dsl.is_empty()
+        let structural = hh.dirty || hh.dsl.is_empty();
+        (structural || hh.size != (w, h), structural)
     };
     if rebuild {
         let ui = compose(surface, w, h);
@@ -634,8 +648,25 @@ pub fn view(w: f64, h: f64) -> Option<String> {
         hh.ui = ui;
         hh.size = (w, h);
         hh.dirty = false;
+        // Only a structural rebuild drops the keyboard: a window that
+        // resizes FOR the keyboard (adjustResize) must not hide it again.
+        if structural {
+            hh.ime_reset = true;
+        }
     }
     Some(host().dsl.clone())
+}
+
+/// Whether the soft keyboard must go: a surface closed, or its view was
+/// rebuilt. A re-mount drops the focused field, so the keyboard it raised has
+/// no owner left (measured on the phone shell: after Save closed the editor
+/// the keyboard stayed up over the sidebar's + Add workspace).
+pub fn take_ime_reset() -> bool {
+    let mut h = host();
+    let open = !h.stack.is_empty();
+    let closed = h.was_open && !open;
+    h.was_open = open;
+    std::mem::take(&mut h.ime_reset) || closed
 }
 
 /// The controls of the mounted view (for tests and the click walk).
@@ -705,6 +736,8 @@ pub struct Context {
     /// The connect the pairing claim handed over has failed.
     pub connect_failed: bool,
     pub capabilities: Vec<String>,
+    /// The open reply's `supported_methods` (the per-method gates).
+    pub methods: Vec<String>,
 }
 
 /// Fold the connection state in. Closes pairing once the connection a claim
@@ -716,6 +749,9 @@ pub fn note_context(ctx: &Context) {
         if h.picker.browse_advertised != advertised {
             h.picker.browse_advertised = advertised;
             h.dirty = true;
+        }
+        if h.methods != ctx.methods {
+            h.methods = ctx.methods.clone();
         }
     }
     {
@@ -1087,10 +1123,36 @@ mod tests {
         }
     }
 
+    /// The tests that walk the live host state run one at a time (the
+    /// screens' own unit tests use local values).
+    fn live_state() -> std::sync::MutexGuard<'static, ()> {
+        static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+        LOCK.get_or_init(|| Mutex::new(())).lock().unwrap_or_else(|e| e.into_inner())
+    }
+
+    #[test]
+    fn the_keyboard_is_dismissed_when_a_surface_rebuilds_or_closes_not_while_typing() {
+        let _s = live_state();
+        close_all();
+        let _ = take_ime_reset();
+        route("b1.open.provider", None);
+        view(412.0, 794.0);
+        assert!(take_ime_reset(), "a fresh surface drops any stale keyboard");
+        assert!(!take_ime_reset());
+        route("provider.key", Some("sk-typed"));
+        view(412.0, 794.0);
+        assert!(!take_ime_reset(), "typing keeps the keyboard");
+        view(412.0, 700.0);
+        assert!(!take_ime_reset(), "a window resized for the keyboard keeps it");
+        route("provider.cancel", None);
+        assert!(view(412.0, 700.0).is_none());
+        assert!(take_ime_reset(), "closing drops the keyboard");
+        provider::state().key.clear();
+    }
+
     #[test]
     fn add_workspace_opens_the_browser_over_the_picker_and_fails_closed() {
-        // The only lib test that walks the live host state (the screens'
-        // own unit tests use local values), so no serialisation is needed.
+        let _s = live_state();
         close_all();
         note_context(&Context { capabilities: vec![browser::BROWSE_FEATURE.into()], ..Default::default() });
         let w = route("b1.open.add", None);

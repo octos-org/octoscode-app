@@ -2184,6 +2184,7 @@ impl OctoscodeView {
                 server: ui.server.clone(),
                 connect_failed: ui.failure.is_some() || ui.raw_error.is_some(),
                 capabilities: b.store.capabilities(),
+                methods: b.store.domains.config.supported_methods(),
             }
         };
         screens::board1::note_context(&ctx);
@@ -2198,6 +2199,9 @@ impl OctoscodeView {
             if let Err(e) = self.mounts.mount(cx, &splash, &dsl) {
                 makepad_widgets::log!("[octoscode] board1 mount: {e}");
             }
+        }
+        if screens::board1::take_ime_reset() {
+            cx.hide_text_ime();
         }
     }
 
@@ -2657,6 +2661,8 @@ impl OctoscodeView {
         // browser over its picker (`screens::board1` "b1.open.add").
         if screens::sidebar::take_add_request() {
             makepad_widgets::log!("[octoscode] dock: folder browser (workspace.add)");
+            // The web collapses the compact drawer first (App.tsx:2318-2321).
+            screens::sidebar::set_drawer_open(false);
             self.perform_board1(cx, "b1.open.add", None);
         }
         if let Some(which) = self.docked_screen() {

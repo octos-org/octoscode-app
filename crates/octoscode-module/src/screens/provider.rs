@@ -218,6 +218,45 @@ pub fn family_meta(family: &str) -> (String, &'static str) {
     (label, url)
 }
 
+/// Which editor operations the server advertises, each gated on its OWN
+/// method and failing closed (`modelSettingsCapabilities`,
+/// `model-settings.ts:156-170`; `supportsMethod`, client `interaction.ts:14`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct Caps {
+    /// `profile/llm/list` — the configured routes.
+    pub read: bool,
+    /// `profile/llm/catalog` — the families and their models.
+    pub catalog: bool,
+    /// `profile/llm/test`.
+    pub test: bool,
+    /// `profile/llm/upsert`.
+    pub save: bool,
+}
+
+impl Caps {
+    pub const ALL: Caps = Caps { read: true, catalog: true, test: true, save: true };
+
+    /// From the open reply's `supported_methods` (the store's config domain).
+    pub fn from_methods(methods: &[String]) -> Caps {
+        let has = |m: &str| methods.iter().any(|x| x == m);
+        Caps {
+            read: has("profile/llm/list"),
+            catalog: has("profile/llm/catalog"),
+            test: has("profile/llm/test"),
+            save: has("profile/llm/upsert"),
+        }
+    }
+
+    /// Save is a test then an upsert, so it needs both (`save` begins only
+    /// when `capabilities.test && capabilities.save`, `model-settings.ts:349`).
+    pub fn can_save(&self) -> bool {
+        self.test && self.save
+    }
+}
+
+/// The web's notice when mutation is not advertised (`ModelManagementSection.tsx`).
+pub const READ_ONLY: &str = "Provider configuration is read-only on this server.";
+
 /// The editor's live draft (`ModelSettingsDraft`, `model-settings.ts:55-64`):
 /// the values are held so a failed test can keep them (row 88); the credential
 /// is a separate field that no copy id and no binding ever returns.
@@ -265,6 +304,8 @@ pub struct ProviderUi {
     pub profile_id: Option<String>,
     /// The operator changed a field (a late load must not overwrite it).
     pub edited: bool,
+    /// What the server lets this editor do (set when it opens).
+    pub caps: Caps,
     /// Where we are.
     pub screen: Screen,
 }
@@ -303,6 +344,7 @@ impl ProviderUi {
                 "deepseek-chat".to_owned(),
             ],
             default_model: Some("deepseek-v4-flash".to_owned()),
+            caps: Caps::ALL,
             screen: Screen::Editor,
             ..Default::default()
         }
@@ -545,6 +587,11 @@ pub fn apply(ui: &mut ProviderUi, effect: Effect) -> Option<Effect> {
             if ui.busy {
                 return None; // one request at a time (latest-request-wins)
             }
+            // Each operation on its own advertised method, failing closed.
+            let allowed = if effect == Effect::Test { ui.caps.test } else { ui.caps.can_save() };
+            if !allowed {
+                return None;
+            }
             ui.busy = true;
             Some(effect)
         }
@@ -559,12 +606,21 @@ pub fn apply(ui: &mut ProviderUi, effect: Effect) -> Option<Effect> {
 pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
     let mut v = Ui::default();
     v.header(l, "b1_prov_back", "provider.back", "Edit provider");
+    // Mutation not advertised: the same editor, read-only, with the web's
+    // notice and a Close instead of Cancel/Save (fail closed).
+    let read_only = !ui.caps.can_save();
     let field_gap = if l.phone { 14.0 } else { 10.0 };
     v.push(kit::gap(if l.phone { 16.0 } else { 12.0 }));
-    v.push(Field::new("b1_prov_name", &ui.name).label("Name").placeholder("Provider · Route").dsl());
+    v.push(Field::new("b1_prov_name", &ui.name).label("Name").placeholder("Provider · Route").read_only(read_only).dsl());
     v.input("b1_prov_name", "provider.name");
     v.push(kit::gap(field_gap));
-    v.push(Field::new("b1_prov_url", &ui.base_url).label("Base URL").placeholder(&ui.default_base_url).dsl());
+    v.push(
+        Field::new("b1_prov_url", &ui.base_url)
+            .label("Base URL")
+            .placeholder(&ui.default_base_url)
+            .read_only(read_only)
+            .dsl(),
+    );
     v.input("b1_prov_url", "provider.url");
     v.push(kit::gap(field_gap));
     let eye = format!(
@@ -575,6 +631,7 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
     let mut key = Field::new("b1_prov_key", &ui.key)
         .label("API key")
         .error(ui.screen == Screen::Rejected && ui.key_rejected)
+        .read_only(read_only)
         .trailing(eye);
     if !ui.key_revealed {
         key = key.password();
@@ -620,6 +677,17 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         })
         .collect();
     v.push(kit::list_card("b1_prov_models", &rows));
+    if read_only {
+        v.push(kit::gap(14.0));
+        v.push(kit::callout(false, true, READ_ONLY, None));
+        v.spacer(l, 16.0, 22.0);
+        v.push(kit::pill_outline("b1_prov_cancel", "Close", "Fill"));
+        v.button("b1_prov_cancel", "provider.cancel");
+        if l.phone {
+            v.push(kit::gap(24.0));
+        }
+        return v;
+    }
     v.spacer(l, 16.0, 22.0);
     let primary_label = match (ui.busy, ui.screen) {
         (true, _) => "Saving\u{2026}",
@@ -726,11 +794,17 @@ pub fn perform(id: &str, value: Option<&str>) -> Option<Effect> {
 pub async fn load(conv: &crate::flow::Conversation) -> Result<(), String> {
     let client = conv.client();
     let profile = Some(conv.profile()).filter(|p| !p.is_empty());
-    let list = client
-        .call::<ProfileLlmList>(ProfileLlmListParams { session_id: None, profile_id: profile.clone() })
-        .await
-        .map_err(|e| e.to_string())?;
-    let catalog = client.call::<LlmCatalog>(LlmCatalogParams {}).await.ok();
+    let caps = state().caps;
+    // Each read on its own advertised method (`refresh`, model-settings.ts:211).
+    let list = if caps.read {
+        client
+            .call::<ProfileLlmList>(ProfileLlmListParams { session_id: None, profile_id: profile.clone() })
+            .await
+            .map_err(|e| e.to_string())?
+    } else {
+        Default::default()
+    };
+    let catalog = if caps.catalog { client.call::<LlmCatalog>(LlmCatalogParams {}).await.ok() } else { None };
     let family = list.primary.as_ref().map(|p| p.family_id.clone()).unwrap_or_default();
     let models: Vec<String> = catalog
         .as_ref()
@@ -752,6 +826,11 @@ pub async fn perform_transport(conv: &crate::flow::Conversation, effect: Effect)
         Effect::Save => true,
         other => return Err(format!("screens/provider: {other:?} is not a transport effect")),
     };
+    let caps = state().caps;
+    if !(if save { caps.can_save() } else { caps.test }) {
+        state().busy = false;
+        return Err("profile/llm: not advertised by this server".into());
+    }
     let params = {
         let mut ui = state();
         if ui.profile_id.is_none() {
@@ -818,6 +897,24 @@ mod tests {
     use super::*;
 
     const SECRET: &str = "sk-rejected-secret";
+
+    #[test]
+    fn each_operation_is_gated_on_its_own_advertised_method() {
+        // model-settings.ts:156-170 and :349 (Save = test AND upsert).
+        let m = |names: &[&str]| names.iter().map(|n| format!("profile/llm/{n}")).collect::<Vec<_>>();
+        assert_eq!(Caps::from_methods(&m(&["list", "catalog", "test", "upsert"])), Caps::ALL);
+        let read_only = Caps::from_methods(&m(&["list", "catalog", "test"]));
+        assert!(read_only.read && read_only.test && !read_only.can_save());
+        assert!(!Caps::from_methods(&m(&["list", "catalog", "upsert"])).can_save(), "Save needs Test too");
+        assert_eq!(Caps::from_methods(&[]), Caps::default(), "fails closed");
+        let mut ui = ProviderUi::new("deepseek");
+        ui.caps = read_only;
+        assert_eq!(apply(&mut ui, Effect::Save), None, "no upsert advertised -> no Save");
+        assert_eq!(apply(&mut ui, Effect::Test), Some(Effect::Test), "Test is its own method");
+        ui.busy = false;
+        ui.caps.test = false;
+        assert_eq!(apply(&mut ui, Effect::Test), None);
+    }
 
     #[test]
     fn a_rejected_test_keeps_the_whole_draft() {

@@ -296,6 +296,10 @@ impl<'a> Field<'a> {
         self.placeholder_ink = true;
         self
     }
+    pub fn read_only(mut self, read_only: bool) -> Self {
+        self.read_only = read_only;
+        self
+    }
     pub fn label(mut self, l: &'a str) -> Self {
         self.label = Some(l);
         self

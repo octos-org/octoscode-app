@@ -60,15 +60,32 @@ mod replay {
         }
     }
 
-    fn answer(method: &str, p: &serde_json::Value) -> Result<serde_json::Value, serde_json::Value> {
+    /// What the server's open reply advertises.
+    #[derive(Clone, Copy, PartialEq)]
+    enum Variant {
+        /// Every method and the browse feature (the recorded a6ea8505 set).
+        Full,
+        /// `profile/llm/upsert` unadvertised (a read-only provider config).
+        NoUpsert,
+        /// `onboarding.workspace_browse.v1` unadvertised.
+        NoBrowse,
+    }
+
+    fn answer(method: &str, p: &serde_json::Value, variant: Variant) -> Result<serde_json::Value, serde_json::Value> {
         let listing = |path: &str, names: &[&str], hidden: u64| {
             let parent = path.rsplit_once('/').map(|(p, _)| if p.is_empty() { "/" } else { p }).unwrap_or("/");
             serde_json::json!({
-                "canonical_path": path, "parent_path": parent, "writable": true,
+                "canonical_path": path, "parent_path": parent, "writable": !path.ends_with("/notes"),
                 "entries": names.iter().map(|n| serde_json::json!({"name": n, "path": format!("{path}/{n}"), "writable": true})).collect::<Vec<_>>(),
-                "truncated": false, "hidden_skipped": hidden,
+                "truncated": path.ends_with("/octoscode-app"), "hidden_skipped": hidden,
             })
         };
+        let mut methods = vec!["session/open", "session/list", "profile/llm/list", "profile/llm/catalog",
+            "profile/llm/test", "profile/llm/upsert", "onboarding/workspace_list", "onboarding/workspace_create"];
+        if variant == Variant::NoUpsert {
+            methods.retain(|m| *m != "profile/llm/upsert");
+        }
+        let features: Vec<&str> = if variant == Variant::NoBrowse { vec![] } else { vec![browser::BROWSE_FEATURE] };
         match method {
             // The open reply's shape is the one board1_serve answers the app
             // with (the server's `UiProtocolCapabilities`).
@@ -79,10 +96,9 @@ mod replay {
                 "capabilities": {
                     "version": {"protocol": "octos-ui/v1alpha1", "schema_version": 1, "jsonrpc": "2.0"},
                     "capabilities_schema_version": 2,
-                    "supported_methods": ["session/open", "session/list", "profile/llm/list", "profile/llm/catalog",
-                        "profile/llm/test", "profile/llm/upsert", "onboarding/workspace_list", "onboarding/workspace_create"],
+                    "supported_methods": methods,
                     "supported_notifications": ["turn/started", "turn/completed"],
-                    "supported_features": [browser::BROWSE_FEATURE],
+                    "supported_features": features,
                 }
             }})),
             "session/list" => Ok(serde_json::json!({"sessions": []})),
@@ -114,6 +130,7 @@ mod replay {
                 Some("/home/user") => Ok(listing("/home/user", &["code"], 0)),
                 Some("/home/user/code/octoscode-app") => Ok(listing("/home/user/code/octoscode-app", &["crates", "design"], 0)),
                 Some("/home/user/code/fresh") => Ok(listing("/home/user/code/fresh", &[], 0)),
+                Some("/home/user/code/notes") => Ok(listing("/home/user/code/notes", &["2026"], 0)),
                 Some("/private") => Err(serde_json::json!({"code": -32602,
                     "message": "workspace_list: permission denied at /private (EACCES)",
                     "data": {"kind": "workspace_list_permission_denied"}})),
@@ -128,6 +145,10 @@ mod replay {
     }
 
     async fn server() -> Server {
+        server_with(Variant::Full).await
+    }
+
+    async fn server_with(variant: Variant) -> Server {
         let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
         let addr = listener.local_addr().unwrap();
         let seen: Seen = Arc::default();
@@ -144,7 +165,7 @@ mod replay {
                         let method = v["method"].as_str().unwrap_or("").to_owned();
                         let params = v.get("params").cloned().unwrap_or(serde_json::Value::Null);
                         rec.lock().unwrap().push((method.clone(), params.clone()));
-                        let frame = match answer(&method, &params) {
+                        let frame = match answer(&method, &params, variant) {
                             Ok(r) => serde_json::json!({"jsonrpc": "2.0", "id": v["id"], "result": r}),
                             Err(e) => serde_json::json!({"jsonrpc": "2.0", "id": v["id"], "error": e}),
                         };
@@ -166,14 +187,25 @@ mod replay {
             }
         });
         conv.open_workspace(None).await.expect("session/open");
-        // The open reply's capabilities fold into the store asynchronously.
+        // The open reply folds into the store asynchronously.
         for _ in 0..100 {
-            if conv.store.capabilities().iter().any(|c| c == browser::BROWSE_FEATURE) {
+            if !conv.store.domains.config.supported_methods().is_empty() {
                 break;
             }
             tokio::time::sleep(std::time::Duration::from_millis(20)).await;
         }
+        sync(&conv);
         conv
+    }
+
+    /// What lib.rs `sync_board1` feeds the host on every sync: the store's
+    /// advertised features and the open reply's methods.
+    fn sync(conv: &Conversation) {
+        board1::note_context(&board1::Context {
+            capabilities: conv.store.capabilities(),
+            methods: conv.store.domains.config.supported_methods(),
+            ..Default::default()
+        });
     }
 
     /// Route one action the way a click does and run its work to completion.
@@ -261,7 +293,7 @@ mod replay {
         browser::set(browser::BrowserUi::default());
         // The recents cache must never touch a real home from a test.
         octoscode_module::screens::recents::set_store(Arc::new(octoscode_module::screens::recents::MemoryStore::new()));
-        board1::note_context(&board1::Context { capabilities: conv.store.capabilities(), ..Default::default() });
+        sync(&conv);
 
         // + Add workspace (A3's sidebar `workspace.add`; lib.rs answers it
         // with `b1.open.add`): the picker reads the server's working
@@ -282,12 +314,22 @@ mod replay {
         click("browser.enter.1", None, &conv).await;
         assert_eq!(s.sent("onboarding/workspace_list").len(), lists, "picking must not navigate");
         assert_eq!(browser::state().path_draft, "/home/user/code/octoscode-app");
-        // A second tap opens it (drill in).
+        // A second tap opens it (drill in); a truncated page says so first.
         click("browser.enter.1", None, &conv).await;
         assert_eq!(browser::state().path, "/home/user/code/octoscode-app");
+        assert_eq!(browser::state().notices(), vec!["Only the first 2 folders are shown.".to_owned()]);
         // The way back up is the listing's parent.
         click("browser.up", None, &conv).await;
         assert_eq!(browser::state().path, "/home/user/code");
+        // New folder only where the server says the folder is writable.
+        click("browser.enter.2", None, &conv).await;
+        click("browser.enter.2", None, &conv).await;
+        assert_eq!(browser::state().path, "/home/user/code/notes");
+        board1::mark_dirty();
+        assert!(!board1::view(990.0, 603.0).unwrap().contains("b1_br_newfolder"), "not writable -> no New folder");
+        click("browser.up", None, &conv).await;
+        board1::mark_dirty();
+        assert!(board1::view(990.0, 603.0).unwrap().contains("b1_br_newfolder := ButtonFlat"));
 
         // A refused folder: bounded copy, never the server's prose, the folder
         // we stood in survives (walk 221).
@@ -336,6 +378,64 @@ mod replay {
         // and the picker lists it first among the recents.
         assert_eq!(browser::state().chosen.as_deref(), Some("/home/user/code/fresh"));
         assert_eq!(board1::picker().recents.first().map(|(_, p)| p.as_str()), Some("/home/user/code/fresh"));
+
+        // The picker (rows 161/163): a recent row opens a session there, and
+        // the server's working directory is the first entry.
+        click("b1.open.picker", None, &conv).await;
+        assert_eq!(board1::picker().server_root.as_deref(), Some("/home/user/code"));
+        board1::mark_dirty();
+        let v = board1::view(990.0, 603.0).unwrap();
+        assert!(v.find("Server folder").unwrap() < v.find("Recent").unwrap(), "the server folder comes first");
+        click("picker.recent.0", None, &conv).await;
+        assert_eq!(s.sent("session/open").last().unwrap()["cwd"], "/home/user/code/fresh");
+        assert!(!board1::is_open());
+        click("b1.open.picker", None, &conv).await;
+        click("picker.server", None, &conv).await;
+        assert_eq!(s.sent("session/open").last().unwrap()["cwd"], "/home/user/code");
+        assert!(!board1::is_open());
+    }
+
+    #[tokio::test]
+    async fn browsing_fails_closed_without_the_advertised_feature() {
+        // Row 166: no feature -> no Browse, no New folder, no request.
+        let _s = serial();
+        let s = server_with(Variant::NoBrowse).await;
+        let conv = connected(&s).await;
+        board1::close_all();
+        octoscode_module::screens::recents::set_store(Arc::new(octoscode_module::screens::recents::MemoryStore::new()));
+        sync(&conv);
+        let work = click("b1.open.add", None, &conv).await;
+        assert_eq!(work, vec![board1::Work::PickerLoad], "+ Add workspace opens the picker alone");
+        assert_eq!(board1::top(), Some(board1::Surface::Picker));
+        board1::mark_dirty();
+        let v = board1::view(990.0, 603.0).unwrap();
+        assert!(!v.contains("b1_pk_browse") && !v.contains("b1_pk_newfolder"), "no browsing affordance at all");
+        assert!(click("picker.browse", None, &conv).await.is_empty());
+        assert!(s.sent("onboarding/workspace_list").is_empty(), "not one listing request");
+        // The server folder still comes from the session's reported root.
+        assert_eq!(board1::picker().server_root.as_deref(), Some("/home/user/code"));
+        board1::close_all();
+    }
+
+    #[tokio::test]
+    async fn a_server_without_upsert_gets_a_read_only_editor_that_sends_nothing() {
+        // Row 37: each operation on its own advertised method (read-only when
+        // mutation is unadvertised).
+        let _s = serial();
+        let s = server_with(Variant::NoUpsert).await;
+        let conv = connected(&s).await;
+        board1::close_all();
+        click("b1.open.provider", None, &conv).await;
+        assert!(!s.sent("profile/llm/list").is_empty(), "the read is still advertised");
+        board1::mark_dirty();
+        let v = board1::view(990.0, 603.0).unwrap();
+        assert!(v.contains(provider::READ_ONLY) && !v.contains("b1_prov_save"));
+        board1::route("provider.key", Some("sk-good-key-2"));
+        assert!(click("provider.save", None, &conv).await.is_empty());
+        assert!(s.sent("profile/llm/test").is_empty() && s.sent("profile/llm/upsert").is_empty(), "nothing reaches the wire");
+        board1::route("provider.cancel", None);
+        provider::state().key.clear();
+        board1::close_all();
     }
 
     // -------------------------------------------------------------- pairing

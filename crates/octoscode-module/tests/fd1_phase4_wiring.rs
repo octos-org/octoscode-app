@@ -50,6 +50,11 @@ fn all_views() -> Vec<(String, board1::Ui)> {
             let l = board1::Layout::of(board1::Surface::Provider, w, h);
             out.push((format!("provider rejected={rejected}@{w}"), provider::view(&p, &l)));
         }
+        // The read-only editor (profile/llm/upsert unadvertised).
+        let mut p = provider::ProviderUi::new("deepseek");
+        p.caps.save = false;
+        let l = board1::Layout::of(board1::Surface::Provider, w, h);
+        out.push((format!("provider read-only@{w}"), provider::view(&p, &l)));
         for refused in [false, true] {
             let mut b = browser::BrowserUi {
                 path: "/home/user/code".into(),
@@ -205,6 +210,7 @@ fn the_routing_walk_reaches_every_screen_from_its_entry() {
     assert!(!board1::is_open());
 
     // Settings -> Edit provider (p4-06): load, then Save is ONE transport.
+    board1::note_context(&board1::Context { methods: llm_methods(&["list", "catalog", "test", "upsert"]), ..Default::default() });
     assert_eq!(board1::route("b1.open.provider", None), vec![board1::Work::ProviderLoad]);
     assert_eq!(board1::top(), Some(board1::Surface::Provider));
     let before = board1::view(990.0, 603.0).unwrap();
@@ -234,6 +240,32 @@ fn the_routing_walk_reaches_every_screen_from_its_entry() {
     assert_eq!(board1::top(), Some(board1::Surface::Picker));
     board1::route("picker.close", None);
     assert!(!board1::is_open());
+}
+
+fn llm_methods(names: &[&str]) -> Vec<String> {
+    names.iter().map(|n| format!("profile/llm/{n}")).collect()
+}
+
+#[test]
+fn the_provider_editor_gates_each_operation_on_its_own_advertised_method() {
+    // Row 37 (model-settings.ts:156-170, :349): read on list/catalog, Save on
+    // test AND upsert; without upsert the editor is read-only (fail closed).
+    let _s = serial();
+    board1::close_all();
+    board1::note_context(&board1::Context { methods: llm_methods(&["list", "catalog", "test"]), ..Default::default() });
+    assert_eq!(board1::route("b1.open.provider", None), vec![board1::Work::ProviderLoad]);
+    let v = board1::view(990.0, 603.0).unwrap();
+    assert!(v.contains(provider::READ_ONLY), "the web's read-only notice");
+    assert!(!v.contains("b1_prov_save"), "no Save without profile/llm/upsert");
+    assert!(v.contains("is_read_only: true"));
+    board1::route("provider.key", Some("sk-typed"));
+    assert!(board1::route("provider.save", None).is_empty(), "Save reaches no transport");
+    board1::route("provider.cancel", None);
+    // Nothing advertised: not even a read.
+    board1::note_context(&board1::Context::default());
+    assert!(board1::route("b1.open.provider", None).is_empty());
+    board1::close_all();
+    provider::state().key.clear();
 }
 
 #[test]
