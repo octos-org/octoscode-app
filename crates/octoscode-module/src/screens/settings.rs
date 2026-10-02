@@ -350,10 +350,50 @@ impl Default for SettingsState {
             permission: None,
             saving: None,
             last_error: None,
-            notifications: true,
+            // A7 — consent (`desktop-notifications.ts:27-44`): OFF until the
+            // Settings action is used, whatever the OS would allow; the
+            // explicit opt-in is remembered across restarts.
+            notifications: notification_consent(),
             sandbox: SandboxDefaults::default(),
             last_ui_action: None,
         }
+    }
+}
+
+/// A7 — where the desktop-notification opt-in is kept (the web's
+/// `octoscode-web:desktop-notifications` preference):
+/// `$HOME/.octoscode/desktop-notifications.json`, overridable with
+/// `OCTOSCODE_NOTIFICATIONS_FILE`.
+pub fn notification_pref_path() -> Option<std::path::PathBuf> {
+    if let Ok(p) = std::env::var("OCTOSCODE_NOTIFICATIONS_FILE") {
+        if !p.is_empty() {
+            return Some(p.into());
+        }
+    }
+    std::env::var("HOME")
+        .ok()
+        .map(|h| std::path::Path::new(&h).join(".octoscode/desktop-notifications.json"))
+}
+
+/// A7 — the remembered opt-in; absent / unreadable = OFF (no notification —
+/// so no OS permission prompt — until the Settings toggle is used).
+pub fn notification_consent() -> bool {
+    notification_pref_path()
+        .and_then(|p| std::fs::read_to_string(p).ok())
+        .and_then(|s| serde_json::from_str::<Value>(&s).ok())
+        .and_then(|v| v.get("enabled").and_then(|b| b.as_bool()))
+        .unwrap_or(false)
+}
+
+/// A7 — persist the explicit Settings choice. A blocked write keeps the
+/// choice for this run only (the web: "This preference can stay in memory
+/// when browser storage is blocked").
+pub fn save_notification_consent(enabled: bool) {
+    let Some(p) = notification_pref_path() else { return };
+    let ok = p.parent().map(std::fs::create_dir_all).transpose().is_ok()
+        && std::fs::write(&p, json!({ "enabled": enabled }).to_string()).is_ok();
+    if !ok {
+        ::log::warn!("octoscode: the desktop-notification preference stays in memory (storage blocked)");
     }
 }
 
@@ -442,6 +482,8 @@ pub fn apply_ui(action: &str) -> UiEffect {
         }
         "notifications_toggle.toggle" => {
             st.notifications = !st.notifications;
+            // A7 — the explicit opt-in (or opt-out) is the ONLY consent.
+            save_notification_consent(st.notifications);
             UiEffect::None
         }
         "settings.thinking.off" => UiEffect::Thinking(Thinking::Off),
@@ -560,6 +602,29 @@ mod tests {
 
     fn lock() -> std::sync::MutexGuard<'static, ()> {
         crate::screens::theme::test_lock()
+    }
+
+    // ---- A7: desktop-notifications.test.ts:22 "does not prompt or notify
+    // ---- without explicit opt-in even with existing permission".
+    #[test]
+    fn notifications_stay_off_until_the_settings_toggle_opts_in() {
+        let _g = lock();
+        let dir = std::env::temp_dir().join(format!("a7-consent-{}", std::process::id()));
+        let _ = std::fs::create_dir_all(&dir);
+        let file = dir.join("desktop-notifications.json");
+        let _ = std::fs::remove_file(&file);
+        std::env::set_var("OCTOSCODE_NOTIFICATIONS_FILE", &file);
+        reset_state();
+        assert!(!snapshot().notifications, "no opt-in yet: no notice can fire, so no OS prompt");
+        apply_ui("notifications_toggle.toggle");
+        assert!(snapshot().notifications);
+        reset_state();
+        assert!(snapshot().notifications, "the explicit opt-in survives a restart");
+        apply_ui("notifications_toggle.toggle");
+        reset_state();
+        assert!(!snapshot().notifications, "and so does the opt-out");
+        std::env::remove_var("OCTOSCODE_NOTIFICATIONS_FILE");
+        reset_state();
     }
 
     #[test]

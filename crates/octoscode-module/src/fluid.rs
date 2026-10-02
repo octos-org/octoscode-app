@@ -251,11 +251,81 @@ pub fn user_bubble(tok: &str, text: &str, m: &Metrics, dark: bool) -> String {
 /// 9/14 px cells, hairline rules, no header fill (makepad's default painted
 /// the header row in the highlight blue).
 pub fn assistant_prose(tok: &str, body: &str, m: &Metrics) -> String {
+    assistant_answer(tok, &crate::markdown::display(body, false), None, m)
+}
+
+/// A7 — the answer from its DISPLAY form (`crate::markdown::display`): each
+/// prose segment is one native `Markdown` region at A1's prose rhythm, each
+/// top-level fenced block the web's code block (`CodeBlock.tsx:94-107`: a
+/// banner with the language and a Copy control over the code;
+/// `markdown.css:182-210`). `copied` = the block whose Copy was pressed in
+/// the last second ("Copied", `CodeBlock.tsx:72-80`).
+pub fn assistant_answer(tok: &str, d: &crate::markdown::Display, copied: Option<usize>, m: &Metrics) -> String {
+    use crate::markdown::Segment;
+    let mut inner = String::new();
+    let last = d.segments.len().saturating_sub(1);
+    let mut prose_n = 0usize;
+    for (k, seg) in d.segments.iter().enumerate() {
+        match seg {
+            Segment::Prose(text) => {
+                let id = if prose_n == 0 {
+                    format!("i{tok}_assistantprose")
+                } else {
+                    format!("i{tok}_assistantprose_{prose_n}")
+                };
+                prose_n += 1;
+                inner.push_str(&markdown_region(&id, text, d.math, m));
+            }
+            Segment::Code { lang, code } => {
+                // The web's `.md-code-block` margin (14 px), collapsed at the
+                // answer's own edges (`markdown.css:16-25`).
+                let top = if k == 0 { 0.0 } else { 14.0 };
+                let bottom = if k == last { 0.0 } else { 14.0 };
+                inner.push_str(&code_block(tok, k, lang.as_deref(), code, copied == Some(k), !d.streaming, top, bottom, m));
+            }
+        }
+    }
+    if inner.is_empty() {
+        inner.push_str(&markdown_region(&format!("i{tok}_assistantprose"), "", false, m));
+    }
+    format!("View{{width: Fill height: Fit flow: Down padding: Inset{{top: 4 bottom: 8}}\n{inner}}}\n")
+}
+
+/// One prose `Markdown` region (A1's look). With `math`, the renderer's math
+/// extension typesets `$…$` / `$$…$$` through makepad's MathView (the web's
+/// KaTeX): `inline_math` sits in the line at the body's height, `display_math`
+/// is its own centred block (`code_view::A7MathBlock`, KaTeX's
+/// `.katex-display`). Without it every `$` arrives escaped (`markdown::sanitize`).
+fn markdown_region(id: &str, body: &str, math: bool, m: &Metrics) -> String {
     let s = scale(m.density);
     let line = s.body_line + 1.0;
+    // MathView lays out at `font_size * 1.75` (makepad math_view.rs) and its
+    // font_size is in points like the body's: the body is `s.body * 0.75` pt,
+    // so 0.57 of it keeps inline math at the text's height.
+    let math_dsl = if math {
+        format!(
+            "use_math_widget: true\n\
+             inline_math := MathView{{font_size: {inline:.2} baseline_offset: 3.0 color: {INK}}}\n\
+             display_math := mod.widgets.A7MathBlock{{math := MathView{{font_size: {display:.2} baseline_offset: 0.0 color: {INK}}}}}\n",
+            inline = s.body * 0.75 * 0.78,
+            display = s.body * 0.75 * 0.92,
+        )
+    } else {
+        String::new()
+    };
+    // A7: the renderer's `MarkdownLink` draws an EMPTY link widget at the
+    // link's start (its text is never set — the link's words follow as plain
+    // text), which showed the widget's default "Button" and a tall margin.
+    // The template gives it the web's outbound-link affordance instead: a
+    // blue "↗" in the line, the control that opens the (already vetted)
+    // absolute http/https/mailto destination (`lib.rs` LinkNavigated).
+    let link_dsl = format!(
+        "link := MarkdownLink{{text: \"↗\" margin: 0 padding: Inset{{left: 1 right: 3}} \
+         draw_text +: {{color: #2f6febff color_hover: #1f4fb8ff color_pressed: #1f4fb8ff text_style: {link_style}}}}}\n",
+        link_style = flow_style(Face::Regular, s.body, line),
+    );
     format!(
-        "View{{width: Fill height: Fit flow: Down padding: Inset{{top: 4 bottom: 8}}\n\
-         i{tok}_assistantprose := Markdown{{width: Fill max_width: {max} height: Fit padding: 0 margin: 0\n\
+        "{id} := Markdown{{width: Fill max_width: {max} height: Fit padding: 0 margin: 0\n\
          body: {body:?}\n\
          font_size: {fs}\n\
          font_color: {INK}\n\
@@ -275,12 +345,131 @@ pub fn assistant_prose(tok: &str, body: &str, m: &Metrics) -> String {
          draw_block +: {{code_color: {RAISED} line_color: {INK} sep_color: {BORDER} \
          quote_bg_color: {BORDER} quote_fg_color: {MUTED} \
          table_header_bg_color: #00000000 table_border_color: {BORDER}}}\n\
-         }}\n}}\n",
+         {math_dsl}\
+         {link_dsl}\
+         }}\n",
         max = m.prose_max_w,
         fs = s.body * 0.75,
         regular = flow_style(Face::Regular, s.body, line),
         bold = flow_style(Face::SemiBold, s.body, line),
         mono = flow_style(Face::Mono, s.body, line),
+    )
+}
+
+/// The code block's code size (`markdown.css:200-207`: 400 12px/20px).
+pub const CODE_PX: f64 = 12.0;
+pub const CODE_LINE: f64 = 20.0;
+
+/// One fenced code block (`CodeBlock.tsx:94-107`, `markdown.css:182-207`): a
+/// rounded tip-grey card; its banner names the language (`text` without one)
+/// and carries the Copy control (`code_copy_<k>`, a >= 28 px hit the host
+/// routes to the clipboard); the code below keeps its whitespace and wraps
+/// at the column (A1's accepted alternative to horizontal scroll).
+#[allow(clippy::too_many_arguments)]
+pub fn code_block(
+    tok: &str,
+    k: usize,
+    lang: Option<&str>,
+    code: &str,
+    copied: bool,
+    highlight: bool,
+    top: f64,
+    bottom: f64,
+    m: &Metrics,
+) -> String {
+    let banner_style = style(Face::Mono, 11.0, 18.0);
+    let copy_style = style(Face::Medium, 11.0, 18.0);
+    let label_text = lang.filter(|l| !l.is_empty()).unwrap_or("text");
+    let shown = crate::markdown::copy_text(code);
+    format!(
+        "i{tok}_code_{k} := RoundedView{{width: Fill max_width: {max} height: Fit flow: Down \
+         margin: Inset{{top: {top} bottom: {bottom}}}\n\
+         draw_bg +: {{color: {RAISED} border_radius: 12.0}}\n\
+         i{tok}_code_{k}_banner := View{{width: Fill height: 34 flow: Right align: Align{{y: 0.5}} \
+         padding: Inset{{left: 13 right: 4}}\n\
+         {lang_label}\
+         View{{width: Fill height: 1}}\n\
+         View{{width: 72 height: 30 flow: Overlay align: Align{{x: 1.0 y: 0.5}}\n\
+         View{{width: Fill height: Fill flow: Right align: Align{{x: 1.0 y: 0.5}} padding: Inset{{right: 9}}\n\
+         {copy_label}}}\n\
+         {copy_hit}}}\n\
+         }}\n\
+         View{{width: Fill height: Fit flow: Down padding: Inset{{left: 16 right: 16 top: 0 bottom: 14}}\n\
+         {body}}}\n\
+         }}\n",
+        max = m.prose_max_w,
+        lang_label = label(&format!("i{tok}_code_{k}_lang"), label_text, &banner_style, MUTED, "width: Fit height: Fit"),
+        copy_label = label(
+            &format!("i{tok}_code_{k}_copy_label"),
+            if copied { "Copied" } else { "Copy" },
+            &copy_style,
+            if copied { INK } else { MUTED },
+            "width: Fit height: Fit",
+        ),
+        copy_hit = hit(&format!("code_copy_{k}"), 6.0),
+        body = match crate::highlight::grammar(lang).filter(|_| highlight && highlightable(&shown)) {
+            Some(g) => highlighted_body(&format!("i{tok}_code_{k}_body"), g, &shown),
+            None => code_body(&format!("i{tok}_code_{k}_body"), &shown),
+        },
+    )
+}
+
+/// The size past which a block stays plain (the lexer runs at lowering time;
+/// the web lazy-loads per visible block, natively the row lowers only when
+/// the virtualized list shows it — this bounds the one-off cost).
+fn highlightable(code: &str) -> bool {
+    code.len() <= 24_000 && code.lines().count() <= 600
+}
+
+/// The highlighted code: the module's own `A7CodeLines` widget
+/// (`code_view.rs`) — the code lexed in Rust (`crate::highlight`), each line
+/// a wrapping row of runs in the web's token colours (`theme.css:101-112`,
+/// `--shiki-token-*`), indentation kept, on the code face.
+fn highlighted_body(id: &str, g: crate::highlight::Grammar, code: &str) -> String {
+    let dark = crate::screens::theme::resolved() == "dark";
+    format!(
+        "{id} := mod.widgets.A7CodeLines{{width: Fill height: Fit\n\
+         text: {code:?}\n\
+         lang: {lang:?}\n\
+         dark: {dark}\n\
+         line_height: {CODE_LINE}\n\
+         draw_text +: {{text_style: {mono}}}\n\
+         }}\n",
+        lang = g.id,
+        mono = style(Face::Mono, CODE_PX, CODE_LINE),
+    )
+}
+
+
+/// The code itself: ONE `Markdown` region holding just this block, re-fenced
+/// with a backtick run longer than any inside the code, so its whitespace and
+/// line breaks render exactly (the renderer's own code path, as A1's answer
+/// code), on the card's colour with the web's 12/20 mono.
+fn code_body(id: &str, code: &str) -> String {
+    let longest = code
+        .split(|c| c != '`')
+        .map(|r| r.len())
+        .max()
+        .unwrap_or(0);
+    let fence = "`".repeat(longest.max(2) + 1);
+    let body = format!("{fence}\n{code}\n{fence}");
+    format!(
+        "{id} := Markdown{{width: Fill height: Fit padding: 0 margin: 0\n\
+         body: {body:?}\n\
+         font_size: {fs}\n\
+         font_color: {INK}\n\
+         paragraph_spacing: 0\n\
+         pre_code_spacing: 0\n\
+         fixed_font_size_scale: 1.0\n\
+         text_style_normal: {mono}\n\
+         text_style_fixed: {mono}\n\
+         code_layout: Layout{{flow: Right{{wrap: true}} padding: 0}}\n\
+         draw_block +: {{code_color: #00000000 line_color: {INK} sep_color: {BORDER} \
+         quote_bg_color: {BORDER} quote_fg_color: {MUTED} \
+         table_header_bg_color: #00000000 table_border_color: {BORDER}}}\n\
+         }}\n",
+        fs = CODE_PX * 0.75,
+        mono = flow_style(Face::Mono, CODE_PX, CODE_LINE),
     )
 }
 
@@ -901,6 +1090,194 @@ pub fn composer(c: &ComposerView, m: &Metrics) -> String {
         // the host while `turn.active`, so the DSL never changes per turn.
         stop_icon = svg("i0_composer_5_1", "components/composer/assets/icon_stop.svg", 16.0, "#ffffffff"),
         send_hit = hit("send_hit", 16.0),
+    )
+}
+
+/// A7 — what the composer dock shows above the composer card, from the turn
+/// controller's state (never the draft).
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct ComposerExtras {
+    /// Prompts waiting behind the active turn (FIFO count).
+    pub queued: usize,
+    /// "Steer now" is offered (an accepted turn runs and the server steers).
+    pub steer: bool,
+    /// The held turn's recovery phase: `checking` / `unknown` /
+    /// `unavailable` / `error` (`TurnRecoveryState.phase`).
+    pub recovery: Option<String>,
+    /// A focused peer Session's slug: the composer is read-only.
+    pub peer_readonly: Option<String>,
+    /// The driver-seat handover line (`seat.rs`): the in-flight status
+    /// ("Handing back control…" / "Resuming chat…") or the last failure
+    /// (`true` = error tone).
+    pub seat_status: Option<(String, bool)>,
+}
+
+/// A7 — the queued chip (conversation-08 `queued_row`: `1 queued · Steer
+/// now · ✕` on the tip-grey pill above the composer; behaviour
+/// `QueuedPrompts.tsx`: the count, steering, removal without interrupting
+/// the server), the turn recovery notice (`TurnRecoveryNotice.tsx` + its
+/// CSS) and the read-only peer row (`ComposerInput.tsx:255-265`). The hit
+/// ids (`queue_steer_hit`, `queue_remove_hit`, `recovery_check_hit`,
+/// `recovery_continue_hit`) are routed by the host.
+pub fn composer_extras(x: &ComposerExtras, m: &Metrics) -> String {
+    let mut out = String::new();
+    if let Some((text, error)) = &x.seat_status {
+        out.push_str(&seat_status_row(text, *error, m));
+    }
+    if let Some(phase) = &x.recovery {
+        out.push_str(&recovery_notice(phase, x.queued > 0, m));
+    }
+    if x.queued > 0 {
+        out.push_str(&queue_chip(x.queued, x.steer, m));
+    }
+    if let Some(slug) = &x.peer_readonly {
+        out.push_str(&peer_readonly_row(slug, m));
+    }
+    if out.is_empty() {
+        return String::new();
+    }
+    format!("composer_extras := View{{width: Fill height: Fit flow: Down spacing: 8 padding: Inset{{bottom: 8}}\n{out}}}\n")
+}
+
+fn queue_chip(queued: usize, steer: bool, m: &Metrics) -> String {
+    let (px, h) = match m.density {
+        Density::Desktop => (13.0, 32.0),
+        Density::Phone => (14.0, 34.0),
+    };
+    let st = style(Face::Medium, px, 20.0);
+    let dot = || label("", "·", &st, MUTED, "width: Fit height: Fit");
+    let steer_part = if steer {
+        format!(
+            "{dot}View{{width: Fit height: {h} flow: Overlay align: Align{{y: 0.5}}\n\
+             View{{width: Fit height: Fill flow: Right align: Align{{y: 0.5}} padding: Inset{{left: 2 right: 2}}\n{l}}}\n\
+             {hit}}}\n",
+            dot = dot(),
+            l = label("queue_steer_label", "Steer now", &st, INK, "width: Fit height: Fit"),
+            hit = hit("queue_steer_hit", 6.0),
+        )
+    } else {
+        String::new()
+    };
+    format!(
+        "queue_chip := RoundedView{{width: Fit height: {h} flow: Right align: Align{{y: 0.5}} spacing: 5 \
+         margin: Inset{{top: 2}} padding: Inset{{left: 12 right: 2}}\n\
+         draw_bg +: {{color: {TIP} border_radius: 10.0 border_size: 1.0 border_color: {BORDER}}}\n\
+         {count}{steer_part}{dot}\
+         View{{width: 28 height: 28 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n{x}{remove}}}\n\
+         }}\n",
+        count = label("queue_count", &format!("{queued} queued"), &st, INK, "width: Fit height: Fit"),
+        dot = dot(),
+        x = svg("queue_remove_icon", "b3_close.svg", 12.0, MUTED),
+        remove = hit("queue_remove_hit", 14.0),
+    )
+}
+
+fn recovery_notice(phase: &str, queued: bool, m: &Metrics) -> String {
+    let checking = phase == "checking";
+    let title = if checking { "Checking the last response" } else { "Response status is uncertain" };
+    let mut body = vec![if checking {
+        "Checking whether Octos is still working or has finished. Your message will not be sent again."
+    } else {
+        "Octos has not confirmed whether the last response is still running or has finished. Sending is paused so the same work is not started twice."
+    }];
+    if phase == "unavailable" {
+        body.push("This server does not support checking response status. You can copy your text and manage the connection in Settings.");
+    }
+    if phase == "error" {
+        body.push("The status check failed. You can try again.");
+    }
+    if !checking {
+        body.push("If the response was lost, for example because the server restarted, continue without confirming its outcome. This does not stop or resend it; queued messages send next.");
+    }
+    let s = scale(m.density);
+    let title_st = style(Face::SemiBold, s.body, s.body_line);
+    let body_st = style(Face::Regular, s.small, s.small_line + 1.0);
+    let wrap = format!("width: Fill height: Fit flow: Right{{wrap: true}} max_lines: {FIT_WRAP_LINES}");
+    let mut paras = String::new();
+    for (i, p) in body.iter().enumerate() {
+        paras.push_str(&label(&format!("recovery_body_{i}"), p, &body_st, INK, &wrap));
+    }
+    let btn = |id: &str, text: &str, live: bool| {
+        let fg = if live { INK } else { MUTED };
+        let hit_part = if live { hit(id, 8.0) } else { String::new() };
+        format!(
+            "View{{width: Fit height: 36 flow: Overlay\n\
+             RoundedView{{width: Fit height: 36 flow: Right align: Align{{y: 0.5}} padding: Inset{{left: 14 right: 14}} \
+             draw_bg +: {{color: {SURFACE} border_radius: 8.0 border_size: 1.0 border_color: {BORDER}}}\n{l}}}\n\
+             {hit_part}}}\n",
+            l = label(&format!("{id}_label"), text, &style(Face::Medium, s.small, s.small_line), fg, "width: Fit height: Fit"),
+        )
+    };
+    let mut buttons = String::new();
+    if phase != "unavailable" {
+        buttons.push_str(&btn("recovery_check_hit", if checking { "Checking status…" } else { "Check status" }, !checking));
+    }
+    if !checking {
+        buttons.push_str(&btn("recovery_continue_hit", "Continue without it", true));
+    }
+    let footer = if queued {
+        label(
+            "recovery_footer",
+            "Queued messages remain here. You can remove them below.",
+            &style(Face::Regular, s.tiny, s.small_line),
+            MUTED,
+            &wrap,
+        )
+    } else {
+        String::new()
+    };
+    format!(
+        "recovery_notice := RoundedView{{width: Fill height: Fit flow: Down spacing: 8 \
+         padding: Inset{{left: 16 right: 16 top: 14 bottom: 14}}\n\
+         draw_bg +: {{color: {SURFACE} border_radius: 12.0 border_size: 1.0 border_color: #f3d7a6ff}}\n\
+         {t}\
+         View{{width: Fill height: Fit flow: Down spacing: 4\n{paras}}}\n\
+         View{{width: Fill height: Fit flow: Right{{wrap: true}} spacing: 8\n{buttons}}}\n\
+         {footer}\
+         }}\n",
+        t = label("recovery_title", title, &title_st, INK, &wrap),
+    )
+}
+
+/// `PEER_READONLY_HINT` (`peer-readonly.ts:17-18`): "↳ read-only peer ·
+/// {slug} · steer from the master" — the dim status row that replaces the
+/// editable composer (`ComposerInput.tsx:255-265`).
+/// A7 — the seat handover line above the composer (the web's session strip
+/// `handing-back` / `resuming-chat` states and the Resume chat notice,
+/// App.tsx:2051-2056/:3152): the peer row's quiet pill; a failure reads in
+/// the error ink.
+fn seat_status_row(text: &str, error: bool, m: &Metrics) -> String {
+    let s = scale(m.density);
+    format!(
+        "seat_status := RoundedView{{width: Fill height: Fit flow: Right align: Align{{y: 0.5}} \
+         padding: Inset{{left: 16 right: 16 top: 10 bottom: 10}}\n\
+         draw_bg +: {{color: {TIP} border_radius: 9.0 border_size: 1.0 border_color: {edge}}}\n\
+         {l}}}\n",
+        edge = if error { "#f4c7c9ff" } else { BORDER },
+        l = label(
+            "seat_status_label",
+            text,
+            &style(Face::Regular, s.small, s.small_line),
+            if error { "#cf222eff" } else { MUTED },
+            "width: Fill height: Fit",
+        ),
+    )
+}
+
+fn peer_readonly_row(slug: &str, m: &Metrics) -> String {
+    let s = scale(m.density);
+    format!(
+        "peer_readonly := RoundedView{{width: Fill height: 48 flow: Right align: Align{{y: 0.5}} \
+         padding: Inset{{left: 16 right: 16}}\n\
+         draw_bg +: {{color: {TIP} border_radius: 9.0 border_size: 1.0 border_color: {BORDER}}}\n\
+         {l}}}\n",
+        l = label(
+            "peer_readonly_label",
+            &format!("↳ read-only peer · {slug} · steer from the master"),
+            &style(Face::Regular, s.small, s.small_line),
+            MUTED,
+            "width: Fill height: Fit max_lines: 1 text_overflow: TextOverflow.Ellipsis",
+        ),
     )
 }
 

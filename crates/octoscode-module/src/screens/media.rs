@@ -497,7 +497,12 @@ impl AttachmentDraftStore {
             abort.store(true, Ordering::SeqCst); // cancel an in-flight upload
         }
         let mut i = self.inner.lock().unwrap();
-        i.claimed.remove(id);
+        // A7: an in-flight claim is released with its counter, so removing
+        // an uploading image does not leave the draft "uploading" forever
+        // (the picker stayed disabled; the web's `#uploads.delete(id)`).
+        if i.claimed.remove(id) {
+            i.uploading = i.uploading.saturating_sub(1);
+        }
         i.entries.remove(id);
         i.order.retain(|x| x != id);
     }

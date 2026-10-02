@@ -169,6 +169,12 @@ fn entry(store: &Store, id: u64) -> Option<TimelineEntry> {
 /// The notice's title and body (`entry-model.ts`): a `code: message` text
 /// splits at the first ": "; terminal outcomes read as the web's titles.
 pub fn notice_parts(e: &TimelineEntry) -> (String, String) {
+    // A7: a client-authored notice (`Timeline::upsert_notice`, the web's
+    // `addSystemMessage(…, title, body)`) names its own title.
+    if let Some(title) = e.data.get("title").and_then(|t| t.as_str()) {
+        let body = e.data.get("body").and_then(|b| b.as_str()).unwrap_or(&e.text);
+        return (title.to_owned(), body.to_owned());
+    }
     if let Some(outcome) = e.data.get("outcome").and_then(|o| o.as_str()) {
         let title = match outcome {
             "interrupted" => "Turn stopped",
