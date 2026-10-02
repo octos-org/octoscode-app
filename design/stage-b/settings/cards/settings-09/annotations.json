@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "f7b615150eec65add22fbb5fb5870e39c03e7a116e80311f7fda04fe31b4f5d1",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      54.0,
+      651.0,
+      348.0,
+      118.0
+    ],
+    [
+      54.0,
+      479.0,
+      348.0,
+      170.0
+    ],
+    [
+      54.0,
+      329.0,
+      348.0,
+      148.0
+    ],
+    [
+      54.0,
+      106.0,
+      348.0,
+      222.0
+    ],
+    [
+      2.0,
+      5.0,
+      403.0,
+      767.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "back",
+      "bounds": [
+        18.0,
+        44.0,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "sandbox_write",
+      "bounds": [
+        330.0,
+        222.0,
+        50.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4291616507,
+      "radius": 15.0
+    },
+    {
+      "id": "sandbox_write_knob",
+      "bounds": [
+        356.0,
+        225.0,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294704382,
+      "radius": 12.0
+    },
+    {
+      "id": "sandbox_network",
+      "bounds": [
+        330.0,
+        369.0,
+        50.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293322730,
+      "radius": 15.0
+    },
+    {
+      "id": "sandbox_network_knob",
+      "bounds": [
+        333.0,
+        372.0,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.0
+    },
+    {
+      "id": "sandbox_read_outside",
+      "bounds": [
+        330.0,
+        517.0,
+        50.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293388522,
+      "radius": 15.0
+    },
+    {
+      "id": "sandbox_read_outside_knob",
+      "bounds": [
+        333.0,
+        520.0,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294769917,
+      "radius": 12.0
+    },
+    {
+      "id": "div",
+      "bounds": [
+        24.0,
+        674.0,
+        358.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    }
+  ]
+}

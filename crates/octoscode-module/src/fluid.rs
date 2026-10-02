@@ -1170,7 +1170,7 @@ mod tests {
     fn the_prose_fills_the_column_not_the_phone_artboard() {
         let m = desk();
         let dsl = assistant_prose("0", "hello `code`", &m);
-        assert!(dsl.contains("Markdown{width: Fill max_width: 681"), "{dsl}");
+        assert!(dsl.contains("Markdown{width: Fill max_width: 661"), "{dsl}");
         assert!(!dsl.contains("width: 356"), "the 356 px artboard width must not survive");
         assert!(dsl.contains("body: \"hello `code`\""));
         assert!(dsl.contains("NotoSansSC-Regular.ttf"), "CJK prose gets the sans face");

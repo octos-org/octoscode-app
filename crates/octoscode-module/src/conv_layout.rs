@@ -23,9 +23,12 @@
 //! row builders ([`crate::fluid`]) read the resulting widths.
 use std::sync::atomic::{AtomicU64, Ordering};
 
-/// The sidebar width (`lib.rs` `threads_column`, board 4: 260 px) plus its
-/// 1 px hairline.
-pub const SIDEBAR_W: f64 = 261.0;
+/// The live sidebar's seat (`lib.rs` `sidebar_spacer`: A3's column at the
+/// web's 280 px plus its 1 px rule).
+pub const SIDEBAR_W: f64 = 281.0;
+/// The first-run screen's empty sidebar (`first_run_sidebar`, board 4
+/// frame 4: 260 px) plus its 1 px rule.
+pub const FIRST_RUN_SIDEBAR_W: f64 = 261.0;
 /// Below this module width the sidebar hides and the phone density applies
 /// (`lib.rs` `width_hides_sidebar`, the web's `@media (max-width: 760px)`).
 pub const PHONE_BREAKPOINT: f64 = 760.0;
@@ -159,17 +162,18 @@ mod tests {
 
     /// The operator's desktop: a ~990 px module window in the 1400x900 shell.
     /// The web's column is `clamp(736, 62vw, 1040)` = 736, bounded by the
-    /// 729 px pane minus 2x24 -> 681: the transcript fills the pane with a
-    /// 24 px gutter instead of the 356 px phone column.
+    /// 709 px pane (990 minus the 281 px sidebar seat) minus 2x24 -> 661:
+    /// the transcript fills the pane with a 24 px gutter instead of the
+    /// 356 px phone column.
     #[test]
     fn the_default_desktop_window_fills_the_pane_with_the_web_gutter() {
         let m = Metrics::for_window(990.0, true);
         assert_eq!(m.density, Density::Desktop);
-        assert_eq!(m.pane_w, 729.0);
-        assert_eq!(m.column_w, 681.0);
-        assert_eq!(m.composer_w, 681.0, "the composer is bounded by the same gutter");
+        assert_eq!(m.pane_w, 709.0);
+        assert_eq!(m.column_w, 661.0);
+        assert_eq!(m.composer_w, 661.0, "the composer is bounded by the same gutter");
         assert!(m.column_w > 2.0 * 300.0, "no phone-width column on the desktop");
-        assert_eq!(m.bubble_max_w, (0.82f64 * 681.0).floor());
+        assert_eq!(m.bubble_max_w, (0.82f64 * 661.0).floor());
     }
 
     /// A larger module (the maximized 1376 px window): 62vw = 853 px wins the
