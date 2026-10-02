@@ -137,7 +137,9 @@ fn no_tracked_snap_carries_a_secret_field_value() {
         if id.contains("api_key_env") || id.contains("key_env") {
             return false; // the NAME of an env var, not its value
         }
-        ["token", "apikey", "api_key", "credential", "secret", "password", "passwd"]
+        // "prov_key": the board-1 provider editor's API key field
+        // (`b1_prov_key`), tools/walk/snapsafe.py's same list.
+        ["token", "apikey", "api_key", "prov_key", "credential", "secret", "password", "passwd"]
             .iter()
             .any(|s| id.contains(s))
     }

@@ -38,6 +38,7 @@ import pathlib
 import re
 import sys
 import time
+import urllib.parse
 
 from a10_lib import Walk, checks_line, dialog_checks, run_session
 
@@ -185,9 +186,19 @@ def val(W: Walk, wid: str) -> str:
     return (hits[0].get("val") or hits[0].get("t") or "") if hits else ""
 
 
-def type_into(W: Walk, wid: str, vp: str, text: str, clear: int = 0) -> bool:
+def type_secret(W: Walk, text: str) -> None:
+    """`Walk.type_text` without the text in the transcript: a typed key never
+    reaches walk.log (the log names only its length)."""
+    W.note(f"TYPE <key, {len(text)} chars>")
+    W.get("/t?" + urllib.parse.urlencode({"t": text, "wait": 1}), tolerant=True)
+    if W.mode == "phone":
+        W.kb_up = True
+    time.sleep(0.2)
+
+
+def type_into(W: Walk, wid: str, vp: str, text: str, clear: int = 0, secret: bool = False) -> bool:
     """Click a field (scrolled into view), optionally clear `clear` chars
-    from its end, type `text`."""
+    from its end, type `text` (a `secret` is never logged)."""
     if not scroll_into(W, wid, vp):
         return False
     r = W.rect(wid)
@@ -197,8 +208,34 @@ def type_into(W: Walk, wid: str, vp: str, text: str, clear: int = 0) -> bool:
     if clear:
         W.key("End")
         W.clear_field(clear)
-    W.type_text(text)
+    if secret:
+        type_secret(W, text)
+    else:
+        W.type_text(text)
     return True
+
+
+def key_fragments() -> list:
+    """Every typed key whole, its first 8 and its last 8 characters."""
+    out = []
+    for k in (DUMMY, REJECTED):
+        out += [k, k[:8], k[-8:]]
+    return out
+
+
+def leaks(text: str) -> list:
+    """The typed-key fragments in `text`. The last 8 of the refused key is the
+    English word "rejected", so it counts only glued to a key-like left side
+    ("test-rejected", "…rejected", "*rejected"), never in the sentence "The
+    provider rejected …" or a capture name ("10-rejected-desktop")."""
+    found = []
+    for f in key_fragments():
+        if f == REJECTED[-8:]:
+            if re.search(r"(?:[A-Za-z]-|[…*•])rejected", text):
+                found.append(f)
+        elif f in text:
+            found.append(f)
+    return sorted(set(found))
 
 
 def shot(W: Walk, name: str) -> None:
@@ -222,7 +259,8 @@ def shot(W: Walk, name: str) -> None:
     walk(tree)
     text = json.dumps(tree)
     p.write_text(text)
-    W.check(f"{name}: the capture carries no typed key", DUMMY not in text and REJECTED not in text)
+    found = leaks(text)
+    W.check(f"{name}: the capture carries no typed key (whole, first 8, last 8)", not found, ", ".join(found))
 
 
 def dialog_numeric(W: Walk, name: str) -> None:
@@ -390,7 +428,7 @@ def main_walk(W: Walk) -> None:
     card_numeric(W, "add")
     shot(W, f"06-add-{MODE}")
     tests0, ups0, fetch0 = len(wire(W, "profile/llm/test")), len(wire(W, "profile/llm/upsert")), len(wire(W, "profile/llm/fetch_models"))
-    W.check("add: the dummy key typed into the masked API key field", type_into(W, "b1_prov_key", EVP, DUMMY))
+    W.check("add: the dummy key typed into the masked API key field", type_into(W, "b1_prov_key", EVP, DUMMY, secret=True))
     W.dismiss_keyboard("b1_title")
     W.check("add: 'Test connection' CLICK -> 'Connection succeeded.'",
             click_in(W, "b1_prov_test", EVP, lambda: seen(W, "b1_prov_feedback", EVP) and W.text("b1_prov_feedback") == "Connection succeeded.", 10))
@@ -436,7 +474,7 @@ def main_walk(W: Walk) -> None:
             and W.wait(lambda: val(W, "b1_prov_url") == "http://127.0.0.1:9/v1", 4))
     name0, url0 = val(W, "b1_prov_name"), val(W, "b1_prov_url")
     W.check("rejected: the row read back before the key is typed", name0 == "DeepSeek · R2 Route", repr(name0))
-    W.check("rejected: the refused dummy key typed", type_into(W, "b1_prov_key", EVP, REJECTED))
+    W.check("rejected: the refused dummy key typed", type_into(W, "b1_prov_key", EVP, REJECTED, secret=True))
     W.dismiss_keyboard("b1_title")
     W.check("rejected: 'Test connection' CLICK -> the provider rejected this key (401), read where Test was clicked",
             click_in(W, "b1_prov_test", EVP, lambda: seen(W, "b1_prov_feedback", EVP)
@@ -572,11 +610,12 @@ if __name__ == "__main__":
     FAIL_FILE.unlink(missing_ok=True)
     rc = run_session(fn, mode=MODE, outdir=OUT, scenario="a10", replay_args=replay_args)
     FAIL_FILE.unlink(missing_ok=True)
-    # The committed wire log: the simulator already masks the key; make sure.
-    log = pathlib.Path(OUT) / "replay.log"
-    if log.exists():
-        text = log.read_text()
-        if DUMMY in text or REJECTED in text:
-            print("FAIL replay.log carries a typed key")
-            rc = 1
+    # The committed evidence (walk.log, every snap, the wire log — the
+    # simulator already masks keys): no typed key, whole, first 8 or last 8.
+    for p in sorted(pathlib.Path(OUT).glob("*")):
+        if p.suffix in (".log", ".json") and p.is_file():
+            found = leaks(p.read_text(errors="replace"))
+            if found:
+                print(f"FAIL {p.name} carries a typed key fragment: {', '.join(found)}")
+                rc = 1
     sys.exit(rc)
