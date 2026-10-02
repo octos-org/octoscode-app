@@ -172,8 +172,8 @@ async fn perform(conv: &Conversation, effect: &Effect) {
         Effect::Steer(text) => {
             let _ = conv.steer(text).await;
         }
-        Effect::Interrupt(turn) => {
-            let _ = conv.interrupt(turn).await;
+        Effect::Interrupt { session, turn } => {
+            let _ = conv.interrupt_in(session, turn).await;
         }
         Effect::Open(session) => {
             let _ = conv.open_session(session, None).await;
@@ -245,7 +245,7 @@ async fn routed_item_actions_reach_the_protocol_on_the_replay_server() {
         let ui = conv.ui();
         let ctx = Ctx::new(&conv.store, &ui);
         let effect = actions::resolve("turn.interrupt", 0, &ctx);
-        assert_eq!(effect, Effect::Interrupt("t-steer".into()));
+        assert_eq!(effect, Effect::Interrupt { session: conv.session_id(), turn: "t-steer".into() });
         perform(&conv, &effect).await;
     }
     assert!(server.saw("turn/interrupt"), "turn.interrupt reached the server");

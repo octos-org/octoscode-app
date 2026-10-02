@@ -154,7 +154,7 @@ impl Conversation {
             serde_json::json!({"optimistic": true}),
         );
         if foreground(self) {
-            self.ui.lock().unwrap().begin_turn(&turn_id, self.started);
+            self.ui.lock().unwrap().begin_turn_in(&session, &turn_id);
         }
         // A8 — a turn this client dispatched is its OWN: the strip shows its
         // live step, never "Another client is working in this session"

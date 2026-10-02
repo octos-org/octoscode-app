@@ -2302,7 +2302,7 @@ impl OctoscodeView {
             // A22 — the turn-scoped effects have ONE performer
             // (`actions::perform_turn`): the Stop button, Escape and `/stop`
             // all resolve `turn.interrupt` and reach the wire through it.
-            effect @ (actions::Effect::Steer(_) | actions::Effect::Interrupt(_)) => {
+            effect @ (actions::Effect::Steer(_) | actions::Effect::Interrupt { .. }) => {
                 let name = action.to_owned();
                 rt.spawn(async move {
                     if let Some(Err(e)) = actions::perform_turn(effect, &conv).await {

@@ -105,6 +105,17 @@ impl Turns {
         i.owners.remove(turn_id);
     }
 
+    /// A22 — the Session a live turn was started in (its `turn/started`).
+    pub fn owner(&self, turn_id: &str) -> Option<String> {
+        self.inner.lock().unwrap().owners.get(turn_id).cloned()
+    }
+
+    /// A22 — a live turn `session` owns (`turn/started` named it), if any.
+    pub fn in_flight_owned_by(&self, session: &str) -> Option<String> {
+        let i = self.inner.lock().unwrap();
+        i.in_flight.iter().find(|t| i.owners.get(*t).is_some_and(|s| s == session)).cloned()
+    }
+
     /// A22 row 236 — the live turns of `session`: those it owns, plus any
     /// whose Session was never named (the old global meaning).
     pub fn in_flight_in(&self, session: &str) -> usize {

@@ -188,6 +188,9 @@ pub struct FlowUi {
     tool_output: Vec<String>,
     /// The turn currently in flight, with when it started.
     active_turn: Option<(String, Instant)>,
+    /// A22 — the Session that live turn belongs to (`None` only for the test
+    /// helpers): a turn-scoped control acts on its OWN Session's turn.
+    active_turn_session: Option<String>,
     /// **Per-turn** terminal results, keyed by turn id (card #21j). A later
     /// turn's terminal can never change an earlier turn's settled row, which is
     /// the defect the gate showed: turn 1 (completed) rendered "Interrupted"
@@ -245,6 +248,20 @@ impl FlowUi {
 
     pub fn active_turn(&self) -> Option<String> {
         self.active_turn.as_ref().map(|(id, _)| id.clone())
+    }
+
+    /// A22 — the window's live turn when it is `session`'s (a turn recorded
+    /// without a Session — the test helpers — answers for any).
+    pub fn live_turn_in(&self, session: &str) -> Option<String> {
+        self.active_turn
+            .as_ref()
+            .filter(|_| self.active_turn_session.as_deref().is_none_or(|s| s == session))
+            .map(|(id, _)| id.clone())
+    }
+
+    /// A22 — the Session of the window's live turn.
+    pub fn active_turn_session(&self) -> Option<String> {
+        self.active_turn_session.clone()
     }
 
     pub fn turn_active(&self) -> bool {
@@ -481,6 +498,7 @@ impl FlowUi {
     pub fn abandon_turn(&mut self, turn_id: &str) {
         if matches!(&self.active_turn, Some((id, _)) if id == turn_id) {
             self.active_turn = None;
+            self.active_turn_session = None;
         }
     }
 
@@ -496,13 +514,16 @@ impl FlowUi {
             return;
         }
         if let Some(live) = self.active_turn.take() {
-            self.parked_live.insert(from.to_owned(), live);
+            // Parked under the Session it belongs to.
+            let owner = self.active_turn_session.take().unwrap_or_else(|| from.to_owned());
+            self.parked_live.insert(owner, live);
         }
         let parked = self.parked_live.remove(to);
         self.active_turn = to_live.map(|id| match parked {
             Some((pid, started)) if pid == id => (id, started),
             _ => (id, Instant::now()),
         });
+        self.active_turn_session = self.active_turn.as_ref().map(|_| to.to_owned());
     }
 
     /// A22 row 203 — the live turn `turn_id` actually started at `at` (its
@@ -830,6 +851,32 @@ pub const HISTORY_WAIT: std::time::Duration = std::time::Duration::from_secs(20)
 /// Core's `UNKNOWN_SESSION` (octos-core `ui_protocol.rs:802-811`).
 const UNKNOWN_SESSION_CODE: i64 = -32100;
 
+/// A22 — the live turn of `session`, from per-Session state only: the
+/// window's live turn when it is this Session's, else this Session's turn
+/// controller's active turn (dispatched or adopted) with no terminal, else a
+/// turn the server started in this Session that has not ended. A turn of
+/// another Session is never the answer (the web's interrupt acts on the
+/// SELECTED record's own queue, `use-turn-controller.ts:860-930`).
+pub fn live_turn_in(store: &Store, ui: &FlowUi, session: &str) -> Option<String> {
+    let unsettled = |t: &String| store.domains.turn.terminal(t).is_none();
+    ui.live_turn_in(session)
+        .filter(unsettled)
+        .or_else(|| store.domains.composer.snapshot(session).active.map(|t| t.turn_id).filter(unsettled))
+        .or_else(|| store.domains.turn.in_flight_owned_by(session))
+}
+
+/// A22 — the check every turn-scoped request passes before it is sent:
+/// `turn` is a live turn OF `session` (by any of [`live_turn_in`]'s sources,
+/// each per Session). On a mismatch nothing is sent.
+pub fn is_live_turn(store: &Store, ui: &FlowUi, session: &str, turn: &str) -> bool {
+    if turn.is_empty() || store.domains.turn.terminal(turn).is_some() {
+        return false;
+    }
+    ui.live_turn_in(session).as_deref() == Some(turn)
+        || store.domains.composer.snapshot(session).active.is_some_and(|t| t.turn_id == turn)
+        || (store.domains.turn.is_in_flight(turn) && store.domains.turn.owner(turn).as_deref() == Some(session))
+}
+
 /// A4 — the HTTP origin for the media endpoints (`media.ts:14-35`): `ws` ->
 /// `http`, `wss` -> `https`, no query, and a socket path
 /// (`…/api/ui-protocol/ws`) or `/` reduced to the origin prefix; no trailing
@@ -1155,7 +1202,7 @@ impl Conversation {
     }
 
     /// A22 row 236 — the turn of `session` that is still running: its queue's
-    /// active turn with no terminal yet.
+    /// active turn with no terminal yet, else a turn the server started in it.
     fn foreground_turn_of(&self, session: &str) -> Option<String> {
         self.store
             .domains
@@ -1164,6 +1211,17 @@ impl Conversation {
             .active
             .map(|t| t.turn_id)
             .filter(|t| self.store.domains.turn.terminal(t).is_none())
+            .or_else(|| self.store.domains.turn.in_flight_owned_by(session))
+    }
+
+    /// A22 — the live turn of `session` ([`live_turn_in`]).
+    pub fn live_turn_of(&self, session: &str) -> Option<String> {
+        live_turn_in(&self.store, &self.ui.lock().unwrap(), session)
+    }
+
+    /// A22 — whether `turn` is a live turn of `session` ([`is_live_turn`]).
+    pub fn is_live_turn_of(&self, session: &str, turn: &str) -> bool {
+        is_live_turn(&self.store, &self.ui.lock().unwrap(), session, turn)
     }
 
     /// A22 row 236 — the background RECORD an event belongs to: a Session
@@ -1733,7 +1791,17 @@ impl Conversation {
         // read (`select`: `record.unread = false`, session-record-manager.ts:449).
         let previous = self.store.active_session().unwrap_or_default();
         let live = self.foreground_turn_of(&session_id.0);
-        self.ui.lock().unwrap().switch_live(&previous, &session_id.0, live);
+        {
+            let mut ui = self.ui.lock().unwrap();
+            ui.switch_live(&previous, &session_id.0, live);
+            // A22 — the approval / question flags are the selected Session's
+            // own (its pending interaction), never the one left.
+            if previous != session_id.0 {
+                let approval = self.store.domains.approval.showing(&session_id.0).is_some();
+                let question = self.store.domains.approval.question().is_some_and(|q| q.session_id == session_id.0);
+                ui.set_pending_for_test(approval, question);
+            }
+        }
         self.store.domains.session.set_unread(&session_id.0, false);
         self.store.set_active(Some(session_id.0.clone()));
         if let Err(e) = self.refresh_sessions().await {
@@ -1795,7 +1863,7 @@ impl Conversation {
         );
         {
             let mut ui = self.ui.lock().unwrap();
-            ui.begin_turn(&turn_id, self.started);
+            ui.begin_turn_in(&self.session_id(), &turn_id);
             ui.set_draft_inner(String::new());
         }
         match self.client.request("turn/start", params).await {
@@ -1880,7 +1948,7 @@ impl Conversation {
         // `:413`), so the composer shows STOP before the ACK lands.
         {
             let mut ui = self.ui.lock().unwrap();
-            ui.begin_turn(&turn_id, self.started);
+            ui.begin_turn_in(&owner, &turn_id);
             // Card #13 §4: the draft clears on send, so the composer is empty
             // for the next prompt (the web clears it when the turn is
             // dispatched). The text is already captured in `params`.
@@ -1922,14 +1990,30 @@ impl Conversation {
         self.client.request("turn/steer", params).await
     }
 
-    /// `turn/interrupt` — `{session_id, turn_id}` (`ui_protocol.rs:2097`).
+    /// `turn/interrupt` — `{session_id, turn_id}` (`ui_protocol.rs:2097`) for
+    /// the window's Session ([`Conversation::interrupt_in`]).
     pub async fn interrupt(&self, turn_id: &str) -> Result<serde_json::Value, ClientError> {
+        let session = self.session_id();
+        self.interrupt_in(&session, turn_id).await
+    }
+
+    /// A22 — `turn/interrupt` for `turn_id` of `session`, the Session the
+    /// Stop was pressed in (it may have left the window since). Sent only
+    /// when `turn_id` is a live turn OF `session` ([`is_live_turn`]); on a
+    /// mismatch nothing is sent — a Stop never reaches another Session's turn.
+    pub async fn interrupt_in(&self, session: &str, turn_id: &str) -> Result<serde_json::Value, ClientError> {
+        if !self.is_live_turn_of(session, turn_id) {
+            makepad_widgets::log!(
+                "[octoscode] turn/interrupt not sent: {turn_id} is not a live turn of {session}"
+            );
+            return Ok(serde_json::Value::Null);
+        }
         // A7 — the turn controller's interrupt gate (`use-turn-controller.ts:
         // 860-930`) for a turn the composer admitted: a start Core has not
         // accepted yet is never interrupted ("Turn is still starting"), a turn
         // already interrupting is not asked twice, and the interrupted prompt
         // is stashed for ITS OWN terminal.
-        let session = self.session_id();
+        let session = session.to_owned();
         let composer = &self.store.domains.composer;
         let known = composer.snapshot(&session).active.map(|a| a.turn_id).as_deref() == Some(turn_id);
         if known {
@@ -3182,7 +3266,26 @@ impl Conversation {
                     );
                     return FlowEvent::Other(format!("wrong-session {}", payload.method()));
                 }
-                let ev = self.note_notification(payload);
+                // A22 — the window's live turn, its approval / question
+                // flags and its activity follow ONLY the Session on screen: a
+                // frame of another Session (one this app opened and left, not
+                // a record) never makes its turn the window's — a Stop pressed
+                // there would name that other Session's turn. It still folds
+                // into its own Session's state below.
+                let frame_session = crate::screens::peers::notification_session(payload).filter(|s| !s.is_empty());
+                let foreign = frame_session
+                    .as_deref()
+                    .is_some_and(|s| self.store.active_session().as_deref() != Some(s));
+                let ev = if foreign {
+                    ::log::debug!(
+                        "octoscode: {} of {} is not the window's Session: folded, not shown live",
+                        payload.method(),
+                        frame_session.as_deref().unwrap_or_default()
+                    );
+                    FlowEvent::Other(format!("other-session {}", payload.method()))
+                } else {
+                    self.note_notification(payload)
+                };
                 // A15 — a turn starting or finishing re-lists the catalog
                 // (the web's `refreshKey` carries the active turn id,
                 // `App.tsx:753-760`): the server's title for a new Session
@@ -3395,10 +3498,14 @@ impl Conversation {
     }
 
     fn note_notification(&self, n: &UiNotification) -> FlowEvent {
+        // A22 — the Session a live turn belongs to: the frame's own, else
+        // (a topicless legacy frame) the window's.
+        let active = self.store.active_session().unwrap_or_default();
+        let sid = |s: &str| if s.is_empty() { active.clone() } else { s.to_owned() };
         let mut ui = self.ui.lock().unwrap();
         match n {
             UiNotification::TurnStarted(e) => {
-                ui.begin_turn(&e.turn_id.0.to_string(), self.started);
+                ui.begin_turn_in(&sid(&e.session_id.0), &e.turn_id.0.to_string());
                 FlowEvent::TurnStarted(e.turn_id.0.to_string())
             }
             UiNotification::TurnCompleted(e) => {
@@ -3415,7 +3522,7 @@ impl Conversation {
                 }
             }
             UiNotification::MessageDelta(e) => {
-                ui.touch_turn(&e.turn_id.0.to_string());
+                ui.touch_turn_in(&sid(&e.session_id.0), &e.turn_id.0.to_string());
                 FlowEvent::Delta {
                     turn_id: e.turn_id.0.to_string(),
                     bytes: e.text.len(),
@@ -3450,7 +3557,7 @@ impl Conversation {
                 let turn_id = frame.envelope.turn_id.clone();
                 match &frame.envelope.payload {
                     PayloadV2::AssistantDelta { text, .. } => {
-                        ui.touch_turn(&turn_id);
+                        ui.touch_turn_in(&sid(&frame.session_id.0), &turn_id);
                         FlowEvent::Delta { turn_id, bytes: text.len() }
                     }
                     PayloadV2::ToolStart { tool_call_id, name, .. } => {
@@ -3523,6 +3630,13 @@ impl FlowUi {
     /// Mark a turn live (test support; production uses `begin_turn`).
     pub fn begin_turn_now(&mut self, turn_id: &str) {
         self.active_turn = Some((turn_id.to_owned(), Instant::now()));
+        self.active_turn_session = None;
+    }
+
+    /// A22 — mark `turn_id` live in `session` (test support; production uses
+    /// `begin_turn_in`).
+    pub fn begin_turn_now_in(&mut self, session: &str, turn_id: &str) {
+        self.begin_turn_in(session, turn_id);
     }
 
     /// End the live turn (test support; production uses `end_turn`). Ends
@@ -3562,17 +3676,21 @@ impl FlowUi {
 
     /// A turn becomes live. A `turn/started` names the turn, so the id is
     /// authoritative — a new turn supersedes whatever was live.
-    fn begin_turn(&mut self, turn_id: &str, _started: Instant) {
+    fn begin_turn_in(&mut self, session: &str, turn_id: &str) {
         self.active_turn = Some((turn_id.to_owned(), Instant::now()));
+        self.active_turn_session = Some(session.to_owned());
     }
 
     /// A delta arrived for `turn_id`. If no turn is live yet (a delta can beat
     /// `turn/started`), this turn becomes live. A delta for a DIFFERENT turn
     /// never hijacks the live one — the live L1/L2 defect was a stale frame
     /// clearing/replacing a running turn (LESSONS 5).
-    fn touch_turn(&mut self, turn_id: &str) {
+    fn touch_turn_in(&mut self, session: &str, turn_id: &str) {
         match &self.active_turn {
-            None => self.active_turn = Some((turn_id.to_owned(), Instant::now())),
+            None => {
+                self.active_turn = Some((turn_id.to_owned(), Instant::now()));
+                self.active_turn_session = Some(session.to_owned());
+            }
             Some((id, _)) if id == turn_id => {}
             Some(_) => {}
         }
@@ -3594,6 +3712,7 @@ impl FlowUi {
                 end.worked = Some(started.elapsed());
                 end.completed_at = Some(SystemTime::now());
                 self.active_turn = None;
+                self.active_turn_session = None;
                 self.last_settled_turn = Some(turn_id.to_owned());
             }
             // A terminal for another turn, or no live turn: do not touch the
