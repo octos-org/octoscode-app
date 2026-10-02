@@ -218,6 +218,22 @@ pub struct Confirm {
 
 static CONFIRM: Mutex<Option<Confirm>> = Mutex::new(None);
 
+/// The Skills registry query last SEARCHED (`None`: no search yet). Set when
+/// a search is sent (the web's `search(query)`), so the remounted input shows
+/// it and an empty result reads "No matching skill packages.".
+static SKILLS_QUERY: Mutex<Option<String>> = Mutex::new(None);
+
+pub fn skills_query() -> Option<String> {
+    SKILLS_QUERY.lock().unwrap().clone()
+}
+
+pub fn set_skills_query(q: Option<String>) {
+    *SKILLS_QUERY.lock().unwrap() = q;
+}
+
+/// The Skills search input's widget id (after the dialog's `dlg_skills_` prefix).
+pub const SKILLS_QUERY_INPUT: &str = "dlg_skills_skills_query";
+
 /// The pending confirmation, if any.
 pub fn pending_confirm() -> Option<Confirm> {
     CONFIRM.lock().unwrap().clone()
@@ -1016,9 +1032,38 @@ fn live_skills(tree: &mut UiNode, ctx: &Ctx<'_>) {
             shift_below(tree, y + h - 1.0, -shrink, &frames);
         }
     }
-    // Registry: fetched packages only (search results land in the store).
+    // The registry search (`SkillsDialog.tsx:203-226`): only when the server
+    // advertises profile/skills/registry/search; the authored box becomes a
+    // real input (Enter searches) holding the last searched query.
+    if advertises(ctx.store, "profile/skills/registry/search") {
+        if let Some(n) = find_mut(tree, "t_search") {
+            n.kind = NodeKind::Input;
+            let a = &mut n.attrs;
+            a.id = Some("skills_query".to_owned());
+            a.placeholder = Some("Search registry".to_owned());
+            a.text = Some(skills_query().unwrap_or_default());
+            a.color = Some(0xff1d_1d1f);
+            a.w = Some(250.0);
+            a.variant = None;
+        }
+    } else {
+        remove(tree, &["search_box", "icon_search", "t_search"]);
+    }
+    // Registry: the searched packages (`search` folds them into the store).
     let m = registry.len().min(2);
-    if m == 0 {
+    let searched = skills_query().is_some();
+    if m == 0 && searched {
+        // "No matching skill packages." in the first row's place.
+        remove(tree, &["t_ver11", "btn_3_install", "t_name12", "t_ver13", "btn_4_install", "div_3"]);
+        if let Some(t) = find_mut(tree, "t_name10") {
+            t.attrs.text = Some("No matching skill packages.".to_owned());
+            t.attrs.w = Some(300.0);
+            t.attrs.color = Some(0xff6e_6e73);
+        }
+        if let Some((_, _, _, h)) = rect_of(tree, "card_registry") {
+            set_h(tree, "card_registry", h - 70.0);
+        }
+    } else if m == 0 {
         remove(
             tree,
             &[
@@ -1054,6 +1099,42 @@ fn live_skills(tree: &mut UiNode, ctx: &Ctx<'_>) {
             n.attrs.y = Some(ny - 9.0);
         }
         if let Some(n) = find_mut(tree, &ver_id) {
+            let a = &mut n.attrs;
+            a.text = Some(ellipsize(&line, w, size as f64));
+            a.x = Some(nx);
+            a.y = Some(ny - 9.0 + nh + 1.0);
+            a.w = Some(w as f32);
+            a.h = Some(17.0);
+            a.size = Some(size);
+            a.weight = Some(400);
+            a.color = Some(0xff6e_6e73);
+            a.alignx = Some(0.0);
+            a.variant = None;
+        }
+    }
+    // A registry row (`SkillsDialog.tsx:229-251`): the name, then the
+    // version and licence (and the installed state) under it, ending before
+    // the Install button.
+    for (j, (name_id, ver_id, btn)) in
+        [("t_name10", "t_ver11", "btn_3_install"), ("t_name12", "t_ver13", "btn_4_install")].iter().enumerate().take(m)
+    {
+        let pkg = &registry[j];
+        let (Some((nx, ny, _, nh)), Some((bx, _, _, _))) = (rect_of(tree, name_id), rect_of(tree, btn)) else {
+            continue;
+        };
+        let mut line = format!(
+            "{} · {}",
+            pkg.version.as_deref().unwrap_or("Version not reported"),
+            pkg.license.as_deref().unwrap_or("License not reported")
+        );
+        if pkg.installed {
+            line = format!("{line} · installed");
+        }
+        let (w, size) = (bx - 10.0 - nx, 12.5_f32);
+        if let Some(n) = find_mut(tree, name_id) {
+            n.attrs.y = Some(ny - 9.0);
+        }
+        if let Some(n) = find_mut(tree, ver_id) {
             let a = &mut n.attrs;
             a.text = Some(ellipsize(&line, w, size as f64));
             a.x = Some(nx);
@@ -2467,6 +2548,32 @@ mod tests {
             let (rx, _, _, _) = rect_of(&tree, &format!("t_remove{i}")).unwrap();
             assert!(x + w <= rx - 9.9, "the line ends before Remove");
         }
+    }
+
+    /// The registry search box is a real input only when the server
+    /// advertises the search (fail closed: no box otherwise); it keeps the
+    /// last searched query, and an empty result says so (`SkillsDialog.tsx:222`).
+    #[test]
+    fn the_registry_search_is_a_real_input_and_an_empty_result_says_so() {
+        let _s = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        set_skills_query(None);
+        let m = lower(Dialog::Skills, &ctx, 990.0, 603.0).unwrap();
+        assert!(m.dsl.contains("dlg_skills_skills_query := DesignInput"), "a real input");
+        assert!(m.dsl.contains("empty_text: \"Search registry\""));
+        assert!(m.dsl.contains("1.1.0 · License not reported"), "a registry row's detail line");
+        set_skills_query(Some("zzz".into()));
+        store.domains.profile.set_registry_packages(vec![]);
+        let m = lower(Dialog::Skills, &ctx, 990.0, 603.0).unwrap();
+        assert!(m.dsl.contains("No matching skill packages."));
+        assert!(m.dsl.contains("text: \"zzz\""), "the input keeps the searched query");
+        set_skills_query(None);
+        let m = lower(Dialog::Skills, &ctx, 990.0, 603.0).unwrap();
+        assert!(!m.dsl.contains("No matching skill packages.") && !m.dsl.contains("\"Registry\""));
+        store.domains.config.set_supported_methods(vec!["profile/skills/list".into()]);
+        let m = lower(Dialog::Skills, &ctx, 990.0, 603.0).unwrap();
+        assert!(!m.dsl.contains("DesignInput") && !m.dsl.contains("Search registry"), "fail closed");
     }
 
     /// With nothing folded, no dialog shows the atlas SAMPLE copy: each

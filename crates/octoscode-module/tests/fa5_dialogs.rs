@@ -527,6 +527,42 @@ async fn a_local_shell_bang_is_reported_and_never_sent() {
     );
 }
 
+/// The Skills dialog's search box (Enter) sends ONE
+/// `profile/skills/registry/search` with the query and the connection's
+/// Profile (`skills.ts:152`), folds the reply's packages over the previous
+/// result (`setPackages`), and the dialog draws them. No recording carries
+/// this method, so the reply is the web contract's shape (`skills.ts:79`)
+/// and the assertion is the request the production client sends.
+#[tokio::test]
+async fn the_registry_search_sends_the_query_and_folds_the_packages() {
+    let reply = json!({
+        "profile_id": "dsflash",
+        "packages": [
+            {"name": "lint-kit", "description": "Lints", "repo": "octos/lint-kit", "version": "0.3.0",
+             "license": "MIT", "tags": ["lint"], "provides_tools": true, "installed": false},
+            {"name": "no-version"}
+        ]
+    });
+    let server = Server::start(vec![
+        ("session/open".into(), recorded_open()),
+        ("profile/skills/registry/search".into(), reply),
+    ])
+    .await;
+    let conv = connect(&server).await;
+    conv.store.domains.profile.set_current("dsflash".into());
+    let n = models::search_registry(&conv, &conv.store, "lint").await.expect("search");
+    assert_eq!(n, 2);
+    let sent = server.sent("profile/skills/registry/search").expect("one search request");
+    assert_eq!(sent["q"], "lint");
+    assert_eq!(sent["profile_id"], "dsflash");
+    let pkgs = conv.store.domains.profile.registry_packages();
+    assert_eq!(pkgs[0].name, "lint-kit");
+    assert_eq!(pkgs[0].license.as_deref(), Some("MIT"));
+    // A malformed reply folds as NO packages, never the stale ones.
+    assert_eq!(models::fold_registry_search(json!({"packages": "nope"}), &conv.store), 0);
+    assert!(conv.store.domains.profile.registry_packages().is_empty());
+}
+
 /// `/stop` (aliases `/interrupt`, `/esc`) is the web's interrupt intent
 /// (`registry.ts:272`): a palette row gated on `turn/interrupt` whose effect
 /// is the composer Stop button's own action, and typed it runs locally.

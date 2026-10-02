@@ -667,6 +667,36 @@ pub fn fold_llm_list(v: Value, store: &Store) {
     }
 }
 
+/// A5 — `profile/skills/registry/search` (`skills.ts:152` `search(q)`; the
+/// Skills dialog's search box, Enter): the packages for `query`, scoped to
+/// the connection's Profile, folded into the store the dialog draws from.
+pub async fn search_registry(conv: &Conversation, store: &Store, query: &str) -> Result<usize, String> {
+    let mut params = json!({ "q": query });
+    if let Some(profile) = store.domains.profile.current() {
+        params["profile_id"] = json!(profile);
+    }
+    let v = conv
+        .client()
+        .request("profile/skills/registry/search", params)
+        .await
+        .map_err(|e| format!("profile/skills/registry/search: {e}"))?;
+    Ok(fold_registry_search(v, store))
+}
+
+/// The search result's `packages` (`skills.ts:79` `parseSkillPackages`)
+/// REPLACE the previous result (the web's `setPackages`); a malformed reply
+/// folds as no packages, never as stale ones.
+pub fn fold_registry_search(v: Value, store: &Store) -> usize {
+    let packages: Vec<SkillPackage> = v
+        .get("packages")
+        .and_then(|p| p.as_array())
+        .map(|list| list.iter().filter_map(|p| serde_json::from_value(p.clone()).ok()).collect())
+        .unwrap_or_default();
+    let n = packages.len();
+    store.domains.profile.set_registry_packages(packages);
+    n
+}
+
 pub fn fold_skills_list(v: Value, store: &Store) {
     let skills = v
         .get("skills")

@@ -2404,6 +2404,31 @@ impl OctoscodeView {
         self.view.redraw(cx);
     }
 
+    /// A5 — search the skill registry for `q` (the Skills dialog's box):
+    /// `profile/skills/registry/search` folds the packages, the card re-lowers;
+    /// a failure is the dialog's alert line.
+    fn search_skills(&mut self, cx: &mut Cx, q: String) {
+        let q = q.trim().to_owned();
+        screens::dialog::set_skills_query(Some(q.clone()));
+        let conv = { self.bridge.lock().unwrap().conv.clone() };
+        let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) else {
+            makepad_widgets::log!("[octoscode] skills search {q:?}: no connection");
+            return;
+        };
+        makepad_widgets::log!("[octoscode] skills search: {q:?}");
+        rt.spawn(async move {
+            match screens::models::search_registry(&conv, &conv.store, &q).await {
+                Ok(n) => makepad_widgets::log!("[octoscode] skills search {q:?}: {n} package(s)"),
+                Err(e) => {
+                    makepad_widgets::log!("[octoscode] skills search {q:?}: {e}");
+                    screens::dialog::set_notice(e);
+                }
+            }
+            SignalToUI::set_ui_signal();
+        });
+        self.sync_labels(cx);
+    }
+
     /// A5 — the palette list shows its rows without an empty tail: 34 px per
     /// suggestion, 1..6 rows (the web's palette fits its content up to
     /// min(360, 45dvh)); re-applied only when the count changes.
@@ -4108,6 +4133,15 @@ impl Widget for OctoscodeView {
                         self.perform_action(cx, open, 0);
                     }
                 }
+                // A5 — the Skills dialog's registry search: Enter in its box
+                // searches (the web's form submit); the reply re-lowers it.
+                if let Some((q, _)) = self
+                    .view
+                    .text_input(cx, &[LiveId::from_str(screens::dialog::SKILLS_QUERY_INPUT)])
+                    .returned(actions)
+                {
+                    self.search_skills(cx, q);
+                }
                 // A5 — a palette row runs its command on click; the search
                 // field filters like the slash draft does.
                 if let Some(q) = self
@@ -4308,13 +4342,15 @@ impl Widget for OctoscodeView {
                     self.sync_labels(cx);
                 }
             }
-            // A5 — Escape closes the open dialog first (ModalSurface's
-            // `onEscape`); with no dialog the table below owns the key.
-            Event::KeyDown(e)
-                if e.key_code == KeyCode::Escape && screens::dialog::current().is_some() =>
-            {
-                makepad_widgets::log!("[octoscode] key Escape -> dialog close");
-                self.perform_action(cx, screens::dialog::ACTION_CLOSE, 0);
+            // A5 — while a dialog is open it owns the keyboard (the web's
+            // ModalSurface): Escape closes it (`onEscape`); Return must not
+            // submit the composer's draft and "/" must not open the palette
+            // behind it (its own fields still take their keys).
+            Event::KeyDown(e) if screens::dialog::current().is_some() => {
+                if e.key_code == KeyCode::Escape {
+                    makepad_widgets::log!("[octoscode] key Escape -> dialog close");
+                    self.perform_action(cx, screens::dialog::ACTION_CLOSE, 0);
+                }
             }
             Event::KeyDown(e) => {
                 // A3: Escape closes the top-most chrome surface first.
