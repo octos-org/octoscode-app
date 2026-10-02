@@ -182,10 +182,10 @@ script_mod! {
     // A radio dot: an off ring, an on ring with its centre dot.
     let OcRadio = View{
         width: 18 height: 18 flow: Overlay align: Align{x: 0.5 y: 0.5}
-        rd_off := RoundedView{width: 18 height: 18 draw_bg +: {color: #FFFFFF border_radius: 9.0 border_size: 1.5 border_color: #C7C7CC}}
+        rd_off := RoundedView{width: 18 height: 18 draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.5 border_color: #C7C7CC}}
         rd_on := View{
             width: 18 height: 18 flow: Overlay align: Align{x: 0.5 y: 0.5} visible: false
-            RoundedView{width: 18 height: 18 draw_bg +: {color: #FFFFFF border_radius: 9.0 border_size: 1.5 border_color: #2F6FEB}}
+            RoundedView{width: 18 height: 18 draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.5 border_color: #2F6FEB}}
             RoundedView{width: 8 height: 8 draw_bg +: {color: #2F6FEB border_radius: 4.0}}
         }
     }
@@ -196,7 +196,7 @@ script_mod! {
         width: 64 height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}
         sg_pill := RoundedView{
             width: Fill height: Fill visible: false
-            draw_bg +: {color: #FFFFFF border_radius: 7.0 border_size: 0.5 border_color: #0000001A}
+            draw_bg +: {color: theme.color_bg_app border_radius: 7.0 border_size: 0.5 border_color: #0000001A}
         }
         sg_text_on := OcMedium{text: "" visible: false draw_text +: {text_style +: {font_size: 9.75}}}
         sg_text_off := OcLabel{text: "" draw_text +: {color: theme.color_text_muted text_style +: {font_size: 9.75}}}
@@ -237,30 +237,30 @@ script_mod! {
                 empty_text: "Search chats"
                 padding: Inset{left: 32 right: 30 top: 9 bottom: 7}
                 margin: 0
-                draw_bg.color: #FFFFFF
-                draw_bg.color_hover: #FFFFFF
-                draw_bg.color_focus: #FFFFFF
-                draw_bg.color_down: #FFFFFF
-                draw_bg.color_empty: #FFFFFF
-                draw_bg.color_disabled: #FFFFFF
+                draw_bg.color: theme.color_bg_app
+                draw_bg.color_hover: theme.color_bg_app
+                draw_bg.color_focus: theme.color_bg_app
+                draw_bg.color_down: theme.color_bg_app
+                draw_bg.color_empty: theme.color_bg_app
+                draw_bg.color_disabled: theme.color_bg_app
                 draw_bg.border_radius: 4.0
                 draw_bg.border_size: 1.0
-                draw_bg.border_color: #E5E5E7
-                draw_bg.border_color_2: #E5E5E7
-                draw_bg.border_color_2_hover: #E5E5E7
+                draw_bg.border_color: theme.color_outset_1
+                draw_bg.border_color_2: theme.color_outset_1
+                draw_bg.border_color_2_hover: theme.color_outset_1
                 draw_bg.border_color_2_focus: #2F6FEB
-                draw_bg.border_color_2_down: #E5E5E7
-                draw_bg.border_color_2_empty: #E5E5E7
-                draw_bg.border_color_2_disabled: #E5E5E7
-                draw_bg.border_color_hover: #D1D1D6
+                draw_bg.border_color_2_down: theme.color_outset_1
+                draw_bg.border_color_2_empty: theme.color_outset_1
+                draw_bg.border_color_2_disabled: theme.color_outset_1
+                draw_bg.border_color_hover: theme.color_outset_1
                 draw_bg.border_color_focus: #2F6FEB
-                draw_bg.border_color_down: #D1D1D6
-                draw_bg.border_color_empty: #E5E5E7
-                draw_bg.border_color_disabled: #E5E5E7
-                draw_text.color: #1D1D1F
-                draw_text.color_hover: #1D1D1F
-                draw_text.color_focus: #1D1D1F
-                draw_text.color_down: #1D1D1F
+                draw_bg.border_color_down: theme.color_outset_1
+                draw_bg.border_color_empty: theme.color_outset_1
+                draw_bg.border_color_disabled: theme.color_outset_1
+                draw_text.color: theme.color_fg_app
+                draw_text.color_hover: theme.color_fg_app
+                draw_text.color_focus: theme.color_fg_app
+                draw_text.color_down: theme.color_fg_app
                 draw_text.color_empty: #8E8E93
                 draw_text.color_empty_hover: #8E8E93
                 draw_text.color_empty_focus: #8E8E93
@@ -297,7 +297,7 @@ script_mod! {
             width: Fill height: 32 flow: Overlay margin: Inset{top: 12 bottom: 8}
             RoundedView{
                 width: Fit height: Fill flow: Right padding: 2
-                draw_bg +: {color: #F2F2F4 border_radius: 9.0}
+                draw_bg +: {color: theme.color_bg_even border_radius: 9.0}
                 sb_seg_ws := OcSegment{width: 118}
                 sb_seg_all := OcSegment{width: 64}
             }
@@ -357,14 +357,14 @@ script_mod! {
                     sb_g_count := RoundedView{
                         width: Fit height: 20 align: Align{x: 0.5 y: 0.5} visible: false
                         padding: Inset{left: 8 right: 8}
-                        draw_bg +: {color: #F0F0F2 border_radius: 10.0}
+                        draw_bg +: {color: theme.color_bg_even border_radius: 10.0}
                         sb_g_count_label := OcMuted{text: "" draw_text +: {text_style +: {font_size: 9.0}}}
                     }
                     View{
                         width: 32 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
                         sb_g_more_on := RoundedView{
                             width: Fill height: Fill visible: false
-                            draw_bg +: {color: #F0F0F2 border_radius: 14.0}
+                            draw_bg +: {color: theme.color_bg_even border_radius: 14.0}
                         }
                         Svg{
                             width: 16 height: 16 animating: false
@@ -386,7 +386,7 @@ script_mod! {
                 width: Fill height: 32 flow: Overlay
                 sb_r_sel := RoundedView{
                     width: Fill height: Fill visible: false
-                    draw_bg +: {color: #F0F0F2 border_radius: 8.0}
+                    draw_bg +: {color: theme.color_bg_even border_radius: 8.0}
                 }
                 sb_r_focus := RoundedView{
                     width: Fill height: Fill visible: false
@@ -499,7 +499,7 @@ script_mod! {
     // the clicked row's "⋯" (a margin inside a full-window overlay).
     mod.widgets.OcWorkspaceMenu = RoundedView{
         width: 200 height: Fit flow: Down padding: 4
-        draw_bg +: {color: #FFFFFF border_radius: 10.0 border_size: 1.0 border_color: #E5E5E7}
+        draw_bg +: {color: theme.color_bg_app border_radius: 10.0 border_size: 1.0 border_color: theme.color_outset_1}
         sb_menu_items := View{
             width: Fill height: Fit flow: Down
             View{
@@ -524,30 +524,30 @@ script_mod! {
             sb_rename_input := TextInput{
                 width: Fill height: 32 text: "" empty_text: "Workspace name"
                 padding: Inset{left: 8 right: 8 top: 8 bottom: 6} margin: 0
-                draw_bg.color: #FFFFFF
-                draw_bg.color_hover: #FFFFFF
-                draw_bg.color_focus: #FFFFFF
-                draw_bg.color_down: #FFFFFF
-                draw_bg.color_empty: #FFFFFF
-                draw_bg.color_disabled: #FFFFFF
+                draw_bg.color: theme.color_bg_app
+                draw_bg.color_hover: theme.color_bg_app
+                draw_bg.color_focus: theme.color_bg_app
+                draw_bg.color_down: theme.color_bg_app
+                draw_bg.color_empty: theme.color_bg_app
+                draw_bg.color_disabled: theme.color_bg_app
                 draw_bg.border_radius: 6.0
                 draw_bg.border_size: 1.0
-                draw_bg.border_color: #D1D1D6
-                draw_bg.border_color_2: #D1D1D6
-                draw_bg.border_color_2_hover: #D1D1D6
+                draw_bg.border_color: theme.color_outset_1
+                draw_bg.border_color_2: theme.color_outset_1
+                draw_bg.border_color_2_hover: theme.color_outset_1
                 draw_bg.border_color_2_focus: #2F6FEB
-                draw_bg.border_color_2_down: #D1D1D6
-                draw_bg.border_color_2_empty: #D1D1D6
-                draw_bg.border_color_2_disabled: #D1D1D6
+                draw_bg.border_color_2_down: theme.color_outset_1
+                draw_bg.border_color_2_empty: theme.color_outset_1
+                draw_bg.border_color_2_disabled: theme.color_outset_1
                 draw_bg.border_color_hover: #C7C7CC
                 draw_bg.border_color_focus: #2F6FEB
                 draw_bg.border_color_down: #C7C7CC
-                draw_bg.border_color_empty: #D1D1D6
-                draw_bg.border_color_disabled: #D1D1D6
-                draw_text.color: #1D1D1F
-                draw_text.color_hover: #1D1D1F
-                draw_text.color_focus: #1D1D1F
-                draw_text.color_down: #1D1D1F
+                draw_bg.border_color_empty: theme.color_outset_1
+                draw_bg.border_color_disabled: theme.color_outset_1
+                draw_text.color: theme.color_fg_app
+                draw_text.color_hover: theme.color_fg_app
+                draw_text.color_focus: theme.color_fg_app
+                draw_text.color_down: theme.color_fg_app
                 draw_text.color_empty: #8E8E93
                 draw_text.color_empty_hover: #8E8E93
                 draw_text.color_empty_focus: #8E8E93
@@ -559,7 +559,7 @@ script_mod! {
                 width: Fill height: 30 flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5}
                 View{
                     width: 70 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                    RoundedView{width: Fill height: Fill draw_bg +: {color: #FFFFFF border_radius: 7.0 border_size: 1.0 border_color: #D1D1D6}}
+                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 7.0 border_size: 1.0 border_color: theme.color_outset_1}}
                     OcLabel{text: "Cancel" draw_text +: {text_style +: {font_size: 9.75}}}
                     sb_rename_cancel := OcHit{draw_bg.border_radius: 7.0}
                 }
@@ -618,7 +618,7 @@ script_mod! {
                     RoundedView{
                         width: Fit height: Fill flow: Right spacing: 6 align: Align{y: 0.5}
                         padding: Inset{left: 10 right: 12}
-                        draw_bg +: {color: #FFFFFF border_radius: 9.0 border_size: 1.0 border_color: #E5E5E7}
+                        draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}
                         Svg{
                             width: 14 height: 14 animating: false
                             draw_svg.svg: file_resource(#(crate::chrome::icon("diff")))
@@ -635,7 +635,7 @@ script_mod! {
                     RoundedView{
                         width: Fit height: Fill flow: Right spacing: 6 align: Align{y: 0.5}
                         padding: Inset{left: 10 right: 12}
-                        draw_bg +: {color: #FFFFFF border_radius: 9.0 border_size: 1.0 border_color: #E5E5E7}
+                        draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}
                         Svg{
                             width: 14 height: 14 animating: false
                             draw_svg.svg: file_resource(#(crate::chrome::icon("gear")))
@@ -655,7 +655,7 @@ script_mod! {
         // fixed siblings, never against Fit ones (#40b).
         hd_held := RoundedView{
             width: Fill height: Fit flow: Down visible: false
-            draw_bg +: {color: #F5F5F7 border_radius: 1.0}
+            draw_bg +: {color: theme.color_bg_odd border_radius: 1.0}
             View{
                 width: Fill height: Fit flow: Right spacing: 12 align: Align{y: 0.5}
                 padding: Inset{left: 16 right: 12 top: 12 bottom: 12}
@@ -702,7 +702,7 @@ script_mod! {
     // One nav cell (desktop): icon + label, 40 px, an active fill layer.
     let OcNavCell = View{
         width: Fill height: 40 flow: Overlay
-        nv_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: #F0F0F2 border_radius: 10.0}}
+        nv_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: theme.color_bg_even border_radius: 10.0}}
         nv_row := View{
             width: Fill height: Fill flow: Right spacing: 10 align: Align{y: 0.5} padding: Inset{left: 12}
             nv_icon := Svg{
@@ -968,7 +968,7 @@ script_mod! {
                                 width: 188 height: 34 align: Align{x: 1.0 y: 0.5}
                                 RoundedView{
                                     width: Fit height: 34 flow: Right padding: 2
-                                    draw_bg +: {color: #F2F2F4 border_radius: 9.0}
+                                    draw_bg +: {color: theme.color_bg_even border_radius: 9.0}
                                     th_off := OcSegment{width: 60}
                                     th_on := OcSegment{width: 60}
                                     th_high := OcSegment{width: 60}
@@ -1053,7 +1053,7 @@ script_mod! {
                                 width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
                                 View{
                                     width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                                    RoundedView{width: Fill height: Fill draw_bg +: {color: #FFFFFF border_radius: 9.0 border_size: 1.0 border_color: #D1D1D6}}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
                                     OcLabel{text: "Disconnect" draw_text +: {text_style +: {font_size: 9.75}}}
                                     settings_disconnect := OcHit{draw_bg.border_radius: 9.0}
                                 }
@@ -1093,7 +1093,7 @@ script_mod! {
     mod.widgets.OcStopConfirm = RoundedView{
         width: Fill height: Fit flow: Down spacing: 10 align: Align{x: 0.5}
         padding: Inset{left: 24 right: 24 top: 26 bottom: 22}
-        draw_bg +: {color: #FFFFFF border_radius: 16.0 border_size: 1.0 border_color: #E5E5E7}
+        draw_bg +: {color: theme.color_bg_app border_radius: 16.0 border_size: 1.0 border_color: theme.color_outset_1}
         OcStrong{text: "Stop the Octos server?" draw_text +: {text_style +: {font_size: 13.5}}}
         OcLabel{
             width: Fill text: "All sessions on this computer stop.\nRunning turns are interrupted."
@@ -1109,7 +1109,7 @@ script_mod! {
             width: Fill height: 44 flow: Right spacing: 12 align: Align{x: 0.5 y: 0.5} margin: Inset{top: 10}
             stop_cancel_slot := View{
                 width: Fill height: 44 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                RoundedView{width: Fill height: Fill draw_bg +: {color: #FFFFFF border_radius: 12.0 border_size: 1.0 border_color: #1D1D1F}}
+                RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 12.0 border_size: 1.0 border_color: theme.color_fg_app}}
                 OcMedium{text: "Cancel"}
                 server_stop_cancel := OcHit{draw_bg.border_radius: 12.0}
             }
@@ -1247,6 +1247,8 @@ pub struct ChromeRuntime {
     pub unfocused: bool,
     /// The attention facts last seen, so a notification fires once per change.
     pub attention: Option<Attention>,
+    /// The profile's model list was requested for this connection.
+    pub models_requested: bool,
 }
 
 /// What the desktop-notification hook compares between syncs: the active

@@ -2522,6 +2522,31 @@ impl OctoscodeView {
                 }
             }
         }
+        // A3: the Model row and the new-chat defaults strip name the profile's
+        // selected model — read the profile once per connection when the
+        // store has no model list yet (the read `screens::models::refresh`
+        // performs; before the chrome it ran only behind a dev flag).
+        {
+            let (store, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.conv.clone())
+            };
+            if !self.chrome.models_requested
+                && store.is_live()
+                && store.domains.profile.llm_models().is_empty()
+            {
+                if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                    self.chrome.models_requested = true;
+                    rt.spawn(async move {
+                        match screens::models::refresh(&conv, &conv.store).await {
+                            Ok(n) => makepad_widgets::log!("[octoscode] chrome: {n} profile reads folded"),
+                            Err(e) => makepad_widgets::log!("[octoscode] chrome profile reads: {e}"),
+                        }
+                        SignalToUI::set_ui_signal();
+                    });
+                }
+            }
+        }
         // A3: desktop notifications (General > Desktop notifications): a
         // settled turn or a new wait on the active session, while the window
         // is in the background, posts one OS notice (`Cx::show_notification`).
