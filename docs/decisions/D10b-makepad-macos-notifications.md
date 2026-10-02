@@ -100,9 +100,13 @@ app before the patch reaches a tree never breaks a build, the toggle just reads 
   the patched host copy (`a25_makepad_patch.rs` with `MAKEPAD_PATCH_TREES`).
 - Real macOS, own bundle `dev.octoscode.desktop.a25`: `NotDetermined` read through the API; the
   Settings toggle's request made macOS show its permission prompt
-  (`docs/ux/a25/live-macos/permission-prompt.png`). Not yet observed: a delivered banner and a
-  real click — they need the operator to allow "OctosCode A25"; `tools/walk/a25_live_macos.py`
-  then runs the whole round trip.
+  (`docs/ux/a25/live-macos/permission-prompt.png`). Later the permission read `Denied` (the prompt
+  was refused or dismissed): the real request then answered at once with no prompt — `granted`
+  NO plus the error "Notifications are not allowed for this application" — and the row showed the
+  blocked alert (`docs/ux/a25/live-macos-denied/`; this shape is why the app lets the settled
+  status, not the error, decide). Not yet observed: a delivered banner and a real click — they
+  need the operator to allow "OctosCode A25" in System Settings › Notifications;
+  `tools/walk/a25_live_macos.py <host-bin> <outdir>` then runs the whole round trip.
 - Android: compiled only (no devices in this lane); the device check is below.
 
 ## Android: what to check on the device (the integrator, at APK time)
