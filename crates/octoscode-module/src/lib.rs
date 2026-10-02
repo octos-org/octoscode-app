@@ -5664,8 +5664,9 @@ impl OctoscodeView {
                                 let draft = ui.lock().unwrap().draft();
                                 // A5: a slash draft no row matches still goes
                                 // to the command layer (it runs a board-3
-                                // command or reports an unknown one).
-                                if crate::screens::palette::looks_like_slash_command(&draft) {
+                                // command or reports an unknown one). A11:
+                                // so does a PATH-shaped draft — a prompt.
+                                if crate::screens::palette::enter_without_suggestion_submits(&draft) {
                                     self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
                                 } else {
                                     makepad_widgets::log!(

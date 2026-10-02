@@ -254,6 +254,17 @@ pub fn looks_like_slash_command(input: &str) -> bool {
     !name.contains('/') && !name.contains('\\')
 }
 
+/// A11 — Enter on the slash menu when NO row matches (the web's
+/// `commandSuggestions` is empty, `registry.ts:723-730`, so its composer just
+/// submits): a slash draft goes to the command layer, which runs or reports
+/// it, and a PATH-shaped one ("/home/user/x/y", `registry.ts:647`) is a
+/// prompt that reaches the model. Only a draft that does not start with "/"
+/// (the palette opened over unrelated text) is not the menu's to send. The
+/// walk found the path case swallowed: `palette run: no command matches`.
+pub fn enter_without_suggestion_submits(draft: &str) -> bool {
+    draft.trim_start().starts_with('/')
+}
+
 /// `registry.ts:654` `parseCommandInvocation` — (name, args) from an
 /// invocation-shaped input; None for prompts (paths) and plain text.
 pub fn parse_command_invocation(input: &str) -> Option<(String, String)> {
@@ -751,6 +762,20 @@ mod p4d3_tests {
         assert!(looks_like_slash_command("/"));
         assert!(looks_like_slash_command("  /model gpt-4"));
         assert!(!looks_like_slash_command("plain prompt"));
+    }
+
+    #[test]
+    fn enter_with_no_matching_row_submits_slash_drafts_and_paths_alike() {
+        // A path-shaped draft is a prompt (registry.ts:647): the empty menu
+        // must not swallow it — submit_draft sends it to the model.
+        assert!(enter_without_suggestion_submits("/home/user/x/proj/main.rs"));
+        assert!(parse_command_invocation("/home/user/x/proj/main.rs").is_none());
+        // An unknown command goes to the command layer (receipt, text kept).
+        assert!(enter_without_suggestion_submits("/bogus-command walk probe"));
+        assert!(enter_without_suggestion_submits("  /c/rust/main.rs"));
+        // The palette opened over unrelated text: not the menu's to send.
+        assert!(!enter_without_suggestion_submits("fix the failing test"));
+        assert!(!enter_without_suggestion_submits(""));
     }
 
     #[test]
