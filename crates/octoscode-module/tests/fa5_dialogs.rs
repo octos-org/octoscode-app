@@ -461,3 +461,63 @@ fn screen_owned_ids_fall_through_the_conversation_router() {
         assert!(!octoscode_module::screens::owned_after_router(id), "{id} has its own arm");
     }
 }
+
+/// The context lifecycle never regresses its generation
+/// (`context-events.ts:25` `applyContextNotification`): r23's RECORDED
+/// `context/normalization_reported` frames, replayed through the REAL
+/// registry, leave the newest snapshot; the oldest frame arriving again late
+/// is dropped, and the Context dialog's occupancy keeps the newest estimate.
+#[test]
+fn a_late_context_notification_never_regresses_the_occupancy() {
+    use octos_core::app_ui::AppUiBackendEvent as UiNotification;
+    use octoscode_client::registry::Registry;
+    let r23 = fixture("r23-conversation-a6ea8505.jsonl");
+    let frames: Vec<&Frame> = r23
+        .iter()
+        .filter(|f| f.dir == "in" && f.method == "context/normalization_reported")
+        .collect();
+    assert!(frames.len() >= 2, "r23 records the normalization stream");
+    let store = Arc::new(Store::new());
+    let mut reg = Registry::new();
+    octoscode_client::domains::register_all(&mut reg, store.clone());
+    let dispatch = |reg: &mut Registry, f: &Frame| {
+        let n = UiNotification::from_method_and_params(&f.method, f.body.clone()).expect("decodes");
+        assert!(reg.dispatch(&n), "the session domain claims {}", f.method);
+    };
+    for f in &frames {
+        dispatch(&mut reg, f);
+    }
+    let (first, last) = (frames[0], frames[frames.len() - 1]);
+    let session = last.body["session_id"].as_str().expect("session").to_owned();
+    let held = |store: &Store| {
+        store.domains.session.context(&session).map(|c| c.state["generation"].clone())
+    };
+    let newest = last.body["context_state"]["generation"].clone();
+    assert_eq!(held(&store), Some(newest.clone()));
+    assert!(first.body["context_state"]["generation"].as_u64() < newest.as_u64());
+    dispatch(&mut reg, first);
+    assert_eq!(held(&store), Some(newest), "a late older frame never regresses the snapshot");
+    // The dialog's occupancy line reads the newest estimate.
+    store.domains.session.set_active(Some(session.clone()));
+    let estimate = last.body["context_state"]["token_estimate"].as_u64().expect("estimate");
+    let state = store.domains.session.context(&session).expect("held").state;
+    assert_eq!(state["token_estimate"].as_u64(), Some(estimate));
+}
+
+/// `/stop` (aliases `/interrupt`, `/esc`) is the web's interrupt intent
+/// (`registry.ts:272`): a palette row gated on `turn/interrupt` whose effect
+/// is the composer Stop button's own action, and typed it runs locally.
+#[test]
+fn stop_is_the_interrupt_intent() {
+    let i = palette::command_index("stop").expect("/stop is a row");
+    assert_eq!(palette::COMMANDS[i].effect, Some("turn.interrupt"));
+    assert_eq!(palette::command_index("interrupt"), Some(i));
+    let Some(palette::CommandMatch::Known(_, name)) = palette::match_command("/esc") else {
+        panic!("/esc is a known, runnable command");
+    };
+    assert_eq!(palette::command_index(&name), Some(i));
+    let store = Arc::new(Store::new());
+    assert!(!palette::available(&store, &palette::COMMANDS[i]), "fail closed unadvertised");
+    store.domains.config.set_supported_methods(vec!["turn/interrupt".into()]);
+    assert!(palette::available(&store, &palette::COMMANDS[i]));
+}

@@ -317,9 +317,17 @@ async fn main() {
     // A5: the `screens` scenario answers each read with ONE recorded step's
     // objects (the loop as created, the goal as set); replaying r1's later
     // standalone deletes/clears first would make those reads stale on arrival
-    // (and the generation gate rightly refuses them), so it sends none.
+    // (and the generation gate rightly refuses them), so it sends none of
+    // those. It does send each family's FIRST recorded update (the loop as created,
+    // the monitor as created, the goal as set — the same step its reads
+    // answer with), so the store's autonomy domain, and with it the
+    // sidebar's GOALS / LOOPS rows, hold what the dialogs show.
     let standalone = if label == "screens" {
-        Vec::new()
+        let all = standalone_notifications(&frames);
+        ["loop/updated", "monitor/updated", "session/goal/updated"]
+            .iter()
+            .filter_map(|m| all.iter().find(|f| f.method == *m).cloned())
+            .collect()
     } else {
         standalone_notifications(&frames)
     };

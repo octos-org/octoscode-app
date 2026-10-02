@@ -365,7 +365,7 @@ impl NotificationHandler for ContextCompactionStartedHandler {
     fn handle(&self, notification: &UiNotification) {
         if let UiNotification::ContextCompactionStarted(e) = notification {
             self.store.note_seen(Self::METHOD);
-            self.store.domains.session.set_context(
+            self.store.domains.session.apply_context_notification(
                 &e.session_id.0,
                 ContextLifecycle {
                     kind: "compaction_started".to_owned(),
@@ -391,7 +391,7 @@ impl NotificationHandler for ContextCompactionCompletedHandler {
     fn handle(&self, notification: &UiNotification) {
         if let UiNotification::ContextCompactionCompleted(e) = notification {
             self.store.note_seen(Self::METHOD);
-            self.store.domains.session.set_context(
+            self.store.domains.session.apply_context_notification(
                 &e.session_id.0,
                 ContextLifecycle {
                     kind: "compaction_completed".to_owned(),
@@ -414,7 +414,7 @@ impl NotificationHandler for ContextNormalizationReportedHandler {
     fn handle(&self, notification: &UiNotification) {
         if let UiNotification::ContextNormalizationReported(e) = notification {
             self.store.note_seen(Self::METHOD);
-            self.store.domains.session.set_context(
+            self.store.domains.session.apply_context_notification(
                 &e.session_id.0,
                 ContextLifecycle {
                     kind: "normalization_reported".to_owned(),

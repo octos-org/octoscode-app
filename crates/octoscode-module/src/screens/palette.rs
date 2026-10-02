@@ -79,6 +79,10 @@ pub const COMMANDS: &[Command] = &[
     Command { name: "/review", description: "Run native code review", methods_any: &["review/start"], requires_all: &["review.start.v1"], aliases: &["code-review"], effect: Some("dialog.open.review") },
     Command { name: "/peer", description: "Inspect and steer peers", methods_any: &["peer/prepare", "peer/gather"], requires_all: &[], aliases: &["peers", "fleet"], effect: Some("dialog.open.fleet") },
     Command { name: "/ps", description: "Show background tasks", methods_any: &["task/list"], requires_all: &[], aliases: &["tasks"], effect: Some("dialog.open.tasks") },
+    // A5: the web's `interrupt` intent (`registry.ts:272`, methodsAll
+    // turn/interrupt; App.tsx:1333 `conversation.interrupt()`): the composer
+    // Stop button's own action.
+    Command { name: "/stop", description: "Stop the active turn", methods_any: &["turn/interrupt"], requires_all: &[], aliases: &["interrupt", "esc"], effect: Some("turn.interrupt") },
     Command { name: "/skills", description: "Manage installed skills", methods_any: &["profile/skills/list"], requires_all: &[], aliases: &["skill"], effect: Some("dialog.open.skills") },
     Command { name: "/goal", description: "Inspect and manage the goal", methods_any: &["session/goal/get", "session/goal/set", "session/goal/clear"], requires_all: &["coding.autonomy.v1", "coding.goal_runtime.v1"], aliases: &["agents", "agent"], effect: Some("dialog.open.goal") },
     Command { name: "/loop", description: "Inspect and manage loops", methods_any: &["loop/create", "loop/list"], requires_all: &["coding.autonomy.v1", "coding.loop_runtime.v1"], aliases: &["loops"], effect: Some("dialog.open.loops") },

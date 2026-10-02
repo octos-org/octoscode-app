@@ -398,6 +398,10 @@ script_mod! {
                         draw_text.text_style: theme.oc_text_caps
                         draw_text.color: theme.color_text_muted
                     }
+                    // A5: a click on a section's rows opens its dialog
+                    // (Goal / Loops / Fleet) — A3's Overlay + hit pattern.
+                    View {
+                    width: Fill height: Fit flow: Overlay
                     goals_list := View {
                         width: Fill height: Fit flow: Down spacing: 2
                         // #28e2 item 3: the goal row carries the board's
@@ -423,11 +427,15 @@ script_mod! {
                             max_lines: 1 text_overflow: TextOverflow.Ellipsis
                          draw_text.color: theme.color_fg_app}
                     }
+                    goals_open := mod.widgets.OcHitRound {draw_bg.border_radius: 6.0}
+                    }
                     Label {
                         width: Fill height: Fit text: "LOOPS"
                         draw_text.text_style: theme.oc_text_caps
                         draw_text.color: theme.color_text_muted
                     }
+                    View {
+                    width: Fill height: Fit flow: Overlay
                     loops_list := View {
                         width: Fill height: Fit flow: Down spacing: 2
                         loop_row_1 := Label {
@@ -441,11 +449,15 @@ script_mod! {
                             max_lines: 1 text_overflow: TextOverflow.Ellipsis
                          draw_text.color: theme.color_fg_app}
                     }
+                    loops_open := mod.widgets.OcHitRound {draw_bg.border_radius: 6.0}
+                    }
                     Label {
                         width: Fill height: Fit text: "FLEET"
                         draw_text.text_style: theme.oc_text_caps
                         draw_text.color: theme.color_text_muted
                     }
+                    View {
+                    width: Fill height: Fit flow: Overlay
                     fleet_list := View {
                         width: Fill height: Fit flow: Down spacing: 2
                         // #28e3 item 2: every fleet row reserves the SAME
@@ -505,6 +517,8 @@ script_mod! {
                                 max_lines: 1 text_overflow: TextOverflow.Ellipsis
                              draw_text.color: theme.color_fg_app}
                         }
+                    }
+                    fleet_open := mod.widgets.OcHitRound {draw_bg.border_radius: 6.0}
                     }
                 }
                 // + Add workspace (chrome.rs `OcSidebarFoot`).
@@ -2253,6 +2267,36 @@ impl OctoscodeView {
                 ::log::warn!("octoscode: unhandled dialog action {id:?}");
                 return;
             }
+            // A5 — the web's explicit confirm steps: ask shows the confirm
+            // card, Confirm performs the asked action through its owner,
+            // Cancel returns to the dialog.
+            screens::dialog::Effect::Ask(asked) => {
+                let store = { self.bridge.lock().unwrap().store.clone() };
+                let c = screens::dialog::confirmation_for(asked, &store);
+                makepad_widgets::log!("[octoscode] dialog confirm asked: {asked} ({})", c.is_some());
+                screens::dialog::set_confirm(c);
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
+            screens::dialog::Effect::Confirm => {
+                let pending = screens::dialog::pending_confirm();
+                screens::dialog::set_confirm(None);
+                if let Some(c) = pending {
+                    makepad_widgets::log!("[octoscode] dialog confirmed: {}", c.action);
+                    self.perform_action(cx, &c.action, 0);
+                }
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
+            screens::dialog::Effect::Cancel => {
+                screens::dialog::set_confirm(None);
+                makepad_widgets::log!("[octoscode] dialog confirm cancelled");
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
             _ => {}
         }
         let conv = { self.bridge.lock().unwrap().conv.clone() };
@@ -3938,6 +3982,18 @@ impl Widget for OctoscodeView {
                         makepad_widgets::log!("[octoscode] dialog tap: {ev}");
                         let (base, row) = screens::taps::split_row(ev);
                         self.perform_action(cx, base, row.unwrap_or(0));
+                    }
+                }
+                // A5 — the sidebar's GOALS / LOOPS / FLEET rows open their
+                // dialogs (the same ids the palette rows run).
+                for (hit, open) in [
+                    (live_id!(goals_open), "dialog.open.goal"),
+                    (live_id!(loops_open), "dialog.open.loops"),
+                    (live_id!(fleet_open), "dialog.open.fleet"),
+                ] {
+                    if self.view.button(cx, &[hit]).clicked(actions) {
+                        makepad_widgets::log!("[octoscode] sidebar section -> {open}");
+                        self.perform_action(cx, open, 0);
                     }
                 }
                 // A5 — a palette row runs its command on click; the search

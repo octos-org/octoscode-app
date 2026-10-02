@@ -197,6 +197,87 @@ pub fn close() {
     *OPEN.lock().unwrap() = None;
 }
 
+/// A pending confirmation: the web asks before its irreversible or costly
+/// writes — `ContextDialog.tsx:155` ("Compact this session now? …"),
+/// `SkillsDialog.tsx:305` ("Confirm removal" / "Confirm server
+/// installation", naming the Profile the change applies to). While one is
+/// pending, its dialog shows the confirm card in place of its own card;
+/// Confirm performs `action`, Cancel returns to the dialog, and the close
+/// button / Escape close both.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Confirm {
+    pub dialog: Dialog,
+    /// The action Confirm performs (`context.compact_now`, `skills.remove_N`, …).
+    pub action: String,
+    pub title: String,
+    /// The object of the change (a skill name, `repo · branch main`); may be empty.
+    pub detail: String,
+    pub body: String,
+    pub confirm_label: String,
+}
+
+static CONFIRM: Mutex<Option<Confirm>> = Mutex::new(None);
+
+/// The pending confirmation, if any.
+pub fn pending_confirm() -> Option<Confirm> {
+    CONFIRM.lock().unwrap().clone()
+}
+
+pub fn set_confirm(c: Option<Confirm>) {
+    *CONFIRM.lock().unwrap() = c;
+}
+
+/// The confirmation the web asks before `action`, in the web's words, for
+/// the row the action names (`None`: the action does not ask, or its row is
+/// gone). The Profile is the connection's (`profile.current()`).
+pub fn confirmation_for(action: &str, store: &octoscode_store::Store) -> Option<Confirm> {
+    let profile = store.domains.profile.current().unwrap_or_else(|| "this Profile".to_owned());
+    if action == "context.compact_now" {
+        return Some(Confirm {
+            dialog: Dialog::Context,
+            action: action.to_owned(),
+            title: "Compact context".to_owned(),
+            detail: String::new(),
+            body: "Compact this session now? Older context may be summarized. \
+                   The durable transcript remains on the server."
+                .to_owned(),
+            confirm_label: "Confirm compaction".to_owned(),
+        });
+    }
+    if let Some(i) = action.strip_prefix("skills.remove_").and_then(|n| n.parse::<usize>().ok()) {
+        let name = store.domains.profile.installed_skills().get(i)?.name.clone();
+        return Some(Confirm {
+            dialog: Dialog::Skills,
+            action: action.to_owned(),
+            title: "Confirm removal".to_owned(),
+            detail: name,
+            body: format!(
+                "Applies to Profile {profile} and rebuilds its server skill runtime. \
+                 Reinstall from the original source to recover the removed skill."
+            ),
+            confirm_label: "Confirm remove".to_owned(),
+        });
+    }
+    if let Some(i) = action.strip_prefix("skills.install_").and_then(|n| n.parse::<usize>().ok()) {
+        // `skills.install_N` names registry row N - 3 (`models.rs` INSTALL_BASE).
+        let pkg = store.domains.profile.registry_packages().get(i.checked_sub(3)?)?.clone();
+        return Some(Confirm {
+            dialog: Dialog::Skills,
+            action: action.to_owned(),
+            title: "Confirm server installation".to_owned(),
+            detail: format!("{} · branch main", pkg.repo),
+            body: format!(
+                "Skills are shared by this Profile, not installed on this device. \
+                 Installation may download executable tools and dependencies; review \
+                 and trust the source first. Applies to Profile {profile} and rebuilds \
+                 its server skill runtime. Existing skills are not forcibly overwritten."
+            ),
+            confirm_label: "Confirm install".to_owned(),
+        });
+    }
+    None
+}
+
 /// The open dialog's notice: why a control the user just clicked did not run
 /// (the web renders each family's error under its section with
 /// `role="alert"`, `AutonomyPanel.tsx:227/:328/:485`; a create/steer with no
@@ -254,6 +335,10 @@ pub fn notice_for_refusal(id: &str) -> Option<&'static str> {
 }
 
 pub const ACTION_CLOSE: &str = "dialog.close";
+/// `dialog.ask.<action>`: show `<action>`'s confirm card instead of running it.
+pub const ACTION_ASK: &str = "dialog.ask.";
+pub const ACTION_CONFIRM: &str = "dialog.confirm";
+pub const ACTION_CANCEL: &str = "dialog.cancel";
 pub const ACTION_REFRESH_PROFILE: &str = "dialog.refresh.profile";
 pub const ACTION_REFRESH_CONTEXT: &str = "dialog.refresh.context";
 pub const ACTION_REFRESH_FLEET: &str = "dialog.refresh.fleet";
@@ -281,6 +366,12 @@ pub enum Effect {
     RefreshContext,
     /// `task/list` + `peer/gather` (`screens::fleet::refresh`).
     RefreshFleet,
+    /// Ask before running this action (its confirm card).
+    Ask(String),
+    /// Run the pending confirmation's action.
+    Confirm,
+    /// Drop the pending confirmation (back to the dialog's own card).
+    Cancel,
     Unhandled(String),
 }
 
@@ -291,7 +382,12 @@ pub fn resolve(id: &str) -> Effect {
     if let Some(d) = id.strip_prefix("dialog.open.").and_then(Dialog::from_id) {
         return Effect::Open(d);
     }
+    if let Some(a) = id.strip_prefix(ACTION_ASK).filter(|a| !a.is_empty()) {
+        return Effect::Ask(a.to_owned());
+    }
     match id {
+        ACTION_CONFIRM => Effect::Confirm,
+        ACTION_CANCEL => Effect::Cancel,
         ACTION_REFRESH_PROFILE => Effect::RefreshProfile,
         ACTION_REFRESH_CONTEXT => Effect::RefreshContext,
         ACTION_REFRESH_FLEET => Effect::RefreshFleet,
@@ -306,11 +402,13 @@ pub fn apply(effect: &Effect) -> Option<Dialog> {
     match effect {
         Effect::Open(d) => {
             clear_notice();
+            set_confirm(None);
             open(*d);
             Some(*d)
         }
         Effect::Close => {
             clear_notice();
+            set_confirm(None);
             close();
             None
         }
@@ -1295,17 +1393,17 @@ pub fn controls(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState) -> Vec<Control> {
             ctl("btn_discover_control", "models.discover"),
         ],
         Dialog::Context => vec![
-            ctl("btn_compact_control", "context.compact_now"),
+            ctl("btn_compact_control", format!("{ACTION_ASK}context.compact_now")),
             ctl("seg_llm_hit", "context.mode.llm"),
             ctl("seg_heur_hit", "context.mode.heuristic"),
         ],
         Dialog::Skills => {
             let mut v = Vec::new();
             for i in 0..ctx.store.domains.profile.installed_skills().len().min(3) {
-                v.push(ctl(format!("t_remove{i}"), format!("skills.remove_{i}")));
+                v.push(ctl(format!("t_remove{i}"), format!("{ACTION_ASK}skills.remove_{i}")));
             }
             for (i, b) in [(3usize, "btn_3_install_control"), (4, "btn_4_install_control")] {
-                v.push(ctl(b, format!("skills.install_{i}")));
+                v.push(ctl(b, format!("{ACTION_ASK}skills.install_{i}")));
             }
             v
         }
@@ -1716,17 +1814,129 @@ fn live(d: Dialog, tree: &mut UiNode, ctx: &Ctx<'_>, st: &AutonomyState) {
 }
 
 /// Lower dialog `d` for a host area of `avail_w × avail_h`.
+/// The confirm card's two controls.
+fn confirm_controls() -> Vec<Control> {
+    vec![ctl("cf_cancel_control", ACTION_CANCEL), ctl("cf_confirm_control", ACTION_CONFIRM)]
+}
+
+/// The confirm card, drawn with the dialogs' own faces: the dialog's title
+/// text, the Context card's body text and its kit pill (outlined Cancel,
+/// filled Confirm — the primary). Card coordinates; `normalize` adds the
+/// margins.
+fn confirm_tree(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState, c: &Confirm) -> Result<UiNode, String> {
+    const W: f64 = 340.0;
+    const GAP: f64 = 12.0;
+    const BTN_H: f64 = 44.0;
+    let own = card_tree(d, ctx, st)?;
+    let faces = if d == Dialog::Context { own.clone() } else { card_tree(Dialog::Context, ctx, st)? };
+    let title_face = find(&own, "t_title").or_else(|| find(&faces, "t_title")).cloned();
+    let body_face = find(&faces, "t_usage").cloned();
+    let pill = find(&faces, "btn_compact").cloned();
+    let (Some(title_face), Some(body_face), Some(pill)) = (title_face, body_face, pill) else {
+        return Err(format!("{}: the confirm card's faces are missing", d.card()));
+    };
+    let text = |face: &UiNode, id: &str, t: &str, y: f64, size: f32, weight: i32, color: u32| -> (UiNode, f64) {
+        let mut n = face.clone();
+        n.children.clear();
+        let per_line = (W / (0.5 * size as f64)).floor().max(1.0);
+        let lines = (t.chars().count() as f64 / per_line).ceil().max(1.0);
+        let h = (lines * size as f64 * 1.4).ceil();
+        let a = &mut n.attrs;
+        a.id = Some(id.to_owned());
+        a.text = Some(t.to_owned());
+        a.x = Some(0.0);
+        a.y = Some(y);
+        a.w = Some(W as f32);
+        a.h = Some(h as f32);
+        a.size = Some(size);
+        a.weight = Some(weight);
+        a.color = Some(color);
+        a.alignx = Some(0.0);
+        a.variant = None;
+        a.fillw = None;
+        a.tapto = None;
+        (n, h)
+    };
+    let button = |id: &str, label: &str, x: f64, y: f64, w: f64, primary: bool| -> UiNode {
+        let mut b = pill.clone();
+        b.attrs.id = Some(id.to_owned());
+        b.attrs.x = Some(x);
+        b.attrs.y = Some(y);
+        b.attrs.w = Some(w as f32);
+        b.attrs.h = Some(BTN_H as f32);
+        for ch in &mut b.children {
+            let old = ch.attrs.id.clone().unwrap_or_default();
+            let suffix = old.strip_prefix("btn_compact").unwrap_or("").to_owned();
+            let a = &mut ch.attrs;
+            a.id = Some(format!("{id}{suffix}"));
+            a.x = Some(x);
+            a.w = Some(w as f32);
+            a.tapto = None;
+            match suffix.as_str() {
+                "_surface" | "_control" => {
+                    a.y = Some(y);
+                    a.h = Some(BTN_H as f32);
+                    if primary && suffix == "_surface" {
+                        a.bg = Some(0xff1d_1d1f);
+                        a.border = None;
+                    }
+                }
+                "_label" => {
+                    let lh = a.h.unwrap_or(26.0) as f64;
+                    a.y = Some(y + (BTN_H - lh) / 2.0);
+                    a.text = Some(label.to_owned());
+                    a.alignx = Some(0.5);
+                    a.weight = Some(if primary { 600 } else { 500 });
+                    if primary {
+                        a.color = Some(0xffff_ffff);
+                    }
+                }
+                _ => {}
+            }
+        }
+        b
+    };
+    let mut page = own;
+    page.children.clear();
+    let title_size = title_face.attrs.size.unwrap_or(22.0);
+    let (title, h) = text(&title_face, "cf_title", &c.title, 0.0, title_size, 700, 0xff1d_1d1f);
+    page.children.push(title);
+    let mut y = h + 14.0;
+    if !c.detail.is_empty() {
+        let (detail, h) = text(&body_face, "cf_detail", &c.detail, y, 16.0, 600, 0xff1d_1d1f);
+        page.children.push(detail);
+        y += h + 8.0;
+    }
+    let (body, h) = text(&body_face, "cf_body", &c.body, y, 14.5, 400, 0xff6e_6e73);
+    page.children.push(body);
+    y += h + 22.0;
+    let half = (W - GAP) / 2.0;
+    page.children.push(button("cf_cancel", "Cancel", 0.0, y, half, false));
+    page.children.push(button("cf_confirm", &c.confirm_label, half + GAP, y, half, true));
+    page.attrs.w = Some(W as f32);
+    page.attrs.h = Some((y + BTN_H) as f32);
+    Ok(page)
+}
+
 pub fn lower(d: Dialog, ctx: &Ctx<'_>, avail_w: f64, avail_h: f64) -> Result<Mounted, String> {
     let st = autonomy_view(ctx);
-    let mut tree = card_tree(d, ctx, &st)?;
-    live(d, &mut tree, ctx, &st);
-    squeeze(&mut tree);
-    let missing = wire(&mut tree, &controls(d, ctx, &st));
+    let confirm = pending_confirm().filter(|c| c.dialog == d);
+    let (mut tree, ctrls) = match &confirm {
+        Some(c) => (confirm_tree(d, ctx, &st, c)?, confirm_controls()),
+        None => {
+            let mut tree = card_tree(d, ctx, &st)?;
+            live(d, &mut tree, ctx, &st);
+            squeeze(&mut tree);
+            (tree, controls(d, ctx, &st))
+        }
+    };
+    let missing = wire(&mut tree, &ctrls);
     let (cw, ch) = normalize(&mut tree);
     let frames = frame_ids(&tree);
     let slot = close_slot(&tree, cw, &frames);
     clear_close(&mut tree, slot, &frames);
-    let (cw, ch) = match notice_tone(d).or_else(|| family_error(d, ctx)) {
+    let notice = if confirm.is_some() { None } else { notice_tone(d).or_else(|| family_error(d, ctx)) };
+    let (cw, ch) = match notice {
         Some((text, alert)) => append_notice(&mut tree, &text, alert, (cw, ch)),
         None => (cw, ch),
     };
@@ -2108,8 +2318,15 @@ mod tests {
         let ctx = Ctx::new(&store, &ui);
         let want: &[(Dialog, &[&str])] = &[
             (Dialog::Models, &["models.test_route", "models.discover"]),
-            (Dialog::Context, &["context.compact_now", "context.mode.llm", "context.mode.heuristic"]),
-            (Dialog::Skills, &["skills.remove_0", "skills.remove_1", "skills.remove_2", "skills.install_3", "skills.install_4"]),
+            // Compact / Remove / Install ASK first (the confirm card).
+            (Dialog::Context, &["dialog.ask.context.compact_now", "context.mode.llm", "context.mode.heuristic"]),
+            (
+                Dialog::Skills,
+                &[
+                    "dialog.ask.skills.remove_0", "dialog.ask.skills.remove_1", "dialog.ask.skills.remove_2",
+                    "dialog.ask.skills.install_3", "dialog.ask.skills.install_4",
+                ],
+            ),
             (Dialog::Goal, &["goal.pause", "goal.stop", "goal.clear"]),
             (
                 Dialog::Loops,
@@ -2137,6 +2354,48 @@ mod tests {
                 assert!(!got.iter().any(|g| g == "loop.pause#2"), "{got:?}");
             }
         }
+    }
+
+    /// The web's explicit confirm steps: Compact now / Remove / Install show
+    /// a confirm card (in the web's words, naming the Profile and the skill)
+    /// whose Confirm runs exactly the asked action and whose Cancel returns.
+    #[test]
+    fn compact_remove_and_install_ask_before_they_run() {
+        let _s = serial();
+        let (store, ui) = full();
+        store.domains.profile.set_current("dsflash".into());
+        let ctx = Ctx::new(&store, &ui);
+        assert_eq!(resolve("dialog.ask.skills.remove_1"), Effect::Ask("skills.remove_1".into()));
+        assert_eq!(resolve(ACTION_CONFIRM), Effect::Confirm);
+        assert_eq!(resolve(ACTION_CANCEL), Effect::Cancel);
+        assert_eq!(resolve("dialog.ask."), Effect::Unhandled("dialog.ask.".into()));
+
+        let remove = confirmation_for("skills.remove_1", &store).expect("remove asks");
+        assert_eq!(remove.dialog, Dialog::Skills);
+        assert_eq!(remove.detail, store.domains.profile.installed_skills()[1].name);
+        assert!(remove.body.contains("Applies to Profile dsflash"), "{}", remove.body);
+        let install = confirmation_for("skills.install_3", &store).expect("install asks");
+        assert!(install.detail.ends_with("· branch main") && install.body.contains("executable tools"));
+        let compact = confirmation_for("context.compact_now", &store).expect("compact asks");
+        assert!(compact.body.starts_with("Compact this session now?"));
+        assert!(confirmation_for("skills.remove_9", &store).is_none(), "a gone row asks nothing");
+        assert!(confirmation_for("goal.clear", &store).is_none());
+
+        open(Dialog::Skills);
+        set_confirm(Some(remove.clone()));
+        let m = lower(Dialog::Skills, &ctx, 990.0, 603.0).expect("confirm card lowers");
+        assert!(m.missing.is_empty(), "{:?}", m.missing);
+        let got = events(&m);
+        assert!(got.contains(&ACTION_CONFIRM.to_owned()) && got.contains(&ACTION_CANCEL.to_owned()), "{got:?}");
+        assert!(!got.iter().any(|e| e.starts_with("dialog.ask.")), "the card replaces the dialog's own");
+        assert!(m.dsl.contains("Confirm removal") && m.dsl.contains(&remove.detail));
+        let phone = lower(Dialog::Skills, &ctx, 360.0, 776.0).expect("phone confirm");
+        assert!(phone.frame.0 <= 360.0 + 0.5);
+        // Another dialog's card is not replaced by this confirmation.
+        assert!(!lower(Dialog::Context, &ctx, 990.0, 603.0).unwrap().dsl.contains("Confirm removal"));
+        // Open / close drop a pending confirmation.
+        apply(&Effect::Close);
+        assert!(pending_confirm().is_none());
     }
 
     /// With nothing folded, no dialog shows the atlas SAMPLE copy: each
@@ -2387,8 +2646,8 @@ mod tests {
     #[test]
     #[ignore]
     fn dump() {
-        let store = Arc::new(Store::new());
-        let ui = StdMutex::new(FlowUi::default());
+        let _s = serial();
+        let (store, ui) = full();
         let ctx = Ctx::new(&store, &ui);
         for d in ALL {
             match live_tree(*d, &ctx) {
