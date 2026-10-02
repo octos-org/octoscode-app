@@ -27,6 +27,31 @@ check, soon, snap, rect, visible, is_shown, text_of, click, click_rect, key, typ
 )
 MODE = w.MODE
 CELL = "rl_hit" if MODE == "phone" else "nv_hit"
+
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported).
+WALK = {
+    "name": "a9_settings",
+    "title": "Settings General (server row, workspace, profile) + Connection (Disconnect, Forget server + confirm)",
+    "modes": ["desktop", "phone"],
+    "fixture": {"argv": ["{examples}/replay_serve", "{fport}", "--scenario", "activity"]},
+    "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_PROFILE_ID": "a9walk"},
+            "ready": ["i0_composer_0"]},
+    "runs": [{"argv": ["{port}", "{mode}", "{fixture_log}", "{out}"]}],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 600,
+    "rows": {
+        165: ["General: the state reads Connected", "General: the origin is the connected server",
+              "General: Current workspace shows", "General: Profile shows the opened Profile",
+              "Disconnect acts at once", "…closes the transport and returns to the Connect card",
+              "…on the same server (remembered)", "Connect reconnects to the remembered server",
+              "Confirm forgets: transport closed, the Connect card returns",
+              "…on the default address (the saved one is gone)"],
+        234: {"checks": ["Forget with an unsent draft asks first", "…'Forget this server?' with the draft warning",
+                         "Cancel closes the confirmation and keeps the connection", "Confirm forgets:"],
+              "partial": "the confirmation is walked for Forget with an unsent draft; Disconnect / Forget during a "
+                         "RUNNING turn are not staged"},
+    },
+}
 SECTIONS = ["general", "permissions", "model", "sandbox", "connection", "preferences", "about"]
 
 

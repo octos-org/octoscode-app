@@ -28,6 +28,40 @@ check, soon, snap, rect, is_shown, text_of, click, click_rect, log_since, shot =
     w.check, w.soon, w.snap, w.rect, w.is_shown, w.text_of, w.click, w.click_rect, w.log_since, w.shot,
 )
 MODE = w.MODE
+
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported).
+# One app per scenario: the panic probe (a test seam, inert in production) is
+# read at launch; the loading scenario slows the replay's task/list instead.
+WALK = {
+    "name": "a9_boundary",
+    "title": "error boundaries: the fatal crash screen, a modal / inline surface boundary, the loading fallback",
+    "modes": ["desktop", "phone"],
+    "fixture": {"argv": ["{examples}/replay_serve", "{fport}", "--scenario", "activity"]},
+    "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_PROFILE_ID": "a9walk"},
+            "ready": ["i0_composer_0"]},
+    "runs": [
+        {"argv": ["{port}", "{mode}", "{fixture_log}", "{out}"], "env": {"A9_SCENARIO": "fatal"},
+         "app_env": {"OCTOSCODE_PANIC_PROBE": "fatal:settings.panel.open"}},
+        {"restart": "app", "argv": ["{port}", "{mode}", "{fixture_log}", "{out}"], "env": {"A9_SCENARIO": "modal"},
+         "app_env": {"OCTOSCODE_PANIC_PROBE": "surface:activity"}},
+        {"restart": "app", "argv": ["{port}", "{mode}", "{fixture_log}", "{out}"], "env": {"A9_SCENARIO": "inline"},
+         "app_env": {"OCTOSCODE_PANIC_PROBE": "surface:fleet"}},
+        {"restart": "both", "fixture_args": ["--task-delay-ms", "3000"],
+         "argv": ["{port}", "{mode}", "{fixture_log}", "{out}"], "env": {"A9_SCENARIO": "loading"}},
+    ],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 600,
+    "rows": {
+        206: {"checks": ["the Activity surface fails under its own boundary", "the session owner stays mounted",
+                         "the Fleet pane fails under its own boundary", "the rest of the app still works"],
+              "partial": "the per-surface boundary is walked on Activity (modal) and Fleet (inline); a failed "
+                         "model-management chunk itself is not staged"},
+        207: {"checks": ["the slow first read shows 'Loading activity…'", "…with a Cancel action",
+                         "Cancel closes it at once", "a cancelled load never opens afterwards"],
+              "partial": "the loading fallback and its cancel are walked on Activity; model management's slow "
+                         "import is not staged"},
+    },
+}
 SCENARIO = os.environ.get("A9_SCENARIO", "fatal")
 
 

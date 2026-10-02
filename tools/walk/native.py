@@ -23,11 +23,13 @@ script without a `WALK` literal is listed as "not a native walk" and skipped.
                     "fport": 8422,              # a fixed port, else allocated
                     "env": {},                  # its environment additions
                     "pidfile": "{state}/serve.pid"},  # a walk may restart it
-        # One run, or several; before a run "restart" can restart the "app"
-        # (state kept), the "fixture" (with "fixture_env") or "both":
+        # One run, or several; before a later run "restart" restarts the
+        # "app" (state kept), the "fixture" or "both". A run's "app_env",
+        # "fixture_env" and "fixture_args" apply to the launch it causes
+        # (the first run's, to the first launch):
         "runs": [{"argv": ["{mode}", "{out}"], "env": {"PORT": "{port}"}},
                  {"restart": "both", "fixture_env": {"A7_SERVE_HELD": "octos-tui"},
-                  "argv": [...]}],
+                  "app_env": {"OCTOSCODE_PANIC_PROBE": "surface:fleet"}, "argv": [...]}],
         "needs": ["target/debug/examples/board1_serve"],   # built if missing
         "timeout": 900,                       # seconds per run
         # walk row id -> the check-name substrings that prove it (every
@@ -50,8 +52,9 @@ A walk prints one line per check — `PASS <name>` or `FAIL <name> — <detail>`
 
 Every app the aggregator launches — and every app a "self" walk launches,
 through the inherited environment — gets a fresh per-run state tree for
-drafts, credentials, preferences, notifications, recents, show-thinking and
-downloads (`walk_env.isolated_env`), never the operator's home state. The
+drafts, credentials, preferences, notifications, recents, show-thinking,
+downloads and display preferences (`walk_env.isolated_env`), never the
+operator's home state. The
 phone window is launched straight into OctosCode
 (`--test-action page:0 --test-action launch-octoscode`, 360x780).
 
@@ -288,49 +291,54 @@ def run_walk(path: pathlib.Path, spec: dict, mode: str, binary: str, port: int, 
     app = None
     app_spec = spec.get("app", "self")
 
-    def start_fixture(n: int, extra_env: dict):
+    def start_fixture(n: int, run: dict):
         nonlocal fixture
         if not port_free(fport):
             raise RuntimeError(f"fixture port {fport} is taken")
         fenv = dict(base_env)
         fenv.update({k: str(v) for k, v in expand(fx_spec.get("env", {}), ctx).items()})
-        fenv.update({k: str(v) for k, v in expand(extra_env, ctx).items()})
+        fenv.update({k: str(v) for k, v in expand(run.get("fixture_env", {}), ctx).items()})
         log_path = work / f"fixture-{n}.log"
-        fixture = FixtureProc(expand(fx_spec["argv"], ctx), log_path,
+        argv = expand(fx_spec["argv"], ctx) + expand(run.get("fixture_args", []), ctx)
+        fixture = FixtureProc(argv, log_path,
                               expand(fx_spec.get("pidfile"), ctx) if fx_spec.get("pidfile") else None, fenv)
         fixtures.append(fixture)
         ctx["fixture_log"] = log_path
         fixture.start(fport)
 
-    def start_app():
+    def start_app(run: dict):
         nonlocal app
         if not port_free(port):
             raise RuntimeError(f"app port {port} is taken")
-        env = app_env(mode, state, expand(app_spec.get("env", {}), ctx), hs=work / "hs")
+        extra = dict(expand(app_spec.get("env", {}), ctx))
+        extra.update(expand(run.get("app_env", {}), ctx))
+        env = app_env(mode, state, extra, hs=work / "hs")
         app = App(port, env)
         ready = app_spec.get("ready", DEFAULT_READY)
         if not app.start(binary, ready_ids=tuple(ready)):
             raise RuntimeError("the app never showed " + "/".join(ready))
 
     try:
+        runs = runs_of(spec)
         if fx_spec:
-            start_fixture(1, {})
+            start_fixture(1, runs[0] if runs else {})
         if app_spec != "self":
-            start_app()
-        for i, run in enumerate(runs_of(spec)):
-            restart = run.get("restart")
+            start_app(runs[0] if runs else {})
+        for i, run in enumerate(runs):
+            restart = run.get("restart") if i else None
             if restart in ("fixture", "both") and fx_spec:
-                transcript.append("-- fixture restart" + (f" with {run.get('fixture_env')}" if run.get("fixture_env") else ""))
+                transcript.append("-- fixture restart" + (f" with {run.get('fixture_env')}" if run.get("fixture_env") else "")
+                                  + (f" args {run.get('fixture_args')}" if run.get("fixture_args") else ""))
                 if app is not None and restart == "both":
                     app.stop()
                 fixture.stop()
-                start_fixture(i + 1, run.get("fixture_env", {}))
+                start_fixture(i + 1, run)
                 if app is not None and restart == "both":
-                    start_app()
+                    start_app(run)
             if restart == "app" and app is not None:
-                transcript.append("-- app restart (state kept)")
+                transcript.append("-- app restart (state kept)" + (f" with {run.get('app_env')}" if run.get("app_env") else ""))
                 app.stop()
-                start_app()
+                start_app(run)
             argv = [sys.executable, str(path)] + [str(a) for a in expand(run.get("argv", []), ctx)]
             env = dict(base_env)
             env.update({k: str(v) for k, v in expand(run.get("env", {}), ctx).items()})

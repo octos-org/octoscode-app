@@ -29,7 +29,7 @@ import urllib.request
 ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 HEADLESS = ROOT / "harness" / "headless.sh"
 
-# The seven app-state locations the module reads from the environment.
+# The app-state locations the module reads from the environment.
 ISOLATED_KEYS = (
     "OCTOSCODE_DRAFTS_FILE",
     "OCTOSCODE_CREDENTIALS_DIR",
@@ -38,6 +38,7 @@ ISOLATED_KEYS = (
     "OCTOSCODE_RECENTS_DIR",
     "OCTOSCODE_SHOW_THINKING_FILE",
     "OCTOSCODE_DOWNLOAD_DIR",
+    "OCTOSCODE_DISPLAY_PREFS_PATH",
 )
 
 PHONE_SIZE = "360x780"
@@ -57,6 +58,8 @@ def isolated_env(state: pathlib.Path) -> dict:
         "OCTOSCODE_RECENTS_DIR": str(state / "recents"),
         "OCTOSCODE_SHOW_THINKING_FILE": str(state / "show-thinking.json"),
         "OCTOSCODE_DOWNLOAD_DIR": str(state / "downloads"),
+        # A9's display preferences (screens/a9_prefs.rs).
+        "OCTOSCODE_DISPLAY_PREFS_PATH": str(state / "display-v1.json"),
     }
 
 

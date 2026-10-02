@@ -30,6 +30,24 @@ check, soon, snap, rect, is_shown, text_of, click, key, type_text, log_since, sh
     w.check, w.soon, w.snap, w.rect, w.is_shown, w.text_of, w.click, w.key, w.type_text, w.log_since, w.shot,
 )
 MODE = w.MODE
+
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported).
+# The app starts on a closed port (the Connect card); the fixture is the local
+# 401 server.
+WALK = {
+    "name": "a9_connect",
+    "title": "Connect failures: unreachable vs a refused token, told apart by the probe",
+    "modes": ["desktop", "phone"],
+    "fixture": {"argv": ["{python}", "{root}/tools/walk/a9_auth401_serve.py", "{fport}"]},
+    "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:9"}, "ready": ["connect_card", "connect_btn"]},
+    "runs": [{"argv": ["{port}", "{mode}", "", "{out}"], "env": {"A9_LIVE_SERVER": "http://127.0.0.1:{fport}"}}],
+    "timeout": 600,
+    "rows": {
+        8: ["a refused token: 'The server refused this token'", "…told apart by the probe (401)",
+            "…with its actions (Re-enter the token · Retry)", "…the token field is given the key focus",
+            "…and keeps the typed value"],
+    },
+}
 # The server that refuses the token: the LOCAL 401 server by default, never the
 # shared live server (no live-server traffic from walks; brief §8).
 LIVE = os.environ.get("A9_LIVE_SERVER", "http://127.0.0.1:8429")
