@@ -145,7 +145,7 @@ def numeric(W: Walk, name: str):
     dx = round((col[0] + col[2] / 2) - (pan[0] + pan[2] / 2), 1) if col and pan else None
     W.check(f"{name}: pane numeric checks (no clipped/overlapping labels, controls >= 28 px, column centred)",
             c["ok"] and dx is not None and abs(dx) <= 1.5,
-            checks_line(c) + f" column={col and col[2]:.0f} column_dx={dx}"
+            checks_line(c) + f" column={round(col[2]) if col else None} column_dx={dx}"
             + (f" under28={c.get('under28')} outside={c.get('outside')} overlaps={c.get('overlaps')}" if not c["ok"] else ""))
     return c
 

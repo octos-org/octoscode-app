@@ -922,9 +922,23 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
     let initial: String = r.label.split(" · ").nth(1).and_then(|m| m.chars().next()).map(|c| c.to_uppercase().to_string()).unwrap_or_else(|| "P".into());
     d.text(&format!("{av}_initial"), &initial, &Txt::new(11.0, Face::Semibold, tok::BLUE));
     d.close();
-    d.text(&format!("{id}_label"), &super::inventory::fit(&r.label, inner_w - 230.0, 12.5, true), &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Fill));
-    status_chip(d, &format!("{id}_status"), r.status);
+    // The label never truncates to make room for the chip: when both do not
+    // fit on one line (a phone, a long waiting word) the chip drops below.
+    let chip_w = ui::text_w(&format!("{} {}", r.status.glyph(), t(r.status.word())), 11.0, Face::Medium) + 14.0;
+    let room = inner_w - 28.0 - 26.0 - 20.0;
+    let label_w = ui::text_w(&r.label, 12.5, Face::Mono);
+    let stacked = label_w + chip_w > room;
+    d.text(&format!("{id}_label"), &super::inventory::fit(&r.label, room, 12.5, true), &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Fill));
+    if !stacked {
+        status_chip(d, &format!("{id}_status"), r.status);
+    }
     d.close();
+    if stacked {
+        let line = d.anon();
+        d.view(&line, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 36 right: 0 top: 0 bottom: 0}");
+        status_chip(d, &format!("{id}_status"), r.status);
+        d.close();
+    }
     d.text(&format!("{id}_title"), &r.title, &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill).wrap());
     let mut meta = crate::screens::dialog::minute_granularity(&peers::format_elapsed(r.elapsed_ms));
     meta.push_str(&if r.tokens > 0 { format!(" · {}", peers::format_tokens(r.tokens)) } else { " · —".to_owned() });
