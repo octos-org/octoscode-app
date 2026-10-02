@@ -776,6 +776,7 @@ script_mod! {
             set_nav_model := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("code")))}} nv_label +: {text: "Model"}}}
             set_nav_sandbox := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("cube")))}} nv_label +: {text: "Sandbox"}}}
             set_nav_connection := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("plug")))}} nv_label +: {text: "Connection"}}}
+            set_nav_preferences := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("sliders")))}} nv_label +: {text: "Preferences"}}}
             set_nav_about := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("info")))}} nv_label +: {text: "About"}}}
         }
         // Phone rail (the board's 56 px icon rail): back, then the six chips.
@@ -796,6 +797,7 @@ script_mod! {
             set_rail_model := OcRailCell{rl_off_icon +: {rl_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("code")))}}} rl_on_icon +: {rl_icon_accent +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("code_accent")))}}}}
             set_rail_sandbox := OcRailCell{rl_off_icon +: {rl_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("cube")))}}} rl_on_icon +: {rl_icon_accent +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("cube_accent")))}}}}
             set_rail_connection := OcRailCell{rl_off_icon +: {rl_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("plug")))}}} rl_on_icon +: {rl_icon_accent +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("plug_accent")))}}}}
+            set_rail_preferences := OcRailCell{rl_off_icon +: {rl_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("sliders")))}}} rl_on_icon +: {rl_icon_accent +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("sliders_accent")))}}}}
             set_rail_about := OcRailCell{rl_off_icon +: {rl_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("info")))}}} rl_on_icon +: {rl_icon_accent +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("info_accent")))}}}}
         }
         SolidView{width: 1 height: Fill draw_bg +: {color: theme.color_outset_1}}
@@ -1186,6 +1188,46 @@ script_mod! {
                     }
                 }
 
+                // ----- Preferences (A9: the web's "Browser preferences",
+                // PreferencesDialog.tsx; screens::a9_prefs). Changes apply at
+                // once; Save writes only the display whitelist.
+                sec_preferences := View{
+                    width: Fill height: Fit flow: Down visible: false
+                    View{
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
+                        View{
+                            width: Fill height: 32 flow: Overlay
+                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Vim editing"}}
+                            View{width: Fill height: Fill align: Align{x: 1.0 y: 0.5} tg_vim := OcToggle{}}
+                        }
+                        View{
+                            width: Fill height: Fit flow: Down padding: Inset{right: 64}
+                            OcRowHelp{text: "Use Vim-style normal and insert modes in the composer."}
+                        }
+                    }
+                    OcRule{}
+                    View{
+                        width: Fill height: Fit flow: Down spacing: 12 padding: Inset{top: 14 bottom: 14}
+                        View{
+                            width: Fill height: Fit flow: Down
+                            OcRowHelp{text: "Changes apply immediately. Save remembers them on this device; no server configuration, credentials or conversations are stored."}
+                        }
+                        View{
+                            width: Fill height: Fit flow: Right spacing: 12 align: Align{y: 0.5}
+                            View{
+                                width: 148 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_even border_radius: 9.0}}
+                                OcLabel{text: "Save preferences" draw_text +: {text_style +: {font_size: 9.75}}}
+                                prefs_save := OcHit{draw_bg.border_radius: 9.0}
+                            }
+                            View{
+                                width: Fill height: Fit flow: Down
+                                prefs_status := OcMuted{width: Fill text: ""}
+                            }
+                        }
+                    }
+                }
+
                 // ----- About
                 sec_about := View{
                     width: Fill height: Fit flow: Down visible: false
@@ -1253,16 +1295,19 @@ pub enum Section {
     Model,
     Sandbox,
     Connection,
+    /// A9: the web's Browser preferences (Vim editing; Save).
+    Preferences,
     About,
 }
 
 impl Section {
-    pub const ALL: [Section; 6] = [
+    pub const ALL: [Section; 7] = [
         Section::General,
         Section::Permissions,
         Section::Model,
         Section::Sandbox,
         Section::Connection,
+        Section::Preferences,
         Section::About,
     ];
 
@@ -1273,6 +1318,7 @@ impl Section {
             Section::Model => "Model",
             Section::Sandbox => "Sandbox",
             Section::Connection => "Connection",
+            Section::Preferences => "Preferences",
             Section::About => "About",
         }
     }
@@ -1285,6 +1331,7 @@ impl Section {
             Section::Model => "model",
             Section::Sandbox => "sandbox",
             Section::Connection => "connection",
+            Section::Preferences => "preferences",
             Section::About => "about",
         }
     }
@@ -1561,6 +1608,13 @@ impl ChromeRuntime {
             // A5: "Manage models…" opens the Models dialog over Settings.
             if c(cx, live_id!(set_models_manage)) {
                 out.push(Intent::Action("dialog.open.models", 0));
+            }
+            // A9: Preferences - Vim editing, Save.
+            if toggle_hit(cx, view, live_id!(tg_vim), actions) {
+                out.push(Intent::Action(crate::screens::a9_prefs::ACTION_VIM, 0));
+            }
+            if c(cx, live_id!(prefs_save)) {
+                out.push(Intent::Action(crate::screens::a9_prefs::ACTION_SAVE, 0));
             }
             // A9: the Connection row's Disconnect / Forget server (each asks
             // first when work would be lost; screens::a9_settings).
@@ -1882,6 +1936,12 @@ impl ChromeRuntime {
                 crate::screens::a9_settings::status_of(&store.connection(), false).copy()
             ),
         );
+        // A9: Preferences.
+        {
+            let prefs = crate::screens::a9_prefs::snapshot();
+            set_toggle(cx, view, live_id!(tg_vim), prefs.current.vim_mode);
+            text(cx, view, ids!(prefs_status), prefs.status());
+        }
         text(cx, view, ids!(set_about_version), &format!("Version {}", env!("CARGO_PKG_VERSION")));
         let methods = store.domains.config.supported_methods().len();
         text(
@@ -1910,6 +1970,7 @@ fn section_action(s: Section) -> &'static str {
         Section::Model => "settings.section.model",
         Section::Sandbox => "settings.section.sandbox",
         Section::Connection => "settings.section.connection",
+        Section::Preferences => "settings.section.preferences",
         Section::About => "settings.section.about",
     }
 }

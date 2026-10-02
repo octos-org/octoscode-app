@@ -12,6 +12,8 @@ pub mod a9_settings;
 pub mod a9_boundary;
 // A9: the Connect failure probe (unreachable / refused token / origin, honestly).
 pub mod a9_connect;
+// A9: display preferences (the web's display.v1 whitelist; Vim editing).
+pub mod a9_prefs;
 pub mod autonomy;
 // #A2: board 1 as live, reachable native surfaces (the host + its view kit).
 pub mod board1;

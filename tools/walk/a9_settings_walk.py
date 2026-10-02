@@ -27,7 +27,7 @@ check, soon, snap, rect, visible, is_shown, text_of, click, click_rect, key, typ
 )
 MODE = w.MODE
 CELL = "rl_hit" if MODE == "phone" else "nv_hit"
-SECTIONS = ["general", "permissions", "model", "sandbox", "connection", "about"]
+SECTIONS = ["general", "permissions", "model", "sandbox", "connection", "preferences", "about"]
 
 
 def open_settings():

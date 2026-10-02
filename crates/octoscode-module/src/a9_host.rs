@@ -12,6 +12,24 @@ pub fn routes(action: &str) -> bool {
     activity::routes(action)
         || a9_settings::routes(action)
         || crate::screens::a9_boundary::routes(action)
+        || crate::screens::a9_prefs::routes(action)
+}
+
+/// Preferences: adopt the saved Vim preference once at launch, then follow
+/// the composer's own Vim state (`/vimmode` flips it too) so the toggle and
+/// the unsaved/saved status always tell the truth.
+fn sync_prefs() {
+    use crate::screens::{a9_prefs, board3::host};
+    static ADOPTED: std::sync::Once = std::sync::Once::new();
+    ADOPTED.call_once(|| {
+        if a9_prefs::init().vim_mode && !host::vim().enabled {
+            host::set_vim(host::vim().toggled());
+        }
+    });
+    let vim = host::vim().enabled;
+    if a9_prefs::snapshot().current.vim_mode != vim {
+        a9_prefs::set_vim(vim);
+    }
 }
 
 /// Whether Escape belongs to an A9 surface right now.
@@ -26,6 +44,7 @@ impl OctoscodeView {
     /// `sync_labels`, so every store change re-lowers it; the mount cache
     /// remounts only when the DSL changed.
     pub(crate) fn sync_a9(&mut self, cx: &mut Cx) {
+        sync_prefs();
         let rect = self.view.area().rect(cx);
         activity::set_frame(rect.size.x, rect.size.y);
         let store = { self.bridge.lock().unwrap().store.clone() };
@@ -146,6 +165,25 @@ impl OctoscodeView {
         }
         if crate::screens::a9_boundary::routes(action) {
             self.perform_a9_boundary(cx, action);
+            return;
+        }
+        if crate::screens::a9_prefs::routes(action) {
+            use crate::screens::{a9_prefs, board3::host};
+            match action {
+                a9_prefs::ACTION_VIM => {
+                    let next = host::vim().toggled();
+                    host::set_vim(next);
+                    a9_prefs::set_vim(next.enabled);
+                    makepad_widgets::log!("[octoscode] a9 prefs: vim editing {}", if next.enabled { "on" } else { "off" });
+                }
+                a9_prefs::ACTION_SAVE => {
+                    let ok = a9_prefs::save();
+                    makepad_widgets::log!("[octoscode] a9 prefs: save -> {}", if ok { "saved" } else { "not saved" });
+                }
+                _ => {}
+            }
+            self.sync_labels(cx);
+            self.view.redraw(cx);
             return;
         }
         let (store, conv) = {
@@ -279,7 +317,7 @@ impl OctoscodeView {
     /// After the Connect card remounts: a §5.1 rejected-token failure
     /// focuses the token field (`focus_token`); the typed value is kept (the
     /// card pushes `ConnectUi::token` back into it right after).
-    pub(crate) fn a9_after_connect_mount(&mut self, cx: &mut Cx) {
+    pub(crate) fn a9_after_connect_mount(&mut self, _cx: &mut Cx) {
         let focus = {
             let b = self.bridge.lock().unwrap();
             let ui = b.screens.lock().unwrap_or_else(|e| e.into_inner());
