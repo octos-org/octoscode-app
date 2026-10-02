@@ -1025,28 +1025,35 @@ fn fleet(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     use crate::screens::fleet as f;
     let title = f::query_binding(ctx, "fleet.title").and_then(|v| v.as_str().map(str::to_owned)).unwrap_or_default();
     open(b, "t_title", &title, &scope_line(b.dlg, ctx), notice);
-    if let Some(goal) = f::query_binding(ctx, "fleet.goal").and_then(|v| v.as_str().map(str::to_owned)) {
-        b.text("fleet_goal_label", &goal, &Txt::new(13.5, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
-        b.gap(8.0);
-    }
     let rows = f::peer_rows(ctx.store);
     if rows.is_empty() {
+        // #32c item 11: with no peer the goal heading goes too (an empty
+        // slice heads nothing).
         empty_box(b, "fleet_empty", f::FLEET_EMPTY);
     } else {
+        // The session goal heads its peers (the Fleet pane's group heading).
+        if let Some(goal) = f::query_binding(ctx, "fleet.goal").and_then(|v| v.as_str().map(str::to_owned)) {
+            let g = ui::fit_w(&goal, b.inner, 12.0, Face::Semibold);
+            b.text("fleet_goal_label", &g, &Txt::new(12.0, Face::Semibold, tok::MUTED).w(W::Fill));
+            b.gap(8.0);
+        }
         b.list_card("fleet_card");
-        let text_w = b.card_w() - 150.0;
+        let steer_w = ui::text_w("Steer", 13.0, Face::Regular) + 4.0;
         for (i, p) in rows.iter().enumerate() {
             if i > 0 {
                 b.d.hairline();
             }
             let id = format!("peer_r{i}");
+            let word = f::badge_word(p.status);
+            // The name takes the room its status chip and Steer leave.
+            let text_w = b.card_w() - chip_w(&word) - steer_w - 2.0 * 8.0 - 4.0;
             b.row(&id);
             let c = b.d.anon();
             b.d.view(&c, "width: Fill height: Fit flow: Down spacing: 3");
             b.text(&format!("{id}_name"), &ui::fit_w(&p.label, text_w, 13.5, Face::Semibold), &row_title().w(W::Fill));
-            b.text(&format!("{id}_meta"), &dlg::minute_granularity(&f::row_meta(p)), &ui::meta().w(W::Fill));
+            b.text(&format!("{id}_meta"), &ui::fit_w(&dlg::minute_granularity(&f::row_meta(p)), text_w, 12.0, Face::Regular), &ui::meta().w(W::Fill));
             b.close();
-            b.chip(&format!("{id}_status"), &f::badge_word(p.status), peer_ink(p.status));
+            b.chip(&format!("{id}_status"), &word, peer_ink(p.status));
             let (label, tap) = (b.id(&format!("{id}_steer")), b.id(&format!("{id}_steer_hit")));
             let ev = format!("peer.steer#{i}");
             b.d.link_ids(&format!("{label}_box"), &label, &tap, "Steer", Some(&ev), 13.0, tok::BLUE);
@@ -1055,6 +1062,11 @@ fn fleet(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         b.close();
     }
     finish(b);
+}
+
+/// A status chip's width (the kit's `chip`: 11 px medium, 7 px sides).
+fn chip_w(word: &str) -> f64 {
+    ui::text_w(word, 11.0, Face::Medium) + 14.0
 }
 
 /// A list's empty state: the line centred in a quiet box.
@@ -1103,7 +1115,9 @@ fn tasks(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     }
     let col = b.d.anon();
     b.d.view(&col, "width: Fill height: Fit flow: Down spacing: 10");
-    let cmd_w = b.card_w() - 26.0 - 90.0;
+    // A row's command takes the room its glyph and its status chip leave.
+    let card_w = b.card_w();
+    let cmd_w = |word: &str| card_w - 16.0 - chip_w(word) - 2.0 * 8.0 - 4.0;
     for (i, t) in runs.iter().enumerate() {
         let id = format!("run_r{i}");
         b.card(&id, 10.0);
@@ -1111,8 +1125,9 @@ fn tasks(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         b.d.view(&hr, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
         let icon = b.id(&format!("{id}_icon"));
         b.d.icon(&icon, "b3_terminal.svg", 16.0, tok::MUTED);
-        b.text(&format!("{id}_cmd"), &ui::fit_w(&f::task_label(t), cmd_w, 12.5, Face::Mono), &row_mono().w(W::Fill));
-        b.chip(&format!("{id}_status"), &f::status_word(&t.state), task_ink(&t.state));
+        let word = f::status_word(&t.state);
+        b.text(&format!("{id}_cmd"), &ui::fit_w(&f::task_label(t), cmd_w(&word), 12.5, Face::Mono), &row_mono().w(W::Fill));
+        b.chip(&format!("{id}_status"), &word, task_ink(&t.state));
         b.close();
         let console = b.id(&format!("{id}_console"));
         b.d.surface(
@@ -1161,8 +1176,9 @@ fn tasks(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
             b.row(&id);
             let icon = b.id(&format!("{id}_icon"));
             b.d.icon(&icon, "b3_terminal.svg", 16.0, tok::MUTED);
-            b.text(&format!("{id}_cmd"), &ui::fit_w(&f::task_label(t), cmd_w, 12.5, Face::Mono), &row_mono().w(W::Fill));
-            b.chip(&format!("{id}_status"), &f::status_word(&t.state), task_ink(&t.state));
+            let word = f::status_word(&t.state);
+            b.text(&format!("{id}_cmd"), &ui::fit_w(&f::task_label(t), cmd_w(&word), 12.5, Face::Mono), &row_mono().w(W::Fill));
+            b.chip(&format!("{id}_status"), &word, task_ink(&t.state));
             b.close();
         }
         b.close();
