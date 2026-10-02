@@ -1,6 +1,6 @@
 [I] crates/shell/src/lib.rs:4429:9 - wm: modules linked: ["rinx", "octoscode", "apphub", "card"]
 [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <repo>/design
-[I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under /home/user/home/oa.noindex/host-agent-ab92b563581fa245e/apps/octoscode/module/resources/ux/Inter-400.ttf
+[I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <abs>/Inter-400.ttf
 [I] apps/octoscode/module/src/components.rs:319:9 - [components] root = design/components
 [I] apps/octoscode/module/src/components.rs:319:9 - [components] thread-row -> design/components/thread-row/page.card -> on-disk
 [I] apps/octoscode/module/src/components.rs:319:9 - [components] user-bubble -> design/components/user-bubble/page.card -> on-disk

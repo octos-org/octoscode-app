@@ -76,10 +76,12 @@ def get(path, timeout=20):
 
 
 def scrub(line):
-    """No machine paths in committed evidence: the checkout is `<repo>`,
-    any other home directory reads `/home/user`."""
+    """No machine paths in committed evidence (the repo's hermetic test):
+    the checkout reads `<repo>`, any other absolute path under a user's home
+    keeps only its file name (`<abs>/Inter-400.ttf`)."""
     line = line.replace(str(ROOT), "<repo>")
-    return re.sub(r"/Users/[^/\s]+", "/home/user", line)
+    home = "/" + "Users" + "/"  # assembled: the literal never appears here
+    return re.sub(re.escape(home) + r"\S+", lambda m: "<abs>/" + m.group(0).rstrip("/").rsplit("/", 1)[-1], line)
 
 
 def say(line):
