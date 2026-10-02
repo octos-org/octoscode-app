@@ -304,14 +304,25 @@ fn markdown_region(id: &str, body: &str, math: bool, m: &Metrics) -> String {
     let math_dsl = if math {
         format!(
             "use_math_widget: true\n\
-             inline_math := MathView{{font_size: {inline:.2} color: {INK}}}\n\
-             display_math := MathView{{font_size: {display:.2} color: {INK}}}\n",
-            inline = s.body * 0.75 * 0.57,
-            display = s.body * 0.75 * 0.66,
+             inline_math := MathView{{font_size: {inline:.2} baseline_offset: 3.0 color: {INK}}}\n\
+             display_math := MathView{{font_size: {display:.2} baseline_offset: 0.0 color: {INK}}}\n",
+            inline = s.body * 0.75 * 0.78,
+            display = s.body * 0.75 * 0.92,
         )
     } else {
         String::new()
     };
+    // A7: the renderer's `MarkdownLink` draws an EMPTY link widget at the
+    // link's start (its text is never set — the link's words follow as plain
+    // text), which showed the widget's default "Button" and a tall margin.
+    // The template gives it the web's outbound-link affordance instead: a
+    // blue "↗" in the line, the control that opens the (already vetted)
+    // absolute http/https/mailto destination (`lib.rs` LinkNavigated).
+    let link_dsl = format!(
+        "link := MarkdownLink{{text: \"↗\" margin: 0 padding: Inset{{left: 1 right: 3}} \
+         draw_text +: {{color: #2f6febff color_hover: #1f4fb8ff color_pressed: #1f4fb8ff text_style: {link_style}}}}}\n",
+        link_style = flow_style(Face::Regular, s.body, line),
+    );
     format!(
         "{id} := Markdown{{width: Fill max_width: {max} height: Fit padding: 0 margin: 0\n\
          body: {body:?}\n\
@@ -334,6 +345,7 @@ fn markdown_region(id: &str, body: &str, math: bool, m: &Metrics) -> String {
          quote_bg_color: {BORDER} quote_fg_color: {MUTED} \
          table_header_bg_color: #00000000 table_border_color: {BORDER}}}\n\
          {math_dsl}\
+         {link_dsl}\
          }}\n",
         max = m.prose_max_w,
         fs = s.body * 0.75,
@@ -416,13 +428,37 @@ fn highlightable(code: &str) -> bool {
 fn highlighted_body(id: &str, g: crate::highlight::Grammar, code: &str) -> String {
     use crate::highlight::Tok;
     let dark = crate::screens::theme::resolved() == "dark";
+    // Line breaks are `<br>` and indentation / whitespace-only runs are
+    // NO-BREAK spaces: makepad_html collapses a whitespace-only text node
+    // that follows a closing tag even inside `<pre>` (measured: a toml
+    // `[workspace]` key line joined the next line), while U+00A0 is not HTML
+    // whitespace and survives; an empty line holds one so `<br>` keeps it.
     let mut html = String::from("<pre>");
     for (i, spans) in crate::highlight::block(Some(g), code).iter().enumerate() {
         if i > 0 {
-            html.push('\n');
+            html.push_str("<br>");
         }
+        if spans.is_empty() {
+            html.push('\u{a0}');
+        }
+        let mut at_line_start = true;
         for (tok, text) in spans {
-            let esc = html_escape(text);
+            let shown: String = if at_line_start || text.trim().is_empty() {
+                let lead = text.len() - text.trim_start().len();
+                let (ws, rest) = text.split_at(lead);
+                let mut out: String = ws
+                    .chars()
+                    .map(|c| if c == '\t' { "\u{a0}\u{a0}\u{a0}\u{a0}" } else { "\u{a0}" })
+                    .collect();
+                out.push_str(rest);
+                out
+            } else {
+                text.clone()
+            };
+            if !text.trim().is_empty() {
+                at_line_start = false;
+            }
+            let esc = html_escape(&shown);
             match tok_tag(*tok) {
                 Some(tag) => {
                     html.push('<');
@@ -454,7 +490,7 @@ fn highlighted_body(id: &str, g: crate::highlight::Grammar, code: &str) -> Strin
          text_style_normal: {mono}\n\
          text_style_fixed: {mono}\n\
          code_layout: Layout{{flow: Right{{wrap: true}} padding: 0}}\n\
-         draw_block +: {{code_color: #00000000 line_color: {ink} sep_color: {BORDER} \
+         draw_block +: {{code_color: #00000000 line_color: #00000000 sep_color: {BORDER} \
          quote_bg_color: {BORDER} quote_fg_color: {MUTED} \
          table_header_bg_color: #00000000 table_border_color: {BORDER}}}\n\
          {k}{s}{c}{n}{f}\
@@ -1208,15 +1244,15 @@ fn queue_chip(queued: usize, steer: bool, m: &Metrics) -> String {
         String::new()
     };
     format!(
-        "queue_chip := RoundedView{{width: Fit height: {h} flow: Right align: Align{{y: 0.5}} spacing: 6 \
-         padding: Inset{{left: 12 right: 2}}\n\
+        "queue_chip := RoundedView{{width: Fit height: {h} flow: Right align: Align{{y: 0.5}} spacing: 5 \
+         margin: Inset{{top: 2}} padding: Inset{{left: 12 right: 2}}\n\
          draw_bg +: {{color: {TIP} border_radius: 10.0 border_size: 1.0 border_color: {BORDER}}}\n\
          {count}{steer_part}{dot}\
          View{{width: 28 height: 28 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n{x}{remove}}}\n\
          }}\n",
         count = label("queue_count", &format!("{queued} queued"), &st, INK, "width: Fit height: Fit"),
         dot = dot(),
-        x = svg("queue_remove_icon", "b3_close.svg", 11.0, MUTED),
+        x = svg("queue_remove_icon", "b3_close.svg", 12.0, MUTED),
         remove = hit("queue_remove_hit", 14.0),
     )
 }

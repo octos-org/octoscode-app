@@ -3432,6 +3432,36 @@ impl OctoscodeView {
             .set_visible(cx, extras.peer_readonly.is_none());
     }
 
+    /// A7 — the §8 facts, read structurally from the live tree: the key focus
+    /// sits in one of the app's text-entry controls (the composer, the
+    /// palette search, a mounted card's or dialog's field), and whether a
+    /// modal surface is open (board 1 / board 3 / the A5 dialogs, Settings,
+    /// the command palette).
+    fn shortcut_facts(&mut self, cx: &mut Cx) -> screens::keys::ShortcutFacts {
+        let mut inputs: Vec<WidgetRef> = vec![
+            self.view.widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_0)]),
+            self.view.widget(cx, ids!(palette_search)),
+        ];
+        for (id, _) in self.b3_inputs.clone() {
+            inputs.push(self.view.widget(cx, &[live_id!(board3_splash), id]));
+        }
+        for (id, _) in self.connect_inputs.clone() {
+            inputs.push(self.view.widget(cx, &[live_id!(screen_splash), id]));
+        }
+        let target_is_text_input = inputs.iter().any(|w| !w.is_empty() && w.key_focus(cx));
+        let (settings, palette) = {
+            let b = self.bridge.lock().unwrap();
+            let u = b.ui.lock().unwrap();
+            (u.settings_open(), u.palette_open())
+        };
+        let in_dialog = screens::board1::is_open()
+            || screens::board3::host::is_open()
+            || screens::dialog::current().is_some()
+            || settings
+            || palette;
+        screens::keys::ShortcutFacts { target_is_text_input, in_dialog }
+    }
+
     /// A7 — one of the composer extras' controls (fluid.rs `composer_extras`).
     fn composer_extra_tap(&mut self, which: &str) {
         let (store, conv) = {
@@ -5258,6 +5288,38 @@ impl Widget for OctoscodeView {
             Event::KeyDown(e) if self.board3_vim_key(cx, e) => {}
             Event::TextInput(te) if te.was_paste && self.board3_vim_paste(cx, te) => {}
             Event::KeyDown(e) => {
+                // A7 — §8 shortcut suppression (`shortcut-suppression.ts`):
+                // a parity chord (Alt+A / Alt+P / Alt+D) never fires while the
+                // key focus is in a text input or a dialog is open — the
+                // control keeps its key (no action, no focus steal).
+                if let Some(chord) = screens::keys::match_parity_shortcut(
+                    e.key_code,
+                    e.modifiers.control,
+                    e.modifiers.alt,
+                    e.modifiers.logo,
+                ) {
+                    let facts = self.shortcut_facts(cx);
+                    if screens::keys::parity_suppressed(chord, facts, false) {
+                        makepad_widgets::log!("[octoscode] shortcut {chord:?} suppressed ({facts:?})");
+                        return;
+                    }
+                    match chord {
+                        // `App.tsx:1110-1125`: Alt+D opens Fleet (its
+                        // dispatch / availability notice).
+                        screens::keys::ParityShortcut::FocusDispatch => {
+                            makepad_widgets::log!("[octoscode] shortcut Alt+D -> fleet");
+                            self.perform_action(cx, "b3.open.fleet", 0);
+                            self.sync_labels(cx);
+                            return;
+                        }
+                        // No native peer dock to fold: the chord is inert.
+                        screens::keys::ParityShortcut::TogglePeerDock => {
+                            makepad_widgets::log!("[octoscode] shortcut Alt+P: no peer dock");
+                            return;
+                        }
+                        screens::keys::ParityShortcut::ShowApproval => {}
+                    }
+                }
                 // A3: Escape closes the top-most chrome surface first.
                 if e.key_code == KeyCode::Escape && self.escape_chrome(cx) {
                     return;
