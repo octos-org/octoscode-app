@@ -3,13 +3,21 @@
 closed port, so it shows A1's Connect card; then by CLICKS and typing:
 
   1. an unreachable address -> "Can't reach <address>" + its actions;
-  2. a reachable server with a WRONG token (the live server answers 401) ->
-     "The server refused this token" + "Re-enter the token · Retry", the
-     typed token kept and the token field focused (typing lands in it).
+  2. a reachable server with a WRONG token (a local server that answers 401
+     to everything, tools/walk/a9_auth401_serve.py) -> "The server refused
+     this token" + "Re-enter the token · Retry", the typed token kept and the
+     token field given the key focus.
 
-No real token is used and no turn is started.
+No real token is used, no live server is dialled and no turn is started.
 
-  a9_walk.sh a9_connect_walk.py desktop <shots> OCTOS_BASE_URL=http://127.0.0.1:9
+  python3 tools/walk/a9_auth401_serve.py 8429 &
+  S=$(mktemp -d)   # brief §8: isolated stores (see a9_activity_walk.py's list)
+  OCTOSCODE_CREDENTIALS_DIR=$S/cred OCTOSCODE_DRAFTS_FILE=$S/drafts.json \\
+  OCTOSCODE_RECENTS_DIR=$S/recents OCTOS_BASE_URL=http://127.0.0.1:9 \\
+  OCTOSCODE_DESIGN_DIR=$PWD/design MAKEPAD_WM_TEST_APP=octoscode \\
+  HEADLESS_ARGS="--module octoscode" bash harness/headless.sh start <host-bin> 8419
+  A9_LIVE_SERVER=http://127.0.0.1:8429 python3 tools/walk/a9_connect_walk.py 8419 desktop "" [shots-dir]
+  bash harness/headless.sh stop 8419
 """
 import os
 import sys
@@ -22,7 +30,9 @@ check, soon, snap, rect, is_shown, text_of, click, key, type_text, log_since, sh
     w.check, w.soon, w.snap, w.rect, w.is_shown, w.text_of, w.click, w.key, w.type_text, w.log_since, w.shot,
 )
 MODE = w.MODE
-LIVE = os.environ.get("A9_LIVE_SERVER", "http://127.0.0.1:50190")
+# The server that refuses the token: the LOCAL 401 server by default, never the
+# shared live server (no live-server traffic from walks; brief §8).
+LIVE = os.environ.get("A9_LIVE_SERVER", "http://127.0.0.1:8429")
 
 
 def set_field(wid, text, clear=48):

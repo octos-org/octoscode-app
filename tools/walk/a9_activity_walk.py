@@ -10,6 +10,13 @@ The app must run hidden against the replay server's `activity` scenario
 (recorded c24b task snapshots; see examples/replay_serve.rs):
 
   target/debug/examples/replay_serve 8429 --scenario activity > tmp/replay-8429.log &
+  # Brief §8 (test isolation): the app's stores live in a fresh directory,
+  # never the operator's ~/.octoscode (the other A9 walks launch the same way).
+  S=$(mktemp -d)
+  export OCTOSCODE_DRAFTS_FILE=$S/drafts.json OCTOSCODE_CREDENTIALS_DIR=$S/cred \\
+    OCTOSCODE_PREF_PATH=$S/display.json OCTOSCODE_NOTIFICATIONS_FILE=$S/notify.json \\
+    OCTOSCODE_RECENTS_DIR=$S/recents OCTOSCODE_SHOW_THINKING_FILE=$S/thinking.json \\
+    OCTOSCODE_DOWNLOAD_DIR=$S/downloads OCTOSCODE_DISPLAY_PREFS_PATH=$S/display-v1.json
   OCTOS_BASE_URL=http://127.0.0.1:8429 OCTOS_PROFILE_ID=a9walk \\
   OCTOSCODE_DESIGN_DIR=$PWD/design MAKEPAD_WM_TEST_APP=octoscode \\
   HEADLESS_ARGS="--module octoscode" bash harness/headless.sh start <host-bin> 8419
