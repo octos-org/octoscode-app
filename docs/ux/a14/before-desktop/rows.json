@@ -1,0 +1,380 @@
+[
+ {
+  "dialog": "tasks",
+  "state": "open",
+  "mode": "desktop",
+  "png": "tasks-open-desktop.png",
+  "frame": [
+   343,
+   104,
+   412,
+   548
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   37,
+   35
+  ],
+  "labels": 8,
+  "outside": [],
+  "overlaps": [],
+  "controls": 2,
+  "under28": [],
+  "title_h": null,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 55,
+  "ok": true
+ },
+ {
+  "dialog": "skills",
+  "state": "open",
+  "mode": "desktop",
+  "png": "skills-open-desktop.png",
+  "frame": [
+   340,
+   92,
+   418,
+   571
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   40,
+   20
+  ],
+  "labels": 7,
+  "outside": [],
+  "overlaps": [],
+  "controls": 1,
+  "under28": [],
+  "title_h": 28,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 20,
+  "max_pill_h": 20,
+  "ok": true
+ },
+ {
+  "dialog": "skills",
+  "state": "confirm",
+  "mode": "desktop",
+  "png": "skills-confirm-desktop.png",
+  "frame": [
+   359,
+   255,
+   380,
+   244
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   20,
+   20
+  ],
+  "labels": 5,
+  "outside": [],
+  "overlaps": [],
+  "controls": 3,
+  "under28": [],
+  "title_h": 28,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 44,
+  "ok": true
+ },
+ {
+  "dialog": "goal",
+  "state": "open",
+  "mode": "desktop",
+  "png": "goal-open-desktop.png",
+  "frame": [
+   342,
+   107,
+   414,
+   541
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   39,
+   38
+  ],
+  "labels": 10,
+  "outside": [],
+  "overlaps": [],
+  "controls": 4,
+  "under28": [],
+  "title_h": null,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 55,
+  "ok": true
+ },
+ {
+  "dialog": "loops",
+  "state": "open",
+  "mode": "desktop",
+  "png": "loops-open-desktop.png",
+  "frame": [
+   336,
+   264,
+   426,
+   226
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   32,
+   36
+  ],
+  "labels": 4,
+  "outside": [],
+  "overlaps": [],
+  "controls": 5,
+  "under28": [],
+  "title_h": 29,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 39,
+  "ok": true
+ },
+ {
+  "dialog": "loops",
+  "state": "form",
+  "mode": "desktop",
+  "png": "loops-form-desktop.png",
+  "frame": [
+   359,
+   178,
+   380,
+   399
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   20,
+   20
+  ],
+  "labels": 9,
+  "outside": [],
+  "overlaps": [],
+  "controls": 6,
+  "under28": [],
+  "title_h": 25,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 44,
+  "ok": true
+ },
+ {
+  "dialog": "monitors",
+  "state": "open",
+  "mode": "desktop",
+  "png": "monitors-open-desktop.png",
+  "frame": [
+   340,
+   221,
+   418,
+   312
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   27,
+   39
+  ],
+  "labels": 6,
+  "outside": [],
+  "overlaps": [],
+  "controls": 4,
+  "under28": [],
+  "title_h": 25,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 39,
+  "ok": true
+ },
+ {
+  "dialog": "monitors",
+  "state": "form",
+  "mode": "desktop",
+  "png": "monitors-form-desktop.png",
+  "frame": [
+   359,
+   152,
+   380,
+   451
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   20,
+   20
+  ],
+  "labels": 7,
+  "outside": [],
+  "overlaps": [],
+  "controls": 3,
+  "under28": [],
+  "title_h": 26,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 44,
+  "ok": true
+ },
+ {
+  "dialog": "models",
+  "state": "open",
+  "mode": "desktop",
+  "png": "models-open-desktop.png",
+  "frame": [
+   367,
+   181,
+   364,
+   393
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   26,
+   20
+  ],
+  "labels": 7,
+  "outside": [],
+  "overlaps": [],
+  "controls": 4,
+  "under28": [],
+  "title_h": 25,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 44,
+  "ok": true
+ },
+ {
+  "dialog": "review",
+  "state": "open",
+  "mode": "desktop",
+  "png": "review-open-desktop.png",
+  "frame": [
+   345,
+   127,
+   407,
+   501
+  ],
+  "centre_dx": -0.5,
+  "margins": [
+   20,
+   20
+  ],
+  "labels": 7,
+  "outside": [],
+  "overlaps": [],
+  "controls": 2,
+  "under28": [],
+  "title_h": 23,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 44,
+  "ok": true
+ },
+ {
+  "dialog": "context",
+  "state": "open",
+  "mode": "desktop",
+  "png": "context-open-desktop.png",
+  "frame": [
+   368,
+   133,
+   361,
+   488
+  ],
+  "centre_dx": -0.5,
+  "margins": [
+   20,
+   20
+  ],
+  "labels": 13,
+  "outside": [],
+  "overlaps": [],
+  "controls": 4,
+  "under28": [],
+  "title_h": 28,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 55,
+  "ok": true
+ },
+ {
+  "dialog": "fleet",
+  "state": "open",
+  "mode": "desktop",
+  "png": "fleet-open-desktop.png",
+  "frame": [
+   337,
+   293,
+   423,
+   169
+  ],
+  "centre_dx": -0.5,
+  "margins": [
+   35,
+   42
+  ],
+  "labels": 2,
+  "outside": [],
+  "overlaps": [],
+  "controls": 1,
+  "under28": [],
+  "title_h": 34,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": null,
+  "ok": true
+ },
+ {
+  "dialog": "fleet-pane",
+  "state": "empty",
+  "mode": "desktop",
+  "png": "fleet-pane-empty-desktop.png",
+  "line": [
+   841,
+   102,
+   73,
+   15
+  ],
+  "col": [
+   351,
+   92,
+   676,
+   97
+  ]
+ }
+]
