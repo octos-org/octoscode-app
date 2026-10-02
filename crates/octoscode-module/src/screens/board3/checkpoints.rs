@@ -520,7 +520,7 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
                     d.text(&format!("{rid}_when"), &when, &Txt::new(11.5, Face::Regular, tok::MUTED));
                     d.close();
                     if locked || !list.available {
-                        d.text("", "Restore", &Txt::new(13.0, Face::Regular, tok::FAINT));
+                        d.text("", "Restore", &Txt::new(13.0, Face::Regular, tok::DISABLED_INK));
                     } else {
                         d.link(&format!("{rid}_restore"), "Restore", Some(&format!("b3.ck.snap#{i}")), 13.0);
                     }
@@ -571,7 +571,7 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
     }
     if let Some(n) = &st.notice {
         d.gap(W::Fill, 10.0);
-        d.text("b3_ck_notice", n, &Txt::new(12.5, Face::Regular, tok::GREEN).w(W::Fill).wrap());
+        d.text("b3_ck_notice", n, &Txt::new(12.5, Face::Regular, tok::GREEN_TEXT).w(W::Fill).wrap());
     }
     if st.error.is_some() {
         d.gap(W::Fill, 10.0);
@@ -586,7 +586,7 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
         let foot = d.anon();
         d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 14");
         if st.loading || st.applying {
-            d.text("", "Reload history", &Txt::new(13.0, Face::Regular, tok::FAINT));
+            d.text("", "Reload history", &Txt::new(13.0, Face::Regular, tok::DISABLED_INK));
         } else {
             d.link("b3_ck_reload", "Reload history", Some("b3.ck.reload"), 13.0);
         }
@@ -626,7 +626,7 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
     }
     error_view(d, st);
     if let Some(n) = &st.notice {
-        d.text("b3_ck_notice", n, &Txt::new(12.0, Face::Regular, tok::GREEN).w(W::Fill).wrap());
+        d.text("b3_ck_notice", n, &Txt::new(12.0, Face::Regular, tok::GREEN_TEXT).w(W::Fill).wrap());
     }
     // A13: a failed read knows nothing about the turns — the empty line
     // would contradict the error above it.
@@ -673,7 +673,7 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
             } else if st.blocked.is_none() {
                 d.link(&format!("{rid}_restore"), "Restore", Some(&format!("b3.ck.restore#{i}")), 13.0);
             } else {
-                d.text("", "Restore", &Txt::new(13.0, Face::Regular, tok::FAINT));
+                d.text("", "Restore", &Txt::new(13.0, Face::Regular, tok::DISABLED_INK));
             }
             d.close();
         }
@@ -777,7 +777,7 @@ mod tests {
         let detail = dsl.find("b3_ck_error_detail := Label").expect("the cause");
         assert!(lead < detail, "the plain line leads");
         assert!(dsl[lead..detail].contains(&ui::lit(LOAD_HISTORY_FAILED)));
-        assert!(dsl[lead..detail].contains(tok::RED));
+        assert!(dsl[lead..detail].contains(tok::RED_TEXT));
         assert!(dsl[detail..].contains(&ui::lit(raw)), "the cause is kept");
         assert!(dsl[detail..].contains(tok::MUTED) && dsl[detail..].contains(&ui::text_style(Face::Regular, 11.5)));
         assert!(!dsl.contains("No user turns to rewind."), "a failed read knows nothing about the turns");

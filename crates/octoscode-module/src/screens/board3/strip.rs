@@ -356,10 +356,13 @@ pub fn lower(
     // The transitional states read in blue under it (the board's
     // "Reconnecting" / "Resuming chat…" / "Handing back control…").
     if matches!(state.as_str(), "Reconnecting" | "Resuming chat…" | "Handing back control…") {
-        d.text("b3_strip_transition", &state, &Txt::new(12.5, Face::Regular, tok::BLUE));
+        d.text("b3_strip_transition", &state, &Txt::new(12.5, Face::Regular, tok::BLUE_TEXT));
     }
     d.close();
-    d.finish()
+    // A18 — the strip and its caption sit on the composer's surface, which
+    // follows the theme (the byte passthrough in light): unmapped, a dark
+    // composer area showed a white strip and its caption at 3.26:1.
+    crate::screens::theme::retint_dsl(&d.finish())
 }
 
 #[cfg(test)]

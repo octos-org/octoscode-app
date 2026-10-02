@@ -454,7 +454,7 @@ fn candidate_row(d: &mut Dsl, i: usize, c: &Candidate, selected: bool, divider: 
     d.text("", &meta, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
     d.close();
     if c.active_turn {
-        d.text("", "Busy — another client is working in this session", &Txt::new(11.5, Face::Regular, tok::BLUE).w(W::Fill));
+        d.text("", "Busy — another client is working in this session", &Txt::new(11.5, Face::Regular, tok::BLUE_TEXT).w(W::Fill));
     }
     d.close();
     d.chip(&format!("{rid}_unverified"), "unverified", tok::AMBER, tok::AMBER_BG, Some(tok::AMBER_LINE), false);

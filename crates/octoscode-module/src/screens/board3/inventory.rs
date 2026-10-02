@@ -568,7 +568,7 @@ fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
             None if s.tools.is_empty() => "—".to_owned(),
             None => s.tools.join(", "),
         };
-        let summary_color = if s.error.is_some() { tok::RED } else { tok::MUTED };
+        let summary_color = if s.error.is_some() { tok::RED_TEXT } else { tok::MUTED };
         if compact {
             d.view(&rid, "width: Fill height: Fit flow: Down padding: Inset{top: 6 bottom: 6}");
             let l1 = d.anon();
@@ -753,7 +753,7 @@ mod tests {
             ] {
                 let at = dsl.find(&format!("{id} := Label")).expect(id);
                 let detail = dsl.find(&format!("{id}_detail := Label")).expect("the cause");
-                assert!(at < detail && dsl[at..detail].contains(&ui::lit(lead)) && dsl[at..detail].contains(tok::RED));
+                assert!(at < detail && dsl[at..detail].contains(&ui::lit(lead)) && dsl[at..detail].contains(tok::RED_TEXT));
                 assert!(dsl[detail..].contains(&ui::lit(cause)) && dsl[detail..].contains(tok::MUTED));
             }
             assert_eq!(dsl.matches('{').count(), dsl.matches('}').count(), "balanced");

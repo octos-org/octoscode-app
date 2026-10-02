@@ -782,7 +782,7 @@ fn choice_button(d: &mut Dsl, id: &str, title: &str, sub: &str, event: Option<&s
     );
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 3 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}");
-    d.text(&format!("{id}_title"), title, &Txt::new(14.0, Face::Medium, if event.is_some() { tok::TEXT } else { tok::FAINT }).w(W::Fill).wrap());
+    d.text(&format!("{id}_title"), title, &Txt::new(14.0, Face::Medium, if event.is_some() { tok::TEXT } else { tok::DISABLED_INK }).w(W::Fill).wrap());
     d.text(&format!("{id}_sub"), sub, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     d.close();
     if let Some(ev) = event {
@@ -839,7 +839,7 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
         d.close();
     }
     if let Some(e) = &st.error {
-        d.text("b3_launch_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+        d.text("b3_launch_error", e, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     d.gap(W::Fill, 4.0);
     if no_profile {

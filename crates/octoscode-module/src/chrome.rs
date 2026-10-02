@@ -35,6 +35,19 @@ pub fn icon(name: &str) -> String {
     crate::design::icon_resource(&format!("oc_{name}{}.svg", if dark { "-dark" } else { "" }))
 }
 
+/// A18 — an accent TEXT ink of the startup theme (`screens::theme::SHELL_INKS`)
+/// as the colour value a `#rrggbb` literal parses to (RGBA, alpha ff), so a
+/// template can splice it where a literal stood: `color: #(crate::chrome::ink("link"))`.
+pub fn ink(name: &str) -> ScriptValue {
+    ScriptValue::from_color(rgba(crate::screens::theme::shell_ink(name)))
+}
+
+/// `#rrggbb` -> `0xRRGGBBFF` (the script tokenizer's colour encoding).
+fn rgba(hex: &str) -> u32 {
+    let rgb = u32::from_str_radix(hex.trim_start_matches('#').get(0..6).unwrap_or("ff00ff"), 16).unwrap_or(0x00ff_00ff);
+    (rgb << 8) | 0xff
+}
+
 script_mod! {
     use mod.prelude.widgets.*
     // The theme roles must be assigned before these templates capture them
@@ -261,9 +274,12 @@ script_mod! {
                 draw_text.color_hover: theme.color_fg_app
                 draw_text.color_focus: theme.color_fg_app
                 draw_text.color_down: theme.color_fg_app
-                draw_text.color_empty: #8E8E93
-                draw_text.color_empty_hover: #8E8E93
-                draw_text.color_empty_focus: #8E8E93
+                // A18: the placeholder is the secondary ink (the web's
+                // `.searchInput::placeholder` is the tertiary label, one
+                // level with it); #8E8E93 read 3.26:1 on the field.
+                draw_text.color_empty: theme.color_text_muted
+                draw_text.color_empty_hover: theme.color_text_muted
+                draw_text.color_empty_focus: theme.color_text_muted
                 draw_text.color_disabled: #8E8E93
                 draw_text.text_style: TextStyle{font_family: OcFace400 font_size: 10.5 line_spacing: 1.2}
                 draw_cursor.color: #2F6FEB
@@ -442,7 +458,7 @@ script_mod! {
                 width: Fill height: 30 flow: Overlay
                 View{
                     width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: 28}
-                    OcLabel{text: "Clear search" draw_text +: {color: #2F6FEB text_style +: {font_size: 9.75}}}
+                    OcLabel{text: "Clear search" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
                 }
                 sb_c_hit := OcHit{}
             }
@@ -548,9 +564,9 @@ script_mod! {
                 draw_text.color_hover: theme.color_fg_app
                 draw_text.color_focus: theme.color_fg_app
                 draw_text.color_down: theme.color_fg_app
-                draw_text.color_empty: #8E8E93
-                draw_text.color_empty_hover: #8E8E93
-                draw_text.color_empty_focus: #8E8E93
+                draw_text.color_empty: theme.color_text_muted
+                draw_text.color_empty_hover: theme.color_text_muted
+                draw_text.color_empty_focus: theme.color_text_muted
                 draw_text.color_disabled: #8E8E93
                 draw_text.text_style: TextStyle{font_family: OcFace400 font_size: 10.5 line_spacing: 1.2}
                 draw_cursor.color: #2F6FEB
@@ -748,7 +764,7 @@ script_mod! {
                 }
                 View{
                     width: 72 height: 30 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                    OcLabel{text: "Change" draw_text +: {color: #2F6FEB text_style +: {font_size: 9.75}}}
+                    OcLabel{text: "Change" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
                     hd_defaults_change := OcHit{}
                 }
             }
@@ -972,7 +988,7 @@ script_mod! {
                             width: Fill height: 66 flow: Overlay
                             View{
                                 width: Fill height: Fill flow: Down spacing: 4 align: Align{y: 0.5}
-                                OcLabel{text: "Stop server…" draw_text +: {color: #D1242F text_style +: {font_size: 11.25}}}
+                                OcLabel{text: "Stop server…" draw_text +: {color: #(crate::chrome::ink("danger")) text_style +: {font_size: 11.25}}}
                                 OcRowHelp{text: "Shuts down Octos on this computer"}
                             }
                             server_stop_request := OcHit{}
@@ -1042,7 +1058,7 @@ script_mod! {
                         set_perm_state := OcMuted{width: Fill text: "" visible: false}
                         View{
                             width: 96 height: 30 flow: Overlay align: Align{x: 0.0 y: 0.5}
-                            OcLabel{text: "Advanced…" draw_text +: {color: #2F6FEB text_style +: {font_size: 9.75}}}
+                            OcLabel{text: "Advanced…" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
                             settings_advanced := OcHit{}
                         }
                     }
@@ -1219,7 +1235,7 @@ script_mod! {
                             View{
                                 width: 120 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
                                 RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
-                                OcLabel{text: "Forget server" draw_text +: {color: #C4141B text_style +: {font_size: 9.75}}}
+                                OcLabel{text: "Forget server" draw_text +: {color: #(crate::chrome::ink("danger_strong")) text_style +: {font_size: 9.75}}}
                                 settings_forget := OcHit{draw_bg.border_radius: 9.0}
                             }
                         }
@@ -1327,7 +1343,7 @@ script_mod! {
         stop_error := OcLabel{
             width: Fill text: "Shutdown was not confirmed. Check the server before trying again."
             visible: false align: Align{x: 0.5}
-            draw_text +: {color: #D1242F text_style +: {font_size: 9.75}}
+            draw_text +: {color: #(crate::chrome::ink("danger")) text_style +: {font_size: 9.75}}
         }
         View{
             width: Fill height: 44 flow: Right spacing: 12 align: Align{x: 0.5 y: 0.5} margin: Inset{top: 10}
@@ -1339,7 +1355,7 @@ script_mod! {
             }
             stop_confirm_slot := View{
                 width: Fill height: 44 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                RoundedView{width: Fill height: Fill draw_bg +: {color: #E5383B border_radius: 12.0}}
+                RoundedView{width: Fill height: Fill draw_bg +: {color: #D1242F border_radius: 12.0}}
                 stop_confirm_label := OcMedium{text: "Stop server" draw_text +: {color: #FFFFFF}}
                 server_stop_confirm := OcHit{draw_bg.border_radius: 12.0}
             }

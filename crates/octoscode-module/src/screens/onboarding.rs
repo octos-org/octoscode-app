@@ -1199,7 +1199,7 @@ impl Note {
                 d.view(&col, "width: Fill height: Fit flow: Down spacing: 2");
                 match lead {
                     Some(l) => {
-                        d.text("b3_onb_error_text", l, &Txt::new(13.0, Face::Medium, tok::RED).w(W::Fill).wrap());
+                        d.text("b3_onb_error_text", l, &Txt::new(13.0, Face::Medium, tok::RED_TEXT).w(W::Fill).wrap());
                         d.open(
                             "b3_onb_error_scroll",
                             "ScrollYView",
@@ -1208,7 +1208,7 @@ impl Note {
                         d.text("b3_onb_error_detail", cause, &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
                         d.close();
                     }
-                    None => d.text("b3_onb_error_text", cause, &Txt::new(12.5, Face::Regular, tok::RED).w(W::Fill).wrap()),
+                    None => d.text("b3_onb_error_text", cause, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap()),
                 }
                 d.close();
                 d.close();

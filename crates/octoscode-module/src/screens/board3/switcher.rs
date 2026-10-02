@@ -311,7 +311,7 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
                 d.text(&format!("{rid}_confirm_q"), "Delete?", &Txt::new(12.0, Face::Medium, tok::TEXT));
                 d.link(&format!("{rid}_confirm_no"), "Cancel", Some("b3.switch.delete.cancel"), 12.5);
                 d.view(&format!("{rid}_confirm_yes_box"), "width: Fit height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5} padding: Inset{left: 6 right: 6}");
-                d.text(&format!("{rid}_confirm_yes_label"), "Delete", &Txt::new(12.5, Face::Medium, tok::RED));
+                d.text(&format!("{rid}_confirm_yes_label"), "Delete", &Txt::new(12.5, Face::Medium, tok::RED_TEXT));
                 d.tap(&format!("{rid}_confirm_yes"), "b3.switch.delete.confirm");
                 d.close();
                 d.close();

@@ -97,6 +97,10 @@ pub fn timeline_folded(store: &Arc<Store>, live: bool, folded: &[String]) -> Vec
         }
     }
     let mut any_thinking = false;
+    // A18 — one terminal notice per turn: a settled turn has ONE outcome row
+    // (the web's single `terminal:<turn>` id, `timeline/model.ts:762-790`), so
+    // should two rows ever name the same turn's outcome, the first is drawn.
+    let mut settled: std::collections::HashSet<String> = std::collections::HashSet::new();
     for e in &entries {
         let t = e.turn_id.clone().unwrap_or_default();
         if e.kind == EntryKind::REASONING && show && !e.text.trim().is_empty() {
@@ -107,6 +111,9 @@ pub fn timeline_folded(store: &Arc<Store>, live: bool, folded: &[String]) -> Vec
             let i = slot(&mut per_turn, &t);
             per_turn[i].1.files.push(e.id);
         } else if e.kind == EntryKind::SYSTEM_NOTICE {
+            if !t.is_empty() && e.data.get("outcome").is_some() && !settled.insert(t.clone()) {
+                continue;
+            }
             let i = slot(&mut per_turn, &t);
             per_turn[i].1.notices.push(e.id);
         }
@@ -408,7 +415,7 @@ pub fn lower(row: &TRow, store: &Store) -> String {
                 (_, _, Some(b)) => size_label(b),
                 _ => e.data.get("mime").and_then(|m| m.as_str()).unwrap_or("").to_owned(),
             };
-            d.text(&format!("b3_tl_file_meta_{id}"), &meta, &Txt::new(12.0, Face::Regular, if st.error.is_some() { tok::RED } else { tok::MUTED }).w(W::Fill));
+            d.text(&format!("b3_tl_file_meta_{id}"), &meta, &Txt::new(12.0, Face::Regular, if st.error.is_some() { tok::RED_TEXT } else { tok::MUTED }).w(W::Fill));
             d.close();
             let btns = d.anon();
             d.view(&btns, "width: Fit height: Fit flow: Down spacing: 8");
@@ -437,7 +444,12 @@ pub fn lower(row: &TRow, store: &Store) -> String {
             d.close();
         }
     }
-    d.finish()
+    // A18 — the rows sit on the transcript's own surface, which follows the
+    // theme: in dark the kit's light literals map to the dark set (the byte
+    // passthrough in light). Unmapped, a dark transcript drew the notice's
+    // #1D1D1F title at 1.02:1 and its secondary body at 3.26:1. Their icons
+    // (the fold chevron, the info glyph, the file glyph) take the dark ink.
+    ui::themed_icons(&crate::screens::theme::retint_dsl(&d.finish()))
 }
 
 /// A13 — a receipt's type: the web's system entry is 13 px tertiary ink
@@ -597,6 +609,60 @@ mod tests {
         assert_eq!(timeline(&s, false).last(), Some(&TRow::Notice(last)));
     }
 
+    /// A18 — the rows follow the theme: in dark the notice's title is the dark
+    /// primary ink (it was the light #1D1D1F on the dark transcript, 1.02:1)
+    /// and every icon of the row takes the dark icon ink (the info glyph's
+    /// file stroke is a light-theme grey); light is byte-identical — no tint,
+    /// the kit's own literals.
+    #[test]
+    fn rows_follow_the_theme() {
+        let s = store();
+        let tl = &s.domains.session.timeline;
+        tl.upsert_user_message("s", "t1", "write a story", serde_json::json!({}));
+        let n = tl.upsert_notice_data("s", Some("t1".into()), "terminal:t1", "interrupted".into(),
+            serde_json::json!({"outcome": "interrupted", "message": "turn interrupted by client"}));
+        let (light, dark) = {
+            let _theme = crate::screens::theme::test_lock();
+            let prev = crate::screens::theme::preference();
+            crate::screens::theme::set_preference("light");
+            let light = lower(&TRow::Notice(n), &s);
+            crate::screens::theme::set_preference("dark");
+            let dark = lower(&TRow::Notice(n), &s);
+            crate::screens::theme::set_preference(&prev);
+            (light, dark)
+        };
+        assert!(light.contains(tok::TEXT) && !light.contains("draw_svg.color"), "light: the kit's literals, untinted");
+        assert!(dark.contains("#f5f5f7ff") && !dark.contains(tok::TEXT), "dark: the title takes the dark primary ink");
+        assert!(dark.contains(&format!("draw_svg.color: {}", ui::DARK_ICON_INK)), "dark: the icon takes the dark ink");
+        assert_eq!(dark.matches("draw_svg.svg:").count(), dark.matches("draw_svg.color:").count(), "every icon tinted");
+    }
+
+    /// A18 — a settled turn draws ONE outcome notice: two stored rows naming
+    /// the same turn's terminal (an older keyless one and the keyed
+    /// `terminal:<turn>` upsert) compose to the first; another turn's notice
+    /// and a non-terminal notice of the same turn are untouched.
+    #[test]
+    fn one_terminal_notice_per_turn() {
+        let s = store();
+        let tl = &s.domains.session.timeline;
+        tl.upsert_user_message("s", "t1", "write a story", serde_json::json!({}));
+        tl.append("s", Some("t1".into()), EntryKind::ASSISTANT_TEXT, "Once upon".into());
+        let first = tl.append_data("s", Some("t1".into()), EntryKind::SYSTEM_NOTICE, "interrupted".into(),
+            serde_json::json!({"outcome": "interrupted"}));
+        let keyed = tl.upsert_notice_data("s", Some("t1".into()), "terminal:t1", "interrupted".into(),
+            serde_json::json!({"outcome": "interrupted"}));
+        let warning = tl.append_data("s", Some("t1".into()), EntryKind::SYSTEM_NOTICE, "provider busy".into(),
+            serde_json::json!({"code": "provider_busy", "message": "Retry later"}));
+        s.domains.turn.set_terminal("t1", "interrupted");
+        tl.upsert_user_message("s", "t2", "again", serde_json::json!({}));
+        let other = tl.upsert_notice_data("s", Some("t2".into()), "terminal:t2", "interrupted".into(),
+            serde_json::json!({"outcome": "interrupted"}));
+        let rows = timeline(&s, false);
+        let notices: Vec<u64> = rows.iter().filter_map(|r| if let TRow::Notice(id) = r { Some(*id) } else { None }).collect();
+        assert_eq!(notices, vec![first, warning, other], "one outcome row per turn: {rows:?}");
+        assert!(!rows.contains(&TRow::Notice(keyed)));
+    }
+
     /// A13 (judge: "/status is not available…" receipts piled up as
     /// answer-size prose) — each receipt is its own compact notice row, in
     /// arrival order after the answer it follows; the answer itself stays
@@ -637,8 +703,20 @@ mod tests {
         let base = crate::screen::timeline_rows(&s, false);
         assert_eq!(base.iter().filter(|r| r.kind == ItemKind::AssistantProse).count(), 3);
         // The row keeps the receipt's exact words, small and muted, with the
-        // info glyph — never the answer's Markdown renderer.
-        let dsl = lower(&TRow::Receipt(r1), &s);
+        // info glyph — never the answer's Markdown renderer. A18: rows follow
+        // the theme, so the light lowering carries the light muted ink and the
+        // dark one its twin.
+        let (dsl, dark) = {
+            let _theme = crate::screens::theme::test_lock();
+            let prev = crate::screens::theme::preference();
+            crate::screens::theme::set_preference("light");
+            let light = lower(&TRow::Receipt(r1), &s);
+            crate::screens::theme::set_preference("dark");
+            let dark = lower(&TRow::Receipt(r1), &s);
+            crate::screens::theme::set_preference(&prev);
+            (light, dark)
+        };
+        assert!(dark.contains("#98989dff") && !dark.contains(tok::MUTED), "the dark row takes the muted twin");
         assert!(dsl.contains(&format!("b3_tl_receipt_{r1} := Label")), "{dsl}");
         assert!(dsl.contains(&ui::lit(status)), "the exact receipt text");
         assert!(dsl.contains("b3_info.svg"), "the info glyph");

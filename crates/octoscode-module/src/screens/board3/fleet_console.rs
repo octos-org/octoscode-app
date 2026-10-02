@@ -437,7 +437,7 @@ fn seat_panel(d: &mut Dsl, st: &FleetState, store: &Store, content_w: f64) {
     match &st.console.seat {
         SeatPanel::Sending(k) => d.text("b3_fleet_seat_state", &format!("Sending {k}…"), &ui::meta().w(W::Fill)),
         SeatPanel::Refused(label) => {
-            d.text("b3_fleet_seat_state", label, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap())
+            d.text("b3_fleet_seat_state", label, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap())
         }
         SeatPanel::Receipt { slug, duplicate } => {
             fact(d, "b3_fleet_seat_worker", "Worker", slug);
@@ -556,11 +556,11 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
         d.text(
             "b3_fleet_console_expired",
             fleet_driver::control_refusal_label("driver_fence_stale"),
-            &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap(),
+            &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap(),
         );
     }
     if let Some(note) = &st.console.seat_note {
-        d.text("b3_fleet_console_seat_note", note, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+        d.text("b3_fleet_console_seat_note", note, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     // "Session peers" — the console roster.
     let rows = console_rows(store);
@@ -611,12 +611,12 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
                 Some(RowControl::Receipt { duplicate }) => d.text(
                     &format!("{id}_receipt"),
                     if duplicate { "Already applied" } else { "Newly applied" },
-                    &Txt::new(12.0, Face::Medium, tok::GREEN),
+                    &Txt::new(12.0, Face::Medium, tok::GREEN_TEXT),
                 ),
                 Some(RowControl::Refused { kind }) => d.text(
                     &format!("{id}_refusal"),
                     fleet_driver::control_refusal_label(&kind),
-                    &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap(),
+                    &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap(),
                 ),
                 _ => {}
             }
@@ -624,11 +624,11 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
         d.close();
     }
     let copy = match &st.console.outcome {
-        ConsoleOutcome::Refused { dispatch: true, kind } => Some((fleet_driver::dispatch_refusal_label(kind).to_owned(), tok::RED)),
-        ConsoleOutcome::Refused { dispatch: false, kind } => Some((fleet_driver::control_refusal_label(kind).to_owned(), tok::RED)),
-        ConsoleOutcome::Unknown { dispatch: true } => Some(("The dispatch could not be confirmed.".to_owned(), tok::RED)),
-        ConsoleOutcome::Unknown { dispatch: false } => Some(("The control command could not be confirmed.".to_owned(), tok::RED)),
-        ConsoleOutcome::Accepted { .. } => Some(("The peer dispatch was accepted.".to_owned(), tok::GREEN)),
+        ConsoleOutcome::Refused { dispatch: true, kind } => Some((fleet_driver::dispatch_refusal_label(kind).to_owned(), tok::RED_TEXT)),
+        ConsoleOutcome::Refused { dispatch: false, kind } => Some((fleet_driver::control_refusal_label(kind).to_owned(), tok::RED_TEXT)),
+        ConsoleOutcome::Unknown { dispatch: true } => Some(("The dispatch could not be confirmed.".to_owned(), tok::RED_TEXT)),
+        ConsoleOutcome::Unknown { dispatch: false } => Some(("The control command could not be confirmed.".to_owned(), tok::RED_TEXT)),
+        ConsoleOutcome::Accepted { .. } => Some(("The peer dispatch was accepted.".to_owned(), tok::GREEN_TEXT)),
         ConsoleOutcome::Sending => Some(("Working…".to_owned(), tok::MUTED)),
         ConsoleOutcome::Idle => None,
     };
