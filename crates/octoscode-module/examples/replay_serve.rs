@@ -2263,6 +2263,7 @@ async fn main() {
                                 }
                                 tokio::time::sleep(std::time::Duration::from_millis(400)).await;
                                 send(&tx2, frame).await;
+                                println!("[replay-serve] -> skill/action/job/list reply sent (after the racing updates)");
                             });
                         } else {
                             send(&tx, frame).await;
