@@ -2442,9 +2442,11 @@ impl Conversation {
                     &session,
                     Some(crate::screens::palette::next_receipt_turn()),
                     crate::screens::palette::REPORT_KIND,
-                    format!(
-                        "/{name} is not available in this native build — \
-                         nothing was sent to the model."
+                    // A24: the receipt is written in the current language.
+                    crate::i18n::tr1(
+                        "/{value0} is not available in this native build — \
+                         nothing was sent to the model.",
+                        &name,
                     ),
                 );
                 self.ui.lock().unwrap().set_draft_inner(String::new());

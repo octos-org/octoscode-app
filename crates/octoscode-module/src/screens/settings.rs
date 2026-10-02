@@ -41,6 +41,7 @@ use serde_json::{json, Value};
 use octoscode_store::Store;
 
 use crate::flow::Conversation;
+use crate::i18n::{tr, tr1, tr_with};
 
 /// The seven Stage B cards this table owns ids for (id → title; the design
 /// record under `design/stage-b/settings/cards/`).
@@ -661,7 +662,7 @@ pub fn permission_name(
         M::DangerFullAccess => "Full access",
     };
     let n = if network == N::Allow { "Network allowed" } else { "Network blocked" };
-    format!("{m} · {n}")
+    format!("{} · {}", tr(m), tr(n))
 }
 
 /// Settings > Permissions' readback: what the server reports for the active
@@ -669,13 +670,16 @@ pub fn permission_name(
 /// (the web's "Approval policy: <stamp>", `permissions-section.tsx:54-62`).
 pub fn permission_readback(store: &Store) -> String {
     let Some(sel) = store.domains.profile.permission() else {
-        return "Server: permissions not reported yet".to_owned();
+        return tr("Server: permissions not reported yet").to_owned();
     };
     let approval = match approval_of(store, snapshot().permission) {
         Some(Approval::Never) => "never asks",
         _ => "asks on request",
     };
-    format!("Server: {} · {approval}", permission_name(sel.mode, sel.network))
+    tr_with(
+        "Server: {value0} · {value1}",
+        &[("value0", &permission_name(sel.mode, sel.network)), ("value1", tr(approval))],
+    )
 }
 
 /// The current model's display name: the profile's selected configured model
@@ -687,7 +691,7 @@ pub fn model_of(store: &Store) -> String {
         .find(|m| m.selected)
         .or_else(|| models.iter().find(|m| m.available))
         .map(|m| if m.title.trim().is_empty() { m.model.clone() } else { m.title.clone() })
-        .unwrap_or_else(|| "Default model".to_owned())
+        .unwrap_or_else(|| tr("Default model").to_owned())
 }
 
 /// The board-10 strip: "New chat defaults · <approval> · <permissions> ·
@@ -712,10 +716,10 @@ pub fn model_of(store: &Store) -> String {
 /// defaults" / "Asks on request"), not just "New chat defaults · …".
 pub fn defaults_line(store: &Store) -> String {
     let live = crate::screens::session_defaults::current();
-    let mut parts = vec!["New chat defaults".to_owned()];
+    let mut parts = vec![tr("New chat defaults").to_owned()];
     parts.extend(new_chat_permissions(&live));
     parts.push(model_of(store));
-    parts.push(format!("Thinking: {}", thinking_of(store).label()));
+    parts.push(tr1("Thinking: {value0}", tr(thinking_of(store).label())));
     parts.join(" · ")
 }
 
@@ -726,7 +730,7 @@ pub fn new_chat_permissions(live: &crate::screens::session_defaults::Live) -> Ve
     use crate::screens::session_defaults::{NetworkPolicy, PermissionMode};
     use octoscode_store::domains::profile::{PermissionNetworkPolicy as N, PermissionProfileMode as M};
     if !live.stored {
-        return vec!["Server defaults".to_owned()];
+        return vec![tr("Server defaults").to_owned()];
     }
     let d = &live.value;
     let mode = match d.permission_mode {
@@ -736,7 +740,7 @@ pub fn new_chat_permissions(live: &crate::screens::session_defaults::Live) -> Ve
     };
     let network = if d.network == NetworkPolicy::Allow { N::Allow } else { N::Deny };
     let approval = if mode == M::DangerFullAccess { "Never asks" } else { "Asks on request" };
-    vec![approval.to_owned(), permission_name(mode, network)]
+    vec![tr(approval).to_owned(), permission_name(mode, network)]
 }
 
 /// The settings state, readable through the same `set.*` surface the

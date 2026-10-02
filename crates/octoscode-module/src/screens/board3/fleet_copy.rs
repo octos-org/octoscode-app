@@ -3,12 +3,9 @@
 //! no value carries protocol vocabulary (seat / epoch / lane / slug / fence /
 //! operation id / binding — the catalog test rejects them, `fleet-copy.test.ts`).
 //!
-//! The language is the persisted display preference's `language`
-//! (`{version, theme, language, vimMode}` — the web's
-//! `octoscode.web.display.v1`, natively `$HOME/.octoscode/display.json`,
-//! `screens::theme`), with `OCTOSCODE_UI_LANG` as the capture override. The
-//! native build has no control that sets the language yet (preferences
-//! surface: not this lane), so `en` is the default.
+//! The language is the display preference's `language` (A24: `crate::i18n`,
+//! set by Settings > Preferences > Language and adopted at launch from
+//! `screens::a9_prefs`), so the Fleet switches live with every surface.
 
 /// English source key → Simplified Chinese copy (`FLEET_ZH_COPY`).
 pub const FLEET_ZH: &[(&str, &str)] = &[
@@ -102,29 +99,21 @@ pub const GATHER_ZH: &[(&str, &str)] = &[
     ("Type your answer", "输入你的回答"),
 ];
 
-/// The UI language: `zh` or `en`.
+/// The UI language: `zh` or `en` — A24: the ONE interface language
+/// (`crate::i18n`, the display preference's `language`), so the Fleet
+/// follows the Settings > Preferences switch live like every surface.
 pub fn lang() -> &'static str {
-    if let Ok(v) = std::env::var("OCTOSCODE_UI_LANG") {
-        return if v.trim().to_ascii_lowercase().starts_with("zh") { "zh" } else { "en" };
-    }
-    let path = std::env::var("OCTOSCODE_PREF_PATH").map(std::path::PathBuf::from).unwrap_or_else(|_| {
-        let home = std::env::var("HOME").unwrap_or_else(|_| ".".into());
-        std::path::Path::new(&home).join(".octoscode").join("display.json")
-    });
-    let stored = std::fs::read_to_string(path)
-        .ok()
-        .and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok())
-        .and_then(|v| v.get("language").and_then(|l| l.as_str()).map(str::to_owned));
-    match stored.as_deref() {
-        Some(l) if l.starts_with("zh") => "zh",
-        _ => "en",
-    }
+    crate::i18n::language().code()
 }
 
-/// `t(source, {value0})` for `lang`.
+/// `t(source, {value0})` for `lang`: the web's merged catalog
+/// (`crate::i18n`, which carries every `FLEET_ZH_COPY` entry verbatim), then
+/// this pane's gather table.
 pub fn t_in(lang: &str, source: &str, value0: Option<&str>) -> String {
     let text = if lang == "zh" {
-        FLEET_ZH.iter().chain(GATHER_ZH).find(|(k, _)| *k == source).map(|(_, v)| *v).unwrap_or(source)
+        crate::i18n::zh_for(source)
+            .or_else(|| GATHER_ZH.iter().find(|(k, _)| *k == source).map(|(_, v)| *v))
+            .unwrap_or(source)
     } else {
         source
     };

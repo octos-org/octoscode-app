@@ -44,6 +44,7 @@
 //! open reply's own exact check (`flow.rs`, row 204) still refuses a root the
 //! server answered differently before any `session/hydrate`. A refusal keeps
 //! the link and says why on the panel; nothing else changes.
+use crate::i18n::tr;
 use std::sync::Mutex;
 
 use serde_json::json;
@@ -397,26 +398,26 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     let width = frame.dialog_w(520.0);
     ui::shell_open(d, frame, width);
     let Some(reference) = st.reference.clone() else {
-        ui::header(d, "This conversation link is invalid", "b3.link.dismiss");
+        ui::header(d, tr("This conversation link is invalid"), "b3.link.dismiss");
         d.gap(W::Fill, 6.0);
         d.text(
             "b3_link_invalid",
-            "It does not contain a complete server workspace and conversation reference.",
+            tr("It does not contain a complete server workspace and conversation reference."),
             &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill).wrap(),
         );
         d.gap(W::Fill, 16.0);
         let foot = d.anon();
         d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} spacing: 8");
-        d.button("b3_link_dismiss", "Dismiss link", "b3.link.dismiss", Btn::Outline, W::Fit, 34.0);
+        d.button("b3_link_dismiss", tr("Dismiss link"), "b3.link.dismiss", Btn::Outline, W::Fit, 34.0);
         d.close();
         ui::shell_close(d);
         return;
     };
-    ui::header(d, "Open saved conversation", "b3.link.dismiss");
+    ui::header(d, tr("Open saved conversation"), "b3.link.dismiss");
     d.gap(W::Fill, 4.0);
     d.text(
         "b3_link_desc",
-        "Open this conversation on the connected server. Check that the server and workspace match the link you saved.",
+        tr("Open this conversation on the connected server. Check that the server and workspace match the link you saved."),
         &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     d.gap(W::Fill, 12.0);
@@ -447,12 +448,12 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 10");
     ui::card_open(d, "b3_link_dest", 8.0);
-    row(d, "server", "Server", &st.server, false, card_chars);
-    row(d, "workspace", "Workspace", &reference.workspace_root, true, card_chars);
+    row(d, "server", tr("Server"), &st.server, false, card_chars);
+    row(d, "workspace", tr("Workspace"), &reference.workspace_root, true, card_chars);
     d.close();
     // "Conversation details" — the web's `<details>` disclosure (closed by
     // default): the Profile and the Session.
-    let label = "Conversation details";
+    let label = tr("Conversation details");
     d.view(
         "b3_link_details_box",
         &format!(
@@ -469,13 +470,13 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     d.close();
     if st.details_open {
         ui::card_open(d, "b3_link_details_card", 8.0);
-        row(d, "profile", "Profile", &reference.profile_id, true, card_chars);
-        row(d, "session", "Session", &reference.session_id, true, card_chars);
+        row(d, "profile", tr("Profile"), &reference.profile_id, true, card_chars);
+        row(d, "session", tr("Session"), &reference.session_id, true, card_chars);
         d.close();
     }
     d.text(
         "b3_link_note",
-        "If the conversation no longer exists, the server may open an empty session. Opening the link does not send a message.",
+        tr("If the conversation no longer exists, the server may open an empty session. Opening the link does not send a message."),
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     d.close();
@@ -484,10 +485,10 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     let foot = d.anon();
     d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} spacing: 8");
     let (dismiss, primary) = if st.opening { (Btn::Disabled, Btn::Disabled) } else { (Btn::Outline, Btn::Primary) };
-    d.button("b3_link_dismiss", "Dismiss link", "b3.link.dismiss", dismiss, W::Fit, 34.0);
+    d.button("b3_link_dismiss", tr("Dismiss link"), "b3.link.dismiss", dismiss, W::Fit, 34.0);
     d.button(
         "b3_link_open",
-        if st.opening { "Opening conversation…" } else { "Open conversation" },
+        if st.opening { tr("Opening conversation…") } else { tr("Open conversation") },
         "b3.link.open",
         primary,
         W::Fit,

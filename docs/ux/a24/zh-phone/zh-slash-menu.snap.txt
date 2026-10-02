@@ -1,0 +1,27 @@
+hd_title	Label	[54, 85, 126, 16]	Fix steer queue drop on reconnect
+hd_path	Label	[54, 102, 126, 13]	/home/user/src/octos
+hd_tab_chat_on	Label	[190, 92, 26, 16]	聊天
+hd_tab_traj_off	Label	[226, 92, 26, 16]	轨迹
+history_title	Label	[24, 338, 312, 24]	需要恢复会话
+history_hint	Label	[24, 370, 312, 83]	The conversation history could not be loaded: session/hydrate returned an invalid result: missing field `session_id`. Reopen it from the sidebar to try again.
+b3_strip_state	Label	[22, 671, 318, 15]	就绪
+b3_strip_model	Label	[22, 702, 149, 15]	模型未报告
+b3_strip_perm	Label	[190, 702, 149, 15]	权限未报告
+i0_composer_2_0	Label	[66, 788, 82, 16]	Ask for approval
+i0_composer_4	Label	[173, 788, 77, 16]	Select a model
+palette_row_name	Label	[30, 260, 63, 28]	/model
+palette_row_desc	Label	[112, 260, 222, 31]	显示运行时模型和配置档案模型设置
+palette_row_name	Label	[30, 294, 76, 28]	/monitor
+palette_row_desc	Label	[124, 296, 209, 21]	检查和管理会话监视器
+palette_row_name	Label	[30, 328, 59, 28]	/mode
+palette_row_desc	Label	[107, 330, 226, 21]	Change permissions
+palette_row_name	Label	[30, 430, 73, 28]	/resume
+palette_row_desc	Label	[122, 430, 212, 31]	浏览未经验证的历史候选项并确认会话
+palette_row_name	Label	[30, 362, 82, 28]	/compact
+palette_row_desc	Label	[130, 364, 203, 21]	检查上下文、缓存和压缩控制
+palette_row_name	Label	[30, 396, 44, 28]	/btw
+palette_row_desc	Label	[92, 398, 241, 21]	临时旁问，不更改主轮次
+2	Label	[98, 477, 55, 23]	to move
+3	Label	[164, 477, 12, 23]	·
+5	Label	[199, 477, 43, 23]	to run
+6	Label	[253, 477, 35, 23]	· esc

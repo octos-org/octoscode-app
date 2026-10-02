@@ -680,6 +680,8 @@ pub fn lower_screen(which: &str, store: &std::sync::Arc<Store>) -> Result<String
     let dir = screen_cards_dir().join(card);
     let card_text = std::fs::read_to_string(dir.join("page.card"))
         .map_err(|e| format!("octoscode: {card}/page.card: {e}"))?;
+    // A24: the authored copy in the current language.
+    let card_text = crate::l0_host::localize(&card_text);
     let data_text =
         std::fs::read_to_string(dir.join("page.data.json")).unwrap_or_else(|_| "{}".into());
     let data: Value = serde_json::from_str(&data_text)

@@ -20,12 +20,14 @@
 //! (`screens::theme`, the web's separate `dsw-theme` key).
 //!
 //! What the section offers natively: **Vim editing** (the composer's Vim
-//! subset, `screens::board3::vim`) and (A26) the **display palette** — the
-//! five named palettes of `screens::theme::Palette`, applied at once to the
-//! whole app (`a26_host::retheme`) and restored at launch
-//! (`theme::init_persistence`). The language is carried through the
-//! whitelist unchanged (no zh catalog yet — not offered as a control, so
-//! nothing shown is a dead switch).
+//! subset, `screens::board3::vim`), applied at once and restored at launch;
+//! (A26) the **display palette** — the five named palettes of
+//! `screens::theme::Palette`, applied at once to the whole app
+//! (`a26_host::retheme`) and restored at launch (`theme::init_persistence`);
+//! and (A24) the **Language** — English / 简体中文, the web dialog's first
+//! field (`PreferencesDialog.tsx:42-55`): a choice re-renders every surface
+//! at once through `crate::i18n` (the web's catalog), unsaved until Save, and
+//! the saved choice is published before the first frame ([`adopt_language`]).
 use std::path::PathBuf;
 use std::sync::Mutex;
 
@@ -47,12 +49,13 @@ pub const SAVE_ERROR: &str = "Preferences could not be saved.";
 
 /// The defaults (`model.ts:102-107`): terminal, the device language, Vim off.
 pub fn defaults() -> DisplayPrefs {
-    let lang = std::env::var("LANG").unwrap_or_default();
-    let zh = {
-        let l = lang.to_ascii_lowercase();
-        l == "zh" || l.starts_with("zh-") || l.starts_with("zh_")
-    };
-    DisplayPrefs { theme: "terminal".into(), language: if zh { "zh".into() } else { "en".into() }, vim_mode: false }
+    defaults_for(&crate::i18n::device_locale())
+}
+
+/// The defaults for a device locale (`/^zh(?:-|_|$)/i` -> zh, model.ts:104).
+pub fn defaults_for(locale: &str) -> DisplayPrefs {
+    let language = crate::i18n::Lang::for_locale(locale).code().to_owned();
+    DisplayPrefs { theme: "terminal".into(), language, vim_mode: false }
 }
 
 /// `parseDisplayPreferences` (model.ts:35-62): exactly the four keys,
@@ -186,6 +189,36 @@ pub fn set_palette(id: &str) -> bool {
     true
 }
 
+/// A24 — the language changed (`setLanguage`, model.ts:128-130): applies at
+/// once — `tr()` follows it and the host re-renders every surface — and
+/// stays unsaved until Save. Returns whether the language in effect changed.
+pub fn set_language(lang: crate::i18n::Lang) -> bool {
+    init();
+    if let Some(p) = lock().as_mut() {
+        if p.current.language != lang.code() {
+            p.current.language = lang.code().to_owned();
+            p.just_saved = false;
+            p.error = None;
+        }
+    }
+    crate::i18n::set_language(lang)
+}
+
+/// A24 — the launch path: publish the stored (or device-default) language
+/// before anything lowers, so a Chinese preference's first frame is Chinese.
+/// Returns the language adopted.
+pub fn adopt_language() -> crate::i18n::Lang {
+    let lang = launch_language(&init());
+    crate::i18n::set_language(lang);
+    lang
+}
+
+/// The language a launch adopts from the loaded preferences (the stored
+/// whitelist, else the device default).
+pub fn launch_language(p: &DisplayPrefs) -> crate::i18n::Lang {
+    crate::i18n::Lang::parse(&p.language).unwrap_or(crate::i18n::Lang::En)
+}
+
 /// Save the whitelist (`DisplayPreferencesStore.save`, model.ts:144-162).
 /// `true` on success; a failed write keeps the choice and reports.
 pub fn save_to(path: &std::path::Path) -> bool {
@@ -217,6 +250,10 @@ pub fn save() -> bool {
 
 pub const ACTION_VIM: &str = "a9.prefs.vim";
 pub const ACTION_SAVE: &str = "a9.prefs.save";
+/// A24 — the Language control's two segments.
+pub const ACTION_LANG_EN: &str = "a9.prefs.lang.en";
+pub const ACTION_LANG_ZH: &str = "a9.prefs.lang.zh";
+
 /// A26 — `a9.prefs.palette.<id>`: one per palette row.
 pub const ACTION_PALETTE: &str = "a9.prefs.palette.";
 /// The five palette rows' action ids, in `DISPLAY_THEMES` order.
@@ -252,7 +289,16 @@ pub fn palette_of(action: &str) -> Option<&'static str> {
 }
 
 pub fn routes(action: &str) -> bool {
-    matches!(action, ACTION_VIM | ACTION_SAVE) || palette_of(action).is_some()
+    matches!(action, ACTION_VIM | ACTION_SAVE | ACTION_LANG_EN | ACTION_LANG_ZH) || palette_of(action).is_some()
+}
+
+/// The language a Language-control action selects.
+pub fn language_of(action: &str) -> Option<crate::i18n::Lang> {
+    match action {
+        ACTION_LANG_EN => Some(crate::i18n::Lang::En),
+        ACTION_LANG_ZH => Some(crate::i18n::Lang::Zh),
+        _ => None,
+    }
 }
 
 #[cfg(test)]
@@ -302,6 +348,53 @@ mod tests {
         assert!(load_from(&p).vim_mode, "the next launch adopts it");
         let _ = std::fs::remove_dir_all(p.parent().unwrap());
         reset();
+    }
+
+    /// A24 — the Language control: applies at once (`tr()` follows), stays
+    /// unsaved until Save, Save writes it in the whitelist, the next launch
+    /// adopts it.
+    #[test]
+    fn the_language_applies_at_once_saves_and_is_adopted_at_launch() {
+        use crate::i18n::{self, Lang};
+        let _g = guard();
+        reset();
+        i18n::set_language(Lang::En);
+        let p = tmp("lang");
+        let gen = i18n::generation();
+        assert!(set_language(Lang::Zh));
+        assert_eq!(snapshot().current.language, "zh");
+        assert!(snapshot().dirty(), "unsaved until Save");
+        assert_eq!(i18n::language(), Lang::Zh, "applied at once");
+        assert!(i18n::generation() > gen, "the host re-renders on the bump");
+        assert_eq!(i18n::tr("Language"), "语言");
+        assert!(save_to(&p));
+        let doc: Value = serde_json::from_str(&std::fs::read_to_string(&p).unwrap()).unwrap();
+        assert_eq!(doc["language"], "zh");
+        assert_eq!(doc.as_object().unwrap().len(), 4, "only the whitelist");
+        // The next launch: the stored language, before anything lowers.
+        assert_eq!(launch_language(&load_from(&p)), Lang::Zh);
+        assert_eq!(language_of(ACTION_LANG_EN), Some(Lang::En));
+        assert_eq!(language_of(ACTION_LANG_ZH), Some(Lang::Zh));
+        assert!(routes(ACTION_LANG_ZH) && routes(ACTION_LANG_EN));
+        assert!(set_language(Lang::En));
+        assert_eq!(i18n::tr("Language"), "Language");
+        let _ = std::fs::remove_dir_all(p.parent().unwrap());
+        reset();
+    }
+
+    /// A24 — a fresh profile's language is the device's (model.ts:102-107):
+    /// a `zh*` locale is Chinese, anything else English.
+    #[test]
+    fn the_default_language_follows_the_device_locale() {
+        assert_eq!(defaults_for("zh-Hans-CN").language, "zh");
+        assert_eq!(defaults_for("zh_TW.UTF-8").language, "zh");
+        assert_eq!(defaults_for("en-US").language, "en");
+        assert_eq!(defaults_for("").language, "en");
+        assert_eq!(defaults(), defaults_for(&crate::i18n::device_locale()));
+        assert_eq!(launch_language(&defaults_for("zh-CN")), crate::i18n::Lang::Zh);
+        // An absent / rejected store falls back to the device default.
+        let missing = tmp("absent");
+        assert_eq!(load_from(&missing).language, defaults().language);
     }
 
     #[test]

@@ -55,12 +55,12 @@ pub struct Offer {
 impl Offer {
     /// "Found Octos on 127.0.0.1:50190." (`ConnectionPanel.tsx:181`).
     pub fn message(&self) -> String {
-        format!("Found Octos on {}.", self.label)
+        crate::i18n::tr1("Found Octos on {value0}.", &self.label)
     }
 
     /// "Connect to 127.0.0.1:50190" (`ConnectionPanel.tsx:190`).
     pub fn action(&self) -> String {
-        format!("Connect to {}", self.label)
+        crate::i18n::tr1("Connect to {value0}", &self.label)
     }
 }
 
