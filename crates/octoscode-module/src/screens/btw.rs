@@ -118,14 +118,15 @@ fn state_word(state: &AsideState) -> (&'static str, &'static str) {
     }
 }
 
-/// The outline Close pill (`BtwAsidePanel.module.css:24-31`: 1 px border,
-/// radius 8, 6/10 padding) with its host hit.
+/// The outline Close pill — the web's bordered button
+/// (`BtwAsidePanel.module.css:24-31`) in the kit's 32 px pill shape (board 4
+/// K1 / `dialog_view::PILL_H`, as region 4 draws it) — with its host hit.
 fn close_pill(m: &Metrics) -> String {
     let s = scale(m.density);
     format!(
         "btw_aside_close := View{{width: Fit height: 32 flow: Overlay\n\
          RoundedView{{width: Fit height: 32 flow: Right align: Align{{y: 0.5}} padding: Inset{{left: 12 right: 12}}\n\
-         draw_bg +: {{color: {SURFACE} border_radius: 8.0 border_size: 1.0 border_color: {BORDER}}}\n\
+         draw_bg +: {{color: {SURFACE} border_radius: 16.0 border_size: 1.0 border_color: {BORDER}}}\n\
          {l}}}\n\
          {h}}}\n",
         l = label(
@@ -135,7 +136,7 @@ fn close_pill(m: &Metrics) -> String {
             INK,
             "width: Fit height: Fit",
         ),
-        h = hit("btw_aside_close_hit", 8.0),
+        h = hit("btw_aside_close_hit", 16.0),
     )
 }
 
@@ -241,13 +242,13 @@ pub fn panel(v: &PanelView, m: &Metrics, window_h: f64) -> String {
             body.push_str(&format!("View{{width: Fill height: Fit flow: Down spacing: 4\n{err}}}\n"));
         }
     }
-    // `.note` (0.85rem, secondary).
+    // `.note` (0.85rem, secondary), a little apart from what it qualifies.
     body.push_str(&label(
         "btw_aside_note",
         tr("This aside is not saved to the conversation."),
         &style(Face::Regular, s.small, s.small_line),
         MUTED,
-        &wrap,
+        &format!("{wrap} margin: Inset{{top: 4}}"),
     ));
     format!(
         "btw_aside := RoundedView{{width: Fill height: Fit flow: Down spacing: {HEAD_GAP} \

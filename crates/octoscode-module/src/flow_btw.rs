@@ -185,11 +185,12 @@ impl Conversation {
 
     /// The local report of a `/btw` that sent nothing
     /// (`local-report.ts:112-119`: "/btw is unavailable" over the reason),
-    /// one receipt row in the asking Session's transcript.
+    /// one receipt row in the asking Session's transcript — the native
+    /// receipts' plain "<title> — <reason>" line (`board3::rows`
+    /// `receipt_row` draws it as text, never Markdown).
     fn btw_receipt(&self, session: &str, reason: &str) {
         let title = crate::i18n::tr_with("/{command} is unavailable", &[("command", "btw")]);
-        // The receipt renders as Markdown: `<question>` must stay text.
-        let text = format!("**{title}**\n\n{}", reason.replace('<', "\\<"));
+        let text = format!("{title} — {reason}");
         self.store.domains.session.timeline.append(
             session,
             Some(crate::screens::palette::next_receipt_turn()),
