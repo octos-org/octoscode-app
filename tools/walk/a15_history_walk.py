@@ -233,7 +233,11 @@ def walk():
     s = snap()
     cards = [t for i, t in texts(s) if i.endswith("_toolcell_title")]
     check("startup: tool rows are the replayed cards, named", "peer_handoff" in cards and "peer_list" in cards, str(cards))
-    check("startup: no tool output drawn as a 'System' notice", not any(t == "System" for _, t in texts(s)))
+    # (A26's sidebar footer has a theme row whose label reads "System" —
+    # `sb_theme_label` — which is not a tool notice: the check is the
+    # transcript's.)
+    check("startup: no tool output drawn as a 'System' notice",
+          not any(t == "System" and i != "sb_theme_label" for i, t in texts(s)))
     title = text("hd_title", s)
     if not PHONE:
         check("title: the header names the Session from the server's catalog", title == TITLE, repr(title))
