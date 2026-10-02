@@ -14,6 +14,11 @@ English copy. Then 简体中文 again and Save: the display file holds
 `language: "zh"` (only the whitelist).
 Run 2 (relaunch): a fresh launch on the same preference file is Chinese from
 its first frame (adopted at launch); English + Save restores the file.
+Run 3 (phase 2, the surfaces): launched in Chinese (the saved preference), the
+Fleet from the sidebar footer, the Session settings pane from the strip, the
+Trajectory tab, and the /review, /thinking and /threads dialogs from the slash
+menu — each captured with the same numeric CJK checks, and no English label
+left on it but names and data (the allow-list below says which).
 
 Against `replay_serve --scenario activity` (a recorded handshake with a
 workspace), isolated state (a10_lib.run_session), the app hidden.
@@ -119,7 +124,15 @@ def cjk_checks(W: Walk, sn, frames: list[str]) -> dict:
             if overlap(a["r"], b["r"]):
                 over.append((a["t"], b["t"]))
     hits = [w for i, w in indexed if w.get("ty") in ("Button", "DesignNativeButton") and belongs(i, w["r"])]
-    under = [(w.get("i"), w["r"]) for w in hits if w["r"][2] < 27.5 or w["r"][3] < 27.5]
+    # A target the scroll body cuts at its top or bottom edge is scrolled,
+    # not small: only whole targets are measured.
+    views = [w["r"] for w in shown if w.get("i") in ("b3_scroll", "dialog_scroll", "set_body", "cv_tr_scroll")]
+
+    def clipped(r):
+        return any(inside([r[0] + 0.5, r[1] + 0.5, 1, 1], v) and (r[1] <= v[1] + 2 or r[1] + r[3] >= v[1] + v[3] - 2)
+                   for v in views)
+
+    under = [(w.get("i"), w["r"]) for w in hits if (w["r"][2] < 27.5 or w["r"][3] < 27.5) and not clipped(w["r"])]
     ok = not (out_module or out_frame or overflow or trunc or over or under)
     return {"ok": ok, "cjk": len(labels), "outside_module": out_module, "outside_frame": out_frame,
             "overflow": overflow, "truncated": trunc, "overlaps": over, "controls": len(hits), "under28": under}
@@ -328,16 +341,140 @@ def run_relaunch(W: Walk):
     close_settings(W)
 
 
+# Labels a Chinese surface may still show in Latin script: names and data
+# (the product, a model or a route, ids, numbers, keys), never sentences.
+LATIN_OK = ("Octos", "OctosCode", "Octoscode", "MCP", "API", "Vim", "Esc", "ID", "URL", "Markdown", "LLM")
+# Widgets that show data, never copy: the server's model and task names, a
+# task's wire status, thread / scope rows, a peer's label (id fragments).
+DATA_IDS = ("b3_sc_model_", "b3_sc_saved_value", "b3_sc_runtime_value", "b3_sc_turn_model_value",
+            "cv_tr_task_", "cv_tr_plan_title_", "cv_tr_st_value_", "b3_insp_thread_", "b3_insp_scope_",
+            "b3_fleet_row_", "b3_think_block_", "b3_sc_op_")
+
+
+def english_left(W: Walk, frames: list[str]) -> list[str]:
+    """Labels on the surface that read as English sentences or words (two or
+    more Latin words, or one capitalised word that is not a name/data)."""
+    sn = W.snap()
+    indexed = [(i, w) for i, w in enumerate(sn) if W.shown(w)]
+    frame_at = [(i, w["r"]) for f in frames for i, w in indexed if w.get("i") == f]
+    out = []
+    for i, w in indexed:
+        t = (w.get("t") or "").strip()
+        if w.get("ty") not in ("Label", "Button") or not t or is_cjk(t):
+            continue
+        if any(p in str(w.get("i") or "") for p in DATA_IDS):
+            continue
+        r = w["r"]
+        if not any(i > fi and inside([r[0] + 0.5, r[1] + 0.5, 1, 1], fr) for fi, fr in frame_at):
+            continue
+        words = [x for x in t.replace("·", " ").replace("/", " ").split() if any(c.isalpha() for c in x)]
+        if not words or all(x.strip(".,:…()") in LATIN_OK for x in words):
+            continue
+        # ids, model names, paths, numbers: lower-case or digit-bearing tokens with - _ . : /
+        if all(any(c in x for c in "-_.:/@#0123456789") or x.islower() and len(words) == 1 for x in words):
+            continue
+        if len(words) >= 2 or words[0][:1].isupper():
+            out.append(t)
+    return out
+
+
+# English the walk may still meet, each in a file another builder owns and
+# converts after its merge (the coordinator's order): named, not hidden.
+DEFERRED = {
+    "Back": "board3/fleetview.rs:1109 (A30's file)",
+    "Describe the task for the peer": "board3/fleetview.rs:906 (A30's file)",
+}
+
+
+def surface(W: Walk, name: str, frames: list[str], title: str):
+    c = capture(W, name, frames, title)
+    left = english_left(W, frames)
+    owed = [t for t in left if t in DEFERRED]
+    left = [t for t in left if t not in DEFERRED]
+    W.check(f"{title}: no English copy left ({name})", not left,
+            f"{left[:8]}" + (f" deferred: {[(t, DEFERRED[t]) for t in owed]}" if owed else ""))
+    return c
+
+
+def close_b3(W: Walk):
+    if W.visible("b3_close"):
+        W.click("b3_close")
+    else:
+        W.key("Escape")
+    W.wait(lambda: not W.visible("b3_dialog"), 6)
+
+
+def run_surfaces(W: Walk):
+    W.check("surfaces: connected", W.wait(lambda: W.composer() is not None, 40))
+    W.check("surfaces: launched in Chinese (log)", W.logged("a24 language at launch: zh", 4))
+    # The slash menu's dialogs first (the composer is focused fresh): /review
+    # (board 2), /thinking and /threads (board 3).
+    W.check("review: /review CLICK opens the dialog", W.palette_run("revi", "/review") and W.wait_shown("dialog_frame", 10))
+    if W.visible("dialog_frame"):
+        surface(W, "zh-review", ["dialog_frame"], "Code review dialog")
+        W.click("dialog_close")
+        W.wait(lambda: not W.visible("dialog_frame"), 6)
+    W.check("thinking: /thinking CLICK opens the dialog", W.palette_run("thin", "/thinking") and W.wait_shown("b3_dialog", 10))
+    if W.visible("b3_dialog"):
+        W.check("thinking: the dialog reads Chinese", has(W, "思考强度"), f"{W.text('b3_title')!r}")
+        surface(W, "zh-thinking", ["b3_dialog"], "Thinking effort")
+        close_b3(W)
+    W.check("inspector: /threads CLICK opens the inspector", W.palette_run("thre", "/threads") and W.wait_shown("b3_dialog", 10))
+    if W.visible("b3_dialog"):
+        W.check("inspector: the inspector reads Chinese", has(W, "线程图"), f"{W.text('b3_title')!r}")
+        surface(W, "zh-inspector", ["b3_dialog"], "Inspector (/threads)")
+        close_b3(W)
+    # The Fleet, from the sidebar footer (the drawer's on a phone).
+    if MODE == "phone" and W.click("sidebar_toggle_hit"):
+        W.wait(lambda: bool(W.visible("drawer_scrim")), 6)
+    W.mark()
+    W.check("fleet: the footer's Fleet CLICK", W.click("fleet_nav_hit") and W.wait_shown("b3_fleet_panel", 10))
+    if W.visible("b3_fleet_panel"):
+        W.check("fleet: the Fleet reads Chinese", has(W, "舰队"), f"{W.text('b3_title')!r}")
+        surface(W, "zh-fleet", ["b3_fleet_panel"], "Fleet")
+    # Back to the chat (the pane's Back, else Escape), and wait for the strip
+    # the Fleet hid with the composer.
+    if not (W.visible("b3_fleet_back") and W.click("b3_fleet_back")):
+        W.key("Escape")
+    W.wait(lambda: not W.visible("b3_fleet_panel"), 6)
+    if W.visible("b3_close"):
+        W.click("b3_close")
+    W.wait_shown("b3_strip_tap", 10)
+    time.sleep(0.6)
+    # The Session settings pane, from the strip (the web's strip click).
+    W.check("pane: the strip CLICK opens Session settings", W.click("b3_strip_tap") and W.wait_shown("b3_dialog", 10))
+    if W.visible("b3_dialog"):
+        W.check("pane: the pane reads Chinese", has(W, "会话设置", "模型"), f"{W.text('b3_title')!r}")
+        surface(W, "zh-session-settings", ["b3_dialog"], "Session settings")
+        close_b3(W)
+    # The Trajectory tab (the header's second tab; desktop and phone).
+    if W.click("hd_tab_traj_hit"):
+        W.check("trajectory: the tab CLICK shows the pane", W.wait_shown("cv_tr_root", 10))
+        W.check("trajectory: the pane reads Chinese", has(W, "轨迹"), f"{W.text('cv_tr_title')!r}")
+        surface(W, "zh-trajectory", ["cv_tr_root"], "Trajectory")
+        W.click("hd_tab_chat_hit")
+        time.sleep(0.6)
+
+
 if __name__ == "__main__":
     out = pathlib.Path(OUT)
     out.mkdir(parents=True, exist_ok=True)
     if PREFS.exists():
         PREFS.unlink()
     env = {"OCTOSCODE_DISPLAY_PREFS_PATH": str(PREFS), "OCTOS_WORKSPACE_CWD": "/home/user/src/octos"}
-    rc1 = run_session(run_live, mode=MODE, outdir=OUT, scenario="activity", env=env)
-    rc2 = run_session(run_relaunch, mode=MODE, outdir=str(out / "relaunch"), scenario="activity", env=env)
+    # A24_SURFACES_ONLY=1 re-runs run 3 alone while developing it (the
+    # evidence is always the whole walk).
+    only3 = os.environ.get("A24_SURFACES_ONLY") == "1"
+    rc1 = 0 if only3 else run_session(run_live, mode=MODE, outdir=OUT, scenario="activity", env=env)
+    rc2 = 0 if only3 else run_session(run_relaunch, mode=MODE, outdir=str(out / "relaunch"), scenario="activity", env=env)
+    # Run 3: the phase-2 surfaces, on the a10 fixture (/review answers there).
+    PREFS.write_text(json.dumps({"version": 1, "theme": "slate", "language": "zh", "vimMode": False}) + "\n")
+    # (no workspace cwd: the a10 fixture lists /review, /thinking and /threads for its own Session)
+    rc3 = run_session(run_surfaces, mode=MODE, outdir=str(out / "surfaces"), scenario="a10",
+                      env={"OCTOSCODE_DISPLAY_PREFS_PATH": str(PREFS)})
     (out / "captures.json").write_text(json.dumps(SUMMARY, indent=1, ensure_ascii=False) + "\n")
     if PREFS.exists():
         PREFS.unlink()
-    print(f"== WALK a24 language {MODE}: {'PASS' if rc1 == 0 and rc2 == 0 else 'FAIL'}")
-    sys.exit(1 if (rc1 or rc2) else 0)
+    ok = rc1 == 0 and rc2 == 0 and rc3 == 0
+    print(f"== WALK a24 language {MODE}: {'PASS' if ok else 'FAIL'}")
+    sys.exit(0 if ok else 1)
