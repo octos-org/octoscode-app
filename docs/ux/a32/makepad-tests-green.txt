@@ -1,0 +1,35 @@
+# A32 green run: the full patches/makepad/layouter-ellipsis-pen.patch (fix + tests) applied to the A32 host tree
+# (host-<agent>/.sources/makepad: rev 6cf03859 + OctoSense's runtime edits + D10b/D10c):
+#   cargo test -p makepad-draw --lib text::   (from the host root, its own target dir) -> 46 passed, 0 failed
+# The layouter's tests are listed below (25, the three new ones included). The same patch applied to a copy of the
+# APK tree's .mk layouter (no OctoSense line-breaking edit) also passes all 25 layouter tests.
+# The whole makepad-draw lib suite: 138 passed, 3 failed; the 3 are vector::triangulate::road_pack_tests (a road
+# zbias debug_assert), failing identically with the ORIGINAL layouter, i.e. unrelated and pre-existing.
+
+running 46 tests
+test text::layouter::tests::consecutive_trailing_punctuation_chains_merge ... ok
+test text::layouter::tests::empty_text ... ok
+test text::layouter::tests::layout_cache_admits_long_texts_and_hits_refresh_recency ... ok
+test text::layouter::tests::async_font_arrival_invalidates_cached_layout ... ok
+test text::layouter::tests::a_truncated_aligned_row_is_placed_inside_its_bound ... ok
+test text::layouter::tests::ellipsis_after_a_soft_wrap_space_starts_where_the_text_ends ... ok
+test text::layouter::tests::letter_spacing_changes_layout_cache_and_wrapping ... ok
+test text::layouter::tests::multiline_ellipsis_counts_explicit_newlines ... ok
+test text::layouter::tests::multiline_ellipsis_fills_last_row_by_grapheme ... ok
+test text::layouter::tests::multiline_ellipsis_one_row_over_gets_ellipsis ... ok
+test text::layouter::tests::multiline_ellipsis_truncates_at_last_allowed_row ... ok
+test text::layouter::tests::multiline_ellipsis_leaves_fitting_text_alone ... ok
+test text::layouter::tests::multiple_trailing_punctuation_marks_merge ... ok
+test text::layouter::tests::no_merge_for_plain_words ... ok
+test text::layouter::tests::opening_punctuation_merges_into_following_word ... ok
+test text::layouter::tests::parses_text_atlas_size_from_env_value ... ok
+test text::layouter::tests::punctuation_between_words_merges_correctly ... ok
+test text::layouter::tests::multiline_ellipsis_truncates_cjk_on_grapheme_boundaries ... ok
+test text::layouter::tests::single_word_no_change ... ok
+test text::layouter::tests::trailing_punctuation_merges_into_preceding_word ... ok
+test text::layouter::tests::single_line_ellipsis_under_wrapping_flow ... ok
+test text::layouter::tests::ellipsis_row_geometry_holds_at_every_bound ... ok
+test text::layouter::tests::layout_cache_reclaims_over_budget_memory_at_frame_boundaries ... ok
+test text::layouter::tests::layout_cache_protects_current_frame_working_set ... ok
+test text::layouter::tests::layout_cache_evicts_to_byte_budget ... ok
+test result: ok. 46 passed; 0 failed; 0 ignored; 0 measured; 95 filtered out; finished in 0.04s
