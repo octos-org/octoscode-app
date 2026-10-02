@@ -69,18 +69,25 @@ pub fn snapshot() -> LaunchState {
 /// Test seam.
 pub fn reset() {
     *lock() = LaunchState::default();
+    crate::screens::onboarding::reset();
 }
 
 /// Own the transition BEFORE `launch/resolve` (`launch-transition.ts:25-60`):
-/// the new lease retires every older one.
+/// the new lease retires every older one. A17 — a new launch resets the
+/// onboarding (`use-octos-session.ts:3265` `onboardingController.reset()`),
+/// so a previous panel's late reply can never publish into this one.
 pub fn begin(cwd: &str) -> u64 {
-    let mut st = lock();
-    st.lease += 1;
-    st.phase = Phase::Resolving;
-    st.cwd = Some(cwd.to_owned());
-    st.decision = None;
-    st.error = None;
-    st.lease
+    let lease = {
+        let mut st = lock();
+        st.lease += 1;
+        st.phase = Phase::Resolving;
+        st.cwd = Some(cwd.to_owned());
+        st.decision = None;
+        st.error = None;
+        st.lease
+    };
+    crate::screens::onboarding::reset();
+    lease
 }
 
 pub fn is_current(lease: u64) -> bool {
@@ -181,6 +188,13 @@ pub async fn create(conv: &crate::flow::Conversation, cwd: String) -> Launched {
             open_as(conv, &cwd, profile.as_deref(), lease).await
         }
         "cross_profile" | "no_profile" => {
+            // A17 — `no_profile` is the web's onboarding decision
+            // (`use-octos-session.ts:3051-3058`: the decision is recorded,
+            // then `onboardingController.prepare()`); the panel's loading
+            // state is set BEFORE the dialog opens, so it never flashes an
+            // empty one. The catalog read runs on its own task.
+            let onboarding = (decision.decision == "no_profile")
+                .then(|| crate::screens::onboarding::prepare_begin(&conv.store, conv.scope().authority_epoch));
             {
                 let mut st = lock();
                 st.phase = Phase::AwaitingChoice;
@@ -188,6 +202,13 @@ pub async fn create(conv: &crate::flow::Conversation, cwd: String) -> Launched {
             }
             super::board3::host::open(super::board3::host::Dialog::Launch);
             super::board3::host::wake();
+            if let (Some(Some(token)), Ok(handle)) = (onboarding, tokio::runtime::Handle::try_current()) {
+                let client = conv.client().clone();
+                handle.spawn(async move {
+                    let r = crate::screens::onboarding::fetch_catalog(&client, token).await;
+                    makepad_widgets::log!("[octoscode] onboarding prepare: {}", r.unwrap_or_else(|e| e));
+                });
+            }
             Launched::AwaitingChoice
         }
         other => {
@@ -244,11 +265,44 @@ pub async fn create_profile_and_open(conv: &crate::flow::Conversation) -> Launch
     }
 }
 
-/// `cancelLaunch`: the pending launch is dropped (its lease retired).
+/// A17 — the onboarding's `onConfigured` (`use-octos-session.ts:2665-2692`):
+/// once the provider is tested and saved, open the canonical coding Session
+/// in the launch's folder under the profile Core assigned
+/// (`launchProfileConfig(config, profileId)`), the composer text following it
+/// once the open commits. A launch that is no longer pending is "the
+/// connection changed"; a failed open is the web's own refusal (the panel
+/// keeps the created profile, so a retry repeats only test, save and open).
+pub async fn open_onboarded(conv: &crate::flow::Conversation, profile: String) -> Result<(), String> {
+    let (lease, cwd, awaiting) = {
+        let st = lock();
+        (st.lease, st.cwd.clone(), st.phase == Phase::AwaitingChoice)
+    };
+    let Some(cwd) = cwd.filter(|_| awaiting) else {
+        return Err("The server connection changed during onboarding.".into());
+    };
+    crate::screens::drafts::carry_next_switch();
+    match open_as(conv, &cwd, Some(&profile), lease).await {
+        Launched::Opened(_) => {
+            crate::screens::onboarding::reset();
+            super::board3::host::close();
+            super::board3::host::wake();
+            Ok(())
+        }
+        // A newer launch owns the transition: this one stops, silently.
+        Launched::Stale => Ok(()),
+        _ => Err("The new coding session could not be opened.".into()),
+    }
+}
+
+/// `cancelLaunch`: the pending launch is dropped (its lease retired), and the
+/// onboarding with it (`use-octos-session.ts:3334-3342`).
 pub fn cancel() {
-    let mut st = lock();
-    let lease = st.lease + 1;
-    *st = LaunchState { lease, ..Default::default() };
+    {
+        let mut st = lock();
+        let lease = st.lease + 1;
+        *st = LaunchState { lease, ..Default::default() };
+    }
+    crate::screens::onboarding::reset();
 }
 
 // ------------------------------------------------------------------ actions
@@ -303,6 +357,12 @@ pub fn choices(d: &Decision) -> Vec<String> {
 
 // --------------------------------------------------------------------- view
 
+/// A17 — whether the pending decision is the server's `no_profile` (the
+/// onboarding panel's decision).
+pub fn is_no_profile(st: &LaunchState) -> bool {
+    st.decision.as_ref().is_some_and(|d| d.decision == "no_profile")
+}
+
 fn choice_button(d: &mut Dsl, id: &str, title: &str, sub: &str, event: Option<&str>) {
     d.surface(
         &format!("{id}_box"),
@@ -326,6 +386,12 @@ fn choice_button(d: &mut Dsl, id: &str, title: &str, sub: &str, event: Option<&s
 /// dialog style.
 pub fn build(d: &mut Dsl, frame: &Frame) {
     let st = snapshot();
+    // A17 — `no_profile` renders the onboarding panel in the decision's place
+    // (`LaunchDecisionPanel.tsx:33-48`).
+    if is_no_profile(&st) {
+        crate::screens::onboarding::build(d, frame);
+        return;
+    }
     let width = frame.dialog_w(520.0);
     let opening = st.phase == Phase::Opening;
     ui::shell_open(d, frame, width);

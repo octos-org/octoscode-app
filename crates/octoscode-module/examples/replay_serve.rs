@@ -27,6 +27,7 @@
 //! | `peer` | `r6-peer-a6ea8505` | `peer/gather`, `peer/prepare` |
 //! | `session` | `r3-session-a6ea8505` | the context-compaction lifecycle |
 //! | `fleet` | `a10-fleet-driver-synthetic` (SYNTHETIC) | the external-driver chain: walk, acquire, prepare, dispatch, peer frames, peer/control |
+//! | `onboarding` | `live-gate-a6ea8505` handshake + `r29a-onboarding-a6ea8505` replies | A17: the solo onboarding panel (see [`onboarding`]) |
 //!
 //! ## Session-id rewriting (why the recording is portable)
 //!
@@ -104,6 +105,11 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         // a tool call, the user question, an approval, the plan), each
         // interaction HELD until the app answers it (see `surfaces`).
         "surfaces" => ("surfaces", "r23-conversation-a6ea8505.jsonl"),
+        // A17: the solo onboarding walk. live-gate's handshake (its recorded
+        // open advertises every onboarding method, `launch/resolve` and
+        // `session.workspace_cwd.v1`); the onboarding requests are answered
+        // by the `onboarding` simulator in r29a's recorded reply shapes.
+        "onboarding" => ("onboarding", "live-gate-a6ea8505.jsonl"),
         other => {
             eprintln!("[replay-serve] unknown scenario '{other}' — using `conversation`");
             ("conversation", "live-gate-a6ea8505.jsonl")
@@ -1288,6 +1294,165 @@ mod surfaces {
     }
 }
 
+/// A17 — the `onboarding` scenario's server half: what a solo Octos serve
+/// with no profile answers the onboarding panel, every reply in the RECORDED
+/// a6ea8505 shapes (`r29a-onboarding-a6ea8505.jsonl`: the catalog is its line
+/// 6 body; `profile/local/create` line 8, `profile/llm/test` line 10,
+/// `profile/llm/upsert` line 12), with the web e2e fixture's rules
+/// (`src-web/apps/web/scripts/mock-ui-server.mjs:3472-3707`):
+///
+/// - `launch/resolve` for a folder ending `/no-profile` answers `no_profile`
+///   until a profile was created on this server, then `activate` with it;
+///   any other folder resumes the requested profile;
+/// - `profile/local/create` normalises the requested id and suffixes a
+///   collision (`coding` -> `coding-2`: Core owns the final id);
+/// - `profile/llm/test` rejects the key [`REJECTED_KEY`] with the recorded
+///   401 body — echoing the key raw, the provider misbehaviour the panel's
+///   redaction exists for — and a keyless family without the probe value;
+///   anything else passes;
+/// - `onboarding/workspace_list` names [`FOLDER`] as the server's directory.
+///
+/// The recorder wrote `<redacted>` for the catalog endpoints' env NAMES; they
+/// are restored as `<ENDPOINT>_API_KEY` (never a value). The log line of each
+/// answered request prints its params with the key masked (`sk-t…(16)`).
+mod onboarding {
+    use serde_json::{json, Value};
+
+    pub const FOLDER: &str = "/srv/work/no-profile";
+    pub const REJECTED_KEY: &str = "sk-test-rejected";
+    const PROBE: &str = "octoscode-web-keyless-probe";
+
+    /// Server state shared by every connection (a profile created over one
+    /// socket exists for the next).
+    #[derive(Default)]
+    pub struct World {
+        pub created: Option<String>,
+    }
+
+    pub fn handles(method: &str) -> bool {
+        matches!(
+            method,
+            "launch/resolve" | "profile/llm/catalog" | "profile/local/create" | "profile/llm/test" | "profile/llm/upsert"
+                | "onboarding/workspace_list"
+        )
+    }
+
+    /// r29a line 6, the `<redacted>` env names restored.
+    pub fn catalog(frames: &[super::Frame]) -> Value {
+        let mut body = frames
+            .iter()
+            .find(|f| f.dir == "in" && f.method == "profile/llm/catalog")
+            .map(|f| f.body.clone())
+            .expect("r29a records the catalog");
+        if let Some(families) = body["families"].as_object_mut() {
+            for family in families.values_mut() {
+                for model in family["models"].as_array_mut().into_iter().flatten() {
+                    for e in model["endpoints"].as_array_mut().into_iter().flatten() {
+                        if e["api_key_env"] == json!("<redacted>") {
+                            let name = e["id"].as_str().unwrap_or("endpoint").to_uppercase().replace('-', "_");
+                            e["api_key_env"] = json!(format!("{name}_API_KEY"));
+                        }
+                    }
+                }
+            }
+        }
+        body
+    }
+
+    /// Core's id normalisation (`ProfileLocalCreateParams.requested_id`:
+    /// lowercased, non-`[a-z0-9-]` collapsed to `-`).
+    fn normalise(id: &str) -> String {
+        let mut out = String::new();
+        for c in id.trim().to_lowercase().chars() {
+            let c = if c.is_ascii_alphanumeric() || c == '-' { c } else { '-' };
+            if !(c == '-' && out.ends_with('-')) {
+                out.push(c);
+            }
+        }
+        out.trim_matches('-').to_owned()
+    }
+
+    fn masked_key(k: &str) -> String {
+        if k == PROBE {
+            return k.to_owned();
+        }
+        format!("{}…({})", k.chars().take(4).collect::<String>(), k.chars().count())
+    }
+
+    /// The request's params for the log, the key masked.
+    pub fn masked(p: &Value) -> Value {
+        let mut p = p.clone();
+        if let Some(k) = p["api_key"].as_str().map(masked_key) {
+            p["api_key"] = json!(k);
+        }
+        p
+    }
+
+    pub fn reply(w: &mut World, catalog: &Value, method: &str, p: &Value) -> Result<Value, Value> {
+        Ok(match method {
+            "onboarding/workspace_list" => json!({
+                "canonical_path": FOLDER, "parent_path": "/srv/work", "writable": true,
+                "entries": [], "truncated": false, "hidden_skipped": 0
+            }),
+            "launch/resolve" => {
+                let cwd = p["cwd"].as_str().unwrap_or("");
+                if cwd.ends_with("/no-profile") {
+                    match &w.created {
+                        Some(id) => json!({"decision": "activate", "resolved_profile": id}),
+                        None => json!({"decision": "no_profile"}),
+                    }
+                } else {
+                    json!({"decision": "resume", "resolved_profile": p["profile_id"].as_str().unwrap_or("dsflash")})
+                }
+            }
+            "profile/llm/catalog" => catalog.clone(),
+            // r29a line 8.
+            "profile/local/create" => {
+                let requested = normalise(p["requested_id"].as_str().unwrap_or(""));
+                if requested.is_empty() {
+                    return Err(json!({"code": -32602, "message": "requested_id is invalid"}));
+                }
+                let id = if requested == "coding" { "coding-2".to_owned() } else { requested };
+                w.created = Some(id.clone());
+                json!({"created": true, "email": format!("{id}@solo.local"), "name": p["name"], "profile_id": id,
+                       "runtime_mode": "solo", "user_id": id, "username": id})
+            }
+            // r29a line 10 (a failure) / the passing shape.
+            "profile/llm/test" => {
+                let profile = p["profile_id"].clone();
+                let key = p["api_key"].as_str().unwrap_or("");
+                let family = p["selection"]["family_id"].as_str().unwrap_or("");
+                let model = p["selection"]["model_id"].as_str().unwrap_or("");
+                let keyless = p["selection"]["route"]["api_key_env"].as_str().unwrap_or("").is_empty();
+                let failure = if key == REJECTED_KEY {
+                    Some(format!(
+                        "API error ({family}@api/{model}, api_style=openai_chat_completions): authentication failed — HTTP 401 - \
+                         {{\"error\":{{\"message\":\"Authentication Fails, Your api key: {key} is invalid\",\"type\":\"authentication_error\"}}}}"
+                    ))
+                } else if keyless && key != PROBE {
+                    Some("Keyless compatibility probe missing".to_owned())
+                } else {
+                    None
+                };
+                match failure {
+                    Some(error) => json!({"applied": false, "error": error, "message": "Provider connection failed",
+                                          "fallbacks": [], "llm": {"fallbacks": [], "primary": null}, "primary": null, "profile_id": profile}),
+                    None => json!({"applied": true, "message": "Provider test succeeded", "profile_id": profile}),
+                }
+            }
+            // r29a line 12.
+            "profile/llm/upsert" => {
+                let s = &p["selection"];
+                json!({"applied": true, "config_revision": "2026-10-02T03:00:00+00:00", "effective_from": "next_turn",
+                       "fallbacks": [], "profile_id": p["profile_id"],
+                       "primary": {"family_id": s["family_id"], "model_id": s["model_id"], "route": s["route"],
+                                   "available": true, "selected": true}})
+            }
+            _ => json!({}),
+        })
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -1383,9 +1548,17 @@ async fn main() {
     // the monitor as created, the goal as set — the same step its reads
     // answer with), so the store's autonomy domain, and with it the
     // sidebar's GOALS / LOOPS rows, hold what the dialogs show.
-    let standalone = if label == "fleet" {
+    // A17 — the onboarding simulator's recorded catalog and its server state.
+    let onb_catalog = if label == "onboarding" {
+        onboarding::catalog(&fixture("r29a-onboarding-a6ea8505.jsonl"))
+    } else {
+        Value::Null
+    };
+    let onb_world = std::sync::Arc::new(std::sync::Mutex::new(onboarding::World::default()));
+    let standalone = if label == "fleet" || label == "onboarding" {
         // The fleet fixture's inbound frames are replies + peer-session
-        // frames, never standalone notifications.
+        // frames, never standalone notifications; the onboarding walk opens
+        // a quiet session (no recorded turn noise around the panel).
         Vec::new()
     } else if label == "screens" || label == "a10" {
         let all = standalone_notifications(&frames);
@@ -1426,6 +1599,8 @@ async fn main() {
         let mut seat_sim = seat_sim.clone();
         let fleet_frames = if label == "fleet" { frames.clone() } else { Vec::new() };
         let activity = label == "activity";
+        let onb_catalog = onb_catalog.clone();
+        let onb_world = onb_world.clone();
         tokio::spawn(async move {
             // A10 fleet: the per-connection external-driver simulator.
             let workspace = open_result["workspace_root"].as_str().unwrap_or("workspace").to_owned();
@@ -1711,6 +1886,32 @@ async fn main() {
                         continue;
                     }
                 }
+                // A17 — the onboarding simulator (`--slow <method>=<ms>`
+                // holds a reply back, e.g. the catalog or the provider test).
+                if label == "onboarding" && onboarding::handles(&method) {
+                    let reply = {
+                        let mut w = onb_world.lock().unwrap_or_else(|p| p.into_inner());
+                        onboarding::reply(&mut w, &onb_catalog, &method, &v["params"])
+                    };
+                    println!("[replay-serve] -> {method} (onboarding) {}", onboarding::masked(&v["params"]));
+                    let frame = match reply {
+                        Ok(r) => serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r}),
+                        Err(e) => serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e}),
+                    };
+                    match slow.get(&method).copied() {
+                        Some(ms) => {
+                            let tx2 = tx.clone();
+                            let m = method.clone();
+                            tokio::spawn(async move {
+                                tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                                println!("[replay-serve] => {m} reply sent after {ms} ms (onboarding)");
+                                let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                            });
+                        }
+                        None => send(&tx, frame).await,
+                    }
+                    continue;
+                }
                 match method.as_str() {
                     "session/open" => {
                         opens += 1;
@@ -1725,7 +1926,9 @@ async fn main() {
                             obj.insert("session_id".to_owned(), Value::String(requested));
                             // A9 — the activity scenario opens in the requested
                             // cwd, as a server does (its recording had none).
-                            if activity {
+                            // A17 — so does the onboarding one (the onboarded
+                            // Session opens in the launch's folder).
+                            if activity || label == "onboarding" {
                                 if let Some(cwd) = v["params"]["cwd"].as_str() {
                                     obj.insert("workspace_root".to_owned(), Value::String(cwd.to_owned()));
                                 }

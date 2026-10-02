@@ -40,6 +40,9 @@ pub mod history;
 pub mod keys;
 // A8: the workspace launch (launch/resolve, the decision panel, the lease).
 pub mod launch;
+// A17: the solo onboarding panel a `no_profile` launch shows (catalog ->
+// profile/local/create -> profile/llm/test -> profile/llm/upsert -> open).
+pub mod onboarding;
 pub mod media;
 pub mod models;
 // #D1: the five native-pairing cards (p4-01..p4-05) — one owner per action id.
