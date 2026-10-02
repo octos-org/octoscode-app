@@ -1002,7 +1002,7 @@ script_mod! {
                             }
                             View{
                                 width: Fill height: Fit flow: Down padding: Inset{right: 124}
-                                OcRowHelp{text: "Every model of the active profile, by provider"}
+                                OcRowHelp{text: "Each provider's models"}
                             }
                         }
                     }

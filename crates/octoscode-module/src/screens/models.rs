@@ -785,12 +785,10 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
         "context.compact_now" => {
             // `ContextDialog.tsx` mutate("compact"): the outcome line —
             // "Context compacted." or "Compaction {status}: {reason}".
-            let (line, ok) = compaction_outcome(&result);
-            if ok {
-                crate::screens::dialog::set_info(line);
-            } else {
-                crate::screens::dialog::set_notice(line);
-            }
+            // Both outcomes are the web's `role="status"` result line (only
+            // a failed REQUEST is its `role="alert"` error, the Err above).
+            let (line, _compacted) = compaction_outcome(&result);
+            crate::screens::dialog::set_info(line);
             let _ = refresh_context(conv, store).await;
         }
         "models.test_route" => {
