@@ -581,7 +581,9 @@ fn state_error(d: &mut Dsl, st: &RoutesState, msg: &str, compact: bool) {
     d.view(&cause, "width: Fill height: Fit flow: Down");
     ui::error_line(d, "b3_routes_error", copy::LOAD_FAILED, msg);
     d.close();
-    d.button("b3_routes_retry", copy::TRY_AGAIN, "b3.routes.retry", if st.busy { Btn::OutlineOff } else { Btn::Outline }, W::Fit, 32.0);
+    // The phone column stretches its button (`align-items: stretch`).
+    let w = if compact { W::Fill } else { W::Fit };
+    d.button("b3_routes_retry", copy::TRY_AGAIN, "b3.routes.retry", if st.busy { Btn::OutlineOff } else { Btn::Outline }, w, 32.0);
     d.close();
 }
 

@@ -1,21 +1,44 @@
-thread 'a_failed_test_connection_keeps_the_draft_and_never_saves' (239356744) panicked at crates/octoscode-module/tests/a23_providers.rs:603:5:
+A23 rows 281/282: crates/octoscode-module/tests/a23_providers.rs run against main af2beb2f's code
+(an export of af2beb2f plus this test file; cargo test -p octoscode-module --test a23_providers, RUST_TEST_THREADS=1).
+Every test FAILS on main at the behaviour it pins; all 8 pass on this branch.
+
+test a_failed_test_connection_keeps_the_draft_and_never_saves ... FAILED
+test add_provider_is_catalog_driven_and_tests_fetches_saves_with_the_key_as_an_argument ... FAILED
+test an_edit_blocked_row_is_visible_and_deletable_but_never_edited ... FAILED
+test an_empty_profile_reaches_add_provider_from_the_models_dialog ... FAILED
+test an_unread_configuration_is_an_error_with_try_again_never_an_empty_list ... FAILED
+test edit_any_row_keeps_its_configured_inference_through_a_label_only_save ... FAILED
+test the_directory_fails_closed_into_read_only_and_unavailable_states ... FAILED
+test the_settings_editor_saves_the_primary_with_its_configured_inference ... FAILED
+test result: FAILED. 0 passed; 8 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+thread 'a_failed_test_connection_keeps_the_draft_and_never_saves' panicked at crates/octoscode-module/tests/a23_providers.rs:632:5:
 assertion `left == right` failed
   left: Done
-thread 'add_provider_is_catalog_driven_and_tests_fetches_saves_with_the_key_as_an_argument' (239356745) panicked at crates/octoscode-module/tests/a23_providers.rs:528:5:
+ right: Action("b1.open.provider.routes")
+
+thread 'add_provider_is_catalog_driven_and_tests_fetches_saves_with_the_key_as_an_argument' panicked at crates/octoscode-module/tests/a23_providers.rs:557:5:
 the catalog is read with the configuration
 
-thread 'an_edit_blocked_row_is_visible_and_deletable_but_never_edited' (239356746) panicked at crates/octoscode-module/tests/a23_providers.rs:412:5:
+thread 'an_edit_blocked_row_is_visible_and_deletable_but_never_edited' panicked at crates/octoscode-module/tests/a23_providers.rs:441:5:
 assertion failed: row.contains("Kimi K2") &&
     row.contains("This entry contains settings the editor cannot preserve. Edit it through Core configuration instead.")
-thread 'an_unread_configuration_is_an_error_with_try_again_never_an_empty_list' (239356755) panicked at crates/octoscode-module/tests/a23_providers.rs:375:5:
+
+thread 'an_empty_profile_reaches_add_provider_from_the_models_dialog' panicked at crates/octoscode-module/tests/a23_providers.rs:413:5:
+the way to the providers stays
+
+thread 'an_unread_configuration_is_an_error_with_try_again_never_an_empty_list' panicked at crates/octoscode-module/tests/a23_providers.rs:374:5:
 the first read in flight is loading, not a failure
 
-thread 'edit_any_row_keeps_its_configured_inference_through_a_label_only_save' (239356756) panicked at crates/octoscode-module/tests/a23_providers.rs:461:5:
+thread 'edit_any_row_keeps_its_configured_inference_through_a_label_only_save' panicked at crates/octoscode-module/tests/a23_providers.rs:490:5:
 assertion `left == right` failed
   left: Done
-thread 'the_directory_fails_closed_into_read_only_and_unavailable_states' (239356762) panicked at crates/octoscode-module/tests/a23_providers.rs:339:5:
+ right: Action("b1.open.provider.routes")
+
+thread 'the_directory_fails_closed_into_read_only_and_unavailable_states' panicked at crates/octoscode-module/tests/a23_providers.rs:338:5:
 the read-only notice
 
-thread 'the_settings_editor_saves_the_primary_with_its_configured_inference' (239356763) panicked at crates/octoscode-module/tests/a23_providers.rs:509:9:
+thread 'the_settings_editor_saves_the_primary_with_its_configured_inference' panicked at crates/octoscode-module/tests/a23_providers.rs:538:9:
 assertion `left == right` failed: context_window
   left: None
+ right: Some(Number(131072))
