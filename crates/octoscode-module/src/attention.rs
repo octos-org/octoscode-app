@@ -632,43 +632,136 @@ impl Controller {
 
 // ------------------------------------------------------------ the store view
 
-/// The selected Session's attention facts from the store and the flow
-/// (`App.tsx:2238-2250` hands the same to `AttentionBridge`): the live turn
-/// (`activeTurnId`), the turn waiting on an approval or a question
-/// (`waitingTurnId`), and the newest completed/failed terminal.
+/// What `AttentionBridge` gets (App.tsx:2238-2250): every background
+/// record's turns (`workspaceProduct.attentionTurns`, published by
+/// `publishBackgroundTurns`, use-octos-session.ts:2714-2763) followed by the
+/// selected Session's (`foregroundAttentionTurns(attentionSession,
+/// activeTurnId, waitingTurnId, conversation.timeline)`), in that order
+/// (use-attention.ts:70-78). `live_turn` is the selected Session's live
+/// turn as the window holds it (a turn the queue does not hold).
 pub fn observation(
     store: &octoscode_store::Store,
-    active_turn: Option<String>,
+    live_turn: Option<String>,
     identity: Option<u64>,
 ) -> Observation {
-    let labels: HashMap<String, String> = store
-        .sessions()
-        .into_iter()
-        .filter_map(|s| s.label_stem().map(|l| (s.id.clone(), l)))
-        .collect();
-    let Some(session) = store.active_session() else {
-        return Observation { identity, labels, ..Default::default() };
-    };
-    let scope = SessionScope {
+    let selected = store.active_session();
+    let mut turns = Vec::new();
+    // use-octos-session.ts:2715-2717: every record that is not the selected one.
+    for id in store.domains.session.records() {
+        if selected.as_deref() == Some(id.as_str()) {
+            continue;
+        }
+        turns.extend(record_turns(store, &scope_of(store, &id), None, true));
+    }
+    let mut ids: Vec<String> = turns.iter().map(|t| t.scope.session_id.clone()).collect();
+    let scope = selected.as_deref().map(|s| scope_of(store, s));
+    if let Some(scope) = &scope {
+        turns.extend(record_turns(store, scope, live_turn, false));
+        ids.push(scope.session_id.clone());
+    }
+    let labels = ids.into_iter().filter_map(|id| session_label(store, &id).map(|l| (id, l))).collect();
+    Observation { identity, turns, selected: scope, labels }
+}
+
+/// One Session's scope key. The profile is the connection's; the folder is
+/// left out on purpose: a Session id is unique within its profile, and the
+/// SAME key must name a turn whether the Session is selected or in the
+/// background (the tracker's memory follows a turn across a switch).
+fn scope_of(store: &octoscode_store::Store, session: &str) -> SessionScope {
+    SessionScope {
         workspace_root: String::new(),
         profile_id: store.domains.profile.current().unwrap_or_default(),
-        session_id: session.clone(),
-    };
-    let waiting = store
+        session_id: session.to_owned(),
+    }
+}
+
+/// One record's attention turns: `foregroundAttentionTurns(scope,
+/// queue.active?.turnId, waiting turn, timeline)` (model.ts:101-131).
+///
+/// - the active turn: the record's queue (`conversation.queue.active?.turnId`,
+///   App.tsx:1563, for the selected one; `record.controller.queueSnapshot()
+///   .active`, use-octos-session.ts:2720-2721, for a background one); the
+///   selected one falls back to the window's live turn;
+/// - the waiting turn: the selected Session's approval, else its question
+///   (App.tsx:2243-2246); a background record's FIRST recorded interaction
+///   (`record.interactions.current(scope)`, use-octos-session.ts:2739,
+///   session-interaction-ledger.ts:334-340);
+/// - the terminal: its latest REAL terminal — completed or failed; a stopped
+///   or rate-limited turn's terminal is `info` and passed over (model.ts:
+///   108-114, timeline/model.ts:779-786; A22 `latest_real_terminal`), else
+///   the newest one its timeline holds (a hydrated history);
+/// - a background record's active turn that reconnect recovery could not
+///   prove reads failed (`lost`, use-octos-session.ts:2726-2735, :2741-2745).
+fn record_turns(
+    store: &octoscode_store::Store,
+    scope: &SessionScope,
+    live_turn: Option<String>,
+    background: bool,
+) -> Vec<TurnSnapshot> {
+    let id = scope.session_id.as_str();
+    let queue = store.domains.composer.snapshot(id);
+    let active = queue.active.map(|t| t.turn_id).or(live_turn);
+    let waiting = waiting_turn(store, id, background);
+    let terminal = store
         .domains
-        .approval
-        .question()
-        .filter(|q| q.session_id == session)
-        .map(|q| q.turn_id)
-        .or_else(|| store.domains.approval.showing(&session).map(|(_, d)| d.turn_id));
-    let terminal = newest_terminal(store, &session);
-    let turns = foreground_turns(
-        Some(&scope),
-        active_turn.as_deref(),
+        .turn
+        .latest_real_terminal(id)
+        .map(|(turn, outcome)| (turn, outcome == "completed"))
+        .or_else(|| newest_terminal(store, id));
+    let mut turns = foreground_turns(
+        Some(scope),
+        active.as_deref(),
         waiting.as_deref(),
         terminal.as_ref().map(|(t, c)| (t.as_str(), *c)),
     );
-    Observation { identity, turns, selected: Some(scope), labels }
+    if background {
+        let lost = active.as_deref().is_some_and(|a| {
+            store.domains.composer.recovery(id).is_some_and(|r| {
+                r.turn_id == a && r.phase != octoscode_store::domains::composer::RecoveryPhase::Checking
+            })
+        });
+        if lost {
+            for t in turns.iter_mut().filter(|t| Some(t.turn_id.as_str()) == active.as_deref()) {
+                t.state = TurnState::Failed;
+            }
+        }
+    }
+    turns
+}
+
+/// The turn a Session waits on the person for (A20's per-owner ledger).
+fn waiting_turn(store: &octoscode_store::Store, owner: &str, background: bool) -> Option<String> {
+    let approval = store.domains.approval.showing(owner).map(|(_, d)| (d.seq, d.turn_id));
+    let question = store.domains.approval.question_for(owner).map(|q| (q.seq, q.turn_id));
+    if background {
+        // The ledger's first record (insertion order).
+        match (approval, question) {
+            (Some(a), Some(q)) => Some(if q.0 < a.0 { q.1 } else { a.1 }),
+            (a, q) => a.or(q).map(|(_, t)| t),
+        }
+    } else {
+        approval.or(question).map(|(_, t)| t)
+    }
+}
+
+/// The name a notice gives its Session: the catalog's label (title, then
+/// last prompt — the sidebar row's), else the newest prompt this app sent
+/// there (an opened Session the catalog does not list yet).
+fn session_label(store: &octoscode_store::Store, id: &str) -> Option<String> {
+    store
+        .sessions()
+        .into_iter()
+        .find(|s| s.id == id)
+        .and_then(|s| s.label_stem())
+        .or_else(|| {
+            store
+                .domains
+                .session
+                .timeline
+                .of_kind(id, octoscode_store::EntryKind::USER_MESSAGE)
+                .last()
+                .and_then(|e| e.text.lines().map(str::trim).find(|l| !l.is_empty()).map(|l| l.chars().take(80).collect()))
+        })
 }
 
 /// The newest turn of `session` whose terminal completed (`true`) or failed
@@ -1590,6 +1683,65 @@ mod tests {
             let w = text_w(m, 13.0, Face::Regular);
             assert!(w <= 490.0, "{w:.0} px: {m}");
         }
+    }
+
+    // ------------------------------------------- background records (A22)
+    /// use-octos-session.ts:2726-2747: a background record's active turn that
+    /// reconnect recovery could not prove reads FAILED (never silently
+    /// "running"), so it signals "needs attention"; a check still running
+    /// (`Checking`) does not.
+    #[test]
+    fn a_background_turn_recovery_could_not_prove_reads_failed() {
+        use octoscode_store::domains::composer::PromptTurn;
+        let store = octoscode_store::Store::new();
+        store.set_active(Some("p:main".into()));
+        store.domains.session.note_record("p:main");
+        store.domains.session.note_record("p:api:bg");
+        store.domains.composer.enqueue("p:api:bg", PromptTurn::local("tb", "build"));
+        let ids = |o: &Observation| -> Vec<(String, String, TurnState)> {
+            o.turns.iter().map(|t| (t.scope.session_id.clone(), t.turn_id.clone(), t.state)).collect()
+        };
+        let o = observation(&store, None, Some(1));
+        assert_eq!(ids(&o), vec![("p:api:bg".to_owned(), "tb".to_owned(), TurnState::Running)]);
+        // A check in flight: still running.
+        assert_eq!(store.domains.composer.begin_recovery_check("p:api:bg", true).as_deref(), Some("tb"));
+        assert_eq!(ids(&observation(&store, None, Some(1)))[0].2, TurnState::Running);
+        // The server cannot answer (`Unknown`): the outcome is unproven.
+        store.domains.composer.finish_recovery_check(
+            "p:api:bg",
+            "tb",
+            Ok(octoscode_store::domains::composer::Lifecycle::Unknown),
+        );
+        assert_eq!(ids(&observation(&store, None, Some(1)))[0].2, TurnState::Failed);
+        // Through the tracker: running -> failed signals once.
+        let mut t = AttentionTracker::default();
+        let selected = Some(scope_of(&store, "p:main"));
+        t.observe(Some(1), &[TurnSnapshot { state: TurnState::Running, ..o.turns[0].clone() }], selected.as_ref(), true);
+        let failed = observation(&store, None, Some(1));
+        assert_eq!(t.observe(Some(1), &failed.turns, selected.as_ref(), true).len(), 1);
+        // The SELECTED Session never applies this rule (App.tsx passes no lost flag).
+        store.set_active(Some("p:api:bg".into()));
+        assert_eq!(ids(&observation(&store, None, Some(1)))[0].2, TurnState::Running);
+    }
+
+    /// A notice names its Session: the catalog's label, else the newest
+    /// prompt sent there (a Session the catalog does not list yet).
+    #[test]
+    fn a_notice_names_its_session_by_label_else_its_newest_prompt() {
+        let store = octoscode_store::Store::new();
+        store.set_active(Some("p:main".into()));
+        store.domains.session.note_record("p:main");
+        store.domains.session.note_record("p:api:new");
+        store.domains.session.timeline.append(
+            "p:api:new",
+            Some("t1".into()),
+            octoscode_store::EntryKind::USER_MESSAGE,
+            "  \nShip the hotfix\nthen tag it".into(),
+        );
+        store.domains.turn.note_session_terminal("p:api:new", "t1", "completed");
+        let o = observation(&store, None, Some(1));
+        assert_eq!(o.labels.get("p:api:new").map(String::as_str), Some("Ship the hotfix"));
+        assert!(o.turns.iter().any(|t| t.scope.session_id == "p:api:new" && t.state == TurnState::Completed));
     }
 
     #[test]
