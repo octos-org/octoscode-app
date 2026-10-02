@@ -546,16 +546,27 @@ def walk_files_and_folds():
     # The fold bar heads the transcript: scroll to the top and use it.
     if not check("fold bar shown at the transcript head", to_top()):
         return
-    def heights():
+    def heights(skip_clipped=False):
         ws = snap()
         rows = [w["i"][: -len("_tap")] for w in prefixed(ws, "b3_tl_think_") if w["i"].endswith("_tap")]
-        return {r: round((rect(r, ws=ws) or [0, 0, 0, 0])[3]) for r in rows}
+        lst = rect("timeline_list", ws=ws)
+        out = {}
+        for r in rows:
+            rr = rect(r, ws=ws) or [0, 0, 0, 0]
+            # A11: a block the expansion pushed past the list's edge reports
+            # only its VISIBLE height (measured on the phone: 42 -> 33 while
+            # open); it cannot be judged by height, so it is not counted.
+            clipped = lst is not None and (rr[1] + rr[3] >= lst[1] + lst[3] - 1 or rr[1] <= lst[1] + 1)
+            if not (skip_clipped and clipped):
+                out[r] = round(rr[3])
+        return out
 
     folded = heights()
     app_logs()
     click("b3_tl_fold_expand")
     logs = app_logs()
-    exp = wait(lambda: folded and all(h > folded.get(r, 999) + 10 for r, h in heights().items() if r in folded), 5)
+    exp = wait(lambda: folded and (now := heights(skip_clipped=True))
+               and all(h > folded.get(r, 999) + 10 for r, h in now.items() if r in folded), 5)
     check("CLICK Expand all -> every visible block opens", exp and any("cv.fold.expand_all" in l for l in logs),
           f"{folded} -> {heights()}")
     shot("expand-all")

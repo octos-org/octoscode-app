@@ -81,25 +81,62 @@ def composer_text():
     return "" if t == PLACEHOLDER else t
 
 
+# The phone shell's emulated soft keyboard is drawn by the shell (not in
+# /snap) over the lower screen once a field has focus — the composer then sits
+# UNDER it and a tap on the composer's rect types a key ('c'). Its hide chevron
+# is at the top-right of the keyboard (measured in the 360x780 frame: the bar
+# from y 549, the chevron at ~375,571).
+KB_CHEVRON = (375, 571)
+
+
+def keyboard_up():
+    if not PHONE:
+        return False
+    data = app.png()
+    if not data:
+        return False
+    try:
+        import io
+        from PIL import Image
+        im = Image.open(io.BytesIO(data)).convert("RGB")
+    except ImportError:
+        return True  # cannot tell: hiding a hidden keyboard taps blank ground
+    k = im.width / 402.0  # the phone shell frame is 402 pt wide
+    cx, cy = KB_CHEVRON
+    return any(sum(im.getpixel((int(x * k), int(y * k)))) < 200
+               for x in range(cx - 10, cx + 11, 2) for y in range(cy - 7, cy + 8, 2))
+
+
+def tap_composer():
+    """Focus the composer — hiding the phone keyboard first if it covers it."""
+    if keyboard_up():
+        app.click_xy(*KB_CHEVRON)
+        time.sleep(0.6)
+    app.click("i0_composer_0")
+
+
 def clear_composer():
     """The composer may hold a restored prompt: End, then one Backspace per
     character (the instrument's synthetic Cmd+A never reaches select-all)."""
     n = len(composer_text())
     if n:
-        app.click("i0_composer_0")
+        tap_composer()
         app.key("end")
         for _ in range(n + 1):
             app.key("backspace")
 
 
 def palette(query):
-    """'/' in the empty composer opens the palette; type the filter."""
+    """'/' in the empty composer opens the palette; type the filter. Waits
+    for the rows (the palette re-opens a beat after an emptied composer)."""
     clear_composer()
-    app.click("i0_composer_0")
+    time.sleep(0.4)
+    tap_composer()
     app.type("/")
+    app.wait(lambda: app.find("palette_row_name"), timeout=4)
     if query:
         app.type(query)
-    time.sleep(0.5)
+    app.wait(lambda: any((w.get("t") or "").startswith("/" + query) for w in app.all("palette_row_name")), timeout=4)
     return [w.get("t") for w in app.all("palette_row_name")]
 
 
@@ -113,9 +150,19 @@ def row(text):
 
 
 def close_dialog():
-    if not app.click("dialog_close"):
+    if not app.click("dialog_close") and not PHONE:
         app.key("Escape")
     app.wait(lambda: not app.find("dialog_close"), timeout=4)
+
+
+def dismiss_palette():
+    """Escape closes the palette on a desktop; a phone has no Escape key (A6's
+    walk notes the same), so there the emptied composer closes it."""
+    if PHONE:
+        clear_composer()
+    else:
+        app.key("Escape")
+    time.sleep(0.5)
 
 
 def open_dialog(query, cmd, dialog):
@@ -145,8 +192,7 @@ def main():
     # 1. the palette lists the dialog commands (live, capability-gated)
     rows = palette("")
     check("palette: '/' lists the dialog commands", "/model" in rows and "/compact" in rows, f"{rows}")
-    app.key("Escape")
-    time.sleep(0.5)
+    dismiss_palette()
 
     # 2. /model by CLICK; Test route and Discover models by CLICK
     if open_dialog("mo", "/model", "models"):
@@ -171,8 +217,7 @@ def main():
         check("context: Confirm compacts (session/compact on the wire)",
               clicked and has(lines, "dialog confirmed: context.compact_now") and wire("session/compact") == n0 + 1,
               f"session/compact x{wire('session/compact') - n0}")
-        app.key("Escape")
-        time.sleep(0.6)
+        close_dialog()
 
     # 4. /skills by CLICK; search the registry (Enter)
     if open_dialog("sk", "/skills", "skills"):
@@ -207,8 +252,7 @@ def main():
         check("loops: Fire now sent exactly one loop/fire_now", wire("loop/fire_now") == n0 + 1,
               f"x{wire('loop/fire_now') - n0}")
         tap("dlg_loops_loop_1_trash_hit", 'LoopDelete("loop_01")', "loops: Delete by CLICK")
-        app.key("Escape")
-        time.sleep(0.6)
+        close_dialog()
 
     # 6b. + New loop: an empty Create is refused on the form; prompt + interval -> one loop/create
     if open_dialog("lo", "/loop", "loops"):
@@ -224,8 +268,7 @@ def main():
             "loops: prompt + interval creates ONE loop (loop/create)")
         check("loops: the form sent exactly one loop/create", wire("loop/create") == n0 + 1,
               f"x{wire('loop/create') - n0}")
-        app.key("Escape")
-        time.sleep(0.6)
+        close_dialog()
 
     # 7. /monitor by CLICK; pause, resume, delete
     if open_dialog("mon", "/monitor", "monitors"):
@@ -252,29 +295,34 @@ def main():
         close_dialog()
 
     # 11-13. typed commands run LOCALLY: never sent to the model
+    # On a desktop Escape first dismisses the palette, so Return submits the
+    # composer (ComposerSubmit); a phone has no Escape: Return runs the
+    # palette's row — either way the command runs locally, never sent.
     turns0 = wire("turn/start")
     clear_composer()
-    app.click("i0_composer_0")
+    tap_composer()
     app.type("/model")
-    app.key("Escape")
+    if not PHONE:
+        app.key("Escape")
     app.logs()
     app.key("Return")
     lines = receipts(2.0)
     check("a typed /model runs locally (the Models dialog)",
-          has(lines, "command /model: queued to run locally") and has(lines, "palette run /model -> dialog.open.models"))
-    app.key("Escape")
-    time.sleep(0.6)
+          (PHONE or has(lines, "command /model: queued to run locally"))
+          and has(lines, "palette run /model -> dialog.open.models"))
+    close_dialog()
     clear_composer()
-    app.click("i0_composer_0")
+    tap_composer()
     app.type("/goal ship it")
     app.logs()
     app.key("Return")
     lines = receipts(2.0)
     check("a command with arguments is reported, never run", has(lines, "palette run /goal: arguments reported"))
     clear_composer()
-    app.click("i0_composer_0")
+    tap_composer()
     app.type("/stop")
-    app.key("Escape")
+    if not PHONE:
+        app.key("Escape")
     app.logs()
     app.key("Return")
     lines = receipts(2.0)
