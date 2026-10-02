@@ -477,6 +477,7 @@ async fn fleet_start_prepares_seats_dispatches_once_and_steers_its_working_peer(
     assert_eq!(job, Job::FleetLanes);
     host::run(job, &conv).await.expect("lanes");
     assert_eq!(server.params_of("profile/sub_providers/list")[0], json!({"profile_id": PROFILE}));
+    assert_eq!(host::state().fleet.lane_info[0].title(), "deepseek/deepseek-chat", "the form summarises the server's row");
     // A blank brief never starts.
     host::input_changed("fleet.brief", "   ");
     assert_eq!(host::perform("b3.fleet.start", 0, &conv.store), Outcome::Done);

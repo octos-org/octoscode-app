@@ -111,6 +111,8 @@ pub struct Row {
 #[derive(Debug, Clone, Default)]
 pub struct FleetState {
     pub lanes: Vec<String>,
+    /// The lanes' reported facts (provider, model, description), same order.
+    pub lane_info: Vec<LaneInfo>,
     pub lanes_loading: bool,
     pub lane: usize,
     pub brief: String,
@@ -125,6 +127,30 @@ pub struct FleetState {
     /// label -> last phase, for the announcement diff.
     pub seen: Vec<(String, Phase)>,
     pub content_x: f64,
+}
+
+/// One `profile/sub_providers/list` row as the Start form summarises it.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct LaneInfo {
+    pub key: String,
+    pub provider: String,
+    pub model: Option<String>,
+    pub description: Option<String>,
+}
+
+impl LaneInfo {
+    /// `provider/model` when both are reported, else the lane key.
+    pub fn title(&self) -> String {
+        match (&self.model, self.provider.trim().is_empty()) {
+            (Some(m), false) if !m.trim().is_empty() => format!("{}/{}", self.provider.trim(), m.trim()),
+            _ => model_label(&self.key),
+        }
+    }
+    /// The avatar's initial (the provider's, else the key's).
+    pub fn initial(&self) -> String {
+        let src = if self.provider.trim().is_empty() { &self.key } else { &self.provider };
+        src.trim().chars().next().map(|c| c.to_uppercase().collect()).unwrap_or_else(|| "?".into())
+    }
 }
 
 /// `peer-row-view` model label: `glm-53` -> `glm-5.3` (a digit pair after a
@@ -237,6 +263,16 @@ pub async fn load_lanes(conv: &crate::flow::Conversation) -> Result<String, Stri
     st.fleet.lanes_loading = false;
     match r {
         Ok(v) => {
+            st.fleet.lane_info = v
+                .sub_providers
+                .iter()
+                .map(|l| LaneInfo {
+                    key: l.key.clone(),
+                    provider: l.provider.clone(),
+                    model: l.model.clone(),
+                    description: l.description.clone().filter(|d| !d.trim().is_empty()),
+                })
+                .collect();
             st.fleet.lanes = v.sub_providers.into_iter().map(|l| l.key).collect();
             Ok(format!("{} lanes", st.fleet.lanes.len()))
         }
@@ -415,6 +451,23 @@ pub fn input_changed(st: &mut FleetState, key: &str, text: &str) {
 
 // -------------------------------------------------------------------- view
 
+fn lane_summary(d: &mut Dsl, info: &LaneInfo) {
+    let row = d.anon();
+    d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.0} spacing: 12 padding: Inset{top: 2 bottom: 6}");
+    d.surface("b3_fleet_lane_avatar", "width: 34 height: 34 flow: Overlay align: Align{x: 0.5 y: 0.5}", tok::BLUE_BG, 17.0, None);
+    d.text("b3_fleet_lane_initial", &info.initial(), &Txt::new(15.0, Face::Medium, tok::BLUE));
+    d.close();
+    let col = d.anon();
+    d.view(&col, "width: Fill height: Fit flow: Down spacing: 6");
+    d.text("b3_fleet_lane_title", &info.title(), &Txt::new(13.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
+    d.chip("b3_fleet_lane_state", "Configured", tok::GREEN, tok::GREEN_BG, None, false);
+    if let Some(desc) = &info.description {
+        d.text("b3_fleet_lane_desc", desc, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    }
+    d.close();
+    d.close();
+}
+
 fn peer_card(d: &mut Dsl, i: usize, r: &Row, inner_w: f64) {
     let id = format!("b3_fleet_row_{i}");
     ui::card_open(d, &id, 8.0);
@@ -493,6 +546,11 @@ pub fn build(d: &mut Dsl, st: &FleetState, frame: &Frame, store: &Store) {
         }
         if st.lanes_loading {
             d.text("b3_fleet_loading", "Loading models…", &ui::meta());
+        }
+        // The board's lane summary: who runs the peer, from the server's
+        // own `sub_providers` row (initial, provider/model, description).
+        if let Some(info) = st.lane_info.get(st.lane) {
+            lane_summary(d, info);
         }
         ui::field_label(d, "", "Model");
         let lane = st.lanes.get(st.lane).map(|l| model_label(l));
@@ -646,5 +704,20 @@ mod tests {
         let taps = crate::screens::taps::wired_taps(&dsl);
         assert!(taps.iter().any(|(_, e)| e == "b3.close"));
         assert!(taps.iter().any(|(_, e)| e.starts_with("b3.fleet.steer#")));
+    }
+
+    #[test]
+    fn the_lane_summary_reads_the_servers_row_and_falls_back_to_the_key() {
+        let full = LaneInfo {
+            key: "strong".into(),
+            provider: "anthropic".into(),
+            model: Some("claude-3.5-sonnet".into()),
+            description: Some("Strong coding model".into()),
+        };
+        assert_eq!(full.title(), "anthropic/claude-3.5-sonnet");
+        assert_eq!(full.initial(), "A");
+        let bare = LaneInfo { key: "glm-53".into(), ..Default::default() };
+        assert_eq!(bare.title(), "glm-5.3", "no provider/model: the lane key, version-read");
+        assert_eq!(bare.initial(), "G");
     }
 }
