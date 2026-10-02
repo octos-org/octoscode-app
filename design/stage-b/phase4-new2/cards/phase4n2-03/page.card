@@ -19,8 +19,8 @@ copy empty1_text { class: user-copy, en: "No chats in octoscode-app match \"hydr
 copy clear1_text { class: user-copy, en: "Clear search" }
 copy t_addws_text { class: user-copy, en: "Add workspace" }
 state ctl_newchat_control_enabled { shape: bool, initial: true }
-state ctl_search_clear_control_enabled { shape: bool, initial: true }
 state ctl_search_control_enabled { shape: bool, initial: true }
+state ctl_search_clear_control_enabled { shape: bool, initial: true }
 state ctl_seg_ws_control_enabled { shape: bool, initial: true }
 state ctl_seg_all_control_enabled { shape: bool, initial: true }
 state ctl_grp_octos_control_enabled { shape: bool, initial: true }
@@ -108,8 +108,8 @@ view root Surfaceb4206391250d(instance: "page") {
   Vectore0a378fde04f(instance: "i_search")
   Text3b2e2a58ad1d(instance: "t_search", text: copy.t_search_text)
   Vectore0a378fde04f(instance: "i_clear")
-  NativeButton02f1d1bd99b4(instance: "ctl_search_clear_control", enabled: ctl_search_clear_control_enabled)
   NativeButton02f1d1bd99b4(instance: "ctl_search_control", enabled: ctl_search_control_enabled)
+  NativeButton02f1d1bd99b4(instance: "ctl_search_clear_control", enabled: ctl_search_clear_control_enabled)
   Surface861330c0bc97(instance: "seg") {
 
   }

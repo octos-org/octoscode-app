@@ -1,0 +1,469 @@
+{
+  "schema_version": 1,
+  "id": "settings-09",
+  "app": "octoscode",
+  "number": 9,
+  "title": "Settings sandbox",
+  "structure": "Native component reconstructed from the approved stage-a board-2 atlas",
+  "artboard": [
+    406,
+    776
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a board-2 atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "rail_chip",
+        "x": 11.0,
+        "y": 121.0,
+        "w": 42.0,
+        "h": 50.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293586158,
+        "radius": 10
+      },
+      {
+        "t": "svg",
+        "id": "rail_gear_i",
+        "x": 16.0,
+        "y": 130.0,
+        "w": 24.0,
+        "h": 34.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "rail_shield_i",
+        "x": 16.0,
+        "y": 218.0,
+        "w": 24.0,
+        "h": 48.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "rail_code_i",
+        "x": 16.0,
+        "y": 318.0,
+        "w": 24.0,
+        "h": 34.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "rail_box_i",
+        "x": 16.0,
+        "y": 404.0,
+        "w": 24.0,
+        "h": 54.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "rail_plug_i",
+        "x": 16.0,
+        "y": 500.0,
+        "w": 24.0,
+        "h": 50.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "rail_info_i",
+        "x": 16.0,
+        "y": 592.0,
+        "w": 24.0,
+        "h": 48.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "back",
+        "x": 18.0,
+        "y": 44.0,
+        "w": 22.0,
+        "h": 22.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_title",
+        "text": "Settings",
+        "x": 72.06,
+        "y": 40.2,
+        "w": 60.77,
+        "h": 40.84,
+        "size": 19,
+        "line_height": 40.84,
+        "weight": 600,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_row1",
+        "text": "Sandbox",
+        "x": 72.03,
+        "y": 142.29,
+        "w": 60.84,
+        "h": 36.05,
+        "size": 15,
+        "line_height": 36.05,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "sandbox_write_pill",
+        "x": 330.0,
+        "y": 222.0,
+        "w": 50.0,
+        "h": 30.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "sandbox_write_knob",
+            "x": 356.0,
+            "y": 225.0,
+            "w": 24.0,
+            "h": 24.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 999
+          }
+        ],
+        "variant": "surface",
+        "bg": 4281298923,
+        "radius": 999
+      },
+      {
+        "t": "stack",
+        "id": "sandbox_write",
+        "x": 330.0,
+        "y": 222.0,
+        "w": 50.0,
+        "h": 30.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "sandbox_write_surface",
+            "x": 330.0,
+            "y": 222.0,
+            "w": 50.0,
+            "h": 30.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 0,
+            "radius": 999
+          },
+          {
+            "t": "button",
+            "id": "sandbox_write_control",
+            "x": 330.0,
+            "y": 222.0,
+            "w": 50.0,
+            "h": 30.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "sandbox_write_label",
+            "text": "",
+            "x": 0.0,
+            "y": 0.0,
+            "w": 8.0,
+            "h": 15.0,
+            "size": 10.0,
+            "line_height": 15.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "text",
+        "id": "t_row1_d",
+        "text": "Workspace write",
+        "x": 71.98,
+        "y": 219.45,
+        "w": 98.88,
+        "h": 38.02,
+        "size": 12.5,
+        "line_height": 38.02,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_row2",
+        "text": "Allow writes inside the workspace",
+        "x": 72.09,
+        "y": 266.75,
+        "w": 185.93,
+        "h": 32.33,
+        "size": 15,
+        "line_height": 32.33,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "sandbox_network_pill",
+        "x": 330.0,
+        "y": 369.0,
+        "w": 50.0,
+        "h": 30.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "sandbox_network_knob",
+            "x": 333.0,
+            "y": 372.0,
+            "w": 24.0,
+            "h": 24.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 999
+          }
+        ],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 999
+      },
+      {
+        "t": "stack",
+        "id": "sandbox_network",
+        "x": 330.0,
+        "y": 369.0,
+        "w": 50.0,
+        "h": 30.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "sandbox_network_surface",
+            "x": 330.0,
+            "y": 369.0,
+            "w": 50.0,
+            "h": 30.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 0,
+            "radius": 999
+          },
+          {
+            "t": "button",
+            "id": "sandbox_network_control",
+            "x": 330.0,
+            "y": 369.0,
+            "w": 50.0,
+            "h": 30.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "sandbox_network_label",
+            "text": "",
+            "x": 0.0,
+            "y": 0.0,
+            "w": 8.0,
+            "h": 15.0,
+            "size": 10.0,
+            "line_height": 15.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "text",
+        "id": "t_row2_d",
+        "text": "Network access",
+        "x": 72.09,
+        "y": 366.44,
+        "w": 92.33,
+        "h": 29.64,
+        "size": 12.5,
+        "line_height": 29.64,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_row3",
+        "text": "Allow outbound network requests",
+        "x": 73.36,
+        "y": 417.64,
+        "w": 183.4,
+        "h": 29.64,
+        "size": 15,
+        "line_height": 29.64,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "sandbox_read_outside_pill",
+        "x": 330.0,
+        "y": 517.0,
+        "w": 50.0,
+        "h": 30.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "sandbox_read_outside_knob",
+            "x": 333.0,
+            "y": 520.0,
+            "w": 24.0,
+            "h": 24.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 999
+          }
+        ],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 999
+      },
+      {
+        "t": "stack",
+        "id": "sandbox_read_outside",
+        "x": 330.0,
+        "y": 517.0,
+        "w": 50.0,
+        "h": 30.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "sandbox_read_outside_surface",
+            "x": 330.0,
+            "y": 517.0,
+            "w": 50.0,
+            "h": 30.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 0,
+            "radius": 999
+          },
+          {
+            "t": "button",
+            "id": "sandbox_read_outside_control",
+            "x": 330.0,
+            "y": 517.0,
+            "w": 50.0,
+            "h": 30.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "sandbox_read_outside_label",
+            "text": "",
+            "x": 0.0,
+            "y": 0.0,
+            "w": 8.0,
+            "h": 15.0,
+            "size": 10.0,
+            "line_height": 15.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "text",
+        "id": "t_row3_d",
+        "text": "Read outside workspace",
+        "x": 72.09,
+        "y": 514.64,
+        "w": 142.92,
+        "h": 35.03,
+        "size": 12.5,
+        "line_height": 35.03,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "div",
+        "x": 24.0,
+        "y": 674.0,
+        "w": 358.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "text",
+        "id": "t_foot",
+        "text": "Allow reading files outside the workspace",
+        "x": 73.36,
+        "y": 565.83,
+        "w": 222.6,
+        "h": 35.03,
+        "size": 12.5,
+        "line_height": 35.03,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  }
+}

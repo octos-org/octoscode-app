@@ -1,0 +1,129 @@
+# ledger settings-11@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Settings" }
+copy t_sec_text { class: user-copy, en: "Model" }
+copy t_model_text { class: user-copy, en: "Model" }
+copy t_model_v_text { class: user-copy, en: "v4-flash ▾" }
+copy t_think_text { class: user-copy, en: "Thinking" }
+copy seg_off_text { class: user-copy, en: "Off" }
+copy seg_on_text { class: user-copy, en: "On" }
+copy seg_high_text { class: user-copy, en: "High" }
+copy think_off_label_text { class: user-copy, en: "" }
+copy think_on_label_text { class: user-copy, en: "" }
+copy think_high_label_text { class: user-copy, en: "" }
+copy t_help_text { class: user-copy, en: "Shows the model's reasoning while it works" }
+state think_off_control_enabled { shape: bool, initial: true }
+state think_on_control_enabled { shape: bool, initial: true }
+state think_high_control_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Surface7660220fbbb3(instance: text) {
+  view Kit(component: "Surface7660220fbbb3", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Textcb190b12dbcc(instance: text, text: text) {
+  view Kit(component: "Textcb190b12dbcc", instance: instance, text: text)
+}
+component Textb3dcf61ecf34(instance: text, text: text) {
+  view Kit(component: "Textb3dcf61ecf34", instance: instance, text: text)
+}
+component Texta3b81bf0ed88(instance: text, text: text) {
+  view Kit(component: "Texta3b81bf0ed88", instance: instance, text: text)
+}
+component Textd573e5d4df18(instance: text, text: text) {
+  view Kit(component: "Textd573e5d4df18", instance: instance, text: text)
+}
+component Surfacec4c38149242a(instance: text) {
+  view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
+}
+component Texte6589f3004cb(instance: text, text: text) {
+  view Kit(component: "Texte6589f3004cb", instance: instance, text: text)
+}
+component Surface42470b88e712(instance: text) {
+  view Kit(component: "Surface42470b88e712", instance: instance) { slot }
+}
+component Surface95086e1a0c91(instance: text) {
+  view Kit(component: "Surface95086e1a0c91", instance: instance) { slot }
+}
+component Textdc67e2075d44(instance: text, text: text) {
+  view Kit(component: "Textdc67e2075d44", instance: instance, text: text)
+}
+component Textbcaef8080b77(instance: text, text: text) {
+  view Kit(component: "Textbcaef8080b77", instance: instance, text: text)
+}
+component Text3d1c916129c1(instance: text, text: text) {
+  view Kit(component: "Text3d1c916129c1", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surfacee502f30c4358(instance: text) {
+  view Kit(component: "Surfacee502f30c4358", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Textc1271c2044f7(instance: text, text: text) {
+  view Kit(component: "Textc1271c2044f7", instance: instance, text: text)
+}
+component Text2ef1455a3505(instance: text, text: text) {
+  view Kit(component: "Text2ef1455a3505", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Surface7660220fbbb3(instance: "rail_chip") {
+
+  }
+  Vectore0a378fde04f(instance: "rail_gear_i")
+  Vectore0a378fde04f(instance: "rail_shield_i")
+  Vectore0a378fde04f(instance: "rail_code_i")
+  Vectore0a378fde04f(instance: "rail_box_i")
+  Vectore0a378fde04f(instance: "rail_plug_i")
+  Vectore0a378fde04f(instance: "rail_info_i")
+  Vectore0a378fde04f(instance: "back")
+  Textcb190b12dbcc(instance: "t_title", text: copy.t_title_text)
+  Textb3dcf61ecf34(instance: "t_sec", text: copy.t_sec_text)
+  Texta3b81bf0ed88(instance: "t_model", text: copy.t_model_text)
+  Textd573e5d4df18(instance: "t_model_v", text: copy.t_model_v_text)
+  Surfacec4c38149242a(instance: "div") {
+
+  }
+  Texte6589f3004cb(instance: "t_think", text: copy.t_think_text)
+  Surface42470b88e712(instance: "seg_track") {
+
+  }
+  Surface95086e1a0c91(instance: "seg_sel") {
+
+  }
+  Textdc67e2075d44(instance: "seg_off", text: copy.seg_off_text)
+  Textbcaef8080b77(instance: "seg_on", text: copy.seg_on_text)
+  Text3d1c916129c1(instance: "seg_high", text: copy.seg_high_text)
+  KitButton2c6804b990a5(instance: "think_off") {
+    Surfacee502f30c4358(instance: "think_off_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "think_off_control", enabled: think_off_control_enabled)
+    Textc1271c2044f7(instance: "think_off_label", text: copy.think_off_label_text)
+  }
+  KitButton2c6804b990a5(instance: "think_on") {
+    Surfacee502f30c4358(instance: "think_on_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "think_on_control", enabled: think_on_control_enabled)
+    Textc1271c2044f7(instance: "think_on_label", text: copy.think_on_label_text)
+  }
+  KitButton2c6804b990a5(instance: "think_high") {
+    Surfacee502f30c4358(instance: "think_high_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "think_high_control", enabled: think_high_control_enabled)
+    Textc1271c2044f7(instance: "think_high_label", text: copy.think_high_label_text)
+  }
+  Text2ef1455a3505(instance: "t_help", text: copy.t_help_text)
+}

@@ -1,0 +1,552 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "6e0e0ab020c7e9eae1e8dca708d43907dc71ff96e0f8430955390d78f0008e87",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "stack",
+        "id": "rail_chip",
+        "x": 11.0,
+        "y": 121.0,
+        "w": 42.0,
+        "h": 50.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293916158,
+        "radius": 10
+      },
+      {
+        "t": "svg",
+        "id": "rail_gear_i",
+        "x": 16.0,
+        "y": 130.0,
+        "w": 24.0,
+        "h": 34.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "rail_shield_i",
+        "x": 16.0,
+        "y": 218.0,
+        "w": 24.0,
+        "h": 48.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "rail_code_i",
+        "x": 16.0,
+        "y": 318.0,
+        "w": 24.0,
+        "h": 34.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "rail_box_i",
+        "x": 16.0,
+        "y": 404.0,
+        "w": 24.0,
+        "h": 54.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "rail_plug_i",
+        "x": 16.0,
+        "y": 500.0,
+        "w": 24.0,
+        "h": 50.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "rail_info_i",
+        "x": 16.0,
+        "y": 592.0,
+        "w": 24.0,
+        "h": 48.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "back",
+        "x": 18.0,
+        "y": 44.0,
+        "w": 22.0,
+        "h": 22.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_title",
+        "text": "General",
+        "x": 75.12,
+        "y": 43.32,
+        "w": 64.07,
+        "h": 31.47,
+        "size": 15.91,
+        "line_height": 19.25,
+        "weight": 600,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "div1",
+        "x": 24.0,
+        "y": 118.0,
+        "w": 358.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "text",
+        "id": "t_notif",
+        "text": "Desktop notifications",
+        "x": 74.9,
+        "y": 149.08,
+        "w": 132.73,
+        "h": 34.22,
+        "size": 12.69,
+        "line_height": 15.35,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "notifications_toggle_pill",
+        "x": 330.0,
+        "y": 148.0,
+        "w": 50.0,
+        "h": 30.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "notifications_toggle_knob",
+            "x": 356.0,
+            "y": 151.0,
+            "w": 24.0,
+            "h": 24.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294375934,
+            "radius": 12.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4281298923,
+        "radius": 999
+      },
+      {
+        "t": "stack",
+        "id": "notifications_toggle",
+        "x": 330.0,
+        "y": 148.0,
+        "w": 50.0,
+        "h": 30.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "notifications_toggle_surface",
+            "x": 330.0,
+            "y": 148.0,
+            "w": 50.0,
+            "h": 30.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 0,
+            "radius": 999
+          },
+          {
+            "t": "button",
+            "id": "notifications_toggle_control",
+            "x": 330.0,
+            "y": 148.0,
+            "w": 50.0,
+            "h": 30.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "notifications_toggle_label",
+            "text": "",
+            "x": 0.0,
+            "y": 0.0,
+            "w": 8.0,
+            "h": 15.0,
+            "size": 10.0,
+            "line_height": 15.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}",
+        "bg": 4294375677,
+        "radius": 15.0
+      },
+      {
+        "t": "text",
+        "id": "t_help1",
+        "text": "Notify when a turn needs you or",
+        "x": 74.88,
+        "y": 208.14,
+        "w": 183.56,
+        "h": 32.84,
+        "size": 11.81,
+        "line_height": 14.29,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_help2",
+        "text": "finishes while OctosCode is in the",
+        "x": 75.14,
+        "y": 249.34,
+        "w": 198.09,
+        "h": 25.98,
+        "size": 12.15,
+        "line_height": 14.7,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_help3",
+        "text": "background",
+        "x": 74.97,
+        "y": 291.92,
+        "w": 73.98,
+        "h": 34.22,
+        "size": 12.32,
+        "line_height": 14.91,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "div2",
+        "x": 24.0,
+        "y": 372.0,
+        "w": 358.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "text",
+        "id": "t_theme",
+        "text": "Theme",
+        "x": 74.66,
+        "y": 397.67,
+        "w": 48.89,
+        "h": 27.35,
+        "size": 13.53,
+        "line_height": 16.37,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_theme_v",
+        "text": "System \u25be",
+        "x": 320.32,
+        "y": 400.34,
+        "w": 61.95,
+        "h": 35.65,
+        "size": 14.5,
+        "line_height": 35.65,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "div3",
+        "x": 24.0,
+        "y": 487.0,
+        "w": 358.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "text",
+        "id": "t_server",
+        "text": "Octos server",
+        "x": 74.57,
+        "y": 514.42,
+        "w": 80.58,
+        "h": 27.35,
+        "size": 12.44,
+        "line_height": 15.05,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_server_v",
+        "text": "127.0.0.1:50190 \u2022 Connected",
+        "x": 207.36,
+        "y": 514.42,
+        "w": 174.98,
+        "h": 27.35,
+        "size": 12.57,
+        "line_height": 15.21,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "div4",
+        "x": 24.0,
+        "y": 604.0,
+        "w": 358.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "text",
+        "id": "t_stop",
+        "text": "Stop server\u2026",
+        "x": 73.2,
+        "y": 635.3,
+        "w": 86.79,
+        "h": 39.73,
+        "size": 15,
+        "line_height": 39.73,
+        "weight": 500,
+        "color": 4292554546,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "stop_row",
+        "x": 24.0,
+        "y": 620.0,
+        "w": 358.0,
+        "h": 62.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "stop_row_surface",
+            "x": 24.0,
+            "y": 620.0,
+            "w": 358.0,
+            "h": 62.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 0,
+            "radius": 12
+          },
+          {
+            "t": "button",
+            "id": "stop_row_control",
+            "x": 24.0,
+            "y": 620.0,
+            "w": 358.0,
+            "h": 62.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "stop_row_label",
+            "text": "",
+            "x": 0.0,
+            "y": 0.0,
+            "w": 8.0,
+            "h": 15.0,
+            "size": 10.0,
+            "line_height": 15.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "text",
+        "id": "t_stop_help",
+        "text": "Shuts down Octos on this computer",
+        "x": 75.22,
+        "y": 681.98,
+        "w": 212.61,
+        "h": 32.84,
+        "size": 12.33,
+        "line_height": 14.92,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "back",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "div1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "notifications_toggle",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "notifications_toggle_knob",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "div2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "div3",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "div4",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.3369406745136259
+    },
+    {
+      "id": "t_notif",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2952867271668718
+    },
+    {
+      "id": "t_help1",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.30170550844220584
+    },
+    {
+      "id": "t_help2",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.27543384410942945
+    },
+    {
+      "id": "t_help3",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.37096737352664505
+    },
+    {
+      "id": "t_theme",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.4519101492108269
+    },
+    {
+      "id": "t_theme_v",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.3027503296881093
+    },
+    {
+      "id": "t_server",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.3294155769420828
+    },
+    {
+      "id": "t_server_v",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.3072715839217573
+    },
+    {
+      "id": "t_stop",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.35593033088780335
+    },
+    {
+      "id": "t_stop_help",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.310080623991734
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

@@ -1,0 +1,498 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "6e0e0ab020c7e9eae1e8dca708d43907dc71ff96e0f8430955390d78f0008e87",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 1.0804743014080822,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "General",
+      "requested_bounds": [
+        75.14,
+        43.87,
+        64.59,
+        35.65
+      ],
+      "status": "observed",
+      "ocr_text": "General",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        75.91869918699186,
+        45.32389380530974,
+        60.074796747967476,
+        27.469026548672566
+      ],
+      "ink_color": [
+        6,
+        5,
+        6
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        75.13636395931817,
+        43.87279139604239,
+        64.5909090909091,
+        35.64664310954063
+      ]
+    },
+    {
+      "id": "t_notif",
+      "expected_text": "Desktop notifications",
+      "requested_bounds": [
+        73.82,
+        150.81,
+        133.14,
+        35.65
+      ],
+      "status": "observed",
+      "ocr_text": "Desktop notifications",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        75.91869918699186,
+        151.07964601769913,
+        128.73170731707316,
+        30.215929203539826
+      ],
+      "ink_color": [
+        11,
+        10,
+        10
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        73.81818314954542,
+        150.81272071095412,
+        133.13636363636363,
+        35.64664310954063
+      ]
+    },
+    {
+      "id": "notifications_toggle_label",
+      "expected_text": "",
+      "requested_bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_help1",
+      "expected_text": "Notify when a turn needs you or",
+      "requested_bounds": [
+        73.82,
+        211.14,
+        184.55,
+        32.9
+      ],
+      "status": "observed",
+      "ocr_text": "Notify when a turn needs you or",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        75.91869918699186,
+        210.13805309734514,
+        179.56422764227642,
+        28.842477876106194
+      ],
+      "ink_color": [
+        136,
+        139,
+        144
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        73.81818068454547,
+        211.13780951632512,
+        184.5454545454545,
+        32.90459363957595
+      ]
+    },
+    {
+      "id": "t_help2",
+      "expected_text": "finishes while OctosCode is in the",
+      "requested_bounds": [
+        73.82,
+        252.27,
+        197.73,
+        27.42
+      ],
+      "status": "observed",
+      "ocr_text": "finishes while OctosCode is in the",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        75.25853658536585,
+        251.341592920354,
+        194.08780487804876,
+        21.975221238938055
+      ],
+      "ink_color": [
+        133,
+        136,
+        141
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        73.81818428977266,
+        252.26855116819786,
+        197.72727272727272,
+        27.420494699646667
+      ]
+    },
+    {
+      "id": "t_help3",
+      "expected_text": "background",
+      "requested_bounds": [
+        73.76,
+        292.83,
+        73.94,
+        36.78
+      ],
+      "status": "observed",
+      "ocr_text": "background",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        75.91869918699186,
+        293.9185840707965,
+        69.97723577235772,
+        30.215929203539826
+      ],
+      "ink_color": [
+        136,
+        140,
+        147
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        73.75603247570477,
+        292.83387494869675,
+        73.94248043407094,
+        36.77748067471664
+      ]
+    },
+    {
+      "id": "t_theme",
+      "expected_text": "Theme",
+      "requested_bounds": [
+        73.82,
+        400.34,
+        47.45,
+        30.16
+      ],
+      "status": "observed",
+      "ocr_text": "Theme",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        75.25853658536585,
+        399.6743362831859,
+        44.891056910569105,
+        23.348672566371683
+      ],
+      "ink_color": [
+        14,
+        14,
+        15
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        73.81818237840906,
+        400.3392229918727,
+        47.45454545454545,
+        30.16254416961135
+      ]
+    },
+    {
+      "id": "t_theme_v",
+      "expected_text": "System \u25be",
+      "requested_bounds": [
+        320.32,
+        400.34,
+        61.95,
+        35.65
+      ],
+      "status": "observed",
+      "ocr_text": "System v",
+      "confidence": 1,
+      "text_similarity": 0.875,
+      "ink_bounds": [
+        321.4991869918699,
+        399.6743362831859,
+        60.074796747967476,
+        31.589380530973454
+      ],
+      "ink_color": [
+        39,
+        41,
+        40
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        320.31818137329543,
+        400.33922306042405,
+        61.95454545454545,
+        35.64664310954063
+      ]
+    },
+    {
+      "id": "t_server",
+      "expected_text": "Octos server",
+      "requested_bounds": [
+        73.82,
+        515.51,
+        80.41,
+        30.16
+      ],
+      "status": "observed",
+      "ocr_text": "Octos server",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        75.25853658536585,
+        516.4176991150442,
+        76.57886178861789,
+        23.348672566371683
+      ],
+      "ink_color": [
+        32,
+        32,
+        32
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        73.8181808130682,
+        515.5053004561837,
+        80.4090909090909,
+        30.16254416961135
+      ]
+    },
+    {
+      "id": "t_server_v",
+      "expected_text": "127.0.0.1:50190 \u2022 Connected",
+      "requested_bounds": [
+        205.64,
+        515.51,
+        174.0,
+        32.9
+      ],
+      "status": "observed",
+      "ocr_text": "127.0.0.1:50190 \u2022 Connected",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        207.9512195121951,
+        516.4176991150442,
+        170.9821138211382,
+        23.348672566371683
+      ],
+      "ink_color": [
+        68,
+        97,
+        81
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        205.6363626037879,
+        515.5053006275618,
+        173.99999999999994,
+        32.904593639576035
+      ]
+    },
+    {
+      "id": "t_stop",
+      "expected_text": "Stop server\u2026",
+      "requested_bounds": [
+        73.2,
+        635.3,
+        86.79,
+        39.73
+      ],
+      "status": "observed",
+      "ocr_text": "Stop server...",
+      "confidence": 1,
+      "text_similarity": 0.8461538461538461,
+      "ink_bounds": [
+        75.91869918699186,
+        635.9079646017699,
+        80.53983739837398,
+        31.589380530973454
+      ],
+      "ink_color": [
+        219,
+        47,
+        50
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        73.20665186106616,
+        635.2904584104623,
+        86.7934507890181,
+        39.7342809939974
+      ]
+    },
+    {
+      "id": "stop_row_label",
+      "expected_text": "",
+      "requested_bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_stop_help",
+      "expected_text": "Shuts down Octos on this computer",
+      "requested_bounds": [
+        73.82,
+        682.77,
+        212.23,
+        32.9
+      ],
+      "status": "observed",
+      "ocr_text": "Shuts down Octos on this computer",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        75.91869918699186,
+        683.9787610619469,
+        208.61138211382112,
+        28.842477876106194
+      ],
+      "ink_color": [
+        143,
+        147,
+        153
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        73.81818381193177,
+        682.7703184325089,
+        212.2272727272727,
+        32.90459363957595
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "back",
+      "bounds": [
+        18.0,
+        44.0,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "div1",
+      "bounds": [
+        24.0,
+        118.0,
+        358.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "notifications_toggle",
+      "bounds": [
+        330.0,
+        148.0,
+        50.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294375677,
+      "radius": 15.0
+    },
+    {
+      "id": "notifications_toggle_knob",
+      "bounds": [
+        356.0,
+        151.0,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294375934,
+      "radius": 12.0
+    },
+    {
+      "id": "div2",
+      "bounds": [
+        24.0,
+        372.0,
+        358.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "div3",
+      "bounds": [
+        24.0,
+        487.0,
+        358.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "div4",
+      "bounds": [
+        24.0,
+        604.0,
+        358.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        29.951298651379872,
+        235.58303906890458,
+        33.94480519480519,
+        23.95759717314486
+      ],
+      "confidence": 0.5,
+      "text": "\u2039>"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

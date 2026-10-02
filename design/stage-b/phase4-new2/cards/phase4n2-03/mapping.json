@@ -182,26 +182,8 @@
       "size": null
     },
     {
-      "source_id": "ctl_search_clear_control",
-      "native_id": "beauty_0_8",
-      "parent": "page",
-      "kind": "button",
-      "component": "NativeButton02f1d1bd99b4",
-      "semantic_role": "button",
-      "bounds": [
-        348.0,
-        98.0,
-        26.0,
-        26.0
-      ],
-      "text": null,
-      "enabled": 1,
-      "font": null,
-      "size": null
-    },
-    {
       "source_id": "ctl_search_control",
-      "native_id": "beauty_0_9",
+      "native_id": "beauty_0_8",
       "parent": "page",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -211,6 +193,24 @@
         92.0,
         366.0,
         40.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "ctl_search_clear_control",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        348.0,
+        98.0,
+        26.0,
+        26.0
       ],
       "text": null,
       "enabled": 1,

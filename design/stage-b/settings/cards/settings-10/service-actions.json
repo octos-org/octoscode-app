@@ -1,0 +1,16 @@
+{
+  "frame_id": 10,
+  "controls": {
+    "defaults_change": {
+      "event": "settings.defaults.open",
+      "source_bounds": [
+        326,
+        84,
+        70,
+        42
+      ],
+      "enabled": true
+    }
+  },
+  "source": "authored from the approved stage-a board-2 atlas (operator 2026-10-01) + Apple Vision OCR"
+}

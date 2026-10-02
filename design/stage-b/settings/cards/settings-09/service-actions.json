@@ -1,0 +1,36 @@
+{
+  "frame_id": 9,
+  "controls": {
+    "sandbox_write": {
+      "event": "sandbox_write.toggle",
+      "source_bounds": [
+        330,
+        222,
+        50,
+        30
+      ],
+      "enabled": true
+    },
+    "sandbox_network": {
+      "event": "sandbox_network.toggle",
+      "source_bounds": [
+        330,
+        369,
+        50,
+        30
+      ],
+      "enabled": true
+    },
+    "sandbox_read_outside": {
+      "event": "sandbox_read_outside.toggle",
+      "source_bounds": [
+        330,
+        517,
+        50,
+        30
+      ],
+      "enabled": true
+    }
+  },
+  "source": "authored from the approved stage-a board-2 atlas (operator 2026-10-01) + Apple Vision OCR"
+}
