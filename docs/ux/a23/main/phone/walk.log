@@ -1,0 +1,116 @@
+== 1. the directory
+CLICK composer r=[28, 743, 304, 29]
+TYPE '/'
+TYPE 'mo'
+CLICK palette_row_name '/model' r=[30, 260, 63, 28]
+PASS models: /model palette CLICK opens the Models dialog
+CLICK dlg_models_manage_providers_control r=[174, 659, 144, 32] at (246,675)
+PASS providers: 'Manage providers' CLICK opens the providers dialog
+PASS providers: the recorded rows and the web unit tests' two — ['Deepseek V4 Flash', 'Deepseek V4 Flash', 'Kimi K2', 'GLM-5.3-Flash']
+PASS providers: 'Add provider', the runtime warning and the Primary tag
+PASS providers: the credential indicator (a value-safe boolean)
+PASS wire: the configuration and the catalog read side by side
+PASS providers: dialog numeric checks — frame=328x743 centre_dx=0.0 margins L=16 R=16 labels=21 outside=0 overlaps=0 controls=9 under28=0
+SHOT 01-providers-phone
+PASS 01-providers-phone: the capture carries no typed key (whole, first 8, last 8)
+PASS blocked: the Kimi K2 row shows why and offers no Edit, still Delete
+PASS blocked row: dialog numeric checks — frame=328x743 centre_dx=0.0 margins L=16 R=16 labels=23 outside=0 overlaps=0 controls=8 under28=0
+SHOT 02-blocked-row-phone
+PASS 02-blocked-row-phone: the capture carries no typed key (whole, first 8, last 8)
+== 2. Edit a FALLBACK (the GLM row with configured inference): a label-only save
+CLICK b3_routes_row_3_edit r=[46, 761, 57, 32] at (74,777)
+PASS edit: 'Edit' (GLM-5.3-Flash) CLICK opens the board-1 editor for that row
+PASS edit: the row's own values (name, the official URL) — 'Z.AI · Official API' 'https://api.z.ai/api/paas/v4'
+PASS edit: the identity is fixed (Provider / Route rows + the web's hints)
+PASS edit: board-1 card numeric checks — card=[0, 74, 360, 776] margins=[0, 0] pads=[20, 20] widgets=20 outside=[] under28=[] overlaps=[]
+SHOT 03-edit-phone
+PASS 03-edit-phone: the capture carries no typed key (whole, first 8, last 8)
+PASS edit: GLM-5.3-Flash shows the provider's read-only guidance
+PASS edit guidance: board-1 card numeric checks — card=[0, 74, 360, 776] margins=[0, 0] pads=[20, 20] widgets=10 outside=[] under28=[] overlaps=[]
+SHOT 03b-edit-guidance-phone
+PASS 03b-edit-guidance-phone: the capture carries no typed key (whole, first 8, last 8)
+KEY End
+TYPE 'Coding route'
+PASS edit: rename the route ('Official API' -> 'Coding route') in the Name field — 'Z.AI · Coding route'
+TAP the keyboard's hide chevron (337,513)
+SCROLL b1_prov_save into b1_prov_scroll — failed
+CLICK b1_prov_save r=[186, 767, 154, 44] at (263,789)
+PASS edit: Save CLICK -> test then upsert -> back to the providers with the web's line
+PASS wire: the label-only upsert carries every configured inference value (null kept), set_primary false, no key — {"profile_id": "dsflash", "selection": {"context_window": 131072, "family_id": "zai", "model_hints": {"fixed_temperature": false, "reasoning_style": "effort_low_high_max"}, "model_id": "glm-5.3-flash", "reasoning_effort": "max", "route": {"api_key_env": "ZAI_API_KEY", "api_type": "openai", "label": "Coding route", "route_id": "zai"}, "temperature": 0, "top_p": null}, "set_primary": false}
+PASS edit: the row now reads 'Z.AI · Coding route'
+PASS saved edit: dialog numeric checks — frame=328x743 centre_dx=0.0 margins L=16 R=16 labels=21 outside=0 overlaps=0 controls=9 under28=0
+SHOT 04-saved-edit-phone
+PASS 04-saved-edit-phone: the capture carries no typed key (whole, first 8, last 8)
+== 3. Add provider (catalog-driven) -> Test connection -> Fetch -> Save
+CLICK b3_routes_add_provider r=[32, 222, 111, 32] at (88,238)
+PASS add: 'Add provider' CLICK opens the editor on the first catalog model not configured — 'Anthropic'
+CLICK b1_prov_family r=[20, 207, 320, 44] at (180,229)
+PASS add: the Provider select CLICK lists the catalog's families
+PASS family select: board-1 card numeric checks — card=[0, 74, 360, 776] margins=[0, 0] pads=[20, 20] widgets=23 outside=[] under28=[] overlaps=[]
+SHOT 05-add-family-phone
+PASS 05-add-family-phone: the capture carries no typed key (whole, first 8, last 8)
+CLICK b1_prov_opt_2 r=[21, 352, 318, 46] at (180,375)
+PASS add: 'DeepSeek' CLICK -> its first model on its Official API
+CLICK b1_prov_model_1 r=[21, 426, 318, 46] at (180,449)
+PASS add: the model 'deepseek-v4-pro' CLICK fills the Model ID
+PASS add: read back — family, model, route name, the official URL, the credential reference, the route id — {"b1_prov_family_value": "DeepSeek", "b1_prov_model_id": "deepseek-v4-pro", "b1_prov_name": "DeepSeek \u00b7 Official API", "b1_prov_url": "https://api.deepseek.com/v1", "b1_prov_env": "DEEPSEEK_API_KEY", "b1_prov_route_id": "deepseek"}
+PASS add: board-1 card numeric checks — card=[0, 74, 360, 776] margins=[0, 0] pads=[20, 20] widgets=16 outside=[] under28=[] overlaps=[]
+SHOT 06-add-phone
+PASS 06-add-phone: the capture carries no typed key (whole, first 8, last 8)
+TYPE <key, 13 chars>
+PASS add: the dummy key typed into the masked API key field
+TAP the keyboard's hide chevron (337,513)
+CLICK b1_prov_test r=[20, 669, 152, 40] at (96,689)
+PASS add: 'Test connection' CLICK -> 'Connection succeeded.'
+PASS wire: Test sends profile/llm/test ALONE, the key as its argument (never in the selection) — {"api_key": "sk-t\u2026(13)", "profile_id": "dsflash", "selection": {"family_id": "deepseek", "model_id": "deepseek-v4-pro", "route": {"api_key_env": "DEEPSEEK_API_KEY", "api_type": "openai", "label": "Official API", "route_id": "deepseek"}}}
+PASS tested: board-1 card numeric checks — card=[0, 74, 360, 776] margins=[0, 0] pads=[20, 20] widgets=18 outside=[] under28=[] overlaps=[]
+SHOT 07-tested-phone
+PASS 07-tested-phone: the capture carries no typed key (whole, first 8, last 8)
+CLICK b1_prov_fetch r=[20, 303, 201, 40] at (120,323)
+PASS add: 'Fetch available models' CLICK -> the endpoint's models
+PASS wire: one profile/llm/fetch_models, the unsaved endpoint (family + route), the key as its argument — {"api_key": "sk-t\u2026(13)", "profile_id": "dsflash", "selection": {"family_id": "deepseek", "route": {"api_key_env": "DEEPSEEK_API_KEY", "api_type": "openai", "label": "Official API", "route_id": "deepseek"}}}
+PASS fetched: board-1 card numeric checks — card=[0, 74, 360, 776] margins=[0, 0] pads=[20, 20] widgets=23 outside=[] under28=[] overlaps=[]
+SHOT 08-fetched-phone
+PASS 08-fetched-phone: the capture carries no typed key (whole, first 8, last 8)
+SCROLL b1_prov_save into b1_prov_scroll — failed
+CLICK b1_prov_save r=[186, 767, 154, 44] at (263,789)
+PASS add: Save CLICK -> test then upsert -> back with 'Provider saved.' and the new row
+PASS wire: the save tested then upserted ONE provision, a fallback, the key as its argument — {"api_key": "sk-t\u2026(13)", "profile_id": "dsflash", "selection": {"family_id": "deepseek", "model_id": "deepseek-v4-pro", "route": {"api_key_env": "DEEPSEEK_API_KEY", "api_type": "openai", "label": "Official API", "route_id": "deepseek"}}, "set_primary": false}
+PASS added: dialog numeric checks — frame=328x743 centre_dx=0.0 margins L=16 R=16 labels=21 outside=0 overlaps=0 controls=9 under28=0
+SHOT 09-added-phone
+PASS 09-added-phone: the capture carries no typed key (whole, first 8, last 8)
+== 4. a refused key on Test connection (p4-07): the draft kept, nothing saved
+CLICK b3_routes_row_1_edit r=[46, 718, 57, 32] at (74,734)
+PASS rejected: 'Edit' (the r2-route fallback) CLICK opens its editor
+PASS rejected: the row read back before the key is typed — 'DeepSeek · R2 Route'
+TYPE <key, 16 chars>
+PASS rejected: the refused dummy key typed
+TAP the keyboard's hide chevron (337,513)
+CLICK b1_prov_test r=[20, 678, 152, 40] at (96,698)
+PASS rejected: 'Test connection' CLICK -> the provider rejected this key (401), read where Test was clicked
+PASS rejected: the editor stayed where Test was clicked (the remount keeps the body's scroll)
+PASS rejected: the draft is kept (name, URL) and Save stays Save — {"b1_prov_name": "DeepSeek \u00b7 R2 Route", "b1_prov_url": "http://127.0.0.1:9/v1"}
+PASS rejected: no server prose, nothing saved
+PASS rejected: board-1 card numeric checks — card=[0, 74, 360, 776] margins=[0, 0] pads=[20, 20] widgets=17 outside=[] under28=[] overlaps=[]
+SHOT 10-rejected-phone
+PASS 10-rejected-phone: the capture carries no typed key (whole, first 8, last 8)
+SCROLL b1_prov_cancel into b1_prov_scroll — failed
+CLICK b1_prov_cancel r=[20, 767, 154, 44] at (97,789)
+PASS rejected: Cancel CLICK -> back to the providers, nothing saved
+== 5. Delete the edit-blocked row behind the typed phrase
+CLICK b3_routes_row_2_delete r=[46, 814, 72, 5] at (82,816)
+PASS delete: 'Delete' (Kimi K2) CLICK -> the phrase to type
+PASS delete: 'Delete provider' is inert before the phrase
+TYPE 'DELETE moonshot/kimi-k2'
+PASS delete: the exact phrase typed
+TAP the keyboard's hide chevron (337,513)
+PASS delete: the exact phrase arms 'Delete provider' (live, no remount)
+PASS delete: dialog numeric checks — frame=328x743 centre_dx=0.0 margins L=16 R=16 labels=20 outside=0 overlaps=0 controls=4 under28=0
+SHOT 11-delete-phone
+PASS 11-delete-phone: the capture carries no typed key (whole, first 8, last 8)
+CLICK b3_routes_delete_go r=[46, 455, 258, 34] at (175,472)
+PASS delete: CLICK -> profile/llm/delete -> 'Provider deleted. …'; the row gone
+PASS wire: the delete names the row's identity — {"family_id": "moonshot", "model_id": "kimi-k2", "profile_id": "dsflash", "route_id": "moonshot"}
+CLICK b3_close r=[300, 110, 28, 28] at (314,124)
+PASS providers: the close glyph CLICK closes the dialog
+== 66/66 checks passed

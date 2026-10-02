@@ -1,0 +1,17 @@
+CLICK composer r=[28, 743, 304, 29]
+TYPE '/'
+TYPE 'mo'
+CLICK palette_row_name '/model' r=[30, 260, 63, 28]
+PASS models: /model palette CLICK opens the Models dialog
+CLICK dlg_models_manage_providers_control r=[174, 586, 144, 32] at (246,602)
+PASS providers: 'Manage providers' CLICK opens the providers dialog
+PASS unread: the refused read is the cause and 'Try again' — never 'No model providers configured'
+PASS unread: dialog numeric checks — frame=328x229 centre_dx=0.0 margins L=16 R=16 labels=4 outside=0 overlaps=0 controls=3 under28=0
+SHOT 01-unread-phone
+PASS 01-unread-phone: the capture carries no typed key (whole, first 8, last 8)
+CLICK b3_routes_retry r=[45, 520, 260, 32] at (175,536)
+PASS unread: 'Try again' CLICK reads again -> the rows
+PASS unread retried: dialog numeric checks — frame=328x698 centre_dx=0.0 margins L=16 R=16 labels=20 outside=0 overlaps=0 controls=9 under28=0
+SHOT 02-retried-phone
+PASS 02-retried-phone: the capture carries no typed key (whole, first 8, last 8)
+== 8/8 checks passed
