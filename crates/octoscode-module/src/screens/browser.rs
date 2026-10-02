@@ -1,38 +1,40 @@
-//! #D1 — the workspace folder browser (atlas screens p4-08/09), one owner per
-//! action id.
+//! #D1/#A2 — the workspace folder browser (atlas board 1 screens p4-08/09),
+//! one owner per action id.
 //!
-//! The web's contract is `features/workspace-create/workspace-browse.ts` (plus
-//! `packages/client/src/workspace-browse.ts` for the protocol side) and the spec
-//! `e2e/workspace-browse.spec.ts`. Four properties this screen must keep, each
-//! with its citation:
+//! The web's contract is `features/workspace-create/workspace-browse.ts`
+//! (client half), `WorkspaceFolderBrowser.tsx` (the view) and the spec
+//! `e2e/workspace-browse.spec.ts`. The properties this screen keeps:
 //!
-//! 1. **The server's hiding and truncation are reported, never swallowed** —
-//!    walk row 220 pins both notices: `"2 hidden folders aren't shown."`
-//!    (`workspace-browse.spec.ts:49-51`) and `"Only the first 1 folders are
-//!    shown."` (`:69-70`). They come from `workspaceListingNotices`
-//!    (`workspace-browse.ts:241-259`), which pushes the truncated notice first
-//!    and the hidden one only when `hiddenSkipped > 0`.
-//! 2. **A refusal is bounded copy with a next step, never the server's prose** —
-//!    walk row 221 pins `"Octos can't open that folder."` plus `"Pick a folder
-//!    the Octos server is allowed to read."`, asserts the server's own string
-//!    (`workspace_list`) is ABSENT, and asserts the folder we were standing in
-//!    survives (`:90-99`).
-//! 3. **A refusal is identity-checked and kind-whitelisted, not duck-typed** —
-//!    `workspaceBrowseRefusal` (`packages/client/src/workspace-browse.ts:105`)
-//!    returns a kind only for a real `OctosUiProtocolError` whose `data.kind`
-//!    is in the list/create whitelists (`:63-80`); anything else stays an
-//!    untyped failure. `banned_root` is "never rendered raw" (`:91`).
-//! 4. **Picking a subfolder fills the path box without navigating** — walk row
-//!    223: the path field is filled and the browser stays in its parent.
-//!
-//! The advertised-feature gate is the web's `supportsWorkspaceBrowse`
-//! (`:126-135`): a client that does not see `onboarding.workspace_browse.v1`
-//! hides every affordance and fails closed.
-
+//! 1. **What the server hid or cut is reported, never swallowed** — walk 220:
+//!    the listing's `hidden_skipped` and `truncated` become notices
+//!    (`workspaceListingNotices`, `workspace-browse.ts:241-259`, truncated
+//!    first); the board words the hidden one "3 hidden by the server".
+//! 2. **A refusal is bounded copy with a next step, never the server's prose**
+//!    — walk 221; and the folder we stood in survives (the last good listing
+//!    is kept, `workspaceBrowseReducer` "failed", `:316-318`).
+//! 3. **A refusal is identity-checked and kind-whitelisted** — only a typed
+//!    protocol error (`ClientError::Rpc`) whose `data.kind` is in the list /
+//!    create whitelists becomes a kind (`workspaceBrowseRefusal`,
+//!    `packages/client/src/workspace-browse.ts:105`); anything else is
+//!    `unknown`. `banned_root` rides only a root escape and is never rendered.
+//! 4. **Picking a subfolder fills the path box without navigating** — walk
+//!    223; the browser then reopens at the chosen folder.
+//! 5. **The affordance exists only when advertised** — the board-1 picker
+//!    shows Browse/New folder only for `onboarding.workspace_browse.v1`
+//!    (`supportsWorkspaceBrowse`, `:126-135`), fail closed.
+use octoscode_client::domains::profile::{
+    WorkspaceCreate, WorkspaceCreateParams, WorkspaceList, WorkspaceListParams, WorkspaceListResult,
+};
 use serde_json::Value;
 
-/// The feature that must be advertised before any affordance shows
-/// (`workspace-browse.ts:126-135` — the gate is the CAPABILITY, never the method).
+use super::board1::{Layout, Ui};
+use super::board1_kit::{self as kit, Field, Text};
+
+/// The most rows one listing shows (the server's own page cap is what
+/// `truncated` reports; this only bounds the view).
+pub const MAX_ROWS: usize = 40;
+
+/// The advertised feature (`workspace-browse.ts:126-135`).
 pub const BROWSE_FEATURE: &str = "onboarding.workspace_browse.v1";
 
 /// The two browser cards (design/stage-b/phase4/cards).
@@ -60,21 +62,25 @@ pub const CREATE_REFUSAL_KINDS: &[&str] = &[
 /// The kind both whitelists share (`workspace-browse.ts:79`).
 pub const PROFILE_LOCAL_UNSUPPORTED: &str = "profile_local_unsupported";
 
-/// Which browser card is mounted.
+/// The client-owned bucket: a transport failure or an unknown refusal.
+pub const UNKNOWN: &str = "unknown";
+
+/// `WORKSPACE_BROWSE_MAX_ASCENT` (`workspace-browse.ts:13`).
+pub const MAX_ASCENT: usize = 32;
+
+/// Which browser card is showing.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub enum Screen {
-    /// `p4-08` — the listing, with the hidden count and the path box.
+    /// `p4-08` — the listing, the hidden count and the path box.
     #[default]
     Browser,
-    /// `p4-09` — the same browser after the server refused a folder.
+    /// `p4-09` — the server refused the folder we tried to open.
     Refused,
 }
 
 impl Screen {
-    pub const ALL: [(Screen, &'static str); 2] =
-        [(Screen::Browser, "p4-08"), (Screen::Refused, "p4-09")];
+    pub const ALL: [(Screen, &'static str); 2] = [(Screen::Browser, "p4-08"), (Screen::Refused, "p4-09")];
 
-    /// The card directory under `design/stage-b/phase4/cards`.
     pub fn card_dir(self) -> &'static str {
         Self::ALL
             .iter()
@@ -84,91 +90,144 @@ impl Screen {
     }
 }
 
-/// A whitelisted refusal, kept as a KIND so no server string survives
-/// (`workspace-browse.ts:105-120`).
+/// A whitelisted refusal, kept as a KIND so no server string survives.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Refusal {
     pub kind: String,
-    /// Only `*_root_escape` carries it; never rendered raw (`:91-92`).
+    /// Only `*_root_escape` carries it; never rendered (`:91-92`).
     pub banned_root: Option<String>,
 }
 
 /// Whitelist ONE typed kind, identity first: only a value that arrived as a
-/// typed protocol error is eligible, so a plain error carrying a matching
-/// `data.kind` stays untyped (`workspace-browse.ts:105-120`).
+/// typed protocol error is eligible (`workspace-browse.ts:105-120`).
 pub fn refusal_from(typed: bool, kind: &str, banned_root: Option<String>) -> Option<Refusal> {
     if !typed {
         return None;
     }
-    let known = LIST_REFUSAL_KINDS.contains(&kind)
-        || CREATE_REFUSAL_KINDS.contains(&kind)
-        || kind == PROFILE_LOCAL_UNSUPPORTED;
+    let known = LIST_REFUSAL_KINDS.contains(&kind) || CREATE_REFUSAL_KINDS.contains(&kind) || kind == PROFILE_LOCAL_UNSUPPORTED;
     if !known {
         return None;
     }
-    // `banned_root` rides ONLY a root escape (`:91`); drop it otherwise so a
-    // server cannot smuggle a path into the UI through the wrong field.
-    let banned_root = if kind.ends_with("_root_escape") {
-        banned_root
-    } else {
-        None
-    };
-    Some(Refusal {
-        kind: kind.to_owned(),
-        banned_root,
-    })
+    let banned_root = if kind.ends_with("_root_escape") { banned_root } else { None };
+    Some(Refusal { kind: kind.to_owned(), banned_root })
+}
+
+/// The classification a failed list/create earns: a whitelisted kind from a
+/// typed protocol error (`data.kind`), else [`UNKNOWN`] — never duck-typed
+/// from the error's text.
+pub fn classify(e: &octoscode_client::ClientError) -> Refusal {
+    if let octoscode_client::ClientError::Rpc { error, .. } = e {
+        let data = error.data.as_ref();
+        let kind = data.and_then(|d| d.get("kind")).and_then(|k| k.as_str()).unwrap_or("");
+        let banned = data
+            .and_then(|d| d.get("banned_root"))
+            .and_then(|k| k.as_str())
+            .map(str::to_owned);
+        if let Some(r) = refusal_from(true, kind, banned) {
+            return r;
+        }
+    }
+    Refusal { kind: UNKNOWN.to_owned(), banned_root: None }
 }
 
 /// The bounded copy for a refusal: a headline and a next step, never the
-/// server's own prose. The permission-denied pair is the one the spec pins
-/// verbatim (`workspace-browse.spec.ts:92-95`); the rest follow the same rule
-/// (own words, own next step).
+/// server's own prose. The list-permission pair is the board's own (atlas
+/// screen 9); the rest are the web's table (`workspace-browse.ts:79-120`).
 pub fn refusal_copy(kind: &str) -> (&'static str, &'static str) {
     match kind {
-        "workspace_list_permission_denied" | "workspace_create_permission_denied" => (
-            "Octos can't open that folder.",
-            "Pick a folder the Octos server is allowed to read.",
-        ),
-        "workspace_list_not_found" => (
-            "That folder isn't there any more.",
-            "Pick another folder from the list.",
-        ),
-        "workspace_list_not_a_directory" | "workspace_create_parent_not_a_directory" => (
-            "That isn't a folder.",
-            "Pick a folder from the list.",
+        "workspace_list_permission_denied" => (
+            "The server won’t list this folder.",
+            "Pick another folder or type a path you can access.",
         ),
         "workspace_list_invalid_path" => (
-            "That path isn't one we can open.",
-            "Pick a folder from the list, or type a path you can access.",
+            "That path can’t be browsed.",
+            "Browse from the server's working directory instead.",
         ),
-        "workspace_list_root_escape" | "workspace_create_root_escape" => (
-            "Octos won't open that folder.",
-            "Stay inside the folders Octos can read.",
+        "workspace_list_not_found" => (
+            "That folder is no longer on the server.",
+            "Go up one level and pick a folder that still exists.",
+        ),
+        "workspace_list_not_a_directory" => ("That path is a file, not a folder.", "Go up one level and pick a folder."),
+        "workspace_list_root_escape" => (
+            "That folder is outside the area Octos may browse.",
+            "Pick a folder inside your own projects instead.",
         ),
         "workspace_create_invalid_name" => (
-            "That folder name can't be used.",
-            "Enter one name, without a slash.",
+            "The server rejected that folder name.",
+            "Use a single name without slashes, up to 255 bytes.",
         ),
         "workspace_create_parent_not_found" => (
-            "The folder to create inside is gone.",
-            "Go back and pick another folder.",
+            "The folder you’re creating in is no longer on the server.",
+            "Go up one level and try again.",
         ),
-        "workspace_create_exists_not_directory" => (
-            "Something with that name is already there.",
-            "Pick another name.",
+        "workspace_create_parent_not_a_directory" => (
+            "The place you’re creating in is a file, not a folder.",
+            "Go up one level and pick a folder.",
         ),
+        "workspace_create_permission_denied" => (
+            "Octos can’t create a folder here.",
+            "Pick a folder the Octos server is allowed to write to.",
+        ),
+        "workspace_create_root_escape" => (
+            "That location is outside the area Octos may write to.",
+            "Create the folder inside your own projects instead.",
+        ),
+        "workspace_create_exists_not_directory" => ("A file of that name is already here.", "Choose a different folder name."),
         PROFILE_LOCAL_UNSUPPORTED => (
-            "This server doesn't support that here.",
-            "Use a folder the Octos server is allowed to read.",
+            "This server doesn’t offer folder browsing.",
+            "Type the workspace path instead.",
         ),
         _ => (
-            "Octos can't open that folder.",
-            "Pick a folder the Octos server is allowed to read.",
+            "Couldn’t reach the server's folders.",
+            "Try again, or type the workspace path instead.",
         ),
     }
 }
 
-/// One listing row, as the browser shows it.
+/// `validateWorkspaceFolderName` (`workspace-browse.ts:160-175`): one path
+/// component, no separators, not `.`/`..`, no control characters, no
+/// surrounding whitespace, 1..=255 bytes. The copy is the web's own.
+pub fn validate_folder_name(name: &str) -> Option<&'static str> {
+    if name.is_empty() {
+        return Some("Enter a name for the new folder.");
+    }
+    if name.contains('/') || name.contains('\\') {
+        return Some("A folder name can’t contain a slash. Enter one name only.");
+    }
+    if name == "." || name == ".." {
+        return Some("Enter a folder name other than . or ..");
+    }
+    if name.chars().any(|c| (c as u32) < 0x20 || c as u32 == 0x7f) {
+        return Some("A folder name can’t contain control characters. Use plain text.");
+    }
+    if name != name.trim() {
+        return Some("A folder name can’t start or end with a space. Trim it.");
+    }
+    if name.len() > 255 {
+        return Some("That folder name is too long. Use up to 255 bytes.");
+    }
+    None
+}
+
+/// `parentWorkspacePath` (`workspace-browse.ts:185-196`): a client-side hint
+/// only — a listing's own `parent_path` is authoritative for the way up.
+pub fn parent_path(path: &str) -> Option<String> {
+    let t = path.trim();
+    if t.is_empty() || t == "/" || t == "~" {
+        return None;
+    }
+    let n = t.trim_end_matches('/');
+    if n.is_empty() || n == "~" {
+        return None;
+    }
+    match n.rfind('/') {
+        None => None,
+        Some(0) => Some("/".to_owned()),
+        Some(i) => Some(n[..i].to_owned()),
+    }
+}
+
+/// One listing row.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Entry {
     pub name: String,
@@ -178,66 +237,72 @@ pub struct Entry {
 /// The browser's UI-local state.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct BrowserUi {
-    /// The folder we are standing in. Its rows come from the last good listing.
+    /// The folder we are standing in (the last good listing's canonical path).
     pub path: String,
-    /// The rows, top to bottom.
+    /// The last good listing's rows, top to bottom.
     pub entries: Vec<Entry>,
-    /// The path the operator typed in the path box (row 223 fills it).
+    /// The listing's `parent_path` (`None` at the root).
+    pub parent: Option<String>,
+    /// The listing says a folder can be created here.
+    pub writable: bool,
+    /// The path box's text (walk 223 fills it).
     pub path_draft: String,
-    /// The row selected in the list; `None` until one is picked.
+    /// The row picked in the list.
     pub selected: Option<String>,
-    /// How many folders the server skipped (`hidden_skipped`).
     pub hidden_skipped: u32,
-    /// Whether the listing was cut short.
     pub truncated: bool,
     /// The refusal, as a KIND only.
     pub failure: Option<Refusal>,
-    /// The new-folder name being typed (row 164).
+    /// The path the refused request asked for (p4-09's breadcrumb).
+    pub attempted: Option<String>,
+    /// The New-folder field is open, and its draft + pre-validation.
+    pub new_folder_open: bool,
     pub new_folder: String,
-    /// Where we are.
+    pub name_problem: Option<&'static str>,
+    /// A request is in flight.
+    pub loading: bool,
+    /// The folder chosen last ("Use this folder"): the browser reopens here.
+    pub chosen: Option<String>,
     pub screen: Screen,
 }
 
 impl BrowserUi {
-    /// Whether the "up" affordance is available — false at the root (row 220:
-    /// "disables the way up at the root").
+    /// Whether the way up exists (row 220: "disables the way up at the root").
     pub fn can_go_up(&self) -> bool {
-        self.path != "/" && !self.path.is_empty()
+        self.parent.is_some() || (self.path != "/" && !self.path.is_empty() && parent_path(&self.path).is_some())
     }
 
-    /// Whether any affordance shows at all: the advertised-feature gate, fail
-    /// closed (`workspace-browse.ts:126-135`).
+    /// The advertised-feature gate, fail closed.
     pub fn browse_visible(advertised: bool) -> bool {
         advertised
     }
 
-    /// The notices this listing owes the operator, in the web's order — the
-    /// truncated notice first, then the hidden count only when it is non-zero
-    /// (`workspace-browse.ts:241-259`). Row 220 pins both strings.
+    /// The notices this listing owes the operator: truncated first, then the
+    /// hidden count (`workspace-browse.ts:241-259`; the board's wording).
     pub fn notices(&self) -> Vec<String> {
         let mut out = Vec::new();
         if self.truncated {
-            out.push(format!(
-                "Only the first {} folders are shown.",
-                self.entries.len()
-            ));
+            out.push(format!("Only the first {} folders are shown.", self.entries.len()));
         }
         if self.hidden_skipped > 0 {
-            out.push(format!("{} hidden folders aren't shown.", self.hidden_skipped));
+            out.push(format!("{} hidden by the server", self.hidden_skipped));
         }
         out
     }
 
-    /// A refusal arrived: keep the last good listing and the current folder
-    /// (row 221: "the current folder is unchanged") and show bounded copy.
-    pub fn refuse(&mut self, r: Refusal) {
-        // The folder we were standing in and its rows are deliberately NOT
-        // cleared — that is the half of row 221 the spec pins.
+    /// A refusal arrived: keep the folder we were standing in and its rows
+    /// (walk 221: "the current folder is unchanged").
+    pub fn refuse(&mut self, r: Refusal, attempted: Option<String>) {
+        self.loading = false;
         self.failure = Some(r);
+        if let Some(a) = &attempted {
+            self.path_draft = a.clone();
+        }
+        self.attempted = attempted;
         self.screen = Screen::Refused;
     }
 
-    /// Pick a row: fill the path box and stay in this folder (row 223).
+    /// Pick a row: fill the path box and stay in this folder (walk 223).
     pub fn pick(&mut self, index: usize) -> Option<String> {
         let entry = self.entries.get(index)?;
         self.selected = Some(entry.name.clone());
@@ -245,120 +310,169 @@ impl BrowserUi {
         Some(entry.path.clone())
     }
 
-    /// Go up one level. `None` at the root — the affordance is disabled there
-    /// (row 220).
+    /// The way up (`None` at the root).
     pub fn up(&self) -> Option<String> {
-        if !self.can_go_up() {
+        if let Some(p) = &self.parent {
+            return Some(p.clone());
+        }
+        if self.path == "/" || self.path.is_empty() {
             return None;
         }
-        let p = self.path.trim_end_matches('/');
-        match p.rfind('/') {
-            Some(0) => Some("/".to_owned()),
-            Some(i) => Some(p[..i].to_owned()),
-            None => Some("/".to_owned()),
-        }
+        parent_path(&self.path)
     }
 
-    /// The new-folder name check, pre-validated before any request (row 164).
-    /// The web's own message is pinned at `workspace-browse.spec.ts:116-117`.
-    pub fn name_problem(&self) -> Option<&'static str> {
-        let n = self.new_folder.trim();
-        if n.is_empty() {
-            return None;
+    /// Fold a good listing in (the reducer's "listed").
+    pub fn listed(&mut self, l: &WorkspaceListResult) {
+        self.path = l.canonical_path.clone();
+        self.entries = l.entries.iter().map(|e| Entry { name: e.name.clone(), path: e.path.clone() }).collect();
+        self.parent = l.parent_path.clone();
+        self.writable = l.writable;
+        self.truncated = l.truncated;
+        // The server counts in u64 (`profile.rs:104`); saturate, never wrap.
+        self.hidden_skipped = l.hidden_skipped.min(u32::MAX as u64) as u32;
+        self.path_draft = l.canonical_path.clone();
+        self.selected = None;
+        self.failure = None;
+        self.attempted = None;
+        self.loading = false;
+        self.new_folder_open = false;
+        self.new_folder.clear();
+        self.name_problem = None;
+        self.screen = Screen::Browser;
+    }
+
+    /// The breadcrumb of `path`: `(label, absolute path)` from the root.
+    pub fn crumbs(path: &str) -> Vec<(String, String)> {
+        let mut out = vec![("/".to_owned(), "/".to_owned())];
+        let mut acc = String::new();
+        for seg in path.split('/').filter(|s| !s.is_empty()) {
+            acc.push('/');
+            acc.push_str(seg);
+            out.push((seg.to_owned(), acc.clone()));
         }
-        if n.contains('/') || n.contains('\\') {
-            return Some("A folder name can't contain a slash. Enter one name only.");
-        }
-        if n == "." || n == ".." {
-            return Some("A folder name can't be '.' or '..'. Enter another name.");
-        }
-        None
+        out
     }
 }
 
-/// The action ids these two cards emit, with what each one means.
+/// The action ids the two cards emit.
 pub const ACTIONS: &[(&str, &str)] = &[
-    ("browser.enter.0", "enter the first listed folder"),
-    ("browser.enter.1", "enter the second listed folder"),
-    ("browser.enter.2", "enter the third listed folder"),
-    ("browser.enter.3", "enter the fourth listed folder"),
-    ("browser.up", "go to the parent folder (disabled at the root, row 220)"),
-    ("browser.path", "the path box's live text (row 223 fills it)"),
-    ("browser.use", "start a session in the path box's folder"),
-    ("browser.back", "step back out of a refused folder (p4-09)"),
-    ("browser.create", "create a folder, pre-validated (row 164)"),
-    ("browser.create_name", "the new-folder name field's live text"),
+    ("browser.enter.0", "pick the 1st folder (a second tap opens it)"),
+    ("browser.enter.1", "pick the 2nd folder (a second tap opens it)"),
+    ("browser.enter.2", "pick the 3rd folder (a second tap opens it)"),
+    ("browser.enter.3", "pick the 4th folder (a second tap opens it)"),
+    ("browser.enter.4", "pick the 5th folder"),
+    ("browser.enter.5", "pick the 6th folder"),
+    ("browser.enter.6", "pick the 7th folder"),
+    ("browser.enter.7", "pick the 8th folder"),
+    ("browser.crumb.0", "open the breadcrumb's root"),
+    ("browser.crumb.1", "open the breadcrumb's 1st folder"),
+    ("browser.crumb.2", "open the breadcrumb's 2nd folder"),
+    ("browser.crumb.3", "open the breadcrumb's 3rd folder"),
+    ("browser.crumb.4", "open the breadcrumb's 4th folder"),
+    ("browser.crumb.5", "open the breadcrumb's 5th folder"),
+    ("browser.up", "go to the parent folder (disabled at the root, walk 220)"),
+    ("browser.path", "the path box's live text"),
+    ("browser.go", "open the folder typed in the path box (Return)"),
+    ("browser.use", "use the path box's folder: start a session there"),
+    ("browser.back", "leave a refused folder for the last good one (p4-09)"),
+    ("browser.newfolder", "open the New folder field"),
+    ("browser.newfolder.cancel", "close the New folder field"),
+    ("browser.create_name", "the New folder name's live text"),
+    ("browser.create", "create the folder (name pre-validated, walk 222)"),
+    ("browser.close", "the back chevron: leave the browser"),
 ];
 
-/// The ids [`resolve`] routes.
 pub const ROUTED: &[&str] = &[
     "browser.enter.0",
     "browser.enter.1",
     "browser.enter.2",
     "browser.enter.3",
+    "browser.enter.4",
+    "browser.enter.5",
+    "browser.enter.6",
+    "browser.enter.7",
+    "browser.crumb.0",
+    "browser.crumb.1",
+    "browser.crumb.2",
+    "browser.crumb.3",
+    "browser.crumb.4",
+    "browser.crumb.5",
     "browser.up",
     "browser.path",
+    "browser.go",
     "browser.use",
     "browser.back",
-    "browser.create",
+    "browser.newfolder",
+    "browser.newfolder.cancel",
     "browser.create_name",
+    "browser.create",
+    "browser.close",
 ];
 
+/// A numbered family id (`browser.enter.<n>` / `browser.crumb.<n>`): the row
+/// rides IN the id, so a listing longer than the table still routes.
+fn numbered(id: &str) -> Option<usize> {
+    id.strip_prefix("browser.enter.")
+        .or_else(|| id.strip_prefix("browser.crumb."))
+        .and_then(|n| n.parse().ok())
+}
+
 pub fn is_action(id: &str) -> bool {
-    ACTIONS.iter().any(|(a, _)| *a == id)
+    ACTIONS.iter().any(|(a, _)| *a == id) || numbered(id).is_some()
 }
 
 pub fn is_routed(id: &str) -> bool {
-    ROUTED.contains(&id)
+    ROUTED.contains(&id) || numbered(id).is_some()
 }
 
-/// Declared but unrouted (the coverage contract every screen set carries).
 pub fn unrouted() -> Vec<&'static str> {
-    ACTIONS
-        .iter()
-        .map(|(a, _)| *a)
-        .filter(|a| !ROUTED.contains(a))
-        .collect()
+    ACTIONS.iter().map(|(a, _)| *a).filter(|a| !ROUTED.contains(a)).collect()
 }
 
 /// What an action means.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Effect {
-    /// Live text for a field.
     Input { field: &'static str, value: String },
-    /// Enter the folder at this row index.
+    /// A row tap (select; a second tap on the selected row opens it).
     Enter(usize),
-    /// Go up one level (`None` at the root).
+    /// A breadcrumb segment.
+    Crumb(usize),
     Up,
-    /// Start a session in `path`.
+    /// List this folder (`None` = the server's own working directory).
+    List(Option<String>),
+    /// Use this folder (start a session there).
     Use(String),
-    /// Create a folder named by the field.
-    Create(String),
-    /// A whitelisted refusal the caller just received.
+    /// Create a folder named by the field, inside `parent`.
+    Create { parent: String, name: String },
+    /// Leave a refused folder for the last good one.
+    Back,
+    NewFolder(bool),
+    /// The browser closes (back chevron).
+    Close,
     Refused(Refusal),
-    /// Unhandled id.
     Unhandled,
 }
 
-/// Route one action id to its effect.
+/// Route one action id to its effect (the row/crumb ride IN the id).
 pub fn resolve(id: &str, value: Option<&str>) -> Effect {
+    if let Some(n) = id.strip_prefix("browser.enter.").and_then(|n| n.parse().ok()) {
+        return Effect::Enter(n);
+    }
+    if let Some(n) = id.strip_prefix("browser.crumb.").and_then(|n| n.parse().ok()) {
+        return Effect::Crumb(n);
+    }
+    let v = || value.unwrap_or_default().to_owned();
     match id {
-        "browser.enter.0" => Effect::Enter(0),
-        "browser.enter.1" => Effect::Enter(1),
-        "browser.enter.2" => Effect::Enter(2),
-        "browser.enter.3" => Effect::Enter(3),
         "browser.up" => Effect::Up,
-        "browser.path" => Effect::Input {
-            field: "browser.path",
-            value: value.unwrap_or_default().to_owned(),
-        },
-        "browser.create_name" => Effect::Input {
-            field: "browser.create_name",
-            value: value.unwrap_or_default().to_owned(),
-        },
+        "browser.path" => Effect::Input { field: "browser.path", value: v() },
+        "browser.create_name" => Effect::Input { field: "browser.create_name", value: v() },
+        "browser.go" => Effect::List(None),
         "browser.use" => Effect::Use(String::new()),
-        "browser.create" => Effect::Create(String::new()),
-        "browser.back" => Effect::Up,
+        "browser.back" => Effect::Back,
+        "browser.newfolder" => Effect::NewFolder(true),
+        "browser.newfolder.cancel" => Effect::NewFolder(false),
+        "browser.create" => Effect::Create { parent: String::new(), name: String::new() },
+        "browser.close" => Effect::Close,
         _ => Effect::Unhandled,
     }
 }
@@ -369,70 +483,264 @@ pub fn apply(ui: &mut BrowserUi, effect: Effect) -> Option<Effect> {
         Effect::Input { field, value } => {
             match field {
                 "browser.path" => ui.path_draft = value,
-                "browser.create_name" => ui.new_folder = value,
+                "browser.create_name" => {
+                    ui.new_folder = value;
+                    ui.name_problem = None;
+                }
                 _ => {}
             }
             None
         }
         Effect::Enter(i) => {
-            // Row 223: picking a row fills the path box and does NOT navigate.
+            let name = ui.entries.get(i)?.name.clone();
+            if ui.selected.as_deref() == Some(name.as_str()) {
+                // A second tap on the picked row opens it (drill in, walk 220).
+                let path = ui.entries[i].path.clone();
+                ui.loading = true;
+                return Some(Effect::List(Some(path)));
+            }
+            // Walk 223: picking fills the path box and does NOT navigate.
             ui.pick(i);
             None
         }
-        Effect::Up => match ui.up() {
-            Some(parent) => Some(Effect::Enter_(parent)),
-            None => None, // disabled at the root (row 220)
-        },
-        Effect::Refused(r) => {
-            ui.refuse(r);
+        Effect::Crumb(i) => {
+            let base = ui.attempted.clone().unwrap_or_else(|| ui.path.clone());
+            let crumbs = BrowserUi::crumbs(&base);
+            let (_, path) = crumbs.get(i)?.clone();
+            ui.loading = true;
+            Some(Effect::List(Some(path)))
+        }
+        Effect::Up => {
+            let parent = ui.up()?; // disabled at the root (walk 220)
+            ui.loading = true;
+            Some(Effect::List(Some(parent)))
+        }
+        Effect::List(None) => {
+            let typed = ui.path_draft.trim().to_owned();
+            ui.loading = true;
+            Some(Effect::List(if typed.is_empty() { None } else { Some(typed) }))
+        }
+        Effect::List(Some(p)) => {
+            ui.loading = true;
+            Some(Effect::List(Some(p)))
+        }
+        Effect::Use(_) => {
+            let path = if ui.path_draft.trim().is_empty() { ui.path.clone() } else { ui.path_draft.trim().to_owned() };
+            if path.is_empty() {
+                return None;
+            }
+            ui.chosen = Some(path.clone());
+            Some(Effect::Use(path))
+        }
+        Effect::Back => {
+            // The last good listing is still here (walk 221) — no request.
+            ui.failure = None;
+            ui.attempted = None;
+            ui.path_draft = ui.path.clone();
+            ui.screen = Screen::Browser;
+            None
+        }
+        Effect::NewFolder(open) => {
+            ui.new_folder_open = open;
+            ui.new_folder.clear();
+            ui.name_problem = None;
             None
         }
         // The name is PRE-VALIDATED before the transport can be reached: an
-        // invalid name never leaves this module (walk 164).
-        Effect::Create(_) => {
-            if ui.name_problem().is_some() {
-                None
-            } else {
-                Some(Effect::Create(ui.new_folder.trim().to_owned()))
+        // invalid name never leaves this module (`workspace-browse.ts:160`).
+        Effect::Create { .. } => {
+            if let Some(p) = validate_folder_name(&ui.new_folder) {
+                ui.name_problem = Some(p);
+                return None;
             }
+            if ui.path.is_empty() {
+                return None;
+            }
+            ui.loading = true;
+            Some(Effect::Create { parent: ui.path.clone(), name: ui.new_folder.clone() })
         }
-        transport @ Effect::Use(_) => Some(transport),
+        Effect::Close => Some(Effect::Close),
+        Effect::Refused(r) => {
+            ui.refuse(r, None);
+            None
+        }
         Effect::Unhandled => None,
     }
 }
 
-impl Effect {
-    /// "Navigate to this absolute path" — the transport half of `Up` and of
-    /// entering a row when the caller really wants to descend.
-    #[allow(non_snake_case)]
-    pub fn Enter_(path: String) -> Effect {
-        Effect::Use(path)
+// --------------------------------------------------------------------- views
+
+fn crumb_row(ui: &BrowserUi, v: &mut Ui) -> String {
+    let base = ui.attempted.clone().unwrap_or_else(|| ui.path.clone());
+    let crumbs = BrowserUi::crumbs(&base);
+    // A deep path keeps its root and its last segments (the breadcrumb never
+    // wraps): "/ › … › user › code".
+    let keep = 4usize;
+    let skip = crumbs.len().saturating_sub(keep);
+    let mut out = String::from("View { width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 2\n");
+    for (i, (label, _)) in crumbs.iter().enumerate() {
+        if i > 0 && i < skip {
+            if i == 1 {
+                out.push_str(&kit::svg("", "b1_chevron_right.svg", 12.0));
+                out.push_str(&Text::new("", "\u{2026}").px(15.0).color(kit::MUTED).dsl());
+            }
+            continue;
+        }
+        if i > 0 {
+            out.push_str(&kit::svg("", "b1_chevron_right.svg", 12.0));
+        }
+        let id = format!("b1_br_crumb_{i}");
+        out.push_str(&kit::link(&id, label, kit::MUTED, 15.0, 400));
+        v.button(&id, &format!("browser.crumb.{i}"));
+    }
+    out.push_str("}\n");
+    out
+}
+
+/// The native view of the browser (p4-08, or p4-09 after a refusal).
+pub fn view(ui: &BrowserUi, l: &Layout) -> Ui {
+    let mut v = Ui::default();
+    v.header(l, "b1_br_back", "browser.close", "Choose workspace folder");
+    v.push(kit::gap(if l.phone { 10.0 } else { 6.0 }));
+    let crumbs = crumb_row(ui, &mut v);
+    v.push(crumbs);
+    v.push(kit::gap(if l.phone { 10.0 } else { 8.0 }));
+    match ui.screen {
+        Screen::Browser => listing_view(ui, l, &mut v),
+        Screen::Refused => refused_view(ui, l, &mut v),
+    }
+    v
+}
+
+fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
+    let row_h = if l.phone { 56 } else { 44 };
+    let glyph = if l.phone { 24.0 } else { 22.0 };
+    let rows: Vec<String> = ui
+        .entries
+        .iter()
+        .take(MAX_ROWS)
+        .enumerate()
+        .map(|(i, e)| {
+            let selected = ui.selected.as_deref() == Some(e.name.as_str());
+            let id = format!("b1_br_row_{i}");
+            v.button(&id, &format!("browser.enter.{i}"));
+            let bg = if selected {
+                format!("SolidView {{ width: Fill height: Fill draw_bg.color: {} }}\n", kit::SELECTED)
+            } else {
+                String::new()
+            };
+            format!(
+                "View {{ width: Fill height: {row_h} flow: Overlay\n{bg}View {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 16 right: 12}} spacing: 14\n{}{}}}\n{}}}\n",
+                kit::svg("", "b1_folder.svg", glyph),
+                Text::new(&format!("b1_br_row_t{i}"), &e.name).px(15.0).fill().one_line().dsl(),
+                kit::hit(&id, !selected)
+            )
+        })
+        .collect();
+    if rows.is_empty() {
+        let empty = if ui.loading { "Loading folders\u{2026}" } else { "No subfolders here." };
+        v.push(Text::new("b1_br_empty", empty).px(14.0).color(kit::MUTED).fill().dsl());
+    } else {
+        // The card never outgrows the window: rows past what fits scroll
+        // inside the list (the fixed chrome around it is ~302 px in a desktop
+        // dialog, ~330 px on a phone sheet).
+        let fixed = if l.phone { 330.0 } else { 302.0 };
+        let fits = (((l.h - fixed) / row_h as f64).floor() as usize).max(3);
+        let max_h = (rows.len() > fits).then(|| fits as f64 * (row_h as f64 + 1.0));
+        v.push(kit::list_card_scroll("b1_br_list", &rows, max_h));
+    }
+    let notices = ui.notices();
+    v.push(kit::gap(8.0));
+    v.push(format!(
+        "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 6}}\n{}{}}}\n",
+        Text::new("b1_br_notice", &notices.join(" ")).px(15.0).color(kit::MUTED).fill().one_line().dsl(),
+        if ui.writable && !ui.new_folder_open {
+            kit::link("b1_br_newfolder", "New folder", kit::BLUE, 15.0, 500)
+        } else {
+            String::new()
+        }
+    ));
+    if ui.writable && !ui.new_folder_open {
+        v.button("b1_br_newfolder", "browser.newfolder");
+    }
+    if ui.new_folder_open {
+        v.push(kit::gap(8.0));
+        v.push(Field::new("b1_br_newname", &ui.new_folder).label("New folder name").error(ui.name_problem.is_some()).dsl());
+        v.input("b1_br_newname", "browser.create_name");
+        v.returns("b1_br_newname", "browser.create");
+        if let Some(p) = ui.name_problem {
+            v.push(kit::gap(6.0));
+            v.push(Text::new("b1_br_name_problem", p).px(13.0).color(kit::RED).fill().dsl());
+        }
+        v.push(kit::gap(10.0));
+        v.push(format!(
+            "View {{ width: Fill height: Fit flow: Right spacing: 12\n{}{}}}\n",
+            kit::pill_outline("b1_br_newcancel", "Cancel", "Fill"),
+            kit::pill_primary("b1_br_create", "Create folder", "Fill")
+        ));
+        v.button("b1_br_newcancel", "browser.newfolder.cancel");
+        v.button("b1_br_create", "browser.create");
+    }
+    v.spacer(l, 14.0, 22.0);
+    v.push(Field::new("b1_br_path", &ui.path_draft).placeholder("/home/user/code").dsl());
+    v.input("b1_br_path", "browser.path");
+    v.returns("b1_br_path", "browser.go");
+    v.push(kit::gap(if l.phone { 12.0 } else { 10.0 }));
+    v.push(kit::pill_primary("b1_br_use", "Use this folder", "Fill"));
+    v.button("b1_br_use", "browser.use");
+    if l.phone {
+        v.push(kit::gap(36.0));
     }
 }
 
-/// The live copy overrides for one browser card.
+fn refused_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
+    let kind = ui.failure.as_ref().map(|r| r.kind.as_str()).unwrap_or(UNKNOWN);
+    let (head, next) = refusal_copy(kind);
+    v.push(kit::gap(if l.phone { 14.0 } else { 4.0 }));
+    v.push(kit::callout(false, true, head, Some(next)));
+    v.push(kit::gap(if l.phone { 52.0 } else { 20.0 }));
+    let back_to = format!("Back to {}", if ui.path.is_empty() { "/".to_owned() } else { ui.path.clone() });
+    let w = (l.content_w * 0.66).round().max(180.0);
+    v.push(format!(
+        "View {{ width: Fill height: Fit align: Align{{x: 0.5 y: 0.0}}\n{}}}\n",
+        kit::pill_outline("b1_br_backto", &back_to, &format!("{w}"))
+    ));
+    v.button("b1_br_backto", "browser.back");
+    v.push(kit::gap(if l.phone { 96.0 } else { 20.0 }));
+    v.push(Field::new("b1_br_path", &ui.path_draft).placeholder("/home/user/code").dsl());
+    v.input("b1_br_path", "browser.path");
+    v.returns("b1_br_path", "browser.go");
+}
+
+/// The bindings this screen projects.
+pub fn query(ui: &BrowserUi, id: &str) -> Option<Value> {
+    match id {
+        "browser.path" => Some(Value::String(ui.path_draft.clone())),
+        "browser.current" => Some(Value::String(ui.path.clone())),
+        "browser.rows" => Some(Value::Array(ui.entries.iter().map(|e| Value::String(e.name.clone())).collect())),
+        "browser.selected" => ui.selected.clone().map(Value::String),
+        "browser.hidden_skipped" => Some(Value::from(ui.hidden_skipped)),
+        "browser.truncated" => Some(Value::Bool(ui.truncated)),
+        "browser.notices" => Some(Value::Array(ui.notices().into_iter().map(Value::String).collect())),
+        "browser.can_go_up" => Some(Value::Bool(ui.can_go_up())),
+        "browser.refusal" => ui.failure.as_ref().map(|r| Value::String(r.kind.clone())),
+        "browser.name_problem" => ui.name_problem.map(|p| Value::String(p.to_owned())),
+        _ => None,
+    }
+}
+
+/// The live copy overrides for one Stage-B browser card (the design artifact).
 pub fn copies(screen: Screen, ui: &BrowserUi) -> Vec<(String, String)> {
     let mut out: Vec<(String, String)> = Vec::new();
     let mut push = |id: &str, v: &str| out.push((id.to_owned(), v.to_owned()));
-    // #D1t: same `_text` copy-NAME form the provider now uses — the card
-    // declares `t_crumbs_text` / `t_hidden_text` / `browser_path_text`
-    // (`p4-08/page.card:7,12,13`), and `l0_host::set_copy` matches
-    // `copy <id> {` EXACTLY (`l0_host.rs:103`), so bare instance names
-    // resolved to nothing. The refused card's slots are p4-09's
-    // (`t_cal1_text` / `t_cal2_text`).
     if !ui.path.is_empty() {
         push("t_crumbs_text", &ui.path);
     }
     for (i, e) in ui.entries.iter().enumerate().take(4) {
         push(&format!("t_row_{i}_text"), &e.name);
     }
-    // Row 220's two notices. The card declares `t_hidden_text` but has NO
-    // truncation slot (`p4-08/page.data.json`: `t_hidden` present, `t_trunc`
-    // absent), so the pair is projected onto that one slot, truncated-first —
-    // the order `notices()` and the web both use (`workspace-browse.ts:246-256`).
     if !ui.notices().is_empty() {
-        let n = ui.notices().join(" ");
-        push("t_hidden_text", &n);
+        push("t_hidden_text", &ui.notices().join(" "));
     }
     if !ui.path_draft.is_empty() {
         push("browser_path_text", &ui.path_draft);
@@ -441,22 +749,20 @@ pub fn copies(screen: Screen, ui: &BrowserUi) -> Vec<(String, String)> {
         if let Some(r) = &ui.failure {
             let (head, next) = refusal_copy(&r.kind);
             push("t_cal1_text", head);
-            // The next step is the card's second muted line.
             push("t_cal2_text", next);
         }
     }
     out
 }
 
-/// Lower one browser card to the module's DSL (the `connect::lower_screen`
-/// chain, pointed at the phase4 board).
+/// Lower one Stage-B browser card — the accepted design artifact; the app
+/// mounts the native [`view`] (board1.rs explains why).
 pub fn lower_screen(screen: Screen, ui: &BrowserUi) -> Result<String, String> {
     let dir = crate::design::dir("stage-b/phase4/cards").join(screen.card_dir());
     let card_src = std::fs::read_to_string(dir.join("page.card"))
         .map_err(|e| format!("read {}: {e}", dir.join("page.card").display()))?;
     let data: Value = serde_json::from_str(
-        &std::fs::read_to_string(dir.join("page.data.json"))
-            .map_err(|e| format!("read page.data.json: {e}"))?,
+        &std::fs::read_to_string(dir.join("page.data.json")).map_err(|e| format!("read page.data.json: {e}"))?,
     )
     .map_err(|e| format!("parse page.data.json: {e}"))?;
     let card_src = crate::l0_host::apply_copies(&card_src, &copies(screen, ui));
@@ -466,330 +772,242 @@ pub fn lower_screen(screen: Screen, ui: &BrowserUi) -> Result<String, String> {
     octoscript_makepad::l0::inspectable(&mut tree);
     let dsl = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))
         .map_err(|e| format!("to_makepad_ui: {e}"))?;
-    // #35b item 1: the ONE card-tap wiring, keyed by the card DIRECTORY.
     Ok(super::taps::wire_card_events_dir(&dsl, &dir))
 }
 
-/// The bindings this screen projects.
-pub fn query(ui: &BrowserUi, id: &str) -> Option<Value> {
-    match id {
-        "browser.path" => Some(Value::String(ui.path_draft.clone())),
-        "browser.current" => Some(Value::String(ui.path.clone())),
-        "browser.rows" => Some(Value::Array(
-            ui.entries
-                .iter()
-                .map(|e| Value::String(e.name.clone()))
-                .collect(),
-        )),
-        "browser.selected" => ui.selected.clone().map(Value::String),
-        "browser.hidden_skipped" => Some(json_u32(ui.hidden_skipped)),
-        "browser.truncated" => Some(Value::Bool(ui.truncated)),
-        "browser.notices" => Some(Value::Array(
-            ui.notices().into_iter().map(Value::String).collect(),
-        )),
-        "browser.can_go_up" => Some(Value::Bool(ui.can_go_up())),
-        "browser.refusal" => ui.failure.as_ref().map(|r| Value::String(r.kind.clone())),
-        "browser.name_problem" => ui.name_problem().map(|p| Value::String(p.to_owned())),
-        _ => None,
-    }
-}
+// ------------------------------------------------------------- live state
 
-fn json_u32(n: u32) -> Value {
-    Value::from(n)
-}
-
-/// The live browser state between taps (the web keeps it in reducer state).
-/// One `OnceLock`, the shape `workspace.rs:117-123` established.
-fn state() -> std::sync::MutexGuard<'static, BrowserUi> {
-    static STATE: std::sync::OnceLock<std::sync::Mutex<BrowserUi>> =
-        std::sync::OnceLock::new();
+pub fn state() -> std::sync::MutexGuard<'static, BrowserUi> {
+    static STATE: std::sync::OnceLock<std::sync::Mutex<BrowserUi>> = std::sync::OnceLock::new();
     STATE
         .get_or_init(|| std::sync::Mutex::new(BrowserUi::default()))
         .lock()
-        .unwrap()
+        .unwrap_or_else(|e| e.into_inner())
 }
 
-/// Replace the live browser state (the transport's listing result).
 pub fn set(ui: BrowserUi) {
     *state() = ui;
 }
 
-/// Apply one action to the LIVE state and return the transport effect. The
-/// production entry point; [`resolve`] + [`apply`] stay pure for the tests.
+/// Apply one action to the LIVE state and return the transport effect.
 pub fn perform(id: &str, value: Option<&str>) -> Option<Effect> {
     apply(&mut state(), resolve(id, value))
 }
 
-/// #D1t — the transport half of the browser: `onboarding/workspace_list` for
-/// `Use` (enter a folder / go up) and `onboarding/workspace_create` for
-/// `Create` (walk 220/221/223). Before this the only production call site of
-/// this module was `lower_mounted` (`lib.rs:2460`), so the browse buttons had
-/// no executor and RULES 3 scored them missing.
-///
-/// The typed results are decoded, not read as free JSON: a listing carries the
-/// server's own `hidden_skipped`/`truncated` counts, which the card reports as
-/// notices (`browser.rs:10-14`), so a shape drift must fail here rather than
-/// paint. A typed refusal goes through [`perform_refused`], which identity-checks
-/// the kind and keeps the folder we were standing in (row 221).
-pub async fn perform_transport(
-    conv: &crate::flow::Conversation,
-    effect: Effect,
-) -> Result<Value, String> {
-    match effect {
-        Effect::Use(path) => {
-            let p = if path.is_empty() { None } else { Some(path) };
-            let raw = match conv
-                .client()
-                .request("onboarding/workspace_list", serde_json::json!({ "path": p }))
-                .await
-            {
-                Ok(v) => v,
-                Err(e) => return Err(classify("onboarding/workspace_list", &e)),
-            };
-            let res: octoscode_client::domains::profile::WorkspaceListResult =
-                serde_json::from_value(raw.clone())
-                    .map_err(|e| format!("onboarding/workspace_list result: {e}"))?;
-            let ui = BrowserUi {
-                path: res.canonical_path.clone(),
-                entries: res
-                    .entries
-                    .iter()
-                    .map(|e| Entry { name: e.name.clone(), path: e.path.clone() })
-                    .collect(),
-                path_draft: res.canonical_path,
-                selected: None,
-                truncated: res.truncated,
-                // The server counts in `u64` (`profile.rs:104`); the card's own
-                // counter is `u32` — saturate rather than wrap on a hostile count.
-                hidden_skipped: res.hidden_skipped.min(u32::MAX as u64) as u32,
-                // A new listing clears the previous refusal: the server answered.
-                failure: None,
-                screen: Screen::Browser,
-                new_folder: String::new(),
-            };
-            set(ui);
-            Ok(raw)
+/// `onboarding/workspace_list` through the TYPED client, folded into the
+/// live state. On open (`resolve_ancestor`) a typed path that is invalid /
+/// missing / not a folder walks up to its nearest listable ancestor, at most
+/// [`MAX_ASCENT`] steps (`WorkspaceFolderBrowser.tsx` `load`,
+/// `workspaceBrowseRetryPath`, `workspace-browse.ts:208-222`).
+pub async fn list(conv: &crate::flow::Conversation, path: Option<String>, resolve_ancestor: bool) -> Result<(), String> {
+    let request = begin_request();
+    let mut candidate = path;
+    for _ in 0..=MAX_ASCENT {
+        match conv.client().call::<WorkspaceList>(WorkspaceListParams { path: candidate.clone() }).await {
+            Ok(listing) => {
+                if is_latest(request) {
+                    state().listed(&listing);
+                }
+                return Ok(());
+            }
+            Err(e) => {
+                let refusal = classify(&e);
+                let retry = resolve_ancestor
+                    && matches!(
+                        refusal.kind.as_str(),
+                        "workspace_list_invalid_path" | "workspace_list_not_found" | "workspace_list_not_a_directory"
+                    );
+                match (retry, candidate.as_deref()) {
+                    (true, Some(c)) => {
+                        candidate = parent_path(c);
+                        continue;
+                    }
+                    _ => {
+                        if is_latest(request) {
+                            state().refuse(refusal.clone(), candidate.clone());
+                        }
+                        return Err(format!("onboarding/workspace_list: {}", refusal.kind));
+                    }
+                }
+            }
         }
-        Effect::Create(name) => {
-            let parent = state().path.clone();
-            let raw = match conv
-                .client()
-                .request(
-                    "onboarding/workspace_create",
-                    serde_json::json!({ "parent": parent, "name": name }),
-                )
-                .await
-            {
-                Ok(v) => v,
-                Err(e) => return Err(classify("onboarding/workspace_create", &e)),
-            };
-            let res: octoscode_client::domains::profile::WorkspaceCreateResult =
-                serde_json::from_value(raw.clone())
-                    .map_err(|e| format!("onboarding/workspace_create result: {e}"))?;
-            // `created: false` is an idempotent SUCCESS (profile.rs:125-126), so
-            // both arms re-list the parent — that is what puts the new folder on
-            // screen, and row 164 wants the name field cleared either way.
-            let selected = if res.created { Some(name) } else { None };
-            let listed = conv
-                .client()
-                .request(
-                    "onboarding/workspace_list",
-                    serde_json::json!({ "path": res.canonical_path }),
-                )
-                .await
-                .map_err(|e| format!("onboarding/workspace_list after create: {e}"))?;
-            let l: octoscode_client::domains::profile::WorkspaceListResult =
-                serde_json::from_value(listed)
-                    .map_err(|e| format!("onboarding/workspace_list result: {e}"))?;
-            set(BrowserUi {
-                path: l.canonical_path,
-                entries: l
-                    .entries
-                    .iter()
-                    .map(|e| Entry { name: e.name.clone(), path: e.path.clone() })
-                    .collect(),
-                path_draft: String::new(),
-                selected,
-                truncated: l.truncated,
-                hidden_skipped: l.hidden_skipped.min(u32::MAX as u64) as u32,
-                failure: None,
-                screen: Screen::Browser,
-                new_folder: String::new(),
-            });
-            Ok(raw)
+    }
+    if is_latest(request) {
+        state().refuse(Refusal { kind: UNKNOWN.to_owned(), banned_root: None }, None);
+    }
+    Err("onboarding/workspace_list: no listable ancestor".to_owned())
+}
+
+/// Latest-request-wins for the listing (the web's browse state machine drops
+/// a superseded answer): every `list` takes a ticket, and only the newest
+/// ticket may fold its answer in. Measured: a breadcrumb's listing that
+/// resolved after a typed path's refusal overwrote the refusal.
+static LATEST_LIST: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+fn begin_request() -> u64 {
+    LATEST_LIST.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1
+}
+
+fn is_latest(request: u64) -> bool {
+    LATEST_LIST.load(std::sync::atomic::Ordering::SeqCst) == request
+}
+
+/// `onboarding/workspace_create` then MOVE INTO the new folder (the web's
+/// `submitNewFolder`, `WorkspaceFolderBrowser.tsx`: "creating a folder MOVES
+/// INTO it"). `created: false` is an idempotent success.
+pub async fn create(conv: &crate::flow::Conversation, parent: String, name: String) -> Result<(), String> {
+    match conv
+        .client()
+        .call::<WorkspaceCreate>(WorkspaceCreateParams { parent: parent.clone(), name })
+        .await
+    {
+        Ok(created) => list(conv, Some(created.canonical_path), false).await,
+        Err(e) => {
+            let refusal = classify(&e);
+            let mut ui = state();
+            ui.loading = false;
+            ui.new_folder_open = true;
+            // A create refusal is shown inline under the name field.
+            ui.name_problem = Some(refusal_copy(&refusal.kind).0);
+            Err(format!("onboarding/workspace_create: {}", refusal.kind))
         }
-        other => Err(format!("screens/browser: {other:?} is not a transport effect")),
     }
-}
-
-/// A transport failure that IS a whitelisted protocol refusal routes it into the
-/// card (row 221); anything else stays an untyped error, per
-/// `workspace-browse.ts:105-135` — a kind is returned only for a real
-/// `OctosUiProtocolError`, never duck-typed.
-fn classify(method: &str, e: &octoscode_client::ClientError) -> String {
-    let text = e.to_string();
-    if let Some((kind, banned)) = refusal_of(&text) {
-        perform_refused(true, &kind, banned);
-    }
-    format!("{method}: {text}")
-}
-
-/// Pull `(kind, banned_root)` out of a protocol error's rendered text.
-fn refusal_of(text: &str) -> Option<(String, Option<String>)> {
-    let kind_start = text.find("\"kind\":\"").map(|i| i + 8)?;
-    let rest = &text[kind_start..];
-    let end = rest.find('"')?;
-    Some((rest[..end].to_owned(), None))
-}
-
-/// A whitelisted refusal from the transport, routed to the live state: the
-/// current folder and the last good listing survive (walk 221).
-pub fn perform_refused(typed: bool, kind: &str, banned_root: Option<String>) {
-    if let Some(r) = refusal_from(typed, kind, banned_root) {
-        apply(&mut state(), Effect::Refused(r));
-    }
-}
-
-/// The live browser card, for the production mount.
-pub fn lower_mounted() -> Result<String, String> {
-    let ui = state();
-    lower_screen(ui.screen, &ui)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    #[test]
+    fn only_the_newest_listing_may_fold_its_answer_in() {
+        let first = begin_request();
+        let second = begin_request();
+        assert!(!is_latest(first), "a superseded answer is dropped");
+        assert!(is_latest(second));
+    }
+
     fn listing() -> BrowserUi {
         BrowserUi {
-            path: "/srv/fixture".into(),
+            path: "/home/user/code".into(),
             entries: vec![
-                Entry { name: "Projects".into(), path: "/srv/fixture/Projects".into() },
-                Entry { name: "archive".into(), path: "/srv/fixture/archive".into() },
+                Entry { name: "octos".into(), path: "/home/user/code/octos".into() },
+                Entry { name: "octoscode-app".into(), path: "/home/user/code/octoscode-app".into() },
             ],
-            hidden_skipped: 2,
+            parent: Some("/home/user".into()),
+            hidden_skipped: 3,
             ..Default::default()
         }
     }
 
     #[test]
     fn the_hidden_count_is_reported_not_swallowed() {
-        // walk 220 pins "2 hidden folders aren't shown."
-        let n = listing().notices();
-        assert!(n.iter().any(|s| s == "2 hidden folders aren't shown."), "{n:?}");
+        assert_eq!(listing().notices(), vec!["3 hidden by the server".to_owned()]);
     }
 
     #[test]
     fn truncation_is_reported_before_the_hidden_count() {
-        // workspace-browse.ts:246-256 — truncated first, then hidden.
         let mut ui = listing();
         ui.truncated = true;
-        ui.entries.truncate(1);
         let n = ui.notices();
-        assert_eq!(n[0], "Only the first 1 folders are shown.");
-        assert_eq!(n[1], "2 hidden folders aren't shown.");
-    }
-
-    #[test]
-    fn no_hidden_count_means_no_notice() {
-        let mut ui = listing();
-        ui.hidden_skipped = 0;
-        assert!(ui.notices().is_empty());
+        assert_eq!(n[0], "Only the first 2 folders are shown.");
+        assert_eq!(n[1], "3 hidden by the server");
     }
 
     #[test]
     fn up_is_disabled_at_the_root() {
-        // walk 220
         let mut ui = listing();
-        assert!(ui.can_go_up());
-        ui.path = "/".into();
-        assert!(!ui.can_go_up());
-        assert_eq!(ui.up(), None);
-        // And the tap stays dead there rather than navigating nowhere.
-        let mut ui2 = listing();
-        ui2.path = "/".into();
-        assert!(apply(&mut ui2, Effect::Up).is_none());
+        assert_eq!(apply(&mut ui, Effect::Up), Some(Effect::List(Some("/home/user".into()))));
+        let mut root = BrowserUi { path: "/".into(), ..Default::default() };
+        assert!(!root.can_go_up());
+        assert_eq!(apply(&mut root, Effect::Up), None);
     }
 
     #[test]
-    fn up_walks_one_level() {
+    fn picking_a_row_fills_the_path_box_and_a_second_tap_opens_it() {
+        // walk 223, then walk 220's drill-in.
         let mut ui = listing();
-        assert_eq!(ui.up().as_deref(), Some("/srv"));
-        ui.path = "/srv".into();
-        assert_eq!(ui.up().as_deref(), Some("/"));
+        assert_eq!(apply(&mut ui, Effect::Enter(1)), None, "picking must not navigate");
+        assert_eq!(ui.path_draft, "/home/user/code/octoscode-app");
+        assert_eq!(ui.path, "/home/user/code", "the browser stays in its parent");
+        assert_eq!(
+            apply(&mut ui, Effect::Enter(1)),
+            Some(Effect::List(Some("/home/user/code/octoscode-app".into())))
+        );
     }
 
     #[test]
     fn a_refusal_keeps_the_folder_we_were_standing_in() {
-        // walk 221 — the current folder is unchanged.
+        // walk 221
         let mut ui = listing();
         let r = refusal_from(true, "workspace_list_permission_denied", None).expect("typed");
-        apply(&mut ui, Effect::Refused(r));
-        assert_eq!(ui.path, "/srv/fixture");
+        ui.refuse(r, Some("/private".into()));
+        assert_eq!(ui.path, "/home/user/code");
         assert_eq!(ui.entries.len(), 2);
         assert_eq!(ui.screen, Screen::Refused);
+        assert_eq!(apply(&mut ui, Effect::Back), None, "back needs no request");
+        assert_eq!(ui.screen, Screen::Browser);
+        assert_eq!(ui.path_draft, "/home/user/code");
     }
 
     #[test]
     fn a_refusal_shows_bounded_copy_never_the_servers_prose() {
-        // walk 221 pins both halves, and asserts `workspace_list` is absent.
-        let (head, next) = refusal_copy("workspace_list_permission_denied");
-        assert_eq!(head, "Octos can't open that folder.");
-        assert_eq!(next, "Pick a folder the Octos server is allowed to read.");
-        for k in LIST_REFUSAL_KINDS.iter().chain(CREATE_REFUSAL_KINDS) {
+        for k in LIST_REFUSAL_KINDS.iter().chain(CREATE_REFUSAL_KINDS).chain([&PROFILE_LOCAL_UNSUPPORTED, &UNKNOWN]) {
             let (h, n) = refusal_copy(k);
             assert!(!h.is_empty() && !n.is_empty(), "{k} needs a next step");
-            assert!(!h.contains("workspace_list"), "{k} leaks the server kind");
-            assert!(!h.contains("workspace_create"), "{k} leaks the server kind");
+            assert!(!h.contains("workspace_") && !n.contains("workspace_"), "{k} leaks the kind");
         }
     }
 
     #[test]
     fn an_untyped_error_with_a_matching_kind_is_not_a_refusal() {
-        // workspace-browse.ts:105-110 — identity, not duck-typing.
         assert!(refusal_from(false, "workspace_list_permission_denied", None).is_none());
         assert!(refusal_from(true, "not_a_real_kind", None).is_none());
+        let e = octoscode_client::ClientError::Transport { method: "x".into(), reason: "\"kind\":\"workspace_list_permission_denied\"".into() };
+        assert_eq!(classify(&e).kind, UNKNOWN, "never duck-typed from text");
     }
 
     #[test]
-    fn banned_root_rides_only_a_root_escape() {
-        let r = refusal_from(true, "workspace_list_root_escape", Some("/etc".into()))
-            .expect("typed");
-        assert_eq!(r.banned_root.as_deref(), Some("/etc"));
-        // A non-escape kind must NOT be able to smuggle a path through.
-        let r2 = refusal_from(true, "workspace_list_permission_denied", Some("/etc".into()))
-            .expect("typed");
-        assert_eq!(r2.banned_root, None);
-    }
-
-    #[test]
-    fn picking_a_row_fills_the_path_box_without_navigating() {
-        // walk 223
-        let mut ui = listing();
-        let p = apply(&mut ui, Effect::Enter(0));
-        assert!(p.is_none(), "picking must not navigate");
-        assert_eq!(ui.path_draft, "/srv/fixture/Projects");
-        assert_eq!(ui.path, "/srv/fixture", "the browser stays in its parent");
-        assert_eq!(ui.selected.as_deref(), Some("Projects"));
+    fn a_typed_rpc_refusal_is_read_from_its_data_kind() {
+        let e = octoscode_client::ClientError::Rpc {
+            method: "onboarding/workspace_list".into(),
+            error: octos_core::ui_protocol::RpcError {
+                code: -32602,
+                message: "workspace_list: permission denied at /private".into(),
+                data: Some(serde_json::json!({"kind": "workspace_list_permission_denied", "banned_root": "/private"})),
+            },
+        };
+        let r = classify(&e);
+        assert_eq!(r.kind, "workspace_list_permission_denied");
+        assert_eq!(r.banned_root, None, "banned_root rides only a root escape");
     }
 
     #[test]
     fn a_new_folder_name_is_prevalidated_before_any_request() {
-        // walk 164
-        let mut ui = BrowserUi::default();
+        let mut ui = listing();
         ui.new_folder = "a/b".into();
-        assert!(ui.name_problem().is_some());
-        let t = apply(&mut ui, Effect::Create(String::new()));
-        assert!(t.is_none(), "an invalid name must not reach the transport");
+        assert_eq!(apply(&mut ui, Effect::Create { parent: String::new(), name: String::new() }), None);
+        assert!(ui.name_problem.is_some());
+        for bad in ["", ".", "..", " x", "x\u{7}"] {
+            assert!(validate_folder_name(bad).is_some(), "{bad:?}");
+        }
         ui.new_folder = "notes".into();
-        assert!(ui.name_problem().is_none());
+        assert_eq!(
+            apply(&mut ui, Effect::Create { parent: String::new(), name: String::new() }),
+            Some(Effect::Create { parent: "/home/user/code".into(), name: "notes".into() })
+        );
     }
 
     #[test]
     fn the_browse_gate_fails_closed() {
-        // workspace-browse.ts:126-135
         assert!(!BrowserUi::browse_visible(false));
         assert!(BrowserUi::browse_visible(true));
+    }
+
+    #[test]
+    fn crumbs_walk_from_the_root() {
+        let c = BrowserUi::crumbs("/home/user/code");
+        assert_eq!(c.iter().map(|(l, _)| l.as_str()).collect::<Vec<_>>(), ["/", "home", "user", "code"]);
+        assert_eq!(c[2].1, "/home/user");
     }
 
     #[test]

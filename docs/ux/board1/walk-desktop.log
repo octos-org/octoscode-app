@@ -1,0 +1,30 @@
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: b1.open.pairing
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: pair.submit
+[I] apps/octoscode/module/src/screens/board1.rs:912:27 - [octoscode] pairing: claim refused (pair_code_unknown)
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: pair.back
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: pair.submit
+[I] apps/octoscode/module/src/screens/board1.rs:912:27 - [octoscode] pairing: claim refused (pair_not_supported)
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: pair.back
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: pair.submit
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: pair.cancel
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: pair.submit
+[I] apps/octoscode/module/src/screens/board1.rs:911:26 - [octoscode] pairing: claim accepted
+[I] apps/octoscode/module/src/screens/board1.rs:775:13 - [octoscode] pairing: connected — the paired token is live
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: b1.open.connection
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: pair.back
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: b1.open.provider
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: provider.save
+[I] apps/octoscode/module/src/screens/board1.rs:944:21 - [octoscode] board1 provider: profile/llm/test: API error (deepseek@api/deepseek-v4-flash, api_style=openai_chat_completions): authentication failed — HTTP 401 - {"error":{"message":"Authentication Fails, Your api key: ****robe is invalid (request_id: ec542b6a-935e-4462-b770-5ffb118b8427)","type":"authentication_error","param":null,"code":"invalid_request_erro
+[I] apps/octoscode/module/src/screens/board1.rs:912:27 - [octoscode] pairing: claim refused (pair_unreachable)
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: provider.retry
+[I] apps/octoscode/module/src/screens/board1.rs:933:21 - [octoscode] board1 provider: saved (profile/llm/upsert applied)
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: b1.open.add
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: browser.enter.1
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: browser.crumb.2
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: browser.go
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: browser.back
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: browser.close
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: picker.browse
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: browser.enter.0
+[I] apps/octoscode/module/src/lib.rs:2112:13 - [octoscode] board1 action: browser.use
+[I] apps/octoscode/module/src/screens/board1.rs:1002:21 - [octoscode] board1: new session octoscode:01a0fa17-3fa5-757b-91ea-f1fca2a67e8f in the chosen workspace

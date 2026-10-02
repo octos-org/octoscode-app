@@ -1,59 +1,57 @@
-//! #D1 — the provider editor (atlas screens p4-06/07), one owner per action id.
+//! #D1/#A2 — the provider editor (atlas board 1 screens p4-06/07), one owner
+//! per action id.
 //!
 //! The web's contract is `features/models/model-settings.ts` plus the spec
-//! `e2e/model-management.spec.ts`. Three properties the editor must keep, each
-//! with its citation:
+//! `e2e/model-management.spec.ts`. The properties the editor keeps, each with
+//! its citation:
 //!
-//! 1. **The draft is kept when the provider rejects the key** — walk row 88
-//!    pins that after a failed Test connection the family id, model id, route
-//!    and the typed key all still hold their values
-//!    (`model-management.spec.ts:182-196`), and the app does the same at
-//!    `App.tsx:634` ("the failure is surfaced, never swallowed, and the draft is
-//!    kept").
-//! 2. **The key never reaches the page text** — the spec asserts the rejected
-//!    credential appears nowhere in `document.documentElement.textContent`
-//!    (`:190-201`). The draft therefore holds no raw credential field at all
-//!    (`model-settings.ts:55`: "A provider/model draft deliberately contains no
-//!    raw credential field"); ours does the same.
-//! 3. **The failure is redacted, not echoed** — `redactModelSettingsError`
-//!    (`model-settings.ts:523-543`) replaces the secret itself (raw *and*
-//!    URL-encoded), then any `api_key: …` / `Bearer …` run, then truncates to
-//!    1000 chars. [`redact`] is that function, the same three passes.
-//!
-//! The draft's credential is read only when a request is built and never stored
-//! in a copy id, so the editor's visible state is the redaction's guarantee.
-
+//! 1. **Save tests first, with ONE request** — `save()` builds the provision
+//!    params once, runs `profile/llm/test`, and only on a passing test sends
+//!    `profile/llm/upsert` with `set_primary` (`model-settings.ts:345-380`:
+//!    "Construct this ONCE. Test and save therefore cannot drift").
+//! 2. **The draft is kept when the provider rejects the key** — walk row 88:
+//!    after a failed test the family, model, route and the typed key all still
+//!    hold their values (`model-management.spec.ts:182-196`).
+//! 3. **The key never reaches the page text** — it is held in the draft and in
+//!    the password field's value only (the instrument shows `t: "•••"` and
+//!    keeps the value in `val`, like an `<input>` value outside
+//!    `textContent`); no label, copy id or binding ever carries it.
+//! 4. **The failure is redacted, not echoed** — [`redact`] is the web's
+//!    `redactModelSettingsError` (`model-settings.ts:523-543`); and the screen
+//!    shows the board's own sentence, never the server's prose.
+use octoscode_client::domains::profile::{
+    LlmCatalog, LlmCatalogParams, LlmInferenceOverrides, LlmProvisionParams, LlmRouteSelection,
+    LlmSelection, LlmTest, LlmUpsert, ProfileLlmList, ProfileLlmListParams,
+};
 use serde_json::Value;
 
-/// The alert copy the spec pins verbatim
-/// (`model-management.spec.ts:181-183`).
+use super::board1::{Layout, Ui};
+use super::board1_kit::{self as kit, Field, Text};
+
+/// The web's own alert copy (`model-management.spec.ts:181-183`), shown when a
+/// failure is not a key rejection.
 pub const TEST_FAILED: &str =
     "Connection failed. Check the endpoint, protocol, model, and credential.";
 
 /// The web truncates a redacted message at this length (`model-settings.ts:542`).
 const MAX_REDACTED: usize = 1_000;
 
-/// The placeholder for a stored-but-not-shown credential.
-const DOTS: &str = "••••••••••••••••••";
-
 /// The two editor cards (design/stage-b/phase4/cards).
 pub const CARDS: &[(&str, &str)] = &[("provider", "p4-06"), ("provider_rejected", "p4-07")];
 
-/// Which provider-editor card is mounted.
+/// Which provider-editor card is showing.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub enum Screen {
     /// `p4-06` — the plain editor.
     #[default]
     Editor,
-    /// `p4-07` — the same editor after the provider rejected the key.
+    /// `p4-07` — the same editor after the provider rejected the draft.
     Rejected,
 }
 
 impl Screen {
-    pub const ALL: [(Screen, &'static str); 2] =
-        [(Screen::Editor, "p4-06"), (Screen::Rejected, "p4-07")];
+    pub const ALL: [(Screen, &'static str); 2] = [(Screen::Editor, "p4-06"), (Screen::Rejected, "p4-07")];
 
-    /// The card directory under `design/stage-b/phase4/cards`.
     pub fn card_dir(self) -> &'static str {
         Self::ALL
             .iter()
@@ -63,20 +61,14 @@ impl Screen {
     }
 }
 
-/// Redact a provider failure the way the web's `redactModelSettingsError` does
-/// (`model-settings.ts:523-543`): the secret itself — raw and URL-encoded — then
-/// any `api_key:`/`api-key`/`apikey` run, then any `Bearer …` run, then a
-/// 1000-char cut.
+/// Redact a provider failure the way the web's `redactModelSettingsError`
+/// does (`model-settings.ts:523-543`): the secret itself — raw and URL-encoded
+/// — then any `api_key:`/`api-key`/`apikey` run, then any `Bearer …` run, then
+/// a 1000-char cut.
 pub fn redact(reason: &str, secret: &str) -> String {
     let mut message = reason.to_owned();
     let trimmed = secret.trim();
-    for candidate in [Some(secret), Some(trimmed)]
-        .into_iter()
-        .flatten()
-        .filter(|c| !c.is_empty())
-    {
-        // A `HashSet`-like dedup so a secret that equals its own trimmed form is
-        // not replaced twice (the web's `new Set(candidates)`, :531).
+    for candidate in [Some(secret), Some(trimmed)].into_iter().flatten().filter(|c| !c.is_empty()) {
         message = message.replace(candidate, "[redacted]");
     }
     if !trimmed.is_empty() {
@@ -94,10 +86,7 @@ pub fn redact(reason: &str, secret: &str) -> String {
     }
 }
 
-/// The `api_key:`/`api-key=`/`apikey =` pass (`model-settings.ts:540`): the key
-/// name and its separator survive, the following non-space run becomes
-/// `[redacted]`. No regex crate is available here, so the three spellings the
-/// web's `/api[_-]?key\s*[:=]\s*[^\s,;]+/gi` matches are scanned by hand.
+/// The `api_key:`/`api-key=`/`apikey =` pass (`model-settings.ts:540`).
 fn redact_keyed_runs(s: &str) -> String {
     const NAMES: [&str; 3] = ["apikey", "api_key", "api-key"];
     let bytes = s.as_bytes();
@@ -107,7 +96,6 @@ fn redact_keyed_runs(s: &str) -> String {
     'outer: while i < s.len() {
         for name in NAMES {
             if lower[i..].starts_with(name) {
-                // The name must not be the tail of a longer word.
                 let before_ok = i == 0 || !bytes[i - 1].is_ascii_alphanumeric();
                 if !before_ok {
                     continue;
@@ -138,8 +126,6 @@ fn redact_keyed_runs(s: &str) -> String {
                 }
             }
         }
-        // Advance one whole char (the strings here are ASCII-delimited by the
-        // byte scan above, but multi-byte copy must not be split).
         let ch = s[i..].chars().next().expect("i is a char boundary");
         out.push(ch);
         i += ch.len_utf8();
@@ -147,151 +133,359 @@ fn redact_keyed_runs(s: &str) -> String {
     out
 }
 
-/// The `Bearer <token>` pass (`model-settings.ts:541`).
-    fn redact_bearer(s: &str) -> String {
-        // The scan and the slice must run over the SAME string: lowercasing can
-        // change byte lengths for non-ASCII, so a position found in a lowercased
-        // copy is not a position in the original.
-        //
-        // #D1t: the window is taken with `get(..)`, NOT `[..7]`. The RECORDED
-        // `profile/llm/test` 401 (r29a-onboarding-a6ea8505.jsonl line 9) carries
-        // an em dash ("—", 3 bytes), so a hard `[..7]` slice lands mid-character
-        // and PANICS — reproduced standalone, not theoretical. A `None` window
-        // (a short tail) is simply not a "bearer " prefix.
-        let mut out = String::with_capacity(s.len());
-        let mut i = 0usize;
-        while i < s.len() {
-            let tail = &s[i..];
-            let is_bearer = tail
-                .get(..7)
-                .is_some_and(|w| w.eq_ignore_ascii_case("bearer "));
-            if !is_bearer {
-                let ch = tail.chars().next().expect("i is a char boundary");
-                out.push(ch);
-                i += ch.len_utf8();
-                continue;
-            }
-        let after = 7usize; // "bearer ".len() == 7
-        out.push_str(&s[i..i + after]);
-        let token = &s[i + after..];
+/// The `Bearer <token>` pass (`model-settings.ts:541`). The 7-byte window is
+/// taken with `get(..)`: the RECORDED 401 (r29a line 10) carries an em dash,
+/// so a hard slice would land mid-character.
+fn redact_bearer(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    let mut i = 0usize;
+    while i < s.len() {
+        let tail = &s[i..];
+        let is_bearer = tail.get(..7).is_some_and(|w| w.eq_ignore_ascii_case("bearer "));
+        if !is_bearer {
+            let ch = tail.chars().next().expect("i is a char boundary");
+            out.push(ch);
+            i += ch.len_utf8();
+            continue;
+        }
+        out.push_str(&s[i..i + 7]);
+        let token = &s[i + 7..];
         let end = token
             .find(|c: char| c.is_whitespace() || c == ',' || c == ';')
             .unwrap_or(token.len());
         out.push_str("[redacted]");
-        i += after + end;
+        i += 7 + end;
     }
     out
 }
 
-/// Minimal `encodeURIComponent` for the redaction pass — the web also tries the
-/// encoded form of the secret (`:534`).
+/// Minimal `encodeURIComponent` for the redaction pass (`:534`).
 fn percent_encode(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for b in s.bytes() {
         match b {
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'!' | b'~' | b'*'
-            | b'\'' | b'(' | b')' => out.push(b as char),
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'!' | b'~' | b'*' | b'\'' | b'(' | b')' => {
+                out.push(b as char)
+            }
             _ => out.push_str(&format!("%{b:02X}")),
         }
     }
     out
 }
 
-/// The editor's live draft.
-///
-/// Mirrors `ModelSettingsDraft` (`model-settings.ts:55-64`): the *values* are
-/// held here so a failed test can keep them (row 88), but the credential is a
-/// separate field that is never projected into a copy id and never returned by
-/// [`Screen`]'s bindings.
-#[derive(Debug, Clone, Default, PartialEq)]
+/// The HTTP status a provider failure names ("… HTTP 401 - …" in the recorded
+/// a6ea8505 reply), so the board's "(401)" is the server's number, not a guess.
+pub fn http_status(reason: &str) -> Option<u16> {
+    let at = reason.find("HTTP ")?;
+    let digits: String = reason[at + 5..].chars().take_while(|c| c.is_ascii_digit()).collect();
+    digits.parse().ok().filter(|n: &u16| (100..600).contains(n))
+}
+
+/// Whether a failure is the provider refusing the CREDENTIAL (401/403 or the
+/// provider's own "authentication" wording) — p4-07's red key outline.
+pub fn is_key_rejection(reason: &str) -> bool {
+    matches!(http_status(reason), Some(401) | Some(403))
+        || reason.to_ascii_lowercase().contains("authentication")
+}
+
+/// A family's display label and official base URL (the board's "DeepSeek ·
+/// Official API" / "https://api.deepseek.com/v1"). A route WITHOUT its own
+/// `base_url` uses the provider's official endpoint, so the field shows it and
+/// the save omits `base_url` unless the operator changed it.
+pub fn family_meta(family: &str) -> (String, &'static str) {
+    let (label, url) = match family {
+        "deepseek" => ("DeepSeek", "https://api.deepseek.com/v1"),
+        "openai" => ("OpenAI", "https://api.openai.com/v1"),
+        "anthropic" => ("Anthropic", "https://api.anthropic.com"),
+        "moonshot" | "moonshot-coding" => ("Moonshot", "https://api.moonshot.ai/v1"),
+        "openrouter" => ("OpenRouter", "https://openrouter.ai/api/v1"),
+        "zhipu" => ("Zhipu", "https://open.bigmodel.cn/api/paas/v4"),
+        "zai" | "zai-coding" => ("Z.ai", "https://api.z.ai/api/paas/v4"),
+        "gemini" => ("Gemini", "https://generativelanguage.googleapis.com/v1beta"),
+        "groq" => ("Groq", "https://api.groq.com/openai/v1"),
+        "dashscope" => ("DashScope", "https://dashscope.aliyuncs.com/compatible-mode/v1"),
+        "minimax" | "minimax-cn" => ("MiniMax", "https://api.minimax.io/v1"),
+        _ => ("", ""),
+    };
+    let label = if label.is_empty() {
+        let mut c = family.chars();
+        c.next()
+            .map(|f| f.to_uppercase().collect::<String>() + c.as_str())
+            .unwrap_or_default()
+    } else {
+        label.to_owned()
+    };
+    (label, url)
+}
+
+/// Which editor operations the server advertises, each gated on its OWN
+/// method and failing closed (`modelSettingsCapabilities`,
+/// `model-settings.ts:156-170`; `supportsMethod`, client `interaction.ts:14`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct Caps {
+    /// `profile/llm/list` — the configured routes.
+    pub read: bool,
+    /// `profile/llm/catalog` — the families and their models.
+    pub catalog: bool,
+    /// `profile/llm/test`.
+    pub test: bool,
+    /// `profile/llm/upsert`.
+    pub save: bool,
+}
+
+impl Caps {
+    pub const ALL: Caps = Caps { read: true, catalog: true, test: true, save: true };
+
+    /// From the open reply's `supported_methods` (the store's config domain).
+    pub fn from_methods(methods: &[String]) -> Caps {
+        let has = |m: &str| methods.iter().any(|x| x == m);
+        Caps {
+            read: has("profile/llm/list"),
+            catalog: has("profile/llm/catalog"),
+            test: has("profile/llm/test"),
+            save: has("profile/llm/upsert"),
+        }
+    }
+
+    /// Save is a test then an upsert, so it needs both (`save` begins only
+    /// when `capabilities.test && capabilities.save`, `model-settings.ts:349`).
+    pub fn can_save(&self) -> bool {
+        self.test && self.save
+    }
+}
+
+/// The web's notice when mutation is not advertised (`ModelManagementSection.tsx`).
+pub const READ_ONLY: &str = "Provider configuration is read-only on this server.";
+
+/// The editor's live draft (`ModelSettingsDraft`, `model-settings.ts:55-64`):
+/// the values are held so a failed test can keep them (row 88); the credential
+/// is a separate field that no copy id and no binding ever returns.
+#[derive(Clone, Default, PartialEq)]
 pub struct ProviderUi {
-    /// "Provider / family ID" — `deepseek`.
+    /// The provider family id — `deepseek`.
     pub family: String,
-    /// "Model ID" — the default the spec expects the form to pre-fill.
+    /// The family's display label — "DeepSeek".
+    pub family_label: String,
+    /// The default model id (the one `(default)` marks).
     pub model: String,
-    /// "Route ID" — the default the spec expects the form to pre-fill.
+    /// The route id — `deepseek` (the official API) or a catalog endpoint id.
     pub route: String,
-    /// The Base URL, shown on the card as a plain field.
+    /// The route's label — "Official API".
+    pub route_label: String,
+    /// The Name field's text ("DeepSeek · Official API").
+    pub name: String,
+    /// The Base URL field's text.
     pub base_url: String,
-    /// The typed key. Held so a rejected draft keeps it (row 88), never shown.
+    /// The family's official endpoint (sent only when `base_url` differs).
+    pub default_base_url: String,
+    pub api_key_env: Option<String>,
+    pub api_type: Option<String>,
+    /// The typed key. Held so a rejected draft keeps it (row 88); shown only
+    /// as the password field's masked value.
     pub key: String,
-    /// The three model rows, top to bottom, with the default first
-    /// (`atlas-prompt.md:40-41`).
+    /// The profile already stores a key for this route (`has_api_key`): the
+    /// field is blank and masked (walk 87: "editing shows a blank masked key").
+    pub key_stored: bool,
+    /// The eye toggle: the key field shows its value in the clear.
+    pub key_revealed: bool,
+    /// The model ids the route offers, top to bottom.
     pub models: Vec<String>,
     /// Which model row is the default.
     pub default_model: Option<String>,
-    /// The redacted failure, if the last test failed. Never the raw prose.
+    /// The redacted failure, if the last test failed. Never shown verbatim.
     pub error: Option<String>,
+    /// The HTTP status the failure named (p4-07 "(401)").
+    pub error_status: Option<u16>,
     /// The key field is outlined red (p4-07).
     pub key_rejected: bool,
+    /// A save/test is in flight.
+    pub busy: bool,
+    /// The profile the editor writes (the session's own; `None` = server default).
+    pub profile_id: Option<String>,
+    /// The operator changed a field (a late load must not overwrite it).
+    pub edited: bool,
+    /// What the server lets this editor do (set when it opens).
+    pub caps: Caps,
     /// Where we are.
     pub screen: Screen,
 }
 
+impl std::fmt::Debug for ProviderUi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ProviderUi")
+            .field("family", &self.family)
+            .field("route", &self.route)
+            .field("model", &self.model)
+            .field("models", &self.models)
+            .field("key", &format_args!("<{} chars>", self.key.chars().count()))
+            .field("screen", &self.screen)
+            .finish()
+    }
+}
+
 impl ProviderUi {
-    /// A new draft with the defaults the spec pins (`:184-187`:
-    /// model `deepseek-chat`, route `openrouter`).
+    /// A new "Add provider" draft with the defaults the spec pins
+    /// (`model-management.spec.ts:184-187`: model `deepseek-chat`, route
+    /// `openrouter`) and the board's three rows.
     pub fn new(family: &str) -> Self {
+        let (family_label, default_url) = family_meta(family);
         Self {
             family: family.to_owned(),
+            family_label: family_label.clone(),
             model: "deepseek-chat".to_owned(),
             route: "openrouter".to_owned(),
-            base_url: "https://api.deepseek.com/v1".to_owned(),
+            route_label: "Official API".to_owned(),
+            name: format!("{family_label} \u{b7} Official API"),
+            base_url: default_url.to_owned(),
+            default_base_url: default_url.to_owned(),
             models: vec![
-                "deepseek-v4-flash (default)".to_owned(),
+                "deepseek-v4-flash".to_owned(),
                 "deepseek-v4".to_owned(),
                 "deepseek-chat".to_owned(),
             ],
             default_model: Some("deepseek-v4-flash".to_owned()),
+            caps: Caps::ALL,
             screen: Screen::Editor,
             ..Default::default()
         }
     }
 
-    /// The key as the UI may show it. A rejected draft keeps the key *value*
-    /// (row 88) but shows dots — the raw key is never a copy id
-    /// (`model-management.spec.ts:190-201`).
+    /// The key as the UI may describe it: dots, or nothing.
     pub fn key_display(&self) -> &'static str {
-        if self.key.is_empty() {
+        if self.key.is_empty() && !self.key_stored {
             ""
         } else {
-            DOTS
+            "••••••••••••••••••"
         }
     }
 
-    /// A failure came back: redact it against the live key, keep the draft, and
-    /// move to p4-07. This is the single place a refusal enters the editor.
+    /// A failure came back: redact it against the live key, keep the draft,
+    /// and move to p4-07. The single place a refusal enters the editor.
     pub fn reject(&mut self, raw_reason: &str) {
-        self.error = Some(redact(raw_reason, &self.key));
-        self.key_rejected = true;
+        let safe = redact(raw_reason, &self.key);
+        self.error_status = http_status(&safe);
+        self.key_rejected = is_key_rejection(&safe);
+        self.error = Some(safe);
+        self.busy = false;
         self.screen = Screen::Rejected;
-        // Property 1: the draft survives untouched. The fields are only ever
-        // written by `Input`, so this arm deliberately clears nothing but the
-        // screen's error state.
     }
 
     /// The test passed: drop the error, leave the draft alone.
     pub fn accept(&mut self) {
         self.error = None;
+        self.error_status = None;
         self.key_rejected = false;
+        self.busy = false;
         self.screen = Screen::Editor;
+    }
+
+    /// The board's p4-07 sentence for the current failure (never the raw text).
+    pub fn failure_line(&self) -> String {
+        if self.key_rejected {
+            match self.error_status {
+                Some(n) => format!("The provider rejected this key ({n})."),
+                None => "The provider rejected this key.".to_owned(),
+            }
+        } else {
+            TEST_FAILED.to_owned()
+        }
+    }
+
+    /// Seed the editor from the profile's configured primary route and the
+    /// catalog's models for its family (`profile/llm/list` + `catalog`).
+    pub fn seed(
+        &mut self,
+        profile_id: Option<String>,
+        primary: Option<&octoscode_client::domains::profile::ProfileLlmConfiguredModel>,
+        catalog_models: &[String],
+    ) {
+        if self.edited {
+            return;
+        }
+        self.profile_id = profile_id;
+        if let Some(p) = primary {
+            let (label, default_url) = family_meta(&p.family_id);
+            self.family = p.family_id.clone();
+            self.family_label = label;
+            self.model = p.model_id.clone();
+            self.default_model = Some(p.model_id.clone());
+            self.route = p.route.route_id.clone().unwrap_or_else(|| p.family_id.clone());
+            self.route_label = p.route.label.clone().unwrap_or_else(|| "Official API".to_owned());
+            self.name = format!("{} \u{b7} {}", self.family_label, self.route_label);
+            self.default_base_url = default_url.to_owned();
+            self.base_url = p.route.base_url.clone().unwrap_or_else(|| default_url.to_owned());
+            self.api_key_env = p.route.api_key_env.clone();
+            self.api_type = p.route.api_type.clone();
+            self.key_stored = p.has_api_key;
+            let mut models: Vec<String> = catalog_models.to_vec();
+            if !models.contains(&p.model_id) {
+                models.insert(0, p.model_id.clone());
+            }
+            // The default first, the way the board lists it.
+            models.sort_by_key(|m| m != &p.model_id);
+            self.models = models;
+        }
+    }
+
+    /// The route label the Name field now names ("DeepSeek · Official API" →
+    /// "Official API"; a bare edit is the label itself).
+    pub fn label_from_name(&self) -> String {
+        let n = self.name.trim();
+        match n.split_once('\u{b7}') {
+            Some((_, label)) if !label.trim().is_empty() => label.trim().to_owned(),
+            _ if n.is_empty() => self.route_label.clone(),
+            _ => n.to_owned(),
+        }
+    }
+
+    /// The `profile/llm/{test,upsert}` params, built ONCE per save
+    /// (`model-settings.ts:345-353`). The default model row goes on the wire;
+    /// `base_url` only when it differs from the official endpoint; the key
+    /// only when one was typed (omitted = reuse the stored one,
+    /// `LlmProvisionParams::api_key`).
+    pub fn provision(&self, set_primary: bool) -> LlmProvisionParams {
+        let model = self
+            .default_model
+            .clone()
+            .or_else(|| self.models.first().cloned())
+            .unwrap_or_else(|| self.model.clone());
+        let base = self.base_url.trim();
+        let base_url = (!base.is_empty() && base != self.default_base_url).then(|| base.to_owned());
+        LlmProvisionParams {
+            profile_id: self.profile_id.clone(),
+            selection: LlmSelection {
+                family_id: self.family.clone(),
+                model_id: model,
+                route: LlmRouteSelection {
+                    route_id: Some(self.route.clone()),
+                    label: Some(self.label_from_name()),
+                    base_url,
+                    api_key_env: self.api_key_env.clone(),
+                    api_type: self.api_type.clone(),
+                },
+                inference: LlmInferenceOverrides::default(),
+            },
+            api_key: (!self.key.trim().is_empty()).then(|| self.key.trim().to_owned()),
+            set_primary: set_primary.then_some(true),
+        }
     }
 }
 
-/// The action ids these two cards emit, with what each one means.
+/// The action ids the two cards emit, with what each one means.
 pub const ACTIONS: &[(&str, &str)] = &[
-    ("provider.name", "the Name field's live text (p4-06/p4-07)"),
-    ("provider.url", "the Base URL field's live text (p4-06/p4-07)"),
-    ("provider.key", "the API key field's live text — read at dispatch, never shown"),
-    ("provider.key.reveal", "reveal/hide the masked key (the key stays masked on a refusal)"),
+    ("provider.name", "the Name field's live text (family · route label)"),
+    ("provider.url", "the Base URL field's live text"),
+    ("provider.key", "the API key field's live text — held in the draft, never shown"),
+    ("provider.key.reveal", "show/hide the key field's value (the eye)"),
     ("provider.model.0", "make the first listed model the default"),
     ("provider.model.1", "make the second listed model the default"),
     ("provider.model.2", "make the third listed model the default"),
-    ("prov.test", "test the connection with the draft's values"),
-    ("provider.save", "save the draft (profile/llm/upsert)"),
-    ("provider.cancel", "discard the editor and return to Settings"),
-    ("provider.retry", "re-test after a rejection, with the draft kept"),
-    ("provider.back", "step back from the rejected editor"),
+    ("provider.model.3", "make the fourth listed model the default"),
+    ("prov.test", "test the connection with the draft (profile/llm/test only)"),
+    ("provider.save", "Save: profile/llm/test, then profile/llm/upsert with set_primary"),
+    ("provider.retry", "Try again (p4-07): the same Save with the draft kept"),
+    ("provider.cancel", "discard the editor"),
+    ("provider.back", "the back chevron: discard the editor"),
 ];
 
 /// The ids [`resolve`] routes.
@@ -303,10 +497,11 @@ pub const ROUTED: &[&str] = &[
     "provider.model.0",
     "provider.model.1",
     "provider.model.2",
+    "provider.model.3",
     "prov.test",
     "provider.save",
-    "provider.cancel",
     "provider.retry",
+    "provider.cancel",
     "provider.back",
 ];
 
@@ -318,58 +513,43 @@ pub fn is_routed(id: &str) -> bool {
     ROUTED.contains(&id)
 }
 
-/// Declared but unrouted (the coverage contract every screen set carries).
 pub fn unrouted() -> Vec<&'static str> {
-    ACTIONS
-        .iter()
-        .map(|(a, _)| *a)
-        .filter(|a| !ROUTED.contains(a))
-        .collect()
+    ACTIONS.iter().map(|(a, _)| *a).filter(|a| !ROUTED.contains(a)).collect()
 }
 
 /// What an action means.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Effect {
-    /// Live text for a field.
     Input { field: &'static str, value: String },
     /// Make the model row at this index the default.
     SelectModel(usize),
-    /// Show/hide the masked key.
     ToggleKey,
-    /// Test the connection: `llm/test` with the draft's values AND its key.
+    /// `profile/llm/test` alone.
     Test,
-    /// Save the draft: `llm/upsert`.
+    /// `profile/llm/test` then `profile/llm/upsert`.
     Save,
     /// Leave the editor (no transport).
     Close,
     /// A redacted failure the caller just received.
     Failed { reason: String },
-    /// Unhandled id.
     Unhandled,
 }
 
-/// Route one action id to its effect. `value` carries an `input` payload.
+/// Route one action id to its effect. `value` carries an input payload.
 pub fn resolve(id: &str, value: Option<&str>) -> Effect {
+    let v = || value.unwrap_or_default().to_owned();
     match id {
-        "provider.name" => Effect::Input {
-            field: "prov.family",
-            value: value.unwrap_or_default().to_owned(),
-        },
-        "provider.url" => Effect::Input {
-            field: "provider.url",
-            value: value.unwrap_or_default().to_owned(),
-        },
-        "provider.key" => Effect::Input {
-            field: "provider.key",
-            value: value.unwrap_or_default().to_owned(),
-        },
+        "provider.name" => Effect::Input { field: "provider.name", value: v() },
+        "provider.url" => Effect::Input { field: "provider.url", value: v() },
+        "provider.key" => Effect::Input { field: "provider.key", value: v() },
         "provider.key.reveal" => Effect::ToggleKey,
         "provider.model.0" => Effect::SelectModel(0),
         "provider.model.1" => Effect::SelectModel(1),
         "provider.model.2" => Effect::SelectModel(2),
+        "provider.model.3" => Effect::SelectModel(3),
         "prov.test" => Effect::Test,
-        "provider.save" => Effect::Save,
-        "provider.cancel" | "provider.retry" | "provider.back" => Effect::Close,
+        "provider.save" | "provider.retry" => Effect::Save,
+        "provider.cancel" | "provider.back" => Effect::Close,
         _ => Effect::Unhandled,
     }
 }
@@ -379,81 +559,201 @@ pub fn apply(ui: &mut ProviderUi, effect: Effect) -> Option<Effect> {
     match effect {
         Effect::Input { field, value } => {
             match field {
-                "prov.family" => ui.family = value,
+                "provider.name" => ui.name = value,
                 "provider.url" => ui.base_url = value,
                 "provider.key" => ui.key = value,
                 _ => {}
             }
+            ui.edited = true;
             None
         }
         Effect::SelectModel(i) => {
             if let Some(m) = ui.models.get(i).cloned() {
-                // The row's label carries " (default)"; the value is the id.
-                let id = m.split(" (").next().unwrap_or(&m).to_owned();
-                ui.default_model = Some(id.clone());
-                // Exactly one row carries the marker: drop it everywhere, then
-                // put it on the picked row.
-                for row in ui.models.iter_mut() {
-                    if let Some(base) = row.strip_suffix(" (default)") {
-                        row.truncate(base.len());
-                    }
-                }
-                if let Some(cur) = ui.models.get_mut(i) {
-                    cur.push_str(" (default)");
-                }
+                ui.model = m.clone();
+                ui.default_model = Some(m);
+                ui.edited = true;
             }
             None
         }
-        Effect::ToggleKey => None,
+        Effect::ToggleKey => {
+            ui.key_revealed = !ui.key_revealed;
+            None
+        }
         Effect::Failed { reason } => {
             ui.reject(&reason);
             None
         }
-        transport @ (Effect::Test | Effect::Save) => Some(transport),
+        Effect::Test | Effect::Save => {
+            if ui.busy {
+                return None; // one request at a time (latest-request-wins)
+            }
+            // Each operation on its own advertised method, failing closed.
+            let allowed = if effect == Effect::Test { ui.caps.test } else { ui.caps.can_save() };
+            if !allowed {
+                return None;
+            }
+            ui.busy = true;
+            Some(effect)
+        }
         Effect::Close => Some(Effect::Close),
         Effect::Unhandled => None,
     }
 }
 
-/// The live copy overrides for one editor card.
-///
-/// The key is deliberately absent: `prov_key` is an *input* whose text the
-/// renderer draws as dots, and a rejected draft's key never becomes a copy id.
+// --------------------------------------------------------------------- views
+
+/// The native view of the editor (p4-06, or p4-07 after a rejection).
+pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
+    let mut v = Ui::default();
+    v.header(l, "b1_prov_back", "provider.back", "Edit provider");
+    // Mutation not advertised: the same editor, read-only, with the web's
+    // notice and a Close instead of Cancel/Save (fail closed).
+    let read_only = !ui.caps.can_save();
+    let field_gap = if l.phone { 14.0 } else { 10.0 };
+    v.push(kit::gap(if l.phone { 16.0 } else { 12.0 }));
+    v.push(Field::new("b1_prov_name", &ui.name).label("Name").placeholder("Provider · Route").read_only(read_only).dsl());
+    v.input("b1_prov_name", "provider.name");
+    v.push(kit::gap(field_gap));
+    v.push(
+        Field::new("b1_prov_url", &ui.base_url)
+            .label("Base URL")
+            .placeholder(&ui.default_base_url)
+            .read_only(read_only)
+            .dsl(),
+    );
+    v.input("b1_prov_url", "provider.url");
+    v.push(kit::gap(field_gap));
+    let eye = format!(
+        "View {{ width: 36 height: 36 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n{}{}}}\n",
+        kit::svg("", if ui.key_revealed { "b1_eye_off.svg" } else { "b1_eye.svg" }, 22.0),
+        kit::hit("b1_prov_eye", true)
+    );
+    let mut key = Field::new("b1_prov_key", &ui.key)
+        .label("API key")
+        .error(ui.screen == Screen::Rejected && ui.key_rejected)
+        .read_only(read_only)
+        .trailing(eye);
+    if !ui.key_revealed {
+        key = key.password();
+    }
+    // A stored key is never sent back to the client: the field stays blank and
+    // shows the board's mask as its placeholder (walk 87, "a blank masked
+    // key"); typing replaces it, an empty field keeps the stored key.
+    if ui.key.is_empty() && ui.key_stored {
+        key = key.placeholder("••••••••••••••••••••••").placeholder_ink();
+    } else if ui.key.is_empty() {
+        key = key.placeholder("Paste the provider's API key");
+    }
+    v.push(key.dsl());
+    v.input("b1_prov_key", "provider.key");
+    v.returns("b1_prov_key", "provider.save");
+    v.button("b1_prov_eye", "provider.key.reveal");
+    if ui.screen == Screen::Rejected {
+        v.push(kit::gap(8.0));
+        v.push(Text::new("b1_prov_error", &ui.failure_line()).px(15.0).color(kit::RED).fill().dsl());
+        v.push(kit::gap(2.0));
+        v.push(Text::new("b1_prov_kept", "Your draft is kept.").px(15.0).color(kit::RED).fill().one_line().dsl());
+    }
+    v.push(kit::gap(if l.phone { 18.0 } else { 14.0 }));
+    v.push(Text::new("", "Models").px(15.0).fill().one_line().dsl());
+    v.push(kit::gap(if l.phone { 8.0 } else { 6.0 }));
+    let rows: Vec<String> = ui
+        .models
+        .iter()
+        .take(4)
+        .enumerate()
+        .map(|(i, m)| {
+            let is_default = ui.default_model.as_deref() == Some(m.as_str());
+            let label = if is_default { format!("{m} (default)") } else { m.clone() };
+            let id = format!("b1_prov_model_{i}");
+            v.button(&id, &format!("provider.model.{i}"));
+            format!(
+                "View {{ width: Fill height: {} flow: Overlay\nView {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 14 right: 12}} spacing: 10\n{}{}}}\n{}}}\n",
+                if l.phone { 46 } else { 40 },
+                Text::new(&format!("b1_prov_model_t{i}"), &label).px(14.0).fill().one_line().dsl(),
+                kit::svg("", "b1_check_on.svg", 23.0),
+                kit::hit(&id, true)
+            )
+        })
+        .collect();
+    v.push(kit::list_card("b1_prov_models", &rows));
+    if read_only {
+        v.push(kit::gap(14.0));
+        v.push(kit::callout(false, true, READ_ONLY, None));
+        v.spacer(l, 16.0, 22.0);
+        v.push(kit::pill_outline("b1_prov_cancel", "Close", "Fill"));
+        v.button("b1_prov_cancel", "provider.cancel");
+        if l.phone {
+            v.push(kit::gap(24.0));
+        }
+        return v;
+    }
+    v.spacer(l, 16.0, 22.0);
+    let primary_label = match (ui.busy, ui.screen) {
+        (true, _) => "Saving\u{2026}",
+        (false, Screen::Rejected) => "Try again",
+        (false, Screen::Editor) => "Save",
+    };
+    let primary_action = if ui.screen == Screen::Rejected { "provider.retry" } else { "provider.save" };
+    v.push(format!(
+        "View {{ width: Fill height: Fit flow: Right spacing: 12\n{}{}}}\n",
+        kit::pill_outline("b1_prov_cancel", "Cancel", "Fill"),
+        kit::pill_primary("b1_prov_save", primary_label, "Fill")
+    ));
+    v.button("b1_prov_cancel", "provider.cancel");
+    v.button("b1_prov_save", primary_action);
+    if l.phone {
+        v.push(kit::gap(24.0));
+    }
+    v
+}
+
+/// The bindings this screen projects. The KEY ITSELF is never a binding.
+pub fn query(ui: &ProviderUi, id: &str) -> Option<Value> {
+    match id {
+        "prov.family" => Some(Value::String(ui.family.clone())),
+        "provider.url" => Some(Value::String(ui.base_url.clone())),
+        "prov.model" => Some(Value::String(ui.model.clone())),
+        "prov.route" => Some(Value::String(ui.route.clone())),
+        "prov.models" => Some(Value::Array(ui.models.iter().cloned().map(Value::String).collect())),
+        "prov.key_masked" => Some(Value::String(ui.key_display().to_owned())),
+        "prov.key_present" => Some(Value::Bool(!ui.key.is_empty() || ui.key_stored)),
+        "prov.error" => ui.error.clone().map(Value::String),
+        "prov.rejected" => Some(Value::Bool(ui.key_rejected)),
+        "prov.default_model" => ui.default_model.clone().map(Value::String),
+        _ => None,
+    }
+}
+
+/// The live copy overrides for one Stage-B editor card (the design artifact).
+/// The key is deliberately absent.
 pub fn copies(screen: Screen, ui: &ProviderUi) -> Vec<(String, String)> {
     let mut out: Vec<(String, String)> = Vec::new();
     let mut push = |id: &str, v: &str| out.push((id.to_owned(), v.to_owned()));
-    // #D1t: the ids are the card's `copy` NAMES, and every phase4 board-1 card
-    // declares them with a `_text` suffix (`p4-06/page.card:8,11,19-21`;
-    // `p4-07/page.card:8,11,16`). `l0_host::set_copy` looks for `copy <id> {`
-    // EXACTLY (`l0_host.rs:103`) — it does not suffix — so the bare
-    // instance names these used to push resolved to nothing and the card kept
-    // its authored text. `connect.rs` already uses this form
-    // (`server_field_text`, `t_error_text`), which is the corroboration.
-    push("prov_name_text", &ui.family);
+    push("prov_name_text", &ui.name);
     push("prov_url_text", &ui.base_url);
     for (i, m) in ui.models.iter().enumerate().take(3) {
-        push(&format!("t_model_{i}_text"), m);
+        let label = if ui.default_model.as_deref() == Some(m.as_str()) {
+            format!("{m} (default)")
+        } else {
+            m.clone()
+        };
+        push(&format!("t_model_{i}_text"), &label);
     }
     if screen == Screen::Rejected {
-        let err = ui
-            .error
-            .as_deref()
-            .map(|_| TEST_FAILED)
-            .unwrap_or(TEST_FAILED);
-        push("t_cal1_text", err);
+        push("t_cal1_text", &ui.failure_line());
     }
     out
 }
 
-/// Lower one editor card to the module's DSL (the `connect::lower_screen`
-/// chain, pointed at the phase4 board).
+/// Lower one Stage-B editor card — the accepted design artifact; the app
+/// mounts the native [`view`] (board1.rs explains why).
 pub fn lower_screen(screen: Screen, ui: &ProviderUi) -> Result<String, String> {
     let dir = crate::design::dir("stage-b/phase4/cards").join(screen.card_dir());
     let card_src = std::fs::read_to_string(dir.join("page.card"))
         .map_err(|e| format!("read {}: {e}", dir.join("page.card").display()))?;
     let data: Value = serde_json::from_str(
-        &std::fs::read_to_string(dir.join("page.data.json"))
-            .map_err(|e| format!("read page.data.json: {e}"))?,
+        &std::fs::read_to_string(dir.join("page.data.json")).map_err(|e| format!("read page.data.json: {e}"))?,
     )
     .map_err(|e| format!("parse page.data.json: {e}"))?;
     let card_src = crate::l0_host::apply_copies(&card_src, &copies(screen, ui));
@@ -463,158 +763,133 @@ pub fn lower_screen(screen: Screen, ui: &ProviderUi) -> Result<String, String> {
     octoscript_makepad::l0::inspectable(&mut tree);
     let dsl = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))
         .map_err(|e| format!("to_makepad_ui: {e}"))?;
-    // #35b item 1: the ONE card-tap wiring, keyed by the card DIRECTORY.
     Ok(super::taps::wire_card_events_dir(&dsl, &dir))
 }
 
-/// The bindings this screen projects.
-pub fn query(ui: &ProviderUi, id: &str) -> Option<Value> {
-    match id {
-        "prov.family" => Some(Value::String(ui.family.clone())),
-        "provider.url" => Some(Value::String(ui.base_url.clone())),
-        "prov.model" => Some(Value::String(ui.model.clone())),
-        "prov.route" => Some(Value::String(ui.route.clone())),
-        "prov.models" => Some(Value::Array(
-            ui.models.iter().cloned().map(Value::String).collect(),
-        )),
-        // The KEY ITSELF is never a binding: a binding is readable by anything
-        // holding the UI state, and the spec asserts the credential is nowhere
-        // in the page. Only its presence/mask is projected.
-        "prov.key_masked" => Some(Value::String(ui.key_display().to_owned())),
-        "prov.key_present" => Some(Value::Bool(!ui.key.is_empty())),
-        "prov.error" => ui.error.clone().map(Value::String),
-        "prov.rejected" => Some(Value::Bool(ui.key_rejected)),
-        "prov.default_model" => ui.default_model.clone().map(Value::String),
-        _ => None,
-    }
-}
+// ------------------------------------------------------------- live state
 
-/// The live editor state between taps (the web keeps it in component state
-// too). One `OnceLock`, the shape `workspace.rs:117-123` established.
-fn state() -> std::sync::MutexGuard<'static, ProviderUi> {
-    static STATE: std::sync::OnceLock<std::sync::Mutex<ProviderUi>> =
-        std::sync::OnceLock::new();
+/// The live editor state between taps (`workspace.rs:117-123` shape).
+pub fn state() -> std::sync::MutexGuard<'static, ProviderUi> {
+    static STATE: std::sync::OnceLock<std::sync::Mutex<ProviderUi>> = std::sync::OnceLock::new();
     STATE
         .get_or_init(|| std::sync::Mutex::new(ProviderUi::new("deepseek")))
         .lock()
-        .unwrap()
+        .unwrap_or_else(|e| e.into_inner())
 }
 
-/// Replace the live draft (the shell's action path / a family change).
+/// Replace the live draft.
 pub fn set(ui: ProviderUi) {
     *state() = ui;
 }
 
-/// Apply one action to the LIVE draft and return the transport effect. The
-/// production entry point; [`resolve`] + [`apply`] stay pure for the tests.
+/// Apply one action to the LIVE draft and return the transport effect.
 pub fn perform(id: &str, value: Option<&str>) -> Option<Effect> {
     apply(&mut state(), resolve(id, value))
 }
 
-/// #D1t — the transport half of the editor: issue `profile/llm/test` and
-/// `profile/llm/upsert` for the LIVE draft and route the answer back into the
-/// state (row 87/88). Before this the only production call site of this module
-/// was `lower_mounted` (`lib.rs:2459`), so `prov.test` / `provider.save` had
-/// no executor at all and RULES 3 scored them missing.
-///
-/// `profile_id` is `None` (the server's own default profile) and the draft's key
-/// is sent only here, never into a copy id — the redaction property the module
-/// header states (`provider.rs:23-24`). A failure goes through
-/// [`perform_failed`], which redacts BEFORE any copy can read it.
-pub async fn perform_transport(
-    conv: &crate::flow::Conversation,
-    effect: Effect,
-) -> Result<Value, String> {
-    let (method, draft) = {
-        let ui = state();
-        match &effect {
-            // `is_save`: only the upsert asks to become the primary.
-            Effect::Test => ("profile/llm/test", provision_params(&ui, false)),
-            Effect::Save => ("profile/llm/upsert", provision_params(&ui, true)),
-            other => {
-                return Err(format!(
-                    "screens/provider: {other:?} is not a transport effect"
-                ))
-            }
-        }
-    };
-    let raw = conv
-        .client()
-        .request(method, draft)
-        .await
-        .map_err(|e| format!("{method}: {e}"))?;
-    // The typed result, so a shape drift is caught here rather than painted.
-    if method == "profile/llm/test" {
-        let res: octoscode_client::domains::profile::LlmTestResult =
-            serde_json::from_value(raw.clone()).map_err(|e| format!("{method} result: {e}"))?;
-        if let Some(err) = res.error.as_deref().filter(|e| !e.is_empty()) {
-            perform_failed(err);
-            return Err(format!("{method}: {err}"));
-        }
+/// Seed the LIVE editor from the profile's configuration: `profile/llm/list`
+/// (`ProfileLlmConfigReadParams { profile_id }`, `onboarding.ts:98`) for the
+/// primary route and `profile/llm/catalog` for the family's models. Both
+/// through the TYPED client.
+pub async fn load(conv: &crate::flow::Conversation) -> Result<(), String> {
+    let client = conv.client();
+    let profile = Some(conv.profile()).filter(|p| !p.is_empty());
+    let caps = state().caps;
+    // Each read on its own advertised method (`refresh`, model-settings.ts:211).
+    let list = if caps.read {
+        client
+            .call::<ProfileLlmList>(ProfileLlmListParams { session_id: None, profile_id: profile.clone() })
+            .await
+            .map_err(|e| e.to_string())?
     } else {
-        let res: octoscode_client::domains::profile::LlmUpsertResult =
-            serde_json::from_value(raw.clone()).map_err(|e| format!("{method} result: {e}"))?;
-        if !res.applied {
-            perform_failed("the provider draft was not applied");
-            return Err(format!("{method}: not applied"));
+        Default::default()
+    };
+    let catalog = if caps.catalog { client.call::<LlmCatalog>(LlmCatalogParams {}).await.ok() } else { None };
+    let family = list.primary.as_ref().map(|p| p.family_id.clone()).unwrap_or_default();
+    let models: Vec<String> = catalog
+        .as_ref()
+        .and_then(|c| c.families.iter().find(|f| f.id == family))
+        .map(|f| f.models.iter().map(|m| m.id.clone()).collect())
+        .unwrap_or_default();
+    state().seed(list.profile_id.clone().or(profile), list.primary.as_ref(), &models);
+    Ok(())
+}
+
+/// The transport half: `prov.test` sends `profile/llm/test`; Save sends the
+/// SAME params to `profile/llm/test` and, only when it passes, to
+/// `profile/llm/upsert` with `set_primary` (`model-settings.ts:345-380`).
+/// Every refusal goes through [`ProviderUi::reject`], which redacts BEFORE any
+/// view can read it. `Ok(true)` = saved (the editor closes).
+pub async fn perform_transport(conv: &crate::flow::Conversation, effect: Effect) -> Result<bool, String> {
+    let save = match effect {
+        Effect::Test => false,
+        Effect::Save => true,
+        other => return Err(format!("screens/provider: {other:?} is not a transport effect")),
+    };
+    let caps = state().caps;
+    if !(if save { caps.can_save() } else { caps.test }) {
+        state().busy = false;
+        return Err("profile/llm: not advertised by this server".into());
+    }
+    let params = {
+        let mut ui = state();
+        if ui.profile_id.is_none() {
+            ui.profile_id = Some(conv.profile()).filter(|p| !p.is_empty());
+        }
+        ui.provision(false)
+    };
+    let client = conv.client();
+    let tested = match client.call::<LlmTest>(params.clone()).await {
+        Ok(t) => t,
+        Err(e) => {
+            perform_failed(&e.to_string());
+            return Err(format!("profile/llm/test: {}", redact(&e.to_string(), &state().key)));
+        }
+    };
+    if let Some(want) = &params.profile_id {
+        if &tested.profile_id != want {
+            perform_failed("profile/llm/test answered for another profile");
+            return Err("profile/llm/test: profile mismatch".into());
         }
     }
-    // A save leaves the editor; the module's own Close is the web's behaviour
-    // after a successful upsert (`model-settings.ts` save handler).
-    if method == "profile/llm/upsert" {
-        apply(&mut state(), Effect::Close);
+    let test_error = tested.error.clone().filter(|e| !e.is_empty());
+    if !tested.applied || test_error.is_some() {
+        let reason = test_error.unwrap_or_else(|| {
+            if tested.message.is_empty() { "The provider test did not pass.".to_owned() } else { tested.message.clone() }
+        });
+        perform_failed(&reason);
+        return Err(format!("profile/llm/test: {}", redact(&reason, &state().key)));
     }
-    Ok(raw)
+    if !save {
+        state().accept();
+        return Ok(false);
+    }
+    let saved = match client
+        .call::<LlmUpsert>(LlmProvisionParams { set_primary: Some(true), ..params })
+        .await
+    {
+        Ok(s) => s,
+        Err(e) => {
+            perform_failed(&e.to_string());
+            return Err(format!("profile/llm/upsert: {}", redact(&e.to_string(), &state().key)));
+        }
+    };
+    if !saved.applied {
+        perform_failed("The provider draft was not applied.");
+        return Err("profile/llm/upsert: not applied".into());
+    }
+    let mut ui = state();
+    ui.accept();
+    ui.key.clear();
+    ui.key_stored = true;
+    ui.edited = false;
+    Ok(true)
 }
 
-/// The `profile/llm/{test,upsert}` params for the live draft. The default model
-/// row is the one the card marks `(default)`, whose label carries the suffix.
-/// `is_save` is the only difference between the two arms: the upsert asks to
-/// become the primary, the test never does (`LlmProvisionParams::set_primary`).
-fn provision_params(ui: &ProviderUi, is_save: bool) -> Value {
-    let model = ui
-        .default_model
-        .clone()
-        .or_else(|| {
-            ui.models
-                .first()
-                .map(|m| m.split(" (").next().unwrap_or(m).to_owned())
-        })
-        .unwrap_or_else(|| ui.model.clone());
-    let route = octoscode_client::domains::profile::LlmRouteSelection {
-        route_id: Some(ui.route.clone()),
-        base_url: Some(ui.base_url.clone()),
-        ..Default::default()
-    };
-    let selection = octoscode_client::domains::profile::LlmSelection {
-        family_id: ui.family.clone(),
-        model_id: model,
-        route,
-        inference: octoscode_client::domains::profile::LlmInferenceOverrides::default(),
-    };
-    let params = octoscode_client::domains::profile::LlmProvisionParams {
-        profile_id: None,
-        selection,
-        // Omit when the draft has no key: the server then reuses the stored one
-        // (`LlmProvisionParams::api_key`, `profile.rs:196-198`).
-        api_key: (!ui.key.is_empty()).then(|| ui.key.clone()),
-        set_primary: is_save.then_some(true),
-    };
-    serde_json::to_value(params).unwrap_or(Value::Null)
-}
-
-/// A typed refusal from the transport, routed to the live draft so the copy is
-/// redacted against the key BEFORE it can reach a copy id.
+/// A typed refusal from the transport, routed to the live draft so the copy
+/// is redacted against the key BEFORE it can reach a view.
 pub fn perform_failed(reason: &str) {
-    apply(&mut state(), Effect::Failed {
-        reason: reason.to_owned(),
-    });
-}
-
-/// The live editor card, for the production mount.
-pub fn lower_mounted() -> Result<String, String> {
-    let ui = state();
-    lower_screen(ui.screen, &ui)
+    apply(&mut state(), Effect::Failed { reason: reason.to_owned() });
 }
 
 #[cfg(test)]
@@ -624,13 +899,29 @@ mod tests {
     const SECRET: &str = "sk-rejected-secret";
 
     #[test]
+    fn each_operation_is_gated_on_its_own_advertised_method() {
+        // model-settings.ts:156-170 and :349 (Save = test AND upsert).
+        let m = |names: &[&str]| names.iter().map(|n| format!("profile/llm/{n}")).collect::<Vec<_>>();
+        assert_eq!(Caps::from_methods(&m(&["list", "catalog", "test", "upsert"])), Caps::ALL);
+        let read_only = Caps::from_methods(&m(&["list", "catalog", "test"]));
+        assert!(read_only.read && read_only.test && !read_only.can_save());
+        assert!(!Caps::from_methods(&m(&["list", "catalog", "upsert"])).can_save(), "Save needs Test too");
+        assert_eq!(Caps::from_methods(&[]), Caps::default(), "fails closed");
+        let mut ui = ProviderUi::new("deepseek");
+        ui.caps = read_only;
+        assert_eq!(apply(&mut ui, Effect::Save), None, "no upsert advertised -> no Save");
+        assert_eq!(apply(&mut ui, Effect::Test), Some(Effect::Test), "Test is its own method");
+        ui.busy = false;
+        ui.caps.test = false;
+        assert_eq!(apply(&mut ui, Effect::Test), None);
+    }
+
+    #[test]
     fn a_rejected_test_keeps_the_whole_draft() {
         // walk row 88 — family, model, route and the typed key all survive.
         let mut ui = ProviderUi::new("deepseek");
         ui.key = SECRET.to_owned();
-        apply(&mut ui, Effect::Failed {
-            reason: "401 unauthorized".into(),
-        });
+        apply(&mut ui, Effect::Failed { reason: "401 unauthorized".into() });
         assert_eq!(ui.family, "deepseek");
         assert_eq!(ui.model, "deepseek-chat");
         assert_eq!(ui.route, "openrouter");
@@ -639,66 +930,55 @@ mod tests {
     }
 
     #[test]
-    fn the_key_never_reaches_the_copies() {
+    fn the_recorded_401_reads_as_a_key_rejection_with_its_status() {
+        // r29a line 10 (the real a6ea8505 reply).
+        let raw = "API error (deepseek@api/deepseek-v4-flash, api_style=openai_chat_completions): authentication failed \u{2014} HTTP 401 - {\"error\":{\"message\":\"Authentication Fails\"}}";
+        let mut ui = ProviderUi::new("deepseek");
+        ui.reject(raw);
+        assert!(ui.key_rejected);
+        assert_eq!(ui.error_status, Some(401));
+        assert_eq!(ui.failure_line(), "The provider rejected this key (401).");
+    }
+
+    #[test]
+    fn the_key_never_reaches_the_copies_the_bindings_or_the_view_text() {
         let mut ui = ProviderUi::new("deepseek");
         ui.key = SECRET.to_owned();
-        ui.reject("boom");
+        ui.reject(&format!("401 for {SECRET}"));
         for (_, v) in copies(Screen::Rejected, &ui) {
             assert!(!v.contains(SECRET), "the key leaked into a copy: {v:?}");
         }
-        assert_eq!(ui.key_display(), DOTS);
-    }
-
-    #[test]
-    fn the_key_never_reaches_the_bindings() {
-        let mut ui = ProviderUi::new("deepseek");
-        ui.key = SECRET.to_owned();
-        ui.reject("boom");
-        for id in [
-            "prov.family",
-            "provider.url",
-            "prov.model",
-            "prov.route",
-            "prov.models",
-            "prov.key_masked",
-            "prov.key_present",
-            "prov.error",
-            "prov.rejected",
-            "prov.default_model",
-        ] {
+        for id in ["prov.family", "provider.url", "prov.model", "prov.route", "prov.models", "prov.key_masked", "prov.key_present", "prov.error", "prov.rejected", "prov.default_model"] {
             if let Some(v) = query(&ui, id) {
-                assert!(
-                    !v.to_string().contains(SECRET),
-                    "the key leaked into binding {id}: {v}"
-                );
+                assert!(!v.to_string().contains(SECRET), "the key leaked into binding {id}: {v}");
             }
         }
+        assert!(ui.error.as_deref().is_some_and(|e| !e.contains(SECRET)));
     }
 
     #[test]
-    fn redaction_removes_the_secret_raw_and_encoded() {
-        // model-settings.ts:531-538
+    fn save_and_test_send_one_param_shape() {
+        let mut ui = ProviderUi::new("deepseek");
+        ui.route = "deepseek".into();
+        ui.key = "k".into();
+        let t = serde_json::to_value(ui.provision(false)).unwrap();
+        let s = serde_json::to_value(ui.provision(true)).unwrap();
+        assert_eq!(t["selection"], s["selection"], "Test and Save cannot drift");
+        assert!(t.get("set_primary").is_none());
+        assert_eq!(s["set_primary"], true);
+        // The official endpoint is not sent back as an override.
+        assert!(t["selection"]["route"].get("base_url").is_none(), "{t}");
+    }
+
+    #[test]
+    fn redaction_removes_the_secret_raw_and_encoded_and_keyed_runs() {
         let r = redact(&format!("401 for {SECRET}"), SECRET);
-        assert!(!r.contains(SECRET), "{r}");
-        assert!(r.contains("[redacted]"));
+        assert!(!r.contains(SECRET) && r.contains("[redacted]"));
         let enc = percent_encode(SECRET);
-        let r2 = redact(&format!("401 for {enc}"), SECRET);
-        assert!(!r2.contains(&enc), "{r2}");
-    }
-
-    #[test]
-    fn redaction_removes_key_and_bearer_runs() {
-        // model-settings.ts:540-541
+        assert!(!redact(&format!("401 for {enc}"), SECRET).contains(&enc));
         let r = redact("api_key=abcd1234 and Bearer tok_live_9", "");
-        assert!(!r.contains("abcd1234"), "{r}");
-        assert!(!r.contains("tok_live_9"), "{r}");
-    }
-
-    #[test]
-    fn the_rejected_message_is_bounded() {
-        // model-settings.ts:542
-        let r = redact(&"x".repeat(5_000), "");
-        assert_eq!(r.chars().count(), MAX_REDACTED);
+        assert!(!r.contains("abcd1234") && !r.contains("tok_live_9"), "{r}");
+        assert_eq!(redact(&"x".repeat(5_000), "").chars().count(), MAX_REDACTED);
     }
 
     #[test]
@@ -706,9 +986,22 @@ mod tests {
         let mut ui = ProviderUi::new("deepseek");
         ui.reject("401");
         ui.accept();
-        assert!(ui.error.is_none());
-        assert!(!ui.key_rejected);
+        assert!(ui.error.is_none() && !ui.key_rejected);
         assert_eq!(ui.screen, Screen::Editor);
+    }
+
+    #[test]
+    fn a_second_save_while_one_is_in_flight_is_dropped() {
+        let mut ui = ProviderUi::new("deepseek");
+        assert_eq!(apply(&mut ui, Effect::Save), Some(Effect::Save));
+        assert_eq!(apply(&mut ui, Effect::Save), None);
+    }
+
+    #[test]
+    fn the_name_field_carries_the_route_label() {
+        let mut ui = ProviderUi::new("deepseek");
+        ui.name = "DeepSeek \u{b7} Work route".into();
+        assert_eq!(ui.label_from_name(), "Work route");
     }
 
     #[test]

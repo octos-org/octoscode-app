@@ -251,10 +251,22 @@ def sidebar_walk():
              log_needle="sidebar.collapse")
         step("The rail's search expands the sidebar", "rb_hit",
              lambda: is_shown("sb_search"), nth=2, log_needle="search.open")
-        step("Add workspace docks the folder browser", "sb_add_hit",
-             lambda: is_shown("screen_dock_close"), log_needle="workspace.add")
-        step("The dock's close returns", "screen_dock_close",
-             lambda: not is_shown("screen_dock_close"), log_needle="CloseDock")
+        # A2: + Add workspace opens board 1's workspace surfaces (the folder
+        # browser over the picker; the picker alone when browsing is not
+        # advertised), each with its own back chevron.
+        def soon(pred):
+            for _ in range(20):
+                if pred():
+                    return True
+                time.sleep(0.25)
+            return False
+        step("Add workspace opens the workspace picker/browser", "sb_add_hit",
+             lambda: soon(lambda: is_shown("b1_card")), log_needle="workspace.add")
+        if is_shown("b1_br_back"):
+            step("The browser's back returns to the picker", "b1_br_back",
+                 lambda: soon(lambda: is_shown("b1_pk_back")), log_needle="browser.close")
+        step("The picker's back closes it", "b1_pk_back",
+             lambda: soon(lambda: not is_shown("b1_card")), log_needle="picker.close")
         step("Review opens from the header", "review_open_hit",
              lambda: is_shown("review_panel"), log_needle="ToggleReview")
         click("review_close")
