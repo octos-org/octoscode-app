@@ -607,7 +607,9 @@ pub fn session_status(store: &Store, id: &str, active: Option<&str>) -> Status {
         .sessions()
         .iter()
         .any(|s| s.id == id && s.active_turn);
-    if listed_running || (is_active && store.domains.turn.in_flight_count() > 0) {
+    // A22 row 236 — the active Session's OWN live turn (a background
+    // Session's turn never makes the selected row read "running").
+    if listed_running || (is_active && store.domains.turn.in_flight_in(id) > 0) {
         return Status::Running;
     }
     // The newest TERMINAL turn of this session's timeline decides

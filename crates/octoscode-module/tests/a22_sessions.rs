@@ -801,6 +801,7 @@ async fn row_236_a_background_session_keeps_its_own_visible_state() {
     // The person switches back to A: B, C and D are background Sessions now.
     open(&conv, &a).await;
     assert_eq!(status_of(&conv, b), Some(sidebar::Status::Running), "B's own queue is still working");
+    assert_eq!(status_of(&conv, &a), Some(sidebar::Status::Idle), "the selected row reads its OWN work, not B's live turn");
     // The web's BackgroundSessionSnapshot for B.
     let snap = |id: &str| sidebar::background_sessions(&conv.store).into_iter().find(|s| s.session_id == id).expect("a background record");
     let sb = snap(b);

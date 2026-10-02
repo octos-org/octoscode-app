@@ -15,8 +15,8 @@
 //!   of a turn the history already holds); the rest of that turn follows the
 //!   history.
 //! * **row 216** — `a22:main` opens with `reasoning_effort: "high"`; a prompt
-//!   containing `[refuse]` is refused (`-32000`), `[slow]` runs ~9 s.
-//! * **row 236** — prompts drive background work: `[slow]` a long turn,
+//!   containing `[refuse]` is refused (`-32000`), `[busy]` runs ~8 s.
+//! * **row 236** — prompts drive background work: `[slow]` a ~20 s turn,
 //!   `[fail]` a turn that errors after 3 s, `[ask]` a user question after 4 s.
 //!
 //! Every request is appended to `--log <file>` as one JSON line
@@ -119,7 +119,10 @@ fn civil(z: i64) -> (i64, u32, u32) {
 }
 
 fn log(cfg: &Cfg, line: Value) {
+    // One writer at a time: the turn tasks and the socket log concurrently.
+    static LOG: Mutex<()> = Mutex::new(());
     let Some(path) = &cfg.log else { return };
+    let _g = LOG.lock().unwrap_or_else(|p| p.into_inner());
     if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(path) {
         let _ = writeln!(f, "{line}");
     }
@@ -211,7 +214,9 @@ async fn run_turn(out: UnboundedSender<String>, cfg: Cfg, world: Arc<Mutex<World
     send(&out, &cfg, &session, "projection/envelope", e);
     world.lock().unwrap().persist(&session, &turn, "user", &prompt);
     let (answer, outcome, ticks, ask) = if prompt.contains("[slow]") {
-        ("Built and verified, step by step.", "completed", 9u64, false)
+        ("Built and verified.", "completed", 20u64, false)
+    } else if prompt.contains("[busy]") {
+        ("Finished the long task.", "completed", 8, false)
     } else if prompt.contains("[fail]") {
         ("Running the suite…", "errored", 3, false)
     } else if prompt.contains("[ask]") {
@@ -221,7 +226,7 @@ async fn run_turn(out: UnboundedSender<String>, cfg: Cfg, world: Arc<Mutex<World
     };
     for k in 0..ticks {
         step(1000).await;
-        let text = if k + 1 == ticks { answer.to_owned() } else { "· ".to_owned() };
+        let text = if k + 1 == ticks { answer.to_owned() } else { format!("Step {} of {}. ", k + 1, ticks - 1) };
         let e = env(&world, &session, &turn, 2 + k, json!({"type": "assistant_delta", "data": {"text": text, "assistant_segment_id": seg}}));
         if !send(&out, &cfg, &session, "projection/envelope", e) {
             return;

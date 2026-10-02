@@ -35,7 +35,8 @@ impl NotificationHandler for TurnStartedHandler {
             self.store.note_seen(Self::METHOD);
             let session = started.session_id.0.clone();
             let turn_id = started.turn_id.0.to_string();
-            self.store.domains.turn.started(&turn_id);
+            // A22 row 236: the turn is THIS Session's live work.
+            self.store.domains.turn.started_in(&session, &turn_id);
             // Card #14 defect 2: do NOT create an entry here. A row is born on
             // the first delta / `assistant_persisted`, as on the web
             // (`timeline/model.ts:648-678` `appendText`) — creating one eagerly

@@ -36,6 +36,11 @@ struct Inner {
     /// timeline's `terminal:<turn>` entries (`background-session-status.ts:
     /// 16-26`), so later generic activity never changes the answer.
     session_terminals: HashMap<String, Vec<(String, String)>>,
+    /// A22 row 236 — the Session a live turn belongs to, when its
+    /// `turn/started` named one: a background Session's turn is never the
+    /// selected Session's live work. A turn with no recorded owner keeps the
+    /// old meaning (any Session).
+    owners: HashMap<String, String>,
 }
 
 /// `projection/envelope` ordering state (the web's per-thread sequence +
@@ -86,8 +91,25 @@ impl Turns {
         i.seen.push(turn_id.to_owned());
     }
 
+    /// A22 row 236 — [`Turns::started`] for a turn whose Session is known.
+    pub fn started_in(&self, session: &str, turn_id: &str) {
+        self.started(turn_id);
+        if !session.is_empty() {
+            self.inner.lock().unwrap().owners.insert(turn_id.to_owned(), session.to_owned());
+        }
+    }
+
     pub fn ended(&self, turn_id: &str) {
-        self.inner.lock().unwrap().in_flight.remove(turn_id);
+        let mut i = self.inner.lock().unwrap();
+        i.in_flight.remove(turn_id);
+        i.owners.remove(turn_id);
+    }
+
+    /// A22 row 236 — the live turns of `session`: those it owns, plus any
+    /// whose Session was never named (the old global meaning).
+    pub fn in_flight_in(&self, session: &str) -> usize {
+        let i = self.inner.lock().unwrap();
+        i.in_flight.iter().filter(|t| i.owners.get(*t).is_none_or(|s| s == session)).count()
     }
 
     /// Whether a turn is currently in flight.
