@@ -250,6 +250,17 @@ class FixtureProc:
 
 # --------------------------------------------------------------------- run
 
+def crash_of(text: str) -> str:
+    """The exception line of an uncaught Python traceback in a walk's output
+    ('' when the walk ran to its end — FAIL lines and a non-zero exit are a
+    finished walk's verdict, not a crash)."""
+    if "Traceback (most recent call last)" not in text:
+        return ""
+    tail = text.split("Traceback (most recent call last)")[-1]
+    lines = [l.strip() for l in tail.splitlines() if l.strip() and not l.startswith(" ")]
+    return lines[-1] if lines else "Traceback"
+
+
 def run_walk(path: pathlib.Path, spec: dict, mode: str, binary: str, port: int, fport: int,
              log=print) -> dict:
     """Run one walk in one mode; always stops what it started.
@@ -355,6 +366,12 @@ def run_walk(path: pathlib.Path, spec: dict, mode: str, binary: str, port: int, 
                 result["error"] = f"run {i + 1} timed out after {spec.get('timeout', 900)} s"
             transcript.append(f"-- run {i + 1}: exit {rc} in {time.time() - t0:.0f} s")
             transcript.extend(scrub(text).splitlines())
+            # A walk that CRASHED (an uncaught exception) did not finish what
+            # it maps: every row it proves fails in this mode, even where its
+            # checks before the crash passed (a crash never reads green).
+            why = crash_of(text)
+            if why and not result["error"]:
+                result["error"] = f"run {i + 1} crashed (exit {rc}): {scrub(why)[:160]}"
         log(f"  [{name}:{mode}] done")
     except Exception as e:  # noqa: BLE001 — a start failure blocks this walk only
         result["error"] = f"{e}"

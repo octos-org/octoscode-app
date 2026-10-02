@@ -26,6 +26,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import urllib.error
 import urllib.request
 
 # A11: the walk aggregator's convention (tools/walk/native.py; never imported).
@@ -54,8 +55,15 @@ LOG_SEQ = [0]
 
 
 def get(path, timeout=20):
-    with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
-        return r.read().decode()
+    # A11: an input route with wait=1 answers HTTP 404 when its frame was
+    # coalesced — the input was delivered; only a read may raise.
+    try:
+        with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
+            return r.read().decode()
+    except urllib.error.HTTPError:
+        if path.startswith(("/click", "/t?", "/k?", "/m?")):
+            return ""
+        raise
 
 
 def snap():

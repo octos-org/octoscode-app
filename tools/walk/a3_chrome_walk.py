@@ -26,6 +26,7 @@ Exit status: 0 when every step passes.
 import json
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -67,8 +68,16 @@ RESULTS = []
 
 
 def get(path, timeout=20):
-    with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
-        return r.read().decode()
+    # A11: an input route with wait=1 answers HTTP 404 when its frame was
+    # coalesced — the input itself was delivered (tools/walk/walk_env.py does
+    # the same). Raising there crashed the walk midway (12 checks never ran).
+    try:
+        with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
+            return r.read().decode()
+    except urllib.error.HTTPError:
+        if path.startswith(("/click", "/t?", "/k?", "/m?")):
+            return ""
+        raise
 
 
 def snap():

@@ -43,6 +43,7 @@ import json
 import os
 import pathlib
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -2504,6 +2505,25 @@ def _rel_lum(c):
     return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2])
 
 
+def shrink_png(path: pathlib.Path, width: int = 1400) -> None:
+    """A11: committed evidence stays <= 1400 px wide (the brief's capture rule;
+    the bridge grabs at 2x, 2800 px). Pillow when present, else macOS `sips`;
+    without either the capture is kept as grabbed."""
+    try:
+        from PIL import Image  # noqa: PLC0415
+        with Image.open(path) as im:
+            if im.width <= width:
+                return
+            im.resize((width, round(im.height * width / im.width))).save(path)
+        return
+    except ImportError:
+        pass
+    except Exception:  # noqa: BLE001 — evidence is best-effort
+        return
+    if shutil.which("sips"):
+        subprocess.run(["sips", "-Z", str(width), str(path)], capture_output=True)
+
+
 def _contrast_of(decoded, snap, png_w, sx):
     """(label, ratio) per text-bearing widget, measured on the app's own PNG.
 
@@ -2865,10 +2885,20 @@ def run_native(args) -> dict:
     import native  # tools/walk/native.py (same directory)
     only = {w.strip() for w in args.walks.split(",") if w.strip()} or None
     modes = [m.strip() for m in args.modes.split(",") if m.strip()]
-    results, specs = native.run_all(str(BIN), args.port, args.fixture_port, modes=modes, only=only,
-                                    log=lambda s: print(s, flush=True))
+    results, _ = native.run_all(str(BIN), args.port, args.fixture_port, modes=modes, only=only,
+                                log=lambda s: print(s, flush=True))
     native.SCRATCH.mkdir(parents=True, exist_ok=True)
-    native.write_json(results, native.SCRATCH / "last.json")
+    last = native.SCRATCH / "last.json"
+    specs = {s["name"]: s for _, s in native.discover()}
+    if (only or len(modes) < 2) and last.exists():
+        # A subset re-run (`--walks` / `--modes`) replaces only what it ran:
+        # every row is still decided over the LATEST result of EVERY walk
+        # (a row two walks map must not lose the other walk's checks).
+        fresh = {(r["name"], r["mode"]) for r in results}
+        results = [r for r in native.load_json(last)
+                   if (r["name"], r["mode"]) not in fresh] + results
+    results = [r for r in results if r["name"] in specs]
+    native.write_json(results, last)
     verdicts = native.row_verdicts(results, specs)
     n_pass = sum(1 for v in verdicts.values() if v["status"] == "pass")
     print(f"[native] {len(verdicts)} rows re-pointed to native click walks: "
@@ -3098,7 +3128,9 @@ def main():
                     for _ in range(4):
                         png = app.raw("/g?raw=1")
                         if png.startswith(b"\x89PNG"):
-                            (EVIDENCE / f"area-{area}{suffix}.png").write_bytes(png)
+                            shot = EVIDENCE / f"area-{area}{suffix}.png"
+                            shot.write_bytes(png)
+                            shrink_png(shot)
                             break
                         time.sleep(1.0)
                     evidence = str(sj.relative_to(ROOT))

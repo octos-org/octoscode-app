@@ -515,9 +515,17 @@ def walk_files_and_folds():
     png = [w["i"].rsplit("_", 1)[1] for w in prefixed(ws, "b3_tl_file_name_") if w.get("t") == "coverage.png"]
     # The tool row discloses its own call's output (A1's row; A6 reveals it).
     app_logs()
-    if click("tool_hit"):
-        out = wait(lambda: [w for w in snap() if "r23-tool-ok" in (w.get("t") or "") and w["r"][3] > 0], 5)
-        logs = app_logs()
+    if shown("tool_hit"):
+        # A11: a click dropped under load (no `tool.toggle` logged at all) is
+        # retried; a click that toggled but disclosed nothing still fails.
+        out, logs = None, []
+        for _ in range(3):
+            if not click("tool_hit"):
+                break
+            out = wait(lambda: [w for w in snap() if "r23-tool-ok" in (w.get("t") or "") and w["r"][3] > 0], 5)
+            logs += app_logs()
+            if out or any("tool.toggle" in l for l in logs):
+                break
         check("CLICK the tool row -> its output discloses", out and any("tool.toggle" in l and "open" in l for l in logs),
               f"{[l[-70:] for l in logs if 'tool.toggle' in l or 'reveal' in l]}")
         shot("tool-expanded")
@@ -530,8 +538,17 @@ def walk_files_and_folds():
         check("CLICK Download -> GET /api/files on the wire, saved to the download dir", saved and wire,
               f"saved={bool(saved)} wire={wire}")
     if png:
-        click(f"b3_tl_file_preview_{png[0]}")
-        img = wait(lambda: shown(f"b3_tl_file_img_{png[0]}"), 10)
+        # A11: a click dropped under load (no `b3.file.preview` action logged)
+        # is retried; one that ran gets more time, never a second fetch.
+        img, ran = None, False
+        app_logs()
+        for _ in range(3):
+            if not ran:
+                click(f"b3_tl_file_preview_{png[0]}")
+            img = wait(lambda: shown(f"b3_tl_file_img_{png[0]}"), 8)
+            ran = ran or any("b3.file.preview" in l for l in app_logs())
+            if img:
+                break
         check("CLICK Preview -> the image shows in its row", img, f"b3_tl_file_img_{png[0]}")
         r = rect(f"b3_tl_file_img_{png[0]}")
         row = rect(f"b3_tl_file_{png[0]}")

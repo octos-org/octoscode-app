@@ -69,11 +69,14 @@ environment. The phone is launched straight into OctosCode
 (`--test-action page:0 --test-action launch-octoscode`, 360x780).
 
 **A row's native verdict** is the AND of every mapped check in every mode a
-walk mapping it ran; a mode in which no mapped check ran, or a walk that could
-not start, is a failing check — a walk that crashed early never reads green.
+walk mapping it ran; a mode in which no mapped check ran, a walk that could
+not start, or a run that CRASHED (an uncaught Python traceback, even after
+some checks passed) is a failing check — a crashed walk never reads green.
 
 Iterate on one walk without re-running everything (merges into the existing
-results):
+results; every native row is recomputed from the LATEST result of EVERY walk
+in `tmp/walk/native/last.json`, so a row two walks map keeps the other's
+checks):
 
 ```sh
 python3 tools/walk/run.py --native-only --walks a11_offer --modes desktop --port <port>
@@ -221,7 +224,7 @@ the one the app actually requested in `session/open`, across every served frame
 | `pass` | every check **mapped to this row** passed (≥1 ran) |
 | `fail` | ≥1 mapped check failed; `/g` + `/snap` evidence is recorded |
 | `not-walked` | (A11) the capabilities the parity matrix cites for this case are all built (A), but no click-walk check covers the case yet |
-| `not-yet-implemented` | the native capability is missing; `reason` names the parity matrix's C capability citing this case — also (A11) when run.py's area-matched checks passed but a capability the matrix cites for the case is still C (generic checks cannot prove an unbuilt capability; the reason keeps them) |
+| `not-yet-implemented` | the native capability is missing; `reason` names the parity matrix's C capability citing this case — also (A11) when run.py's area-matched checks passed but a capability the matrix cites for the case is still C (generic checks cannot prove an unbuilt capability; the reason keeps them), and when every failing check of the row found its surface absent BY DESIGN (its reason starts `not built:`, e.g. Alt+P with no native peer dock) |
 | `live-only` | needs state the replay fixtures cannot produce (a real model turn, browser-only state) |
 | `blocked` | a selected row whose area failed to start |
 | `skipped` | the web-only rows — operator-confirmation-pending |

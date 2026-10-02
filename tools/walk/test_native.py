@@ -45,6 +45,12 @@ class Parsing(unittest.TestCase):
         self.assertEqual(got[1][2], "why it failed")
         self.assertEqual(got[0][3], 2)
 
+    def test_a_traceback_is_a_crash_but_a_fail_line_is_not(self):
+        crashed = ("PASS a\n\nTraceback (most recent call last):\n  File \"x.py\", line 3, in <module>\n"
+                   "    main()\nurllib.error.HTTPError: HTTP Error 404: Not Found\n")
+        self.assertEqual(native.crash_of(crashed), "urllib.error.HTTPError: HTTP Error 404: Not Found")
+        self.assertEqual(native.crash_of("PASS a\nFAIL b — no\n"), "")
+
     def test_placeholders(self):
         ctx = {"port": 8421, "mode": "phone"}
         self.assertEqual(native.expand(["{port}", {"k": "x{mode}"}], ctx), ["8421", {"k": "xphone"}])
