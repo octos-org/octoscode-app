@@ -16,9 +16,10 @@ the hidden app, with every app store in a per-run dir (brief §8).
      line says what a New chat gets (nothing stored: the server's defaults);
   3. CLICK the history row, New chat, the history row again: each open
      hydrates once, and the history shows once (the same rows, no copies);
-  4. restart (stop + relaunch, same state): the history at startup;
-  5. CLICK Settings > Permissions: the readback is the server's selection
-     (Write · Network allowed matches no preset: no radio on).
+  4. CLICK Settings > Permissions: the readback is the server's selection
+     (Write · Network allowed matches no preset: no radio on), the preset
+     rows and their help inside the panel;
+  5. restart (stop + relaunch, same state): the history at startup.
 
 usage: python3 tools/walk/a15_history_walk.py <host-bin> <desktop|phone> [port] [replay-port] [out-dir]
 Exit status 0 when every check passes. Captures: <out-dir>/<mode>-NN-<name>.png
@@ -295,7 +296,7 @@ def walk():
     check("wire: one hydrate per open (new Session)", new_id and message_hydrates(new_id) == opens(new_id) == 3,
           f"opens {opens(new_id)}, hydrates {message_hydrates(new_id)}")
 
-    # 5. Settings > Permissions: the server's readback.
+    # 4. Settings > Permissions: the server's readback.
     opened = click("settings_open_hit")
     check("CLICK Settings", opened and wait(lambda: shown("settings_drawer"), 6))
     cell = rect("rl_hit" if PHONE else "nv_hit", nth=1)  # General, Permissions, …
@@ -317,7 +318,7 @@ def walk():
     click("set_back" if PHONE else "settings_close")
     stop_app()
 
-    # 4. Restart: the same state, the history at startup.
+    # 5. Restart: the same state, the history at startup.
     check("restart: app up again", start_app())
     check("restart: the history is on screen without a click", wait(history_on_screen, 15))
     if not PHONE:
