@@ -82,5 +82,23 @@
   "capability_prefix": "skills dialog: hold the Profile lock",
   "bucket": "A",
   "evidence": "A10: models.rs:825 perform holds the store Profile lease around a skill mutation (set_profile_busy; a second mutation while it is held is refused — deduplicated, nothing sent) and failures read the web copy SKILLS_MUTATION_FAILED; dialog.rs:255 profile_locked (lease held OR a turn running in the session) -> the lock line \"Skill changes are paused while known work is running in this Profile.\", Remove/Install/Review drawn paused and NOT wired (controls()); test a10_skills.rs::the_profile_lock_pauses_mutations_and_dedupes (lease held during a delayed remove: lock line + no ask wired + the second remove refused with one frame on the wire; a running turn locks; settling unlocks); walk a10_skills.py step 4b (replay --slow profile/skills/install=2500: the lock line shows while the install is in flight and a Remove CLICK routes nothing)"
+ },
+ {
+  "feature": "research",
+  "capability_prefix": "Research provider lanes dialog: list the Profile's named provider routes",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/research.rs:388 load (profile/sub_providers/list {profile_id}; :321 lanes_ok = the web's parseResearchLanes: Profile echoed, unique non-blank keys, every field null|text|u32) -> models::fold_sub_providers -> store profile.sub_providers; dialog research.rs:628 build (key / 'provider · model|Model not specified' / 'API style: …|Provider default' / description; the web's intro, Server Profile line, empty line); opened by the /research palette row (palette.rs:93, alias /lanes -> board3/host.rs:585 command); no Stage-A board: built with the native dialog kit (board3/ui.rs) after the web ResearchDialog.tsx; test crates/octoscode-module/tests/a10_research.rs::the_recorded_lifecycle_lists_saves_and_removes_through_the_confirm (recorded r2 list params + lanes); walk tools/walk/a10_research.py desktop+phone 29/29 (docs/ux/a10/research/{desktop,phone}/02-lanes-*.png)"
+ },
+ {
+  "feature": "research",
+  "capability_prefix": "Upsert a research lane (optionally with an API key credential)",
+  "bucket": "A",
+  "evidence": "A10: research.rs:220 perform (Edit fills the form, Review lane save -> the web's confirmation 'key · provider · model|default model' + 'This changes server Profile …', Confirm) -> :439 mutate + :492 send (SubProvidersUpsertParams {profile_id, sub_provider: researchLaneParams whitelist, api_key only when typed; a credential needs an env name}; receipt checked: boolean applied/restart_required, the saved key listed) -> the receipt's lanes + crate::screens::research::mutation_notice; any failure shows the web's one copy (MUTATION_FAILED), the lease (profile_busy) released; tests a10_research.rs::the_recorded_lifecycle_… (recorded r2 upsert wire + restart notice), ::a_credential_rides_only_the_dispatch (faithful a10-research-faithful.jsonl: api_key on the wire only, never in state/store/confirmation, cleared at dispatch, no-restart notice), ::failures_show_the_webs_copy_and_release_the_lease; walk steps 2-3 (Edit/Clear/typed lane with a masked dummy credential -> Review -> Confirm save -> 'Saved on the server; the server reports no restart requirement.')"
+ },
+ {
+  "feature": "research",
+  "capability_prefix": "Latest-request-wins / generation guard",
+  "bucket": "A",
+  "evidence": "A10: research.rs:202 on_open / :210 on_close bump the generation (the web's generation ref), :361 finish publishes only while the request's generation is current, one request at a time (pending), the dialog does not close while a mutation holds the lease (board3/host.rs close guard); test a10_research.rs::a_superseded_request_never_publishes (a slow list superseded by close+reopen returns 'superseded' and folds nothing; only the current generation's lanes show; Close inert mid-mutation); walk step 1 (close + reopen while the list is in flight: the app logs 'research: list generation N superseded — reply dropped', the fresh list publishes) and step 4 (the lock line while the removal holds the lease, a close CLICK inert)"
  }
 ]

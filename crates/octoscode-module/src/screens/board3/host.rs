@@ -42,6 +42,9 @@ pub enum Dialog {
     Vim,
     /// A10 — the Agents panel (`/agents`, web `AgentPanel.tsx`; no board).
     Agents,
+    /// A10 — Research provider lanes (`/research`, web `ResearchDialog.tsx`;
+    /// no board).
+    Research,
 }
 
 impl Dialog {
@@ -57,6 +60,7 @@ impl Dialog {
             "fleet" => Dialog::Fleet,
             "vim" => Dialog::Vim,
             "agents" | "agent" => Dialog::Agents,
+            "research" | "lanes" => Dialog::Research,
             _ => return None,
         })
     }
@@ -79,6 +83,8 @@ pub struct State {
     pub vim: super::vim::VimState,
     /// A10 — the Agents panel's form drafts.
     pub agents: super::agents::AgentsState,
+    /// A10 — the Research lanes dialog's draft + generation guard.
+    pub research: super::research::ResearchState,
     /// Text a finished job wants on the clipboard (the host writes it on the
     /// UI thread, where `cx` lives).
     pub pending_clipboard: Option<String>,
@@ -99,6 +105,7 @@ impl Default for State {
             strip: Default::default(),
             vim: Default::default(),
             agents: Default::default(),
+            research: Default::default(),
             pending_clipboard: None,
         }
     }
@@ -215,6 +222,7 @@ pub fn lower_open(store: &Store) -> Option<Lowered> {
         Dialog::Switcher => super::switcher::build(&mut d, &st.switch, &st.frame, store, &st.vim),
         Dialog::Vim => super::vim::build_help(&mut d, &st.vim, &st.frame),
         Dialog::Agents => super::agents::build(&mut d, &st.agents, &st.frame, store),
+        Dialog::Research => super::research::build(&mut d, &st.research, &st.frame, store),
         Dialog::Images => {
             let session = store.domains.session.active().unwrap_or_default();
             let drafts = crate::screens::media::drafts_for_session(&session);
@@ -272,6 +280,12 @@ pub enum Job {
     AgentControl(String, &'static str),
     /// A10 — the spawn: an ordinary queued `turn/start` with the composed text.
     AgentsSpawn(String),
+    /// A10 — `profile/sub_providers/list` for the Research dialog (generation).
+    ResearchLoad(u64),
+    /// A10 — `profile/sub_providers/upsert` the confirmed draft (generation).
+    ResearchSave(u64, super::research::Draft),
+    /// A10 — `profile/sub_providers/remove` the confirmed key (generation).
+    ResearchRemove(u64, String),
 }
 
 /// What a routed action asks of the host.
@@ -348,11 +362,19 @@ pub fn open(dialog: Dialog) -> Outcome {
             st.agents.spawn_error = None;
             Outcome::Spawn(Job::AgentsLoad)
         }
+        Dialog::Research => super::research::on_open(&mut st.research),
     }
 }
 
 pub fn close() {
     let mut st = state();
+    if st.open == Some(Dialog::Research) {
+        // `onEscape: if (!mutating) onClose()`, Close disabled while mutating.
+        if st.research.mutating {
+            return;
+        }
+        super::research::on_close(&mut st.research);
+    }
     if st.open == Some(Dialog::Images) {
         drop(st);
         if let Some(store) = active_drafts() {
@@ -437,6 +459,9 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
     if action.starts_with("b3.agents.") {
         return super::agents::perform(&mut st.agents, action, index, store);
     }
+    if action.starts_with("b3.research.") {
+        return super::research::perform(&mut st.research, action, index, store);
+    }
     Outcome::Unrouted
 }
 
@@ -448,6 +473,7 @@ pub fn input_changed(key: &str, text: &str) {
         "resume" => super::resume::input_changed(&mut st.resume, key, text),
         "fleet" => super::fleetview::input_changed(&mut st.fleet, key, text),
         "agents" => super::agents::input_changed(&mut st.agents, key, text),
+        "research" => super::research::input_changed(&mut st.research, key, text),
         _ => {}
     }
 }
@@ -476,6 +502,7 @@ pub fn live_visibility(store: &Store) -> Vec<(String, bool)> {
         Some(Dialog::Inventory) => super::inventory::visibility(&st.inv, store),
         Some(Dialog::Resume) => super::resume::visibility(&st.resume),
         Some(Dialog::Agents) => super::agents::visibility(&st.agents),
+        Some(Dialog::Research) => super::research::visibility(&st.research),
         _ => Vec::new(),
     }
 }
@@ -553,6 +580,9 @@ pub fn command(name: &str, args: &str, conv: &crate::flow::Conversation) -> Opti
         // A10 — the web's `/agents` (alias `/agent`) autonomy intent: the
         // Agents panel (`registry.ts:383-397`).
         "agents" | "agent" => Some(open(Dialog::Agents)),
+        // A10 — the web's `/research` (alias `/lanes`) Settings intent
+        // (`registry.ts:374-382`, `App.tsx:1481-1483`).
+        "research" | "lanes" => Some(open(Dialog::Research)),
         // `App.tsx:1267-1269`: flip the preference (which also returns the
         // composer to Insert, `vim-edit.ts:31-33`); the field note shows it.
         "vimmode" | "vim-mode" => {
@@ -608,6 +638,12 @@ pub fn job_unavailable(job: &Job) {
         | Job::AgentArtifacts(_)
         | Job::AgentArtifactRead(..)
         | Job::AgentControl(..) => {}
+        Job::ResearchLoad(_) | Job::ResearchSave(..) | Job::ResearchRemove(..) => {
+            st.research.pending = false;
+            st.research.busy = false;
+            st.research.mutating = false;
+            st.research.error = Some(msg);
+        }
         Job::FileFetch(id, _) => {
             drop(st);
             let mut f = super::rows::file_state();
@@ -671,7 +707,21 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         Job::AgentArtifactRead(id, aid, path) => super::agents::read_artifact(conv, id, aid, path).await,
         Job::AgentControl(id, kind) => super::agents::control(conv, id, kind).await,
         Job::AgentsSpawn(text) => super::agents::spawn(conv, text).await,
+        Job::ResearchLoad(generation) => super::research::load(conv, generation).await,
+        Job::ResearchSave(generation, draft) => {
+            super::research::mutate(conv, generation, super::research::Confirm::Save(draft)).await
+        }
+        Job::ResearchRemove(generation, key) => {
+            super::research::mutate(conv, generation, super::research::Confirm::Remove(key)).await
+        }
     }
+}
+
+/// The host reports whether a turn runs: the Agents spawn is idle-only, and
+/// a running turn is known Profile work (the Research lock).
+pub fn note_turn_busy(busy: bool) {
+    super::agents::note_turn_busy(busy);
+    super::research::note_turn_busy(&mut state().research, busy);
 }
 
 /// Files the platform picker (or a drop) handed over while the images

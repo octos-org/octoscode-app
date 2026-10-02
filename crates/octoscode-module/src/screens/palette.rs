@@ -87,6 +87,10 @@ pub const COMMANDS: &[Command] = &[
     // Stop button's own action.
     Command { name: "/stop", description: "Stop the active turn", methods_any: &["turn/interrupt"], requires_all: &[], aliases: &["interrupt", "esc"], effect: Some("turn.interrupt") },
     Command { name: "/skills", description: "Manage installed skills", methods_any: &["profile/skills/list"], requires_all: &[], aliases: &["skill"], effect: Some("dialog.open.skills") },
+    // A10 — `/research` (alias `/lanes`, `registry.ts:374-382`: methodsAll
+    // profile/sub_providers/list): the Research provider lanes dialog
+    // (board-3 host), run through the typed command layer.
+    Command { name: "/research", description: "Manage server research provider lanes", methods_any: &["profile/sub_providers/list"], requires_all: &[], aliases: &["lanes"], effect: Some("compose:/research") },
     Command { name: "/goal", description: "Inspect and manage the goal", methods_any: &["session/goal/get", "session/goal/set", "session/goal/clear"], requires_all: &["coding.autonomy.v1", "coding.goal_runtime.v1"], aliases: &[], effect: Some("dialog.open.goal") },
     // A10 — `/agents` (alias `/agent`) is its own web command
     // (`registry.ts:383-397`: methodsAll agent/list + coding.autonomy.v1 +

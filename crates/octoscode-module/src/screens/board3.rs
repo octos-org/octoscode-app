@@ -17,6 +17,7 @@ use octoscode_store::Store;
 // `board3/ui.rs` for why: runtime lists + a desktop window shorter than the
 // 406x776 artboard).
 pub mod agents;
+pub mod research;
 pub mod checkpoints;
 pub mod fleetview;
 pub mod host;

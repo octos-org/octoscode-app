@@ -3406,7 +3406,7 @@ impl OctoscodeView {
             let ui = { self.bridge.lock().unwrap().ui.clone() };
             let active_turn = ui.lock().unwrap().active_turn();
             // A10 — the Agents panel's spawn is idle-only.
-            screens::board3::agents::note_turn_busy(active_turn.is_some());
+            screens::board3::host::note_turn_busy(active_turn.is_some());
             let mode = {
                 let ctx = bindings::Ctx::new(&store, &ui);
                 screens::workspace::query(&ctx, "set.permission_mode")
