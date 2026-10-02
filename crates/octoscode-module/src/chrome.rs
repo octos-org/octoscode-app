@@ -2024,8 +2024,10 @@ impl ChromeRuntime {
             for layer in ["sb_theme_ic_system", "sb_theme_ic_light", "sb_theme_ic_dark"] {
                 show(cx, view, &[LiveId::from_str(layer)], layer == on);
             }
-            text(cx, view, ids!(sb_theme_label), theme_label(&pref));
-            text(cx, view, ids!(sb_settings_label), a26_copy::SETTINGS);
+            // A24: the footer's words in the current language ("System" is
+            // the theme's 跟随系统 here, `i18n::tr_ctx`).
+            text(cx, view, ids!(sb_theme_label), crate::i18n::tr_ctx("theme", theme_label(&pref)));
+            text(cx, view, ids!(sb_settings_label), tr(a26_copy::SETTINGS));
         }
         show(cx, view, ids!(sidebar_collapse_slot), !compact && !rail);
         if crate::screens::sidebar::take_focus_search() {
@@ -2197,7 +2199,7 @@ impl ChromeRuntime {
         // General.
         sync_notify_row(cx, view, &crate::attention::settings());
         let theme = theme_label(&crate::screens::theme::preference());
-        text(cx, view, &[live_id!(set_theme), live_id!(vb_text)], tr(theme));
+        text(cx, view, &[live_id!(set_theme), live_id!(vb_text)], crate::i18n::tr_ctx("theme", theme));
         let endpoint = server_label();
         // A9: the web's five connection states (a9_settings::status_of) with
         // the status dot; the origin on the right.

@@ -23,6 +23,7 @@ use crate::screens::media::{self, AttachmentDraft, DraftStatus, LocalFile};
 
 use super::host::Outcome;
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::tr;
 
 #[derive(Debug, Clone, Default)]
 pub struct ImgState {
@@ -37,7 +38,8 @@ pub struct ImgState {
 
 /// The size line (`AttachmentsDialog.tsx:131-157`): `0.48 MiB · image/png`.
 pub fn size_line(bytes: u64, mime: &str) -> String {
-    format!("{:.2} MiB · {mime}", bytes as f64 / 1_048_576.0)
+    // The web composes it: `{size} {t("MiB ·")} {mime}` (AttachmentsDialog.tsx:135).
+    format!("{:.2} {} {mime}", bytes as f64 / 1_048_576.0, tr("MiB ·"))
 }
 
 /// The status copy per draft state (`AttachmentsDialog.tsx:131-157`).
@@ -221,12 +223,12 @@ pub fn build(d: &mut Dsl, st: &ImgState, frame: &Frame, drafts: Option<&media::A
     ui::shell_open(d, frame, width);
     let row = d.anon();
     d.view(&row, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5}");
-    d.text("b3_title", "Turn images", &ui::title().w(W::Fill));
+    d.text("b3_title", tr("Turn images"), &ui::title().w(W::Fill));
     ui::close_glyph(d, "b3.img.close");
     d.close();
     d.text(
         "b3_img_desc",
-        "Choose up to four PNG, JPEG, GIF or WebP images. Selecting a file does not upload it; upload explicitly, then send it with this Session's next prompt.",
+        tr("Choose up to four PNG, JPEG, GIF or WebP images. Selecting a file does not upload it; upload explicitly, then send it with this Session's next prompt."),
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     d.gap(W::Fill, 14.0);
@@ -247,13 +249,14 @@ pub fn build(d: &mut Dsl, st: &ImgState, frame: &Frame, drafts: Option<&media::A
     d.gap(W::Fill, 10.0);
     d.text(
         "b3_img_counter",
-        &format!("{} of {} image slots used", entries.len(), media::MAX_TURN_IMAGES),
+        // The web composes it around the counts (AttachmentsDialog.tsx:123-127).
+        &format!("{} {} {} {}", entries.len(), tr("of"), media::MAX_TURN_IMAGES, tr("image slots used")),
         &Txt::new(12.5, Face::Regular, tok::TEXT),
     );
     for (i, e) in entries.iter().enumerate() {
         d.text(
             &format!("b3_img_row_{i}"),
-            &format!("{} · {} · {}", super::inventory::fit(&e.name, 220.0, 12.0, false), size_line(e.bytes, &e.mime), status_copy(e.status)),
+            &format!("{} · {} · {}", super::inventory::fit(&e.name, 220.0, 12.0, false), size_line(e.bytes, &e.mime), tr(status_copy(e.status))),
             &Txt::new(11.5, Face::Regular, if e.status == DraftStatus::Error { tok::RED_TEXT } else { tok::MUTED }).w(W::Fill),
         );
     }
@@ -264,23 +267,23 @@ pub fn build(d: &mut Dsl, st: &ImgState, frame: &Frame, drafts: Option<&media::A
     // stray "Session: dsflash" line), between hairlines as the board draws it.
     let scope = d.anon();
     d.view(&scope, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-    d.text("", "Profile:", &Txt::new(13.0, Face::Regular, tok::MUTED));
+    d.text("", tr("Profile:"), &Txt::new(13.0, Face::Regular, tok::MUTED));
     d.text("b3_img_profile", &st.profile, &Txt::new(13.0, Face::Mono, tok::TEXT));
-    d.text("", "· Session:", &Txt::new(13.0, Face::Regular, tok::MUTED));
+    d.text("", tr("· Session:"), &Txt::new(13.0, Face::Regular, tok::MUTED));
     d.text("b3_img_session", &super::inventory::fit(&st.session, inner_w - 240.0, 13.0, true), &Txt::new(13.0, Face::Mono, tok::TEXT).w(W::Fill));
     d.close();
     d.gap(W::Fill, 12.0);
     d.hairline();
     d.gap(W::Fill, 12.0);
-    d.text("b3_img_limit", "20 MiB per image", &ui::meta());
+    d.text("b3_img_limit", tr("20 MiB per image"), &ui::meta());
     if let Some(e) = &st.error {
         d.gap(W::Fill, 6.0);
         // A13: developer wording gets a plain lead; the cause stays muted.
-        ui::error_line(d, "b3_img_error", "Couldn't upload the images.", e);
+        ui::error_line(d, "b3_img_error", tr("Couldn't upload the images."), e);
     }
     if let Some(n) = &st.notice {
         d.gap(W::Fill, 6.0);
-        d.text("b3_img_notice", n, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        d.text("b3_img_notice", tr(n), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     }
     d.gap(W::Fill, 14.0);
     let full = entries.len() >= media::MAX_TURN_IMAGES || uploading;
@@ -288,20 +291,20 @@ pub fn build(d: &mut Dsl, st: &ImgState, frame: &Frame, drafts: Option<&media::A
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 10");
     // The board's rounded outline buttons; an unavailable control keeps its
     // place and reads as unavailable (no tap).
-    d.button("b3_img_choose", "Choose image files", "b3.img.choose", if full { Btn::OutlineOff } else { Btn::Outline }, W::Fill, 42.0);
+    d.button("b3_img_choose", tr("Choose image files"), "b3.img.choose", if full { Btn::OutlineOff } else { Btn::Outline }, W::Fill, 42.0);
     let uploadable = entries.iter().any(|e| matches!(e.status, DraftStatus::Selected | DraftStatus::Error));
     if uploadable || uploading {
         d.button(
             "b3_img_upload",
-            if uploading { "Uploading…" } else { "Upload selected images" },
+            tr(if uploading { "Uploading…" } else { "Upload selected images" }),
             "b3.img.upload",
             if uploadable && !uploading { Btn::Primary } else { Btn::Disabled },
             W::Fill,
             42.0,
         );
     }
-    d.button("b3_img_cancel", "Cancel uploads", "b3.img.cancel", if uploading { Btn::Outline } else { Btn::OutlineOff }, W::Fill, 42.0);
-    d.button("b3_img_close_btn", if uploading { "Cancel uploads and close" } else { "Close images" }, "b3.img.close", Btn::Outline, W::Fill, 42.0);
+    d.button("b3_img_cancel", tr("Cancel uploads"), "b3.img.cancel", if uploading { Btn::Outline } else { Btn::OutlineOff }, W::Fill, 42.0);
+    d.button("b3_img_close_btn", tr(if uploading { "Cancel uploads and close" } else { "Close images" }), "b3.img.close", Btn::Outline, W::Fill, 42.0);
     d.close();
     ui::body_close(d);
     ui::shell_close(d);

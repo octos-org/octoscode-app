@@ -210,6 +210,19 @@ pub fn tr(source: &str) -> &str {
     tr_in(language(), source)
 }
 
+/// One English word, two meanings: the theme's "System" reads 跟随系统, a
+/// system notice's "System" reads 系统. A native entry keyed
+/// `"<ctx>|<source>"` wins in that context; otherwise plain [`tr`]. The
+/// English is the source either way (no renamed copy).
+pub fn tr_ctx<'a>(ctx: &str, source: &'a str) -> &'a str {
+    if is_zh() {
+        if let Some(zh) = native_zh(&format!("{ctx}|{source}")) {
+            return zh;
+        }
+    }
+    tr(source)
+}
+
 /// `createUiText(lang, catalog)(source, params)` (ui-text.tsx:17-37):
 /// translate, then replace each `{name}` token whose name is a param; a
 /// token with no param stays as written.
