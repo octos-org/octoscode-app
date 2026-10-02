@@ -711,6 +711,10 @@ pub fn model_of(store: &Store) -> String {
 ///   request (`permission_selection_policy_fields`). It was the ACTIVE
 ///   Session's Settings preset, with "Ask" for anything not full access;
 /// * the model is the profile's selected model (a new Session runs it).
+///
+/// The words are short so A13's phone cut (`chrome::fit_segments`: whole
+/// segments, then "…", in 256 px) still keeps the second segment ("Server
+/// defaults" / "Asks on request"), not just "New chat defaults · …".
 pub fn defaults_line(store: &Store) -> String {
     let live = crate::screens::session_defaults::current();
     let mut parts = vec!["New chat defaults".to_owned()];
@@ -721,13 +725,13 @@ pub fn defaults_line(store: &Store) -> String {
 }
 
 /// [`defaults_line`]'s permission facts for the new-session defaults:
-/// `[approval, permissions]` when stored, `["Server default permissions"]`
+/// `[approval, permissions]` when stored, `["Server defaults"]`
 /// when nothing is stored (nothing is applied at creation).
 pub fn new_chat_permissions(live: &crate::screens::session_defaults::Live) -> Vec<String> {
     use crate::screens::session_defaults::{NetworkPolicy, PermissionMode};
     use octoscode_store::domains::profile::{PermissionNetworkPolicy as N, PermissionProfileMode as M};
     if !live.stored {
-        return vec!["Server default permissions".to_owned()];
+        return vec!["Server defaults".to_owned()];
     }
     let d = &live.value;
     let mode = match d.permission_mode {
@@ -736,7 +740,7 @@ pub fn new_chat_permissions(live: &crate::screens::session_defaults::Live) -> Ve
         PermissionMode::DangerFullAccess => M::DangerFullAccess,
     };
     let network = if d.network == NetworkPolicy::Allow { N::Allow } else { N::Deny };
-    let approval = if mode == M::DangerFullAccess { "No approval prompts" } else { "Approval on request" };
+    let approval = if mode == M::DangerFullAccess { "Never asks" } else { "Asks on request" };
     vec![approval.to_owned(), permission_name(mode, network)]
 }
 
@@ -882,7 +886,7 @@ mod tests {
         // A15: the line names what New chat applies, in the seat's words.
         assert_eq!(
             defaults_line(&store),
-            "New chat defaults · Approval on request · Read · Network allowed · Default model · Thinking: On"
+            "New chat defaults · Asks on request · Read · Network allowed · Default model · Thinking: On"
         );
     }
 
@@ -896,7 +900,7 @@ mod tests {
         let store = Store::new();
         assert!(!crate::screens::session_defaults::current().stored);
         let line = defaults_line(&store);
-        assert_eq!(line, "New chat defaults · Server default permissions · Default model · Thinking: On");
+        assert_eq!(line, "New chat defaults · Server defaults · Default model · Thinking: On");
         assert!(!line.contains("Ask for approval"));
         // Full access stored: the server asks for nothing.
         crate::screens::session_defaults::update(|d| {
@@ -905,8 +909,24 @@ mod tests {
         });
         assert_eq!(
             defaults_line(&store),
-            "New chat defaults · No approval prompts · Full access · Network allowed · Default model · Thinking: On"
+            "New chat defaults · Never asks · Full access · Network allowed · Default model · Thinking: On"
         );
+        reset_state();
+    }
+
+    /// A15 — on a phone (A13's one-line cut, 360 - 104 px) the line keeps its
+    /// first fact after "New chat defaults", never only the label.
+    #[test]
+    fn the_phone_cut_keeps_the_first_fact() {
+        let _g = lock();
+        reset_state();
+        let store = Store::new();
+        let phone = |s: &Store| crate::chrome::fit_segments(&defaults_line(s), 360.0 - 104.0);
+        assert_eq!(phone(&store), "New chat defaults · Server defaults · …");
+        crate::screens::session_defaults::update(|d| {
+            d.permission_mode = crate::screens::session_defaults::PermissionMode::WorkspaceWrite;
+        });
+        assert_eq!(phone(&store), "New chat defaults · Asks on request · …");
         reset_state();
     }
 

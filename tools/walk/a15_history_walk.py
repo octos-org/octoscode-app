@@ -265,13 +265,15 @@ def walk():
     check("wire: the new Session's open hydrated too", wait(lambda: new_id and message_hydrates(new_id) == 1, 6), str(new_id))
     line = text("hd_defaults_text")
     check("defaults line: what a New chat gets (nothing stored: the server's defaults)",
-          line == "New chat defaults · Server default permissions · deepseek-v4-flash · Thinking: On", repr(line))
+          line == ("New chat defaults · Server defaults · …" if PHONE else "New chat defaults · Server defaults · deepseek-v4-flash · Thinking: On"), repr(line))
     lr, strip = rect("hd_defaults_text"), rect("hd_defaults")
     if lr and strip:
         check("layout: the defaults line inside its strip", inside(lr, strip, 1.0), f"{lr} in {strip}")
         if not PHONE:
             check("layout: one line on desktop", lr[3] <= 20, str(lr))
-    check("seat: the new Session's permissions are the server's", text("i0_composer_2_0") == "Write · Network allowed", repr(text("i0_composer_2_0")))
+    # (A13: the phone seat names the mode only, to keep the model whole.)
+    seat = "Write" if PHONE else "Write · Network allowed"
+    check("seat: the new Session's permissions are the server's", text("i0_composer_2_0") == seat, repr(text("i0_composer_2_0")))
     shot("new-chat-defaults")
 
     # 3. Back and forth: each open hydrates once, the history once.
