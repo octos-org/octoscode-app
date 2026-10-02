@@ -196,10 +196,15 @@ mod tests {
             for banned in ["seat", "epoch", "lane", "slug", "fence", "operation id", "binding"] {
                 assert!(!v.to_ascii_lowercase().contains(banned), "{k}: {v}");
             }
+            // GATHER_ZH carries some web keys verbatim (zh.ts:910-913): the
+            // catalog answers those with the same text.
+            assert_eq!(tr_in(Lang::Zh, k), *v, "{k}");
+            assert_eq!(tr_in(Lang::En, k), *k);
+        }
+        // The dock's own copy is copy NO web table has (else it is dead).
+        for (k, _) in DOCK_ZH {
             assert!(!catalog().contains_key(k), "{k} is a web key: the catalog wins, the entry is dead");
             assert!(zh::PEER_ZH.iter().all(|(w, _)| w != k), "{k} is a peer-copy key");
-            assert_eq!(tr_in(Lang::Zh, k), *v);
-            assert_eq!(tr_in(Lang::En, k), *k);
         }
         assert_eq!(text_in(Lang::Zh, "{value0}/{value1} finished", &[("value0", "1"), ("value1", "3")]), "1/3 已完成");
         // "Approve for session" is the board's wording of the web's own key.

@@ -712,12 +712,19 @@ mod roster_tests {
             (r.activity, r.outcome, r.output_tokens, r.finished_at_ms),
             (Activity::Done, Some(Outcome::Stopped), 1200, Some(9))
         );
+        // A30: a receipt applied AFTER the terminal is ignored — in wire
+        // order the terminal clears the ack, so the late one must not
+        // resurrect it (the same end state in either order).
+        assert!(!p.observe_session_event("m#peer-a", &PeerSessionEvent::ControlAck { interrupt: true }, 9));
+        assert_eq!(p.row("m#peer-a").unwrap().acknowledgment, None);
         // A replacement turn clears the outcome and flags a stale ack.
-        ev(PeerSessionEvent::ControlAck { interrupt: true });
         ev(PeerSessionEvent::TurnStarted { turn_id: Some("turn-2".into()) });
+        assert!(p.row("m#peer-a").unwrap().outcome.is_none(), "a fresh turn: the outcome no longer stands");
+        ev(PeerSessionEvent::ControlAck { interrupt: false });
+        ev(PeerSessionEvent::TurnStarted { turn_id: Some("turn-3".into()) });
         let r = p.row("m#peer-a").unwrap();
         assert!(r.turn_changed_since_ack && r.acknowledgment.is_none() && r.outcome.is_none());
-        assert_eq!(r.turn_id, "turn-2");
+        assert_eq!(r.turn_id, "turn-3");
         // A closed row owns no further events.
         p.close_row("m#peer-a");
         assert!(!p.observe_session_event("m#peer-a", &PeerSessionEvent::AttentionResolved, 10));

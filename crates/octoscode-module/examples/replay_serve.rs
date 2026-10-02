@@ -619,6 +619,15 @@ struct FleetSim {
     /// renew finds the lease taken by another app (`driver_fence_stale`);
     /// the file is removed so a later acquire holds again.
     revoke_file: Option<String>,
+    /// A30 (`--peer-dock`): the sidebar peer dock's walk — no prior walked
+    /// operation, three advertised lanes (glm-4.6 / gpt-5.4 /
+    /// deepseek-v4-flash), and per dispatch: the FIRST peer works then asks
+    /// for an approval, the SECOND asks for one (`cargo test -p octos-cli`)
+    /// and asks AGAIN after a Deny or an Approve-for-session, the THIRD
+    /// finishes; every approval names its target (`typed_details.command`).
+    peer_dock: bool,
+    /// A30: how many approvals each peer session has asked for.
+    asked: BTreeMap<String, u64>,
 }
 
 /// One reply + the notifications that follow it (`(delay ms, method, params)`).
@@ -666,6 +675,8 @@ impl FleetSim {
             workspace: workspace.to_owned(),
             external: true,
             revoke_file: None,
+            peer_dock: false,
+            asked: BTreeMap::new(),
         };
         let ws = sim.workspace.clone();
         for v in [&mut sim.get, &mut sim.binding] {
@@ -898,6 +909,13 @@ impl FleetSim {
                             d["approval_id"] = Value::String(approval);
                             d["decision"] = p["command"]["decision"].clone();
                             pushes.push((200, "approval/decided".to_owned(), d));
+                            // A30: after a Deny or an Approve-for-session the
+                            // second peer asks again (a NEW approval id), so
+                            // each dock action has its own pending request.
+                            let again = p["command"]["decision"] == "deny" || p["command"]["approval_scope"] == "session";
+                            if self.peer_dock && again && self.dispatch_index(&session) == Some(2) {
+                                pushes.push((1500, "approval/requested".to_owned(), self.ask(&session, &turn)));
+                            }
                         }
                     }
                     Some("interrupt") => {
@@ -923,11 +941,102 @@ impl FleetSim {
         }
     }
 
+    /// A30 (`--peer-dock`): only this run's dispatches are walked, and the
+    /// board's three models are each their own advertised lane (a Start
+    /// resolves its model from these).
+    fn enable_peer_dock(&mut self) {
+        self.peer_dock = true;
+        self.ops.clear();
+        let primary = self.lanes["sub_providers"][0].clone();
+        let lane = |key: &str, provider: &str, model: &str, desc: &str| {
+            let mut l = primary.clone();
+            l["key"] = key.into();
+            l["provider"] = provider.into();
+            l["model"] = model.into();
+            l["description"] = desc.into();
+            l
+        };
+        self.lanes["sub_providers"] = serde_json::json!([
+            lane("lane-glm", "zhipu", "glm-4.6", "Long-context lane"),
+            lane("lane-primary", "openai", "gpt-5.4", "Primary dispatch lane"),
+            lane("lane-deepseek", "deepseek", "deepseek-v4-flash", "Fast review lane"),
+        ]);
+    }
+
+    /// A30: the 1-based dispatch order of a peer session (this run's).
+    fn dispatch_index(&self, peer: &str) -> Option<usize> {
+        self.ops
+            .iter()
+            .filter(|o| o["acceptance"]["model_lane"].is_string())
+            .position(|o| o["acceptance"]["adopted_session_id"] == peer)
+            .map(|i| i + 1)
+    }
+
+    /// A30: the next approval a peer asks for — a fresh id, its target named
+    /// in `typed_details.command.command_line` (what the dock's card shows).
+    fn ask(&mut self, peer: &str, turn: &Value) -> Value {
+        const TARGETS: [&str; 5] = [
+            "cargo test -p octos-cli",
+            "cargo clippy --workspace",
+            "rm -rf target/debug/incremental",
+            "cargo publish --dry-run",
+            "make release",
+        ];
+        let n = {
+            let e = self.asked.entry(peer.to_owned()).or_insert(0);
+            *e += 1;
+            *e
+        };
+        let k = self.dispatch_index(peer).unwrap_or(9) as u64;
+        let id = format!("01a0eb92-9444-7101-aa6f-{:012x}", (k << 16) | n);
+        let target = if k == 1 { "cargo build -p octos-core" } else { TARGETS[((n - 1) as usize) % TARGETS.len()] };
+        let mut r = self.requested.clone();
+        r["session_id"] = Value::String(peer.to_owned());
+        r["turn_id"] = turn.clone();
+        r["approval_id"] = Value::String(id.clone());
+        r["typed_details"] = serde_json::json!({"kind": "command", "command": {"command_line": target}});
+        self.approvals.insert(peer.to_owned(), id);
+        r
+    }
+
+    /// A30: a token-cost progress frame (the dock's "↓ tokens").
+    fn tokens(peer: &str, turn: &Value, output_tokens: u64) -> Value {
+        serde_json::json!({
+            "session_id": peer, "turn_id": turn,
+            "metadata": {"kind": "token_cost_update", "token_cost": {"output_tokens": output_tokens}}
+        })
+    }
+
     /// A dispatched peer's background attach: its own frames follow.
     fn attached(&mut self, peer: &str) -> Vec<(u64, String, Value)> {
         let Some(op) = self.ops.iter().find(|o| o["acceptance"]["adopted_session_id"] == peer) else {
             return Vec::new();
         };
+        if self.peer_dock {
+            let turn = op["acceptance"]["adopted_turn_id"].clone();
+            let mut started = self.started.clone();
+            started["session_id"] = Value::String(peer.to_owned());
+            started["turn_id"] = turn.clone();
+            let mut out = vec![(300, "turn/started".to_owned(), started)];
+            match self.dispatch_index(peer) {
+                Some(1) => {
+                    out.push((600, "progress/updated".to_owned(), Self::tokens(peer, &turn, 12_400)));
+                    if !self.approvals.contains_key(peer) {
+                        out.push((900, "approval/requested".to_owned(), self.ask(peer, &turn)));
+                    }
+                }
+                Some(2) => {
+                    if !self.approvals.contains_key(peer) {
+                        out.push((900, "approval/requested".to_owned(), self.ask(peer, &turn)));
+                    }
+                }
+                _ => {
+                    out.push((600, "progress/updated".to_owned(), Self::tokens(peer, &turn, 31_000)));
+                    out.push((1200, "turn/completed".to_owned(), serde_json::json!({"session_id": peer, "turn_id": turn})));
+                }
+            }
+            return out;
+        }
         let turn = op["acceptance"]["adopted_turn_id"].clone();
         let first = self.ops.iter().filter(|o| o["acceptance"]["model_lane"].is_string()).position(|o| o["acceptance"]["adopted_session_id"] == peer);
         let mut started = self.started.clone();
@@ -1622,6 +1731,8 @@ async fn main() {
         }
     }
     let fleet_cold = args.iter().any(|a| a == "--fleet-cold");
+    // A30 — `--peer-dock` (fleet scenario): the sidebar peer dock's walk.
+    let peer_dock = args.iter().any(|a| a == "--peer-dock");
     // A18 — `--stale-window`: every `session/hydrate` answers with the A15
     // live smoke's FIRST-launch hydrate (`a18-stale-window-a6ea8505.jsonl`,
     // cut from docs/ux/a15-live/smoke/trace.jsonl): no durable rows, while the
@@ -1765,6 +1876,9 @@ async fn main() {
                     sim.revision = 0;
                 }
                 sim.revoke_file = revoke_file.clone();
+                if peer_dock {
+                    sim.enable_peer_dock();
+                }
                 sim
             });
             // A10: how many sequenced replies each method has consumed.
@@ -1912,7 +2026,12 @@ async fn main() {
                     tokio::spawn(async move {
                         for (delay, m, params) in frames {
                             tokio::time::sleep(std::time::Duration::from_millis(delay)).await;
-                            println!("[replay-serve] => {m} (fleet)");
+                            // A30: the pushed frame's session and approval id.
+                            let ids: Vec<String> = ["session_id", "approval_id", "decision"]
+                                .iter()
+                                .filter_map(|k| params.get(*k).and_then(|x| x.as_str()).map(|x| format!("{k}={x}")))
+                                .collect();
+                            println!("[replay-serve] => {m} (fleet) {}", ids.join(" "));
                             let frame = serde_json::json!({"jsonrpc": "2.0", "method": m, "params": params});
                             let _ = tx.lock().await.send(Message::Text(frame.to_string().into())).await;
                         }
@@ -1949,6 +2068,15 @@ async fn main() {
                                 .iter()
                                 .filter_map(|k| p.get(*k).filter(|x| !x.is_null()).map(|x| format!("{k}={}", x.to_string().trim_matches('"'))))
                                 .chain(p["command"]["kind"].as_str().map(|k| format!("command={k}")))
+                                // A30: the decision's ids (the dock walk's wire proof).
+                                .chain(["approval_id", "decision", "approval_scope"].iter().filter_map(|k| {
+                                    p["command"].get(*k).and_then(Value::as_str).map(|x| format!("{k}={x}"))
+                                }))
+                                // A30: a dispatch's adopted session + turn (the
+                                // dock walk maps each peer to its own ids).
+                                .chain(["adopted_session_id", "adopted_turn_id"].iter().filter_map(|k| {
+                                    r.get(*k).and_then(Value::as_str).map(|x| format!("{k}={x}"))
+                                }))
                                 .collect();
                             println!("[replay-serve] -> {method} (fleet sim) {}", ids.join(" "));
                             serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r})

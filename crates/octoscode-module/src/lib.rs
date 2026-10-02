@@ -42,6 +42,9 @@ pub mod a12_host;
 // A26 — the live re-theme (footer theme toggle, display palettes), the
 // sidebar footer entries and the error toasts (impl OctoscodeView).
 pub mod a26_host;
+// A30 — the sidebar peer dock's host half: mount, taps, ⌥P/⌥Y/⌥N, its clock
+// (impl OctoscodeView, like a9_host).
+pub mod a30_host;
 pub mod bindings;
 pub mod cards;
 // A7: the highlighted code block body widget.
@@ -354,6 +357,13 @@ script_mod! {
                 // New chat, Search chats, By workspace | All + Recent, and
                 // the tree (`thread_list`): chrome.rs `OcSidebarBody`.
                 oc_sidebar_body := mod.widgets.OcSidebarBody {}
+                // A30: the peer dock (web ProductSidebar.tsx:959-967) —
+                // between the session tree and the footer; mounted by
+                // a30_host.rs `sync_peer_dock`, hidden with no peers.
+                peer_dock_row := View {
+                    width: Fill height: Fit visible: false
+                    peer_dock_splash := Splash { width: Fill height: Fit }
+                }
                 // A5 (judge, board 2): the old GOALS / LOOPS / FLEET sections
                 // (card #28e) are gone — they are not in the approved board-2
                 // sidebar and squeezed its tree. Goals, loops and monitors
@@ -1364,6 +1374,16 @@ pub struct OctoscodeView {
     toast_timer: Timer,
     #[rust]
     toast_key: String,
+    /// A30 — the peer dock's taps (`peer_dock_splash`), its elapsed clock,
+    /// and the scroll a new waiting card asks for after the next layout.
+    #[rust]
+    peer_dock_taps: Vec<(LiveId, String)>,
+    #[rust]
+    peer_dock_timer: Timer,
+    #[rust]
+    peer_dock_ticking: bool,
+    #[rust]
+    peer_dock_scroll: Option<f64>,
 }
 
 impl OctoscodeView {
@@ -1665,6 +1685,13 @@ impl OctoscodeView {
         // A26 — the error toasts' × (`toast.dismiss#<id>`).
         if screens::toasts::routes(action) {
             self.perform_toast(cx, action, index);
+            return;
+        }
+        // A30 — the sidebar peer dock's ids (`pd.*`: fold, focus, and the
+        // threaded approval's Approve once / Deny / Stop / Approve for
+        // session, each bound to the slot it was drawn for).
+        if screens::peer_dock::routes(action) {
+            self.perform_peer_dock(cx, action, index);
             return;
         }
         // A12 — the connection banner's ids (Retry now / Disconnect /
@@ -3709,6 +3736,8 @@ impl OctoscodeView {
         // store; the mount cache remounts only when its DSL changed.
         self.a9_guarded(cx, a9_host::Guard::Dialog);
         self.sync_chrome(cx);
+        // A30 — the sidebar peer dock, once the chrome settled the seat.
+        self.sync_peer_dock(cx);
         // A26 — the error toasts, once every dock's visibility is settled.
         self.sync_toasts(cx);
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
@@ -5150,6 +5179,8 @@ impl OctoscodeView {
                 .set_scroll_pos(cx, dvec2(0.0, y));
             self.view.redraw(cx);
         }
+        // A30 — a new waiting card in a capped peer dock, once laid out.
+        self.peer_dock_after_draw(cx);
         DrawStep::done()
     }
 
@@ -5236,6 +5267,8 @@ impl OctoscodeView {
             }
             // A26: a toast is due to leave.
             Event::Timer(_) if self.toast_timer_fired(cx, event) => {}
+            // A30: the peer dock's elapsed clock.
+            Event::Timer(_) if self.peer_dock_timer_fired(cx, event) => {}
             Event::Actions(actions) => {
                 // A25: the OS's notification answers (makepad posts them as
                 // actions): the permission, a failed post, and a click — the
@@ -5457,6 +5490,8 @@ impl OctoscodeView {
                 self.a9_actions(cx, actions);
                 // A26 — the error toasts' ×.
                 self.toast_actions(cx, actions);
+                // A30 — the sidebar peer dock's taps.
+                self.peer_dock_actions(cx, actions);
                 // A12 — the connection banner's Retry now / Disconnect.
                 self.link_actions(cx, actions);
                 // A6 — the conversation surfaces' taps, inputs and the
@@ -5929,6 +5964,9 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] task detail closed (Escape)");
                 self.perform_action(cx, "cv.detail.close", 0);
             }
+            // A30 — ⌥Y / ⌥N on the sidebar peer dock's focused row (its
+            // drawn approval); suppressed in a text field or a dialog.
+            Event::KeyDown(e) if self.peer_dock_key(cx, e) => {}
             // A6 — the takeover's keys: Y/S/N/D on the approval card, Enter /
             // arrows / Space on the question card (a consumed key stops here).
             Event::KeyDown(e) if self.surfaces_key(cx, e) => {}
@@ -5962,9 +6000,10 @@ impl OctoscodeView {
                             self.sync_labels(cx);
                             return;
                         }
-                        // No native peer dock to fold: the chord is inert.
+                        // A30 — `App.tsx:1110-1117`: Alt+P folds the
+                        // sidebar peer dock (a30_host.rs).
                         screens::keys::ParityShortcut::TogglePeerDock => {
-                            makepad_widgets::log!("[octoscode] shortcut Alt+P: no peer dock");
+                            self.toggle_peer_dock(cx);
                             return;
                         }
                         screens::keys::ParityShortcut::ShowApproval => {}
