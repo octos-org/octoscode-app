@@ -1,6 +1,6 @@
 PASS server up — port 50298
-[makepad-remote] listening on 127.0.0.1:8479 pid=80149 app=octosense grabs=/var/folders/76/2nq8hrz92fg4j15t4h9kdvtw0000gn/T/makepad-remote/octosense-80149
-[headless] up: pid 80149  port 8479  log /var/folders/76/2nq8hrz92fg4j15t4h9kdvtw0000gn/T/a12walk.uf8ljfey/hs/port-8479.log
+[makepad-remote] listening on 127.0.0.1:8479 pid=80149 app=octosense grabs=<tmp>
+[headless] up: pid 80149  port 8479  log <tmp>
 PASS app launched (hidden, isolated state)
 PASS the shell is up and live
 PASS strip Ready — 'Ready'
@@ -60,4 +60,4 @@ PASS server back
 PASS the card's Connect dials that same server and the shell returns
   shot <scratch>/out-kill/desktop-9-reconnected-from-card.png
 == WALK a12 reconnect desktop (live, KILL): 50/50 passed
-   state dir (trace, serve log): /var/folders/76/2nq8hrz92fg4j15t4h9kdvtw0000gn/T/a12walk.uf8ljfey
+   state dir (trace, serve log): <tmp>
