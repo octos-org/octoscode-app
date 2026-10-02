@@ -706,7 +706,16 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         Job::FleetStart { operation_id, lane, brief } => super::fleetview::run_start(conv, operation_id, lane, brief).await,
         Job::FleetRow { key, identity, action, text } => super::fleetview::run_row(conv, key, identity, action, text).await,
         Job::FleetSeatAcquire => crate::screens::fleet_driver::acquire_seat(conv).await.map(|_| "seat acquired".to_owned()).map_err(|e| e.to_string()),
-        Job::FleetSeatRelease => crate::screens::fleet_driver::release_seat(conv).await.map(|_| "seat released".to_owned()).map_err(|e| e.to_string()),
+        Job::FleetSeatRelease => {
+            let released = crate::screens::fleet_driver::release_seat(conv).await;
+            // The web re-walks after a release (`releaseControlSeat` ->
+            // `refreshControlInventory`), so the next acquire's CAS reads the
+            // revision the release moved, and the disclosure follows it.
+            if released.is_ok() {
+                let _ = crate::screens::fleet_driver::load_inventory(conv).await;
+            }
+            released.map(|_| "seat released".to_owned()).map_err(|e| e.to_string())
+        }
         Job::FleetSeatControl { kind, live_turn } => super::fleet_console::run_seat(conv, kind, live_turn).await,
         Job::FleetConsoleDispatch { lane, brief, title } => super::fleet_console::run_dispatch(conv, lane, brief, title).await,
         Job::FleetConsoleRow { identity, action, text } => super::fleet_console::run_row(conv, identity, action, text).await,

@@ -320,7 +320,9 @@ fn a10_sequenced() -> BTreeMap<String, Vec<(Value, String)>> {
 /// `peer-control-*` workspaces; the binding's revision moves on acquire /
 /// release, dispatches join the walked inventory, and a dispatched peer's
 /// background attach gets its session's frames (turn/started; the FIRST
-/// peer then asks for an approval).
+/// peer then asks for an approval). `lane-review` is listed but answers
+/// `driver_model_unavailable` (the fixture's typed refusal frame: a lane
+/// whose credentials the server lacks), so the refusal path is clickable.
 struct FleetSim {
     get: Value,
     acquire: Value,
@@ -524,6 +526,9 @@ impl FleetSim {
                     return (Ok(r), Vec::new());
                 }
                 let lane = p["model"].as_str().unwrap_or("");
+                if lane == "lane-review" {
+                    return (Err(self.refuse("driver_model_unavailable")), Vec::new());
+                }
                 let Some(model) = self.lanes["sub_providers"]
                     .as_array()
                     .and_then(|ls| ls.iter().find(|l| l["key"] == lane))
@@ -801,11 +806,20 @@ async fn main() {
                     let frame = match reply {
                         Ok(mut r) => {
                             rewrite_session(&mut r, &recorded, &active_session);
-                            println!("[replay-serve] -> {method} (fleet sim)");
+                            // The ids each frame carried (operation / target /
+                            // expected turn / lane): the walk's wire proof.
+                            let p = &v["params"];
+                            let ids: Vec<String> = ["operation_id", "target_operation_id", "expected_turn_id", "model", "expected_revision"]
+                                .iter()
+                                .filter_map(|k| p.get(*k).filter(|x| !x.is_null()).map(|x| format!("{k}={}", x.to_string().trim_matches('"'))))
+                                .chain(p["command"]["kind"].as_str().map(|k| format!("command={k}")))
+                                .collect();
+                            println!("[replay-serve] -> {method} (fleet sim) {}", ids.join(" "));
                             serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r})
                         }
                         Err(e) => {
-                            println!("[replay-serve] -> {method} REFUSED {} (fleet sim)", e["data"]["kind"]);
+                            let op = v["params"]["operation_id"].as_str().unwrap_or("").to_owned();
+                            println!("[replay-serve] -> {method} REFUSED {} (fleet sim) operation_id={op}", e["data"]["kind"]);
                             serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e})
                         }
                     };

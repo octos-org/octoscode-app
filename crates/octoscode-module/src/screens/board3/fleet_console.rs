@@ -312,7 +312,13 @@ fn disclosure_seat(d: &mut Dsl, st: &FleetState, store: &Store) {
             _ => "No recovery pending",
         };
         fact(d, "b3_fleet_disc_recovery", "Recovery", recovery);
-        if let Some((driver, epoch, revision, lease)) = &disc.binding {
+        // `peerControlBindingFor`: the HELD acquire's own binding wins over
+        // the last observed walk.
+        let session = store.active_session().unwrap_or_default();
+        let binding = fleet_driver::held_binding(&session)
+            .map(|b| (b.driver_id, b.epoch, b.revision, b.lease_expires_at_ms))
+            .or(disc.binding.clone());
+        if let Some((driver, epoch, revision, lease)) = &binding {
             fact(d, "b3_fleet_disc_driver", "Driver", driver);
             fact(d, "b3_fleet_disc_epoch", "Epoch", &epoch.to_string());
             fact(d, "b3_fleet_disc_revision", "Revision", &revision.to_string());
