@@ -2861,10 +2861,6 @@ impl OctoscodeView {
             .unwrap_or(false);
         if !live && !docked_env {
             self.mount_connect_card(cx);
-            // #A2's pairing entry ("Pair with a link instead",
-            // `b1_connect_pair` -> `b1.open.pairing`) rides this card
-            // (fluid.rs `connect_card`); `board1::with_connect_entry` targets
-            // the retired setup-01 lowering.
         }
         // A3 (board 2): the sidebar's "New chat" row is native chrome
         // (chrome.rs `sb_new_chat`); the #16 `new-chat` component mount that
