@@ -320,7 +320,8 @@ fn lock() -> std::sync::MutexGuard<'static, ()> {
 /// Wait (bounded) until the server saw `n` requests of `method`: the
 /// transport writes on its own task, so a fixed sleep races a loaded host.
 async fn wait_for(server: &FakeServer, method: &str, n: usize) {
-    for _ in 0..60 {
+    // Up to 10 s; returns as soon as `n` calls arrived (3 s could flake on a loaded host).
+    for _ in 0..200 {
         if server.params_of(method).len() >= n {
             return;
         }
@@ -528,7 +529,9 @@ async fn the_strip_reads_the_session_model_once_and_shows_it() {
     assert!(host::strip_status_needed(&session));
     assert!(!host::strip_status_needed(&session), "asked once per session");
     host::run(Job::StatusRead, &conv).await.expect("status read");
-    assert_eq!(server.params_of("session/status/read")[0], json!({"session_id": session}));
+    // A15 — the read names the Profile (the server's `raw_profile_id` takes
+    // `profile_id` first; a `<profile>:main` id embeds none).
+    assert_eq!(server.params_of("session/status/read")[0], json!({"session_id": session, "profile_id": PROFILE}));
     let (model, state, _perm) = strip::facts(&conv.store, &host::state().strip, None, None);
     assert_eq!(model, "DeepSeek V4 Flash");
     assert_eq!(state, "Ready");

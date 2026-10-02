@@ -320,6 +320,24 @@ impl Timeline {
         id
     }
 
+    /// A15 — move entry `id` to just before the first entry of `turn` when it
+    /// sits after it: a hydrated terminal notice of a turn that ran BEFORE
+    /// `turn` (the fold appends it after the persisted rows; the web places a
+    /// message-less terminal turn "before the next turn", `model.ts:240-270`).
+    /// Nothing is deleted or rewritten. Returns whether it moved.
+    pub fn move_before_turn(&self, session: &str, id: u64, turn: &str) -> bool {
+        let mut map = self.inner.lock().unwrap();
+        let Some(entries) = map.get_mut(session) else { return false };
+        let Some(from) = entries.iter().position(|e| e.id == id) else { return false };
+        let Some(to) = entries.iter().position(|e| e.turn_id.as_deref() == Some(turn)) else { return false };
+        if from < to {
+            return false;
+        }
+        let e = entries.remove(from);
+        entries.insert(to, e);
+        true
+    }
+
     /// A6 — a delivered file, idempotent per (turn, file name): the web keys
     /// the row `file-attached:<turn>:<name>` (`timeline/model.ts:604-615`), so
     /// a `file_attached` frame and the persisted answer's `meta.media` naming
@@ -567,16 +585,24 @@ impl Timeline {
                     continue;
                 }
             }
-            let mut push = |entries: &mut Vec<TimelineEntry>,
-                            turn: Option<String>,
-                            kind: EntryKind,
-                            text: &str,
-                            hid: String,
-                            finalized: bool| {
+            // A15 — every entry the fold CREATES says so (`hydrated`), so a
+            // later fold can tell a turn this client streamed live (its rows
+            // carry no such mark, even once claimed) from history.
+            let push = |entries: &mut Vec<TimelineEntry>,
+                        turn: Option<String>,
+                        kind: EntryKind,
+                        text: &str,
+                        hid: String,
+                        finalized: bool,
+                        extra: serde_json::Value| {
                 let id = self.next_id.fetch_add(1, Ordering::Relaxed);
                 let mut e = TimelineEntry::new(id, turn, kind);
                 e.text = text.to_owned();
-                e.data = serde_json::json!({ "hydrate_id": hid });
+                let mut data = serde_json::json!({ "hydrate_id": hid, "hydrated": true });
+                if let (Some(d), serde_json::Value::Object(x)) = (data.as_object_mut(), extra) {
+                    d.extend(x);
+                }
+                e.data = data;
                 e.finalized = finalized;
                 entries.push(e);
             };
@@ -588,17 +614,31 @@ impl Timeline {
                     reasoning,
                     rhid.clone(),
                     true,
+                    serde_json::Value::Null,
                 );
                 seen.push(rhid.clone());
                 added += 1;
             }
-            let (kind, finalized) = match row.role {
-                "user" => (EntryKind::USER_MESSAGE, true),
-                "assistant" => (EntryKind::ASSISTANT_TEXT, true),
-                "reasoning" => (EntryKind::REASONING, true),
-                _ => (EntryKind::SYSTEM_NOTICE, false),
+            // A15 — a persisted `tool` row is the web's hydrated "Tool output"
+            // entry (`timelineFromHydrate`, `timeline/model.ts:112-140`: kind
+            // `tool`, title "Tool output", the output as its body, status
+            // complete), drawn as a tool row with its output behind the
+            // disclosure — not a "System" notice. The row has no call id or
+            // tool name: only a replayed tool envelope carries those (the
+            // caller folds those cards and leaves out the rows they stand for).
+            let (kind, text, finalized, extra) = match row.role {
+                "user" => (EntryKind::USER_MESSAGE, row.content, true, serde_json::Value::Null),
+                "assistant" => (EntryKind::ASSISTANT_TEXT, row.content, true, serde_json::Value::Null),
+                "reasoning" => (EntryKind::REASONING, row.content, true, serde_json::Value::Null),
+                "tool" => (
+                    EntryKind::TOOL_CALL,
+                    HYDRATED_TOOL_TITLE,
+                    true,
+                    serde_json::json!({ "status": "complete", "output": row.content }),
+                ),
+                _ => (EntryKind::SYSTEM_NOTICE, row.content, false, serde_json::Value::Null),
             };
-            push(entries, turn, kind, row.content, hid.clone(), finalized);
+            push(entries, turn, kind, text, hid.clone(), finalized, extra);
             seen.push(hid);
             added += 1;
         }
@@ -610,12 +650,29 @@ impl Timeline {
     }
 }
 
+/// A15 — the title of a hydrated `tool` row: the web's `timelineFromHydrate`
+/// (`timeline/model.ts:129-131`, "Tool output").
+pub const HYDRATED_TOOL_TITLE: &str = "Tool output";
+
+/// A15 — an entry [`Timeline::fold_hydrated_messages`] created (history),
+/// as opposed to one this client streamed live (claimed or not).
+pub fn is_hydrated(e: &TimelineEntry) -> bool {
+    e.data.get("hydrated").and_then(|v| v.as_bool()).unwrap_or(false)
+}
+
 /// A12 — [`Timeline::fold_hydrated_messages`]'s live-row recognition: does a
 /// row this client streamed LIVE for `turn` already stand for the hydrated
 /// `row`? A user / assistant row claims the first unclaimed live row of its
 /// kind (marking it with the hydrate id, so a later hydrate skips it by id);
 /// a claimed answer whose stream was cut takes the durable body; a `tool`
 /// row is represented when the turn's live tool cards exist. Never deletes.
+///
+/// A15 — Core persists a tool-calling step as an assistant row with an EMPTY
+/// body (its reasoning only) before the tool rows. On a turn streamed live
+/// that step is already on screen (its reasoning streamed, its card drawn),
+/// so it is represented too — it must never claim (and so displace) the
+/// turn's live answer, which the row with the body claims. Only live entries
+/// count: rows an earlier fold created ([`is_hydrated`]) are history.
 fn claim_live(entries: &mut [TimelineEntry], turn: &str, row: &HydratedRow, hid: &str, rhid: &str) -> bool {
     fn unclaimed(e: &TimelineEntry, kind: EntryKind, turn: &str) -> bool {
         e.kind == kind && e.turn_id.as_deref() == Some(turn) && e.data.get("hydrate_id").is_none()
@@ -628,6 +685,7 @@ fn claim_live(entries: &mut [TimelineEntry], turn: &str, row: &HydratedRow, hid:
             o.insert("hydrate_id".to_owned(), serde_json::json!(id));
         }
     }
+    let streamed_live = entries.iter().any(|e| e.turn_id.as_deref() == Some(turn) && !is_hydrated(e));
     match row.role {
         "user" => match entries.iter_mut().find(|e| unclaimed(e, EntryKind::USER_MESSAGE, turn)) {
             Some(e) => {
@@ -636,6 +694,17 @@ fn claim_live(entries: &mut [TimelineEntry], turn: &str, row: &HydratedRow, hid:
             }
             None => false,
         },
+        "assistant" if row.content.trim().is_empty() => {
+            if !streamed_live {
+                return false;
+            }
+            if row.reasoning.is_some() {
+                if let Some(r) = entries.iter_mut().find(|e| unclaimed(e, EntryKind::REASONING, turn)) {
+                    mark(r, rhid);
+                }
+            }
+            true
+        }
         "assistant" => {
             let Some(e) = entries.iter_mut().find(|e| unclaimed(e, EntryKind::ASSISTANT_TEXT, turn)) else {
                 return false;
@@ -653,9 +722,12 @@ fn claim_live(entries: &mut [TimelineEntry], turn: &str, row: &HydratedRow, hid:
             }
             true
         }
+        // A live tool card (or a replayed one the caller folded) stands for
+        // the turn's outputs; a hydrated "Tool output" row does not stand for
+        // its siblings.
         "tool" => entries
             .iter()
-            .any(|e| e.kind == EntryKind::TOOL_CALL && e.turn_id.as_deref() == Some(turn)),
+            .any(|e| e.kind == EntryKind::TOOL_CALL && e.turn_id.as_deref() == Some(turn) && !is_hydrated(e)),
         _ => false,
     }
 }

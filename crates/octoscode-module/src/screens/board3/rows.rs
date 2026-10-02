@@ -128,11 +128,40 @@ pub fn timeline_folded(store: &Arc<Store>, live: bool, folded: &[String]) -> Vec
         out.extend(files.drain(..).map(TRow::File));
         out.extend(notices.drain(..).map(TRow::Notice));
     };
+    // A15 — a turn with NO base row (only a notice: a stopped turn Core
+    // persisted nothing for, restored by a hydrate) sits where its entries
+    // sit in the transcript, before any later turn — not pinned below every
+    // turn that streams after it (the live smoke's restart: "2 + 3 = 5" drew
+    // above the earlier "Turn stopped").
+    let mut first_seen: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+    for (i, e) in entries.iter().enumerate() {
+        first_seen.entry(e.turn_id.clone().unwrap_or_default()).or_insert(i);
+    }
+    let base_turns: std::collections::HashSet<String> =
+        base.iter().map(|r| r.turn.clone().unwrap_or_default()).collect();
+    let mut orphans: Vec<(usize, String)> = per_turn
+        .iter()
+        .filter(|(t, _)| !base_turns.contains(t))
+        .filter_map(|(t, _)| first_seen.get(t).map(|i| (*i, t.clone())))
+        .collect();
+    orphans.sort();
+    let mut orphans: std::collections::VecDeque<(usize, String)> = orphans.into();
     for row in base {
         let t = row.turn.clone().unwrap_or_default();
         if current.as_deref() != Some(t.as_str()) {
             // A new turn group: settle the previous turn's leftovers first.
             flush(&mut out, &mut pending_files, &mut pending_notices);
+            // A15: then any notice-only turn that came before this one.
+            if let Some(start) = first_seen.get(&t).copied() {
+                while orphans.front().is_some_and(|(i, _)| *i < start) {
+                    let Some((_, orphan)) = orphans.pop_front() else { break };
+                    if let Some(x) = take(&mut per_turn, &orphan) {
+                        out.extend(x.thinking.into_iter().map(TRow::Thinking));
+                        out.extend(x.files.into_iter().map(TRow::File));
+                        out.extend(x.notices.into_iter().map(TRow::Notice));
+                    }
+                }
+            }
             current = Some(t.clone());
             if let Some(x) = take(&mut per_turn, &t) {
                 pending_files = x.files;
@@ -536,6 +565,36 @@ mod tests {
         assert!(rows.contains(&TRow::File(file)) && rows.contains(&TRow::Notice(notice)));
         // The base model is untouched underneath.
         assert_eq!(crate::screen::timeline_rows(&s, false).len(), 4);
+    }
+
+    /// A15 — the live smoke's restart: a stopped turn Core persisted nothing
+    /// for comes back as its notice only; the next turn streams AFTER it, so
+    /// the notice sits between the history and the new turn (it was pinned
+    /// below every later turn).
+    #[test]
+    fn a_notice_only_turn_keeps_its_place_before_later_turns() {
+        let s = store();
+        let tl = &s.domains.session.timeline;
+        tl.upsert_user_message("s", "t1", "count to three", serde_json::json!({}));
+        tl.append("s", Some("t1".into()), EntryKind::ASSISTANT_TEXT, "1 2 3".into());
+        let stopped = tl.upsert_notice_data("s", Some("t-stopped".into()), "terminal:t-stopped", "interrupted".into(),
+            serde_json::json!({"outcome": "interrupted"}));
+        tl.upsert_user_message("s", "t3", "what is 2 + 3?", serde_json::json!({}));
+        tl.append("s", Some("t3".into()), EntryKind::ASSISTANT_TEXT, "5".into());
+        let rows = timeline(&s, false);
+        let pos = |want: &TRow| rows.iter().position(|r| r == want).expect("row present");
+        let bubble = |turn: &str| {
+            rows.iter()
+                .position(|r| matches!(r, TRow::Base(b) if b.kind == ItemKind::UserBubble && b.turn.as_deref() == Some(turn)))
+                .expect("bubble")
+        };
+        assert!(bubble("t1") < pos(&TRow::Notice(stopped)), "after the earlier turn");
+        assert!(pos(&TRow::Notice(stopped)) < bubble("t3"), "before the later turn: {rows:?}");
+        assert_eq!(rows.iter().filter(|r| **r == TRow::Notice(stopped)).count(), 1, "drawn once");
+        // A trailing notice-only turn still closes the transcript.
+        let last = tl.upsert_notice_data("s", Some("t-last".into()), "terminal:t-last", "interrupted".into(),
+            serde_json::json!({"outcome": "interrupted"}));
+        assert_eq!(timeline(&s, false).last(), Some(&TRow::Notice(last)));
     }
 
     /// A13 (judge: "/status is not available…" receipts piled up as

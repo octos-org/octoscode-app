@@ -292,7 +292,8 @@ async fn drain(conv: &Conversation, events: &mut tokio::sync::mpsc::Receiver<oct
 }
 
 async fn wait_for(server: &FakeServer, method: &str, n: usize) {
-    for _ in 0..60 {
+    // Up to 10 s; returns as soon as `n` calls arrived (3 s could flake on a loaded host).
+    for _ in 0..200 {
         if server.params_of(method).len() >= n {
             return;
         }
@@ -662,7 +663,10 @@ async fn the_header_copy_reads_canonical_history_and_reports_each_phase() {
     assert!(copy_button::begin(&session).is_none(), "disabled while copying");
     assert_eq!(copy_button::run(req, &conv).await, Phase::Copied);
     assert_eq!(copy_button::phase(&session).label(), "Copied");
-    assert_eq!(server.params_of("session/hydrate")[0], json!({"session_id": session}), "the canonical history, not the rendered timeline");
+    // A15 — the open's own history read (`include: [messages]`) went first;
+    // the copy reads the WHOLE canonical history (no `include`).
+    let copies: Vec<Value> = server.params_of("session/hydrate").into_iter().filter(|p| p.get("include").is_none()).collect();
+    assert_eq!(copies, vec![json!({"session_id": session})], "the canonical history, not the rendered timeline");
     let md = host::take_clipboard().expect("the markdown waits for the UI thread's clipboard write");
     assert!(md.starts_with("# octos"), "the workspace leaf heads it: {md}");
     assert!(md.contains("Fix the steer queue drop on reconnect") && md.contains("re-drains"));

@@ -110,7 +110,9 @@ impl Server {
     }
 
     async fn wait_for(&self, method: &str, n: usize) -> Vec<Value> {
-        for _ in 0..100 {
+        // Up to 10 s: returns as soon as `n` calls arrived; the bound only
+        // matters on a loaded host (3 s flaked once under the full suite).
+        for _ in 0..334 {
             let p = self.params_of(method);
             if p.len() >= n {
                 return p;
@@ -179,7 +181,8 @@ async fn connected(server: &Server) -> Arc<Conversation> {
 }
 
 async fn until(what: &str, f: impl Fn() -> bool) {
-    for _ in 0..150 {
+    // Up to 10 s (see `wait_for`): only a loaded host ever needs the bound.
+    for _ in 0..500 {
         if f() {
             return;
         }

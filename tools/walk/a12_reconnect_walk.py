@@ -632,6 +632,14 @@ def give_up(serve):
         clear_composer()
         type_text(DRAFT)
     log_since()
+    if MODE == "phone":
+        # The shell's emulated keyboard (not in /snap) stays up after typing
+        # since A13's phone chrome, over the banner's buttons: hide it with
+        # its own chevron first, as a user would (the A7 / A10 walks' tap,
+        # (337,513) in the 360x780 frame). A tap on Disconnect under it
+        # landed on the keyboard and the Connect card never came back.
+        get("/click?x=337&y=513&wait=1")
+        time.sleep(0.8)
     check("banner Disconnect is clickable", click("a12_link_leave"))
     if soon(lambda: shown("a9_lv_dialog"), 4):
         check("the unsaved draft asks first (A9's confirmation)", text("a9_lv_title") == "Disconnect from Octos?", repr(text("a9_lv_title")))

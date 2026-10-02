@@ -278,12 +278,16 @@ async fn a_hydrate_from_a_retired_generation_fails_closed() {
     // ...then the authority moves (another open of the session) before it lands.
     conv.open_session(&session, None).await.unwrap();
     let seen = fold_until(&conv, &mut events, |_| false).await;
-    assert!(
-        seen.iter().any(|e| *e == FlowEvent::Other("session/hydrate-stale-authority".into())),
-        "the stale reply is refused: {seen:?}"
-    );
-    assert_eq!(conv.store.domains.session.timeline.len(&session), 0, "nothing committed from the retired generation");
-    assert_eq!(server.message_hydrates().len(), 1, "a healthy session is not re-asked");
+    // A15 — every open hydrates (the web's open -> hydrate): the retired
+    // generation has TWO reads in flight (the first open's and the explicit
+    // one), both refused; the second open's own read is the current
+    // generation's, and only it commits.
+    let stale = seen.iter().filter(|e| **e == FlowEvent::Other("session/hydrate-stale-authority".into())).count();
+    assert_eq!(stale, 2, "the stale replies are refused: {seen:?}");
+    let committed = seen.iter().filter(|e| **e == FlowEvent::Other("session/hydrate".into())).count();
+    assert_eq!(committed, 1, "nothing committed from the retired generation: {seen:?}");
+    assert_eq!(conv.store.domains.session.timeline.len(&session), 2, "the history once, from the current generation");
+    assert_eq!(server.message_hydrates().len(), 3, "two opens + the explicit read; a healthy session is not re-asked");
 }
 
 #[tokio::test]
@@ -304,7 +308,10 @@ async fn a_stale_reply_for_an_owed_resync_is_asked_again_under_the_new_generatio
     })
     .await;
     assert!(seen.iter().any(|e| *e == FlowEvent::Other("session/hydrate-stale-authority".into())));
-    assert_eq!(server.message_hydrates().len(), 2, "asked again under the current generation");
+    // A15 — the new open asks for its own history under the current
+    // generation (every open hydrates), so the stale resync reply is not
+    // re-asked a second time: first open + resync + the new open's read.
+    assert_eq!(server.message_hydrates().len(), 3, "asked again under the current generation (by the open)");
     assert_eq!(
         conv.store.domains.config.recovery(&session).phase,
         octoscode_store::domains::config::LossyPhase::Healthy,

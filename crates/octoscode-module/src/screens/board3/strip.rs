@@ -37,6 +37,20 @@ pub struct StripState {
     /// "another client", and with no peer row it still reads
     /// "Peers running (1)" (`App.tsx:2084-2086`).
     pub self_held: bool,
+    /// A15 — session id -> the status stamp's `approval_policy`
+    /// (`runtime_policy_stamp.approval_policy`: `on-request` | `never`), the
+    /// web's approval readback (`App.tsx:3228-3234`).
+    pub approval: Option<(String, String)>,
+}
+
+/// A15 — the approval policy the last status read reported for `session`.
+pub fn stamp_approval(session: &str) -> Option<String> {
+    super::host::state()
+        .strip
+        .approval
+        .as_ref()
+        .filter(|(s, _)| s == session)
+        .map(|(_, a)| a.clone())
 }
 
 /// The permission label (`App.tsx:2037-2045`).
@@ -171,11 +185,24 @@ pub fn facts(store: &Store, st: &StripState, active_turn: Option<&str>, mode: Op
 }
 
 /// `session/status/read` -> the model label for the active Session.
+///
+/// A15 — the strip's model is the web's: the RUNTIME model the status read
+/// reports (`App.tsx:1999-2000` `runtimeModelLabel`, passed as the strip's
+/// `model`, `:2974-2980`), while the model seat names the profile's selected
+/// model (`profile/llm/list`). The read names the Profile: the server
+/// resolves `params.profile_id`, else the one embedded in a full
+/// `<profile>:<channel>:<chat>` key, else the connection's
+/// (`raw_profile_id`, octos `ui_protocol_transport.rs:9676-9686`). The web's
+/// ids always embed it; this app's startup Session (`<profile>:main`) does
+/// not, so a token connection fell back to `_main` ("profile '_main' is not
+/// configured for this AppUI session") and the strip read "Model not
+/// reported" beside a seat that knew the model. The Session pane and the
+/// context read already send it (`session_pane.rs`, `models.rs`).
 pub async fn load_status(conv: &crate::flow::Conversation) -> Result<String, String> {
     let session = conv.session_id();
     let v = conv
         .client()
-        .request("session/status/read", serde_json::json!({ "session_id": session }))
+        .request("session/status/read", serde_json::json!({ "session_id": session, "profile_id": conv.profile() }))
         .await
         .map_err(|e| e.to_string())?;
     // The identity check the web performs (`session-status-result.ts:6`).
@@ -192,6 +219,10 @@ pub async fn load_status(conv: &crate::flow::Conversation) -> Result<String, Str
         let mut st = super::host::state();
         if let Some(m) = &model {
             st.strip.model = Some((session.clone(), m.clone()));
+        }
+        // A15 — the stamp's approval policy (Settings > Permissions' readback).
+        if let Some(a) = v.pointer("/runtime_policy_stamp/approval_policy").and_then(|a| a.as_str()) {
+            st.strip.approval = Some((session.clone(), a.to_owned()));
         }
     }
     // A8 — the permission fact: the web reads the session's permission
