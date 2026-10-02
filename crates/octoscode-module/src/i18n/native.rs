@@ -39,6 +39,15 @@ pub static NATIVE_ZH: &[(&str, &str, &str)] = &[
         "仅显示应用连接后通知的作业；此服务器不提供更早作业的列表。",
         "A31: a server without skill.action_jobs.v1 (operator default)",
     ),
+    // The Skills dialog's warning in its native wording ("on this device"
+    // for the web's "in your browser", SkillsDialog.tsx:158-162): the web's
+    // own Chinese with 此设备 for 浏览器.
+    (
+        "Skills are shared by this Profile, not installed on this device. Installation may download executable \
+         tools and dependencies. Review and trust the source first.",
+        "技能由此配置档案共享，不会安装到此设备。安装可能下载可执行工具和依赖。请先审查并信任来源。",
+        "screens/dialog.rs SKILLS_WARNING (the web's zh.ts key with 'in your browser')",
+    ),
 ];
 
 fn table() -> &'static HashMap<&'static str, &'static str> {

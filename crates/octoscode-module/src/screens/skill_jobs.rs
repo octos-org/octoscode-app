@@ -262,6 +262,12 @@ mod tests {
         assert_eq!(i18n::text_in(Lang::Zh, RUNNING_COUNT, &[("count", "3")]), "3 个运行中");
         assert_eq!(i18n::text_in(Lang::Zh, QUEUED_COUNT, &[("value0", "2")]), "2 个排队中");
         assert_eq!(i18n::text_in(Lang::Zh, OMITTED, &[("value0", "4")]), "（另有 4 项未显示）");
+        // The dialog around the section reads Chinese too (web keys,
+        // aliases of the same controls, the warning's native wording).
+        for en in [crate::screens::dialog::SKILLS_WARNING, "Skills", "Installed", "Registry", "Install", "Server Profile:", "tools"] {
+            let zh = i18n::tr_in(Lang::Zh, en);
+            assert!(zh.chars().any(|c| ('\u{4e00}'..='\u{9fff}').contains(&c)), "{en:?} -> {zh:?}");
+        }
     }
 
     #[test]
