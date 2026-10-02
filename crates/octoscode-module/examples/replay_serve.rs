@@ -28,6 +28,7 @@
 //! | `session` | `r3-session-a6ea8505` | the context-compaction lifecycle |
 //! | `fleet` | `a10-fleet-driver-synthetic` (SYNTHETIC) | the external-driver chain: walk, acquire, prepare, dispatch, peer frames, peer/control |
 //! | `onboarding` | `live-gate-a6ea8505` handshake + `r29a-onboarding-a6ea8505` replies | A17: the solo onboarding panel (see [`onboarding`]) |
+//! | `skill-jobs` | r1's handshake + SYNTHETIC jobs (`replay_scenarios/skill_jobs.rs`) | A31: the Skills dialog's Background jobs — `skill.action_jobs.v1` advertised (withdraw it with `--drop-feature skill.action_jobs.v1 --drop-method skill/action/job/list`), `skill/action/job/list` per Session, `skill/action/job/updated` around it; `--jobs-trigger <file>` sends a live transition when the file appears |
 //!
 //! `--stale-window` (A18, any scenario): every `session/hydrate` answers with
 //! the A15 live smoke's first-launch hydrate (`a18-stale-window-a6ea8505`): no
@@ -61,6 +62,10 @@
 use std::collections::BTreeMap;
 
 use futures_util::{SinkExt, StreamExt};
+// A31 — the `skill-jobs` scenario's frames (a subdirectory, so cargo does
+// not take it for an example of its own).
+#[path = "replay_scenarios/skill_jobs.rs"]
+mod skill_jobs;
 use serde_json::Value;
 use tokio::net::TcpListener;
 use tokio_tungstenite::tungstenite::Message;
@@ -129,6 +134,9 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         // catalog names it by its first prompt (see `history_reply`). Run the
         // app with OCTOS_PROFILE_ID=dsflash (the recorded profile).
         "history" => ("history", "r43a-recovery-a6ea8505.jsonl"),
+        // A31: the Skills dialog's Background jobs (see `skill_jobs`): r1's
+        // handshake and the `screens` replies, the jobs synthetic.
+        "skill-jobs" => ("skill-jobs", "r1-autonomy-a6ea8505.jsonl"),
         other => {
             eprintln!("[replay-serve] unknown scenario '{other}' — using `conversation`");
             ("conversation", "live-gate-a6ea8505.jsonl")
@@ -1570,7 +1578,7 @@ async fn main() {
     let (label, file) = scenario_fixture(&scenario);
     // A15: `history` answers the seats' and the strip's reads (the profile's
     // models, the permission list, the status stamp) from the same recordings.
-    let replies = if label == "screens" || label == "a10" || label == "fleet" || label == "history" {
+    let replies = if label == "screens" || label == "a10" || label == "fleet" || label == "history" || label == "skill-jobs" {
         screens_replies()
     } else {
         BTreeMap::new()
@@ -1607,6 +1615,10 @@ async fn main() {
         }
     }
     let mut open_result = recorded_open_result(&frames).expect("the fixture has a session/open result");
+    // A31 — a6ea8505 advertises the job feature to a client that asks.
+    if label == "skill-jobs" {
+        skill_jobs::advertise(&mut open_result);
+    }
     // A10 seat walk: `--drop-method <m>` / `--drop-feature <f>` withdraw one
     // capability from the advertised set (the web e2e's no-method /
     // no-feature variants).
@@ -1622,6 +1634,12 @@ async fn main() {
         }
     }
     let fleet_cold = args.iter().any(|a| a == "--fleet-cold");
+    // A31 — whether the open still advertises the job feature (after any
+    // `--drop-feature`), and the walk's live-transition trigger file.
+    let jobs_seeded = open_result["capabilities"]["supported_features"]
+        .as_array()
+        .is_some_and(|f| f.iter().any(|x| x == skill_jobs::FEATURE));
+    let jobs_trigger = args.iter().position(|a| a == "--jobs-trigger").and_then(|i| args.get(i + 1)).cloned();
     // A18 — `--stale-window`: every `session/hydrate` answers with the A15
     // live smoke's FIRST-launch hydrate (`a18-stale-window-a6ea8505.jsonl`,
     // cut from docs/ux/a15-live/smoke/trace.jsonl): no durable rows, while the
@@ -1692,7 +1710,7 @@ async fn main() {
         })
         .collect();
     let refuse_seen = std::sync::Arc::new(std::sync::Mutex::new(std::collections::BTreeMap::<String, usize>::new()));
-    let standalone = if label == "fleet" || label == "history" || label == "onboarding" {
+    let standalone = if label == "fleet" || label == "history" || label == "onboarding" || label == "skill-jobs" {
         // The fleet fixture's inbound frames are replies + peer-session
         // frames, never standalone notifications. A15 `history`: the
         // transcript comes from the hydrate alone. A17 `onboarding`: a quiet
@@ -1742,6 +1760,8 @@ async fn main() {
         let onb_world = onb_world.clone();
         let refuse = refuse.clone();
         let refuse_seen = refuse_seen.clone();
+        // A31 — the walk's live-transition trigger (per connection).
+        let jobs_trigger = jobs_trigger.clone();
         // A15: the recorded canonical hydrate (the `history` scenario).
         let history = label == "history";
         let recorded_hydrate = if history {
@@ -1809,6 +1829,8 @@ async fn main() {
             // scenario holds a SWITCH's session/list reply back, so the walk
             // can reopen Activity while that switch is still in flight).
             let mut opens = 0usize;
+            // A31 — the first Session opened on this connection (the jobs' home).
+            let mut jobs_home: Option<String> = None;
             // A6 `surfaces`: r4's live task frames go out once.
             let mut live_sent = false;
             // The session id the app opens; every served frame is rewritten to it.
@@ -2185,6 +2207,76 @@ async fn main() {
                                 tokio::time::sleep(std::time::Duration::from_millis(20)).await;
                             }
                         });
+                        // A31 — the first open: what the server announces
+                        // since connecting (another Session's job, another
+                        // Profile's; without the feature, the home Session's
+                        // own), then the walk's live trigger.
+                        if label == "skill-jobs" && jobs_home.is_none() {
+                            let home = active_session.clone();
+                            jobs_home = Some(home.clone());
+                            let profile = home.split(':').next().unwrap_or("dsflash").to_owned();
+                            let frames = skill_jobs::after_open(&profile, &home, !jobs_seeded);
+                            println!("[replay-serve] skill-jobs: home {home}, seeded={jobs_seeded}, {} announced", frames.len());
+                            let tx2 = tx.clone();
+                            tokio::spawn(async move {
+                                tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+                                for f in frames {
+                                    println!("[replay-serve] => skill/action/job/updated {} {} {}", f["params"]["profile_id"], f["params"]["session_id"], f["params"]["job"]["status"]);
+                                    send(&tx2, f).await;
+                                    tokio::time::sleep(std::time::Duration::from_millis(30)).await;
+                                }
+                            });
+                            if let Some(path) = jobs_trigger.clone() {
+                                let tx2 = tx.clone();
+                                tokio::spawn(async move {
+                                    for _ in 0..3000 {
+                                        tokio::time::sleep(std::time::Duration::from_millis(200)).await;
+                                        if std::fs::remove_file(&path).is_ok() {
+                                            for f in skill_jobs::live(&profile, &home) {
+                                                println!("[replay-serve] => skill/action/job/updated (live) {} {}", f["params"]["job"]["job_id"], f["params"]["job"]["status"]);
+                                                send(&tx2, f).await;
+                                                tokio::time::sleep(std::time::Duration::from_millis(40)).await;
+                                            }
+                                            return;
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    // A31 — the job list per Session: the home Session's
+                    // reply goes out AFTER the newer updates that race it.
+                    "skill/action/job/list" if label == "skill-jobs" => {
+                        let home = jobs_home.clone().unwrap_or_else(|| active_session.clone());
+                        let session = v["params"]["session_id"].as_str().unwrap_or("").to_owned();
+                        let profile = v["params"]["profile_id"].as_str().unwrap_or("dsflash").to_owned();
+                        let reply = skill_jobs::list_reply(&profile, &session, &home);
+                        println!("[replay-serve] -> skill/action/job/list {session} ({} jobs) {}", reply["count"], v["params"]);
+                        let frame = serde_json::json!({"jsonrpc": "2.0", "id": id, "result": reply});
+                        if session == home {
+                            let tx2 = tx.clone();
+                            let racing = skill_jobs::before_list(&profile, &home);
+                            tokio::spawn(async move {
+                                for f in racing {
+                                    println!("[replay-serve] => skill/action/job/updated (before the list reply) {} {}", f["params"]["job"]["job_id"], f["params"]["job"]["status"]);
+                                    send(&tx2, f).await;
+                                }
+                                tokio::time::sleep(std::time::Duration::from_millis(400)).await;
+                                send(&tx2, frame).await;
+                                println!("[replay-serve] -> skill/action/job/list reply sent (after the racing updates)");
+                            });
+                        } else {
+                            send(&tx, frame).await;
+                        }
+                    }
+                    "profile/skills/list" if label == "skill-jobs" => {
+                        let profile = v["params"]["profile_id"].as_str().unwrap_or("dsflash").to_owned();
+                        println!("[replay-serve] -> profile/skills/list (skill-jobs: two installed)");
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": skill_jobs::installed_skills(&profile)})).await;
+                    }
+                    "session/list" if label == "skill-jobs" => {
+                        let home = jobs_home.clone().unwrap_or_else(|| active_session.clone());
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": skill_jobs::sessions(&home)})).await;
                     }
                     // A9 — the activity scenario's session catalog.
                     "session/list" if activity => {

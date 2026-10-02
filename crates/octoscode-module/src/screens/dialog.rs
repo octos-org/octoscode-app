@@ -133,7 +133,10 @@ impl Dialog {
     /// status read, the fleet's `peer/gather`). Every id has one owner.
     pub fn on_open(self) -> &'static [&'static str] {
         match self {
-            Dialog::Models | Dialog::Skills => &[ACTION_REFRESH_PROFILE],
+            Dialog::Models => &[ACTION_REFRESH_PROFILE],
+            // A31 — and the Background jobs section's list for the dialog's
+            // Profile + Session (`skill/action/job/list`, when advertised).
+            Dialog::Skills => &[ACTION_REFRESH_PROFILE, ACTION_REFRESH_SKILL_JOBS],
             Dialog::Context => &[ACTION_REFRESH_CONTEXT],
             Dialog::Goal => &["goal.refresh"],
             Dialog::Loops | Dialog::Monitors => &["loops.refresh"],
@@ -570,6 +573,8 @@ pub const ACTION_FORM_CANCEL: &str = "dialog.form_cancel";
 pub const ACTION_REFRESH_PROFILE: &str = "dialog.refresh.profile";
 pub const ACTION_REFRESH_CONTEXT: &str = "dialog.refresh.context";
 pub const ACTION_REFRESH_FLEET: &str = "dialog.refresh.fleet";
+/// A31 — the Skills dialog's job list read (`skill/action/job/list`).
+pub const ACTION_REFRESH_SKILL_JOBS: &str = "dialog.refresh.skill_jobs";
 
 /// The host's own action ids: `dialog.close`, `dialog.open.<id>` and the
 /// three on-open refreshes that have no other owner.
@@ -594,6 +599,9 @@ pub enum Effect {
     RefreshContext,
     /// `task/list` + `peer/gather` (`screens::fleet::refresh`).
     RefreshFleet,
+    /// A31 — `skill/action/job/list` for the dialog's Profile + Session
+    /// (`screens::skill_jobs::refresh`).
+    RefreshSkillJobs,
     /// Ask before running this action (its confirm card).
     Ask(String),
     /// Run the pending confirmation's action.
@@ -638,6 +646,7 @@ pub fn resolve(id: &str) -> Effect {
         ACTION_REFRESH_PROFILE => Effect::RefreshProfile,
         ACTION_REFRESH_CONTEXT => Effect::RefreshContext,
         ACTION_REFRESH_FLEET => Effect::RefreshFleet,
+        ACTION_REFRESH_SKILL_JOBS => Effect::RefreshSkillJobs,
         other => Effect::Unhandled(other.to_owned()),
     }
 }

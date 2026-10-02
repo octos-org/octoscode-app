@@ -79,6 +79,9 @@ pub mod settings;
 pub mod session_defaults;
 // A8: the full-Session identity grammar (Core split_base_key + channels).
 pub mod session_identity;
+// A31: the Skills dialog's "Background jobs" section (parity row 15): the
+// job list read on open and the view model the dialog draws.
+pub mod skill_jobs;
 // #35b item 1: the ONE card-tap wiring every docked screen shares (connect.rs
 // delegates here; the palette/theme mount paths call it directly).
 pub mod taps;
