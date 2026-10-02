@@ -22,7 +22,8 @@
 //!
 //! A28 — parity row 23 (design board 4 frames 1, 1b, 2; README "Row 23"):
 //!
-//! * every line is drawn as per-token RUNS (`<line>_c<k>_<class>`) in its
+//! * every line is drawn as per-token RUNS (`<line>_c<k>_<class>`; inside a
+//!   word mark `<line>_w<m>_c<k>_<class>`) in its
 //!   file's syntax colours (`highlight::Tok::color`, by extension —
 //!   [`super::diff_words`], the web's `diff-presentation.ts`), on context,
 //!   removed and added lines; the row keeps its tint;
@@ -597,8 +598,9 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
         &format!("width: Fill height: Fill flow: Down padding: Inset{{left: {body_pad} top: 6 right: {} bottom: 16}}", body_pad - 2.0),
     );
     d.view("b3_diff_body", "width: Fill height: Fit flow: Down spacing: 12");
-    // The content width: the box less the body's insets and the scroll bar.
-    let inner_w = width - 2.0 * body_pad - 8.0;
+    // The content width (a file card's): the box less the body's insets (the
+    // scroll bar overlays the right one). Measured: card 903 in a 941 box.
+    let inner_w = width - body_pad - (body_pad - 2.0);
     if st.preview_id.is_none() {
         // Native: the entry exists before any preview does.
         let body_text = if advertised(store) { NO_PREVIEW_BODY } else { NO_METHOD };
@@ -782,7 +784,13 @@ fn decorated_row(out: &mut String, lid: &str, l: &DiffPreviewLine, toks: &[DiffT
                 Some(tk) => format!(" draw_text.color: {}", tk.color(false)),
             }
         };
-        let _ = writeln!(out, "{lid}_c{k}_{} := mod.widgets.B3DiffCode{{text: {}{color}}}", class_id(t.tok), ui::lit(&t.text));
+        // A run inside a mark names it (`<line>_w<m>_c<k>_<class>`), so a
+        // walk reads which words a mark holds even while it is scrolled out.
+        let owner = match mark {
+            Some(m) => format!("{lid}_w{m}"),
+            None => lid.to_owned(),
+        };
+        let _ = writeln!(out, "{owner}_c{k}_{} := mod.widgets.B3DiffCode{{text: {}{color}}}", class_id(t.tok), ui::lit(&t.text));
     }
     if mark.is_some() {
         out.push_str("}\n");

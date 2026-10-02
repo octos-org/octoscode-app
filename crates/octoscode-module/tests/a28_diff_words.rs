@@ -196,18 +196,22 @@ fn all<'a>(n: &'a Node, out: &mut Vec<&'a Node>) {
     }
 }
 
-/// `<line>_c<k>_<class>`: the code runs of one line, in order, with their
-/// class and whether they sit inside a word mark.
+/// `<line>_c<k>_<class>` (inside a mark `<line>_w<m>_c<k>_<class>`): the
+/// code runs of one line, in order, with their class and the mark they sit
+/// in — read from the DSL's NESTING, and the id must agree with it.
 fn runs(root: &Node, lid: &str) -> Vec<(String, String, Option<String>)> {
     let code = find(root, &format!("{lid}_code")).unwrap_or_else(|| panic!("{lid}_code"));
     let mut out = Vec::new();
     fn walk(n: &Node, lid: &str, mark: Option<&str>, out: &mut Vec<(String, String, Option<String>)>) {
+        let owner = mark.unwrap_or(lid);
         for c in &n.children {
-            if let Some(rest) = c.id.strip_prefix(&format!("{lid}_c")) {
+            if let Some(rest) = c.id.strip_prefix(&format!("{owner}_c")) {
                 let class = rest.split_once('_').map(|(_, cl)| cl.to_owned()).unwrap_or_default();
                 out.push((c.text.clone().unwrap_or_default(), class, mark.map(str::to_owned)));
-            } else if c.id.starts_with(&format!("{lid}_w")) {
+            } else if mark.is_none() && c.id.starts_with(&format!("{lid}_w")) {
                 walk(c, lid, Some(&c.id), out);
+            } else {
+                panic!("{}: not a run of {owner}", c.id);
             }
         }
     }
@@ -563,7 +567,11 @@ fn runs_id(root: &Node, lid: &str, text: &str) -> String {
     let code = find(root, &format!("{lid}_code")).unwrap();
     let mut nodes = Vec::new();
     all(code, &mut nodes);
-    nodes.iter().find(|n| n.text.as_deref() == Some(text) && n.id.starts_with(&format!("{lid}_c"))).map(|n| n.id.clone()).unwrap()
+    nodes
+        .iter()
+        .find(|n| n.text.as_deref() == Some(text) && n.id.starts_with(lid) && n.id.contains("_c"))
+        .map(|n| n.id.clone())
+        .unwrap()
 }
 
 /// The bound (`canDecorateDiff`): past 400 lines NOTHING is decorated — no

@@ -93,7 +93,7 @@ NO_MARKS = ["b3_diff_file_0_h0_l0", "b3_diff_file_0_h0_l1", "b3_diff_file_0_h0_l
             "b3_diff_file_0_h0_l8", "b3_diff_file_0_h0_l9", "b3_diff_file_0_h0_l10", "b3_diff_file_0_h0_l11",
             "b3_diff_file_2_h0_l1", "b3_diff_file_2_h0_l2"]
 ADDED_MARK, REMOVED_MARK = (0xbb, 0xea, 0xcb), (0xfa, 0xc1, 0xc1)
-RUN_RE = re.compile(r"^(b3_diff_file_\d+_h\d+_l\d+)_c(\d+)_([a-z]+)$")
+RUN_RE = re.compile(r"^(b3_diff_file_\d+_h\d+_l\d+)_(?:w(\d+)_)?c(\d+)_([a-z]+)$")
 MARK_RE = re.compile(r"^(b3_diff_file_\d+_h\d+_l\d+)_w(\d+)$")
 
 
@@ -111,15 +111,53 @@ WORDS, LARGE = fixture("words"), fixture("large")
 # ------------------------------------------------------------------ helpers
 def runs_of(sn, lid=None):
     """{line id: [(k, class, widget)]} for every code run in the snap (shown
-    or scrolled out: a run's text is reported either way)."""
+    or scrolled out: a run's text is reported either way). A run inside a
+    word mark is `<line>_w<m>_c<k>_<class>`; its mark is `w["mark"]`."""
     out = {}
     for w in sn:
         m = RUN_RE.match(str(w.get("i", "")))
         if m and (lid is None or m.group(1) == lid):
-            out.setdefault(m.group(1), []).append((int(m.group(2)), m.group(3), w))
+            w = dict(w, mark=None if m.group(2) is None else int(m.group(2)))
+            out.setdefault(m.group(1), []).append((int(m.group(3)), m.group(4), w))
     for v in out.values():
         v.sort(key=lambda t: t[0])
     return out
+
+
+def id_marks(runs, lid):
+    """The words each mark of a line holds, from the run ids (structure)."""
+    words = {}
+    for _, _, w in runs.get(lid, []):
+        if w["mark"] is not None:
+            words[w["mark"]] = words.get(w["mark"], "") + (w.get("t") or "")
+    return [words[m] for m in sorted(words)]
+
+
+def reveal(W, wid, step=900, tries=40):
+    """Wheel the review body until `wid` lies wholly inside it (downward
+    first, then back up): the user's own gesture. Positive dy scrolls down."""
+    vp = W.rect(VP)
+    if not vp:
+        return False
+    x, y = vp[0] + 40, vp[1] + vp[3] / 2
+    for direction in (1, -1):
+        for _ in range(tries):
+            sn = W.snap()
+            r = W.rect(wid, sn=sn)
+            if r and inside(r, vp, tol=0.5):
+                return True
+            if r:
+                # Shown but cut: a small step toward it.
+                dy = (r[1] + r[3] - (vp[1] + vp[3]) + 8) if r[1] + r[3] > vp[1] + vp[3] else (r[1] - vp[1] - 8)
+            else:
+                dy = step * direction
+            before = [w["r"] for w in sn if w.get("i") == "b3_diff_file_0" and W.shown(w)]
+            W.get(f"/m?k=scroll&x={x:.0f}&y={y:.0f}&dy={dy:.0f}&wait=1", tolerant=True)
+            time.sleep(0.15)
+            after = [w["r"] for w in W.snap() if w.get("i") == "b3_diff_file_0" and W.shown(w)]
+            if r is None and before and after and before == after:
+                break  # at the end of the range this way
+    return bool(W.rect(wid) and inside(W.rect(wid), vp, tol=0.5))
 
 
 def marks_of(sn, lid=None):
@@ -251,40 +289,46 @@ def words_checks(W, name):
     W.check("words: keyword / function / constant runs on context, removed and added lines", kinds_ok, f"l0={first}")
     conf = {c for lid, v in runs.items() if lid.startswith("b3_diff_file_1_") for _, c, _ in v}
     W.check("conf: no grammar -> plain runs only, word marks on 500 / 250",
-            conf == {"tx"} and [m.get("t") for m in []] == [] and
-            all(mark_words(sn, runs, marks, lid) == MARKS[lid] for lid in ("b3_diff_file_1_h0_l0", "b3_diff_file_1_h0_l1")),
-            f"classes={sorted(conf)} l0={mark_words(sn, runs, marks, 'b3_diff_file_1_h0_l0')} "
-            f"l1={mark_words(sn, runs, marks, 'b3_diff_file_1_h0_l1')}")
-    got = {lid: mark_words(sn, runs, marks, lid) for lid in MARKS}
+            conf == {"tx"} and all(id_marks(runs, lid) == MARKS[lid] for lid in ("b3_diff_file_1_h0_l0", "b3_diff_file_1_h0_l1")),
+            f"classes={sorted(conf)} l0={id_marks(runs, 'b3_diff_file_1_h0_l0')} l1={id_marks(runs, 'b3_diff_file_1_h0_l1')}")
+    got = {lid: id_marks(runs, lid) for lid in MARKS}
     W.check("words: the equal 1:1 blocks carry the web's word marks",
-            all(got[lid] == want for lid, want in MARKS.items() if lid.startswith("b3_diff_file_0_")),
+            all(got[lid] == want for lid, want in MARKS.items() if lid.startswith("b3_diff_file_0_"))
+            and all(len(marks.get(lid, [])) == len(want) for lid, want in MARKS.items()),
             "; ".join(f"{lid[-6:]}={got[lid]}" for lid in MARKS))
-    stray = [lid for lid in NO_MARKS if marks.get(lid)]
+    stray = [lid for lid in NO_MARKS if marks.get(lid) or id_marks(runs, lid)]
     W.check("words: the unequal block (+48, +49), context lines and the < 25 % pair carry no mark", not stray, f"{stray}")
-    # Geometry: each shown mark sits inside its row, on its words' columns.
+    # Geometry: each drawn mark lies inside its row, starts at its words'
+    # column and spans them (mono 0.6 em), and its fill covers its runs.
     geo_bad, seen = [], 0
-    for lid, ms in marks.items():
-        row = W.rect(lid, sn=sn)
-        rr = runs.get(lid, [])
-        code_x = next((w["r"][0] for _, _, w in rr if W.shown(w)), None) if rr else None
+    for lid in MARKS:
+        if not reveal(W, lid):
+            geo_bad.append(f"{lid}: could not scroll it into view")
+            continue
+        sn2 = W.snap()
+        runs2, marks2 = runs_of(sn2), marks_of(sn2)
+        row = W.rect(lid, sn=sn2)
+        rr = runs2.get(lid, [])
         first_run = rr[0][2] if rr else None
         if not (row and first_run and W.shown(first_run)):
             continue
-        code_x = first_run["r"][0]
-        text = line_text(rr)
-        for idx, (m, mw) in enumerate(ms):
-            if not W.shown(mw):
-                continue
+        code_x, text, words = first_run["r"][0], line_text(rr), id_marks(runs2, lid)
+        for idx, (m, mw) in enumerate(marks2.get(lid, [])):
+            if not W.shown(mw) or mw["r"][0] + mw["r"][2] > row[0] + row[2] - 1:
+                continue  # clipped by the hunk's sideways scroller (a phone)
             seen += 1
-            words = mark_words(sn, runs, marks, lid)
             word = words[idx] if idx < len(words) else ""
-            col = col_of(text, word, idx, ms, words)
+            col = col_of(text, word, idx, None, words)
             want_x, want_w = code_x + col * CW, len(word) * CW
             r = mw["r"]
-            if not (inside(r, row) and abs(r[0] - want_x) <= 1.6 and abs(r[2] - want_w) <= 1.6):
-                geo_bad.append(f"{lid}_w{m} r={r} want x={want_x:.1f} w={want_w:.1f} row={row}")
-    W.check("words: each mark lies in its row on its words' columns (x, width)", seen >= 4 and not geo_bad,
-            f"marks={seen} " + "; ".join(geo_bad[:3]))
+            covers = all(inside(w["r"], r, tol=1.6) for _, _, w in rr if w["mark"] == m and W.shown(w))
+            if not (inside(r, row) and abs(r[0] - want_x) <= 1.6 and abs(r[2] - want_w) <= 1.6 and covers):
+                geo_bad.append(f"{lid}_w{m} r={r} want x={want_x:.1f} w={want_w:.1f} row={row} covers={covers}")
+    # Desktop draws all nine marks; a phone's hunks clip the later ones
+    # until scrolled sideways (they are checked by id above).
+    W.check("words: each mark lies in its row on its words' columns (x, width)",
+            seen >= (9 if MODE == "desktop" else 3) and not geo_bad, f"marks drawn={seen} " + "; ".join(geo_bad[:3]))
+    reveal(W, "b3_diff_file_0_h0_l0")
     # Colour, from the app's own pixels.
     try:
         img, k, sn2 = grab(W)
@@ -398,8 +442,9 @@ def scrolled_to_last(W, blocks):
     if not blocks:
         return False
     last = blocks[-1]["i"]
-    ok = W.scroll_into(last, VP, tries=60) or bool(W.visible(last))
+    ok = reveal(W, last, step=1500, tries=30)
     W.shot(f"large-end-{MODE}")
+    reveal(W, "b3_diff_plain_note", step=1500, tries=30)
     return ok
 
 
@@ -429,7 +474,7 @@ def walk(W: Walk) -> None:
             ok and W.replay_saw("diff/preview/get", 0) == 2)
     W.wait(lambda: bool(marks_of(W.snap())), 6)
     sn = W.snap()
-    got = mark_words(sn, runs_of(sn), marks_of(sn), "b3_diff_file_0_h0_l3")
+    got = id_marks(runs_of(sn), "b3_diff_file_0_h0_l3")
     W.check("header: the re-opened review carries the same marks", got == MARKS["b3_diff_file_0_h0_l3"], f"{got}")
     close_review(W)
 

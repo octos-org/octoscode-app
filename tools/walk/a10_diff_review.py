@@ -67,7 +67,7 @@ def code_text(W: Walk, lid: str) -> str:
     text is their texts in order (a plain block's `<hunk>_b<n>_code` past
     the decoration bound)."""
     import re
-    pat = re.compile(re.escape(lid) + r"_c(\d+)_[a-z]+$")
+    pat = re.compile(re.escape(lid) + r"_(?:w\d+_)?c(\d+)_[a-z]+$")
     runs = sorted(((int(m.group(1)), w.get("t") or "") for w in W.snap()
                    for m in [pat.match(str(w.get("i", "")))] if m), key=lambda t: t[0])
     return "".join(t for _, t in runs)
