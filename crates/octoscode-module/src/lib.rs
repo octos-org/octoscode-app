@@ -1492,6 +1492,8 @@ impl OctoscodeView {
     /// the host's, not the module's, so the write must happen here rather than
     /// inside a resolver. #35d.
     fn perform_action(&mut self, cx: &mut Cx, action: &str, index: usize) {
+        // A9: the fatal boundary's test seam (inert unless OCTOSCODE_PANIC_PROBE).
+        screens::a9_boundary::probe_action(action);
         // #A2: board 1's ids (pairing, the provider editor, the picker, the
         // folder browser and their openers) have one owner, ahead of every
         // other table and of the connection guard — pairing runs BEFORE a
@@ -3333,9 +3335,10 @@ impl OctoscodeView {
         // A4 — mount the open board-3 dialog (or hide its dock). The frame is
         // the module's own laid-out rect, so the dialog sizes like the web's
         // `min(<max>px, 100%)` card on the desktop window AND a phone.
-        self.sync_board3(cx);
+        // A9: each surface syncs under its own boundary (a5/a4/a9 surfaces).
+        self.a9_guarded(cx, a9_host::Guard::Board3);
         // A9 — the open A9 surface (Activity).
-        self.sync_a9(cx);
+        self.a9_guarded(cx, a9_host::Guard::A9);
         // #28e4 item 2: the first-run card area mounts the REAL board-2
         // Connect screen (setup-01, #29a) — `screens::connect::lower_screen`
         // lowers the authored Stage B card with the ConnectUi copies applied,
@@ -3366,7 +3369,7 @@ impl OctoscodeView {
         // lived here is retired with its slot.
         // A5 — the open dialog (screens::dialog), re-lowered with the live
         // store; the mount cache remounts only when its DSL changed.
-        self.sync_dialog(cx);
+        self.a9_guarded(cx, a9_host::Guard::Dialog);
         self.sync_chrome(cx);
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
     }
@@ -4129,8 +4132,10 @@ fn chrome_env() -> (bool, bool, bool, bool) {
     })
 }
 
-impl Widget for OctoscodeView {
-    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+// A9: the Widget impl lives in a9_host.rs (the fatal boundary wraps these
+// two in catch_unwind); they are inherent methods here.
+impl OctoscodeView {
+    fn draw_walk_unguarded(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
         // A3: the phone-size frame (`env_frame`) — the module draws in a
         // WxH box at the window's top-left, clipped to what the shell gives.
         let walk = match env_frame() {
@@ -4439,7 +4444,7 @@ impl Widget for OctoscodeView {
         DrawStep::done()
     }
 
-    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+    fn handle_event_unguarded(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
         // #36g device round: on Android the platform marks itself packaged
         // (package_root = Some("makepad"), android.rs:3455) but the packaged
         // script-resource branch is compiled OUT for android (res.rs,
