@@ -6,9 +6,10 @@
 //! README copy and Errata win over the pixels).
 //!
 //! * **Placement** — `lib.rs` `threads_column`: the session tree
-//!   (`oc_sidebar_body`), then this dock (`peer_dock_splash`), then the
-//!   footer (Add workspace / Fleet). Hidden while there are no peers (the web
-//!   renders nothing) and in the collapsed rail.
+//!   (`oc_sidebar_body`), then this dock (`peer_dock_row` holding
+//!   `peer_dock_splash`), then the footer (Add workspace / Fleet). Hidden
+//!   while there are no peers (the web renders nothing) and in the collapsed
+//!   rail.
 //! * **Rows** — the Fleet's own union (`fleetview::rows`), so "Peer N · model"
 //!   is the SAME label the Fleet shows for the same peer (never the slug):
 //!   glyph, label, elapsed in the web's format ("4m12s", frozen at the
@@ -33,8 +34,9 @@
 //!   `formatPeerDockPill` in the Fleet's words ("Peers 3 · 1 working ·
 //!   ⚠ 1 waiting · 1/3 finished"), with the "Show peers · ⌥P" hint.
 //! * **Height** — on a short desktop column the dock never takes the whole
-//!   tree: past `room - TREE_MIN` its rows scroll, and a new waiting card is
-//!   scrolled into view once.
+//!   tree: past `room - TREE_MIN` its rows scroll, and the first waiting card
+//!   is brought into view after each remount (a sync that does not remount
+//!   keeps the person's own scroll).
 //! * **Live values** — elapsed and the token / acknowledgment tail change
 //!   every second; they are set IN PLACE after the mount (`Lowered::texts`),
 //!   so the mounted tree (and a scroll position, and a press in progress)
@@ -194,9 +196,8 @@ struct State {
     /// slot → what it was drawn for (this lowering's and the previous one's,
     /// so a press on a just-replaced control resolves — and is refused).
     slots: HashMap<usize, Drawn>,
-    /// The last lowering's slot per row key, and the one before.
+    /// The last lowering's slot per row key.
     current: HashMap<String, usize>,
-    previous: HashSet<usize>,
     next_slot: usize,
     /// (row key, request id) of a job in flight: a second press sends nothing.
     inflight: HashSet<(String, Option<String>)>,
@@ -402,6 +403,12 @@ pub fn perform(action: &str, slot: usize, store: &Store, compact: bool) -> Outco
     Outcome::Spawn(Job { slot, drawn: d, action: act })
 }
 
+/// A job the host could not spawn (no connection): release its in-flight
+/// guard, so the card's controls answer the next press.
+pub fn abandon(job: &Job) {
+    state().inflight.remove(&(job.drawn.key.clone(), job.drawn.request_id.clone()));
+}
+
 /// Run ONE dock action through the Fleet's control chain, re-checking the
 /// drawn ids right before the frame (`fleet_driver::row_control_drawn`).
 /// `Ok` = the acknowledgment ("Sent" / "Stop requested", folded into the
@@ -453,7 +460,6 @@ fn assign_slots(st: &mut State, rows: &[DockRow]) -> Vec<usize> {
     }
     let keep: HashSet<usize> = current.values().copied().chain(st.current.values().copied()).collect();
     st.slots.retain(|s, _| keep.contains(s));
-    st.previous = st.current.values().copied().collect();
     st.current = current;
     // A focused row that left the dock is no longer a ⌥Y target.
     if let Some(k) = st.focused.clone() {
@@ -531,8 +537,9 @@ fn glyph(d: &mut Dsl, id: &str, s: Status) {
     d.close();
 }
 
-/// A 30 px pill with a 12.5 px label (the kit's `Btn::Primary` / `Outline`
-/// looks at the dock's scale): `<id>_box`, `<id>_label`, the tap `<id>`.
+/// A 30 px pill with a 12 px label (the kit's `Btn::Primary` / `Outline`
+/// looks at the dock's scale, so Approve once / Deny / Stop share one line in
+/// the 260 px desktop column): `<id>_box`, `<id>_label`, the tap `<id>`.
 fn pill_button(d: &mut Dsl, id: &str, label: &str, event: &str, primary: bool) -> f64 {
     let w = (ui::text_w(label, BTN_PX, Face::Medium) + 2.0 * BTN_PAD).ceil();
     let (fill, fg, border) = if primary { (tok::BLACK, tok::WHITE, None) } else { (tok::SURFACE, tok::TEXT, Some("#c7c7ccff")) };

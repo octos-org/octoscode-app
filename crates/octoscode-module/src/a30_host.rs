@@ -118,7 +118,8 @@ impl OctoscodeView {
                         });
                     }
                     _ => {
-                        // No connection: the job settles as refused, nothing sent.
+                        // No connection: nothing sent; the card answers the next press.
+                        dock::abandon(&job);
                         makepad_widgets::log!("[octoscode] peer dock {action}: no connection (nothing sent)");
                     }
                 }
