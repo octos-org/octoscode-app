@@ -1,0 +1,1 @@
+fallback: frame=760x288 centre_dx=0.0 margins L=20 R=20 labels=6 outside=0 overlaps=0 controls=1 under28=0; gutters L115 R115 T157 B158; b3_onb_disconnect 102x36; b3_close 28x28

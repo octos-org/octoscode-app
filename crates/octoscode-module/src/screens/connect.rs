@@ -497,27 +497,25 @@ pub const KEYLESS_PROBE: &str = "octoscode-web-keyless-probe";
 /// The web's `selectionFromCatalog` (`onboarding-submission.ts:128-171`) for
 /// the radio's Official-API default route (`OnboardingPanel.tsx:29-30`: the
 /// family's first model, the `__official__` route). A stale family or model
-/// throws the web's exact error.
+/// throws the web's exact error. A17: one implementation — the full port in
+/// [`crate::screens::onboarding::selection_from_catalog`].
 pub fn selection_from_catalog(
     catalog: &octoscode_client::domains::profile::LlmCatalogResult,
     provider: Provider,
 ) -> Result<octoscode_client::domains::profile::LlmSelection, String> {
-    use octoscode_client::domains::profile::{LlmRouteSelection, LlmSelection};
-    let stale = || "The selected provider or model is no longer advertised.".to_owned();
-    let family = catalog.families.iter().find(|f| f.id == provider.id()).ok_or_else(stale)?;
-    let model = family.models.first().ok_or_else(stale)?;
-    Ok(LlmSelection {
-        family_id: family.id.clone(),
-        model_id: model.id.clone(),
-        route: LlmRouteSelection {
-            route_id: Some(family.id.clone()),
-            label: Some("Official API".to_owned()),
-            base_url: None,
-            api_key_env: Some(family.env.clone()),
-            api_type: Some("openai".to_owned()),
-        },
-        inference: Default::default(),
-    })
+    let model = catalog
+        .families
+        .iter()
+        .find(|f| f.id == provider.id())
+        .and_then(|f| f.models.first())
+        .map(|m| m.id.clone())
+        .unwrap_or_default();
+    crate::screens::onboarding::selection_from_catalog(
+        catalog,
+        provider.id(),
+        &model,
+        crate::screens::onboarding::OFFICIAL_ROUTE,
+    )
 }
 
 /// What a successful [`run_onboarding`] reports back to the caller.
