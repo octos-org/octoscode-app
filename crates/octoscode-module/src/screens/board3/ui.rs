@@ -380,11 +380,17 @@ impl Dsl {
     pub fn button(&mut self, id: &str, label: &str, event: &str, kind: Btn, width: W, height: f64) {
         let (fill, fg, border) = match kind {
             Btn::Primary => (tok::BLACK, tok::WHITE, None),
-            Btn::Outline => (tok::SURFACE, tok::TEXT, Some(tok::HAIRLINE)),
+            Btn::Outline => (tok::SURFACE, tok::TEXT, Some("#c7c7ccff")),
+            Btn::OutlineOff => (tok::SURFACE, tok::FAINT, Some(tok::HAIRLINE)),
+            Btn::Secondary => (tok::CHIP, tok::TEXT, None),
             Btn::Disabled => (tok::DISABLED_BG, tok::FAINT, None),
             Btn::Ghost => (tok::TRANSPARENT, tok::TEXT, None),
         };
-        let radius = if matches!(kind, Btn::Outline) && height > 34.0 { 10.0 } else { height / 2.0 };
+        let radius = if matches!(kind, Btn::Outline | Btn::OutlineOff) && height > 34.0 {
+            10.0
+        } else {
+            height / 2.0
+        };
         // A Fit pill gets an explicit width (see `text_w`).
         let width = match width {
             W::Fit => W::Px(text_w(label, 13.0, Face::Medium) + 32.0),
@@ -408,7 +414,7 @@ impl Dsl {
         );
         self.text(&format!("{id}_label"), label, &Txt::new(13.0, Face::Medium, fg));
         self.close();
-        if kind != Btn::Disabled {
+        if !matches!(kind, Btn::Disabled | Btn::OutlineOff) {
             self.tap(id, event);
         }
         self.close();
@@ -485,18 +491,28 @@ impl Dsl {
     /// effort control); `Seg::Tab` with a raised white segment on the grey
     /// track (screen 1's "Tools | MCP servers").
     pub fn segmented(&mut self, id: &str, options: &[(&str, String)], selected: usize, width: W, style: Seg) {
+        let (track, height) = match style {
+            Seg::Tab => (tok::SURFACE2, 34.0),
+            Seg::Pill => (tok::SURFACE, 38.0),
+        };
         self.surface(
             &format!("{id}_track"),
             &format!(
-                "width: {} height: 34 flow: Right spacing: 2 padding: Inset{{left: 3 right: 3 top: 3 bottom: 3}}",
-                width.dsl()
+                "width: {} height: {} flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 2 padding: Inset{{left: 3 right: 3 top: 3 bottom: 3}}",
+                width.dsl(),
+                fmt_num(height)
             ),
-            tok::SURFACE2,
+            track,
             9.0,
             Some(tok::HAIRLINE),
         );
         for (i, (label, event)) in options.iter().enumerate() {
             let on = i == selected;
+            // The board's Pill control separates unselected neighbours with
+            // a hairline (screen 6: Low | Medium | High | Max).
+            if style == Seg::Pill && i > 0 && !on && i - 1 != selected {
+                self.vrule(18.0);
+            }
             let seg = format!("{id}_{i}");
             let (fill, border, fg) = match (style, on) {
                 (Seg::Pill, true) => (tok::BLACK, None, tok::WHITE),
@@ -537,6 +553,10 @@ pub enum Seg {
 pub enum Btn {
     Primary,
     Outline,
+    /// An outline control that is not available right now (no tap).
+    OutlineOff,
+    /// The board's grey filled pill (screen 5's Refresh).
+    Secondary,
     Disabled,
     Ghost,
 }
@@ -649,7 +669,7 @@ pub fn header(d: &mut Dsl, title_text: &str, close_event: &str) {
 /// The 28x28 close target with the module's own close icon.
 pub fn close_glyph(d: &mut Dsl, event: &str) {
     d.view("b3_close_box", "width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}");
-    d.icon("b3_close_icon", "icon_close.svg", 12.0, tok::MUTED);
+    d.icon("b3_close_icon", "b3_close.svg", 15.0, tok::TEXT);
     d.tap("b3_close", event);
     d.close();
 }

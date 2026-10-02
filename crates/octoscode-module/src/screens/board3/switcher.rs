@@ -128,7 +128,7 @@ pub fn perform(st: &mut SwitchState, action: &str, index: usize, store: &Store) 
 
 
 /// The panel body (shared by the dialog and the vim split view).
-pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
+pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, _inner_w: f64) {
     let rows = rows(store);
     if st.loading && rows.is_empty() {
         d.text("b3_switch_loading", "Loading sessions…", &ui::meta());
@@ -140,20 +140,25 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
         d.text("b3_switch_empty", "No sessions yet.", &ui::meta());
     }
     let list = d.anon();
-    d.view(&list, "width: Fill height: Fit flow: Down spacing: 6");
+    d.view(&list, "width: Fill height: Fit flow: Down");
     for (i, r) in rows.iter().enumerate() {
         let rid = format!("b3_switch_row_{i}");
-        let (fill, border) = if r.current { (tok::SURFACE2, tok::HAIRLINE) } else { (tok::SURFACE, tok::HAIRLINE) };
-        d.surface(&rid, "width: Fill height: Fit flow: Overlay", fill, 10.0, Some(border));
+        // The board: the current session is a grey card with a black check;
+        // the others are open rows split by hairlines.
+        if i > 0 && !r.current && !rows[i - 1].current {
+            d.hairline();
+        }
+        let (fill, border) = if r.current { (tok::SURFACE2, Some(tok::HAIRLINE)) } else { (tok::TRANSPARENT, None) };
+        d.surface(&rid, "width: Fill height: Fit flow: Overlay", fill, 12.0, border);
         let row = d.anon();
-        d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{left: 12 right: 12 top: 10 bottom: 10}");
+        d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{left: 12 right: 12 top: 12 bottom: 12}");
         let col = d.anon();
-        d.view(&col, "width: Fill height: Fit flow: Down spacing: 6");
+        d.view(&col, "width: Fill height: Fit flow: Down spacing: 8");
         let color = if r.current { tok::MUTED } else { tok::TEXT };
-        d.text(&format!("{rid}_title"), &super::inventory::fit(&r.title, inner_w - 120.0, 13.0, false), &Txt::new(13.0, Face::Medium, color).w(W::Fill));
+        d.text(&format!("{rid}_title"), &r.title, &Txt::new(14.0, Face::Regular, color).w(W::Fill).wrap());
         let meta = d.anon();
         d.view(&meta, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-        d.chip(&format!("{rid}_tag"), &r.tag, tok::MUTED, tok::SURFACE2, Some(tok::HAIRLINE), true);
+        d.chip(&format!("{rid}_tag"), &r.tag, tok::TEXT, tok::CHIP, None, true);
         let opening = st.opening.as_deref() == Some(r.id.as_str());
         let when = if opening { "Opening…".to_owned() } else { r.when.clone() };
         d.text(&format!("{rid}_when"), &when, &Txt::new(12.0, Face::Regular, tok::MUTED));
@@ -172,17 +177,43 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
     d.close();
 }
 
-pub fn build(d: &mut Dsl, st: &SwitchState, frame: &Frame, store: &Store) {
-    let width = frame.dialog_w(480.0);
+/// The switcher. With Vim editing on, the board's split: the session list on
+/// the left, the composer's key legend on the right (stacked under the list
+/// on a phone-narrow frame).
+pub fn build(d: &mut Dsl, st: &SwitchState, frame: &Frame, store: &Store, vim: &super::vim::VimState) {
+    let split = vim.enabled && !frame.compact(frame.dialog_w(760.0));
+    let width = if split { frame.dialog_w(760.0) } else { frame.dialog_w(480.0) };
     let pad = ui::dialog_pad(frame, width);
     ui::shell_open(d, frame, width);
-    ui::header(d, "Open a different session", "b3.close");
-    d.gap(W::Fill, 12.0);
-    ui::body_open(d, frame, width, 50.0);
-    panel(d, st, store, width - 2.0 * pad);
-    ui::body_close(d);
+    if split {
+        ui::header(d, "Open a different session", "b3.close");
+        d.gap(W::Fill, 12.0);
+        let cols = d.anon();
+        d.view(&cols, "width: Fill height: Fit flow: Right spacing: 18");
+        let left = d.anon();
+        d.view(&left, "width: Fill height: Fit flow: Down");
+        ui::body_open(d, frame, width, 50.0);
+        panel(d, st, store, width - 2.0 * pad - 18.0 - LEGEND_W);
+        ui::body_close(d);
+        d.close();
+        super::vim::legend(d, vim, W::Px(LEGEND_W));
+        d.close();
+    } else {
+        ui::header(d, "Open a different session", "b3.close");
+        d.gap(W::Fill, 12.0);
+        ui::body_open(d, frame, width, 50.0);
+        panel(d, st, store, width - 2.0 * pad);
+        if vim.enabled {
+            d.gap(W::Fill, 14.0);
+            super::vim::legend(d, vim, W::Fill);
+        }
+        ui::body_close(d);
+    }
     ui::shell_close(d);
 }
+
+/// The legend column's width in the split (the board's right third).
+const LEGEND_W: f64 = 260.0;
 
 #[cfg(test)]
 mod tests {

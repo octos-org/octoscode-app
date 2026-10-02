@@ -79,6 +79,8 @@ pub struct InvState {
     pub query_snap: String,
     pub loading: bool,
     pub error: Option<String>,
+    pub tools_error: Option<String>,
+    pub mcp_error: Option<String>,
     pub tools: Option<(String, Vec<ToolRow>)>,
     pub servers: Option<(Vec<ServerRow>, Summary)>,
     /// Bumped per request; a reply for an older ticket is dropped
@@ -217,87 +219,83 @@ pub fn gate(supported: &[String], method: &str, session: &str, profile: &str) ->
     Ok(())
 }
 
-/// Load the open tab's list through the production client.
+/// One mode's read: gate, request, the web's scope-checked parse.
+async fn read_mode(
+    conv: &crate::flow::Conversation,
+    tab: Tab,
+    session: &str,
+    profile: &str,
+    supported: &[String],
+) -> Result<Value, String> {
+    let (method, params) = match tab {
+        Tab::Tools => (
+            TOOLS_METHOD,
+            serde_json::json!({"session_id": session, "profile_id": profile, "include_denied": true}),
+        ),
+        Tab::Mcp => (
+            MCP_METHOD,
+            serde_json::json!({"session_id": session, "profile_id": profile, "include_disabled": true}),
+        ),
+    };
+    gate(supported, method, session, profile)?;
+    conv.client()
+        .request(method, params)
+        .await
+        .map_err(|e| e.to_string().chars().take(512).collect())
+}
+
+/// Load BOTH runtime inventories (the board's one dialog shows the two web
+/// modes together) through the production client.
 pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
-    let (tab, ticket) = {
+    let ticket = {
         let mut st = super::host::state();
         st.inv.ticket += 1;
         st.inv.loading = true;
         st.inv.error = None;
-        (st.inv.tab, st.inv.ticket)
+        st.inv.ticket
     };
     let session = conv.session_id();
     let profile = conv.profile();
     let supported = conv.store.domains.config.supported_methods();
-    let method = match tab {
-        Tab::Tools => TOOLS_METHOD,
-        Tab::Mcp => MCP_METHOD,
-    };
-    let result = match gate(&supported, method, &session, &profile) {
-        Err(e) => Err(e),
-        Ok(()) => {
-            let params = match tab {
-                Tab::Tools => serde_json::json!({
-                    "session_id": session, "profile_id": profile, "include_denied": true
-                }),
-                Tab::Mcp => serde_json::json!({
-                    "session_id": session, "profile_id": profile, "include_disabled": true
-                }),
-            };
-            conv.client()
-                .request(method, params)
-                .await
-                .map_err(|e| e.to_string())
-        }
-    };
+    let tools = read_mode(conv, Tab::Tools, &session, &profile, &supported).await;
+    let mcp = read_mode(conv, Tab::Mcp, &session, &profile, &supported).await;
     let mut st = super::host::state();
     if st.inv.ticket != ticket {
         return Ok("stale inventory reply dropped".into());
     }
     st.inv.loading = false;
     st.inv.scope = format!("{profile} · {session}");
-    let summary = match (tab, result) {
-        (_, Err(e)) => {
-            let e: String = e.chars().take(512).collect();
-            st.inv.error = Some(e.clone());
-            return Err(e);
+    st.inv.tools_error = None;
+    st.inv.mcp_error = None;
+    match tools.map(|v| parse_tools(&v, &session, &profile)) {
+        Ok(Some((policy, rows))) => {
+            // The store's tool domain keeps the last inventory seen.
+            conv.store.domains.tool.set(
+                rows.iter()
+                    .map(|r| octoscode_store::domains::tool::RuntimeTool {
+                        name: r.name.clone(),
+                        category: Some(r.category.clone()),
+                        status: Some(r.status.clone()),
+                        policy: Some(r.policy.clone()),
+                        aliases: r.aliases.clone(),
+                    })
+                    .collect(),
+            );
+            st.inv.tools = Some((policy, rows));
         }
-        (Tab::Tools, Ok(v)) => match parse_tools(&v, &session, &profile) {
-            Some((policy, rows)) => {
-                // The store's tool domain keeps the last inventory seen.
-                conv.store.domains.tool.set(
-                    rows.iter()
-                        .map(|r| octoscode_store::domains::tool::RuntimeTool {
-                            name: r.name.clone(),
-                            category: Some(r.category.clone()),
-                            status: Some(r.status.clone()),
-                            policy: Some(r.policy.clone()),
-                            aliases: r.aliases.clone(),
-                        })
-                        .collect(),
-                );
-                let n = rows.len();
-                st.inv.tools = Some((policy, rows));
-                format!("{n} tools")
-            }
-            None => {
-                st.inv.error = Some("Invalid or wrong-scope tool status".into());
-                return Err("Invalid or wrong-scope tool status".into());
-            }
-        },
-        (Tab::Mcp, Ok(v)) => match parse_mcp(&v, &session, &profile) {
-            Some((rows, summary)) => {
-                let n = rows.len();
-                st.inv.servers = Some((rows, summary));
-                format!("{n} servers")
-            }
-            None => {
-                st.inv.error = Some("Invalid or wrong-scope MCP status".into());
-                return Err("Invalid or wrong-scope MCP status".into());
-            }
-        },
-    };
-    Ok(summary)
+        Ok(None) => st.inv.tools_error = Some("Invalid or wrong-scope tool status".into()),
+        Err(e) => st.inv.tools_error = Some(e),
+    }
+    match mcp.map(|v| parse_mcp(&v, &session, &profile)) {
+        Ok(Some((rows, summary))) => st.inv.servers = Some((rows, summary)),
+        Ok(None) => st.inv.mcp_error = Some("Invalid or wrong-scope MCP status".into()),
+        Err(e) => st.inv.mcp_error = Some(e),
+    }
+    Ok(format!(
+        "{} tools, {} servers",
+        st.inv.tools.as_ref().map(|t| t.1.len()).unwrap_or(0),
+        st.inv.servers.as_ref().map(|s| s.0.len()).unwrap_or(0)
+    ))
 }
 
 // ------------------------------------------------------------------ actions
@@ -305,15 +303,11 @@ pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
 pub fn perform(st: &mut InvState, action: &str, _index: usize) -> Outcome {
     match action {
         "b3.inv.tab.tools" | "b3.inv.tab.mcp" => {
-            let tab = if action.ends_with("tools") { Tab::Tools } else { Tab::Mcp };
+            // Both modes are loaded; the selected segment leads (`/tools`
+            // vs `/mcp`) — no refetch on a switch.
+            st.tab = if action.ends_with("tools") { Tab::Tools } else { Tab::Mcp };
             st.query_snap = st.query.clone();
-            if st.tab == tab {
-                return Outcome::Done;
-            }
-            st.tab = tab;
-            st.loading = true;
-            st.error = None;
-            Outcome::Spawn(super::host::Job::InventoryLoad)
+            Outcome::Done
         }
         "b3.inv.refresh" => {
             if st.loading {
@@ -362,23 +356,18 @@ fn server_dot(status: &str) -> &'static str {
     }
 }
 
-/// Natural height of the dialog's content (for the shell's fit/scroll call).
-
 pub fn build(d: &mut Dsl, st: &InvState, frame: &Frame, _store: &Store) {
     let width = frame.dialog_w(760.0);
     let compact = frame.compact(width);
     let pad = ui::dialog_pad(frame, width);
-    let inner_w = width - 2.0 * pad;
+    let inner_w = width - 2.0 * pad - 10.0; // the scroll gutter
     ui::shell_open(d, frame, width);
 
     // Header: title + refresh + close (`InventoryDialog.tsx:109-119`).
     let row = d.anon();
     d.view(&row, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4");
     d.text("b3_title", "Runtime inventory", &ui::title().w(W::Fill));
-    d.view("b3_inv_refresh_box", "width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}");
-    d.icon("b3_inv_refresh_icon", "b3_refresh.svg", 15.0, tok::MUTED);
-    d.tap("b3_inv_refresh", "b3.inv.refresh");
-    d.close();
+    ui::icon_button(d, "b3_inv_refresh", "b3_refresh.svg", 16.0, "b3.inv.refresh");
     ui::close_glyph(d, "b3.close");
     d.close();
     // The scope line (`:120-122`).
@@ -389,17 +378,17 @@ pub fn build(d: &mut Dsl, st: &InvState, frame: &Frame, _store: &Store) {
     // Search (`:128-134`).
     d.surface(
         "b3_inv_search_field",
-        "width: Fill height: 38 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 12 right: 12 top: 0 bottom: 0}",
+        "width: Fill height: 40 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 12 right: 12 top: 0 bottom: 0}",
         tok::SURFACE,
         10.0,
-        Some("#d9d9dcff"),
+        Some("#d1d1d6ff"),
     );
-    d.icon("b3_inv_search_icon", "b3_search.svg", 15.0, tok::FAINT);
+    d.icon("b3_inv_search_icon", "b3_search.svg", 16.0, tok::FAINT);
     search_input(d, &st.query_snap);
     d.close();
     d.gap(W::Fill, 12.0);
 
-    // The board's segmented control: each segment is a web mode.
+    // The board's segmented control: the selected web mode leads.
     d.segmented(
         "b3_inv_tab",
         &[
@@ -410,28 +399,57 @@ pub fn build(d: &mut Dsl, st: &InvState, frame: &Frame, _store: &Store) {
         W::Fill,
         ui::Seg::Tab,
     );
-    d.gap(W::Fill, 14.0);
+    d.gap(W::Fill, 12.0);
 
     ui::body_open(d, frame, width, 160.0);
     if st.loading {
         d.text("b3_inv_loading", "Loading runtime inventory…", &ui::meta());
+        d.gap(W::Fill, 6.0);
     }
     if let Some(e) = &st.error {
         d.text("b3_inv_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
     }
     match st.tab {
-        Tab::Tools => tools_table(d, st, compact, inner_w),
-        Tab::Mcp => servers_table(d, st, compact, inner_w),
+        Tab::Tools => {
+            tools_section(d, st, compact, inner_w);
+            section_rule(d);
+            servers_section(d, st, compact, inner_w);
+        }
+        Tab::Mcp => {
+            servers_section(d, st, compact, inner_w);
+            section_rule(d);
+            tools_section(d, st, compact, inner_w);
+        }
     }
     ui::body_close(d);
     ui::shell_close(d);
+}
+
+/// The full-width rule between the two inventories.
+fn section_rule(d: &mut Dsl) {
+    d.gap(W::Fill, 12.0);
+    d.hairline();
+    d.gap(W::Fill, 12.0);
+}
+
+/// A table header row between two hairlines (the board's column heads).
+fn header_row(d: &mut Dsl, heads: &[&str], cols: &[f64]) {
+    d.hairline();
+    let head = d.anon();
+    d.view(&head, "width: Fill height: 30 flow: Right align: Align{x: 0.0 y: 0.5}");
+    for (i, h) in heads.iter().enumerate() {
+        d.text("", h, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Px(cols[i])));
+    }
+    d.close();
+    d.hairline();
+    d.gap(W::Fill, 4.0);
 }
 
 fn search_input(d: &mut Dsl, snap: &str) {
     // The field's own hairline box is the search surface above; the input
     // itself is bare (no second border).
     d.inputs.push(("b3_inv_search".to_owned(), "inv.search".to_owned()));
-    let style = ui::text_style(Face::Regular, 13.0);
+    let style = ui::text_style(Face::Regular, 13.5);
     d.open(
         "b3_inv_search",
         "TextInput",
@@ -448,37 +466,37 @@ fn search_input(d: &mut Dsl, snap: &str) {
 /// Desktop column widths for the tools table (sum = the inner width).
 fn tool_cols(inner_w: f64) -> [f64; 6] {
     // Tool | Category | Status | Policy | Aliases | Backend
-    let fixed = [160.0, 104.0, 88.0, 124.0, 0.0, 96.0];
+    let fixed = [160.0, 104.0, 92.0, 124.0, 0.0, 96.0];
     let used: f64 = fixed.iter().sum();
     let aliases = (inner_w - used).max(80.0);
     [fixed[0], fixed[1], fixed[2], fixed[3], aliases, fixed[5]]
 }
 
-fn tools_table(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
+fn tools_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
+    if let Some(e) = &st.tools_error {
+        d.text("b3_inv_tools_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+        return;
+    }
     let Some((policy, rows)) = &st.tools else { return };
     d.text(
         "b3_inv_count",
         &format!("{} tools reported · Policy {}", rows.len(), policy),
-        &ui::meta().w(W::Fill),
+        &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill),
     );
     d.gap(W::Fill, 8.0);
     let cols = tool_cols(inner_w);
-    if !compact {
-        let head = d.anon();
-        d.view(&head, "width: Fill height: 26 flow: Right align: Align{x: 0.0 y: 0.5}");
-        for (i, h) in ["Tool", "Category", "Status", "Policy", "Aliases", "Backend"].iter().enumerate() {
-            d.text("", h, &ui::micro().w(W::Px(cols[i])));
-        }
-        d.close();
+    if compact {
+        d.hairline();
+    } else {
+        header_row(d, &["Tool", "Category", "Status", "Policy", "Aliases", "Backend"], &cols);
     }
-    d.hairline();
     for (i, t) in rows.iter().enumerate() {
         let rid = format!("b3_inv_tool_{i}");
         if compact {
-            d.view(&rid, "width: Fill height: Fit flow: Down");
+            d.view(&rid, "width: Fill height: Fit flow: Down padding: Inset{top: 6 bottom: 6}");
             let l1 = d.anon();
-            d.view(&l1, "width: Fill height: 30 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-            d.text("", &fit(&t.name, inner_w - 90.0, 12.5, true), &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Fill));
+            d.view(&l1, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
+            d.text("", &fit(&t.name, inner_w - 90.0, 13.0, true), &Txt::new(13.0, Face::Mono, tok::TEXT).w(W::Fill));
             status_chip(d, &format!("{rid}_status"), &t.status);
             d.close();
             let mut meta = vec![t.category.clone(), t.policy.clone()];
@@ -489,42 +507,41 @@ fn tools_table(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
                 meta.push(format!("Backend: {b}"));
             }
             d.text("", &fit(&meta.join(" · "), inner_w, 11.5, false), &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill));
-            d.gap(W::Fill, 10.0);
             d.close();
         } else {
-            d.view(&rid, "width: Fill height: 38 flow: Right align: Align{x: 0.0 y: 0.5}");
-            d.text("", &fit(&t.name, cols[0] - 10.0, 12.5, true), &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Px(cols[0])));
-            d.text("", &fit(&t.category, cols[1] - 8.0, 12.0, false), &ui::meta().w(W::Px(cols[1])));
+            d.view(&rid, "width: Fill height: 34 flow: Right align: Align{x: 0.0 y: 0.5}");
+            d.text("", &fit(&t.name, cols[0] - 10.0, 13.0, true), &Txt::new(13.0, Face::Mono, tok::TEXT).w(W::Px(cols[0])));
+            d.text("", &fit(&t.category, cols[1] - 8.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Px(cols[1])));
             let sc = d.anon();
             d.view(&sc, &format!("width: {} height: Fit flow: Right", cols[2]));
             status_chip(d, &format!("{rid}_status"), &t.status);
             d.close();
-            d.text("", &fit(&t.policy, cols[3] - 8.0, 12.0, false), &ui::meta().w(W::Px(cols[3])));
+            d.text("", &fit(&t.policy, cols[3] - 8.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Px(cols[3])));
             let aliases = if t.aliases.is_empty() { "—".to_owned() } else { t.aliases.join(", ") };
-            d.text("", &fit(&aliases, cols[4] - 10.0, 12.0, false), &Txt::new(12.0, Face::Regular, tok::TEXT).w(W::Px(cols[4])));
-            let backend = t.backend.clone().filter(|b| b != &t.name).unwrap_or_else(|| "—".into());
-            d.text("", &fit(&backend, cols[5] - 4.0, 12.0, true), &Txt::new(12.0, Face::Mono, tok::MUTED).w(W::Px(cols[5])));
+            d.text("", &fit(&aliases, cols[4] - 10.0, 13.0, true), &Txt::new(13.0, Face::Mono, tok::TEXT).w(W::Px(cols[4])));
+            let backend = t.backend.clone().filter(|b| b != &t.name).unwrap_or_else(|| "native".into());
+            d.text("", &fit(&backend, cols[5] - 4.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Px(cols[5])));
             d.close();
         }
-        // The divider belongs to the row so a filtered-out row hides with it.
-        let div = format!("{rid}_div");
-        d.rule(&div, "width: Fill height: 1", tok::HAIRLINE);
     }
-    d.gap(W::Fill, 10.0);
     let empty = d.anon();
-    d.view(&empty, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
-    d.text("b3_inv_empty", "No matching tools.", &ui::meta());
+    d.view(&empty, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} padding: Inset{top: 6}");
+    d.text("b3_inv_tools_empty", "No matching tools.", &Txt::new(13.0, Face::Regular, tok::MUTED));
     d.close();
 }
 
 fn server_cols(inner_w: f64) -> [f64; 5] {
     // ID | Transport | Status | toolCount | Summary
-    let fixed = [150.0, 84.0, 120.0, 72.0, 0.0];
+    let fixed = [150.0, 90.0, 130.0, 84.0, 0.0];
     let used: f64 = fixed.iter().sum();
     [fixed[0], fixed[1], fixed[2], fixed[3], (inner_w - used).max(80.0)]
 }
 
-fn servers_table(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
+fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
+    if let Some(e) = &st.mcp_error {
+        d.text("b3_inv_mcp_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+        return;
+    }
     let Some((rows, sm)) = &st.servers else { return };
     // The summary row (`InventoryDialog.tsx:172-179`).
     d.text(
@@ -533,19 +550,15 @@ fn servers_table(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
             "{} connected · {} connecting · {} failed · {} disabled",
             sm.connected, sm.connecting, sm.failed, sm.disabled
         ),
-        &Txt::new(12.0, Face::Medium, tok::TEXT).w(W::Fill),
+        &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill),
     );
     d.gap(W::Fill, 8.0);
     let cols = server_cols(inner_w);
-    if !compact {
-        let head = d.anon();
-        d.view(&head, "width: Fill height: 26 flow: Right align: Align{x: 0.0 y: 0.5}");
-        for (i, h) in ["ID", "Transport", "Status", "toolCount", "Summary"].iter().enumerate() {
-            d.text("", h, &ui::micro().w(W::Px(cols[i])));
-        }
-        d.close();
+    if compact {
+        d.hairline();
+    } else {
+        header_row(d, &["ID", "Transport", "Status", "toolCount", "Summary"], &cols);
     }
-    d.hairline();
     for (i, s) in rows.iter().enumerate() {
         let rid = format!("b3_inv_server_{i}");
         let name = s.display_name.clone().unwrap_or_else(|| s.id.clone());
@@ -556,76 +569,65 @@ fn servers_table(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
         };
         let summary_color = if s.error.is_some() { tok::RED } else { tok::MUTED };
         if compact {
-            d.view(&rid, "width: Fill height: Fit flow: Down");
+            d.view(&rid, "width: Fill height: Fit flow: Down padding: Inset{top: 6 bottom: 6}");
             let l1 = d.anon();
-            d.view(&l1, "width: Fill height: 30 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-            d.text("", &fit(&name, inner_w - 150.0, 12.5, true), &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Fill));
+            d.view(&l1, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
+            d.text("", &fit(&name, inner_w - 150.0, 13.0, true), &Txt::new(13.0, Face::Mono, tok::TEXT).w(W::Fill));
             if let Some(t) = &s.transport {
                 d.chip("", t, tok::MUTED, tok::SURFACE2, Some(tok::HAIRLINE), true);
             }
             d.dot(server_dot(&s.status), 8.0);
-            d.text("", &s.tool_count.to_string(), &Txt::new(12.0, Face::Regular, tok::TEXT));
+            d.text("", &s.tool_count.to_string(), &Txt::new(12.5, Face::Regular, tok::TEXT));
             d.close();
             d.text("", &fit(&format!("{} · {}", s.status, summary), inner_w, 11.5, false), &Txt::new(11.5, Face::Regular, summary_color).w(W::Fill));
-            d.gap(W::Fill, 10.0);
             d.close();
         } else {
-            d.view(&rid, "width: Fill height: 38 flow: Right align: Align{x: 0.0 y: 0.5}");
-            d.text("", &fit(&name, cols[0] - 10.0, 12.5, true), &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Px(cols[0])));
+            d.view(&rid, "width: Fill height: 34 flow: Right align: Align{x: 0.0 y: 0.5}");
+            d.text("", &fit(&name, cols[0] - 10.0, 13.0, true), &Txt::new(13.0, Face::Mono, tok::TEXT).w(W::Px(cols[0])));
             let tc = d.anon();
             d.view(&tc, &format!("width: {} height: Fit flow: Right", cols[1]));
             if let Some(t) = &s.transport {
-                d.chip("", t, tok::MUTED, tok::SURFACE2, Some(tok::HAIRLINE), true);
+                d.text("", t, &Txt::new(13.0, Face::Regular, tok::TEXT));
             }
             d.close();
             let stc = d.anon();
-            d.view(&stc, &format!("width: {} height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 6", cols[2]));
+            d.view(&stc, &format!("width: {} height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 7", cols[2]));
             d.dot(server_dot(&s.status), 8.0);
-            d.text("", &s.status, &Txt::new(12.0, Face::Regular, tok::TEXT));
+            d.text("", &s.status, &Txt::new(13.0, Face::Regular, tok::TEXT));
             d.close();
-            d.text("", &s.tool_count.to_string(), &Txt::new(12.0, Face::Regular, tok::TEXT).w(W::Px(cols[3])));
+            d.text("", &s.tool_count.to_string(), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Px(cols[3])));
             d.text("", &fit(&summary, cols[4] - 4.0, 12.0, false), &Txt::new(12.0, Face::Regular, summary_color).w(W::Px(cols[4])));
             d.close();
         }
-        let div = format!("{rid}_div");
-        d.rule(&div, "width: Fill height: 1", tok::HAIRLINE);
     }
-    d.gap(W::Fill, 10.0);
     let empty = d.anon();
-    d.view(&empty, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
+    d.view(&empty, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} padding: Inset{top: 6}");
     let msg = if rows.is_empty() { "No MCP servers reported by this runtime." } else { "No matching servers." };
-    d.text("b3_inv_empty", msg, &ui::meta());
+    d.text("b3_inv_servers_empty", msg, &Txt::new(13.0, Face::Regular, tok::MUTED));
     d.close();
 }
 
-/// Post-mount visibility: the live query filters rows without a remount.
+/// Post-mount visibility: the live query filters both inventories without a
+/// remount; each shows its own empty state.
 pub fn visibility(st: &InvState, _store: &Store) -> Vec<(String, bool)> {
     let mut out = Vec::new();
-    match st.tab {
-        Tab::Tools => {
-            if let Some((_, rows)) = &st.tools {
-                let mut any = false;
-                for (i, t) in rows.iter().enumerate() {
-                    let hit = tool_matches(t, &st.query);
-                    any |= hit;
-                    out.push((format!("b3_inv_tool_{i}"), hit));
-                    out.push((format!("b3_inv_tool_{i}_div"), hit));
-                }
-                out.push(("b3_inv_empty".into(), !any));
-            }
+    if let Some((_, rows)) = &st.tools {
+        let mut any = false;
+        for (i, t) in rows.iter().enumerate() {
+            let hit = tool_matches(t, &st.query);
+            any |= hit;
+            out.push((format!("b3_inv_tool_{i}"), hit));
         }
-        Tab::Mcp => {
-            if let Some((rows, _)) = &st.servers {
-                let mut any = false;
-                for (i, s) in rows.iter().enumerate() {
-                    let hit = server_matches(s, &st.query);
-                    any |= hit;
-                    out.push((format!("b3_inv_server_{i}"), hit));
-                    out.push((format!("b3_inv_server_{i}_div"), hit));
-                }
-                out.push(("b3_inv_empty".into(), !any || rows.is_empty()));
-            }
+        out.push(("b3_inv_tools_empty".into(), !any));
+    }
+    if let Some((rows, _)) = &st.servers {
+        let mut any = false;
+        for (i, s) in rows.iter().enumerate() {
+            let hit = server_matches(s, &st.query);
+            any |= hit;
+            out.push((format!("b3_inv_server_{i}"), hit));
         }
+        out.push(("b3_inv_servers_empty".into(), !any));
     }
     out
 }
@@ -703,12 +705,12 @@ mod tests {
         let mut st = InvState { tools: Some((policy, rows)), ..Default::default() };
         st.query = "zzz".into();
         let vis = visibility(&st, &Store::new());
-        assert!(vis.iter().any(|(id, v)| id == "b3_inv_empty" && *v));
+        assert!(vis.iter().any(|(id, v)| id == "b3_inv_tools_empty" && *v));
         assert!(vis.iter().filter(|(id, _)| id.starts_with("b3_inv_tool_")).all(|(_, v)| !v));
         st.query = "fs".into();
         let vis = visibility(&st, &Store::new());
         assert!(vis.iter().any(|(id, v)| id == "b3_inv_tool_0" && *v));
-        assert!(vis.iter().any(|(id, v)| id == "b3_inv_empty" && !*v));
+        assert!(vis.iter().any(|(id, v)| id == "b3_inv_tools_empty" && !*v));
     }
 
     #[test]

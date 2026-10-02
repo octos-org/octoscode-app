@@ -17,14 +17,18 @@ use octoscode_store::Store;
 // `board3/ui.rs` for why: runtime lists + a desktop window shorter than the
 // 406x776 artboard).
 pub mod checkpoints;
+pub mod fleetview;
 pub mod host;
 pub mod images;
 pub mod inspector;
 pub mod inventory;
 pub mod resume;
+pub mod rows;
+pub mod strip;
 pub mod switcher;
 pub mod thinking;
 pub mod ui;
+pub mod vim;
 pub mod wscreate;
 
 const CARDS: &str = "stage-b/phase4-new3/cards";

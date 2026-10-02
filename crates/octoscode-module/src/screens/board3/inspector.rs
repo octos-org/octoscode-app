@@ -405,11 +405,11 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, _store: &Store) {
     // The slash header + close (board: mono "/thread", the X at the right).
     let row = d.anon();
     d.view(&row, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5}");
-    d.text("b3_insp_slash", st.mode.slash(), &Txt::new(14.0, Face::Mono, tok::TEXT).w(W::Fill));
+    d.text("b3_insp_slash", st.mode.slash(), &Txt::new(16.0, Face::Mono, tok::TEXT).w(W::Fill));
     ui::close_glyph(d, "b3.close");
     d.close();
     d.gap(W::Fill, 6.0);
-    d.text("b3_title", st.mode.title(), &ui::title().w(W::Fill));
+    d.text("b3_title", st.mode.title(), &Txt::new(20.0, Face::Semibold, tok::TEXT).w(W::Fill));
     // Scope line + refresh glyph (`InspectionDialog.tsx:70-76`).
     let scope_row = d.anon();
     d.view(&scope_row, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5}");
@@ -418,7 +418,7 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, _store: &Store) {
         scope.push_str(&format!(" · Turn: {}", short(id)));
     }
     d.text("b3_insp_scope", &scope, &Txt::new(12.0, Face::Mono, tok::MUTED).w(W::Fill));
-    ui::icon_button(d, "b3_insp_refresh_glyph", "b3_refresh.svg", 16.0, "b3.insp.refresh");
+    ui::icon_button(d, "b3_insp_refresh_glyph", "b3_refresh.svg", 20.0, "b3.insp.refresh");
     d.close();
     d.text(
         "b3_insp_note",
@@ -447,7 +447,7 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, _store: &Store) {
     d.gap(W::Fill, 12.0);
     let foot = d.anon();
     d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
-    let kind = if st.loading { Btn::Disabled } else { Btn::Outline };
+    let kind = if st.loading { Btn::Disabled } else { Btn::Secondary };
     let label = if st.loading { "Reading…" } else { "Refresh" };
     d.button("b3_insp_refresh", label, "b3.insp.refresh", kind, W::Fit, 34.0);
     d.close();

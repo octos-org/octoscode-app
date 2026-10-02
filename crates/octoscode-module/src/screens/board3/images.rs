@@ -190,9 +190,11 @@ fn slot(d: &mut Dsl, i: usize, size: f64, entry: Option<(&AttachmentDraft, Optio
             d.close();
         }
         None => {
-            // The empty slot: a hairline frame with a "+" (choose files).
-            d.surface(&id, &format!("width: {size} height: {size} flow: Overlay align: Align{{x: 0.5 y: 0.5}}"), tok::SURFACE, 10.0, Some("#c7c7ccff"));
-            d.icon("", "b3_plus.svg", 20.0, tok::FAINT);
+            // The empty slot: the board's dashed frame with a "+" (choose
+            // files). The dash is an SVG — a DesignSurface stroke is solid.
+            d.view(&id, &format!("width: {size} height: {size} flow: Overlay align: Align{{x: 0.5 y: 0.5}}"));
+            d.icon(&format!("{id}_frame"), "b3_dashed_slot.svg", size, tok::FAINT);
+            d.icon("", "b3_plus.svg", 22.0, tok::FAINT);
             d.tap(&format!("{id}_add"), "b3.img.choose");
             d.close();
         }
@@ -244,18 +246,21 @@ pub fn build(d: &mut Dsl, st: &ImgState, frame: &Frame, drafts: Option<&media::A
             &Txt::new(11.5, Face::Regular, if e.status == DraftStatus::Error { tok::RED } else { tok::MUTED }).w(W::Fill),
         );
     }
-    d.gap(W::Fill, 10.0);
+    d.gap(W::Fill, 12.0);
     d.hairline();
-    d.gap(W::Fill, 10.0);
-    // Scope + limits (`AttachmentsDialog.tsx:68-73`).
+    d.gap(W::Fill, 12.0);
+    // Scope (`AttachmentsDialog.tsx:68-73`, the web's copy — not the board's
+    // stray "Session: dsflash" line), between hairlines as the board draws it.
     let scope = d.anon();
     d.view(&scope, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-    d.text("", "Profile:", &Txt::new(12.5, Face::Regular, tok::MUTED));
-    d.text("b3_img_profile", &st.profile, &Txt::new(12.5, Face::Mono, tok::TEXT));
-    d.text("", "· Session:", &Txt::new(12.5, Face::Regular, tok::MUTED));
-    d.text("b3_img_session", &super::inventory::fit(&st.session, inner_w - 230.0, 12.5, true), &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Fill));
+    d.text("", "Profile:", &Txt::new(13.0, Face::Regular, tok::MUTED));
+    d.text("b3_img_profile", &st.profile, &Txt::new(13.0, Face::Mono, tok::TEXT));
+    d.text("", "· Session:", &Txt::new(13.0, Face::Regular, tok::MUTED));
+    d.text("b3_img_session", &super::inventory::fit(&st.session, inner_w - 240.0, 13.0, true), &Txt::new(13.0, Face::Mono, tok::TEXT).w(W::Fill));
     d.close();
-    d.gap(W::Fill, 6.0);
+    d.gap(W::Fill, 12.0);
+    d.hairline();
+    d.gap(W::Fill, 12.0);
     d.text("b3_img_limit", "20 MiB per image", &ui::meta());
     if let Some(e) = &st.error {
         d.gap(W::Fill, 6.0);
@@ -269,18 +274,22 @@ pub fn build(d: &mut Dsl, st: &ImgState, frame: &Frame, drafts: Option<&media::A
     let full = entries.len() >= media::MAX_TURN_IMAGES || uploading;
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 10");
-    d.button("b3_img_choose", "Choose image files", "b3.img.choose", if full { Btn::Disabled } else { Btn::Outline }, W::Fill, 40.0);
+    // The board's rounded outline buttons; an unavailable control keeps its
+    // place and reads as unavailable (no tap).
+    d.button("b3_img_choose", "Choose image files", "b3.img.choose", if full { Btn::OutlineOff } else { Btn::Outline }, W::Fill, 42.0);
     let uploadable = entries.iter().any(|e| matches!(e.status, DraftStatus::Selected | DraftStatus::Error));
-    d.button(
-        "b3_img_upload",
-        if uploading { "Uploading…" } else { "Upload selected images" },
-        "b3.img.upload",
-        if uploadable && !uploading { Btn::Primary } else { Btn::Disabled },
-        W::Fill,
-        40.0,
-    );
-    d.button("b3_img_cancel", "Cancel uploads", "b3.img.cancel", if uploading { Btn::Outline } else { Btn::Disabled }, W::Fill, 40.0);
-    d.button("b3_img_close_btn", if uploading { "Cancel uploads and close" } else { "Close images" }, "b3.img.close", Btn::Outline, W::Fill, 40.0);
+    if uploadable || uploading {
+        d.button(
+            "b3_img_upload",
+            if uploading { "Uploading…" } else { "Upload selected images" },
+            "b3.img.upload",
+            if uploadable && !uploading { Btn::Primary } else { Btn::Disabled },
+            W::Fill,
+            42.0,
+        );
+    }
+    d.button("b3_img_cancel", "Cancel uploads", "b3.img.cancel", if uploading { Btn::Outline } else { Btn::OutlineOff }, W::Fill, 42.0);
+    d.button("b3_img_close_btn", if uploading { "Cancel uploads and close" } else { "Close images" }, "b3.img.close", Btn::Outline, W::Fill, 42.0);
     d.close();
     ui::body_close(d);
     ui::shell_close(d);

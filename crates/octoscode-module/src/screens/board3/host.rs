@@ -36,6 +36,10 @@ pub enum Dialog {
     History,
     /// Screen 12 — Open a different session (`/sessions`).
     Switcher,
+    /// Screen 4 — the Fleet destination (sidebar footer "Fleet").
+    Fleet,
+    /// Screen 12 (right) — the Vim key legend (`?` in Normal mode).
+    Vim,
 }
 
 impl Dialog {
@@ -49,6 +53,8 @@ impl Dialog {
             "images" => Dialog::Images,
             "history" | "rewind" => Dialog::History,
             "switcher" | "sessions" => Dialog::Switcher,
+            "fleet" => Dialog::Fleet,
+            "vim" => Dialog::Vim,
             _ => return None,
         })
     }
@@ -66,6 +72,10 @@ pub struct State {
     pub ck: super::checkpoints::CkState,
     pub switch: super::switcher::SwitchState,
     pub img: super::images::ImgState,
+    pub fleet: super::fleetview::FleetState,
+    pub strip: super::strip::StripState,
+    /// The composer's Vim preference + mode (screen 12).
+    pub vim: super::vim::VimState,
     /// Text a finished job wants on the clipboard (the host writes it on the
     /// UI thread, where `cx` lives).
     pub pending_clipboard: Option<String>,
@@ -83,6 +93,9 @@ impl Default for State {
             ck: Default::default(),
             switch: Default::default(),
             img: Default::default(),
+            fleet: Default::default(),
+            strip: Default::default(),
+            vim: Default::default(),
             pending_clipboard: None,
         }
     }
@@ -109,6 +122,17 @@ pub fn is_open() -> bool {
 
 pub fn open_dialog() -> Option<Dialog> {
     state().open
+}
+
+use super::vim::VimState;
+
+/// The composer's Vim state (screen 12).
+pub fn vim() -> VimState {
+    state().vim
+}
+
+pub fn set_vim(v: VimState) {
+    state().vim = v;
 }
 
 /// Wake the UI thread (a job folded something the dialog shows).
@@ -158,19 +182,36 @@ impl Lowered {
     }
 }
 
+/// The conversation column's left offset inside the module (the Fleet pane
+/// replaces the chat area, not the sidebar).
+pub fn set_content_x(x: f64) {
+    state().fleet.content_x = x.max(0.0);
+}
+
 /// Lower the open dialog against the live store, or `None` when closed.
 pub fn lower_open(store: &Store) -> Option<Lowered> {
-    let st = state();
+    let mut st = state();
     let open = st.open?;
     let mut d = Dsl::new();
+    if open == Dialog::Fleet {
+        // Announce a peer that changed into an announced state, once.
+        let rows = super::fleetview::rows(&st.fleet, store);
+        if let Some(a) = super::fleetview::announce(&st.fleet.seen, &rows) {
+            makepad_widgets::log!("[octoscode] fleet announce: {a}");
+            st.fleet.announcement = Some(a);
+        }
+        st.fleet.seen = rows.iter().map(|r| (r.label.clone(), r.phase)).collect();
+    }
     match open {
+        Dialog::Fleet => super::fleetview::build(&mut d, &st.fleet, &st.frame, store),
         Dialog::Inventory => super::inventory::build(&mut d, &st.inv, &st.frame, store),
         Dialog::Workspace => super::wscreate::build(&mut d, &st.ws, &st.frame, store),
         Dialog::Inspector => super::inspector::build(&mut d, &st.insp, &st.frame, store),
         Dialog::Thinking => super::thinking::build(&mut d, &st.frame, store),
         Dialog::Resume => super::resume::build(&mut d, &st.resume, &st.frame, store),
         Dialog::History => super::checkpoints::build(&mut d, &st.ck, &st.frame, store),
-        Dialog::Switcher => super::switcher::build(&mut d, &st.switch, &st.frame, store),
+        Dialog::Switcher => super::switcher::build(&mut d, &st.switch, &st.frame, store, &st.vim),
+        Dialog::Vim => super::vim::build_help(&mut d, &st.vim, &st.frame),
         Dialog::Images => {
             let session = store.domains.session.active().unwrap_or_default();
             let drafts = crate::screens::media::drafts_for_session(&session);
@@ -210,6 +251,16 @@ pub enum Job {
     WsStart(String),
     /// `POST /api/upload` per selected image.
     ImagesUpload,
+    /// `profile/sub_providers/list` (the Start form's models).
+    FleetLanes,
+    /// prepare -> driver seat -> one dispatch.
+    FleetStart(String, String),
+    /// `peer/control` steer (op index, text).
+    FleetSteer(usize, String),
+    /// `session/status/read` for the strip's model.
+    StatusRead,
+    /// `GET /api/files` for a delivered file (entry id, preview?).
+    FileFetch(u64, bool),
 }
 
 /// What a routed action asks of the host.
@@ -225,6 +276,8 @@ pub enum Outcome {
     Close,
     /// Open the platform file picker for images.
     PickFiles,
+    /// Route another (non-board-3) action id through the host router.
+    Action(String),
     /// Not a board-3 action.
     Unrouted,
 }
@@ -280,6 +333,12 @@ pub fn open(dialog: Dialog) -> Outcome {
             st.img.notice = None;
             Outcome::Done
         }
+        Dialog::Fleet => {
+            st.fleet.announcement = None;
+            st.fleet.brief_snap = st.fleet.brief.clone();
+            Outcome::Spawn(Job::FleetLanes)
+        }
+        Dialog::Vim => Outcome::Done,
     }
 }
 
@@ -326,6 +385,19 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
     if action.starts_with("b3.think.") {
         return super::thinking::perform(store, &session, action);
     }
+    match action {
+        // The strip opens the Session settings pane (`App.tsx:3139-3156`).
+        "b3.strip.settings" => return Outcome::Action("settings.toggle".into()),
+        "b3.file.download" => return Outcome::Spawn(Job::FileFetch(index as u64, false)),
+        "b3.file.preview" => return Outcome::Spawn(Job::FileFetch(index as u64, true)),
+        // Screen 12: the legend's help line, and the legend's way out.
+        "b3.vim.help" => return open(Dialog::Vim),
+        "b3.vim.off" => {
+            set_vim(VimState { enabled: true, ..vim() }.toggled());
+            return Outcome::Close;
+        }
+        _ => {}
+    }
     let mut st = state();
     if action.starts_with("b3.inv.") {
         return super::inventory::perform(&mut st.inv, action, index);
@@ -349,6 +421,9 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
         let drafts = crate::screens::media::drafts_for_session(&session);
         return super::images::perform(&mut st.img, action, index, drafts.as_deref());
     }
+    if action.starts_with("b3.fleet.") {
+        return super::fleetview::perform(&mut st.fleet, action, index, store);
+    }
     Outcome::Unrouted
 }
 
@@ -359,6 +434,7 @@ pub fn input_changed(key: &str, text: &str) {
         "inv" => super::inventory::input_changed(&mut st.inv, key, text),
         "ws" => super::wscreate::input_changed(&mut st.ws, key, text),
         "resume" => super::resume::input_changed(&mut st.resume, key, text),
+        "fleet" => super::fleetview::input_changed(&mut st.fleet, key, text),
         _ => {}
     }
 }
@@ -461,6 +537,14 @@ pub fn command(name: &str, args: &str, conv: &crate::flow::Conversation) -> Opti
         }
         "rewind" | "backtrack" => Some(open(Dialog::History)),
         "sessions" | "ss" => Some(open(Dialog::Switcher)),
+        // `App.tsx:1267-1269`: flip the preference (which also returns the
+        // composer to Insert, `vim-edit.ts:31-33`); the field note shows it.
+        "vimmode" | "vim-mode" => {
+            let next = vim().toggled();
+            set_vim(next);
+            makepad_widgets::log!("[octoscode] vim mode -> {}", if next.enabled { "on" } else { "off" });
+            Some(Outcome::Done)
+        }
         _ => None,
     }
 }
@@ -499,7 +583,47 @@ pub fn job_unavailable(job: &Job) {
             st.ws.error = Some(msg);
         }
         Job::ImagesUpload => st.img.error = Some(msg),
+        Job::FleetLanes => st.fleet.lanes_loading = false,
+        Job::FleetStart(..) | Job::FleetSteer(..) => {
+            st.fleet.starting = false;
+            st.fleet.start_error = Some(msg);
+        }
+        Job::StatusRead => {}
+        Job::FileFetch(id, _) => {
+            drop(st);
+            let mut f = super::rows::file_state();
+            let e = f.entry(*id).or_default();
+            e.busy = false;
+            e.error = Some("Session files are unavailable on this server".into());
+        }
     }
+}
+
+/// The strip DSL for the active Session (empty when no Session is open —
+/// the web mounts the strip only once `session.opened`).
+pub fn lower_strip(store: &Store, active_turn: Option<&str>, mode: Option<&str>) -> String {
+    if store.active_session().is_none() {
+        return String::new();
+    }
+    let st = state();
+    let note = st.vim.enabled.then(|| super::vim::note(&st.vim));
+    super::strip::lower(store, &st.strip, active_turn, mode, note)
+}
+
+/// The composer component's measured width (0 = unknown -> the strip fills).
+pub fn set_strip_width(w: f64) {
+    state().strip.width = if w > 0.0 { Some(w.floor()) } else { None };
+}
+
+/// Whether the strip still needs this Session's `session/status/read` (asked
+/// once per Session; the web polls the status pill, the strip reads it once).
+pub fn strip_status_needed(session: &str) -> bool {
+    let mut st = state();
+    if st.strip.status_for.as_deref() == Some(session) {
+        return false;
+    }
+    st.strip.status_for = Some(session.to_owned());
+    true
 }
 
 /// Run a job through the production client. The result is folded into the
@@ -519,6 +643,11 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         Job::WsCreate(parent, name) => super::wscreate::create_folder(conv, parent, name).await,
         Job::WsStart(cwd) => super::wscreate::start(conv, cwd).await,
         Job::ImagesUpload => super::images::upload(conv).await,
+        Job::FleetLanes => super::fleetview::load_lanes(conv).await,
+        Job::FleetStart(model, brief) => super::fleetview::start(conv, model, brief).await,
+        Job::FleetSteer(op, text) => super::fleetview::steer(conv, op, text).await,
+        Job::StatusRead => super::strip::load_status(conv).await,
+        Job::FileFetch(id, preview) => super::rows::fetch(conv, id, preview).await,
     }
 }
 
