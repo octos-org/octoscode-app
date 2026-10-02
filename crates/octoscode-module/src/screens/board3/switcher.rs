@@ -41,8 +41,16 @@ pub fn title_of(s: &octoscode_store::Session) -> String {
     if let Some(p) = s.last_prompt.as_ref().filter(|t| !t.trim().is_empty()) {
         return p.trim().to_owned();
     }
-    let tail: String = s.id.chars().rev().take(8).collect::<Vec<_>>().into_iter().rev().collect();
-    format!("Session {tail}")
+    known_session_title(&s.id)
+}
+
+/// `knownSessionTitle` (`SessionSidebar.tsx:245-249`): the id's last
+/// `:`-segment, cut to its last 8 characters when longer than 10.
+pub fn known_session_title(id: &str) -> String {
+    let leaf = id.split(':').next_back().map(str::trim).filter(|l| !l.is_empty()).unwrap_or(id.trim());
+    let n = leaf.chars().count();
+    let compact: String = if n > 10 { leaf.chars().skip(n - 8).collect() } else { leaf.to_owned() };
+    format!("Session {}", if compact.is_empty() { "unknown" } else { &compact })
 }
 
 /// The rows, newest first, the current one marked.
@@ -244,7 +252,10 @@ mod tests {
         assert_eq!(r[0].title, "why is hydrate slow?", "last_prompt fallback");
         assert_eq!(r[1].title, "Add session fork");
         assert!(r[1].current);
-        assert_eq!(r[2].title, "Session 23456789", "the last 8 of the id");
+        assert_eq!(r[2].title, "Session 0123456789", "a leaf of 10 stays whole");
+        assert_eq!(known_session_title("dsflash:main"), "Session main");
+        assert_eq!(known_session_title("dsflash:abcdefghijkl"), "Session efghijkl", "the last 8 of a long leaf");
+        assert_eq!(known_session_title(""), "Session unknown");
     }
 
     #[test]

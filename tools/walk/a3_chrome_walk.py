@@ -251,10 +251,12 @@ def sidebar_walk():
              log_needle="sidebar.collapse")
         step("The rail's search expands the sidebar", "rb_hit",
              lambda: is_shown("sb_search"), nth=2, log_needle="search.open")
-        step("Add workspace docks the folder browser", "sb_add_hit",
-             lambda: is_shown("screen_dock_close"), log_needle="workspace.add")
-        step("The dock's close returns", "screen_dock_close",
-             lambda: not is_shown("screen_dock_close"), log_needle="CloseDock")
+        # A4: Add workspace opens the web's workspace PICKER (App.tsx:2318-2320,
+        # board-3 screen 2); its "Browse…" leads to the folder browser.
+        step("Add workspace opens the workspace picker", "sb_add_hit",
+             lambda: is_shown("b3_dialog"), log_needle="workspace.add")
+        step("The picker's close returns", "b3_close",
+             lambda: not is_shown("b3_dialog"), log_needle="board3")
         step("Review opens from the header", "review_open_hit",
              lambda: is_shown("review_panel"), log_needle="ToggleReview")
         click("review_close")

@@ -375,6 +375,10 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
         close();
         return Outcome::Done;
     }
+    // The modal backdrop's press: swallowed, nothing happens.
+    if action == "b3.noop" {
+        return Outcome::Done;
+    }
     if let Some(rest) = action.strip_prefix("b3.open.") {
         return match Dialog::from_id(rest) {
             Some(d) => open(d),

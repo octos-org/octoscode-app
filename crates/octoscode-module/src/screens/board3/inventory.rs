@@ -475,7 +475,7 @@ fn tools_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
     d.text(
         "b3_inv_count",
         &format!("{} tools reported · Policy {}", rows.len(), policy),
-        &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill),
+        &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap(),
     );
     d.gap(W::Fill, 8.0);
     let cols = tool_cols(inner_w);
@@ -544,7 +544,7 @@ fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
             "{} connected · {} connecting · {} failed · {} disabled",
             sm.connected, sm.connecting, sm.failed, sm.disabled
         ),
-        &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill),
+        &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap(),
     );
     d.gap(W::Fill, 8.0);
     let cols = server_cols(inner_w);

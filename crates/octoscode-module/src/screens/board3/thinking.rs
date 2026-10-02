@@ -293,7 +293,7 @@ pub fn build(d: &mut Dsl, frame: &Frame, store: &Store) {
     d.text(
         "b3_think_help",
         "Sets how much the model thinks before answering",
-        &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill),
+        &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     if effort_index(&prefs).is_some() {
         d.link("b3_think_default", "Use profile default", Some("b3.think.effort.default"), 12.0);

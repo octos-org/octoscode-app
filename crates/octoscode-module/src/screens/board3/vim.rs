@@ -619,7 +619,7 @@ pub fn legend(d: &mut Dsl, st: &VimState, width: W) {
     let help = "Press ? for more help";
     d.view(
         "b3_vim_help_box",
-        &format!("width: {} height: 22 flow: Overlay align: Align{{x: 0.0 y: 0.5}}", ui::text_w(help, 13.0, Face::Regular) + 4.0),
+        &format!("width: {} height: 28 flow: Overlay align: Align{{x: 0.0 y: 0.5}}", ui::text_w(help, 13.0, Face::Regular) + 4.0),
     );
     d.text("b3_vim_help_label", help, &Txt::new(13.0, Face::Regular, tok::MUTED));
     d.tap("b3_vim_help", "b3.vim.help");

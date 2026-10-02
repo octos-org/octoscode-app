@@ -461,7 +461,8 @@ impl Dsl {
         let wrap = format!("{id}_box");
         // Explicit box (see `text_w`): the tap target must not measure 0.
         let w = text_w(label, px, Face::Regular) + 4.0;
-        let h = (px * 1.6).ceil();
+        // >= 28 px high: the brief's minimum hit size.
+        let h = (px * 1.6).ceil().max(28.0);
         self.view(
             &wrap,
             &format!("width: {} height: {} flow: Overlay align: Align{{x: 0.0 y: 0.5}}", fmt_num(w), fmt_num(h)),
@@ -476,6 +477,8 @@ impl Dsl {
     /// The board's switch: a blue (on) / grey (off) track with a white knob.
     pub fn toggle(&mut self, id: &str, on: bool, event: &str) {
         let track = if on { tok::BLUE } else { "#d1d1d6ff" };
+        // A 44x32 hit box around the 38x22 track (>= 28 px to tap).
+        self.view(&format!("{id}_box"), "width: 44 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}");
         self.surface(
             &format!("{id}_track"),
             &format!(
@@ -488,6 +491,7 @@ impl Dsl {
         );
         let knob = self.anon();
         self.surface(&knob, "width: 18 height: 18", tok::WHITE, 9.0, None);
+        self.close();
         self.close();
         self.tap(id, event);
         self.close();
@@ -647,6 +651,12 @@ pub fn shell_open(d: &mut Dsl, frame: &Frame, width: f64) {
         "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}",
     );
     d.rule("b3_backdrop", "width: Fill height: Fill", tok::MASK);
+    // The backdrop is modal: it swallows presses so nothing under it (the
+    // sidebar, the composer) reacts, and it does not close the dialog
+    // (`ui/ModalSurface.tsx`: Escape or the close control only).
+    d.view("b3_backdrop_box", "width: Fill height: Fill flow: Overlay");
+    d.tap("b3_backdrop_hit", "b3.noop");
+    d.close();
     d.surface(
         "b3_dialog",
         &format!(

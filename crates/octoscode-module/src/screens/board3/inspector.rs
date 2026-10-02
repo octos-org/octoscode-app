@@ -189,11 +189,16 @@ pub fn conversation_link(workspace_root: &str, profile: &str, session: &str) -> 
 
 fn project_graph(v: &Value) -> Option<Graph> {
     let cursor = v.get("cursor")?;
-    let cursor = format!(
-        "{}:{}",
-        cursor.get("stream").and_then(|s| s.as_str()).unwrap_or(""),
-        cursor.get("seq").and_then(|s| s.as_u64()).unwrap_or(0)
-    );
+    // The server's stream key can carry a control separator (seen live:
+    // `dsflash:main\u{0}~cwd-…`); a label must never draw one.
+    let stream: String = cursor
+        .get("stream")
+        .and_then(|s| s.as_str())
+        .unwrap_or("")
+        .chars()
+        .map(|c| if c.is_control() { ' ' } else { c })
+        .collect();
+    let cursor = format!("{}:{}", stream, cursor.get("seq").and_then(|s| s.as_u64()).unwrap_or(0));
     let mut seen = std::collections::HashSet::new();
     let mut threads = Vec::new();
     for t in v.get("threads")?.as_array()? {
@@ -438,20 +443,21 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, _store: &Store) {
     // The command's own subject first: `/permissions` reads the remembered
     // approvals (`InspectionDialog.tsx` "scopes"), `/turn` the turn state,
     // `/threads` the graph; the other server facts follow.
+    let compact = frame.compact(width);
     match &st.mode {
         Mode::Permissions => {
             scopes_card(d, st);
-            graph_card(d, st);
+            graph_card(d, st, compact);
         }
         Mode::Turn(id) => {
             if let Some(t) = &st.turn {
                 turn_card(d, id, t);
             }
-            graph_card(d, st);
+            graph_card(d, st, compact);
             scopes_card(d, st);
         }
         Mode::Threads => {
-            graph_card(d, st);
+            graph_card(d, st, compact);
             scopes_card(d, st);
         }
     }
@@ -469,7 +475,7 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, _store: &Store) {
     ui::shell_close(d);
 }
 
-fn graph_card(d: &mut Dsl, st: &InspState) {
+fn graph_card(d: &mut Dsl, st: &InspState, compact: bool) {
     ui::card_open(d, "b3_insp_graph", 4.0);
     ui::section_title(d, "b3_insp_graph_title", "Thread graph");
     match &st.graph {
@@ -486,28 +492,39 @@ fn graph_card(d: &mut Dsl, st: &InspState) {
                     if g.threads.len() == 1 { "" } else { "s" },
                     g.cursor
                 ),
-                &ui::micro().w(W::Fill),
+                &ui::micro().w(W::Fill).wrap(),
             );
             d.gap(W::Fill, 4.0);
             let last = g.threads.len() - 1;
             for (i, t) in g.threads.iter().enumerate() {
                 let rid = format!("b3_insp_thread_{i}");
-                d.view(&rid, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
                 let label = if i == last { "current".to_owned() } else { format!("#{}", i + 1) };
-                d.text("", &label, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Px(64.0)));
-                d.text("", &short(&t.thread_id), &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Px(84.0)));
-                d.text(
-                    "",
-                    &format!("{} · root seq {}", t.status, t.root_seq),
-                    &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill),
-                );
+                let facts = format!("{} · root seq {}", t.status, t.root_seq);
                 let n = t.message_seqs.len();
-                d.text(
-                    "",
-                    &format!("{n} message{}", if n == 1 { "" } else { "s" }),
-                    &Txt::new(12.0, Face::Regular, tok::TEXT),
-                );
-                d.close();
+                let count = format!("{n} message{}", if n == 1 { "" } else { "s" });
+                if compact {
+                    // Phone-narrow: the facts move under the id (one column
+                    // of 300 px cannot hold four).
+                    d.view(&rid, "width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 5 bottom: 5}");
+                    let line = d.anon();
+                    d.view(&line, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
+                    d.text("", &label, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Px(56.0)));
+                    d.text("", &short(&t.thread_id), &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Fill));
+                    d.text("", &count, &Txt::new(12.0, Face::Regular, tok::TEXT));
+                    d.close();
+                    let sub = d.anon();
+                    d.view(&sub, "width: Fill height: Fit flow: Right padding: Inset{left: 66}");
+                    d.text("", &facts, &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill));
+                    d.close();
+                    d.close();
+                } else {
+                    d.view(&rid, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
+                    d.text("", &label, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Px(64.0)));
+                    d.text("", &short(&t.thread_id), &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Px(84.0)));
+                    d.text("", &facts, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill));
+                    d.text("", &count, &Txt::new(12.0, Face::Regular, tok::TEXT));
+                    d.close();
+                }
             }
             if !g.orphans.is_empty() {
                 let list: Vec<String> = g.orphans.iter().map(|o| o.to_string()).collect();
@@ -538,7 +555,7 @@ fn scopes_card(d: &mut Dsl, st: &InspState) {
     match &st.scopes {
         None => d.text("", "Approval scopes were not read.", &ui::meta()),
         Some(rows) if rows.is_empty() => {
-            d.text("b3_insp_scopes_empty", "No remembered approval scopes for this Session.", &ui::meta())
+            d.text("b3_insp_scopes_empty", "No remembered approval scopes for this Session.", &ui::meta().w(W::Fill).wrap())
         }
         Some(rows) => {
             d.text(

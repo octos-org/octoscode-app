@@ -2659,6 +2659,8 @@ impl OctoscodeView {
         // `setWorkspacePicker({open: true, view: "add"})`) — board-3 screen 2,
         // whose "Browse…" is the folder browser (screen 3).
         if screens::sidebar::take_add_request() {
+            // The modal picker replaces the phone drawer (a no-op on desktop).
+            screens::sidebar::set_drawer_open(false);
             let _ = screens::board3::host::open(screens::board3::host::Dialog::Workspace);
             makepad_widgets::log!("[octoscode] board3 open: workspace picker (workspace.add)");
         }
@@ -2934,7 +2936,12 @@ impl OctoscodeView {
             // The strip shares the composer component's measured width, so the
             // two edges line up whatever width the composer lays out at.
             let composer_w = self.view.widget(cx, &[live_id!(i0_composer)]).area().rect(cx).size.x;
-            screens::board3::host::set_strip_width(composer_w);
+            // ...but never wider than the strip's own slot: on a phone the
+            // composer card measured 374 in a 344 column and the strip's
+            // third cell was clipped.
+            let slot_w = self.view.widget(cx, ids!(strip_splash)).area().rect(cx).size.x;
+            let strip_w = if slot_w > 0.0 && composer_w > 0.0 { composer_w.min(slot_w) } else { composer_w };
+            screens::board3::host::set_strip_width(strip_w);
             let strip = if store.is_live() {
                 screens::board3::host::lower_strip(&store, active_turn.as_deref(), mode.as_deref())
             } else {
@@ -3926,6 +3933,9 @@ impl Widget for OctoscodeView {
                 {
                     makepad_widgets::log!("[octoscode] sidebar: fleet");
                     self.perform_action(cx, "b3.open.fleet", 0);
+                    // A destination closes the phone drawer (a no-op on the
+                    // desktop column).
+                    self.perform_action(cx, "drawer.close", 0);
                 }
                 // A4 — the image picker's answer (screen 10).
                 for action in actions.iter() {

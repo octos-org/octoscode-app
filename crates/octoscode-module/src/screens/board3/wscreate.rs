@@ -439,11 +439,22 @@ fn pick_view(d: &mut Dsl, st: &WsState, store: &Store, inner_w: f64) {
     d.gap(W::Fill, 16.0);
     ui::field_label(d, "b3_ws_path_label", "Workspace path");
     d.gap(W::Fill, 6.0);
+    // Side by side (the board); stacked on a phone-narrow card, where the
+    // pill would squeeze the field to a clipped placeholder.
+    let narrow = inner_w < 420.0;
     let form = d.anon();
-    d.view(&form, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-    d.input("b3_ws_path", "ws.path", &st.path_snap, "Enter a path or choose a folder…", true, 40.0);
+    d.view(
+        &form,
+        if narrow {
+            "width: Fill height: Fit flow: Down spacing: 8"
+        } else {
+            "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8"
+        },
+    );
+    d.input("b3_ws_path", "ws.path", &st.path_snap, "Enter a path or choose a folder…", false, 40.0);
     let kind = if st.busy { Btn::Disabled } else { Btn::Primary };
-    d.button("b3_ws_start", if st.busy { "Starting…" } else { "Start session" }, "b3.ws.start", kind, W::Fit, 40.0);
+    let w = if narrow { W::Fill } else { W::Fit };
+    d.button("b3_ws_start", if st.busy { "Starting…" } else { "Start session" }, "b3.ws.start", kind, w, 40.0);
     d.close();
     d.gap(W::Fill, 8.0);
     let help = d.anon();

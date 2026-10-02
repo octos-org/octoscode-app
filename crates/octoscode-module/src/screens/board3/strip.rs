@@ -99,7 +99,24 @@ pub fn facts(store: &Store, st: &StripState, active_turn: Option<&str>, mode: Op
         .filter(|(s, _)| s == &session)
         .map(|(_, m)| m.clone())
         .unwrap_or_else(|| "Model not reported".into());
-    let perm = permission_label(mode).unwrap_or("Permissions not reported").to_owned();
+    // The server's current permission selection first (the web's
+    // `currentPermission`, `App.tsx:2037-2045`), else the workspace card's
+    // read of `permission/profile/list`.
+    let perm = store
+        .domains
+        .profile
+        .permission()
+        .map(|sel| {
+            use octoscode_store::domains::profile::PermissionProfileMode as M;
+            match sel.mode {
+                M::ReadOnly => "Read only",
+                M::WorkspaceWrite => "Workspace write",
+                M::DangerFullAccess => "Full access",
+            }
+        })
+        .or_else(|| permission_label(mode))
+        .unwrap_or("Permissions not reported")
+        .to_owned();
     (model, state_word(store, active_turn, st.handover.as_deref()), perm)
 }
 
@@ -154,11 +171,17 @@ pub fn lower(
     );
     let row = d.anon();
     d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}");
+    // Three EQUAL cells (the board): a Fill cell shrank to its neighbours'
+    // leftovers on a phone and clipped "Permissions not reported".
+    let cell_w = st
+        .width
+        .map(|w| format!("{}", ((w - 2.0) / 3.0).floor()))
+        .unwrap_or_else(|| "Fill".into());
     let cell = |d: &mut Dsl, id: &str, text: &str, muted: bool, mono: bool, center: bool| {
         let align = if center { "0.5" } else { "0.0" };
         d.view(
             &format!("{id}_cell"),
-            &format!("width: Fill height: Fit flow: Right align: Align{{x: {align} y: 0.5}} padding: Inset{{left: 10 right: 8 top: 8 bottom: 8}}"),
+            &format!("width: {cell_w} height: Fit flow: Right align: Align{{x: {align} y: 0.5}} padding: Inset{{left: 10 right: 8 top: 8 bottom: 8}}"),
         );
         let face = if mono { Face::Mono } else { Face::Regular };
         d.text(id, text, &Txt::new(px, face, if muted { tok::FAINT } else { tok::TEXT }).w(W::Fill).wrap());
@@ -182,7 +205,14 @@ pub fn lower(
         &caption,
         &format!("width: {width} height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 2 right: 2}}"),
     );
-    d.text("b3_strip_caption", "Model, permissions, sandbox", &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill));
+    // A Fill run before a Fit one takes the whole row (the flow is one
+    // pass), so with the note present the caption gets an explicit width.
+    let caption_w = match (vim_note, st.width) {
+        (Some(note), Some(w)) => W::Px((w - 4.0 - super::ui::text_w(note, 12.0, Face::Medium) - 8.0).max(60.0)),
+        (Some(_), None) => W::Px(super::ui::text_w("Model, permissions, sandbox", 12.0, Face::Regular) + 12.0),
+        _ => W::Fill,
+    };
+    d.text("b3_strip_caption", "Model, permissions, sandbox", &Txt::new(12.0, Face::Regular, tok::MUTED).w(caption_w));
     if let Some(note) = vim_note {
         d.text("b3_strip_vim", note, &Txt::new(12.0, Face::Medium, tok::TEXT));
     }
