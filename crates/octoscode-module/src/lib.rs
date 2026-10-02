@@ -3818,11 +3818,24 @@ impl OctoscodeView {
         } else {
             String::new()
         };
+        // Whether the transcript sits at its newest row BEFORE the dock
+        // changes height (the last draw's answer).
+        let at_end = self
+            .view
+            .portal_list(cx, ids!(timeline_list))
+            .borrow()
+            .is_some_and(|l| l.is_at_end());
         self.view.widget(cx, ids!(aside_row)).set_visible(cx, !dsl.is_empty());
         let splash = self.view.splash(cx, ids!(aside_splash));
         match self.mounts.mount(cx, &splash, &screens::theme::retint_dsl(&dsl)) {
             Err(e) => makepad_widgets::log!("[octoscode] aside mount: {e}"),
             Ok(true) => {
+                // The dock grew or shrank: a transcript that was following
+                // its newest row keeps following it (measured: mounting the
+                // panel left the main turn's live rows under the dock).
+                if at_end {
+                    self.follow_latest(cx);
+                }
                 let state = store
                     .active_session()
                     .and_then(|s| store.domains.btw.get(&s))

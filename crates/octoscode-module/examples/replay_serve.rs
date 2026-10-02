@@ -2367,6 +2367,18 @@ async fn main() {
                         println!("[replay-serve] -> session/hydrate (btw) {session}");
                         send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": reply})).await;
                     }
+                    // A29 — a reconnect re-checks the last turn (`turn/state/get`,
+                    // the A7 recovery): every turn this fixture streamed ended
+                    // with its recorded terminal, so it reports `completed`
+                    // for the asked turn (the server's `TurnStateGetResult`
+                    // shape the controller reads: session_id, turn_id, state).
+                    "turn/state/get" if label == "btw" => {
+                        let p = &v["params"];
+                        println!("[replay-serve] -> turn/state/get (btw) {} completed", p["turn_id"]);
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {
+                            "session_id": p["session_id"], "turn_id": p["turn_id"], "state": "completed"
+                        }})).await;
+                    }
                     "session/btw" if label == "btw" => {
                         let n = btw_seen.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1;
                         let session = v["params"]["session_id"].as_str().unwrap_or("").to_owned();
