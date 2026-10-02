@@ -1344,10 +1344,13 @@ mod onboarding {
             .find(|f| f.dir == "in" && f.method == "profile/llm/catalog")
             .map(|f| f.body.clone())
             .expect("r29a records the catalog");
-        if let Some(families) = body["families"].as_object_mut() {
+        // `get_mut`, never `value["key"]` on a `&mut`: IndexMut INSERTS a null
+        // for a missing key (a model without endpoints would then carry
+        // `"endpoints": null`, which no client decodes as a list).
+        if let Some(families) = body.get_mut("families").and_then(|f| f.as_object_mut()) {
             for family in families.values_mut() {
-                for model in family["models"].as_array_mut().into_iter().flatten() {
-                    for e in model["endpoints"].as_array_mut().into_iter().flatten() {
+                for model in family.get_mut("models").and_then(|m| m.as_array_mut()).into_iter().flatten() {
+                    for e in model.get_mut("endpoints").and_then(|e| e.as_array_mut()).into_iter().flatten() {
                         if e["api_key_env"] == json!("<redacted>") {
                             let name = e["id"].as_str().unwrap_or("endpoint").to_uppercase().replace('-', "_");
                             e["api_key_env"] = json!(format!("{name}_API_KEY"));

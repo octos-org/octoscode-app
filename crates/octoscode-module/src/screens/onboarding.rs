@@ -198,6 +198,10 @@ pub struct State {
     pub catalog: Option<LlmCatalogResult>,
     pub created_profile_id: Option<String>,
     pub error: Option<String>,
+    /// The server's own plain message for a failed provider test (its
+    /// `message`, e.g. "Provider connection failed"), shown as the error's
+    /// lead with the raw `error` under it — redacted like the error.
+    pub error_lead: Option<String>,
     /// The request gate's generation (`RequestGate`): every prepare, submit
     /// and reset moves it; a reply holding an older one is dropped.
     pub generation: u64,
@@ -242,13 +246,15 @@ impl State {
     }
 
     /// The route select's options (`OnboardingPanel.tsx:69-78`): the
-    /// Official API first, then the model's catalog endpoints.
+    /// Official API first, then the model's catalog endpoints. An endpoint's
+    /// detail line names its host (or its id when it has no URL), so two
+    /// routes with one label ("Official API") stay told apart.
     pub fn routes(&self) -> Vec<Opt> {
         let mut out = vec![Opt { id: OFFICIAL_ROUTE.into(), label: "Official API".into(), detail: None }];
         if let Some(m) = self.model() {
             for e in &m.endpoints {
-                let detail = match &e.base_url {
-                    Some(url) => format!("{} · {url}", e.id),
+                let detail = match e.base_url.as_deref().and_then(host_of) {
+                    Some(host) => host,
                     None => e.id.clone(),
                 };
                 out.push(Opt { id: e.id.clone(), label: e.label.clone().unwrap_or_else(|| e.id.clone()), detail: Some(detail) });
@@ -273,6 +279,11 @@ impl State {
             Select::Route => &self.form.route_id,
         }
     }
+}
+
+/// `https://www.autodl.art/api/v1` -> `www.autodl.art`.
+fn host_of(url: &str) -> Option<String> {
+    url::Url::parse(url).ok().and_then(|u| u.host_str().map(str::to_owned))
 }
 
 /// One option of a select.
@@ -480,6 +491,7 @@ pub fn prepare_begin(store: &Store, connection: u64) -> Option<Token> {
     st.catalog = None;
     st.created_profile_id = None;
     st.error = None;
+    st.error_lead = None;
     st.open_select = None;
     if !supported(store) {
         st.phase = Phase::Idle;
@@ -501,6 +513,7 @@ pub fn prepare_finish(t: Token, reply: Result<LlmCatalogResult, String>) -> bool
     }
     st.phase = Phase::Ready;
     st.created_profile_id = None;
+    st.error_lead = None;
     match reply.and_then(validate_catalog) {
         Ok(catalog) => {
             let mut form = st.form.clone();
@@ -568,6 +581,7 @@ fn set_phase(t: Token, phase: Phase) {
     if current(&st, t) {
         st.phase = phase;
         st.error = None;
+        st.error_lead = None;
         st.open_select = None;
         if phase == Phase::OpeningSession {
             // `if (state.phase === "opening_session") setApiKey("")`
@@ -592,6 +606,7 @@ async fn run_submission<F, Fut>(
     form: &Form,
     binding: Option<CreatedProfile>,
     on_configured: F,
+    lead: &mut Option<String>,
 ) -> Result<Option<String>, String>
 where
     F: FnOnce(String) -> Fut,
@@ -659,9 +674,13 @@ where
     }
     let test_error = tested.error.clone().filter(|e| !e.is_empty());
     if tested.profile_id != created_id || !tested.applied || test_error.is_some() {
-        return Err(test_error
+        let message = test_error
             .or_else(|| Some(tested.message.clone()).filter(|m| !m.is_empty()))
-            .unwrap_or_else(|| "The provider test did not pass.".into()));
+            .unwrap_or_else(|| "The provider test did not pass.".into());
+        // The server's plain `message` leads when it says something the
+        // raw `error` does not.
+        *lead = Some(tested.message.clone()).filter(|m| !m.is_empty() && *m != message);
+        return Err(message);
     }
 
     set_phase(t, Phase::SavingProvider);
@@ -712,7 +731,8 @@ where
         (t, st.form.clone(), st.catalog.clone().unwrap_or(LlmCatalogResult { families: Vec::new() }), st.binding.clone())
     };
     let secret = form.api_key.trim().to_owned();
-    let result = run_submission(client, t, &catalog, &form, binding, on_configured).await;
+    let mut lead = None;
+    let result = run_submission(client, t, &catalog, &form, binding, on_configured, &mut lead).await;
     let out = {
         let mut st = lock();
         let out = match result {
@@ -724,6 +744,7 @@ where
                 st.created_profile_id = st.binding.as_ref().map(|b| b.profile_id.clone());
                 let message = redact_secret(&e, &secret);
                 st.error = Some(message.clone());
+                st.error_lead = lead.map(|l| redact_secret(&l, &secret));
                 Submitted::Failed(message)
             }
         };
@@ -895,6 +916,13 @@ fn lines(s: &str, px: f64, face: Face, w: f64) -> f64 {
     (ui::text_w(s, px, face) / w.max(1.0)).ceil().max(1.0)
 }
 
+/// A wrapped label's line height in px — measured with /snap on the kit's
+/// text style (`font_size = px * 0.75`, `line_spacing 1.25`): the 13 px lead
+/// draws 4 lines in 75 px, i.e. `px * 1.4423`.
+fn line_h(px: f64) -> f64 {
+    px * 1.4423
+}
+
 fn field_box(d: &mut Dsl, id: &str, enabled: bool, open: bool) {
     let (fill, border) = if !enabled {
         (tok::SURFACE2, tok::HAIRLINE)
@@ -941,9 +969,10 @@ fn w_dsl(w: W) -> String {
 }
 
 /// One select (`<select>`): the field shows the choice and a chevron; a tap
-/// unfolds its options under it (radio-like rows, the selected one ticked).
+/// unfolds its options under it (rows, the selected one ticked), in a box
+/// capped at `list_max` so it stays inside the dialog body.
 #[allow(clippy::too_many_arguments)]
-fn select_field(d: &mut Dsl, st: &State, which: Select, label: &str, value: &str, mono: bool, enabled: bool, w: W, px_w: f64) {
+fn select_field(d: &mut Dsl, st: &State, which: Select, label: &str, value: &str, mono: bool, enabled: bool, w: W, px_w: f64, list_max: f64) {
     let id = format!("b3_onb_{}", which.key());
     let open = enabled && st.open_select == Some(which);
     let col = d.anon();
@@ -954,7 +983,7 @@ fn select_field(d: &mut Dsl, st: &State, which: Select, label: &str, value: &str
     d.view(&row, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 10 right: 10 top: 0 bottom: 0}");
     let face = if mono { Face::Mono } else { Face::Regular };
     let ink = if enabled { tok::TEXT } else { tok::FAINT };
-    let px = if mono { 12.5 } else { 13.0 };
+    let px = 13.0; // the kit input's size: a select reads like the text fields beside it
     d.text(&format!("{id}_value"), &ui::fit_w(value, px_w - 46.0, px, face), &Txt::new(px, face, ink).w(W::Fill));
     d.icon(&format!("{id}_chevron"), "b3_chevron_down_dark.svg", 12.0, tok::MUTED);
     d.close();
@@ -963,12 +992,15 @@ fn select_field(d: &mut Dsl, st: &State, which: Select, label: &str, value: &str
     }
     d.close();
     if open {
-        options_list(d, st, which, mono, px_w);
+        options_list(d, st, which, mono, px_w, Some(list_max));
     }
     d.close();
 }
 
-fn options_list(d: &mut Dsl, st: &State, which: Select, mono: bool, px_w: f64) {
+/// The options of the open select. `max_h`: a dropdown's capped box with its
+/// own scroll (desktop); `None` lays every row out in the dialog body (the
+/// phone's picker sheet scrolls with the body).
+fn options_list(d: &mut Dsl, st: &State, which: Select, mono: bool, px_w: f64, max_h: Option<f64>) {
     let opts = st.options(which);
     let chosen = st.selected(which).to_owned();
     d.surface(
@@ -980,7 +1012,14 @@ fn options_list(d: &mut Dsl, st: &State, which: Select, mono: bool, px_w: f64) {
     );
     // A long list (a real catalog has 20 families; one family 33 models)
     // scrolls inside its own capped box, like a native menu.
-    d.open("b3_onb_list_scroll", "ScrollYView", "width: Fill height: Fit max_height: 236 flow: Down padding: Inset{left: 0 top: 0 right: 6 bottom: 0}");
+    match max_h {
+        Some(h) => d.open(
+            "b3_onb_list_scroll",
+            "ScrollYView",
+            &format!("width: Fill height: Fit max_height: {} flow: Down padding: Inset{{left: 0 top: 0 right: 6 bottom: 0}}", h.floor()),
+        ),
+        None => d.view("b3_onb_list_scroll", "width: Fill height: Fit flow: Down"),
+    }
     let face = if mono { Face::Mono } else { Face::Regular };
     for (i, opt) in opts.iter().enumerate() {
         let on = opt.id == chosen;
@@ -990,7 +1029,7 @@ fn options_list(d: &mut Dsl, st: &State, which: Select, mono: bool, px_w: f64) {
         d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 10 right: 10 top: 8 bottom: 8}");
         let text_col = d.anon();
         d.view(&text_col, "width: Fill height: Fit flow: Down spacing: 2");
-        let px = if mono { 12.5 } else { 13.0 };
+        let px = 13.0; // the kit input's size: a select reads like the text fields beside it
         d.text(&format!("{id}_label"), &opt.label, &Txt::new(px, face, tok::TEXT).w(W::Fill).wrap());
         if let Some(detail) = &opt.detail {
             d.text(&format!("{id}_detail"), &ui::fit_w(detail, px_w - 60.0, 11.5, Face::Mono), &Txt::new(11.5, Face::Mono, tok::MUTED).w(W::Fill));
@@ -1036,15 +1075,25 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     d.text("b3_onb_lead", LEAD, &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     d.gap(W::Fill, 12.0);
 
-    // The chrome around the body: the header above and the footer below.
+    // The chrome around the body: the header above and the footer below —
+    // the footer carrying the form's retained-profile note and its error
+    // (they sit right above the actions, as in the web, and never scroll
+    // away: on a phone the form is taller than the screen).
     let title_lines = lines(TITLE, 17.0, Face::Semibold, width - 2.0 * pad - 28.0);
     let lead_lines = lines(LEAD, 13.0, Face::Regular, width - 2.0 * pad);
-    let footer = if compact { 12.0 + 18.0 + 8.0 + 36.0 } else { 12.0 + 36.0 };
-    let chrome = 15.0 + title_lines * 22.0 + 6.0 + lead_lines * 17.0 + 12.0 + footer;
+    let notes = form_notes(&st);
+    let note_w = inner_w - 10.0 - 20.0 - 22.0;
+    let notes_h: f64 = notes.iter().map(|n| 8.0 + n.height(note_w)).sum();
+    let footer = if compact { 12.0 + line_h(12.0) + 8.0 + 36.0 } else { 12.0 + 36.0 };
+    let header = line_h(11.5) + (title_lines * line_h(17.0)).max(28.0) + 6.0 + lead_lines * line_h(13.0) + 12.0;
+    // + a margin for the estimate's error, so the card never outgrows the frame.
+    let chrome = header + footer + notes_h + 8.0;
     ui::body_open(d, frame, width, chrome);
     let body = d.anon();
     d.view(&body, "width: Fill height: Fit flow: Down spacing: 12");
 
+    // What the body can show before it scrolls (`ui::body_open`'s cap).
+    let body_max = (frame.dialog_max_h() - 2.0 * pad - chrome).max(120.0).floor();
     let footer_kind = if !st.supported {
         fallback(d);
         Foot::Fallback
@@ -1062,18 +1111,121 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
         d.close();
         Foot::Failure
     } else {
-        form(d, &st, compact, inner_w);
+        form(d, &st, compact, inner_w, body_max);
         Foot::Form
     };
     d.close();
     ui::body_close(d);
 
-    // ---- footer: the status line and the actions (`.launch-actions`)
+    // ---- footer: the form's notes, the status line and the actions
+    // (`.launch-actions`), on the body's right edge (its scroll gutter).
     if footer_kind != Foot::None {
         d.gap(W::Fill, 12.0);
+        let foot = d.anon();
+        d.view(&foot, "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{left: 0 right: 10 top: 0 bottom: 0}");
+        if footer_kind == Foot::Form {
+            for note in &notes {
+                note.draw(d);
+            }
+        }
         footer_row(d, &st, footer_kind, compact);
+        d.close();
     }
     ui::shell_close(d);
+}
+
+/// The tallest the error's raw cause grows in the footer before it scrolls
+/// inside its own box (~4 lines): a provider's 1000-character body must not
+/// push the actions off a phone screen, and it stays readable whole.
+const CAUSE_MAX_H: f64 = 66.0;
+
+/// A note the form shows above its actions.
+enum Note {
+    /// `OnboardingPanel.tsx:250-256`: the created profile is kept.
+    Recovery(String),
+    /// `OnboardingPanel.tsx:257-261`: the (redacted) error. `lead` is a
+    /// sentence for people (the server's own `message`, or a plain line
+    /// over developer wording, A13's dialog convention); `cause` the error
+    /// text the web prints, under it. No lead: the error alone.
+    Error { lead: Option<String>, cause: String },
+}
+
+impl Note {
+    /// The note's drawn height at text width `w` (the body's budget).
+    fn height(&self, w: f64) -> f64 {
+        match self {
+            Note::Recovery(t) => 16.0 + lines(t, 12.5, Face::Regular, w) * line_h(12.5),
+            Note::Error { lead: Some(l), cause } => {
+                16.0 + lines(l, 13.0, Face::Medium, w) * line_h(13.0)
+                    + 2.0
+                    + (lines(cause, 11.5, Face::Regular, w) * line_h(11.5)).min(CAUSE_MAX_H)
+            }
+            Note::Error { lead: None, cause } => 16.0 + lines(cause, 12.5, Face::Regular, w) * line_h(12.5),
+        }
+    }
+
+    fn draw(&self, d: &mut Dsl) {
+        match self {
+            Note::Recovery(t) => {
+                note_box(d, "b3_onb_recovery");
+                d.icon("b3_onb_recovery_icon", "b3_info.svg", 14.0, tok::MUTED);
+                d.text("b3_onb_recovery_text", t, &Txt::new(12.5, Face::Regular, tok::TEXT).w(W::Fill).wrap());
+                d.close();
+            }
+            Note::Error { lead, cause } => {
+                d.surface(
+                    "b3_onb_error",
+                    "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.0} padding: Inset{left: 10 right: 10 top: 8 bottom: 8}",
+                    tok::RED_BG,
+                    8.0,
+                    Some("#f3c4c7ff"),
+                );
+                d.icon("b3_onb_error_icon", "b3_warning.svg", 14.0, tok::RED);
+                let col = d.anon();
+                d.view(&col, "width: Fill height: Fit flow: Down spacing: 2");
+                match lead {
+                    Some(l) => {
+                        d.text("b3_onb_error_text", l, &Txt::new(13.0, Face::Medium, tok::RED).w(W::Fill).wrap());
+                        d.open(
+                            "b3_onb_error_scroll",
+                            "ScrollYView",
+                            &format!("width: Fill height: Fit max_height: {CAUSE_MAX_H} flow: Down padding: Inset{{left: 0 top: 0 right: 6 bottom: 0}}"),
+                        );
+                        d.text("b3_onb_error_detail", cause, &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+                        d.close();
+                    }
+                    None => d.text("b3_onb_error_text", cause, &Txt::new(12.5, Face::Regular, tok::RED).w(W::Fill).wrap()),
+                }
+                d.close();
+                d.close();
+            }
+        }
+    }
+}
+
+/// The plain line over an error worded for developers (no server message):
+/// what failed, in the panel's own words.
+const SETUP_FAILED: &str = "Octos could not finish the setup.";
+
+/// The form's notes, in the web's order: the retained profile, then the
+/// error. Only the form shows them (the catalog failure card carries its
+/// own error).
+fn form_notes(st: &State) -> Vec<Note> {
+    if !st.supported || st.catalog.is_none() || st.phase == Phase::LoadingCatalog {
+        return Vec::new();
+    }
+    let mut out = Vec::new();
+    if let Some(created) = &st.created_profile_id {
+        out.push(Note::Recovery(format!("Profile {created} exists. A retry only repeats provider test and save.")));
+    }
+    if let Some(e) = &st.error {
+        let lead = st
+            .error_lead
+            .clone()
+            .or_else(|| ui::is_protocol_error(e).then(|| SETUP_FAILED.to_owned()));
+        out.push(Note::Error { lead, cause: e.clone() });
+    }
+    out
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1107,10 +1259,37 @@ fn fallback(d: &mut Dsl) {
     d.close();
 }
 
-/// The form (`OnboardingPanel.tsx:133-282`).
-fn form(d: &mut Dsl, st: &State, compact: bool, inner_w: f64) {
+/// The phone's picker sheet: the open select's options take the body (a list
+/// unfolded under a lower field would open below the screen's edge), with
+/// a back control to the form.
+fn picker_sheet(d: &mut Dsl, st: &State, which: Select, inner_w: f64) {
+    let (title, mono) = match which {
+        Select::Provider => ("Provider", true),
+        Select::Model => ("Model", true),
+        Select::Route => ("Route", true),
+    };
+    let head = d.anon();
+    d.view(&head, "width: Fill height: 36 flow: Right spacing: 4 align: Align{x: 0.0 y: 0.5}");
+    d.view("b3_onb_back_box", "width: 32 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}");
+    d.icon("b3_onb_back_icon", "b1_chevron_left.svg", 16.0, tok::TEXT);
+    d.tap("b3_onb_back", &format!("b3.onb.select.{}", which.key()));
+    d.close();
+    d.text("b3_onb_sheet_title", title, &Txt::new(14.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    d.close();
+    options_list(d, st, which, mono, inner_w, None);
+}
+
+/// The form (`OnboardingPanel.tsx:133-282`). `body_max` is the body's
+/// visible height (a dropdown is capped to stay inside it).
+fn form(d: &mut Dsl, st: &State, compact: bool, inner_w: f64, body_max: f64) {
     let busy = st.busy();
     let identity_open = !busy && st.created_profile_id.is_none();
+    if compact && !busy {
+        if let Some(which) = st.open_select {
+            picker_sheet(d, st, which, inner_w);
+            return;
+        }
+    }
 
     // Profile ID | Profile name (`.profileFields`: 0.72fr / 1.28fr; stacked
     // on a narrow frame, `@media (max-width: 760px)`).
@@ -1123,16 +1302,19 @@ fn form(d: &mut Dsl, st: &State, compact: bool, inner_w: f64) {
     let grid = d.anon();
     d.view(&grid, &format!("width: Fill height: Fit flow: {} spacing: 10", if compact { "Down" } else { "Right" }));
     let (cw_id, cw_name) = if compact { (W::Fill, W::Fill) } else { (W::Px(id_w), W::Px(name_w)) };
+    // Every field value in the code font (the web's `.form input, .form
+    // select { font: … var(--dsw-font-family-code) }`).
     text_field(d, "b3_onb_profile_id", "Profile ID", "onb.profile_id", &st.snap.0, &st.form.profile_id, true, identity_open, cw_id, id_w);
-    text_field(d, "b3_onb_profile_name", "Profile name", "onb.profile_name", &st.snap.1, &st.form.profile_name, false, identity_open, cw_name, name_w);
+    text_field(d, "b3_onb_profile_name", "Profile name", "onb.profile_name", &st.snap.1, &st.form.profile_name, true, identity_open, cw_name, name_w);
     d.close();
 
-    // The default checkbox (`OnboardingPanel.tsx:156-164`).
+    // The default checkbox (`OnboardingPanel.tsx:156-164`): the board's blue
+    // toggle colour (a checkbox is a toggle; blue only for toggles + links).
     let label_w = ui::text_w(DEFAULT_LABEL, 13.0, Face::Regular);
-    d.view("b3_onb_default_box", &format!("width: {} height: 32 flow: Overlay align: Align{{x: 0.0 y: 0.5}}", (label_w + 18.0 + 10.0 + 4.0).ceil()));
+    d.view("b3_onb_default_box", &format!("width: {} height: 32 flow: Overlay align: Align{{x: 0.0 y: 0.5}}", (label_w + 22.0 + 8.0 + 4.0).ceil()));
     let check = d.anon();
-    d.view(&check, "width: Fill height: Fill flow: Right spacing: 10 align: Align{x: 0.0 y: 0.5}");
-    d.icon("b3_onb_default_icon", if st.form.make_default { "b3_box_on.svg" } else { "b3_box_off.svg" }, 18.0, tok::TEXT);
+    d.view(&check, "width: Fill height: Fill flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5}");
+    d.icon("b3_onb_default_icon", if st.form.make_default { "cv_check_on.svg" } else { "cv_check_off.svg" }, 22.0, tok::BLUE);
     d.text("b3_onb_default_label", DEFAULT_LABEL, &Txt::new(13.0, Face::Regular, if identity_open { tok::TEXT } else { tok::FAINT }));
     d.close();
     if identity_open {
@@ -1140,15 +1322,23 @@ fn form(d: &mut Dsl, st: &State, compact: bool, inner_w: f64) {
     }
     d.close();
 
-    // Provider | Model | Route (`.fields`: three equal columns).
-    let col_w = if compact { inner_w } else { ((inner_w - 20.0) / 3.0).floor() };
-    let cw = if compact { W::Fill } else { W::Px(col_w) };
+    // Provider | Model | Route (`.fields`, three columns). The model id is
+    // the long value (`claude-3-5-haiku-20241022`), so its column takes 40 %
+    // where the web splits in thirds — the id reads whole instead of cut.
+    let free = inner_w - 20.0;
+    let (pw, mw) = ((free * 0.3).floor(), (free * 0.4).floor());
+    let rw = free - pw - mw;
+    let (pw, mw, rw) = if compact { (inner_w, inner_w, inner_w) } else { (pw, mw, rw) };
+    let px = |w: f64| if compact { W::Fill } else { W::Px(w) };
+    // The dropdown stays inside the body: what is above it (the identity
+    // row, the checkbox, the select's own label + field) comes off.
+    let list_max = (body_max - (59.0 + 12.0 + 32.0 + 12.0 + 59.0 + 6.0) - 14.0).clamp(110.0, 236.0);
     let grid = d.anon();
     d.view(&grid, &format!("width: Fill height: Fit flow: {} spacing: 10", if compact { "Down" } else { "Right" }));
     let route_label = st.routes().into_iter().find(|r| r.id == st.form.route_id).map(|r| r.label).unwrap_or_else(|| "Official API".into());
-    select_field(d, st, Select::Provider, "Provider", &st.form.family_id, true, !busy, cw, col_w);
-    select_field(d, st, Select::Model, "Model", &st.form.model_id, true, !busy, cw, col_w);
-    select_field(d, st, Select::Route, "Route", &route_label, false, !busy, cw, col_w);
+    select_field(d, st, Select::Provider, "Provider", &st.form.family_id, true, !busy, px(pw), pw, list_max);
+    select_field(d, st, Select::Model, "Model", &st.form.model_id, true, !busy, px(mw), mw, list_max);
+    select_field(d, st, Select::Route, "Route", &route_label, true, !busy, px(rw), rw, list_max);
     d.close();
 
     // The API key, or the keyless note (`OnboardingPanel.tsx:223-249`).
@@ -1179,24 +1369,7 @@ fn form(d: &mut Dsl, st: &State, compact: bool, inner_w: f64) {
         d.close();
     }
 
-    // The retained profile (`OnboardingPanel.tsx:250-256`).
-    if let Some(created) = &st.created_profile_id {
-        note_box(d, "b3_onb_recovery");
-        d.icon("b3_onb_recovery_icon", "b3_info.svg", 14.0, tok::MUTED);
-        d.text(
-            "b3_onb_recovery_text",
-            &format!("Profile {created} exists. A retry only repeats provider test and save."),
-            &Txt::new(12.5, Face::Regular, tok::TEXT).w(W::Fill).wrap(),
-        );
-        d.close();
-    }
-
-    // The (redacted) error (`OnboardingPanel.tsx:257-261`).
-    if let Some(e) = &st.error {
-        d.surface("b3_onb_error", "width: Fill height: Fit flow: Right padding: Inset{left: 10 right: 10 top: 8 bottom: 8}", tok::RED_BG, 8.0, Some("#f3c4c7ff"));
-        d.text("b3_onb_error_text", e, &Txt::new(12.5, Face::Regular, tok::RED).w(W::Fill).wrap());
-        d.close();
-    }
+    // The retained profile and the error follow in the footer (`form_notes`).
 }
 
 fn pill_w(label: &str) -> f64 {
@@ -1208,7 +1381,13 @@ fn pill_w(label: &str) -> f64 {
 fn footer_row(d: &mut Dsl, st: &State, kind: Foot, compact: bool) {
     let busy = st.busy();
     let row = d.anon();
-    d.view(&row, &format!("width: Fill height: Fit flow: {} spacing: 8", if compact && kind == Foot::Form { "Down" } else { "Right" }));
+    d.view(
+        &row,
+        &format!(
+            "width: Fill height: Fit flow: {} spacing: 8 align: Align{{x: 0.0 y: 0.5}}",
+            if compact && kind == Foot::Form { "Down" } else { "Right" }
+        ),
+    );
     if kind == Foot::Form {
         d.text("b3_onb_status", status(st.phase), &Txt::new(12.0, Face::Regular, tok::MUTED).w(if compact { W::Fill } else { W::Fit }));
     }
