@@ -276,7 +276,11 @@ def main():
     if MODE == "phone":
         # The shell's phone page (--test-action page:0) with the 360x780
         # frame: open OctosCode from the phone home (A3's walk does the same).
-        clickxy(153, 363); time.sleep(3.0)
+        # Tap only when the app is not open yet (an integration harness may
+        # already have opened it; a second tap would land on the Connect card).
+        w0 = find("b1_connect_pair")
+        if not (w0 and w0.get("r", [0, 0, 0, 0])[2] > 0):
+            clickxy(153, 363); time.sleep(3.0)
     wait("b1_connect_pair", 20)
     capture_entry("entry_connect", "b1_connect_pair")
     click_until("b1_connect_pair", "b1_pair_submit")

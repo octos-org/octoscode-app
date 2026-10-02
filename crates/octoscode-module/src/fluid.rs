@@ -1096,7 +1096,7 @@ pub fn connect_card(c: &ConnectView, m: &Metrics, left: f64) -> String {
          {btn_label}\
          {btn_hit}}}\n\
          View{{width: Fill height: Fit flow: Down align: Align{{x: 0.5}} padding: Inset{{top: 12}} spacing: 2\n\
-         b1_connect_pair_wrap := View{{width: Fit height: 32 flow: Overlay align: Align{{x: 0.5 y: 0.5}} \
+         connect_pair_wrap := View{{width: Fit height: 32 flow: Overlay align: Align{{x: 0.5 y: 0.5}} \
          padding: Inset{{left: 8 right: 8}}\n\
          {pair_label}{pair_hit}}}\n\
          connect_solo_wrap := View{{width: Fit height: 32 flow: Overlay align: Align{{x: 0.5 y: 0.5}} \
@@ -1149,7 +1149,7 @@ pub fn connect_card(c: &ConnectView, m: &Metrics, left: f64) -> String {
         // #A2 board 1: the Connect screen's way into pairing (p4-01). The id is
         // routed by `screens::board1::entry_controls` -> `b1.open.pairing`.
         pair_label = label(
-            "b1_connect_pair_label",
+            "connect_pair_label",
             "Pair with a link instead",
             &style(Face::Regular, 14.0, 20.0),
             "#2f6febff",
