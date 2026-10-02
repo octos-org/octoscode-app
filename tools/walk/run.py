@@ -932,39 +932,50 @@ def t_new_chat(app):
 
 
 # ---- composer: draft, send, timeline, input round-trip -------------------- #
-@check("composer", "the approval pill cycles the permission mode and reflects the read-back")
+@check("composer", "the approval pill opens the permission menu above it and Escape closes it")
 def cp_pill_cycle(app):
-    # #P4a1 — the pill was static art; clicking it now sends the web's
-    # permission/profile/set (permissions-section.tsx:27-28) and the label
-    # reflects the reply's `current.mode` read-back. Replay echoes the
-    # requested mode, so the cycle is fully observable offline.
-    MODES = ("Ask for approval", "read_only", "workspace_write")
-    def pill(d):
-        w = next((w for w in d.get("s", [])
-                  if (w.get("t") or "").strip() in MODES
-                  and (w.get("r") or [0, 0, 0, 0])[2] > 0), None)
-        return ((w.get("t") or "").strip(), w.get("r")) if w else (None, None)
-    t0, r0 = None, None
+    # A11: since A10 the pill no longer CYCLES the mode (#P4a1): it is the
+    # permission seat (screens/board3/seats.rs, the web's SessionControlBar)
+    # and opens the "Permission" menu above it — the presets the server lists
+    # (permission/profile/list), "No permission presets are available." when
+    # it lists none (this replay answers {}). Choosing a preset, its read-back
+    # and the full-access confirmation are tools/walk/a10_seats.py's (row 163).
+    pill_re = re.compile(r"^i\d+_composer_2$")
+
+    def menu(d):
+        return (app.rect(d, "b3_dialog") or [0, 0, 0, 0])[2] > 0
+    r0 = None
     for _ in range(20):
-        t0, r0 = pill(app.snap())
+        r0 = app.shown_rect_re(app.snap(), pill_re)
         if r0:
             break
         time.sleep(0.5)
     if not r0:
-        return False, "approval pill not laid out (polled 10s)"
-    def cycle(expect_diff):
-        app.click(int(r0[0] + r0[2] / 2), int(r0[1] + r0[3] / 2))
-        for _ in range(20):
-            t, r = pill(app.snap())
-            if t and t != expect_diff:
-                return t, r
-            time.sleep(0.5)
-        return None, r0
-    t1, r1 = cycle(t0)
-    t2, r2 = cycle(t1 or "") if (r1 and t1) else (None, r0)
-    ok = (t1 in ("read_only", "workspace_write")
-          and t2 in ("read_only", "workspace_write") and t1 != t2)
-    return ok, f"pill cycle: {t0!r} -> {t1!r} -> {t2!r} (read-back reflected)"
+        return False, "the approval pill (the permission seat) is not laid out (polled 10s)"
+    app.click(int(r0[0] + r0[2] / 2), int(r0[1] + r0[3] / 2))
+    try:
+        app.wait_for(menu, timeout=8, what="the permission menu to open")
+    except AssertionError:
+        return False, f"the pill CLICK opened no menu (pill={r0})"
+    time.sleep(0.5)
+    d = app.snap()
+    m = app.rect(d, "b3_dialog")
+    laid = {str(w.get("t") or "").strip() for w in d.get("s", []) if app.laid_out(w)}
+    titled = "Permission" in laid
+    above = m[1] + m[3] <= r0[1] + 1
+    state = next((t for t in ("No permission presets are available.", "Permission unavailable",
+                              "Loading access…") if t in laid), None)
+    opts = sum(1 for w in d.get("s", []) if re.match(r"^b3_perm_opt_\d+$", str(w.get("i", "")))
+               and app.laid_out(w))
+    app.key("escape")
+    try:
+        app.wait_for(lambda s: not menu(s), timeout=6, what="Escape to close the menu")
+        closed = True
+    except AssertionError:
+        closed = False
+    ok = titled and above and (opts > 0 or state is not None) and closed
+    return ok, (f"menu={m} above_pill={above} title={titled} presets={opts} state={state!r} "
+                f"escape_closes={closed}")
 
 
 @check("composer", "the draft is a single TextInput with a placeholder")
@@ -1786,13 +1797,17 @@ def v_fold(app):
                 f"(no receipt folded -> no fold line)")
 
 
-@check("review", "the closed-state review opener lays out and opens the panel by click",
+@check("review", "the closed-state review opener lays out and opens the diff review by click",
        rows=("review toggle", "opener", "closed-state"))
 def v_closed_opener(app):
-    # #40b defect 1: the in-panel toggle hit lives INSIDE the closed overlay
-    # (rect [0,0,0,0] — #40a's dead click). The sidebar header now carries an
-    # always-mounted opener; assert it lays out CLOSED and its click opens
-    # the panel (the in-panel pill closes it again — round-trip proven live).
+    # #40b defect 1: the in-panel toggle hit lived INSIDE the closed overlay
+    # (rect [0,0,0,0] — #40a's dead click); the header carries an
+    # always-mounted opener. A11: since A10 that opener is the web's diff
+    # review (board3/diff_review.rs: the eyebrow over "Review changes" in the
+    # dialog kit), no longer the docked panel — assert it lays out closed,
+    # its CLICK opens the dialog and the dialog's own ✕ closes it again.
+    def dialog(s):
+        return (app.rect(s, "b3_diff_eyebrow") or [0, 0, 0, 0])[2] > 0
     hit = None
     for _ in range(20):
         d = app.snap()
@@ -1803,10 +1818,21 @@ def v_closed_opener(app):
     if not (hit and hit[2] > 0):
         return False, f"closed-state opener not laid out: {hit}"
     app.click(int(hit[0] + hit[2] / 2), int(hit[1] + hit[3] / 2))
-    app.wait_for(lambda s: (app.rect(s, "review_panel") or [0, 0, 0, 0])[2] > 0,
-                 timeout=10, what="the review panel to open by click")
-    pw = (app.rect(app.snap(), "review_panel") or [0, 0, 0, 0])[2]
-    return pw > 0, f"opener={hit} panel w={pw}"
+    try:
+        app.wait_for(dialog, timeout=10, what="the diff review to open by click")
+    except AssertionError:
+        return False, f"opener={hit}: the CLICK opened no diff review"
+    d = app.snap()
+    box = app.rect(d, "b3_dialog")
+    close = app.rect(d, "b3_close") or [0, 0, 0, 0]
+    app.click_id(d, "b3_close")
+    try:
+        app.wait_for(lambda s: not dialog(s), timeout=6, what="the dialog's close to close it")
+        closed = True
+    except AssertionError:
+        closed = False
+    ok = close[2] >= 28 and close[3] >= 28 and closed
+    return ok, f"opener={hit} dialog={box} close={close} closed_by_its_x={closed}"
 
 
 @check("review", "the review toggle is keyboard/click reachable")
@@ -2607,8 +2633,8 @@ SPECIFIC_CHECKS = {
     "Escape closes the settings drawer and the trigger still works",
     "the a11y keyboard guarantees hold: Ctrl+K, Esc, / all route",
     # from origin/main (#36g follow-ups):
-    "the closed-state review opener lays out and opens the panel by click",
-    "the approval pill cycles the permission mode and reflects the read-back",
+    "the closed-state review opener lays out and opens the diff review by click",
+    "the approval pill opens the permission menu above it and Escape closes it",
     "the drawer's close hit is a real 28x28 slot and Disconnect ends inside the window",
     # #43b — the three harness-limited rows, now driven by their own instances.
     "the first-run chrome mounts with no connection and a focused composer",

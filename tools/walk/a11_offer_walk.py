@@ -70,7 +70,10 @@ PORT = int(sys.argv[3]) if len(sys.argv) > 3 else 8421
 FPORT = int(sys.argv[4]) if len(sys.argv) > 4 else 8434
 OUT = (pathlib.Path(sys.argv[5]) if len(sys.argv) > 5 else ROOT / "tmp" / "walk" / "a11").resolve() / MODE
 PHONE = MODE == "phone"
-DEAD = "http://127.0.0.1:8499"  # the launch default points nowhere: first run
+# The launch default points nowhere: first run. Port 9 (discard) is never a
+# fixture's: 8499 was, once A10's walks shifted this walk's fixtures to
+# 8497-8499 under the aggregator (the "dead" default then answered).
+DEAD = "http://127.0.0.1:9"
 FIXTURE = ROOT / "target" / "debug" / "examples" / "board1_serve"
 RESULTS = []
 WALK_LOG = []

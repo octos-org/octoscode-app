@@ -37,10 +37,11 @@ WALK = {
              "partial": "the provider editor itself is a2_board1's (Settings > Model > Model providers · Edit)"},
         98: {"checks": ["/goal by CLICK", "goal: Pause", "goal: Stop", "goal: Clear goal", "goal: Set goal"],
              "partial": "pause/stop/clear/set walked; resume and the newer-notification ordering are not staged"},
-        100: {"checks": ["/loop by CLICK", "loops: an empty Create is refused", "loops: prompt + interval creates ONE loop"],
-              "partial": "the fixed-interval loop only: maintenance and self-paced modes are not offered natively"},
+        # A11: row 100's creations are A10's cadence form (tools/walk/a10_autonomy.py).
+        100: {"checks": ["/loop by CLICK", "loops: + New loop opens the form"],
+              "partial": "the dialog and its create form open by CLICK (the creations are a10_autonomy's)"},
         102: {"checks": ["/monitor by CLICK", "monitors: Pause", "monitors: Resume", "monitors: Delete"],
-              "partial": "list, pause, resume, delete; there is no native monitor create form"},
+              "partial": "list, pause, resume, delete (create is a10_autonomy's)"},
         103: ["loops: Fire now"],
     },
 }
@@ -254,20 +255,13 @@ def main():
         tap("dlg_loops_loop_1_trash_hit", 'LoopDelete("loop_01")', "loops: Delete by CLICK")
         close_dialog()
 
-    # 6b. + New loop: an empty Create is refused on the form; prompt + interval -> one loop/create
+    # 6b. + New loop opens the form. A11: A10 replaced A5's prompt + interval
+    # form with the web's cadence form (Maintenance by default, Self-paced,
+    # Fixed interval); its create paths are tools/walk/a10_autonomy.py's
+    # (an empty Create under the default Maintenance cadence is a valid
+    # maintenance loop now, not a refusal).
     if open_dialog("lo", "/loop", "loops"):
         tap("dlg_loops_new_loop_control", "dialog form opened: loop.create", "loops: + New loop opens the form", wait=1.0)
-        n0 = wire("loop/create")
-        tap("dlg_loops_ff_submit_control", "dialog form refused: loop.create[empty]",
-            "loops: an empty Create is refused on the form (nothing sent)", wait=1.0)
-        app.click("dlg_loops_lf_prompt")
-        app.type("Run CI smoke")
-        app.click("dlg_loops_lf_interval")
-        app.type("15m")
-        tap("dlg_loops_ff_submit_control", 'LoopCreate { prompt: "Run CI smoke", interval_seconds: Some(900) }',
-            "loops: prompt + interval creates ONE loop (loop/create)")
-        check("loops: the form sent exactly one loop/create", wire("loop/create") == n0 + 1,
-              f"x{wire('loop/create') - n0}")
         close_dialog()
 
     # 7. /monitor by CLICK; pause, resume, delete
@@ -277,11 +271,10 @@ def main():
         tap("dlg_monitors_mon_1_trash_hit", 'MonitorDelete("monitor_01")', "monitors: Delete by CLICK")
         close_dialog()
 
-    # 8. /peer by CLICK -> Fleet; Steer with an empty composer sends nothing
+    # 8. /peer by CLICK -> the Fleet dialog. A11: A10 moved the peer row
+    # actions (Steer / Approve / Stop) to Fleet's pane and its seat; they are
+    # tools/walk/a10_fleet.py's and a10_seat.py's.
     if open_dialog("pe", "/peer", "fleet"):
-        n0 = wire("peer/control")
-        tap("dlg_fleet_peer_r0_steer_hit", "peer.steer#0", "fleet: Steer with an empty composer is handled locally")
-        check("fleet: nothing reached the wire for an empty steer", wire("peer/control") == n0)
         close_dialog()
 
     # 9. /ps by CLICK -> Tasks; Cancel the running task
@@ -289,9 +282,10 @@ def main():
         tap("dlg_tasks_run_r0_cancel_control", "fleet action -> task/cancel", "tasks: Cancel by CLICK (task/cancel)")
         close_dialog()
 
-    # 10. /review by CLICK -> Code review; Start native review
+    # 10. /review by CLICK -> Code review. A11: A10 rebuilt the dialog on the
+    # web's NativeReviewDialog (instructions field; Start admits a Session
+    # turn and closes it) — tools/walk/a10_review.py walks Start.
     if open_dialog("rev", "/review", "review"):
-        tap("dlg_review_start_review_control", "review action done:", "review: Start native review answers by CLICK")
         close_dialog()
 
     # 11-13. typed commands run LOCALLY: never sent to the model

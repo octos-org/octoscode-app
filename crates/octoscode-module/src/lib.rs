@@ -1489,9 +1489,16 @@ impl OctoscodeView {
             // A12 — the Connect card (after a give-up or a Disconnect) shows
             // the server in USE, never the authored default: pressing
             // Connect there must dial this same server.
-            let mut ui = b.screens.lock().unwrap();
-            ui.endpoint_error = screens::connect::endpoint_error(&base);
-            ui.server = base.clone();
+            // A11 — but a launch default is not "in use" until it answers:
+            // while a REMEMBERED server differs from it, the card keeps the
+            // remembered one (the web's durable endpoint; walk row 113 dialed
+            // the dead default). `pin_server_in_use` names this base once the
+            // link has been live.
+            if crate::credentials::last_server().map_or(true, |r| r == base) {
+                let mut ui = b.screens.lock().unwrap();
+                ui.endpoint_error = screens::connect::endpoint_error(&base);
+                ui.server = base.clone();
+            }
         }
         // #31e — the keyboard-decision seed, AFTER the bridge swap: connect
         // REPLACES `b.store` with the Conversation's own store above, so a
@@ -3671,6 +3678,9 @@ impl OctoscodeView {
         // renders it — so first-run mounts through the dock.
         // A12: a retained outage keeps the shell (no Connect card).
         let live = { self.bridge.lock().unwrap().store.keeps_shell() };
+        if live {
+            self.pin_server_in_use();
+        }
         // A docked OCTOSCODE_SCREEN owns `screen_splash` (mounted above); the
         // setup names (connect / connect_failed / onboarding) fall through to
         // the first-run card, as before.
@@ -4286,6 +4296,20 @@ impl OctoscodeView {
             self.view.redraw(cx);
         }
         consumed
+    }
+
+    /// A11 — once the link has been live (the shell is kept), the server it
+    /// dials is the one IN USE: the Connect card a give-up returns to names
+    /// it (A12's rule), whatever the card prefilled before it answered.
+    fn pin_server_in_use(&mut self) {
+        let b = self.bridge.lock().unwrap();
+        let Some(conv) = b.conv.as_ref() else { return };
+        let base = conv.endpoint();
+        let mut ui = b.screens.lock().unwrap();
+        if ui.server != base {
+            ui.endpoint_error = screens::connect::endpoint_error(&base);
+            ui.server = base;
+        }
     }
 
     /// Card #28e — move the chrome state (FlowUi flags + store) onto the view:
