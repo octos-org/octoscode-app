@@ -1408,6 +1408,7 @@ impl OctoscodeView {
                 return;
             }
         };
+        screens::recents::set_connected_endpoint(&base);
         let conv = Arc::new(conv);
 
         {
@@ -1926,8 +1927,9 @@ impl OctoscodeView {
         // initial connect failed and `bridge.conv` is still None.
         if let actions::Effect::Screen(crate::screens::palette::Effect::Retry) = effect {
             let bridge = self.bridge.clone();
-            let base =
-                std::env::var("OCTOS_BASE_URL").unwrap_or_else(|_| "http://127.0.0.1:50082".into());
+            // Retry the server the person is actually on (Connect / pairing),
+            // falling back to the env default before any connection.
+            let base = screens::recents::endpoint();
             let bearer = std::env::var("OCTOS_BEARER").unwrap_or_default();
             let profile =
                 std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
@@ -2321,6 +2323,7 @@ impl OctoscodeView {
                 };
                 match Conversation::connect(&server, &token, &effective, cwd.clone(), Some(waker.clone())) {
                     Ok((conv, evt_rx)) => {
+                        screens::recents::set_connected_endpoint(&server);
                         let conv = Arc::new(conv);
                         let mut evt_rx = evt_rx;
                         if let Ok(mut b) = bridge.lock() {

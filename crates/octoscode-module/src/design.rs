@@ -64,9 +64,33 @@ pub fn embedded_count() -> usize {
     table().len()
 }
 
-/// Total embedded bytes (the ACK reports it; also the materialize marker).
+/// Total embedded bytes (the ACK reports it).
 pub fn embedded_bytes() -> usize {
     table().iter().map(|(_, b)| b.len()).sum()
+}
+
+/// The materialize marker: byte total plus an FNV-1a 64 fingerprint over every
+/// embedded path and its bytes. The byte total alone missed same-size edits:
+/// an icon edit that kept its byte count was never re-materialized, so the app
+/// kept drawing the stale file (found by #A2 with its spinner and eye icons).
+pub fn embedded_fingerprint() -> String {
+    static FP: OnceLock<String> = OnceLock::new();
+    FP.get_or_init(|| {
+        let mut h: u64 = 0xcbf2_9ce4_8422_2325;
+        let mut eat = |bytes: &[u8]| {
+            for b in bytes {
+                h ^= u64::from(*b);
+                h = h.wrapping_mul(0x0000_0100_0000_01b3);
+            }
+        };
+        for (path, bytes) in table() {
+            eat(path.as_bytes());
+            eat(&[0]);
+            eat(bytes);
+        }
+        format!("{}-{:016x}", embedded_bytes(), h)
+    })
+    .clone()
 }
 
 /// The app dir the HOST hands the module (Android:
@@ -138,7 +162,7 @@ pub fn root() -> PathBuf {
         };
         makepad_widgets::log!("[octoscode] design root: {}", dir.display());
         let marker = dir.join(".embed-marker");
-        let total = embedded_bytes().to_string();
+        let total = embedded_fingerprint();
         if std::fs::read_to_string(&marker).is_ok_and(|m| m == total) {
             return dir;
         }

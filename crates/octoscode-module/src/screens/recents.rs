@@ -355,7 +355,41 @@ impl Storage for FileStore {
 /// same default, so the picker and the transport can never disagree about
 /// which deployment they are on.
 pub fn endpoint() -> String {
-    std::env::var("OCTOS_BASE_URL").unwrap_or_else(|_| "http://127.0.0.1:50082".into())
+    pick_endpoint(
+        CONNECTED.read().ok().and_then(|c| c.clone()),
+        std::env::var("OCTOS_BASE_URL").ok(),
+    )
+}
+
+/// Pure core of [`endpoint`]: the connected server wins, then the env default,
+/// then the built-in default.
+fn pick_endpoint(connected: Option<String>, env: Option<String>) -> String {
+    connected
+        .or(env)
+        .unwrap_or_else(|| "http://127.0.0.1:50082".into())
+}
+
+/// The stored form of a connected address ('/'-trimmed; `None` when blank).
+fn normalize_endpoint(url: &str) -> Option<String> {
+    let url = url.trim().trim_end_matches('/');
+    (!url.is_empty()).then(|| url.to_owned())
+}
+
+/// The server the app actually connected to (Connect screen, pairing, or the
+/// startup env). Until a connection succeeds, [`endpoint`] falls back to the
+/// env default. Without this, Settings' "Octos server" row, the recent-workspace
+/// key and Retry kept naming OCTOS_BASE_URL after the person connected (or
+/// paired) somewhere else (found by #A2).
+static CONNECTED: std::sync::RwLock<Option<String>> = std::sync::RwLock::new(None);
+
+/// Record the endpoint of a successful connection (trailing '/' trimmed, so the
+/// recent-workspace key matches however the address was typed).
+pub fn set_connected_endpoint(url: &str) {
+    if let Some(url) = normalize_endpoint(url) {
+        if let Ok(mut c) = CONNECTED.write() {
+            *c = Some(url);
+        }
+    }
 }
 
 /// The web's `Date.now()` argument to `rememberWorkspace` — milliseconds since
@@ -611,5 +645,25 @@ mod tests {
         assert!(load_recent_workspaces(&storage, "https://two.example").is_empty());
         assert!(clear_recent_workspaces(&storage, "https://one.example"));
         let _ = std::fs::remove_dir_all(&dir);
+    }
+}
+
+#[cfg(test)]
+mod connected_endpoint_tests {
+    /// Integration fix (judge, from #A2's report): once a connection succeeds,
+    /// `endpoint()` names THAT server, not the env default, so Settings, the
+    /// recent-workspace key and Retry agree with it. Pure helpers only: the
+    /// process-wide value is never mutated here (tests run in parallel).
+    #[test]
+    fn endpoint_follows_the_connected_server() {
+        let connected = super::normalize_endpoint("http://127.0.0.1:50190/");
+        assert_eq!(connected.as_deref(), Some("http://127.0.0.1:50190"));
+        assert_eq!(super::normalize_endpoint("   "), None, "a blank address never replaces it");
+        assert_eq!(
+            super::pick_endpoint(connected, Some("http://127.0.0.1:50082".into())),
+            "http://127.0.0.1:50190"
+        );
+        assert_eq!(super::pick_endpoint(None, Some("http://h:1".into())), "http://h:1");
+        assert_eq!(super::pick_endpoint(None, None), "http://127.0.0.1:50082");
     }
 }
