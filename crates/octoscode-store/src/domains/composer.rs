@@ -606,6 +606,21 @@ impl Composer {
         })
     }
 
+    /// The transport changed while the seat gate ran (`:338-345`): the turn
+    /// was never written, so it is NOT attempted and stays the queue head for
+    /// the next ready drain (`resumePendingTurn`). False when the dispatch
+    /// already moved on.
+    pub fn cancel_dispatch(&self, session: &str, turn_id: &str) -> bool {
+        self.with(session, |st, _| {
+            if st.queue.active.as_ref().map(|a| a.turn_id.as_str()) != Some(turn_id) {
+                return false;
+            }
+            retire_local_dispatch(st, turn_id);
+            st.attempted.remove(turn_id);
+            true
+        })
+    }
+
     /// A seat-gate refusal BEFORE any `turn/start` frame (`:300-328`): the
     /// turn never started, its text goes back, the notice names why.
     pub fn not_sent(&self, session: &str, turn_id: &str, message: &str) -> Effects {

@@ -16,6 +16,8 @@ use octoscode_client::ClientError;
 use octoscode_store::domains::composer::{Effects, Lifecycle, PromptTurn, StartOutcome, Submit};
 
 use super::{Conversation, Direction};
+use crate::chrome::NATIVE_DRIVER_ID;
+use crate::seat::{self, Plan};
 
 impl Conversation {
     /// Attach the shared handle, so a terminal can start the next queued
@@ -114,6 +116,25 @@ impl Conversation {
         );
         self.ui.lock().unwrap().begin_turn(&turn_id, self.started);
         makepad_widgets::SignalToUI::set_ui_signal();
+        // §5.2: the prompt crosses the driver seam FIRST — the seat handover
+        // (or its refusal) completes before any turn/start frame is written.
+        let generation = self.store.domains.composer.generation();
+        if let Err(message) = self.seat_gate(&session).await {
+            self.ui.lock().unwrap().abandon_turn(&turn_id);
+            let bounded = seat::bounded_turn_admission_error(&message);
+            makepad_widgets::log!("[octoscode] turn/start {turn_id}: not sent ({bounded})");
+            let fx = self.store.domains.composer.not_sent(&session, &turn_id, &bounded);
+            self.apply_effects(&session, fx);
+            return Ok(String::new());
+        }
+        if self.store.domains.composer.generation() != generation {
+            // The transport changed during the handback: nothing was written,
+            // so the head waits for the ready drain (never a blind resend).
+            self.ui.lock().unwrap().abandon_turn(&turn_id);
+            self.store.domains.composer.cancel_dispatch(&session, &turn_id);
+            makepad_widgets::log!("[octoscode] turn/start {turn_id}: held (transport changed during the handback)");
+            return Ok(String::new());
+        }
         let reply = tokio::time::timeout(Self::start_timeout(), self.client.request("turn/start", params)).await;
         let outcome = match &reply {
             Err(_) => StartOutcome::Unconfirmed { timed_out: true },
@@ -121,7 +142,10 @@ impl Conversation {
             Ok(Err(e)) => match octoscode_client::domains::turn::turn_collision_from(e) {
                 Some(occupier) => StartOutcome::Collision { occupier },
                 None => match e {
-                    ClientError::Rpc { error, .. } => StartOutcome::Rejected(error.message.clone()),
+                    // §6: a seat refusal is bounded to the human message.
+                    ClientError::Rpc { error, .. } => {
+                        StartOutcome::Rejected(seat::bounded_turn_admission_error(&error.message))
+                    }
                     // A transport failure is not proof of a rejection.
                     _ => StartOutcome::Unconfirmed { timed_out: false },
                 },
@@ -134,10 +158,151 @@ impl Conversation {
         }
         let fx = self.store.domains.composer.finish_dispatch(&session, &turn_id, outcome.clone());
         self.apply_effects(&session, fx);
+        if let Ok(Err(ClientError::Rpc { error, .. })) = &reply {
+            if seat::is_external_master_held(&error.message) {
+                // The server says another app holds the seat: re-read the
+                // record so the held banner (and its Take over) appears.
+                self.refresh_seat(&session).await;
+            }
+        }
         match (outcome, reply) {
             (StartOutcome::Rejected(_), Ok(Err(e))) => Err(e),
             (StartOutcome::Collision { .. }, _) => Ok(String::new()),
             _ => Ok(turn_id),
+        }
+    }
+
+    /// §5.2 send gate (`releaseControlSeatForUserTurn`): plan the ONE seat
+    /// handover. A proven own seat is released (`next: internal`) and then
+    /// the turn may go; a foreign / parked holder or an unproven own lease
+    /// refuses with no frame (`Err` = the message, bounded by the caller).
+    /// A refusal is decided on a fresh read of the record.
+    async fn seat_gate(&self, session: &str) -> Result<(), String> {
+        seat::set_status(session, None);
+        let own = seat::proof(session);
+        let mut plan = seat::plan(own.as_ref(), seat::observed(session).as_ref(), NATIVE_DRIVER_ID, seat::now_ms());
+        if matches!(plan, Plan::WaitForExpiry(_) | Plan::ResumeChat { .. }) {
+            self.refresh_seat(session).await;
+            plan = seat::plan(own.as_ref(), seat::observed(session).as_ref(), NATIVE_DRIVER_ID, seat::now_ms());
+        }
+        match plan {
+            Plan::Send => Ok(()),
+            Plan::ReleaseThenSend(proof) => {
+                seat::set_status(session, Some((seat::HANDING_BACK_CONTROL_STATUS, false)));
+                makepad_widgets::SignalToUI::set_ui_signal();
+                let released = self.hand_back(session, &proof).await;
+                seat::set_status(session, None);
+                makepad_widgets::SignalToUI::set_ui_signal();
+                if released {
+                    Ok(())
+                } else {
+                    Err(seat::RELEASE_FAILED_MESSAGE.to_owned())
+                }
+            }
+            other => Err(seat::refusal(&other).unwrap_or_default()),
+        }
+    }
+
+    /// One `session/driver/release {next: "internal"}` with the kept proof.
+    /// A lost or refused reply is reconciled from the OBSERVED record (a
+    /// timeout may mean the release landed) — never inferred from a kept id.
+    async fn hand_back(&self, session: &str, proof: &seat::Proof) -> bool {
+        let reply = self.client.request("session/driver/release", seat::release_params(session, proof)).await;
+        let mut released = matches!(&reply, Ok(v) if seat::release_confirmed(v));
+        if !released {
+            self.refresh_seat(session).await;
+            released = seat::observed(session).is_some_and(|d| !d.external);
+        }
+        if released {
+            seat::drop_proof(session);
+            seat::observe(session, Some(seat::Disclosure { external: false, binding: None }));
+            crate::chrome::set_held(session, None);
+        }
+        makepad_widgets::log!(
+            "[octoscode] seat: hand back {session}: {}",
+            if released { "released (internal)" } else { "refused, nothing sent" }
+        );
+        released
+    }
+
+    /// Read the Session's driver record (`session/driver/get`, when the
+    /// server advertises it): the held banner's foreign holder (board 12,
+    /// `chrome::foreign_holder`) and the seat plan's observation.
+    pub async fn refresh_seat(&self, session: &str) {
+        let advertised = self
+            .store
+            .domains
+            .config
+            .supported_methods()
+            .iter()
+            .any(|m| m == "session/driver/get");
+        if !advertised {
+            return;
+        }
+        let params = serde_json::json!({ "session_id": session });
+        match self.client.request("session/driver/get", params).await {
+            Ok(v) => {
+                let held = crate::chrome::foreign_holder(&v, NATIVE_DRIVER_ID);
+                makepad_widgets::log!("[octoscode] driver/get {session}: held={held:?}");
+                crate::chrome::set_held(session, held);
+                seat::observe(session, seat::parse_disclosure(&v));
+            }
+            Err(e) => makepad_widgets::log!("[octoscode] driver/get {session}: {e}"),
+        }
+        makepad_widgets::SignalToUI::set_ui_signal();
+    }
+
+    /// The held banner's Take over — the web's Resume chat (`resumeChatSend`,
+    /// §5.2 case 3): acquire on the OBSERVED revision → release(`internal`)
+    /// with that one proof → send the composer's draft ONCE through the
+    /// ordinary submit. Nothing is sent on any refused step; the draft stays.
+    pub async fn resume_chat(&self) {
+        let session = self.session_id();
+        let revision = |s: &str| {
+            seat::observed(s)
+                .filter(|d| d.external)
+                .and_then(|d| d.binding)
+                .map(|b| b.revision)
+        };
+        if revision(&session).is_none() {
+            self.refresh_seat(&session).await;
+        }
+        let Some(expected) = revision(&session) else {
+            makepad_widgets::log!("[octoscode] seat: resume chat: nothing holds {session}");
+            return;
+        };
+        seat::set_status(&session, Some((seat::RESUMING_CHAT_STATUS, false)));
+        makepad_widgets::SignalToUI::set_ui_signal();
+        // Board 12's acquire (`chrome::take_over_params`: our driver id, a
+        // 60 s lease), CAS on the revision this record was OBSERVED at.
+        let mut params = crate::chrome::take_over_params(&session);
+        params["expected_revision"] = serde_json::Value::from(expected);
+        let proof = match self.client.request("session/driver/acquire", params).await {
+            Ok(v) => seat::parse_acquire(&v, NATIVE_DRIVER_ID),
+            Err(e) => {
+                makepad_widgets::log!("[octoscode] seat: acquire refused: {e}");
+                None
+            }
+        };
+        let Some(proof) = proof else {
+            seat::set_status(&session, Some((seat::RELEASE_FAILED_MESSAGE, true)));
+            self.refresh_seat(&session).await;
+            return;
+        };
+        seat::keep_proof(&session, proof.clone());
+        crate::chrome::set_held(&session, None);
+        if !self.hand_back(&session, &proof).await {
+            seat::set_status(&session, Some((seat::RELEASE_FAILED_MESSAGE, true)));
+            makepad_widgets::SignalToUI::set_ui_signal();
+            return;
+        }
+        seat::set_status(&session, None);
+        makepad_widgets::SignalToUI::set_ui_signal();
+        if self.ui.lock().unwrap().draft().trim().is_empty() {
+            return;
+        }
+        if let Err(e) = self.submit_draft().await {
+            makepad_widgets::log!("[octoscode] seat: resume chat send: {e}");
         }
     }
 

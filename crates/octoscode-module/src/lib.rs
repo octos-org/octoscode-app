@@ -50,6 +50,8 @@ pub mod flow;
 // A7: the answer's markdown display rules + code-block colouring.
 pub mod highlight;
 pub mod markdown;
+// A7: the driver-seat handover before one send (composer-seat-handover.ts).
+pub mod seat;
 pub mod mount;
 pub mod screen;
 pub mod screens;
@@ -1694,17 +1696,12 @@ impl OctoscodeView {
                     // web external-driver.ts:727-758; CAS on the revision the
                     // last `session/driver/get` reported). The server decides;
                     // a refusal leaves the banner up and is logged.
-                    let session = store.active_session().unwrap_or_default();
+                    // A7 (§5.2 case 3): Take over is the web's Resume chat —
+                    // acquire → release(next: internal) with that proof →
+                    // send the composer's draft once (`resume_chat`).
                     if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                         rt.spawn(async move {
-                            let params = chrome::take_over_params(&session);
-                            match conv.client().request("session/driver/acquire", params).await {
-                                Ok(_) => {
-                                    chrome::set_held(&session, None);
-                                    makepad_widgets::log!("[octoscode] take over: seat acquired");
-                                }
-                                Err(e) => makepad_widgets::log!("[octoscode] take over refused: {e}"),
-                            }
+                            conv.resume_chat().await;
                             SignalToUI::set_ui_signal();
                         });
                     }
@@ -3069,18 +3066,9 @@ impl OctoscodeView {
                 if let (true, Some(rt), Some(conv), Some(sid)) =
                     (advertised, self.runtime.as_ref(), conv, active)
                 {
-                    rt.spawn(async move {
-                        let params = serde_json::json!({ "session_id": sid });
-                        match conv.client().request("session/driver/get", params).await {
-                            Ok(v) => {
-                                let held = chrome::foreign_holder(&v, chrome::NATIVE_DRIVER_ID);
-                                makepad_widgets::log!("[octoscode] driver/get {sid}: held={held:?}");
-                                chrome::set_held(&sid, held);
-                            }
-                            Err(e) => makepad_widgets::log!("[octoscode] driver/get {sid}: {e}"),
-                        }
-                        SignalToUI::set_ui_signal();
-                    });
+                    // A7: the same read also records the seat plan's
+                    // observation (`Conversation::refresh_seat`).
+                    rt.spawn(async move { conv.refresh_seat(&sid).await });
                 }
             }
         }
@@ -3411,6 +3399,7 @@ impl OctoscodeView {
                         .to_owned()
                     }),
                     peer_readonly: screens::peers::readonly_slug(&store, session),
+                    seat_status: seat::status(session),
                 }
             }
         };

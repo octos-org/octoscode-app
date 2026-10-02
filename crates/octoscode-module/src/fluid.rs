@@ -1106,6 +1106,10 @@ pub struct ComposerExtras {
     pub recovery: Option<String>,
     /// A focused peer Session's slug: the composer is read-only.
     pub peer_readonly: Option<String>,
+    /// The driver-seat handover line (`seat.rs`): the in-flight status
+    /// ("Handing back control…" / "Resuming chat…") or the last failure
+    /// (`true` = error tone).
+    pub seat_status: Option<(String, bool)>,
 }
 
 /// A7 — the queued chip (conversation-08 `queued_row`: `1 queued · Steer
@@ -1117,6 +1121,9 @@ pub struct ComposerExtras {
 /// `recovery_continue_hit`) are routed by the host.
 pub fn composer_extras(x: &ComposerExtras, m: &Metrics) -> String {
     let mut out = String::new();
+    if let Some((text, error)) = &x.seat_status {
+        out.push_str(&seat_status_row(text, *error, m));
+    }
     if let Some(phase) = &x.recovery {
         out.push_str(&recovery_notice(phase, x.queued > 0, m));
     }
@@ -1235,6 +1242,28 @@ fn recovery_notice(phase: &str, queued: bool, m: &Metrics) -> String {
 /// `PEER_READONLY_HINT` (`peer-readonly.ts:17-18`): "↳ read-only peer ·
 /// {slug} · steer from the master" — the dim status row that replaces the
 /// editable composer (`ComposerInput.tsx:255-265`).
+/// A7 — the seat handover line above the composer (the web's session strip
+/// `handing-back` / `resuming-chat` states and the Resume chat notice,
+/// App.tsx:2051-2056/:3152): the peer row's quiet pill; a failure reads in
+/// the error ink.
+fn seat_status_row(text: &str, error: bool, m: &Metrics) -> String {
+    let s = scale(m.density);
+    format!(
+        "seat_status := RoundedView{{width: Fill height: Fit flow: Right align: Align{{y: 0.5}} \
+         padding: Inset{{left: 16 right: 16 top: 10 bottom: 10}}\n\
+         draw_bg +: {{color: {TIP} border_radius: 9.0 border_size: 1.0 border_color: {edge}}}\n\
+         {l}}}\n",
+        edge = if error { "#f4c7c9ff" } else { BORDER },
+        l = label(
+            "seat_status_label",
+            text,
+            &style(Face::Regular, s.small, s.small_line),
+            if error { "#cf222eff" } else { MUTED },
+            "width: Fill height: Fit",
+        ),
+    )
+}
+
 fn peer_readonly_row(slug: &str, m: &Metrics) -> String {
     let s = scale(m.density);
     format!(
