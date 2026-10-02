@@ -1,0 +1,16 @@
+-	Label	[70, 92, 231, 28]	OctosCode
+1	Label	[70, 132, 231, 28]	暂无会话。
+connect_title	Label	[471, 187, 97, 23]	连接 Octos
+1	Label	[471, 228, 65, 22]	服务器地址
+4	Label	[471, 312, 52, 22]	认证令牌
+connect_note	Label	[471, 389, 147, 15]	Stored for this server only
+connect_btn_label	Label	[664, 439, 30, 18]	连接
+connect_pair_label	Label	[605, 490, 148, 17]	Pair with a link instead
+connect_solo_label	Label	[610, 524, 139, 17]	Use local solo server
+b1_title	Label	[397, 144, 304, 28]	Pair with Octos
+b1_pair_cap1	Label	[357, 354, 384, 17]	Scan the pairing QR shown in Octos
+b1_pair_cap2	Label	[357, 373, 384, 17]	on your computer
+1	Label	[542, 405, 14, 17]	or
+8	Label	[357, 434, 384, 18]	Paste pairing link
+b1_pair_submit	Button	[357, 522, 384, 44]	Pair
+b1_pair_fallback	Button	[441, 574, 216, 32]	Enter server and token instead

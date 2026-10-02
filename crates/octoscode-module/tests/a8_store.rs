@@ -105,7 +105,10 @@ impl FakeServer {
                                     "capabilities_schema_version": 2,
                                     "supported_methods": ["session/open", "session/hydrate", "session/list", "approval/respond", "user_question/respond"],
                                     "supported_notifications": [],
-                                    "supported_features": ["state.session_hydrate.v1"]
+                                    // A20: a parked question is restored only when
+                                    // `user_question.v1` is negotiated too
+                                    // (`session-interaction-ledger.ts:274-275`).
+                                    "supported_features": ["state.session_hydrate.v1", "user_question.v1"]
                                 }
                             }}),
                             // The streaming server has nothing parked.
@@ -493,7 +496,7 @@ async fn an_open_restores_its_parked_approvals_and_questions_from_the_canonical_
     // to its Session — it is asked again, not just counted.
     let (_, detail) = conv.store.domains.approval.showing(&session).expect("the card for this Session");
     assert_eq!((detail.title.as_str(), detail.body.as_str()), ("Approve command", "Run command: sudo -n true"));
-    let q = conv.store.domains.approval.question().expect("the parked question");
+    let q = conv.store.domains.approval.question_for(&session).expect("the parked question, this Session's");
     assert_eq!((q.question_id.as_str(), q.session_id.as_str()), ("01a0eb8f-7b23-7030-9f26-a284864217a0", session.as_str()));
 }
 

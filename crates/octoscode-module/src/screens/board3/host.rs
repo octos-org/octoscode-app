@@ -60,6 +60,9 @@ pub enum Dialog {
     /// A10 — the header's Review entry: the authoritative diff preview (web
     /// `DiffReviewDialog`; no board).
     DiffReview,
+    /// A20 — the "Open saved conversation" panel (web
+    /// `SavedSessionLinkPanel`; `screens::saved_link`).
+    SavedLink,
 }
 
 impl Dialog {
@@ -82,6 +85,7 @@ impl Dialog {
             "session-settings" | "session_pane" => Dialog::SessionPane,
             "launch" => Dialog::Launch,
             "diff_review" | "review_changes" => Dialog::DiffReview,
+            "saved_link" | "conversation_link" => Dialog::SavedLink,
             _ => return None,
         })
     }
@@ -289,6 +293,7 @@ pub fn lower_open(store: &Store) -> Option<Lowered> {
         }
         Dialog::Launch => crate::screens::launch::build(&mut d, &st.frame),
         Dialog::DiffReview => super::diff_review::build(&mut d, &st.diff, &st.frame, store),
+        Dialog::SavedLink => crate::screens::saved_link::build(&mut d, &st.frame),
         Dialog::Images => {
             let session = store.domains.session.active().unwrap_or_default();
             let drafts = crate::screens::media::drafts_for_session(&session);
@@ -411,6 +416,9 @@ pub enum Job {
     /// carries no form data: the key is read from the panel when it runs, so
     /// it never reaches a log line.
     OnboardingSubmit,
+    /// A20 — "Open conversation" on the saved-link panel: the pre-open
+    /// workspace precondition, then the exact-workspace open.
+    SavedLinkOpen,
 }
 
 /// What a routed action asks of the host.
@@ -521,6 +529,7 @@ pub fn open(dialog: Dialog) -> Outcome {
         Dialog::SessionPane => super::session_pane::on_open(&mut st.pane),
         Dialog::Launch => Outcome::Done,
         Dialog::DiffReview => super::diff_review::on_open(&mut st.diff),
+        Dialog::SavedLink => Outcome::Done,
     }
 }
 
@@ -572,6 +581,14 @@ pub fn close() {
     }
     if st.open == Some(Dialog::DiffReview) {
         super::diff_review::on_close(&mut st.diff);
+    }
+    // A20 — closing the saved-link panel dismisses the link (never while its
+    // opening is in flight).
+    if st.open == Some(Dialog::SavedLink) {
+        if crate::screens::saved_link::snapshot().opening {
+            return;
+        }
+        crate::screens::saved_link::reset();
     }
     st.open = None;
     st.mounted = None;
@@ -625,6 +642,10 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
             return Outcome::Close;
         }
         _ => {}
+    }
+    // A20 — the saved-link panel (its own state, `screens::saved_link`).
+    if action.starts_with("b3.link.") {
+        return crate::screens::saved_link::perform(action);
     }
     let mut st = state();
     if action.starts_with("b3.inv.") {
@@ -956,6 +977,7 @@ pub fn job_unavailable(job: &Job) {
         }
         Job::LaunchChoose(_) | Job::LaunchCreateProfile => crate::screens::launch::cancel(),
         Job::OnboardingPrepare | Job::OnboardingSubmit => crate::screens::onboarding::job_unavailable(job),
+        Job::SavedLinkOpen => crate::screens::saved_link::job_unavailable(),
         Job::FileFetch(id, _) => {
             drop(st);
             let mut f = super::rows::file_state();
@@ -1083,6 +1105,7 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
                 Submitted::Refused => Ok("refused: the panel cannot submit now".into()),
             }
         }
+        Job::SavedLinkOpen => crate::screens::saved_link::open(conv).await,
     }
 }
 

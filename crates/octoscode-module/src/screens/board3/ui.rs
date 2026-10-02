@@ -1,5 +1,5 @@
 //! A4 — the board-3 native surface kit: the renderer's own vocabulary
-//! (`DesignSurface`, `Label` with the kit's Inter / LXGW / mono text family,
+//! (`DesignSurface`, `Label` with the kit's Inter / Noto Sans SC / mono text family,
 //! `DesignNativeButton` tap targets, `TextInput`, `Svg`, `ScrollYView`), laid
 //! out as FLOW regions sized from the live window instead of the atlas's
 //! frozen 406x776 artboard.
@@ -24,6 +24,8 @@
 //! through the SAME shared tap path every docked card uses; a per-row control
 //! carries its row as the `#<row>` suffix `taps::split_row` decodes (#FX1).
 use std::fmt::Write as _;
+
+use crate::i18n::tr;
 
 /// Colours (`#rrggbbaa`, the form the lowered cards use).
 ///
@@ -92,7 +94,8 @@ pub enum Face {
 }
 
 /// The renderer's own text family (`octoscript-makepad design.rs:732`): the
-/// kit face for latin, LXGW WenKai for CJK (without it every Chinese glyph is
+/// kit face for latin, Noto Sans SC for CJK with LXGW WenKai as the lazy rare-glyph
+/// fallback (without a CJK member every Chinese glyph is
 /// a font miss), the symbols face, the platform emoji face. Sizes are design
 /// pixels; the renderer emits `font_size = px * 0.75` and so do we, so a
 /// board-3 label and a lowered card label of the same px match exactly.
@@ -104,7 +107,8 @@ pub fn text_style(face: Face, px: f64) -> String {
         Face::Mono => ("ux/LiberationMono-Regular.ttf", 400),
     };
     let latin = crate::design::font_file(file);
-    let cjk = if weight >= 600 { "LXGWWenKaiBold.ttf" } else { "LXGWWenKaiRegular.ttf" };
+    // Noto Sans SC first, LXGW WenKai as the lazy rare-glyph fallback (operator, board 4).
+    let cjk_members = crate::design::cjk_members(weight as u32);
     let emoji = if cfg!(target_os = "macos") {
         "file_resource(\"/System/Library/Fonts/Apple Color Emoji.ttc\")".to_owned()
     } else {
@@ -112,7 +116,7 @@ pub fn text_style(face: Face, px: f64) -> String {
     };
     let (asc, desc) = if face == Face::Mono { (0.0, 0.0) } else { (0.04, 0.04) };
     format!(
-        "TextStyle{{font_family: FontFamily{{latin := FontMember{{res: file_resource({latin:?}) asc: {asc} desc: {desc} weight: {weight}}} cjk := FontMember{{res: crate_resource(\"makepad_widgets:resources/{cjk}\") asc: 0.0 desc: 0.0 weight: {weight}}} symbols := FontMember{{res: crate_resource(\"makepad_widgets:resources/jetbrains_mono_variable.ttf\") asc: 0 desc: 0 weight: 400}} emoji := FontMember{{res: {emoji} asc: 0 desc: 0}}}} font_size: {} line_spacing: 1.25}}",
+        "TextStyle{{font_family: FontFamily{{latin := FontMember{{res: file_resource({latin:?}) asc: {asc} desc: {desc} weight: {weight}}} {cjk_members} symbols := FontMember{{res: crate_resource(\"makepad_widgets:resources/jetbrains_mono_variable.ttf\") asc: 0 desc: 0 weight: 400}} emoji := FontMember{{res: {emoji} asc: 0 desc: 0}}}} font_size: {} line_spacing: 1.25}}",
         fmt_num(px * 0.75)
     )
 }
@@ -137,7 +141,7 @@ pub fn text_w(s: &str, px: f64, face: Face) -> f64 {
 }
 
 /// One character's advance in em (see [`text_w`]). A CJK / full-width
-/// character is one em in every face: the family's LXGW WenKai member draws
+/// character is one em in every face: the family's CJK members (Noto Sans SC, WenKai) draw
 /// it, mono runs included.
 pub fn char_em(c: char, face: Face) -> f64 {
     if (c as u32) > 0x2e80 {
@@ -181,12 +185,14 @@ pub fn themed_icons(dsl: &str) -> String {
     if crate::screens::theme::resolved() != "dark" {
         return dsl.to_owned();
     }
+    // A26: a named display palette tints them its own muted grey.
+    let ink = crate::screens::theme::icon_ink();
     let mut out = String::with_capacity(dsl.len() + 64);
     for line in dsl.lines() {
         out.push_str(line);
         if line.contains("draw_svg.svg:") && !line.contains("draw_svg.color:") {
             out.push_str(" draw_svg.color: ");
-            out.push_str(DARK_ICON_INK);
+            out.push_str(&ink);
         }
         out.push('\n');
     }
@@ -288,7 +294,7 @@ pub fn failure(d: &mut Dsl, id: &str, lead: &str, cause: &str) {
     let cause = clean_cause(cause);
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 2");
-    d.text(id, lead, &Txt::new(13.0, Face::Medium, tok::RED_TEXT).w(W::Fill).wrap());
+    d.text(id, tr(lead), &Txt::new(13.0, Face::Medium, tok::RED_TEXT).w(W::Fill).wrap());
     if !cause.is_empty() && cause != lead {
         d.text(&format!("{id}_detail"), &cause, &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     }
@@ -614,6 +620,9 @@ impl Dsl {
         } else {
             height / 2.0
         };
+        // A24: the kit's buttons take a product-copy key: shown in the
+        // current language (measured in it too).
+        let label = tr(label);
         // A Fit pill gets an explicit width (see `text_w`).
         let width = match width {
             W::Fit => W::Px(text_w(label, 13.0, Face::Medium) + 32.0),
@@ -662,6 +671,8 @@ impl Dsl {
         px: f64,
         color: &'static str,
     ) {
+        // A24: a link's label is a product-copy key (current language).
+        let label = tr(label);
         // Explicit box (see `text_w`): the tap target must not measure 0.
         let w = text_w(label, px, Face::Regular) + 4.0;
         // >= 28 px high: the brief's minimum hit size.
@@ -868,7 +879,7 @@ impl Dsl {
             self.view(&inner, "width: Fill height: Fill flow: Right align: Align{x: 0.5 y: 0.5}");
             self.text(
                 &format!("{seg}_label"),
-                label,
+                tr(label),
                 &Txt::new(13.0, if on { Face::Medium } else { Face::Regular }, fg),
             );
             self.close();
@@ -893,7 +904,7 @@ fn input_props(text: &str, placeholder: &str, mono: bool, multiline: bool) -> St
     format!(
         "{walk} padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: {}\n{flow} is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {off} color_empty: {f} color_empty_hover: {f} color_empty_focus: {f}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
         lit(text),
-        lit(placeholder),
+        lit(tr(placeholder)),
         t = tok::TEXT,
         f = tok::FAINT,
         off = tok::DISABLED_INK,
@@ -1085,7 +1096,7 @@ pub fn shell_close(d: &mut Dsl) {
 pub fn header(d: &mut Dsl, title_text: &str, close_event: &str) {
     let row = d.anon();
     d.view(&row, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5}");
-    d.text("b3_title", title_text, &title().w(W::Fill));
+    d.text("b3_title", tr(title_text), &title().w(W::Fill));
     close_glyph(d, close_event);
     d.close();
 }
@@ -1133,12 +1144,12 @@ pub fn card_open(d: &mut Dsl, id: &str, spacing: f64) {
 
 /// A section heading inside a card (13px medium, the board's "Thread graph").
 pub fn section_title(d: &mut Dsl, id: &str, text: &str) {
-    d.text(id, text, &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    d.text(id, tr(text), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
 }
 
 /// A small grey field label above a control ("Workspace path").
 pub fn field_label(d: &mut Dsl, id: &str, text: &str) {
-    d.text(id, text, &Txt::new(12.0, Face::Medium, tok::MUTED).w(W::Fill));
+    d.text(id, tr(text), &Txt::new(12.0, Face::Medium, tok::MUTED).w(W::Fill));
 }
 
 /// The amber caution banner (screen 7): warning glyph, a bold line, a body.
@@ -1153,9 +1164,9 @@ pub fn banner(d: &mut Dsl, id: &str, head: &str, body: &str) {
     d.icon(&format!("{id}_icon"), "b3_warning.svg", 16.0, tok::AMBER);
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 3");
-    d.text(&format!("{id}_head"), head, &Txt::new(12.5, Face::Medium, tok::TEXT).w(W::Fill).wrap());
+    d.text(&format!("{id}_head"), tr(head), &Txt::new(12.5, Face::Medium, tok::TEXT).w(W::Fill).wrap());
     if !body.is_empty() {
-        d.text(&format!("{id}_body"), body, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        d.text(&format!("{id}_body"), tr(body), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     }
     d.close();
     d.close();

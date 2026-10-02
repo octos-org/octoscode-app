@@ -269,11 +269,12 @@ pub fn lower(frame: &Frame) -> Option<super::activity::Lowered> {
         "a9_lv_col",
         "width: Fill height: Fit flow: Down spacing: 12 padding: Inset{left: 24 right: 24 top: 24 bottom: 24}",
     );
-    d.text("a9_lv_title", title, &Txt::new(20.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
+    // A24: the dialog copy in the current language (the web's t() keys).
+    d.text("a9_lv_title", crate::i18n::tr(title), &Txt::new(20.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
     for (i, p) in body.iter().enumerate() {
         d.text(
             &format!("a9_lv_p{i}"),
-            p,
+            crate::i18n::tr(p),
             &Txt::new(14.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
         );
     }
@@ -282,8 +283,8 @@ pub fn lower(frame: &Frame) -> Option<super::activity::Lowered> {
         "a9_lv_actions",
         "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 1.0 y: 0.5} margin: Inset{top: 10}",
     );
-    action_button(&mut d, "a9_lv_cancel", "Cancel", ACTION_CANCEL, tok::TEXT);
-    action_button(&mut d, "a9_lv_confirm", confirm_label, ACTION_CONFIRM, tok::RED_TEXT);
+    action_button(&mut d, "a9_lv_cancel", crate::i18n::tr("Cancel"), ACTION_CANCEL, tok::TEXT);
+    action_button(&mut d, "a9_lv_confirm", crate::i18n::tr(confirm_label), ACTION_CONFIRM, tok::RED_TEXT);
     d.close();
     d.close(); // col
     d.close(); // dialog

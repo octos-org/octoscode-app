@@ -93,13 +93,13 @@ pub fn failure_for(raw: &str, endpoint: &str) -> Option<Failure> {
     let (kind, message, actions, focus_token) = match raw {
         "Could not open the Octos UI Protocol connection" => (
             FailureKind::Unreachable,
-            format!("Can't reach {endpoint}"),
+            crate::i18n::tr1("Can't reach {value0}", endpoint),
             &["check the address", "Retry"][..],
             false,
         ),
         "The server refused this token" => (
             FailureKind::RejectedToken,
-            "The server refused this token".to_owned(),
+            crate::i18n::tr("The server refused this token").to_owned(),
             &["Re-enter the token", "Retry"][..],
             true,
         ),
@@ -108,7 +108,7 @@ pub fn failure_for(raw: &str, endpoint: &str) -> Option<Failure> {
             // The web appends its window origin here
             // (`connect-failure.ts:51-56`); the native app has no browser
             // origin, so the copy stays at the owner ask.
-            "This site isn't allowed to talk to that server — ask the server owner to allow it."
+            crate::i18n::tr("This site isn't allowed to talk to that server — ask the server owner to allow it.")
                 .to_owned(),
             &["Open Settings › Providers"][..],
             false,
@@ -265,7 +265,7 @@ impl ConnectUi {
     /// the card's `t_last_text` row shows.
     pub fn note_connect_error(&mut self, raw: &str, at: &str) {
         self.connecting = false;
-        self.last_tried = format!("Last tried {at} ·");
+        self.last_tried = crate::i18n::tr1("Last tried {value0} ·", &at);
         match failure_for(raw, &self.server) {
             Some(f) => {
                 self.raw_error = None;
@@ -282,8 +282,13 @@ impl ConnectUi {
     /// The typed field texts are initial values only (the inputs own them).
     pub fn view(&self) -> crate::fluid::ConnectView {
         let (error, error_actions) = match (&self.failure, &self.raw_error) {
-            (Some(f), _) => (f.message.clone(), f.actions.join(" · ")),
-            (None, Some(raw)) => (raw.clone(), String::new()),
+            // A24: the actions and a native message in the current language
+            // (a server's own error text is not a catalog key: it stays).
+            (Some(f), _) => (
+                f.message.clone(),
+                f.actions.iter().map(|a| crate::i18n::tr(a)).collect::<Vec<_>>().join(" · "),
+            ),
+            (None, Some(raw)) => (crate::i18n::tr(raw).to_owned(), String::new()),
             (None, None) => (String::new(), String::new()),
         };
         crate::fluid::ConnectView {
@@ -297,7 +302,7 @@ impl ConnectUi {
             },
             connecting: self.connecting,
             hint: if self.failure.is_some() || self.raw_error.is_some() {
-                crate::screens::a9_connect::hint().unwrap_or("").to_owned()
+                crate::i18n::tr(crate::screens::a9_connect::hint().unwrap_or("")).to_owned()
             } else {
                 String::new()
             },
@@ -728,7 +733,8 @@ pub fn lower_screen(screen: Screen, ui: &ConnectUi) -> Result<String, String> {
             .map_err(|e| format!("read {dir}/page.data.json: {e}"))?,
     )
     .map_err(|e| format!("parse page.data.json: {e}"))?;
-    let card_src = crate::l0_host::apply_copies(&card_src, &copies(screen, ui));
+    // A24: the authored copy in the current language, then the live values.
+    let card_src = crate::l0_host::apply_copies(&crate::l0_host::localize(&card_src), &copies(screen, ui));
     let prepared = octoscript_makepad::l0::prepare(
         &card_src,
         &data,

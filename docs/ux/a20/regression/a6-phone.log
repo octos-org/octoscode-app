@@ -1,0 +1,140 @@
+== A6 surfaces walk (phone) — app :8483, replay :8485
+PASS window open — size [402, 874]
+PASS module up: the composer is shown
+PASS connected: the Chat / Trajectory tabs show (capabilities advertised) — 'Chat' / 'Trajectory'
+PASS turn 1: CLICK composer + type + Return -> turn/start
+PASS turn 1: a folded thinking row — b3_tl_think_1
+PASS thinking row: the one-line summary '<s> s · <n> words' — '0 s · 2 words'
+  shot tmp/a6walk/phone-01-thinking-folded.png
+PASS CLICK thinking header -> expands (b3.think.block) — height 42 -> 80
+PASS expanded thinking: its body is in view (the list revealed it) — row bottom 351 <= composer top 743
+PASS expanded thinking: no hover tint after the click — header (255, 255, 255) vs ground (255, 255, 255)
+  shot tmp/a6walk/phone-02-thinking-expanded.png
+PASS CLICK again -> folded
+PASS turn 2: CLICK composer + type + Return -> turn/start
+PASS turn 2: delivered files are attachment rows — ['b3_tl_file_download_6', 'b3_tl_file_download_7']
+PASS files: r23-report.pdf (2 KiB) and coverage.png — ['r23-report.pdf', 'coverage.png'] ['2 KiB', '96 KiB']
+PASS CLICK the tool row -> its output discloses — ['98:29 - [octoscode] tool.toggle: call_00_1nHw0JiGHc6HQdxNySqu4250 open']
+  shot tmp/a6walk/phone-03-tool-expanded.png
+PASS CLICK Download -> GET /api/files on the wire, saved to the download dir — saved=True wire=True
+PASS CLICK Preview -> the image shows in its row — b3_tl_file_img_7
+PASS preview: the image keeps its aspect inside its row — [16, 458, 328, 185] in [16, 354, 328, 96]
+  shot tmp/a6walk/phone-04-files.png
+PASS fold bar shown at the transcript head
+PASS CLICK Expand all -> every visible block opens — folded {'b3_tl_think_4': 42, 'b3_tl_think_1': 42} -> {block: (open, rect, clipped)} {'b3_tl_think_4': (True, [16, 602, 328, 51], True), 'b3_tl_think_1': (True, [16, 271, 328, 80], False)} viewport [0, 127, 360, 526]
+  shot tmp/a6walk/phone-05-expand-all.png
+PASS Expand all: b3_tl_think_4, scrolled fully into view, measures open — [16, 522, 328, 98] in viewport [0, 127, 360, 526]
+  shot tmp/a6walk/phone-06-expand-all-scrolled.png
+PASS CLICK Collapse all -> every block folds — heights {'b3_tl_think_4': 42, 'b3_tl_think_1': 42} (folded {'b3_tl_think_4': 42, 'b3_tl_think_1': 42})
+  shot tmp/a6walk/phone-07-collapse-all.png
+PASS turn 3: CLICK composer + type + Return -> turn/start
+PASS turn 3: the question takes the composer over — card=True composer=False None
+PASS question: title + rule hint + disabled primary with its reason — 'Which color would you like to pick?' 'Choose one, or write your own' 'Choose an option to continue'
+PASS question: the consequence copy — 'Sends this answer and resumes the turn'
+PASS question card: card shown — cv_q_card
+PASS question card: inside the frame with gutters >= 12 px — card [12, 187, 336, 635] frame [0, 74, 360, 776] gutters 12/12
+PASS question card: cv_q_stop >= 28 px tall and inside the card — [28, 770, 304, 40]
+PASS question card: cv_q_0_opt_0 >= 28 px tall and inside the card — [28, 304, 300, 73]
+PASS question card: cv_q_0_opt_1 >= 28 px tall and inside the card — [28, 377, 300, 73]
+PASS question card: cv_q_0_opt_2 >= 28 px tall and inside the card — [28, 450, 300, 73]
+PASS question card: cv_q_0_opt_3 >= 28 px tall and inside the card — [28, 523, 300, 73]
+PASS question card: cv_q_0_opt_0_label inside cv_q_0_opt_0 — [68, 314, 250, 18] in [28, 304, 300, 73]
+PASS question card: cv_q_0_opt_1_label inside cv_q_0_opt_1 — [68, 387, 250, 18] in [28, 377, 300, 73]
+PASS question card: cv_q_0_opt_2_label inside cv_q_0_opt_2 — [68, 460, 250, 18] in [28, 450, 300, 73]
+PASS question card: cv_q_0_opt_3_label inside cv_q_0_opt_3 — [68, 533, 250, 18] in [28, 523, 300, 73]
+PASS question card: cv_q_submit_off_label inside cv_q_submit_off_box — [134, 735, 92, 16] in [28, 720, 304, 46]
+  shot tmp/a6walk/phone-08-question.png
+PASS CLICK option 'Green' -> selected, the primary is live
+PASS CLICK Other + type -> the text stays (no remount) — 'teal'
+  shot tmp/a6walk/phone-09-question-answered.png
+PASS Return (inside the Other field) -> user_question/respond on the wire, card settles
+PASS next: a multi-select question — 'Which accents should the theme use?'
+PASS multi-select: its rule hint
+PASS keys: ArrowDown / Space toggle options in the group — ['1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)', 'ost.rs:341:17 - [octoscode] surfaces key Space -> cv.q.opt#3', 'rs:1691:13 - [octoscode] surfaces action cv.q.opt #3 -> Done', '1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)']
+  shot tmp/a6walk/phone-10-question-multi.png
+PASS CLICK Submit answer -> user_question/respond on the wire
+PASS next: a third question
+PASS CLICK Stop turn -> turn/interrupt on the wire
+PASS the turn settles: the card closes, the composer is back
+PASS Stop turn restores the interrupted prompt into the composer — 'I need to pick a color. Use your question tool to ask me which color I prefer.'
+PASS turn 4: CLICK composer + type + Return -> turn/start
+PASS turn 4: the approval takes the composer over — card=True composer=False None
+PASS approval: title, risk, tool · kind, the typed command, Y / S / N — 'M9 approval fixture' 'low risk' 'shell · command' 'printf m9-approval-e2e' 'Y / S / N'
+PASS approval card: card shown — cv_ap_card
+PASS approval card: inside the frame with gutters >= 12 px — card [12, 508, 336, 314] frame [0, 74, 360, 776] gutters 12/12
+PASS approval card: cv_ap_once >= 28 px tall and inside the card — [28, 637, 304, 46]
+PASS approval card: cv_ap_session >= 28 px tall and inside the card — [28, 693, 304, 46]
+PASS approval card: cv_ap_deny >= 28 px tall and inside the card — [28, 749, 304, 40]
+PASS approval card: cv_ap_once_label inside cv_ap_once_box — [137, 653, 87, 16] in [28, 637, 304, 46]
+PASS approval card: cv_ap_session_label inside cv_ap_session_box — [118, 709, 125, 16] in [28, 693, 304, 46]
+PASS approval card: cv_ap_deny_label inside cv_ap_deny_box — [164, 762, 32, 16] in [28, 749, 304, 40]
+PASS approval card: cv_ap_cmd inside cv_ap_cmd_box — [42, 571, 276, 15] in [28, 560, 304, 37]
+  shot tmp/a6walk/phone-11-approval.png
+PASS CLICK Deny -> approval/respond deny/request
+PASS next: a typed diff approval with Review diff — 'Apply a patch to sr…'
+PASS diff approval card: card shown — cv_ap_card
+PASS diff approval card: inside the frame with gutters >= 12 px — card [12, 465, 336, 357] frame [0, 74, 360, 776] gutters 12/12
+PASS diff approval card: cv_ap_once >= 28 px tall and inside the card — [28, 591, 304, 46]
+PASS diff approval card: cv_ap_session >= 28 px tall and inside the card — [28, 647, 304, 46]
+PASS diff approval card: cv_ap_deny >= 28 px tall and inside the card — [28, 703, 304, 40]
+PASS diff approval card: cv_ap_diff >= 28 px tall and inside the card — [28, 753, 304, 36]
+PASS diff approval card: cv_ap_once_label inside cv_ap_once_box — [137, 607, 87, 16] in [28, 591, 304, 46]
+PASS diff approval card: cv_ap_session_label inside cv_ap_session_box — [118, 663, 125, 16] in [28, 647, 304, 46]
+PASS diff approval card: cv_ap_deny_label inside cv_ap_deny_box — [164, 716, 32, 16] in [28, 703, 304, 40]
+PASS diff approval card: cv_ap_diff_label inside cv_ap_diff_box — [146, 764, 69, 16] in [28, 753, 304, 36]
+  shot tmp/a6walk/phone-12-approval-diff.png
+PASS CLICK Review diff -> the review opens on diff/preview/get
+  shot tmp/a6walk/phone-13-approval-review.png
+PASS CLICK × closes the review back to the card
+PASS CLICK Approve for session -> approval/respond approve/session
+PASS next: the command approval again
+PASS CLICK Approve once -> approval/respond approve/request
+PASS next: one more approval
+PASS key S -> approval/respond approve/session
+PASS decided: the composer is back
+PASS turn 5: CLICK composer + type + Return -> turn/start
+PASS turn 5: the plan card (replaced wholesale: 1 of 3 done) — '1 of 3 done'
+PASS plan: headline = the in-progress step, statuses, updated-at — 'Plan · Wire --help to docum…' 'Updated 3d ago'
+PASS plan card: card shown — cv_pl_card
+PASS plan card: inside the frame with gutters >= 12 px — card [12, 495, 336, 158] frame [0, 74, 360, 776] gutters 12/12
+PASS plan card: cv_pl_toggle >= 28 px tall and inside the card — [24, 503, 312, 34]
+PASS plan card: cv_pl_item_0 inside cv_pl_card — [56, 545, 237, 16] in [12, 495, 336, 158]
+PASS plan card: cv_pl_item_1 inside cv_pl_card — [56, 575, 205, 16] in [12, 495, 336, 158]
+PASS plan card: cv_pl_item_2 inside cv_pl_card — [56, 605, 222, 16] in [12, 495, 336, 158]
+  shot tmp/a6walk/phone-14-plan.png
+PASS CLICK the plan header -> collapses, again -> expands
+PASS CLICK Trajectory -> the pane, task/list + session/status/read on the wire
+PASS trajectory: r4's live task/updated merges on top (running -> completed) — ['M9 task output fixture', 'c24b-probe', 'c24b-probe completed'] 'fixture complete'
+PASS trajectory: runtime status (model / permission / health) — ['deepseek-v4-flash', 'workspace_write', 'ok']
+  shot tmp/a6walk/phone-15-trajectory.png
+PASS trajectory: c24b's listed tasks + r4's live update merged on top — ['M9 task output fixture', 'c24b-probe', 'c24b-probe completed']
+PASS trajectory: the plan section — ['Add the --version flag', 'Wire --help to document it', 'Add a test for the flag']
+PASS trajectory: card shown — cv_tr_col
+PASS trajectory: inside the frame with gutters >= 12 px — card [16, 127, 328, 723] frame [0, 74, 360, 776] gutters 16/16
+PASS trajectory: cv_tr_refresh >= 28 px tall and inside the card — [264, 156, 80, 32]
+PASS trajectory: cv_tr_task_cancel_1 >= 28 px tall and inside the card — [263, 711, 75, 30]
+PASS trajectory: cv_tr_refresh_label inside cv_tr_refresh_box — [280, 164, 48, 16] in [264, 156, 80, 32]
+  shot tmp/a6walk/phone-16-trajectory-tasks.png
+PASS CLICK Refresh -> task/list again
+PASS trajectory: a running task row
+PASS CLICK a task row -> its detail: output + artifacts read — '312 bytes · runtime projection'
+PASS live task/output/delta at the byte cursor appends to the open output — '312 bytes · runtime projection'
+PASS task detail: card shown — b3_dialog
+PASS task detail: inside the frame with gutters >= 12 px — card [16, 198, 328, 531] frame [0, 74, 360, 776] gutters 16/16
+PASS task detail: b3_close >= 28 px tall and inside the card — [300, 214, 28, 28]
+PASS task detail: cv_td_more >= 28 px tall and inside the card — [32, 534, 143, 32]
+PASS task detail: cv_td_art_0 >= 28 px tall and inside the card — [32, 608, 296, 50]
+PASS task detail: cv_td_more_label inside cv_td_more_box — [49, 543, 110, 16] in [32, 534, 143, 32]
+PASS task detail: cv_td_out_text inside cv_td_out_box — [44, 299, 272, 218] in [32, 289, 296, 238]
+  shot tmp/a6walk/phone-17-task-detail.png
+PASS CLICK Load more output -> the next page by byte cursor (complete: no more button) — 276 -> 373 chars
+PASS CLICK an artifact -> its content (task/artifact/read)
+  shot tmp/a6walk/phone-18-task-artifact.png
+PASS CLICK × -> the detail closes
+PASS CLICK Cancel -> task/cancel on the wire, the row reads cancelled — 'cancelled'
+PASS CLICK Chat -> the conversation + its plan card
+PASS CLICK stop -> turn/interrupt; the authoring turn's terminal drops the plan
+PASS turn 6: CLICK composer + type + Return -> turn/start
+PASS turn 6: the auto-resolved approval is a notice row (no card) — ['', 'Auto-denied', 'bash · matched the session scope']
+  shot tmp/a6walk/phone-19-notice.png
+== 119/119 passed (phone)

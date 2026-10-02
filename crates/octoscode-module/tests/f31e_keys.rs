@@ -191,16 +191,37 @@ fn the_oldest_undecided_approval_is_what_the_keyboard_answers() {
         cancelled,
         preview_id: None,
     };
+    // A20: the keyboard answers the card of the Session ON SCREEN — every row
+    // here carries its recorded origin.
+    let on = |store: &Store, id: &str, session: &str| {
+        store.domains.approval.set_detail(
+            id,
+            octoscode_store::domains::approval::ApprovalDetail { session_id: session.into(), ..Default::default() },
+        );
+    };
+    store.set_active(Some("s1".into()));
+    // Another Session's earlier request is never this Session's to answer.
+    store.domains.approval.push(mk("z-other-session", false, false));
+    on(&store, "z-other-session", "s2");
+    // A row with no recorded origin is never answered either.
+    store.domains.approval.push(mk("y-unattributed", false, false));
     // The web decides the SHOWING card; the store's list is FIFO
-    // (domains/approval.rs:79) — the first actionable row wins.
-    store.domains.approval.push(mk("a-first", false, false));
-    store.domains.approval.push(mk("b-decided", true, false));
-    store.domains.approval.push(mk("c-cancelled", false, true));
+    // (domains/approval.rs) — the first actionable row OF THIS SESSION wins.
+    for (id, decided, cancelled) in [("a-first", false, false), ("b-decided", true, false), ("c-cancelled", false, true)] {
+        store.domains.approval.push(mk(id, decided, cancelled));
+        on(&store, id, "s1");
+    }
     assert_eq!(keys::oldest_pending_id(&store).as_deref(), Some("a-first"));
+    store.set_active(Some("s2".into()));
+    assert_eq!(keys::oldest_pending_id(&store).as_deref(), Some("z-other-session"), "s2's own card on s2");
+    store.set_active(Some("s3".into()));
+    assert_eq!(keys::oldest_pending_id(&store), None, "a Session with no card answers nothing");
 
     // All settled → nothing for the keyboard to answer.
     let store2 = Store::new();
+    store2.set_active(Some("s1".into()));
     store2.domains.approval.push(mk("only", true, false));
+    on(&store2, "only", "s1");
     assert_eq!(keys::oldest_pending_id(&store2), None);
 }
 

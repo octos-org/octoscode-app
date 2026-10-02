@@ -245,25 +245,25 @@ pub fn parity_suppressed(shortcut: ParityShortcut, f: ShortcutFacts, inside_appr
     }
 }
 
-/// The oldest actionable pending approval's id — the id a keyboard decision
-/// answers (the web decides the card that is showing; natively the store's
-/// pending list is FIFO, `domains/approval.rs:79`).
+/// The id a keyboard decision answers: the oldest actionable approval OF THE
+/// SESSION ON SCREEN — the card that is showing (the web decides the card
+/// that is showing, `ApprovalPanel.tsx:30-56`; natively the store's pending
+/// list is FIFO). A20 (parity row 250): never another Session's — the old
+/// global FIFO let a bare `y` typed in Session Y answer Session X's approval
+/// with Y's id. No Session on screen, or a row with no recorded origin:
+/// nothing to answer.
 pub fn oldest_pending_id(store: &Store) -> Option<String> {
-    store
-        .domains
-        .approval
-        .pending()
-        .into_iter()
-        .find(|a| !a.decided && !a.cancelled)
-        .map(|a| a.id)
+    let session = store.active_session()?;
+    store.domains.approval.showing(&session).map(|(p, _)| p.id)
 }
 
-/// #P4f2 row 7: the diff preview id of the SAME FIFO row
-/// [`oldest_pending_id`] returns, so `D` and Y/S/N can never act on different
-/// cards. `None` when the showing approval is not a diff approval — the web's
-/// `previewId` absent, which leaves `D` inert (`ApprovalPanel.tsx:45`).
+/// #P4f2 row 7: the diff preview id of the SAME row [`oldest_pending_id`]
+/// returns, so `D` and Y/S/N can never act on different cards. `None` when
+/// the showing approval is not a diff approval — the web's `previewId`
+/// absent, which leaves `D` inert (`ApprovalPanel.tsx:45`).
 pub fn preview_id(store: &Store) -> Option<String> {
-    store.domains.approval.oldest_preview_id()
+    let session = store.active_session()?;
+    store.domains.approval.preview_id_for(&session)
 }
 
 /// The outbound `approval/respond` body for a keyboard decision — the r5-turn

@@ -1,0 +1,92 @@
+# A26 failing-first: tests/a26_palettes.rs, a26_footer.rs, a26_toasts.rs on main b1fe23fb behind
+# compile-only stubs that keep main's behaviour (branch a26-failing-first 1b28b758):
+# ctest -p octoscode-module --no-fail-fast --test a26_palettes --test a26_footer --test a26_toasts
+  <abs>
+in favor of <abs>
+  <abs>
+in favor of <abs>
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+note: but type `Bridge` is only usable at visibility `pub(crate)`
+...
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+     Running tests/a26_footer.rs (target/debug/deps/a26_footer-6e0975fba4c7a147)
+running 3 tests
+test the_footer_entries_are_the_webs_in_its_order_and_route_like_it ... FAILED
+test the_theme_toggle_cycles_saves_and_relabels_like_the_web ... FAILED
+test the_shell_template_carries_the_footer_after_fleet_with_its_three_icons ... FAILED
+failures:
+---- the_footer_entries_are_the_webs_in_its_order_and_route_like_it stdout ----
+thread 'the_footer_entries_are_the_webs_in_its_order_and_route_like_it' (239848480) panicked at crates/octoscode-module/tests/a26_footer.rs:38:5:
+assertion `left == right` failed
+  left: [Fleet, Fleet, Fleet]
+ right: [Fleet, Theme, Settings]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+---- the_theme_toggle_cycles_saves_and_relabels_like_the_web stdout ----
+thread 'the_theme_toggle_cycles_saves_and_relabels_like_the_web' (239848482) panicked at crates/octoscode-module/tests/a26_footer.rs:76:5:
+assertion `left == right` failed
+  left: ""
+ right: "sb_theme_ic_system"
+---- the_shell_template_carries_the_footer_after_fleet_with_its_three_icons stdout ----
+thread 'the_shell_template_carries_the_footer_after_fleet_with_its_three_icons' (239848481) panicked at crates/octoscode-module/tests/a26_footer.rs:117:82:
+the footer nav
+failures:
+    the_footer_entries_are_the_webs_in_its_order_and_route_like_it
+    the_shell_template_carries_the_footer_after_fleet_with_its_three_icons
+    the_theme_toggle_cycles_saves_and_relabels_like_the_web
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+error: test failed, to rerun pass `-p octoscode-module --test a26_footer`
+     Running tests/a26_palettes.rs (target/debug/deps/a26_palettes-37c99b57a3f823a5)
+running 4 tests
+test a_palette_row_applies_its_palette_everywhere_and_save_keeps_it_for_the_next_launch ... FAILED
+test terminal_follows_the_appearance_and_a_named_palette_overrides_it ... FAILED
+test an_unknown_palette_is_refused_and_changes_nothing ... ok
+test every_palette_draws_the_shell_and_the_conversation_in_its_own_colours ... FAILED
+failures:
+---- a_palette_row_applies_its_palette_everywhere_and_save_keeps_it_for_the_next_launch stdout ----
+{"reason":"makepad-error-log","message":{"message":"[octoscode] design root: <abs>","level":"log","spans":[{"file_name":"crates/octoscode-module/src/design.rs","byte_start":0,"byte_end":0,"line_start":163,"line_end":163,"column_start":8,"column_end":12,"is_primary":true,"text":[]}],"children":[]}}
+{"reason":"makepad-error-log","message":{"message":"[octoscode] font faces resolve under <abs>","level":"log","spans":[{"file_name":"crates/octoscode-module/src/design.rs","byte_start":0,"byte_end":0,"line_start":404,"line_end":404,"column_start":8,"column_end":12,"is_primary":true,"text":[]}],"children":[]}}
+thread 'a_palette_row_applies_its_palette_everywhere_and_save_keeps_it_for_the_next_launch' (239848910) panicked at crates/octoscode-module/tests/a26_palettes.rs:65:5:
+the palette rows' ids have an owner
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+---- terminal_follows_the_appearance_and_a_named_palette_overrides_it stdout ----
+thread 'terminal_follows_the_appearance_and_a_named_palette_overrides_it' (239848913) panicked at crates/octoscode-module/tests/a26_palettes.rs:180:9:
+assertion `left == right` failed: light
+  left: Light
+ right: Named(Solarized)
+---- every_palette_draws_the_shell_and_the_conversation_in_its_own_colours stdout ----
+thread 'every_palette_draws_the_shell_and_the_conversation_in_its_own_colours' (239848912) panicked at crates/octoscode-module/tests/a26_palettes.rs:135:9:
+a9.prefs.palette.terminal
+failures:
+    a_palette_row_applies_its_palette_everywhere_and_save_keeps_it_for_the_next_launch
+    every_palette_draws_the_shell_and_the_conversation_in_its_own_colours
+    terminal_follows_the_appearance_and_a_named_palette_overrides_it
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+error: test failed, to rerun pass `-p octoscode-module --test a26_palettes`
+     Running tests/a26_toasts.rs (target/debug/deps/a26_toasts-94a8c69c218584fc)
+running 2 tests
+test the_stack_is_bounded_transient_and_held_under_a_dialog ... FAILED
+test a_refused_new_chat_is_toasted_with_the_servers_reason ... FAILED
+failures:
+---- the_stack_is_bounded_transient_and_held_under_a_dialog stdout ----
+thread 'the_stack_is_bounded_transient_and_held_under_a_dialog' (239849161) panicked at crates/octoscode-module/tests/a26_toasts.rs:143:5:
+assertion `left == right` failed
+  left: (0, 0)
+ right: (3, 1)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+---- a_refused_new_chat_is_toasted_with_the_servers_reason stdout ----
+thread 'a_refused_new_chat_is_toasted_with_the_servers_reason' (239849160) panicked at crates/octoscode-module/tests/a26_toasts.rs:116:5:
+assertion `left == right` failed: []
+  left: 0
+ right: 1
+failures:
+    a_refused_new_chat_is_toasted_with_the_servers_reason
+    the_stack_is_bounded_transient_and_held_under_a_dialog
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.48s
+error: test failed, to rerun pass `-p octoscode-module --test a26_toasts`
+error: 3 targets failed:
+    `-p octoscode-module --test a26_footer`
+    `-p octoscode-module --test a26_palettes`
+    `-p octoscode-module --test a26_toasts`

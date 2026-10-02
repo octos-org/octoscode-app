@@ -302,13 +302,9 @@ pub fn blocked_reason(store: &Store, session_id: &str, mode: HistoryMode) -> Opt
             .any(|s| s.id == id && s.active_turn)
             // The unattributable global in-flight set, bound-scoped only.
             || (own && live_turn)
-            // A standing question awaiting the person, for this session.
-            || store
-                .domains
-                .approval
-                .question()
-                .map(|q| q.session_id == id)
-                .unwrap_or(false)
+            // A standing question awaiting the person, for this session
+            // (A20: its own, by its recorded origin).
+            || store.domains.approval.question_for(id).is_some()
             // Recovery not settled: the engine marks a lossy session unready.
             || store.domains.config.recovery(id).phase
                 != octoscode_store::domains::config::LossyPhase::Healthy

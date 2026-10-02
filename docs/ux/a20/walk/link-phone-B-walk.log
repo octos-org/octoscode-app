@@ -1,0 +1,9 @@
+PASS B: the panel is offered
+CLICK b3_link_open r=[180, 603, 148, 34] at (254,620)
+PASS B: CLICK Open conversation
+PASS B: wire: session/open {session: <link>, cwd: <the exact workspace>} — [{'cwd': '/home/user/a20-real-ws', 'profile_id': 'a20', 'session_id': 'a20:api:xray'}]
+PASS B: wire: its history is read after the accepted open
+PASS B: the panel closes
+PASS B: the linked Session is on screen
+SHOT phone-14-link-opened
+== 6/6 checks passed

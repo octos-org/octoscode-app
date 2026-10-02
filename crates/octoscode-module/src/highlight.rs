@@ -77,6 +77,30 @@ impl Tok {
             (Tok::Punctuation, true) => "#ced4daff",
         }
     }
+
+    /// A26 — the colour in any look: Terminal's light / dark as above; a
+    /// named palette maps the tokens onto its own colours the way the web
+    /// does (`theme.css:194-204`: keyword = danger, string = success,
+    /// comment = muted, constant / function = accent, the rest = text),
+    /// through the palette's contrast-tuned text inks
+    /// (`screens::theme::CONTRAST_PAIRS`, "code:").
+    pub fn color_look(self, look: crate::screens::theme::Look) -> &'static str {
+        use crate::screens::theme::Look;
+        match look {
+            Look::Light => self.color(false),
+            Look::Dark => self.color(true),
+            Look::Named(p) => match p.named() {
+                None => self.color(false),
+                Some(c) => match self {
+                    Tok::Plain | Tok::Punctuation => c.text,
+                    Tok::Keyword => c.danger_text,
+                    Tok::String => c.success_text,
+                    Tok::Comment => c.muted,
+                    Tok::Constant | Tok::Function => c.accent_text,
+                },
+            },
+        }
+    }
 }
 
 /// Multi-line lexer state carried from one line to the next.

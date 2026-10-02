@@ -1,0 +1,12 @@
+bundle: OctosCode A25.app (dev.octoscode.desktop.a25), ad-hoc signed
+PASS private octos serve is up
+PASS the bundled app is up (hidden)
+PASS the app runs with the platform notification API and is not focused — e/src/attention.rs:938:9 - [octoscode] attention: start (platform api true, focused false)
+macOS authorization for dev.octoscode.desktop.a25: Denied
+denied: allow "OctosCode A25" in System Settings > Notifications, then re-run
+PASS denied: the request answers at once from the real center — [I] apps/octoscode/module/src/attention.rs:984:9 - [octoscode] attention: os Authorization { status: Denied, requested: true, error: Some("Notifications are not allowed for this application") }
+PASS denied: macOS showed no prompt — []
+PASS denied: the row reads the blocked alert, the toggle stays off — Notifications are blocked. Allow OctosCode in System Settings › Notifications.
+app stopped
+serve stopped, the data copy deleted
+PASS no saved file carries the token

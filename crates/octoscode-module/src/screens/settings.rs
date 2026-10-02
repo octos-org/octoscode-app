@@ -41,6 +41,7 @@ use serde_json::{json, Value};
 use octoscode_store::Store;
 
 use crate::flow::Conversation;
+use crate::i18n::{tr, tr1, tr_with};
 
 /// The seven Stage B cards this table owns ids for (id → title; the design
 /// record under `design/stage-b/settings/cards/`).
@@ -361,7 +362,6 @@ pub struct SettingsState {
     /// A preset send in flight.
     pub saving: Option<Preset>,
     pub last_error: Option<String>,
-    pub notifications: bool,
     pub sandbox: SandboxDefaults,
     pub last_ui_action: Option<String>,
 }
@@ -377,10 +377,6 @@ impl Default for SettingsState {
             permission: None,
             saving: None,
             last_error: None,
-            // A7 — consent (`desktop-notifications.ts:27-44`): OFF until the
-            // Settings action is used, whatever the OS would allow; the
-            // explicit opt-in is remembered across restarts.
-            notifications: notification_consent(),
             sandbox: SandboxDefaults::default(),
             last_ui_action: None,
         }
@@ -460,6 +456,8 @@ pub enum UiEffect {
     Thinking(Thinking),
     /// "Take over": claim the session from the other client.
     TakeOver,
+    /// A25 — the Desktop notifications toggle (`crate::attention::toggle`).
+    NotificationsToggle,
 }
 
 /// Apply a UI-local action (or mark an RPC one as sending) and say what the
@@ -525,12 +523,10 @@ pub fn apply_ui(action: &str) -> UiEffect {
             st.sandbox = SandboxDefaults::of(&live.value);
             UiEffect::None
         }
-        "notifications_toggle.toggle" => {
-            st.notifications = !st.notifications;
-            // A7 — the explicit opt-in (or opt-out) is the ONLY consent.
-            save_notification_consent(st.notifications);
-            UiEffect::None
-        }
+        // A25 — the Desktop notifications row: the host performs it through
+        // the attention model (`crate::attention`), which asks the OS for the
+        // permission (asynchronously) and keeps the A7 opt-in below.
+        "notifications_toggle.toggle" => UiEffect::NotificationsToggle,
         "settings.thinking.off" => UiEffect::Thinking(Thinking::Off),
         "settings.thinking.on" => UiEffect::Thinking(Thinking::On),
         "settings.thinking.high" => UiEffect::Thinking(Thinking::High),
@@ -666,7 +662,7 @@ pub fn permission_name(
         M::DangerFullAccess => "Full access",
     };
     let n = if network == N::Allow { "Network allowed" } else { "Network blocked" };
-    format!("{m} · {n}")
+    format!("{} · {}", tr(m), tr(n))
 }
 
 /// Settings > Permissions' readback: what the server reports for the active
@@ -674,13 +670,16 @@ pub fn permission_name(
 /// (the web's "Approval policy: <stamp>", `permissions-section.tsx:54-62`).
 pub fn permission_readback(store: &Store) -> String {
     let Some(sel) = store.domains.profile.permission() else {
-        return "Server: permissions not reported yet".to_owned();
+        return tr("Server: permissions not reported yet").to_owned();
     };
     let approval = match approval_of(store, snapshot().permission) {
         Some(Approval::Never) => "never asks",
         _ => "asks on request",
     };
-    format!("Server: {} · {approval}", permission_name(sel.mode, sel.network))
+    tr_with(
+        "Server: {value0} · {value1}",
+        &[("value0", &permission_name(sel.mode, sel.network)), ("value1", tr(approval))],
+    )
 }
 
 /// The current model's display name: the profile's selected configured model
@@ -692,7 +691,7 @@ pub fn model_of(store: &Store) -> String {
         .find(|m| m.selected)
         .or_else(|| models.iter().find(|m| m.available))
         .map(|m| if m.title.trim().is_empty() { m.model.clone() } else { m.title.clone() })
-        .unwrap_or_else(|| "Default model".to_owned())
+        .unwrap_or_else(|| tr("Default model").to_owned())
 }
 
 /// The board-10 strip: "New chat defaults · <approval> · <permissions> ·
@@ -717,10 +716,10 @@ pub fn model_of(store: &Store) -> String {
 /// defaults" / "Asks on request"), not just "New chat defaults · …".
 pub fn defaults_line(store: &Store) -> String {
     let live = crate::screens::session_defaults::current();
-    let mut parts = vec!["New chat defaults".to_owned()];
+    let mut parts = vec![tr("New chat defaults").to_owned()];
     parts.extend(new_chat_permissions(&live));
     parts.push(model_of(store));
-    parts.push(format!("Thinking: {}", thinking_of(store).label()));
+    parts.push(tr1("Thinking: {value0}", tr(thinking_of(store).label())));
     parts.join(" · ")
 }
 
@@ -731,7 +730,7 @@ pub fn new_chat_permissions(live: &crate::screens::session_defaults::Live) -> Ve
     use crate::screens::session_defaults::{NetworkPolicy, PermissionMode};
     use octoscode_store::domains::profile::{PermissionNetworkPolicy as N, PermissionProfileMode as M};
     if !live.stored {
-        return vec!["Server defaults".to_owned()];
+        return vec![tr("Server defaults").to_owned()];
     }
     let d = &live.value;
     let mode = match d.permission_mode {
@@ -741,7 +740,7 @@ pub fn new_chat_permissions(live: &crate::screens::session_defaults::Live) -> Ve
     };
     let network = if d.network == NetworkPolicy::Allow { N::Allow } else { N::Deny };
     let approval = if mode == M::DangerFullAccess { "Never asks" } else { "Asks on request" };
-    vec![approval.to_owned(), permission_name(mode, network)]
+    vec![tr(approval).to_owned(), permission_name(mode, network)]
 }
 
 /// The settings state, readable through the same `set.*` surface the
@@ -767,7 +766,10 @@ mod tests {
     }
 
     // ---- A7: desktop-notifications.test.ts:22 "does not prompt or notify
-    // ---- without explicit opt-in even with existing permission".
+    // ---- without explicit opt-in even with existing permission". A25: the
+    // ---- toggle routes to the attention model (it asks the OS); the opt-in
+    // ---- it saves is this file (crate::attention's tests drive the whole
+    // ---- round trip through it).
     #[test]
     fn notifications_stay_off_until_the_settings_toggle_opts_in() {
         let _g = lock();
@@ -777,14 +779,15 @@ mod tests {
         let _ = std::fs::remove_file(&file);
         std::env::set_var("OCTOSCODE_NOTIFICATIONS_FILE", &file);
         reset_state();
-        assert!(!snapshot().notifications, "no opt-in yet: no notice can fire, so no OS prompt");
-        apply_ui("notifications_toggle.toggle");
-        assert!(snapshot().notifications);
+        assert!(!notification_consent(), "no opt-in yet: no notice can fire, so no OS prompt");
+        assert_eq!(apply_ui("notifications_toggle.toggle"), UiEffect::NotificationsToggle);
+        assert!(!notification_consent(), "routing alone opts nothing in: only a granted request does");
+        save_notification_consent(true);
         reset_state();
-        assert!(snapshot().notifications, "the explicit opt-in survives a restart");
-        apply_ui("notifications_toggle.toggle");
+        assert!(notification_consent(), "the explicit opt-in survives a restart");
+        save_notification_consent(false);
         reset_state();
-        assert!(!snapshot().notifications, "and so does the opt-out");
+        assert!(!notification_consent(), "and so does the opt-out");
         std::env::remove_var("OCTOSCODE_NOTIFICATIONS_FILE");
         reset_state();
     }
