@@ -546,6 +546,68 @@ impl FlowUi {
     }
 }
 
+/// A8 — the web's `SessionRuntimeScope` (`session-scope.ts:9-28`): a Session
+/// is NOT identified by its id alone — the endpoint, the workspace root and
+/// the profile are part of the key, and an opaque AUTHORITY EPOCH tells apart
+/// the auth identity behind a connection (a new connection = a new epoch;
+/// never a credential, so keys and logs stay credential-free).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SessionScope {
+    pub endpoint: String,
+    pub workspace_root: String,
+    pub profile_id: String,
+    pub session_id: String,
+    pub authority_epoch: u64,
+}
+
+impl SessionScope {
+    /// `sessionRuntimeScopeKey`: a JSON tuple of the trimmed parts (a `::`
+    /// delimiter could collide; a JSON array cannot).
+    pub fn key(&self) -> String {
+        serde_json::json!([
+            self.endpoint.trim(),
+            self.workspace_root.trim(),
+            self.profile_id.trim(),
+            self.session_id.trim(),
+            self.authority_epoch,
+        ])
+        .to_string()
+    }
+}
+
+/// Bumped by every `Conversation::connect` (each connection is a new auth
+/// identity behind its endpoint).
+static AUTHORITY_EPOCH: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+/// A8 — the turn ids THIS client dispatched (`turn/start`), newest last,
+/// bounded. The strip's "Another client is working in this session" word
+/// is a live turn this client never sent (the web's
+/// `queue.active.origin === "adopted"`, `App.tsx:2063-2072`).
+static OWN_TURNS: Mutex<Vec<String>> = Mutex::new(Vec::new());
+const OWN_TURNS_MAX: usize = 64;
+
+/// Record a turn id this client dispatched.
+pub fn note_own_turn(turn_id: &str) {
+    let mut g = OWN_TURNS.lock().unwrap_or_else(|p| p.into_inner());
+    if !g.iter().any(|t| t == turn_id) {
+        g.push(turn_id.to_owned());
+        let n = g.len();
+        if n > OWN_TURNS_MAX {
+            g.drain(..n - OWN_TURNS_MAX);
+        }
+    }
+}
+
+/// Whether this client dispatched `turn_id`.
+pub fn is_own_turn(turn_id: &str) -> bool {
+    OWN_TURNS.lock().unwrap_or_else(|p| p.into_inner()).iter().any(|t| t == turn_id)
+}
+
+/// Test seam.
+pub fn forget_own_turns() {
+    OWN_TURNS.lock().unwrap_or_else(|p| p.into_inner()).clear();
+}
+
 /// What one drained event did, for a test or a log.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FlowEvent {
@@ -594,13 +656,30 @@ pub struct Conversation {
     /// `workspace_root` (the web's `requireExactWorkspace` resume path,
     /// `candidate-session.ts:230-243`).
     pending_open_cwd: Mutex<Option<String>>,
+    /// A8 — this connection's authority epoch (the scope key's last part).
+    epoch: u64,
+    /// A8 — the transport has EVER been Live on this connection: a later
+    /// handshake is a RECONNECT, which re-opens the active Session and
+    /// hydrates it under a new authority generation
+    /// (`active-session-runtime.ts`: connect -> open -> hydrate -> ready,
+    /// every reconnect a new generation). Never reset (A7's `was_live` is the
+    /// last transition's, reset by a drop).
+    ever_live: Mutex<bool>,
+    /// A8 — the generation (`open_seq`) each in-flight `session/hydrate` was
+    /// requested under, by session: a reply from a retired generation is a
+    /// stale authority and fails closed.
+    hydrate_gen: Mutex<HashMap<String, u64>>,
+    /// A8 — the new-session defaults armed by `new_chat` for the FRESH id
+    /// only; the open reply for exactly that id takes them once
+    /// (`App.tsx:649` `appliedDefaultsForSession`).
+    creation_defaults: Arc<crate::screens::session_defaults::Pending>,
     /// #P4e1b row 4: bumped by every `session/open`, so each open presents a
     /// NEW commands identity to the autonomy fence and retires the previous
     /// one (web `autonomy/store.ts:208-213`: a new object for the same
     /// session id, a re-auth, a reconnect or a Core restart all reset ALL
     /// data, watermarks, revisions and busy holders). Starts at 0 and is
     /// bumped BEFORE the open is sent, so the reply arm reads the new value.
-    open_seq: Mutex<u64>,
+    open_seq: Arc<Mutex<u64>>,
     started: Instant,
     /// A4 — the HTTP side of the same server (the web's `mediaCommands`:
     /// `/api/upload`, `/api/files`, `packages/client/src/media.ts:14-35`) and
@@ -782,7 +861,11 @@ impl Conversation {
                 session_id: Mutex::new(format!("{profile}:main")),
                 workspace_opened: Mutex::new(false),
                 pending_open_cwd: Mutex::new(None),
-                open_seq: Mutex::new(0),
+                creation_defaults: crate::screens::session_defaults::Pending::new(),
+                epoch: AUTHORITY_EPOCH.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1,
+                ever_live: Mutex::new(false),
+                hydrate_gen: Mutex::new(HashMap::new()),
+                open_seq: Arc::new(Mutex::new(0)),
                 started: Instant::now(),
                 http_base: http_base_of(base),
                 bearer: bearer.to_owned(),
@@ -851,6 +934,17 @@ impl Conversation {
         self.profile.lock().unwrap().clone()
     }
 
+    /// A8 — the server's HTTP origin (the drafts' principal read, REST).
+    pub fn http_base(&self) -> String {
+        self.http_base.clone()
+    }
+
+    /// A8 — the connection's credential, for the one REST read that needs it
+    /// (`/api/auth/me`). Never logged.
+    pub(crate) fn bearer(&self) -> String {
+        self.bearer.clone()
+    }
+
     /// #P4e1b row 4: the commands identity this connection currently
     /// presents to the autonomy fence. The `open_seq` counter makes every
     /// `session/open` a NEW identity for the same session id — which is
@@ -859,6 +953,46 @@ impl Conversation {
     pub fn identity(&self) -> String {
         let seq = *self.open_seq.lock().unwrap();
         format!("{}#{}", self.profile(), seq)
+    }
+
+    /// A8 — the active Session's runtime scope (endpoint, workspace root,
+    /// profile, session, authority epoch).
+    pub fn scope(&self) -> SessionScope {
+        let session_id = self.session_id();
+        SessionScope {
+            endpoint: self.http_base.clone(),
+            workspace_root: self.store.domains.session.workspace_root(&session_id).unwrap_or_default(),
+            profile_id: self.profile(),
+            session_id,
+            authority_epoch: self.epoch,
+        }
+    }
+
+    /// A8 — `scope().key()`: async results captured under one key are
+    /// dropped when the key changed before they landed.
+    pub fn scope_key(&self) -> String {
+        self.scope().key()
+    }
+
+    /// A8 — the current authority generation (bumped by every open and every
+    /// reconnect re-open).
+    pub fn generation(&self) -> u64 {
+        *self.open_seq.lock().unwrap()
+    }
+
+    /// A8 — ask for the canonical `session/hydrate` of `session` under the
+    /// CURRENT generation (the reply arm refuses it once the generation moved).
+    pub fn request_hydrate(&self, session: &str) -> bool {
+        let gen = self.generation();
+        self.hydrate_gen.lock().unwrap().insert(session.to_owned(), gen);
+        match self.cmd_tx.try_send(OutboundCommand::HydrateSession { session_id: session.to_owned() }) {
+            Ok(()) => true,
+            Err(e) => {
+                self.hydrate_gen.lock().unwrap().remove(session);
+                ::log::warn!("octoscode: session/hydrate send failed for {session}: {e}");
+                false
+            }
+        }
     }
 
     /// #32h: take the server-verified profile id (`profile/local/create`'s
@@ -939,6 +1073,18 @@ impl Conversation {
         id: &str,
         cwd: Option<String>,
     ) -> Result<String, String> {
+        self.open_workspace_with(id, cwd, None).await
+    }
+
+    /// The open with an optional session-scoped sandbox (A8: a CREATED
+    /// session's new-session default, `App.tsx:1922-1932`; a re-open never
+    /// carries one).
+    pub async fn open_workspace_with(
+        &self,
+        id: &str,
+        cwd: Option<String>,
+        sandbox: Option<octos_core::ui_protocol::SessionSandboxParams>,
+    ) -> Result<String, String> {
         let session_id = octos_core::SessionKey(id.to_owned());
         // #P4e1b row 4: retire the previous commands identity BEFORE the open
         // goes out, so the reply arm binds the NEW one and any result captured
@@ -957,6 +1103,7 @@ impl Conversation {
                 "session_id": session_id.0,
                 "profile_id": self.profile(),
                 "cwd": cwd,
+                "sandbox": sandbox,
             }),
         );
         let params = SessionOpenParams {
@@ -964,7 +1111,7 @@ impl Conversation {
             topic: None,
             profile_id: Some(self.profile()),
             cwd,
-            sandbox: None,
+            sandbox,
             after: None,
             client_commands: None,
         };
@@ -1038,6 +1185,7 @@ impl Conversation {
             None,
             Some(format!("turn={turn_id}")),
         );
+        note_own_turn(&turn_id);
         // The optimistic row is the same as a text-only send.
         self.store.domains.session.timeline.upsert_user_message(
             &self.session_id(),
@@ -1063,6 +1211,17 @@ impl Conversation {
         }
     }
 
+    /// A8 — return a failed prompt to its OWN Session: the composer when it
+    /// still shows that Session, else that Session's stored draft
+    /// (`session-composer-drafts.ts` restores stay on their owning record).
+    fn return_prompt(&self, owner: &str, text: &str) {
+        if self.session_id() == owner {
+            self.ui.lock().unwrap().set_draft_inner(text.to_owned());
+        } else {
+            crate::screens::drafts::restore_for(&crate::screens::drafts::key_of(self, owner), text);
+        }
+    }
+
     /// `turn/start` with an explicit `turn_id`.
     ///
     /// The web mints the turn id client-side and sends it in the request
@@ -1079,6 +1238,9 @@ impl Conversation {
         turn_id: String,
     ) -> Result<String, ClientError> {
         let text: String = text.into();
+        // A8 — the Session this prompt belongs to (a failed send returns it
+        // there, even if the composer moved to another Session meanwhile).
+        let owner = self.session_id();
         #[allow(unused_mut)]
         let mut params = serde_json::json!({
             "session_id": self.session_id(),
@@ -1097,6 +1259,7 @@ impl Conversation {
             None,
             Some(format!("turn={turn_id}")),
         );
+        note_own_turn(&turn_id);
         // Card #26 §1: insert the user's row NOW, keyed by the turn id, so the
         // prompt shows immediately — and still shows for an INTERRUPTED turn,
         // whose server `user_message` envelope never arrives (live-gate turn 2).
@@ -1134,7 +1297,7 @@ impl Conversation {
                 // user's text — the clear happened optimistically before the
                 // request, so put it back (and drop the optimistic row's
                 // turn from live, the web's dispatch rollback).
-                self.ui.lock().unwrap().set_draft_inner(text.clone());
+                self.return_prompt(&owner, &text);
                 makepad_widgets::log!(
                     "[octoscode] draft restored: {} chars",
                     text.chars().count()
@@ -1234,19 +1397,11 @@ impl Conversation {
         }
         // Fire-and-forget on the transport's command channel (the same path
         // `session/open` uses). Best-effort: a closed channel just logs.
-        match self
-            .cmd_tx
-            .try_send(OutboundCommand::HydrateSession { session_id: session.clone() })
-        {
-            Ok(()) => {
-                ::log::info!("octoscode: resync requested — session/hydrate {session}");
-                true
-            }
-            Err(e) => {
-                ::log::warn!("octoscode: resync session/hydrate send failed for {session}: {e}");
-                false
-            }
+        let sent = self.request_hydrate(&session);
+        if sent {
+            ::log::info!("octoscode: resync requested — session/hydrate {session}");
         }
+        sent
     }
 
     /// Mint the id for a **new chat** (card #14 defect 4).
@@ -1270,7 +1425,10 @@ impl Conversation {
     /// (`session-identity.ts:23`). We mint `<profile>:<uuid>` (the uuid from
     /// `TurnId`, a UUID newtype octos-core already exposes — no new dep).
     pub fn fresh_session_id_for(profile: &str) -> String {
-        format!("{profile}:{}", TurnId::new().0)
+        // A8 — a FULL Session id (`<profile>:api:<chat>`, the web's
+        // `bindWebSessionIdToProfile` shape), so the identity grammar
+        // (`screens::session_identity`) recognises what this app created.
+        crate::screens::session_identity::fresh_full_id(profile, &TurnId::new().0.to_string())
     }
 
     /// Open a specific session id — the resume path (an id the server listed),
@@ -1290,7 +1448,156 @@ impl Conversation {
     pub async fn new_chat(&self, cwd: Option<String>) -> Result<String, String> {
         let id = Self::fresh_session_id_for(&self.profile());
         ::log::info!("octoscode: new chat -> {id}");
-        self.open_workspace_as(&id, cwd).await
+        // A8 — the new-session defaults apply at CREATION only
+        // (`session-defaults.ts:4-9`): the sandbox rides this open; the
+        // permission mode + network go out once the open for THIS id lands.
+        let defaults = crate::screens::session_defaults::current();
+        if defaults.stored {
+            self.creation_defaults.arm(&id, defaults.value.clone());
+        }
+        let advertised = self
+            .store
+            .capabilities()
+            .iter()
+            .any(|f| f == crate::screens::session_defaults::SANDBOX_FEATURE);
+        let sandbox = crate::screens::session_defaults::open_sandbox(&defaults.value, advertised);
+        self.open_workspace_with(&id, cwd, sandbox).await
+    }
+
+    /// The created ids whose new-session defaults were applied (test seam).
+    pub fn defaults_applied(&self) -> Vec<String> {
+        self.creation_defaults.applied()
+    }
+
+    /// A8 — restore the Session's PARKED interactions (approvals and user
+    /// questions still pending server-side) from its canonical hydrate
+    /// (`session/hydrate {include: ["pending_approvals"]}`; the transport's
+    /// own hydrate asks for messages only). Folded only when the reply names
+    /// this Session AND no newer generation started meanwhile (the web:
+    /// "restore a parked approval/question from a canonical hydrate with its
+    /// generation"); each restored interaction must belong to this Session.
+    fn spawn_restore_parked(&self, session: String, methods: &[String]) {
+        // Only where a parked interaction can be answered (`approval/respond`
+        // or `user_question/respond` advertised) and read canonically.
+        let answerable = methods.iter().any(|m| m == "approval/respond" || m == "user_question/respond");
+        if !answerable || !methods.iter().any(|m| m == "session/hydrate") {
+            return;
+        }
+        let Ok(handle) = tokio::runtime::Handle::try_current() else { return };
+        let client = self.client.clone();
+        let store = self.store.clone();
+        let gen_cell = self.open_seq.clone();
+        let generation = *gen_cell.lock().unwrap();
+        handle.spawn(async move {
+            let reply = client
+                .call::<octoscode_client::domains::session::SessionHydrate>(octos_core::ui_protocol::SessionHydrateParams {
+                    session_id: octos_core::SessionKey(session.clone()),
+                    after: None,
+                    include: vec!["pending_approvals".to_owned()],
+                })
+                .await;
+            let Ok(h) = reply else { return };
+            if h.session_id.0 != session || *gen_cell.lock().unwrap() != generation {
+                ::log::warn!("octoscode: parked interactions for {session} from a retired generation — not restored");
+                return;
+            }
+            let (mut approvals, mut questions) = (0, 0);
+            for a in h.pending_approvals.unwrap_or_default() {
+                if a.session_id.0 != session {
+                    continue;
+                }
+                let preview = a
+                    .typed_details
+                    .as_ref()
+                    .and_then(|d| d.diff.as_ref())
+                    .map(|d| octoscode_client::protocol_id::preview_id_string(&d.preview_id))
+                    .filter(|id| octoscode_client::protocol_id::is_protocol_uuid(&serde_json::json!(id)));
+                let id = a.approval_id.0.to_string();
+                store.domains.approval.request_with_preview(&id, Some(a.tool_name.clone()), preview);
+                // A6's takeover card draws from the same detail a live
+                // `approval/requested` records: a restored approval is asked
+                // again, exactly like the one that parked it.
+                store.domains.approval.set_detail(&id, octoscode_client::domains::approval::approval_detail(&a));
+                approvals += 1;
+            }
+            for q in h.pending_questions.unwrap_or_default() {
+                if q.session_id.0 != session {
+                    continue;
+                }
+                store.domains.approval.set_question(octoscode_store::domains::approval::PendingQuestion {
+                    question_id: q.question_id.0.to_string(),
+                    session_id: q.session_id.0.clone(),
+                    turn_id: q.turn_id.0.to_string(),
+                    title: q.title.clone(),
+                    body: q.body.clone(),
+                    questions: serde_json::to_value(&q.questions).unwrap_or(serde_json::Value::Null),
+                });
+                questions += 1;
+            }
+            if approvals + questions > 0 {
+                makepad_widgets::log!("[octoscode] restored {approvals} parked approval(s), {questions} question(s) for {session}");
+                makepad_widgets::SignalToUI::set_ui_signal();
+            }
+        });
+    }
+
+    /// A8 — the reconnect path (`active-session-runtime.ts` recovery): bump
+    /// the generation BEFORE anything goes out (every result captured under
+    /// the old one is now stale), re-open the active Session at its workspace
+    /// and ask for its canonical hydrate.
+    fn reopen_after_reconnect(&self) {
+        let session = self.session_id();
+        let cwd = self.store.domains.session.workspace_root(&session);
+        *self.open_seq.lock().unwrap() += 1;
+        *self.pending_open_cwd.lock().unwrap() = cwd.clone();
+        let params = SessionOpenParams {
+            session_id: octos_core::SessionKey(session.clone()),
+            topic: None,
+            profile_id: Some(self.profile()),
+            cwd,
+            sandbox: None,
+            after: None,
+            client_commands: None,
+        };
+        self.frames.out("session/open", &serde_json::json!({"session_id": session, "reconnect": true}));
+        match self.cmd_tx.try_send(OutboundCommand::OpenSession(params)) {
+            Ok(()) => {
+                ::log::info!("octoscode: reconnect — re-opened {session} (generation {})", self.generation());
+                self.request_hydrate(&session);
+            }
+            Err(e) => ::log::warn!("octoscode: reconnect re-open of {session} failed: {e}"),
+        }
+    }
+
+    /// Send the creation-time permission default for `session` off the event
+    /// path (the reply arm cannot await). Unadvertised = surfaced failure.
+    fn apply_permission_default(
+        &self,
+        session: &str,
+        defaults: &crate::screens::session_defaults::SessionDefaults,
+        methods: &[String],
+    ) {
+        use crate::screens::session_defaults as sd;
+        if !methods.iter().any(|m| m == "permission/profile/set") {
+            sd::note_apply_result(Err("permission/profile/set is not advertised".into()));
+            return;
+        }
+        let params = sd::permission_params(session, defaults);
+        let client = self.client.clone();
+        let Ok(handle) = tokio::runtime::Handle::try_current() else {
+            ::log::warn!("octoscode: new-session permission default: no runtime");
+            return;
+        };
+        let session = session.to_owned();
+        handle.spawn(async move {
+            let r = client.request("permission/profile/set", params).await;
+            makepad_widgets::log!(
+                "[octoscode] new-session permission default for {session}: {}",
+                if r.is_ok() { "applied" } else { "failed" }
+            );
+            sd::note_apply_result(r.map(|_| ()).map_err(|e| e.to_string()));
+            makepad_widgets::SignalToUI::set_ui_signal();
+        });
     }
 
     /// `session/list` — re-ask for the session rows and fold them into the
@@ -1386,6 +1693,10 @@ impl Conversation {
         if let Some((name, args)) = crate::screens::palette::parse_command_invocation(&text) {
             if let Some(outcome) = crate::screens::board3::host::command(&name, &args, self) {
                 self.ui.lock().unwrap().set_draft_inner(String::new());
+                // A8 — a consumed command is not an unsent draft: clear its
+                // saved text too, or A7's recovery puts "/resume" back when
+                // the Session comes round again ("sent drafts stay cleared").
+                crate::drafts::save(&self.session_id(), "");
                 makepad_widgets::SignalToUI::set_ui_signal();
                 makepad_widgets::log!("[octoscode] command /{name}: board-3 surface ({outcome:?})");
                 if let crate::screens::board3::host::Outcome::Spawn(job) = outcome {
@@ -1405,6 +1716,7 @@ impl Conversation {
             Some(crate::screens::palette::CommandMatch::Known(args, name)) => {
                 if crate::screens::palette::queue_run(&name, &args) {
                     self.ui.lock().unwrap().set_draft_inner(String::new());
+                    crate::drafts::save(&self.session_id(), "");
                     makepad_widgets::SignalToUI::set_ui_signal();
                     makepad_widgets::log!("[octoscode] command /{name}: queued to run locally");
                     return Ok(String::new());
@@ -1425,6 +1737,7 @@ impl Conversation {
                     ),
                 );
                 self.ui.lock().unwrap().set_draft_inner(String::new());
+                crate::drafts::save(&self.session_id(), "");
                 // #P4a's lesson, again: an async arm on the tokio thread that
                 // mutates the store never repaints by itself — wake the UI or
                 // the receipt stays invisible until some other event draws.
@@ -1565,6 +1878,19 @@ impl Conversation {
                 );
                 self.note_connection(live, dropped);
                 if live {
+                    *self.ever_live.lock().unwrap() = true;
+                }
+                // A8 — a handshake AFTER an earlier Live is a reconnect. The
+                // WS transport parks a re-dialed socket in Handshaking until a
+                // `session/open` answers (it does not replay the opens
+                // itself, and the server dropped the old socket's session
+                // subscriptions), so the flow re-opens the active Session at
+                // its workspace and hydrates it, under a NEW authority
+                // generation (`active-session-runtime.ts` recovery).
+                if matches!(s, octos_app_transport::ConnectionState::Handshaking) && *self.ever_live.lock().unwrap() {
+                    self.reopen_after_reconnect();
+                }
+                if live {
                     FlowEvent::Live
                 } else {
                     FlowEvent::Connecting(format!("{s:?}"))
@@ -1651,6 +1977,15 @@ impl Conversation {
                     .domains
                     .config
                     .set_supported_methods(caps.supported_methods.clone());
+                // A8 — parked interactions come back from the canonical
+                // hydrate of THIS open (`session-interaction-ledger.ts:137`).
+                self.spawn_restore_parked(r.opened.session_id.0.clone(), &caps.supported_methods);
+                // A8 — the ONE creation-time `permission/profile/set` for a
+                // session `new_chat` created (`App.tsx:1936-1975`): only the
+                // armed fresh id, once; a failure is surfaced, never retried.
+                if let Some(defaults) = self.creation_defaults.take(&r.opened.session_id.0) {
+                    self.apply_permission_default(&r.opened.session_id.0, &defaults, &caps.supported_methods);
+                }
                 // A7: the features too (safe steering needs
                 // `event.turn_steer_dropped.v1`, App.tsx:2849-2858).
                 self.store
@@ -1725,6 +2060,25 @@ impl Conversation {
                         // Fail closed: fold nothing, keep the lossy phase so
                         // the resync stays owed, and name the mismatch in the
                         // log (no silent drop).
+                        // A8 — a reply requested under a RETIRED generation (a
+                        // reconnect or another open since) is a stale
+                        // authority: fail closed, fold nothing, and ask again
+                        // under the current one while the session still owes
+                        // its resync (the web's "fails recovery preparation
+                        // before committing the hydrate cursor").
+                        let requested_gen = self.hydrate_gen.lock().unwrap().remove(session_id.as_str());
+                        if requested_gen.is_some_and(|g| g != self.generation()) {
+                            ::log::warn!(
+                                "octoscode: session/hydrate for {session_id} from a retired generation — stale authority, not committed"
+                            );
+                            if self.store.active_session().as_deref() == Some(session_id.as_str())
+                                && self.store.domains.config.recovery(session_id).phase
+                                    != octoscode_store::domains::config::LossyPhase::Healthy
+                            {
+                                self.request_hydrate(session_id);
+                            }
+                            return FlowEvent::Other("session/hydrate-stale-authority".to_owned());
+                        }
                         if h.session_id.0 != *session_id {
                             ::log::warn!(
                                 "octoscode: session/hydrate returned session {} for requested {session_id} — hydrate commit rejected",

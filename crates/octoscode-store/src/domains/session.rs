@@ -243,6 +243,16 @@ impl Sessions {
         }
     }
 
+    /// A8 — drop a row the app added for a placeholder that failed its
+    /// verification (the web evicts only an idle, never-confirmed record).
+    pub fn forget(&self, id: &str) {
+        let mut i = self.inner.lock().unwrap();
+        i.sessions.retain(|s| s.id != id);
+        if i.active.as_deref() == Some(id) {
+            i.active = None;
+        }
+    }
+
     /// The session count — what the module tile shows.
     pub fn count(&self) -> usize {
         self.inner.lock().unwrap().sessions.len()

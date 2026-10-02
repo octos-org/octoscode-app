@@ -115,6 +115,10 @@ impl Conversation {
             serde_json::json!({"optimistic": true}),
         );
         self.ui.lock().unwrap().begin_turn(&turn_id, self.started);
+        // A8 — a turn this client dispatched is its OWN: the strip shows its
+        // live step, never "Another client is working in this session"
+        // (`origin === "adopted"` is the web's other-client test).
+        crate::flow::note_own_turn(&turn_id);
         makepad_widgets::SignalToUI::set_ui_signal();
         // §5.2: the prompt crosses the driver seam FIRST — the seat handover
         // (or its refusal) completes before any turn/start frame is written.

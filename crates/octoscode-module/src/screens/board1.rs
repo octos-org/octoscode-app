@@ -1045,7 +1045,15 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
                 mark_dirty();
                 return need_conv("new session");
             };
-            match conv.new_chat(Some(cwd.clone())).await {
+            // A8 — a workspace launch asks `launch/resolve` first when the
+            // server advertises it (cross-profile -> the decision panel).
+            let launched = match crate::screens::launch::create(&conv, cwd.clone()).await {
+                crate::screens::launch::Launched::Opened(id) => Ok(id),
+                crate::screens::launch::Launched::AwaitingChoice => Ok("awaiting the profile choice".to_owned()),
+                crate::screens::launch::Launched::Stale => Ok("superseded by a newer launch".to_owned()),
+                crate::screens::launch::Launched::Failed(e) => Err(e),
+            };
+            match launched {
                 Ok(id) => {
                     makepad_widgets::log!("[octoscode] board1: new session {id} in the chosen workspace");
                     let rows = super::recents::remember_workspace(
