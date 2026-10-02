@@ -1,0 +1,8 @@
+PASS straight to a Session (composer, no panel)
+PASS wire: launch/resolve carries NO profile id — [{"cwd": "<scratch>/live/upgrade"}]
+PASS wire: Core resolved a profile at once (resume/activate) — [{"decision": "resume", "resolved_profile": "dsflash"}]
+PASS wire: the Session opened under it — [{"cwd": "<scratch>/live/upgrade", "profile_id": "dsflash", "sandbox": null, "session_id": "dsflash:api:01a0fd48-02f5-70b8-8324-00fb1ff6cbe0"}]
+PASS wire: nothing created
+SHOT 01-session-phone
+redacted 01-session-phone: ['hd_path']
+== 5/5 checks passed
