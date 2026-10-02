@@ -34,6 +34,8 @@ import urllib.error
 import urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(ROOT, "tools", "walk"))
+from a19_launch_live import scrub  # noqa: E402
 BINARY = sys.argv[1] if len(sys.argv) > 1 else ""
 MODE = sys.argv[2] if len(sys.argv) > 2 else "desktop"
 PORT = int(sys.argv[3]) if len(sys.argv) > 3 else 8466
@@ -106,10 +108,10 @@ def shot(name, s=None):
         f.write(get("/g?raw=1", timeout=30))
     subprocess.run(["sips", "-Z", "1400", p, "--out", p], capture_output=True)
     # The geometry the checks read, beside the capture: the whole /snap
-    # without field values, the home directory rewritten.
+    # without field values, machine paths scrubbed as the live walk does.
     keep = [{k: v for k, v in w.items() if k != "val"} for w in (s if s is not None else snap())]
     with open(p[:-4] + ".snap.json", "w") as f:
-        f.write(json.dumps(keep).replace(os.path.expanduser("~"), "/home/user"))
+        f.write(scrub(json.dumps(keep)))
     print(f"  shot {os.path.relpath(p, ROOT)}", flush=True)
 
 
