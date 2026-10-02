@@ -268,9 +268,11 @@ def sidebar_walk():
                  lambda: soon(lambda: is_shown("b1_pk_back")), log_needle="browser.close")
         step("The picker's back closes it", "b1_pk_back",
              lambda: soon(lambda: not is_shown("b1_card")), log_needle="picker.close")
+        # A10: the header's Review entry opens the web's DiffReviewDialog
+        # (a board-3 modal with its own 28 px close), not the old sheet.
         step("Review opens from the header", "review_open_hit",
-             lambda: is_shown("review_panel"), log_needle="ToggleReview")
-        click("review_close")
+             lambda: soon(lambda: is_shown("b3_diff_eyebrow")), log_needle="ToggleReview")
+        click("b3_close")
 
 
 def main():

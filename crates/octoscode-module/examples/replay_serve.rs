@@ -531,6 +531,13 @@ struct FleetSim {
     approvals: BTreeMap<String, String>,
     dispatched: u64,
     workspace: String,
+    /// A10 seat walk: the driver mode (`external` after an acquire or a
+    /// parking release, `internal` after a `next: internal` handback).
+    external: bool,
+    /// A10 seat walk (`--revoke-file <path>`): when the file exists, the next
+    /// renew finds the lease taken by another app (`driver_fence_stale`);
+    /// the file is removed so a later acquire holds again.
+    revoke_file: Option<String>,
 }
 
 /// One reply + the notifications that follow it (`(delay ms, method, params)`).
@@ -576,6 +583,8 @@ impl FleetSim {
             approvals: BTreeMap::new(),
             dispatched: 0,
             workspace: workspace.to_owned(),
+            external: true,
+            revoke_file: None,
         };
         let ws = sim.workspace.clone();
         for v in [&mut sim.get, &mut sim.binding] {
@@ -640,9 +649,11 @@ impl FleetSim {
         let now = now_ms();
         match method {
             "session/driver/get" => {
-                let mut v = serde_json::json!({
-                    "mode": "external", "recovery": "none", "binding": self.binding,
-                });
+                let mut v = if self.external {
+                    serde_json::json!({"mode": "external", "recovery": "none", "binding": self.binding})
+                } else {
+                    serde_json::json!({"mode": "internal", "recovery": "none", "binding": null})
+                };
                 if p.get("operations").is_some() {
                     // The page is strictly ordered by operation id (UTF-8
                     // bytes) — the protocol's contract the walk enforces.
@@ -663,6 +674,7 @@ impl FleetSim {
                     return (Err(self.refuse("driver_revision_conflict")), Vec::new());
                 }
                 self.revision += 1;
+                self.external = true;
                 let epoch = self.binding["epoch"].as_u64().unwrap_or(0) + 1;
                 let lease = p["lease_seconds"].as_u64().unwrap_or(120);
                 self.binding["driver_id"] = p["driver_id"].clone();
@@ -677,6 +689,17 @@ impl FleetSim {
                 (Ok(a), Vec::new())
             }
             "session/driver/renew" => {
+                if let Some(path) = self.revoke_file.as_deref().filter(|f| std::path::Path::new(f).exists()) {
+                    // Another app acquired: our proof is dead from now on.
+                    let _ = std::fs::remove_file(path);
+                    self.revision += 1;
+                    let epoch = self.binding["epoch"].as_u64().unwrap_or(0) + 1;
+                    self.binding["driver_id"] = "octos-tui".into();
+                    self.binding["epoch"] = epoch.into();
+                    self.binding["revision"] = self.revision.into();
+                    self.token = None;
+                    println!("[replay-serve] fleet sim: the lease was revoked (another app acquired)");
+                }
                 if !self.fenced(p) {
                     return (Err(self.refuse("driver_fence_stale")), Vec::new());
                 }
@@ -693,6 +716,7 @@ impl FleetSim {
                 self.binding["revision"] = self.revision.into();
                 self.binding["lease_expires_at_ms"] = 0.into();
                 let next = p["next"].as_str().unwrap_or("external").to_owned();
+                self.external = next == "external";
                 let binding = if next == "external" { self.binding.clone() } else { Value::Null };
                 (Ok(serde_json::json!({ "mode": next, "recovery": "none", "binding": binding })), Vec::new())
             }
@@ -1315,7 +1339,29 @@ async fn main() {
             by_turn.entry(t.to_owned()).or_default().push(f.clone());
         }
     }
-    let open_result = recorded_open_result(&frames).expect("the fixture has a session/open result");
+    let mut open_result = recorded_open_result(&frames).expect("the fixture has a session/open result");
+    // A10 seat walk: `--drop-method <m>` / `--drop-feature <f>` withdraw one
+    // capability from the advertised set (the web e2e's no-method /
+    // no-feature variants).
+    for w in args.windows(2) {
+        let key = match w[0].as_str() {
+            "--drop-method" => "supported_methods",
+            "--drop-feature" => "supported_features",
+            _ => continue,
+        };
+        if let Some(list) = open_result["capabilities"][key].as_array_mut() {
+            list.retain(|x| x != w[1].as_str());
+            println!("[replay-serve] capabilities: {} withdrawn", w[1]);
+        }
+    }
+    let fleet_cold = args.iter().any(|a| a == "--fleet-cold");
+    let revoke_file = args.iter().position(|a| a == "--revoke-file").and_then(|i| args.get(i + 1)).cloned();
+    let first_turn: usize = args
+        .iter()
+        .position(|a| a == "--first-turn")
+        .and_then(|i| args.get(i + 1))
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0);
     let recorded = recorded_session(&frames);
     let recorded_turns: Vec<String> = by_turn
         .iter()
@@ -1369,13 +1415,24 @@ async fn main() {
         let replies = replies.clone();
         let sequenced = sequenced.clone();
         let slow = slow.clone();
+        let revoke_file = revoke_file.clone();
         let mut seat_sim = seat_sim.clone();
         let fleet_frames = if label == "fleet" { frames.clone() } else { Vec::new() };
         let activity = label == "activity";
         tokio::spawn(async move {
             // A10 fleet: the per-connection external-driver simulator.
             let workspace = open_result["workspace_root"].as_str().unwrap_or("workspace").to_owned();
-            let mut fleet = (label == "fleet").then(|| FleetSim::new(&fleet_frames, &workspace));
+            let mut fleet = (label == "fleet").then(|| {
+                let mut sim = FleetSim::new(&fleet_frames, &workspace);
+                if fleet_cold {
+                    // A COLD master: internal, never bound (revision 0).
+                    sim.external = false;
+                    sim.binding = Value::Null;
+                    sim.revision = 0;
+                }
+                sim.revoke_file = revoke_file.clone();
+                sim
+            });
             // A10: how many sequenced replies each method has consumed.
             let mut seq_pos: BTreeMap<String, usize> = BTreeMap::new();
             // A6 `surfaces`: the web's delivered-file download
@@ -1411,7 +1468,7 @@ async fn main() {
             };
             let (tx, mut rx) = ws.split();
             let tx = std::sync::Arc::new(tokio::sync::Mutex::new(tx));
-            let mut played = 0usize;
+            let mut played = first_turn;
             // A9 — session/open requests on this connection (the activity
             // scenario holds a SWITCH's session/list reply back, so the walk
             // can reopen Activity while that switch is still in flight).
@@ -1487,7 +1544,7 @@ async fn main() {
                             // The ids each frame carried (operation / target /
                             // expected turn / lane): the walk's wire proof.
                             let p = &v["params"];
-                            let ids: Vec<String> = ["operation_id", "target_operation_id", "expected_turn_id", "model", "expected_revision"]
+                            let ids: Vec<String> = ["operation_id", "target_operation_id", "expected_turn_id", "model", "expected_revision", "next"]
                                 .iter()
                                 .filter_map(|k| p.get(*k).filter(|x| !x.is_null()).map(|x| format!("{k}={}", x.to_string().trim_matches('"'))))
                                 .chain(p["command"]["kind"].as_str().map(|k| format!("command={k}")))

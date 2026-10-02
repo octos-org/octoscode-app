@@ -57,6 +57,9 @@ pub enum Dialog {
     SessionPane,
     /// A8 — the workspace launch decision panel (`LaunchDecisionPanel`).
     Launch,
+    /// A10 — the header's Review entry: the authoritative diff preview (web
+    /// `DiffReviewDialog`; no board).
+    DiffReview,
 }
 
 impl Dialog {
@@ -78,6 +81,7 @@ impl Dialog {
             "routes" | "providers" => Dialog::Routes,
             "session-settings" | "session_pane" => Dialog::SessionPane,
             "launch" => Dialog::Launch,
+            "diff_review" | "review_changes" => Dialog::DiffReview,
             _ => return None,
         })
     }
@@ -108,6 +112,8 @@ pub struct State {
     pub routes: super::routes::RoutesState,
     /// A8 — the Session settings pane.
     pub pane: super::session_pane::PaneState,
+    /// A10 — the header Review entry's diff preview.
+    pub diff: super::diff_review::DiffReviewState,
     /// A8 — the dialog the board-3 splash last mounted (None after an open or
     /// a close), so a remount of the SAME dialog keeps its scroll position.
     pub mounted: Option<Dialog>,
@@ -135,6 +141,7 @@ impl Default for State {
             seats: Default::default(),
             routes: Default::default(),
             pane: Default::default(),
+            diff: Default::default(),
             mounted: None,
             pending_clipboard: None,
         }
@@ -281,6 +288,7 @@ pub fn lower_open(store: &Store) -> Option<Lowered> {
             super::session_pane::build(&mut d, &s.pane, &mut s.fleet, &s.frame, store)
         }
         Dialog::Launch => crate::screens::launch::build(&mut d, &st.frame),
+        Dialog::DiffReview => super::diff_review::build(&mut d, &st.diff, &st.frame, store),
         Dialog::Images => {
             let session = store.domains.session.active().unwrap_or_default();
             let drafts = crate::screens::media::drafts_for_session(&session);
@@ -390,6 +398,8 @@ pub enum Job {
     PanePerm(super::session_pane::PermIntent),
     /// A8 — Resume chat: acquire -> release(internal) -> send once.
     PaneResumeChat,
+    /// A10 — ONE `diff/preview/get` for the header Review entry (generation).
+    DiffReviewLoad(u64),
     /// A8 — the launch panel's profile choice.
     LaunchChoose(String),
     /// A8 — the launch panel's "Create the local profile" (no_profile).
@@ -503,6 +513,7 @@ pub fn open(dialog: Dialog) -> Outcome {
         }
         Dialog::SessionPane => super::session_pane::on_open(&mut st.pane),
         Dialog::Launch => Outcome::Done,
+        Dialog::DiffReview => super::diff_review::on_open(&mut st.diff),
     }
 }
 
@@ -551,6 +562,9 @@ pub fn close() {
     }
     if st.open == Some(Dialog::Launch) && crate::screens::launch::snapshot().phase != crate::screens::launch::Phase::Opening {
         crate::screens::launch::cancel();
+    }
+    if st.open == Some(Dialog::DiffReview) {
+        super::diff_review::on_close(&mut st.diff);
     }
     st.open = None;
     st.mounted = None;
@@ -642,6 +656,15 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
     }
     if action.starts_with("b3.sc.") {
         return super::session_pane::perform(&mut st.pane, action, index, store);
+    }
+    if action.starts_with("b3.diff.") {
+        let out = super::diff_review::perform(&mut st.diff, action, store);
+        if matches!(out, Outcome::Action(_)) {
+            // "Code review…": the /review dialog replaces this one.
+            st.open = None;
+            st.mounted = None;
+        }
+        return out;
     }
     if action.starts_with("b3.launch.") {
         drop(st);
@@ -896,6 +919,10 @@ pub fn job_unavailable(job: &Job) {
             st.pane.resume_busy = false;
             st.pane.resume_notice = Some("Couldn't resume chat — nothing was sent".into());
         }
+        Job::DiffReviewLoad(_) => {
+            st.diff.loading = false;
+            st.diff.error = Some(msg);
+        }
         Job::LaunchChoose(_) | Job::LaunchCreateProfile => crate::screens::launch::cancel(),
         Job::FileFetch(id, _) => {
             drop(st);
@@ -999,6 +1026,7 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         // Boxed: resume chat sends the prompt through `submit_draft`, which
         // itself routes slash commands back into this function.
         Job::PaneResumeChat => Box::pin(super::session_pane::resume_chat(conv)).await,
+        Job::DiffReviewLoad(generation) => super::diff_review::load(conv, generation).await,
         Job::LaunchChoose(profile) => match crate::screens::launch::choose(conv, profile).await {
             crate::screens::launch::Launched::Opened(id) => Ok(format!("launched {id}")),
             other => Err(format!("{other:?}")),

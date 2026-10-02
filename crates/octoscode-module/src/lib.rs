@@ -2010,12 +2010,19 @@ impl OctoscodeView {
             }
             // Card #28e — board-4 chrome toggles. Flip the FlowUi flag; the
             // next `sync_labels` moves it onto the view (`set_visible`).
+            // A10 — the header's Review entry (and its shortcut) is the
+            // web's DiffReviewDialog: a board-3 modal over the latest
+            // announced preview, with the web's loading / error / empty
+            // states (the old docked sheet had none and sat under the
+            // session title).
+            actions::Effect::UiChrome(actions::UiChrome::ReviewToggle) => {
+                self.toggle_diff_review(cx);
+                return;
+            }
             actions::Effect::UiChrome(which) => {
                 if let Ok(mut u) = ui.lock() {
                     match which {
-                        actions::UiChrome::ReviewToggle => {
-                            u.toggle_review();
-                        }
+                        actions::UiChrome::ReviewToggle => {}
                         actions::UiChrome::SettingsToggle => {
                             u.toggle_settings();
                         }
@@ -4004,6 +4011,28 @@ impl OctoscodeView {
         true
     }
 
+    /// A10 — open (or, when it is the open one, close) the diff review: the
+    /// header's Review entry, its shortcut, and an approval's Review diff
+    /// (which first names its preview, `review::set_preview_id`).
+    fn toggle_diff_review(&mut self, cx: &mut Cx) {
+        use screens::board3::host::{self as b3, Dialog};
+        if b3::open_dialog() == Some(Dialog::DiffReview) {
+            b3::close();
+        } else {
+            self.open_diff_review(cx);
+        }
+        self.view.redraw(cx);
+    }
+
+    fn open_diff_review(&mut self, cx: &mut Cx) {
+        use screens::board3::host::{self as b3, Dialog};
+        // One modal at a time: A5's dialogs and the palette give way.
+        screens::dialog::close();
+        let out = b3::open(Dialog::DiffReview);
+        self.board3_outcome(cx, out);
+        self.view.redraw(cx);
+    }
+
     /// A4 — carry out what a board-3 action asked for: a transport job on
     /// the runtime (wakes the UI when the reply is folded), or a clipboard
     /// write (the host owns `cx`).
@@ -5764,6 +5793,10 @@ impl OctoscodeView {
                 // docs/keyboard.md table's live evidence).
                 makepad_widgets::log!("[octoscode] key {:?} -> {:?}", e.key_code, action);
                 let mut open_changed = false;
+                // A10 — the diff review opens after the match (it needs
+                // `&mut self`): Some(true) = an approval's preview, Some(false)
+                // = the Review shortcut's toggle.
+                let mut diff_review: Option<bool> = None;
                 match action {
                     KeyAction::PaletteClose => {
                         ui.lock().unwrap().set_palette_open(false);
@@ -5878,16 +5911,8 @@ impl OctoscodeView {
                     // when the id is absent, like the web's `&& previewId`.
                     KeyAction::ApprovalReviewDiff(preview_id) => {
                         crate::screens::review::set_preview_id(preview_id);
-                        if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
-                            let conv = conv.clone();
-                            rt.spawn(async move {
-                                let e = crate::screens::review::Effect::ScopeCycle;
-                                if let Err(err) = crate::screens::review::perform(e, &conv).await {
-                                    ::log::warn!("octoscode: D diff review: {err}");
-                                }
-                            });
-                        }
-                        ui.lock().unwrap().toggle_review();
+                        let _ = conv;
+                        diff_review = Some(true);
                     }
                     // registry.ts:614 — the parity shortcut resolves; the
                     // approval surface it reveals lands with the approval
@@ -5898,12 +5923,17 @@ impl OctoscodeView {
                         );
                     }
                     KeyAction::ReviewToggle => {
-                        ui.lock().unwrap().toggle_review();
+                        diff_review = Some(false);
                     }
                     KeyAction::SettingsToggle => {
                         ui.lock().unwrap().toggle_settings();
                     }
                     KeyAction::Ignore => {}
+                }
+                match diff_review {
+                    Some(true) => self.open_diff_review(cx),
+                    Some(false) => self.toggle_diff_review(cx),
+                    None => {}
                 }
                 if open_changed {
                     self.sync_labels(cx);

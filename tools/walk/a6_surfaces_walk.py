@@ -631,23 +631,24 @@ def walk_approvals():
         approval_layout("diff approval card")
         shot("approval-diff")
         click("cv_ap_diff")
-        logs = app_logs()
-        opened = any("review diff opened=true" in l for l in logs)
+        # A10: Review diff opens the web's DiffReviewDialog (a board-3
+        # modal) on ONE diff/preview/get.
+        opened = wait(lambda: text("b3_title") == "Add a --version flag", 8)
         wire = wait(lambda: "<- diff/preview/get" in replay_log(), 8)
-        check("CLICK Review diff -> the review opens on diff/preview/get", opened and wire)
+        check("CLICK Review diff -> the review opens on diff/preview/get", bool(opened) and wire)
         shot("approval-review")
         interrupts = replay_log().count("<- turn/interrupt")
         if PHONE:
             # A phone has no Escape: the review's own close control.
-            click("review_close")
-            back = wait(lambda: shown("cv_ap_session") and not shown("review_close"), 6)
+            click("b3_close")
+            back = wait(lambda: shown("cv_ap_session") and not shown("b3_dialog"), 6)
             check("CLICK × closes the review back to the card", back)
         else:
             key("escape")
-            back = wait(lambda: shown("cv_ap_session") and not shown("review_close"), 6)
+            back = wait(lambda: shown("cv_ap_session") and not shown("b3_dialog"), 6)
             check("Esc closes the review back to the card (no turn/interrupt)",
                   back and replay_log().count("<- turn/interrupt") == interrupts)
-            if not back and click("review_close"):
+            if not back and click("b3_close"):
                 wait(lambda: shown("cv_ap_session"), 4)
         click("cv_ap_session")
         ok = wait(decided(2), 8)
