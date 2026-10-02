@@ -163,10 +163,19 @@ pub fn catalog_loaded() -> bool {
 }
 
 /// The Chinese text for an English source: the web key itself, else the
-/// web key of the same control ([`alias`]); `None` = no web translation.
+/// web key of the same control ([`alias`]), each also tried with
+/// typographic quotes made straight (the native copy writes `can’t` where
+/// the web's key has `can't` — one string, two spellings); `None` = no web
+/// translation.
 pub fn zh_for(source: &str) -> Option<&'static str> {
     let cat = catalog();
-    cat.get(source).copied().or_else(|| alias::web_key(source).and_then(|k| cat.get(k).copied()))
+    let lookup = |s: &str| cat.get(s).copied().or_else(|| alias::web_key(s).and_then(|k| cat.get(k).copied()));
+    lookup(source).or_else(|| {
+        source
+            .contains(['\u{2018}', '\u{2019}', '\u{201c}', '\u{201d}'])
+            .then(|| source.replace(['\u{2018}', '\u{2019}'], "'").replace(['\u{201c}', '\u{201d}'], "\""))
+            .and_then(|plain| lookup(&plain))
+    })
 }
 
 /// `t(source)` in `lang` (no interpolation).

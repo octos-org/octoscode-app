@@ -238,6 +238,48 @@ fn the_default_language_follows_the_device_locale() {
     assert_eq!(device_language(), Lang::for_locale(&device_locale()));
 }
 
+/// The live switch re-renders: after a switch the next lowering of each
+/// surface is in the new language and its DSL differs, so the mount cache
+/// (which compares the DSL) remounts it; switching back restores English.
+#[test]
+fn a_switch_re_renders_the_lowered_surfaces() {
+    let m = crate::conv_layout::Metrics::for_window(990.0, true);
+    let card = || crate::fluid::connect_card(&crate::fluid::ConnectView::default(), &m, 0.0);
+    let kit_header = || {
+        let mut d = crate::screens::board3::ui::Dsl::new();
+        crate::screens::board3::ui::header(&mut d, "Session settings", "b3.close");
+        d.button("b3_cancel", "Cancel", "b3.close", crate::screens::board3::ui::Btn::Outline, crate::screens::board3::ui::W::Fit, 36.0);
+        d.finish()
+    };
+    let ledger = "copy t_title_text { class: user-copy, en: \"Settings\" }\ncopy t02_text { class: user-copy, en: \"git push origin main\" }\n";
+    set_language(Lang::En);
+    let (card_en, kit_en) = (card(), kit_header());
+    assert!(card_en.contains("\"Connect to Octos\"") && card_en.contains("\"Access token\""));
+    assert_eq!(crate::l0_host::localize(ledger), ledger, "English: the authored copy as is");
+    assert!(set_language(Lang::Zh));
+    let (card_zh, kit_zh) = (card(), kit_header());
+    assert_ne!(card_en, card_zh, "a new DSL: the mount cache remounts the card");
+    assert!(card_zh.contains("\"连接 Octos\"") && card_zh.contains("\"认证令牌\""), "the web's own copy");
+    assert!(kit_zh.contains("\"会话设置\"") && kit_zh.contains("\"取消\""), "the kit's shared chrome");
+    let localized = crate::l0_host::localize(ledger);
+    assert!(localized.contains("en: \"设置\""), "{localized}");
+    assert!(localized.contains("en: \"git push origin main\""), "data is never translated");
+    assert!(set_language(Lang::En));
+    assert_eq!(card(), card_en, "switching back restores English");
+    assert_eq!(kit_header(), kit_en);
+}
+
+/// One string, two spellings: native copy with typographic quotes finds the
+/// web key written with straight ones (and only that — no other folding).
+#[test]
+fn typographic_quotes_find_the_straight_quoted_web_key() {
+    let web = "That path can't be browsed.";
+    let zh = catalog().get(web).copied().expect("a web key with a straight apostrophe");
+    assert_eq!(tr_in(Lang::Zh, "That path can\u{2019}t be browsed."), zh);
+    assert_eq!(tr_in(Lang::En, "That path can\u{2019}t be browsed."), "That path can\u{2019}t be browsed.");
+    assert_eq!(tr_in(Lang::Zh, "That path can\u{2019}t be browsed"), "That path can\u{2019}t be browsed", "no other folding");
+}
+
 /// Every alias renders a real web key's translation, keeps the native
 /// string's placeholders, and is not itself a web key (that would be dead).
 #[test]

@@ -2078,7 +2078,7 @@ impl ChromeRuntime {
         let state_line = if st.saving.is_some() {
             Some(tr("Saving…").to_owned())
         } else {
-            st.last_error.as_ref().map(|e| tr_with("Failed: {error}", &[("error", e)]))
+            st.last_error.as_ref().map(|e| tr_with("Failed: {value0}", &[("value0", e)]))
         };
         show(cx, view, ids!(set_perm_state), state_line.is_some());
         if let Some(line) = state_line {

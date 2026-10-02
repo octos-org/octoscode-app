@@ -372,10 +372,14 @@ pub fn lower(
 }
 
 /// A24 — the state word as shown: the web's key for it in the current
-/// language ("Peers running ({value0})" carries its count).
+/// language (`SessionStatusStrip.tsx:60/91`: "Peers running ({count})" and
+/// "Running {value0}…" carry their count / tool name).
 fn state_display(state: &str) -> String {
     if let Some(n) = state.strip_prefix("Peers running (").and_then(|r| r.strip_suffix(')')) {
-        return crate::i18n::tr1("Peers running ({value0})", n);
+        return crate::i18n::tr_with("Peers running ({count})", &[("count", n)]);
+    }
+    if let Some(tool) = state.strip_prefix("Running ").and_then(|r| r.strip_suffix('…')) {
+        return crate::i18n::tr1("Running {value0}…", tool);
     }
     tr(state).to_owned()
 }

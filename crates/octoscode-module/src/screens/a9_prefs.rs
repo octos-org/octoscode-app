@@ -191,9 +191,15 @@ pub fn set_language(lang: crate::i18n::Lang) -> bool {
 /// before anything lowers, so a Chinese preference's first frame is Chinese.
 /// Returns the language adopted.
 pub fn adopt_language() -> crate::i18n::Lang {
-    let lang = crate::i18n::Lang::parse(&init().language).unwrap_or(crate::i18n::Lang::En);
+    let lang = launch_language(&init());
     crate::i18n::set_language(lang);
     lang
+}
+
+/// The language a launch adopts from the loaded preferences (the stored
+/// whitelist, else the device default).
+pub fn launch_language(p: &DisplayPrefs) -> crate::i18n::Lang {
+    crate::i18n::Lang::parse(&p.language).unwrap_or(crate::i18n::Lang::En)
 }
 
 /// Save the whitelist (`DisplayPreferencesStore.save`, model.ts:144-162).
@@ -291,6 +297,53 @@ mod tests {
         assert!(load_from(&p).vim_mode, "the next launch adopts it");
         let _ = std::fs::remove_dir_all(p.parent().unwrap());
         reset();
+    }
+
+    /// A24 — the Language control: applies at once (`tr()` follows), stays
+    /// unsaved until Save, Save writes it in the whitelist, the next launch
+    /// adopts it.
+    #[test]
+    fn the_language_applies_at_once_saves_and_is_adopted_at_launch() {
+        use crate::i18n::{self, Lang};
+        let _g = guard();
+        reset();
+        i18n::set_language(Lang::En);
+        let p = tmp("lang");
+        let gen = i18n::generation();
+        assert!(set_language(Lang::Zh));
+        assert_eq!(snapshot().current.language, "zh");
+        assert!(snapshot().dirty(), "unsaved until Save");
+        assert_eq!(i18n::language(), Lang::Zh, "applied at once");
+        assert!(i18n::generation() > gen, "the host re-renders on the bump");
+        assert_eq!(i18n::tr("Language"), "语言");
+        assert!(save_to(&p));
+        let doc: Value = serde_json::from_str(&std::fs::read_to_string(&p).unwrap()).unwrap();
+        assert_eq!(doc["language"], "zh");
+        assert_eq!(doc.as_object().unwrap().len(), 4, "only the whitelist");
+        // The next launch: the stored language, before anything lowers.
+        assert_eq!(launch_language(&load_from(&p)), Lang::Zh);
+        assert_eq!(language_of(ACTION_LANG_EN), Some(Lang::En));
+        assert_eq!(language_of(ACTION_LANG_ZH), Some(Lang::Zh));
+        assert!(routes(ACTION_LANG_ZH) && routes(ACTION_LANG_EN));
+        assert!(set_language(Lang::En));
+        assert_eq!(i18n::tr("Language"), "Language");
+        let _ = std::fs::remove_dir_all(p.parent().unwrap());
+        reset();
+    }
+
+    /// A24 — a fresh profile's language is the device's (model.ts:102-107):
+    /// a `zh*` locale is Chinese, anything else English.
+    #[test]
+    fn the_default_language_follows_the_device_locale() {
+        assert_eq!(defaults_for("zh-Hans-CN").language, "zh");
+        assert_eq!(defaults_for("zh_TW.UTF-8").language, "zh");
+        assert_eq!(defaults_for("en-US").language, "en");
+        assert_eq!(defaults_for("").language, "en");
+        assert_eq!(defaults(), defaults_for(&crate::i18n::device_locale()));
+        assert_eq!(launch_language(&defaults_for("zh-CN")), crate::i18n::Lang::Zh);
+        // An absent / rejected store falls back to the device default.
+        let missing = tmp("absent");
+        assert_eq!(load_from(&missing).language, defaults().language);
     }
 
     #[test]
