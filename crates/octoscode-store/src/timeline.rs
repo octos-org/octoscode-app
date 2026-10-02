@@ -547,6 +547,26 @@ impl Timeline {
                 continue;
             }
             let turn = row.turn_id.clone();
+            // A12 — a row this client already holds LIVE for the same turn
+            // IS that row: a reconnect's re-hydrate must not append it again
+            // (measured on the live proof: the streamed turn showed twice).
+            // The web rebuilds its transcript from the hydrate
+            // (`session-record-manager.ts:1048-1090`); natively the live rows
+            // stay and the durable copy CLAIMS one of them, one-to-one in
+            // order (a turn's several steered inputs never collapse). A
+            // claimed partial answer (the drop cut its stream) takes the
+            // durable body — "durable bodies win" — and is finalized. Tool
+            // output already shown by the turn's live tool cards is not
+            // repeated as a notice. Nothing is ever deleted.
+            if let Some(t) = turn.as_deref() {
+                if claim_live(entries, t, row, &hid, &rhid) {
+                    seen.push(hid);
+                    if row.reasoning.is_some() {
+                        seen.push(rhid);
+                    }
+                    continue;
+                }
+            }
             let mut push = |entries: &mut Vec<TimelineEntry>,
                             turn: Option<String>,
                             kind: EntryKind,
@@ -587,6 +607,56 @@ impl Timeline {
 
     pub fn of_kind(&self, session: &str, kind: EntryKind) -> Vec<TimelineEntry> {
         self.entries(session).into_iter().filter(|e| e.kind == kind).collect()
+    }
+}
+
+/// A12 — [`Timeline::fold_hydrated_messages`]'s live-row recognition: does a
+/// row this client streamed LIVE for `turn` already stand for the hydrated
+/// `row`? A user / assistant row claims the first unclaimed live row of its
+/// kind (marking it with the hydrate id, so a later hydrate skips it by id);
+/// a claimed answer whose stream was cut takes the durable body; a `tool`
+/// row is represented when the turn's live tool cards exist. Never deletes.
+fn claim_live(entries: &mut [TimelineEntry], turn: &str, row: &HydratedRow, hid: &str, rhid: &str) -> bool {
+    fn unclaimed(e: &TimelineEntry, kind: EntryKind, turn: &str) -> bool {
+        e.kind == kind && e.turn_id.as_deref() == Some(turn) && e.data.get("hydrate_id").is_none()
+    }
+    fn mark(e: &mut TimelineEntry, id: &str) {
+        if !e.data.is_object() {
+            e.data = serde_json::json!({});
+        }
+        if let Some(o) = e.data.as_object_mut() {
+            o.insert("hydrate_id".to_owned(), serde_json::json!(id));
+        }
+    }
+    match row.role {
+        "user" => match entries.iter_mut().find(|e| unclaimed(e, EntryKind::USER_MESSAGE, turn)) {
+            Some(e) => {
+                mark(e, hid);
+                true
+            }
+            None => false,
+        },
+        "assistant" => {
+            let Some(e) = entries.iter_mut().find(|e| unclaimed(e, EntryKind::ASSISTANT_TEXT, turn)) else {
+                return false;
+            };
+            if !e.finalized {
+                // The drop cut the stream: the durable body wins.
+                e.text = row.content.to_owned();
+                e.finalized = true;
+            }
+            mark(e, hid);
+            if row.reasoning.is_some() {
+                if let Some(r) = entries.iter_mut().find(|e| unclaimed(e, EntryKind::REASONING, turn)) {
+                    mark(r, rhid);
+                }
+            }
+            true
+        }
+        "tool" => entries
+            .iter()
+            .any(|e| e.kind == EntryKind::TOOL_CALL && e.turn_id.as_deref() == Some(turn)),
+        _ => false,
     }
 }
 
@@ -694,5 +764,66 @@ mod p4b2_tests {
         }];
         assert_eq!(tl.fold_hydrated_messages("s1", &rows), 1);
         assert_eq!(tl.entries("s1")[0].kind, EntryKind::SYSTEM_NOTICE);
+    }
+
+    /// A12 — the live proof's duplicated turn: a reconnect re-hydrates the
+    /// Session and the turn this client streamed live came back as rows of
+    /// the same turn. They are the live rows (claimed, never appended); a
+    /// turn the client never saw still lands; nothing is deleted.
+    #[test]
+    fn a_reconnect_rehydrate_recognises_the_live_turn_and_never_duplicates_it() {
+        let tl = Timeline::default();
+        tl.upsert_user_message("s", "t1", "what is 2 + 3?", serde_json::json!({"optimistic": true}));
+        tl.append_delta("s", Some("t1"), EntryKind::ASSISTANT_TEXT, "2 + 3 = 5.");
+        tl.finalize_assistant("s", "t1", "2 + 3 = 5.");
+        tl.append("s", Some("t1".into()), EntryKind::TOOL_CALL, "glob".into());
+        let before = tl.len("s");
+        let rows = vec![
+            HydratedRow { seq: 0, role: "user", content: "what is 2 + 3?", turn_id: Some("t1".into()), reasoning: None },
+            HydratedRow { seq: 1, role: "tool", content: "Found 1 file(s)", turn_id: Some("t1".into()), reasoning: None },
+            HydratedRow { seq: 2, role: "assistant", content: "2 + 3 = 5.", turn_id: Some("t1".into()), reasoning: None },
+            // A turn that ran while this client was away.
+            HydratedRow { seq: 3, role: "user", content: "and 4 + 4?", turn_id: Some("t2".into()), reasoning: None },
+            HydratedRow { seq: 4, role: "assistant", content: "8.", turn_id: Some("t2".into()), reasoning: None },
+        ];
+        assert_eq!(tl.fold_hydrated_messages("s", &rows), 2, "only the unseen turn's two rows");
+        assert_eq!(tl.len("s"), before + 2);
+        let users: Vec<String> = tl.of_kind("s", EntryKind::USER_MESSAGE).into_iter().map(|e| e.text).collect();
+        assert_eq!(users, vec!["what is 2 + 3?", "and 4 + 4?"], "the live prompt once, the unseen one appended");
+        assert!(tl.of_kind("s", EntryKind::SYSTEM_NOTICE).is_empty(), "the live tool card stands for its output");
+        // Idempotent across a second reconnect (the claims carry the ids).
+        assert_eq!(tl.fold_hydrated_messages("s", &rows), 0);
+    }
+
+    /// A12 — the drop cut a live answer mid-stream; the turn finished while
+    /// the client was away: the durable body completes the SAME row.
+    #[test]
+    fn a_cut_live_answer_takes_the_durable_body() {
+        let tl = Timeline::default();
+        tl.upsert_user_message("s", "t1", "explain", serde_json::json!({}));
+        tl.append_delta("s", Some("t1"), EntryKind::ASSISTANT_TEXT, "The queue re-");
+        let rows = vec![
+            HydratedRow { seq: 0, role: "user", content: "explain", turn_id: Some("t1".into()), reasoning: None },
+            HydratedRow { seq: 1, role: "assistant", content: "The queue re-drains now.", turn_id: Some("t1".into()), reasoning: None },
+        ];
+        assert_eq!(tl.fold_hydrated_messages("s", &rows), 0);
+        let answers = tl.of_kind("s", EntryKind::ASSISTANT_TEXT);
+        assert_eq!(answers.len(), 1);
+        assert_eq!(answers[0].text, "The queue re-drains now.");
+        assert!(answers[0].finalized, "a durable receipt absorbs no late delta");
+    }
+
+    /// A12 — several steered inputs of one turn claim one live row each, in
+    /// order; an extra durable input is appended, never collapsed.
+    #[test]
+    fn steered_inputs_claim_one_to_one() {
+        let tl = Timeline::default();
+        tl.append("s", Some("t1".into()), EntryKind::USER_MESSAGE, "first".into());
+        let rows = vec![
+            HydratedRow { seq: 0, role: "user", content: "first", turn_id: Some("t1".into()), reasoning: None },
+            HydratedRow { seq: 1, role: "user", content: "steer", turn_id: Some("t1".into()), reasoning: None },
+        ];
+        assert_eq!(tl.fold_hydrated_messages("s", &rows), 1, "the second input is new");
+        assert_eq!(tl.of_kind("s", EntryKind::USER_MESSAGE).len(), 2);
     }
 }

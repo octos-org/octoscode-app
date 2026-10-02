@@ -1,0 +1,43 @@
+{"at_ms": 0, "dir": "out", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 17, "dir": "in", "method": "state:Idle"}
+{"at_ms": 17, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 17, "dir": "in", "method": "state:Handshaking"}
+{"at_ms": 17, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 18, "dir": "in", "method": "state:Live"}
+{"at_ms": 18, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 18, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 18, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 1822, "dir": "out", "method": "turn/start", "session_id": "dsflash:main", "turn_id": "01a0fbc8-2a70-74b9-8f32-ea6c92fc3c9d"}
+{"at_ms": 1823, "dir": "in", "method": "turn/started", "session_id": "dsflash:main", "turn_id": "01a0fbc8-2a70-74b9-8f32-ea6c92fc3c9d"}
+{"at_ms": 3316, "dir": "in", "method": "projection/envelope turn_terminal", "turn_id": "01a0fbc8-2a70-74b9-8f32-ea6c92fc3c9d"}
+{"at_ms": 6513, "dir": "in", "method": "state:Reconnecting { attempt: 1 }"}
+{"at_ms": 6514, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 6514, "dir": "in", "method": "state:Reconnecting { attempt: 2 }"}
+{"at_ms": 6516, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 6516, "dir": "in", "method": "state:Reconnecting { attempt: 3 }"}
+{"at_ms": 6517, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 6517, "dir": "in", "method": "state:Reconnecting { attempt: 4 }"}
+{"at_ms": 6519, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 6519, "dir": "in", "method": "state:Reconnecting { attempt: 5 }"}
+{"at_ms": 8484, "dir": "in", "method": "state:Idle"}
+{"at_ms": 8484, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 8484, "dir": "in", "method": "state:Reconnecting { attempt: 1 }"}
+{"at_ms": 8486, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 8486, "dir": "in", "method": "state:Reconnecting { attempt: 2 }"}
+{"at_ms": 8487, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 8487, "dir": "in", "method": "state:Reconnecting { attempt: 3 }"}
+{"at_ms": 8488, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 8488, "dir": "in", "method": "state:Reconnecting { attempt: 4 }"}
+{"at_ms": 8490, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 8490, "dir": "in", "method": "state:Reconnecting { attempt: 5 }"}
+{"at_ms": 16493, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 16493, "dir": "in", "method": "state:Reconnecting { attempt: 6 }"}
+{"at_ms": 0, "dir": "out", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 0, "dir": "in", "method": "state:Idle"}
+{"at_ms": 0, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 1, "dir": "in", "method": "state:Handshaking"}
+{"at_ms": 17, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 17, "dir": "in", "method": "state:Live"}
+{"at_ms": 17, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 17, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 17, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}

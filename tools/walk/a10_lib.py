@@ -318,10 +318,18 @@ class Walk:
             time.sleep(0.6)
 
     def open_phone_app(self) -> None:
-        """The shell's phone page: open OctosCode from the phone home once."""
-        if self.composer() is None:
-            self.note("CLICK OctosCode icon on the phone home at (153,363)")
-            self.click_xy(153, 363)
+        """The shell's phone page: `--test-action launch-octoscode` opens
+        OctosCode itself. The phone home's icon grid is not fixed, so a tap at
+        a remembered coordinate can open another app: the fallback taps the
+        icon found by its label."""
+        if self.wait(lambda: self.composer() is not None, 15):
+            return
+        icon = next((w for w in self.snap() if (w.get("t") or "").strip() == "OctosCode"
+                     and w.get("r") and w["r"][2] > 0 and w["r"][3] > 0), None)
+        if icon:
+            x, y, w, h = icon["r"]
+            self.note(f"CLICK the OctosCode icon label on the phone home at ({x + w / 2:.0f},{y + h / 2:.0f})")
+            self.click_xy(x + w / 2, y + h / 2)
             self.wait(lambda: self.composer() is not None, 20)
 
     def palette_run(self, query: str, row_text: str) -> bool:
@@ -481,7 +489,7 @@ def run_session(walk_fn, *, mode: str, outdir: str, port: int = 8420, replay_por
         "HEADLESS_STATE": str(state),
         "OCTOSCODE_DESIGN_DIR": str(ROOT / "design"),
         "MAKEPAD_WM_TEST_APP": "octoscode",
-        "HEADLESS_ARGS": "--module octoscode" + (" --test-action page:0" if mode == "phone" else ""),
+        "HEADLESS_ARGS": "--module octoscode" + (" --test-action page:0 --test-action launch-octoscode" if mode == "phone" else ""),
     })
     if mode == "phone":
         e["OCTOSENSE_WINDOW_SIZE"] = "360x780"

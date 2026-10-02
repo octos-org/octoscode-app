@@ -48,6 +48,9 @@ pub mod peers;
 // P4h1 rows 304-307: the recent-workspaces cache (the web's
 // `features/workspace/workspace-recents.ts`), with its own storage seam.
 pub mod recents;
+// A12: the connection recovery banner (a live connection that dropped keeps
+// the conversation and says "Reconnecting to Octos").
+pub mod reconnect;
 pub mod research;
 // #D2a: board 2's sidebar half (screens 1-5) — the one owner of the 13 control
 // events the phase4-new2 cards declare (grouped tree, statuses, search,
