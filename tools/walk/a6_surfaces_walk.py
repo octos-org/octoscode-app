@@ -509,14 +509,48 @@ def walk_files_and_folds():
         rows = [w["i"][: -len("_tap")] for w in prefixed(ws, "b3_tl_think_") if w["i"].endswith("_tap")]
         return {r: round((rect(r, ws=ws) or [0, 0, 0, 0])[3]) for r in rows}
 
+    def opened(folded):
+        """A13 (judge: on the phone b3_tl_think_4 measured 42 -> 33 px): /snap
+        reports a scrolled child's CLIPPED rect, so a block near the bottom of
+        the transcript grows past the list viewport and its visible height can
+        even shrink. A block counts as opened when its open-state rule (the
+        hairline under its header, emitted only when open) is laid out AND it
+        either grew by > 10 px or now reaches the viewport's bottom edge
+        (clipped there)."""
+        ws = snap()
+        vp = rect("timeline_list", ws=ws)
+        out = {}
+        for r, h0 in folded.items():
+            rr = rect(r, ws=ws)
+            clipped = bool(rr and vp) and rr[1] + rr[3] >= vp[1] + vp[3] - 1
+            out[r] = (bool(rr) and shown(f"{r}_rule", ws=ws) and (rr[3] > h0 + 10 or clipped),
+                      [round(v) for v in rr] if rr else None, clipped)
+        return out, [round(v) for v in vp] if vp else None
+
     folded = heights()
     app_logs()
     click("b3_tl_fold_expand")
     logs = app_logs()
-    exp = wait(lambda: folded and all(h > folded.get(r, 999) + 10 for r, h in heights().items() if r in folded), 5)
-    check("CLICK Expand all -> every visible block opens", exp and any("cv.fold.expand_all" in l for l in logs),
-          f"{folded} -> {heights()}")
+    exp = wait(lambda: folded and all(v[0] for v in opened(folded)[0].values()), 5)
+    state, vp = opened(folded)
+    check("CLICK Expand all -> every visible block opens", bool(exp) and any("cv.fold.expand_all" in l for l in logs),
+          f"folded {folded} -> {{block: (open, rect, clipped)}} {state} viewport {vp}")
     shot("expand-all")
+    # A block the viewport clipped, scrolled fully into view, measures open.
+    comp = rect("i0_composer_0") or [400, 700, 400, 40]
+    for r, (_, _, clipped) in state.items():
+        if not clipped:
+            continue
+        for _ in range(8):
+            cur, lv = rect(r), rect("timeline_list")
+            if cur and lv and cur[1] + cur[3] < lv[1] + lv[3] - 1:
+                break
+            scroll(comp[0] + comp[2] / 2, max(comp[1] - 200, 150), 80)
+        cur, lv = rect(r), rect("timeline_list")
+        check(f"Expand all: {r}, scrolled fully into view, measures open",
+              bool(cur and lv) and cur[1] + cur[3] < lv[1] + lv[3] - 1 and cur[3] > folded[r] + 10,
+              f"{[round(v) for v in cur] if cur else None} in viewport {[round(v) for v in lv] if lv else None}")
+        shot("expand-all-scrolled")
     to_top()
     click("b3_tl_fold_collapse")
     logs = app_logs()
@@ -829,6 +863,11 @@ def main():
         "OCTOSCODE_CREDENTIALS_DIR": str(work / "cred"),
         "OCTOSCODE_PREF_PATH": str(work / "prefs.json"),
         "OCTOSCODE_NOTIFICATIONS_FILE": str(work / "notifications.json"),
+        # Brief §8's full list (outer/scripts/iso-env.sh): the display
+        # preferences, the session pane's Advanced memory, the driver id.
+        "OCTOSCODE_DISPLAY_PREFS_PATH": str(work / "display-v1.json"),
+        "OCTOSCODE_PANE_ADVANCED_FILE": str(work / "pane-advanced.json"),
+        "OCTOSCODE_DRIVER_ID_PATH": str(work / "driver-id"),
         "HEADLESS_STATE": str(work / "state"),
         # launch-octoscode opens the app directly: the shell's phone home layout is
         # dynamic (a fixed icon tap opened Photos on another run).

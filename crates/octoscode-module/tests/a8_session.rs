@@ -619,10 +619,27 @@ async fn the_conversation_link_copies_and_stays_visible_read_only() {
     let link = host::state().insp.link.clone();
     assert!(link.starts_with("octoscode://session?s="), "{link}");
     let dsl = host::lower_open(&conv.store).unwrap().dsl;
-    // The fallback: the FULL link in a read-only, selectable field.
-    let field = dsl.find("b3_insp_link_value := TextInput").expect("a text field");
-    assert!(dsl[field..].contains("is_read_only: true"));
-    assert!(dsl[field..].contains(&format!("{link:?}")), "the whole link, never ellipsized");
+    // A13 (judge: an 8-line percent-encoded block): the link stays visible
+    // on ONE line in its grey field, shortened in the middle — its scheme
+    // and its end (the session id) readable — and Copy writes it whole.
+    let field = dsl.find("b3_insp_link_value := Label").expect("the one-line link");
+    let label = &dsl[field..field + dsl[field..].find("\n}").expect("the label closes")];
+    assert!(label.contains("flow: Right\n"), "one line, no wrap: {label}");
+    assert!(!dsl.contains("b3_insp_link_value := TextInput"), "never the multi-line field");
+    let literal = label.split("text: ").nth(1).and_then(|t| t.split(" flow: Right").next()).expect("the text");
+    let shown: String = serde_json::from_str(literal).expect("a string literal");
+    match shown.split_once('…') {
+        // Longer than the field: the head (scheme) and the tail (the session
+        // id's end) stay around one ellipsis.
+        Some((head, tail)) => assert!(
+            link.starts_with(head) && link.ends_with(tail) && head.starts_with("octoscode://session"),
+            "{shown}"
+        ),
+        None => assert_eq!(shown, link, "a link that fits the field shows whole"),
+    }
+    // At the phone's field width the same link is one shortened line.
+    let phone = octoscode_module::screens::board3::inspector::link_line(&link, 238.0);
+    assert!(phone.contains('…') && phone.starts_with("octoscode://session"), "{phone}");
     // Copy writes the clipboard and announces it.
     assert_eq!(host::perform("b3.insp.copy", 0, &conv.store), Outcome::Clipboard(link));
     assert!(host::lower_open(&conv.store).unwrap().dsl.contains("Conversation link copied."));

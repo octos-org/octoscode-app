@@ -35,8 +35,16 @@ LOG_SEQ = [0]
 
 
 def get(path, timeout=20):
-    with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
-        return r.read().decode()
+    # The instrument answers 404 when the UI thread misses its 5 s window (a
+    # loaded machine); one retry after a pause tells a stall from a dead app.
+    for attempt in (0, 1):
+        try:
+            with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
+                return r.read().decode()
+        except urllib.error.HTTPError as e:
+            if attempt or e.code != 404:
+                raise
+            time.sleep(2.0)
 
 
 def snap():

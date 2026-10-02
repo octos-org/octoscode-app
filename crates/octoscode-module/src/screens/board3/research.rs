@@ -43,6 +43,8 @@ pub const MUTATION_FAILED: &str = "Could not confirm the server change. It may h
                                    new attempt and re-enter any credential.";
 /// `:226-228`.
 pub const EMPTY: &str = "No research lanes configured in this Profile.";
+/// A13 — the plain lead over a failed lane read.
+pub const LOAD_FAILED: &str = "Couldn't load the research lanes.";
 pub const HELP: &str =
     "Saving an existing key replaces that lane. Empty optional fields use the server/provider defaults.";
 pub const CREDENTIAL_LABEL: &str = "New credential (optional; otherwise reuse server configuration)";
@@ -663,7 +665,14 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
             status(d, "b3_research_busy", "Waiting for the server…", tok::MUTED);
         }
         if let Some(e) = &st.error {
-            status(d, "b3_research_error", e, tok::RED);
+            // A13: a failed read leads with what failed; the cause the web
+            // prints stays under it, muted. The change refusal is already a
+            // sentence for people.
+            if e == MUTATION_FAILED {
+                status(d, "b3_research_error", e, tok::RED);
+            } else {
+                ui::failure(d, "b3_research_error", LOAD_FAILED, e);
+            }
         }
         if let Some(n) = &st.notice {
             status(d, "b3_research_notice", n, tok::TEXT);

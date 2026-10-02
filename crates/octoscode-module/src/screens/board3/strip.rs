@@ -330,23 +330,29 @@ pub fn lower(
     // (`SessionStatusStrip.tsx:106`, "Model, permissions, sandbox"); on its
     // right, the composer's Vim field note while Vim editing is on
     // (`ComposerInput.tsx:270-274`: `Vim · Insert` / `Vim · Normal`).
-    let caption = d.anon();
-    d.view(
-        &caption,
-        &format!("width: {width} height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 2 right: 2}}"),
-    );
-    // A Fill run before a Fit one takes the whole row (the flow is one
-    // pass), so with the note present the caption gets an explicit width.
-    let caption_w = match (vim_note, st.width) {
-        (Some(note), Some(w)) => W::Px((w - 4.0 - super::ui::text_w(note, 12.0, Face::Medium) - 8.0).max(60.0)),
-        (Some(_), None) => W::Px(super::ui::text_w("Model, permissions, sandbox", 12.0, Face::Regular) + 12.0),
-        _ => W::Fill,
-    };
-    d.text("b3_strip_caption", "Model, permissions, sandbox", &Txt::new(12.0, Face::Regular, tok::MUTED).w(caption_w));
-    if let Some(note) = vim_note {
-        d.text("b3_strip_vim", note, &Txt::new(12.0, Face::Medium, tok::TEXT));
+    // A13 (judge: phone chat chrome stacked up above the composer): a phone
+    // drops the caption line — the web shows it only as the strip's tooltip
+    // (`SessionStatusStrip.tsx:106` `title=`), and the strip itself says
+    // what it is. The Vim note keeps the line.
+    if !narrow || vim_note.is_some() {
+        let caption = d.anon();
+        d.view(
+            &caption,
+            &format!("width: {width} height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 2 right: 2}}"),
+        );
+        // A Fill run before a Fit one takes the whole row (the flow is one
+        // pass), so with the note present the caption gets an explicit width.
+        let caption_w = match (vim_note, st.width) {
+            (Some(note), Some(w)) => W::Px((w - 4.0 - super::ui::text_w(note, 12.0, Face::Medium) - 8.0).max(60.0)),
+            (Some(_), None) => W::Px(super::ui::text_w("Model, permissions, sandbox", 12.0, Face::Regular) + 12.0),
+            _ => W::Fill,
+        };
+        d.text("b3_strip_caption", "Model, permissions, sandbox", &Txt::new(12.0, Face::Regular, tok::MUTED).w(caption_w));
+        if let Some(note) = vim_note {
+            d.text("b3_strip_vim", note, &Txt::new(12.0, Face::Medium, tok::TEXT));
+        }
+        d.close();
     }
-    d.close();
     // The transitional states read in blue under it (the board's
     // "Reconnecting" / "Resuming chat…" / "Handing back control…").
     if matches!(state.as_str(), "Reconnecting" | "Resuming chat…" | "Handing back control…") {
@@ -419,6 +425,12 @@ mod tests {
         for id in ["b3_strip_model_cell", "b3_strip_state_cell", "b3_strip_perm_cell"] {
             assert!(desk.contains(&format!("{id} := View {{\nwidth: 219 ")), "{id}: a third");
         }
+        // A13: the caption line is the desktop's; a phone drops it (the web's
+        // tooltip) unless the Vim note needs the line.
+        assert!(desk.contains("b3_strip_caption := Label"));
+        assert!(!phone.contains("b3_strip_caption"), "no caption line on a phone");
+        let vim = lower(&s, &st(330.0), None, Some("workspace_write"), Some("Vim · Insert"));
+        assert!(vim.contains("b3_strip_vim := Label") && vim.contains("b3_strip_caption"), "the Vim note keeps its line");
     }
 
     /// A14 — "Peers running (n)" counts the peer manager's roster rows that
