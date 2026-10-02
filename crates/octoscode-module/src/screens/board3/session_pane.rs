@@ -50,6 +50,11 @@ pub const LLM_SELECT: &str = "profile/llm/select";
 pub struct StatusFacts {
     /// `model.title ?? model.model` (`App.tsx:2000`).
     pub model: Option<String>,
+    /// The runtime model's identity, `model.model` / `model.provider` — what
+    /// the restart truth compares with the Profile default
+    /// (`profileDefaultNeedsRestart`, `product-projection.ts:3-19`).
+    pub runtime_model: Option<String>,
+    pub runtime_provider: Option<String>,
     /// `approval_policy` — top level, else the runtime policy stamp's
     /// (`permissions-section.tsx:2-8`: "the session-addressed
     /// `session/status/read` runtime stamp").
@@ -70,8 +75,11 @@ pub fn parse_status(v: &Value, session: &str) -> Option<StatusFacts> {
     let s = |o: &Value, k: &str| o.get(k).and_then(|x| x.as_str()).filter(|x| !x.is_empty()).map(str::to_owned);
     let stamp = v.get("runtime_policy_stamp").cloned().unwrap_or(Value::Null);
     let model = v.get("model").and_then(|m| s(m, "title").or_else(|| s(m, "model")));
+    let runtime = |k: &str| v.get("model").and_then(|m| s(m, k));
     Some(StatusFacts {
         model,
+        runtime_model: runtime("model"),
+        runtime_provider: runtime("provider"),
         approval_policy: s(v, "approval_policy").or_else(|| s(&stamp, "approval_policy")),
         sandbox: s(v, "sandbox").or_else(|| s(v, "sandbox_mode")).or_else(|| s(&stamp, "sandbox_mode")),
         network: s(v, "network").or_else(|| s(&stamp, "network")),
@@ -91,6 +99,9 @@ pub struct ModelRow {
     pub title: String,
     pub model_id: String,
     pub family_id: String,
+    /// The provider the restart truth compares (`provider`, else the
+    /// family: the live server's configuration names only the family).
+    pub provider: String,
     pub route_id: Option<String>,
     pub route_label: Option<String>,
     pub selected: bool,
@@ -102,13 +113,20 @@ fn model_row(v: &Value, selected_default: bool) -> Option<ModelRow> {
     let model_id = str_of("model_id").or_else(|| str_of("model"))?;
     let family_id = str_of("family_id").or_else(|| str_of("family")).or_else(|| str_of("provider"))?;
     let route = v.get("route");
-    let route_id = str_of("route_id").or_else(|| route.and_then(|r| r.get("route_id")).and_then(|x| x.as_str()).map(str::to_owned));
+    // The session list (`{model, provider, route}`) names the route by its
+    // id as a plain string (`ProfileLlmModel.route`, what the web's select
+    // sends as `route_id`); the configuration carries a `{route_id, label}`
+    // object.
+    let route_id = str_of("route_id")
+        .or_else(|| route.and_then(|r| r.get("route_id")).and_then(|x| x.as_str()).map(str::to_owned))
+        .or_else(|| route.and_then(|r| r.as_str()).filter(|x| !x.is_empty()).map(str::to_owned));
     let route_label = route
         .and_then(|r| r.get("label").and_then(|x| x.as_str()).or_else(|| r.as_str()))
         .map(str::to_owned);
     Some(ModelRow {
         title: str_of("title").unwrap_or_else(|| model_id.clone()),
         model_id,
+        provider: str_of("provider").unwrap_or_else(|| family_id.clone()),
         family_id,
         route_id,
         route_label,
@@ -278,6 +296,10 @@ pub struct PaneState {
     pub external_change: bool,
     pub model_saving: bool,
     pub model_notice: Option<String>,
+    /// The web's `restartHint` per Session: whether the last selection —
+    /// this pane's picker or the composer's model menu — answered
+    /// `restart_required` (`seats::answer_needs_restart`).
+    pub restart_hints: std::collections::HashMap<String, bool>,
     pub perm_save: Option<SaveState>,
     pub perm_retry: Option<PermIntent>,
     /// The approval policy THIS client last set (the readback when the
@@ -662,6 +684,11 @@ pub async fn select_model(conv: &crate::flow::Conversation, index: usize) -> Res
         Err(_) => "Couldn't save: the server refused the change".into(),
     };
     st.pane.model_notice = Some(notice.clone());
+    // `restartHint` (`use-model-selection.ts:236-242,297`): a saved selection
+    // answering `restart_required` lights it; any other answer — a refusal
+    // included — puts it out.
+    let lit = super::seats::answer_needs_restart(result.as_ref().ok());
+    st.pane.restart_hints.insert(session.clone(), lit);
     if let Ok(v) = &result {
         let saved = v.get("applied").and_then(|a| a.as_bool()) == Some(true)
             || matches!(
@@ -852,6 +879,20 @@ fn status_line(d: &mut Dsl, id: &str, text: &str, color: &'static str) {
     d.text(id, text, &Txt::new(12.0, Face::Regular, color).w(W::Fill).wrap());
 }
 
+/// The restart notice (`.restartNotice`: the warning tint, 12 px warning
+/// text, a rounded block of its own — `ProductSettings.module.css:195-209`).
+fn restart_box(d: &mut Dsl, id: &str, text: &str) {
+    d.surface(
+        id,
+        "width: Fill height: Fit flow: Down padding: Inset{left: 12 right: 12 top: 9 bottom: 9} margin: Inset{top: 2 bottom: 2}",
+        tok::AMBER_BG,
+        10.0,
+        Some(tok::AMBER_LINE),
+    );
+    d.text(&format!("{id}_text"), text, &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
+    d.close();
+}
+
 pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetState, frame: &Frame, store: &Store) {
     let width = frame.dialog_w(560.0);
     let pad = ui::dialog_pad(frame, width);
@@ -903,13 +944,19 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
     ui::card_open(d, "b3_sc_model", 6.0);
     ui::section_title(d, "b3_sc_model_title", "Model");
     help(d, "b3_sc_model_help", "Changing the model changes the shared profile, not just this session.");
-    let saved = st
+    // The Profile default: (name, model id, provider).
+    let profile_default = st
         .models
         .iter()
         .find(|m| m.selected)
-        .map(|m| m.title.clone())
-        .or_else(|| store.domains.profile.llm_models().into_iter().find(|m| m.selected).map(|m| m.title))
-        .unwrap_or_else(|| "(no model selected)".into());
+        .map(|m| (m.title.clone(), m.model_id.clone(), m.provider.clone()))
+        .or_else(|| {
+            store.domains.profile.llm_models().into_iter().find(|m| m.selected).map(|m| {
+                let name = if m.title.is_empty() { m.model.clone() } else { m.title.clone() };
+                (name, m.model, m.provider)
+            })
+        });
+    let saved = profile_default.as_ref().map(|(n, _, _)| n.clone()).unwrap_or_else(|| "(no model selected)".into());
     kv(d, "b3_sc_saved", "Saved for this profile:", &saved, inner_w);
     let runtime = st.status.as_ref().and_then(|s| s.model.clone());
     if let Some(rt) = &runtime {
@@ -917,6 +964,21 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
     }
     if let (Some(rt), true) = (&runtime, store.domains.turn.in_flight_count() > 0) {
         kv(d, "b3_sc_turn_model", "This response is using:", rt, inner_w);
+    }
+    // The restart truth (`profileDefaultNeedsRestart`, `product-projection.ts:
+    // 3-19`) and the Profile model section's notice (`ModelsSettingsContent.
+    // tsx:99-107`): the Session runtime is not the Profile default, or the
+    // last selection answered restart_required.
+    let runtime_id = st.status.as_ref().and_then(|s| Some((s.runtime_model.clone()?, s.runtime_provider.clone()?)));
+    let hint = st.restart_hints.get(&scope).copied().unwrap_or(false);
+    let pending = super::seats::needs_restart(
+        runtime_id.as_ref().map(|(m, p)| (m.as_str(), p.as_str())),
+        profile_default.as_ref().map(|(_, m, p)| (m.as_str(), p.as_str())),
+        hint,
+    );
+    if pending {
+        let notice = super::seats::restart_notice(profile_default.as_ref().map(|(n, _, _)| n.as_str()), runtime.as_deref());
+        restart_box(d, "b3_sc_restart", &notice);
     }
     if !st.models.is_empty() {
         d.gap(W::Fill, 2.0);
@@ -1281,7 +1343,10 @@ mod tests {
             advanced_open: true,
             ..Default::default()
         };
-        for st in [PaneState { loading: true, ..Default::default() }, loaded] {
+        // The restart notice's block evaluates too.
+        let mut restart = loaded.clone();
+        restart.restart_hints.insert("s".into(), true);
+        for st in [PaneState { loading: true, ..Default::default() }, loaded, restart] {
             for frame in [Frame::DESKTOP, Frame { avail_w: 360.0, avail_h: 700.0 }] {
                 let mut d = Dsl::new();
                 build(&mut d, &st, &mut Default::default(), &frame, &store);
@@ -1315,7 +1380,7 @@ mod tests {
         store.set_active(Some("s".into()));
         store.domains.config.set_supported_methods(vec![PERM_SET.into(), LLM_LIST.into()]);
         let st = PaneState {
-            models: vec![ModelRow { title: "glm-5".into(), model_id: "glm-5".into(), family_id: "zhipu".into(), route_id: None, route_label: None, selected: false, available: true }],
+            models: vec![ModelRow { title: "glm-5".into(), model_id: "glm-5".into(), family_id: "zhipu".into(), provider: "zhipu".into(), route_id: None, route_label: None, selected: false, available: true }],
             advanced_open: true,
             ..Default::default()
         };
@@ -1330,6 +1395,48 @@ mod tests {
         for text in ["Session settings", "Saved for this profile:", "Applies from your next message.", "Not supported by this server", "Show thinking", "Who controls this session"] {
             assert!(dsl.contains(text), "{text}");
         }
+    }
+
+    /// The restart truth in the Model card: the session list's rows (route
+    /// as a plain id string) and the status's runtime identity — no notice
+    /// while the runtime IS the Profile default; the notice when it is not,
+    /// or when the last selection answered restart_required.
+    #[test]
+    fn the_restart_notice_follows_the_runtime_and_the_hint() {
+        let store = Store::new();
+        store.set_active(Some("s".into()));
+        store.domains.config.set_supported_methods(vec![PERM_SET.into(), LLM_LIST.into(), STATUS_METHOD.into()]);
+        let models = parse_models(&json!({"session_id": "s", "models": [
+            {"model": "deepseek-v4-flash", "provider": "deepseek", "title": "DeepSeek V4 Flash", "family": "deepseek", "route": "deepseek", "selected": true, "available": true},
+            {"model": "deepseek-v4-flash", "provider": "deepseek", "title": "DeepSeek V4 Flash", "family": "deepseek", "route": "r2-route", "selected": false, "available": true}
+        ]}));
+        assert_eq!(models[1].route_id.as_deref(), Some("r2-route"), "a plain route string is the route id");
+        assert_eq!(models[0].provider, "deepseek");
+        let status = parse_status(
+            &json!({"session_id": "s", "model": {"model": "deepseek-v4-flash", "provider": "deepseek", "selected": true}}),
+            "s",
+        )
+        .expect("status");
+        assert_eq!((status.runtime_model.as_deref(), status.runtime_provider.as_deref()), (Some("deepseek-v4-flash"), Some("deepseek")));
+        let lower = |st: &PaneState| {
+            let mut d = Dsl::new();
+            build(&mut d, st, &mut Default::default(), &Frame::DESKTOP, &store);
+            d.finish()
+        };
+        let mut st = PaneState { session: "s".into(), status: Some(status.clone()), models, ..Default::default() };
+        assert!(!lower(&st).contains("Restart Octos"), "the runtime IS the Profile default");
+        st.restart_hints.insert("s".into(), true);
+        let lit = lower(&st);
+        assert!(lit.contains(
+            "Profile default is DeepSeek V4 Flash. This Octos process is still serving deepseek-v4-flash. Restart Octos to apply the new default."
+        ));
+        assert_eq!(lit.matches('{').count(), lit.matches('}').count());
+        st.restart_hints.insert("s".into(), false);
+        st.status = Some(StatusFacts { model: Some("glm-5".into()), runtime_model: Some("glm-5".into()), runtime_provider: Some("zhipu".into()), ..Default::default() });
+        assert!(
+            lower(&st).contains("Profile default is DeepSeek V4 Flash. This Octos process is still serving glm-5."),
+            "another runtime model needs a restart without any hint"
+        );
     }
 
     /// `model-section.tsx:76-81`: "This response is using:" only while a turn

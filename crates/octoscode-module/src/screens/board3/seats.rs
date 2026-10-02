@@ -159,6 +159,51 @@ pub fn model_groups(models: &[ProfileLlmModel]) -> Vec<(String, String, Vec<(usi
     groups
 }
 
+/// `profileDefaultNeedsRestart` (`product-projection.ts:3-19`) over the
+/// Profile's configured list: the Profile default is the `selected` row.
+pub fn profile_default_needs_restart(runtime: Option<(&str, &str)>, models: &[ProfileLlmModel], server_hint: bool) -> bool {
+    needs_restart(runtime, models.iter().find(|m| m.selected).map(|m| (m.model.as_str(), m.provider.as_str())), server_hint)
+}
+
+/// The restart truth from two identities, each `(model, provider)`: the
+/// Session runtime (`session/status/read` `model`) and the Profile default.
+/// Without both the server's hint decides; with both, a different provider
+/// or model needs a restart — and equal strings never disprove the hint (the
+/// status carries no route or policy revision, so a route-only change reads
+/// equal).
+pub fn needs_restart(runtime: Option<(&str, &str)>, profile_default: Option<(&str, &str)>, server_hint: bool) -> bool {
+    match (runtime, profile_default) {
+        (Some((rm, rp)), Some((dm, dp))) => server_hint || rp != dp || rm != dm,
+        _ => server_hint,
+    }
+}
+
+/// The server's restart hint a selection answer leaves (`restartHint`,
+/// `use-model-selection.ts:236-242,297`): a saved selection answering
+/// `restart_required` lights it; any other answer — a refusal or a failed
+/// request (`None`) included — puts it out. Both selection paths (this menu
+/// and the Session settings pane's picker) record it per Session in
+/// `PaneState::restart_hints`, the one place the restart truth reads.
+pub fn answer_needs_restart(answer: Option<&Value>) -> bool {
+    answer.is_some_and(|v| {
+        v.get("restart_required").and_then(|b| b.as_bool()) == Some(true)
+            || v.get("runtime_disposition").and_then(|d| d.as_str()) == Some("restart_required")
+    })
+}
+
+fn note_restart_hint(session: &str, lit: bool) {
+    super::host::state().pane.restart_hints.insert(session.to_owned(), lit);
+}
+
+/// The restart notice (`ModelsSettingsContent.tsx:99-107`), verbatim.
+pub fn restart_notice(profile_default: Option<&str>, runtime: Option<&str>) -> String {
+    format!(
+        "Profile default is {}. This Octos process is still serving {}. Restart Octos to apply the new default.",
+        profile_default.filter(|s| !s.trim().is_empty()).unwrap_or("saved"),
+        runtime.filter(|s| !s.trim().is_empty()).unwrap_or("its current runtime model"),
+    )
+}
+
 /// The model seat's label (`ModelControl` trigger): the selected model's
 /// name (title, else id), else the select prompt.
 pub fn model_seat_label(store: &Store) -> String {
@@ -630,6 +675,7 @@ pub async fn select_model(conv: &crate::flow::Conversation, index: usize) -> Res
     };
     store.domains.models.apply(&session, Event::Saving(false));
     with(|st| st.models_busy = false);
+    note_restart_hint(&session, answer_needs_restart(outcome.as_ref().ok().map(|(raw, _)| raw)));
     match outcome {
         Ok((raw, selected)) => {
             let rows = store
@@ -1144,6 +1190,42 @@ mod tests {
         assert_eq!(perform(&mut st, "b3.model.choose", 2, &s), Outcome::Done, "unavailable");
         assert_eq!(perform(&mut st, "b3.model.choose", 1, &s), Outcome::Spawn(Job::ModelSelect(1)));
         assert_eq!(model_seat_label(&s), "GLM-5.2");
+    }
+
+    /// `product-projection.test.ts:53-82` ("derives restart truth from
+    /// runtime and Profile default identities"), case for case.
+    #[test]
+    fn restart_truth_is_the_webs() {
+        let glm = ProfileLlmModel {
+            model: "glm-5.2".into(),
+            provider: "zai".into(),
+            title: "GLM 5.2".into(),
+            family: None,
+            route: None,
+            selected: true,
+            available: true,
+        };
+        let models = vec![glm];
+        assert!(profile_default_needs_restart(Some(("deepseek-v4", "deepseek")), &models, false), "another runtime model");
+        assert!(profile_default_needs_restart(Some(("glm-5.2", "zai")), &models, true), "equal strings never disprove the hint");
+        assert!(profile_default_needs_restart(None, &models, true), "no runtime: the hint decides");
+        assert!(!profile_default_needs_restart(Some(("glm-5.2", "zai")), &models, false), "the runtime IS the default");
+        assert!(!profile_default_needs_restart(None, &models, false));
+        assert!(!profile_default_needs_restart(Some(("x", "y")), &[], false), "no Profile default: the hint decides");
+        assert_eq!(
+            restart_notice(Some("GLM 5.2"), Some("deepseek-v4")),
+            "Profile default is GLM 5.2. This Octos process is still serving deepseek-v4. Restart Octos to apply the new default."
+        );
+        assert_eq!(
+            restart_notice(None, None),
+            "Profile default is saved. This Octos process is still serving its current runtime model. Restart Octos to apply the new default."
+        );
+        // The hint a selection answer leaves.
+        assert!(answer_needs_restart(Some(&json!({"applied": true, "restart_required": true}))));
+        assert!(answer_needs_restart(Some(&json!({"applied": true, "runtime_disposition": "restart_required"}))));
+        assert!(!answer_needs_restart(Some(&json!({"applied": true, "restart_required": false, "runtime_disposition": "reloaded"}))));
+        assert!(!answer_needs_restart(Some(&json!({"applied": false}))), "a refusal puts it out");
+        assert!(!answer_needs_restart(None), "a failed request puts it out");
     }
 
     #[test]
