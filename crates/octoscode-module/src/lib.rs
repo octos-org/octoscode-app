@@ -3208,9 +3208,11 @@ impl Widget for OctoscodeView {
                         let item = list.item(cx, id, id!(TimelineItemTpl));
                         // A1: center the row in the web's column (the list
                         // spans the pane; its scrollbar stays at the edge).
+                        let prev = id.checked_sub(1).and_then(|p| rows.get(p)).map(|r| r.kind);
                         if let Some(mut v) = item.as_view().borrow_mut() {
                             v.layout.padding.left = row_side;
                             v.layout.padding.right = row_side;
+                            v.layout.padding.top = screen::lead_gap(prev, row.kind);
                         }
                         // A1: only the rows that DO something on a click
                         // carry the hit target (a transparent full-row button

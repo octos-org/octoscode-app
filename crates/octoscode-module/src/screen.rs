@@ -86,6 +86,26 @@ pub fn timeline_rows(store: &Arc<Store>, live: bool) -> Vec<Row> {
 /// a settled turn named in `folded` keeps its "Worked for" header but hides
 /// its tool rows.
 ///
+/// A1 — the space a row's list item adds above it. The web keeps 20 px
+/// between the person's message and the assistant's entry
+/// (`Timeline.module.css:1-3`); the bubble keeps [`crate::fluid::BUBBLE_BOTTOM`]
+/// under itself and each work row draws its own top padding, so the row
+/// right under a bubble adds the rest. Measured before: a live turn's first
+/// tool row sat 6 px under the bubble.
+pub fn lead_gap(prev: Option<ItemKind>, this: ItemKind) -> f64 {
+    use crate::fluid::{BUBBLE_BOTTOM, TIMELINE_GAP, WORKED_TOP, WORKING_TOP};
+    if prev != Some(ItemKind::UserBubble) {
+        return 0.0;
+    }
+    let own = match this {
+        ItemKind::ToolCell | ItemKind::AssistantProse => 0.0,
+        ItemKind::WorkingRow => WORKING_TOP,
+        ItemKind::WorkedFor => WORKED_TOP,
+        _ => return 0.0,
+    };
+    (TIMELINE_GAP - BUBBLE_BOTTOM - own).max(0.0)
+}
+
 /// A1 display order per turn — the work, then its result:
 ///
 /// ```text
@@ -277,6 +297,20 @@ mod tests {
     //! The row model + the lowering cache: pure, no window, no transport.
     use super::*;
     use octoscode_store::Session;
+
+    #[test]
+    fn work_under_a_bubble_starts_at_the_web_timeline_gap() {
+        use crate::fluid::{BUBBLE_BOTTOM, TIMELINE_GAP, WORKED_TOP, WORKING_TOP};
+        let after = Some(ItemKind::UserBubble);
+        assert_eq!(BUBBLE_BOTTOM + super::lead_gap(after, ItemKind::ToolCell), TIMELINE_GAP);
+        assert_eq!(BUBBLE_BOTTOM + super::lead_gap(after, ItemKind::AssistantProse), TIMELINE_GAP);
+        assert_eq!(BUBBLE_BOTTOM + WORKING_TOP + super::lead_gap(after, ItemKind::WorkingRow), TIMELINE_GAP);
+        assert_eq!(BUBBLE_BOTTOM + WORKED_TOP + super::lead_gap(after, ItemKind::WorkedFor), TIMELINE_GAP);
+        // Rows inside a turn keep their own rhythm.
+        assert_eq!(super::lead_gap(Some(ItemKind::WorkedFor), ItemKind::ToolCell), 0.0);
+        assert_eq!(super::lead_gap(Some(ItemKind::ToolCell), ItemKind::ToolCell), 0.0);
+        assert_eq!(super::lead_gap(None, ItemKind::UserBubble), 0.0);
+    }
 
     /// A store with one active session and `n` timeline entries.
     fn store_with(n: usize) -> Arc<Store> {

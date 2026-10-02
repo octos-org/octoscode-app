@@ -207,6 +207,15 @@ pub fn hit(id: &str, radius: f64) -> String {
 
 // ---- the rows ---------------------------------------------------------------
 
+/// The web's gap between timeline entries (`Timeline.module.css:1-3`).
+pub const TIMELINE_GAP: f64 = 20.0;
+/// The space the person's bubble keeps under itself.
+pub const BUBBLE_BOTTOM: f64 = 6.0;
+/// The "Worked for" row's own top padding.
+pub const WORKED_TOP: f64 = 6.0;
+/// The live "Working" row's own top padding.
+pub const WORKING_TOP: f64 = 4.0;
+
 /// The person's message: right-aligned, hugging its text up to
 /// `min(680px, 82%)` of the column, wrapping inside (`styles.css:700-707`).
 /// The board's black bubble with white text (light); dark keeps the shell's
@@ -219,7 +228,7 @@ pub fn user_bubble(tok: &str, text: &str, m: &Metrics, dark: bool) -> String {
     let text_max = (m.bubble_max_w - 2.0 * pad_x).max(40.0);
     format!(
         "user_align := View{{width:Fill height:Fit flow:Down align: Align{{x: 1.0}} \
-         padding: Inset{{top: {top} bottom: 6}}\n\
+         padding: Inset{{top: {top} bottom: {BUBBLE_BOTTOM}}}\n\
          i{tok}_userbubble := RoundedView{{width: Fit height: Fit max_width: {max} flow: Down \
          padding: Inset{{left: {pad_x} right: {pad_x} top: 10 bottom: 10}}\n\
          draw_bg +: {{color: {fill} border_radius: 9.0}}\n\
@@ -625,7 +634,7 @@ pub fn worked_for(tok: &str, label_text: &str, tools: usize, open: bool, m: &Met
         ));
     }
     format!(
-        "View{{width: Fill height: Fit flow: Down padding: Inset{{top: 6 bottom: 6}}\n\
+        "View{{width: Fill height: Fit flow: Down padding: Inset{{top: {WORKED_TOP} bottom: 6}}\n\
          i{tok}_workedfor := View{{width: Fill height: 24 flow: Right align: Align{{y: 0.5}} spacing: 6\n\
          {row}}}\n}}\n"
     )
@@ -636,7 +645,7 @@ pub fn worked_for(tok: &str, label_text: &str, tools: usize, open: bool, m: &Met
 pub fn working_row(tok: &str, text: &str, m: &Metrics) -> String {
     let s = scale(m.density);
     format!(
-        "View{{width: Fill height: Fit flow: Down padding: Inset{{top: 4 bottom: 8}}\n\
+        "View{{width: Fill height: Fit flow: Down padding: Inset{{top: {WORKING_TOP} bottom: 8}}\n\
          i{tok}_workingrow := View{{width: Fill height: 24 flow: Right align: Align{{y: 0.5}} spacing: 8\n\
          {spin}{text}}}\n}}\n",
         spin = svg(
