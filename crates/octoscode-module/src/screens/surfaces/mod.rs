@@ -622,8 +622,13 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
             };
             // A20 — `isCurrent()` (`:417-427`): a reply for a record that a
             // restore re-armed, a newer request superseded or a session switch
-            // retired settles nothing and reports nothing.
-            if !conv.store.domains.approval.is_current(InteractionKind::Approval, &session_id, &approval_id, generation) {
+            // retired settles nothing and reports nothing. (The server's own
+            // `approval/decided` for THIS request may land before the reply:
+            // that record is settled, and the reply still reports.)
+            use octoscode_store::domains::approval::ResponseTarget;
+            if conv.store.domains.approval.response_target(InteractionKind::Approval, &session_id, &approval_id, generation)
+                == ResponseTarget::Replaced
+            {
                 state().approval.busy = None;
                 return Ok(format!("{decision}/{scope}: the record changed meanwhile — nothing settled"));
             }
@@ -679,7 +684,10 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
                 Ok(_) => Ok(()),
                 Err(e) => Err(readable(&e)),
             };
-            if !conv.store.domains.approval.is_current(InteractionKind::Question, &session_id, &question_id, generation) {
+            use octoscode_store::domains::approval::ResponseTarget;
+            if conv.store.domains.approval.response_target(InteractionKind::Question, &session_id, &question_id, generation)
+                == ResponseTarget::Replaced
+            {
                 state().question.busy = false;
                 return Ok("the question changed meanwhile — nothing settled".into());
             }

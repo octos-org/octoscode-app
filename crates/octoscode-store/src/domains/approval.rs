@@ -117,6 +117,18 @@ pub enum InteractionKind {
     Question,
 }
 
+/// A20 — what a response's record became while its RPC was in flight
+/// ([`Approvals::response_target`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ResponseTarget {
+    /// Still the record the response was authorized for.
+    Current,
+    /// The server's own lifecycle frame settled this very request first.
+    Settled,
+    /// Re-armed, superseded, or its socket was replaced: not this response's.
+    Replaced,
+}
+
 /// A20 — `normalizedTopic` (`scope.ts:54-58`): trim, and empty means none
 /// (rc11's ledger topic rule).
 pub fn normalized_topic(topic: Option<&str>) -> Option<&str> {
@@ -676,6 +688,38 @@ impl Approvals {
         }
     }
 
+    /// A20 — after a response's RPC: whether its record is still the one it
+    /// was authorized for ([`ResponseTarget::Current`]), was already settled
+    /// by the server's own lifecycle frame for THIS request (the durable
+    /// `approval/decided` can beat the RPC's reply — [`ResponseTarget::Settled`],
+    /// nothing left to do), or was replaced: re-armed under another
+    /// generation, superseded, or the socket changed
+    /// ([`ResponseTarget::Replaced`] — the web's `!isCurrent()` return,
+    /// `:463`, `:472`: no settle, no error).
+    pub fn response_target(&self, kind: InteractionKind, owner: &str, request_id: &str, generation: u64) -> ResponseTarget {
+        if self.is_current(kind, owner, request_id, generation) {
+            return ResponseTarget::Current;
+        }
+        let i = self.inner.lock().unwrap();
+        if generation != i.generation {
+            return ResponseTarget::Replaced;
+        }
+        let settled = match kind {
+            InteractionKind::Approval => {
+                i.details.get(request_id).is_some_and(|d| d.owner() == owner && d.generation == generation)
+                    && i.pending.iter().any(|a| a.id == request_id && (a.decided || a.cancelled))
+            }
+            InteractionKind::Question => {
+                i.settled.contains_key(request_id) && !i.questions.iter().any(|q| q.question_id == request_id)
+            }
+        };
+        if settled {
+            ResponseTarget::Settled
+        } else {
+            ResponseTarget::Replaced
+        }
+    }
+
     /// A20 — `restoreFromHydrate(config, generation, hydrated)`
     /// (`session-interaction-ledger.ts:137-172`): the canonical snapshot of
     /// `owner`'s parked interactions REPLACES that owner's records — another
@@ -769,7 +813,7 @@ mod a6_tests {
         a.settle("a2", false);
         assert_eq!(a.showing("s1").map(|(p, _)| p.id).as_deref(), Some("a3"));
         assert_eq!(a.actionable_count("s1"), 1);
-        // A detail-less proof row is answerable but never a card.
+        // A detail-less proof row has no recorded origin: never a card, never answered (A20).
         a.request("seed", None);
         assert!(a.showing("nowhere").is_none());
     }
@@ -998,6 +1042,25 @@ mod a20_ledger_tests {
         a.decide("ap1");
         assert!(!a.observe_approval("ap1", None, None, approval("s1", None, "t1", 1)));
         assert!(a.showing("s1").is_none());
+    }
+
+    // The durable `approval/decided` of THIS request can land before the
+    // response's reply: settled, not replaced; a re-armed record or a new
+    // socket is replaced (the web's `!isCurrent()` return).
+    #[test]
+    fn a_response_target_tells_settled_from_replaced() {
+        let a = Approvals::default();
+        a.observe_approval("ap1", None, None, approval("s1", None, "t1", 0));
+        assert_eq!(a.response_target(InteractionKind::Approval, "s1", "ap1", 0), ResponseTarget::Current);
+        a.settle("ap1", false);
+        assert_eq!(a.response_target(InteractionKind::Approval, "s1", "ap1", 0), ResponseTarget::Settled);
+        assert_eq!(a.response_target(InteractionKind::Approval, "s2", "ap1", 0), ResponseTarget::Replaced);
+        a.set_question(question("q1", "s1", "t1", 0));
+        assert!(a.clear_question_if("q1"));
+        assert_eq!(a.response_target(InteractionKind::Question, "s1", "q1", 0), ResponseTarget::Settled);
+        a.observe_approval("ap2", None, None, approval("s1", None, "t2", 0));
+        a.advance_generation();
+        assert_eq!(a.response_target(InteractionKind::Approval, "s1", "ap2", 0), ResponseTarget::Replaced);
     }
 
     // A row with no recorded origin (a proof seed) counts for no Session.
