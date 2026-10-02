@@ -977,6 +977,24 @@ script_mod! {
                         }
                         OcRowHelp{text: "Shows the model's reasoning while it works"}
                     }
+                    // A5: the web's Settings > Models section holds the full
+                    // model picker (App.tsx:3555 ModelsSettingsContent); here
+                    // that is the Models dialog (screens::dialog), opened over
+                    // Settings and closed back to it. Shown when the server
+                    // advertises profile/llm/list (the /model gate).
+                    set_models_row := View{
+                        width: Fill height: Fit flow: Down visible: false
+                        OcRule{}
+                        View{
+                            width: Fill height: Fit flow: Down spacing: 6 padding: Inset{top: 14}
+                            OcMuted{width: Fill text: "Providers and models of the active profile"}
+                            View{
+                                width: 132 height: 30 flow: Overlay align: Align{x: 0.0 y: 0.5}
+                                OcLabel{text: "Manage models…" draw_text +: {color: #2F6FEB text_style +: {font_size: 9.75}}}
+                                set_models_manage := OcHit{}
+                            }
+                        }
+                    }
                 }
 
                 // ----- Sandbox (board 9): the new-chat sandbox defaults.
@@ -1438,6 +1456,10 @@ impl ChromeRuntime {
             if clicked(cx, view, &[live_id!(set_model), live_id!(vb_hit)], actions) {
                 out.push(Intent::Action("settings.model.next", 0));
             }
+            // A5: "Manage models…" opens the Models dialog over Settings.
+            if c(cx, live_id!(set_models_manage)) {
+                out.push(Intent::Action("dialog.open.models", 0));
+            }
             // Settings is modal (the web's ModalSurface): nothing under it.
             // Disconnect lives in the Connection section and keeps the
             // shell's own handler (lib.rs `settings_disconnect`).
@@ -1717,6 +1739,7 @@ impl ChromeRuntime {
         set_segment(cx, view, live_id!(th_off), "Off", thinking == settings::Thinking::Off);
         set_segment(cx, view, live_id!(th_on), "On", thinking == settings::Thinking::On);
         set_segment(cx, view, live_id!(th_high), "High", thinking == settings::Thinking::High);
+        show(cx, view, ids!(set_models_row), crate::screens::dialog::advertises(store, "profile/llm/list"));
         // Sandbox (new-chat defaults).
         set_toggle(cx, view, live_id!(tg_sb_write), st.sandbox.workspace_write);
         set_toggle(cx, view, live_id!(tg_sb_network), st.sandbox.network);

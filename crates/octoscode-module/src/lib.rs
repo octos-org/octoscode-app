@@ -2361,19 +2361,12 @@ impl OctoscodeView {
         } else {
             (self.window_w.max(990.0), 600.0)
         };
-        // The same authority sync_chrome takes (#28e3): OCTOSENSE_WINDOW_SIZE
-        // IS the layout size when present, so the phone check (360x780)
-        // lowers the phone sheet even inside the desktop shell's window.
-        if let Some((ew, eh)) = std::env::var("OCTOSENSE_WINDOW_SIZE").ok().and_then(|v| {
-            let (a, b) = v.split_once('x')?;
-            Some((a.parse::<f64>().ok()?, b.parse::<f64>().ok()?))
-        }) {
-            if ew > 0.0 {
-                w = w.min(ew);
-            }
-            if eh > 0.0 {
-                h = h.min(eh);
-            }
+        // The same authority sync_chrome takes (#28e3, A3's `env_frame`):
+        // OCTOSENSE_WINDOW_SIZE IS the module's frame when present, so the
+        // phone check (360x780) lowers the phone sheet.
+        if let Some((ew, eh)) = env_frame() {
+            w = w.min(ew);
+            h = h.min(eh);
         }
         let (store, ui) = {
             let b = self.bridge.lock().unwrap();
