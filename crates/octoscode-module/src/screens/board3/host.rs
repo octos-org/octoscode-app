@@ -962,7 +962,7 @@ pub fn job_unavailable(job: &Job) {
         }
         Job::PaneModel(_) => {
             st.pane.model_saving = false;
-            st.pane.model_notice = Some("Couldn't save: the server is not connected".into());
+            st.pane.model_notice = Some(crate::i18n::tr1("Couldn't save: {value0}", crate::i18n::tr("the server is not connected")));
         }
         Job::PanePerm(_) => {
             st.pane.perm_save = Some(super::session_pane::SaveState::Failed(msg));

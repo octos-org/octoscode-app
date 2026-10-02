@@ -18,7 +18,8 @@
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
-/// The files converted in phase 1: zero bypasses allowed.
+/// The converted files (phase 1, then phase 2): zero bypasses allowed, and
+/// every literal they wrap reads in Chinese.
 const CONVERTED: &[&str] = &[
     "chrome.rs",
     "lib.rs",
@@ -41,11 +42,26 @@ const CONVERTED: &[&str] = &[
     "screens/board3/ui.rs",
     "screens/board3/seats.rs",
     "screens/board3/strip.rs",
+    "screens/saved_link.rs",
+    // phase 2
+    "screens/a9_boundary.rs",
+    "screens/activity.rs",
+    "screens/drafts.rs",
+    "screens/board3/agents.rs",
+    "screens/board3/checkpoints.rs",
+    "screens/board3/fleet_console.rs",
+    "screens/board3/images.rs",
+    "screens/board3/inventory.rs",
+    "screens/board3/research.rs",
+    "screens/board3/resume.rs",
+    "screens/board3/routes.rs",
+    "screens/board3/rows.rs",
+    "screens/board3/session_pane.rs",
 ];
 
 /// The phase-2 ceiling: bypasses left in the rest of `screens/` (A24 phase 1
 /// measured this). Lower it as screens are converted; it must reach 0.
-const REMAINING_CEILING: usize = 178;
+const REMAINING_CEILING: usize = 142;
 
 /// (call prefix, text-argument indices). A prefix starting with `.` or `::`
 /// matches a method / path call; otherwise the name must stand alone.
@@ -367,7 +383,7 @@ fn args_of(code: &str, open: usize) -> Vec<(usize, usize)> {
 /// translated.
 fn tr_spans(arg: &str) -> Vec<(usize, usize)> {
     let mut out = Vec::new();
-    for w in ["tr(", "tr1(", "tr_with(", "tr_in(", "text_in(", "keep("] {
+    for w in ["tr(", "tr1(", "tr_with(", "tr_in(", "tr_ctx(", "text_in(", "keep("] {
         let mut from = 0;
         while let Some(at) = arg[from..].find(w).map(|n| n + from) {
             from = at + 1;
@@ -414,10 +430,12 @@ fn bypasses(src: &str) -> Vec<(usize, String, String)> {
         let mut from = 0;
         while let Some(at) = code[from..].find(prefix).map(|n| n + from) {
             from = at + 1;
+            // A bare name is a free call: `ui::header(` counts, a method
+            // of the same name (`req.header("Authorization", …)`) does not.
             let standalone = prefix.starts_with('.')
                 || prefix.contains("::")
                 || at == 0
-                || !(code.as_bytes()[at - 1].is_ascii_alphanumeric() || code.as_bytes()[at - 1] == b'_');
+                || !(code.as_bytes()[at - 1].is_ascii_alphanumeric() || matches!(code.as_bytes()[at - 1], b'_' | b'.'));
             if !standalone {
                 continue;
             }
@@ -450,8 +468,14 @@ fn read(rel: &str) -> String {
 }
 
 fn screens_files() -> Vec<String> {
+    rs_files("screens")
+}
+
+/// Every source file under `src/<dir>` (`""` = the whole crate), as a path
+/// relative to `src/`.
+fn rs_files(dir: &str) -> Vec<String> {
     let mut out = Vec::new();
-    let mut stack = vec![root().join("screens")];
+    let mut stack = vec![root().join(dir)];
     while let Some(dir) = stack.pop() {
         for e in std::fs::read_dir(&dir).unwrap().flatten() {
             let p = e.path();
@@ -581,35 +605,130 @@ fn every_static_shell_literal_is_re_texted() {
     assert!(bad.is_empty(), "static shell copy the language switch cannot reach:\n{}", bad.join("\n"));
 }
 
-/// The copy the converted surfaces route through `tr()` that the web's
-/// catalog has NO key for (they stay English in Chinese — listed in the A24
-/// report, never invented). Printed, not asserted.
-#[test]
-fn list_copy_without_a_web_key() {
-    let mut missing = std::collections::BTreeSet::new();
-    for rel in CONVERTED {
-        let code = code_only(&read(rel));
-        for w in ["tr(\"", "tr1(\"", "tr_with(\""] {
-            let mut parts = code.split(w);
-            let mut before = parts.next().unwrap_or("").to_owned();
-            for part in parts {
-                // A call, not the tail of another name (`push_str("…")`).
-                let called = !before.ends_with(|c: char| c.is_alphanumeric() || c == '_');
-                before = part.to_owned();
-                if !called {
+/// The literal copy each `tr*()` call names in one file: (line, key). A
+/// literal inside the source argument counts (`tr(if busy { "Saving…" } else
+/// { "Save" })`), except a match pattern or a comparison operand (wire
+/// values that pick the copy). `tr_ctx(ctx, "…")` names `ctx|…`.
+fn wrapped_literals(src: &str) -> Vec<(usize, String)> {
+    let code = code_only(src);
+    let b = code.as_bytes();
+    let mut out = Vec::new();
+    for w in ["tr(", "tr1(", "tr_with(", "tr_ctx("] {
+        let mut from = 0;
+        while let Some(at) = code[from..].find(w).map(|n| n + from) {
+            from = at + 1;
+            if at > 0 && (b[at - 1].is_ascii_alphanumeric() || b[at - 1] == b'_') {
+                continue;
+            }
+            if code[..at].trim_end().ends_with("fn") {
+                continue;
+            }
+            let args = args_of(&code, at + w.len() - 1);
+            let (ctx, source) = if w == "tr_ctx(" {
+                let ctx = args.first().and_then(|&(a, z)| {
+                    let t = code[a..z].trim();
+                    (t.starts_with('"') && t.ends_with('"')).then(|| unescape(&t[1..t.len() - 1]))
+                });
+                (ctx, args.get(1).copied())
+            } else {
+                (None, args.first().copied())
+            };
+            let Some((a, z)) = source else { continue };
+            let mut i = a;
+            while i < z {
+                if b[i] != b'"' {
+                    i += 1;
                     continue;
                 }
-                let b = part.as_bytes();
-                let end = skip_string(&[b"\"".as_slice(), b].concat(), 0).unwrap_or(1);
-                let value = unescape(&part[..end.saturating_sub(2).min(part.len())]);
-                if is_prose(&value) && octoscode_module::i18n::zh_for(&value).is_none() {
-                    missing.insert(value);
+                let end = skip_string(b, i).unwrap_or(z).min(z);
+                let after = code[end..z].trim_start();
+                let before = code[a..i].trim_end();
+                // A nested call's argument (`tr(x.trim_start_matches("Lease "))`,
+                // `tr(label("driver_fence_stale"))`) is not the copy either.
+                let operand = after.starts_with("=>")
+                    || after.starts_with('|')
+                    || after.starts_with("==")
+                    || after.starts_with("!=")
+                    || before.ends_with('|')
+                    || before.ends_with("==")
+                    || before.ends_with("!=")
+                    || before.ends_with('(')
+                    || before.ends_with(',');
+                let value = unescape(&code[i + 1..end.saturating_sub(1)]);
+                if !operand && value.chars().filter(|c| c.is_alphabetic()).count() >= 2 {
+                    let key = match &ctx {
+                        Some(c) => format!("{c}|{value}"),
+                        None => value,
+                    };
+                    out.push((code[..i].matches('\n').count() + 1, key));
                 }
+                i = end;
             }
         }
     }
-    println!("A24: {} phase-1 string(s) with no web key:", missing.len());
-    for m in &missing {
-        println!("  {m:?}");
+    out
+}
+
+/// Whether a wrapped key reads in Chinese: the web's catalog (or an alias of
+/// it) or the native supplement; a context key falls back to its source.
+fn reads_in_chinese(key: &str) -> bool {
+    use octoscode_module::i18n::{native_zh, zh_for};
+    match key.split_once('|') {
+        Some((_, source)) if native_zh(key).is_some() || zh_for(source).is_some() => true,
+        _ => zh_for(key).is_some(),
     }
+}
+
+/// Every literal the converted surfaces route through `tr*()` has Chinese:
+/// the web's catalog first, else the reviewed native supplement
+/// (`i18n/native.rs`) — wrapped copy that would still render English in
+/// Chinese fails here. The rest of the crate is listed, not asserted (its
+/// owners add their supplement entries as they convert).
+#[test]
+fn every_wrapped_literal_reads_in_chinese() {
+    let mut bad = Vec::new();
+    for rel in CONVERTED {
+        for (line, key) in wrapped_literals(&read(rel)) {
+            if !reads_in_chinese(&key) {
+                bad.push(format!("{rel}:{line} {key:?}"));
+            }
+        }
+    }
+    let mut rest = Vec::new();
+    for rel in rs_files("") {
+        if CONVERTED.contains(&rel.as_str()) || rel.starts_with("i18n/") {
+            continue;
+        }
+        for (line, key) in wrapped_literals(&read(&rel)) {
+            if !reads_in_chinese(&key) {
+                rest.push(format!("{rel}:{line} {key:?}"));
+            }
+        }
+    }
+    println!("A24: {} wrapped literal(s) outside the converted files still read English:", rest.len());
+    for r in &rest {
+        println!("  {r}");
+    }
+    assert!(bad.is_empty(), "{} wrapped literal(s) with no Chinese:\n{}", bad.len(), bad.join("\n"));
+}
+
+/// The scanner reads the source argument and skips the values that pick it.
+#[test]
+fn the_wrapped_literal_scan_reads_sources_not_operands() {
+    let src = r#"
+fn f() {
+    d.text("a", tr("Recent"), &t);
+    let l = tr(if busy { "Saving…" } else { "Save" });
+    let m = tr(match mode { "read_only" => "Read", _ => "Full access" });
+    let n = tr1("{value0} queued", &n.to_string());
+    let v = tr_ctx("verb", "Type");
+    let x = attr("Not a call");
+}
+"#;
+    let keys: Vec<String> = wrapped_literals(src).into_iter().map(|(_, k)| k).collect();
+    for want in ["Recent", "Saving…", "Save", "Read", "Full access", "{value0} queued", "verb|Type"] {
+        assert!(keys.contains(&want.to_owned()), "{want}: {keys:?}");
+    }
+    assert!(!keys.contains(&"read_only".to_owned()) && !keys.contains(&"Not a call".to_owned()), "{keys:?}");
+    assert!(reads_in_chinese("verb|Type") && reads_in_chinese("Recent") && !reads_in_chinese("No such copy anywhere"));
 }
