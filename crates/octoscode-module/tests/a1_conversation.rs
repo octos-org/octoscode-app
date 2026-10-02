@@ -83,22 +83,30 @@ fn a_settled_turn_lowers_to_one_compact_tool_card() {
     assert!(dsl.contains("text: \"3 tool calls\""), "{dsl}");
 }
 
-/// The list template's `row_hit` must never size its row: a Button's own
-/// content (an empty label line + the theme padding) made the hit 48 px on
-/// the phone shell, taller than the 40 px tool rows it covers — the rows
-/// grew, gaps split the tool card and each hit reached into the next row.
+/// No hit target in the list item's Fit template: a Fill Button there took
+/// the phone shell's touch height (48 px Android / 44 px iOS over 40 px tool
+/// rows) — the rows grew and gaps split the tool card. The clickable rows
+/// carry their own hit over a FIXED-height header instead.
 #[test]
-fn the_row_hit_never_sizes_its_row() {
+fn the_clickable_rows_carry_their_own_fixed_height_hits() {
     let lib = include_str!("../src/lib.rs");
-    let at = lib.find("row_hit := Button {").expect("the template's row hit");
-    // The block ends with its last property (the walks hold `}` themselves).
-    let block = &lib[at..at + lib[at..].find("border_color_2").expect("block end")];
-    for prop in [
-        "width: Fill height: Fill",
-        "margin: 0 padding: 0",
-        "label_walk: Walk{width: 0 height: 0}",
-        "icon_walk: Walk{width: 0 height: 0}",
-    ] {
-        assert!(block.contains(prop), "row_hit must carry `{prop}`: {block}");
-    }
+    let at = lib.find("TimelineItemTpl := View {").expect("the timeline template");
+    let tpl = &lib[at..at + lib[at..].find("empty_state := View").expect("template end")];
+    assert!(!tpl.contains(":= Button"), "no hit in the Fit template: {tpl}");
+
+    let m = octoscode_module::conv_layout::Metrics::for_window(360.0, false);
+    let t = octoscode_module::fluid::ToolView {
+        title: "list_dir".into(),
+        target: ".".into(),
+        state: "done".into(),
+        secs: Some(0),
+        output: String::new(),
+    };
+    let tool = octoscode_module::fluid::tool_row("0", &t, octoscode_module::fluid::GroupPos::First, false, &m);
+    let h = octoscode_module::fluid::scale(m.density).row_h;
+    let head = tool.find(&format!("View{{width: Fill height: {h} flow: Overlay")).expect("a fixed-height header overlay");
+    assert!(tool[head..].contains("tool_hit := Button{width: Fill height: Fill"), "{tool}");
+    let worked = octoscode_module::fluid::worked_for("0", "Worked for 2s", 3, true, &m);
+    let row = worked.find("View{width: Fill height: 28 flow: Overlay").expect("a 28 px overlay row");
+    assert!(worked[row..].contains("worked_hit := Button{width: Fill height: Fill"), "{worked}");
 }

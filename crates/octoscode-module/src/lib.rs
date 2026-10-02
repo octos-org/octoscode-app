@@ -176,31 +176,12 @@ script_mod! {
                         width: Fill height: Fit flow: Overlay
                         padding: Inset{left: 24 right: 24}
                         item_splash := Splash { width: Fill height: Fit }
-                        // A1: shown only on clickable rows (draw_walk). The
-                        // gradient is DISABLED (`color_2` < -0.5): at
-                        // #00000000 it mixed toward the theme's focus stop
-                        // after a click and washed the disclosed row white.
-                        // No margin, padding or label box: a Button's own
-                        // content (an empty label's line + the theme padding)
-                        // sized this Fit row on the phone shell — measured
-                        // 48 px hits over 40 px tool rows, 14 px gaps
-                        // splitting the tool card.
-                        row_hit := Button {
-                            width: Fill height: Fill text: ""
-                            margin: 0 padding: 0
-                            label_walk: Walk{width: 0 height: 0}
-                            icon_walk: Walk{width: 0 height: 0}
-                            draw_bg.color: #00000000
-                            draw_bg.color_hover: #00000008
-                            draw_bg.color_down: #00000010
-                            draw_bg.color_focus: #00000000
-                            draw_bg.color_disabled: #00000000
-                            draw_bg.border_size: 0.0
-                            draw_bg.border_radius: 5.0
-                            draw_bg.color_2: vec4(-1.0, -1.0, -1.0, -1.0)
-                            draw_bg.border_color: #00000000
-                            draw_bg.border_color_2: vec4(-1.0, -1.0, -1.0, -1.0)
-                        }
+                        // A1: no hit target here. A Fill Button in this Fit
+                        // row took the phone shell's touch height (48 px
+                        // Android / 44 iOS over 40 px tool rows: the rows
+                        // grew and gaps split the tool card); the clickable
+                        // rows carry their own hit over a fixed-height
+                        // header (`tool_hit`, `worked_hit`, fluid.rs).
                     }
                 }
                 // A1: the empty conversation (Timeline.tsx:111-134,
@@ -3448,15 +3429,6 @@ impl Widget for OctoscodeView {
                             v.layout.padding.right = row_side;
                             v.layout.padding.top = screen::lead_gap(prev, row.kind);
                         }
-                        // A1: only the rows that DO something on a click
-                        // carry the hit target (a transparent full-row button
-                        // over prose/bubbles swallowed text interaction).
-                        let clickable = matches!(
-                            row.kind,
-                            components::ItemKind::ToolCell
-                                | components::ItemKind::WorkedFor
-                        );
-                        item.widget(cx, ids!(row_hit)).set_visible(cx, clickable);
                         // Card #21c item 2: no native kind label on screen; the
                         // kind is carried by the component's own node ids in `/g`.
                         let body = cache
@@ -3907,7 +3879,13 @@ impl Widget for OctoscodeView {
                         }
                         continue;
                     }
-                    if !item.button(cx, ids!(row_hit)).clicked(actions) {
+                    // A1: each clickable row's own header hit (fluid.rs).
+                    let clicked = match row.kind {
+                        components::ItemKind::WorkedFor => item.button(cx, ids!(worked_hit)).clicked(actions),
+                        components::ItemKind::ToolCell => item.button(cx, ids!(tool_hit)).clicked(actions),
+                        _ => false,
+                    };
+                    if !clicked {
                         continue;
                     }
                     match row.kind {

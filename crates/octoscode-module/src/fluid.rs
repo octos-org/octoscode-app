@@ -213,7 +213,7 @@ pub const TIMELINE_GAP: f64 = 20.0;
 /// The space the person's bubble keeps under itself.
 pub const BUBBLE_BOTTOM: f64 = 6.0;
 /// The "Worked for" row's own top padding.
-pub const WORKED_TOP: f64 = 6.0;
+pub const WORKED_TOP: f64 = 4.0;
 /// The live "Working" row's own top padding.
 pub const WORKING_TOP: f64 = 4.0;
 
@@ -529,16 +529,23 @@ pub fn tool_row(tok: &str, t: &ToolView, pos: GroupPos, open: bool, m: &Metrics)
             "View{{width: Fill height: 1 margin: Inset{{left: 12 right: 12}} show_bg: true draw_bg.color: {BORDER}}}\n"
         ));
     }
+    // The header's click target rides the header itself (a fixed-height
+    // overlay): a hit in the list item's Fit template sized the row on the
+    // phone shell (48 px hits over 40 px rows split the card).
     body.push_str(&format!(
-        "i{tok}_toolcell_head := View{{width: Fill height: {h} flow: Right align: Align{{y: 0.5}} spacing: 8 \
+        "View{{width: Fill height: {h} flow: Overlay\n\
+         i{tok}_toolcell_head := View{{width: Fill height: {h} flow: Right align: Align{{y: 0.5}} spacing: 8 \
          padding: Inset{{left: 12 right: 12}}\n\
          {glyph}\
          i{tok}_toolcell_text := View{{width: Fill height: Fit flow: Right align: Align{{y: 0.5}} spacing: 6\n\
          {title}{sep}{target}\
          }}\n\
          {status}{mark}{chevron}\
+         }}\n\
+         {head_hit}\
          }}\n",
         h = s.row_h,
+        head_hit = hit("tool_hit", 4.0),
         glyph = svg(&format!("i{tok}_toolcell_kind"), &format!("tool_{kind}.svg"), 14.0, glyph_color),
         title = label(
             &format!("i{tok}_toolcell_title"),
@@ -634,10 +641,15 @@ pub fn worked_for(tok: &str, label_text: &str, tools: usize, open: bool, m: &Met
             MUTED,
         ));
     }
+    // 28 px: the row is its own (>= 28 px) click target.
     format!(
-        "View{{width: Fill height: Fit flow: Down padding: Inset{{top: {WORKED_TOP} bottom: 6}}\n\
-         i{tok}_workedfor := View{{width: Fill height: 24 flow: Right align: Align{{y: 0.5}} spacing: 6\n\
-         {row}}}\n}}\n"
+        "View{{width: Fill height: Fit flow: Down padding: Inset{{top: {WORKED_TOP} bottom: 4}}\n\
+         View{{width: Fill height: 28 flow: Overlay\n\
+         i{tok}_workedfor := View{{width: Fill height: 28 flow: Right align: Align{{y: 0.5}} spacing: 6\n\
+         {row}}}\n\
+         {hit}\
+         }}\n}}\n",
+        hit = hit("worked_hit", 4.0),
     )
 }
 

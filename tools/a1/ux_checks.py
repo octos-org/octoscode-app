@@ -162,11 +162,12 @@ def conversation(rows, rep):
     # viewport clip, not a small target: skip rows touching the list edges).
     lst = find(rows, "timeline_list")
     def cut(w):
-        if lst is None or w["i"] != "row_hit":
+        if lst is None or w["i"] not in ("row_hit", "tool_hit", "worked_hit"):
             return False
         return w["r"][1] <= lst["r"][1] + 1 or bottom(w["r"]) >= bottom(lst["r"]) - 1
     hits = [w for w in rows if w["ty"] == "Button" and not cut(w) and (
-        w["i"] in ("send_hit", "mic_hit", "plus_hit", "approval_pill_hit", "answer_copy_hit", "row_hit"))]
+        w["i"] in ("send_hit", "mic_hit", "plus_hit", "approval_pill_hit", "answer_copy_hit", "row_hit",
+                   "tool_hit", "worked_hit"))]
     small = [(w["i"], w["r"][2], w["r"][3]) for w in hits if w["r"][2] < 28 - 0.5 or w["r"][3] < 28 - 0.5]
     rep.check("controls >= 28 px", not small, f"{len(hits)} hit targets; too small: {small}",
               f"{len(hits)} controls>=28")
