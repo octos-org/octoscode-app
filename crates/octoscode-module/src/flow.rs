@@ -1008,7 +1008,13 @@ impl Conversation {
         let gen = self.generation();
         self.hydrate_gen.lock().unwrap().entry(session.to_owned()).or_default().push_back(gen);
         match self.cmd_tx.try_send(OutboundCommand::HydrateSession { session_id: session.to_owned() }) {
-            Ok(()) => true,
+            Ok(()) => {
+                // A15 — the frame the transport writes (`proto.rs`
+                // `HydrateSession`: include messages), on the trace too.
+                self.frames
+                    .out("session/hydrate", &serde_json::json!({"session_id": session, "include": ["messages"]}));
+                true
+            }
             Err(e) => {
                 if let Some(q) = self.hydrate_gen.lock().unwrap().get_mut(session) {
                     q.pop_back();
