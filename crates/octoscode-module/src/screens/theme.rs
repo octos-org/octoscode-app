@@ -521,9 +521,11 @@ pub fn cycle() -> (String, &'static str) {
     (t.pref.stored().unwrap_or("system").to_owned(), t.pref.resolved())
 }
 
-/// Test seam: reset to the fresh-profile default.
+/// Test seam: reset to the fresh-profile default (system appearance, A26:
+/// the Terminal palette).
 pub fn reset_state() {
     *theme().lock().unwrap() = ThemeUi::default();
+    set_palette(Palette::Terminal);
 }
 
 // ---- id ownership (one owner per id, LESSONS) --------------------------------

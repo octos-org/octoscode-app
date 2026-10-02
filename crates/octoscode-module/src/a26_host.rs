@@ -81,13 +81,6 @@ impl OctoscodeView {
         let head = self.view.widget(cx, ids!(oc_header)).area().rect(cx);
         let avail = if compact || col.size.x <= 0.0 { module.size.x } else { col.size.x };
         let width = toasts::stack_width(avail, compact);
-        let lowered = if held { None } else { toasts::lower(width) };
-        let dock_shown = lowered.is_some();
-        self.view.widget(cx, ids!(toast_dock)).set_visible(cx, dock_shown);
-        let Some(lowered) = lowered else {
-            self.toast_taps.clear();
-            return;
-        };
         // Under the conversation header; right-aligned in the conversation
         // column on a desktop, the window's width less 12 px gutters on a
         // phone. Overlay margins are module-local.
@@ -97,6 +90,23 @@ impl OctoscodeView {
         } else {
             let right = if col.size.x > 0.0 { col.pos.x + col.size.x } else { module.pos.x + module.size.x };
             (right - 16.0 - width - module.pos.x, below - module.pos.y + 12.0)
+        };
+        // The room ABOVE the composer (12 px clear of it): the stack never
+        // reaches it.
+        let composer = self.view.widget(cx, ids!(composer_row)).area().rect(cx);
+        let floor = if composer.size.y > 0.0 { composer.pos.y } else { module.pos.y + module.size.y };
+        let room = floor - (module.pos.y + top) - 12.0;
+        let lowered = if held {
+            toasts::set_drawn(&[]);
+            None
+        } else {
+            toasts::lower(width, room)
+        };
+        let dock_shown = lowered.is_some();
+        self.view.widget(cx, ids!(toast_dock)).set_visible(cx, dock_shown);
+        let Some(lowered) = lowered else {
+            self.toast_taps.clear();
+            return;
         };
         let key = format!("{left:.0}|{top:.0}");
         if self.toast_key != key {

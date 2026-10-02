@@ -23,10 +23,13 @@
 //!   until it empties. The same failure again bumps a count on its toast
 //!   ("×2") and restarts its clock instead of stacking a copy.
 //! * **Never in the way** — the stack sits under the conversation header,
-//!   right-aligned (full width on a phone), far from the composer; while any
+//!   right-aligned (full width on a phone), and is fitted to the room ABOVE
+//!   the composer: the newest toasts that fit are drawn, the rest wait (and
+//!   are counted in the note) — so it never covers the composer; while any
 //!   modal surface is open (Settings, a dialog, the command palette, the
 //!   phone drawer…) the stack is HELD — not drawn, its clocks stopped — so it
 //!   can never cover a dialog's primary action; it shows when that closes.
+//!   Only a drawn toast's clock runs.
 //! * **Announced honestly** — every toast is logged by name when it arrives
 //!   (`[octoscode] toast: <lead> — <cause>`), and when it leaves (dismissed,
 //!   expired, or pushed out); the lead says what failed, plainly, and never
@@ -91,6 +94,8 @@ pub struct Toast {
     pub count: u32,
     /// Milliseconds it has been ON SCREEN (stopped while held).
     pub shown_ms: u64,
+    /// Drawn by the last lowering (only a drawn toast ages).
+    pub drawn: bool,
 }
 
 /// The queue (one per process, like the theme preference).
@@ -153,7 +158,7 @@ pub fn push(lead: &str, cause: &str) -> u64 {
         }
         q.next_id += 1;
         let id = q.next_id;
-        q.items.push_back(Toast { id, lead: lead.to_owned(), cause: cause_shown, count: 1, shown_ms: 0 });
+        q.items.push_back(Toast { id, lead: lead.to_owned(), cause: cause_shown, count: 1, shown_ms: 0, drawn: false });
         id
     })
 }
@@ -186,7 +191,7 @@ pub fn tick(now_ms: u64, held: bool) -> bool {
             return false;
         }
         let before = q.items.len();
-        for t in q.items.iter_mut() {
+        for t in q.items.iter_mut().filter(|t| t.drawn) {
             t.shown_ms += dt;
         }
         q.items.retain(|t| {
@@ -203,9 +208,18 @@ pub fn tick(now_ms: u64, held: bool) -> bool {
     })
 }
 
-/// The time until the next toast expires (ms), if any is up.
+/// The time until the next DRAWN toast expires (ms), if any is up.
 pub fn next_expiry_ms() -> Option<u64> {
-    with(|q| q.items.iter().map(|t| SHOW_MS.saturating_sub(t.shown_ms)).min())
+    with(|q| q.items.iter().filter(|t| t.drawn).map(|t| SHOW_MS.saturating_sub(t.shown_ms)).min())
+}
+
+/// Mark which toasts the screen shows (the rest wait; held = none).
+pub fn set_drawn(ids: &[u64]) {
+    with(|q| {
+        for t in q.items.iter_mut() {
+            t.drawn = ids.contains(&t.id);
+        }
+    })
 }
 
 /// The toasts now, oldest first, and the pushed-out count.
@@ -229,13 +243,37 @@ pub fn routes(action: &str) -> bool {
     action == ACTION_DISMISS
 }
 
-/// The stack's line under the toasts when newer ones pushed older out.
+/// The stack's line under the toasts: earlier errors that newer ones
+/// pushed out, or that wait for room.
 pub fn dropped_line(n: u32) -> String {
     if n == 1 {
         "1 earlier error no longer shown".to_owned()
     } else {
         format!("{n} earlier errors no longer shown")
     }
+}
+
+/// The note's height (one 11.5 px line in its 6 px padded pill) and the gap.
+const NOTE_H: f64 = 30.0;
+const GAP: f64 = 8.0;
+
+/// A toast's estimated height at `width` (the kit's advance estimate):
+/// 10 + 10 px padding, the 3 px top inset, the lead (16 px lines), the cause
+/// (17 px lines) and the count line; never under the 26 px mark's row.
+pub fn toast_height(t: &Toast, width: f64) -> f64 {
+    // 12 left + 26 mark + 10 gap + text + 10 gap + 28 close + 6 right.
+    let col = (width - 92.0).max(80.0);
+    let lines = |s: &str, px: f64, face: Face| -> f64 {
+        if s.is_empty() {
+            0.0
+        } else {
+            (ui::text_w(s, px, face) / (col * 0.97)).ceil().max(1.0)
+        }
+    };
+    let lead = lines(&t.lead, 13.0, Face::Medium) * 16.0;
+    let cause = if t.cause.is_empty() || t.cause == t.lead { 0.0 } else { 3.0 + lines(&t.cause, 12.0, Face::Regular) * 17.0 };
+    let count = if t.count > 1 { 3.0 + 15.0 } else { 0.0 };
+    (20.0 + 3.0 + lead + cause + count).max(46.0)
 }
 
 /// The lowered stack.
@@ -256,17 +294,32 @@ pub fn stack_width(avail_w: f64, compact: bool) -> f64 {
     }
 }
 
-/// Lower the stack for `width` px (board-3 kit, the theme's surfaces), or
-/// `None` when nothing is up.
-pub fn lower(width: f64) -> Option<Lowered> {
+/// Lower the stack for `width` px within `room` px of height (board-3 kit,
+/// the theme's surfaces), or `None` when nothing is up. The newest toasts
+/// that fit are drawn (always one); the others wait, counted in the note.
+pub fn lower(width: f64, room: f64) -> Option<Lowered> {
     let (items, dropped) = snapshot();
     if items.is_empty() {
         return None;
     }
+    // Newest on top: the one that just arrived is where the eye lands.
+    let mut shown: Vec<&Toast> = Vec::new();
+    let mut used = 0.0;
+    for (i, t) in items.iter().rev().enumerate() {
+        let h = toast_height(t, width) + if shown.is_empty() { 0.0 } else { GAP };
+        let rest_after = items.len() - i - 1;
+        let note = if dropped > 0 || rest_after > 0 { GAP + NOTE_H } else { 0.0 };
+        if !shown.is_empty() && used + h + note > room {
+            break;
+        }
+        used += h;
+        shown.push(t);
+    }
+    let waiting = (items.len() - shown.len()) as u32;
+    set_drawn(&shown.iter().map(|t| t.id).collect::<Vec<_>>());
     let mut d = Dsl::new();
     d.view("a26_toasts", &format!("width: {} height: Fit flow: Down spacing: 8", width.round()));
-    // Newest on top: the one that just arrived is where the eye lands.
-    for t in items.iter().rev() {
+    for t in shown {
         let id = t.id;
         d.surface(
             &format!("a26_toast_{id}"),
@@ -307,6 +360,7 @@ pub fn lower(width: f64) -> Option<Lowered> {
         d.close();
         d.close();
     }
+    let dropped = dropped + waiting;
     if dropped > 0 {
         d.surface(
             "a26_toasts_dropped_box",
@@ -343,7 +397,7 @@ mod tests {
         assert_eq!(items.len(), CAPACITY);
         assert_eq!(dropped, 2);
         assert_eq!(items[0].cause, "session/open: rpc error 2", "the oldest went first");
-        let low = lower(360.0).unwrap();
+        let low = lower(360.0, 1000.0).unwrap();
         assert!(low.dsl.contains("2 earlier errors no longer shown"), "{}", low.dsl);
         assert_eq!(low.taps.len(), CAPACITY, "one × per toast");
         reset();
@@ -358,7 +412,7 @@ mod tests {
         assert_eq!(a, b);
         let (items, _) = snapshot();
         assert_eq!((items.len(), items[0].count), (1, 2));
-        assert!(lower(360.0).unwrap().dsl.contains("×2"));
+        assert!(lower(360.0, 1000.0).unwrap().dsl.contains("×2"));
         reset();
     }
 
@@ -368,13 +422,39 @@ mod tests {
         reset();
         push("Couldn't refresh the sessions.", "session/list: timeout");
         tick(1_000, false);
-        tick(1_000 + SHOW_MS, true);
+        tick(1_000 + SHOW_MS, false);
+        assert_eq!(snapshot().0.len(), 1, "not drawn yet: its clock has not started");
+        assert!(lower(360.0, 1000.0).is_some(), "drawn");
+        tick(1_000 + 2 * SHOW_MS, true);
         assert_eq!(snapshot().0.len(), 1, "held: the clock stops");
-        tick(1_000 + SHOW_MS + SHOW_MS - 1, false);
+        tick(1_000 + 3 * SHOW_MS - 1, false);
         assert_eq!(snapshot().0.len(), 1, "one ms short");
-        assert!(tick(1_000 + 2 * SHOW_MS, false));
+        assert!(tick(1_000 + 3 * SHOW_MS, false));
         assert!(snapshot().0.is_empty());
-        assert!(lower(360.0).is_none());
+        assert!(lower(360.0, 1000.0).is_none());
+        reset();
+    }
+
+    #[test]
+    fn the_stack_fits_the_room_above_the_composer_and_counts_who_waits() {
+        let _g = guard();
+        reset();
+        for i in 0..3 {
+            push("Couldn't stop the turn.", &format!("turn/interrupt: transport: closed ({i})"));
+        }
+        let one = toast_height(&snapshot().0[0], 360.0);
+        // Room for two toasts and the note: the oldest waits, undrawn.
+        let low = lower(360.0, 2.0 * one + GAP + GAP + NOTE_H + 1.0).unwrap();
+        assert_eq!(low.taps.len(), 2, "{}", low.dsl);
+        assert!(low.dsl.contains("1 earlier error no longer shown"));
+        let (items, _) = snapshot();
+        assert!(!items[0].drawn && items[1].drawn && items[2].drawn, "newest drawn: {items:?}");
+        // Its clock does not run while it waits.
+        tick(10, false);
+        tick(10 + SHOW_MS - 1, false);
+        assert_eq!(snapshot().0.len(), 3);
+        // A tiny room still shows the newest one.
+        assert_eq!(lower(360.0, 10.0).unwrap().taps.len(), 1);
         reset();
     }
 
