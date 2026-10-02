@@ -29,6 +29,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 # A11: the walk aggregator's convention (tools/walk/native.py; never imported).
 WALK = {
@@ -218,10 +219,30 @@ def settings_walk():
     small = [(w["i"], w["r"]) for wid in ("tg_hit", cell, "settings_close", "set_back", "server_stop_request")
              for w in visible(s, wid) if w["r"][2] < 28 or w["r"][3] < 28]
     check("layout: settings hit targets >= 28 px", not small, f"{small}")
-    before = inside("tg_on", "tg_notify")
-    step("Desktop notifications toggles", "tg_notify", lambda: inside("tg_on", "tg_notify") != before,
-         log_needle="notifications_toggle.toggle")
-    click("tg_notify")  # restore
+    # A25: the row follows the OS (crate::attention). A hidden test app is a
+    # bare binary, which macOS never lets post a notice: the row then reads
+    # "Unavailable" with no toggle to press (the web's disabled button,
+    # GeneralSettingsContent.tsx:236). With a notification backend (an .app,
+    # the phone, OCTOSCODE_NOTIFY_FAKE) the click asks the OS and the toggle
+    # flips once it answers.
+    if not is_shown("tg_notify"):
+        state = texts("notify_state")
+        check("Desktop notifications toggles", state[:1] == ["Unavailable"]
+              and any("unavailable" in t for t in texts("notify_help")),
+              f"this process has no notification backend: the row reads {state} (A25)")
+    else:
+        before = inside("tg_on", "tg_notify")
+
+        def flipped():
+            end = time.time() + 4
+            while time.time() < end:
+                if inside("tg_on", "tg_notify") != before:
+                    return True
+                time.sleep(0.3)
+            return False
+
+        step("Desktop notifications toggles", "tg_notify", flipped, log_needle="notifications_toggle.toggle")
+        click("tg_notify")  # restore
     step("Stop server… opens the confirm", "server_stop_request",
          lambda: is_shown("stop_dialog"), log_needle="server.stop.request")
     log_since()

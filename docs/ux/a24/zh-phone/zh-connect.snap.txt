@@ -1,0 +1,7 @@
+connect_title	Label	[36, 257, 102, 24]	连接 Octos
+1	Label	[36, 299, 65, 22]	服务器地址
+4	Label	[36, 383, 52, 22]	认证令牌
+connect_note	Label	[36, 460, 147, 15]	Stored for this server only
+connect_btn_label	Label	[165, 510, 30, 18]	连接
+connect_pair_label	Label	[106, 560, 148, 17]	Pair with a link instead
+connect_solo_label	Label	[111, 594, 139, 17]	Use local solo server

@@ -90,9 +90,14 @@ pub mod workspace;
 pub mod review;
 pub mod sessions;
 pub mod theme;
+// A26: error toasts (transient, bounded) for failures that reached only the log.
+pub mod toasts;
 // A6: the conversation pane's surfaces (approval/question takeovers, the
 // plan card, the Trajectory + task detail, fold-all and view state).
 pub mod surfaces;
+// A20: the saved conversation link (parity row 247): its panel, and the
+// workspace precondition checked before any open or history read.
+pub mod saved_link;
 
 /// P4d4: the ONE production entry point for the control surfaces (media +
 /// peers), so `lib.rs`'s action router has a single target to call.

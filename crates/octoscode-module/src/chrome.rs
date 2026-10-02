@@ -20,6 +20,8 @@
 
 use makepad_widgets::*;
 
+use crate::i18n::{tr, tr_with};
+
 /// The absolute path of an Inter face (`resources/ux/Inter-<w>.ttf`), through
 /// the materialized design root (the phone has no checkout).
 pub fn face(weight: u16) -> String {
@@ -39,7 +41,7 @@ pub fn icon(name: &str) -> String {
 /// as the colour value a `#rrggbb` literal parses to (RGBA, alpha ff), so a
 /// template can splice it where a literal stood: `color: #(crate::chrome::ink("link"))`.
 pub fn ink(name: &str) -> ScriptValue {
-    ScriptValue::from_color(rgba(crate::screens::theme::shell_ink(name)))
+    ScriptValue::from_color(rgba(&crate::screens::theme::shell_ink(name)))
 }
 
 /// `#rrggbb` -> `0xRRGGBBFF` (the script tokenizer's colour encoding).
@@ -57,15 +59,18 @@ script_mod! {
     // ---------------------------------------------------------- type + ink
     let OcFace400 = FontFamily{
         latin := FontMember{res: file_resource(#(crate::chrome::face(400))) asc: 0.04 desc: 0.04 weight: 400}
-        cjk := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiRegular.ttf") asc: 0.0 desc: 0.0 weight: 400}
+        cjk := FontMember{res: file_resource(#(crate::design::cjk_face_path(400))) asc: 0.0 desc: 0.0 weight: 400}
+        cjk_rare := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiRegular.ttf") asc: 0.0 desc: 0.0 lazy: 1}
     }
     let OcFace500 = FontFamily{
         latin := FontMember{res: file_resource(#(crate::chrome::face(500))) asc: 0.04 desc: 0.04 weight: 500}
-        cjk := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiRegular.ttf") asc: 0.0 desc: 0.0 weight: 500}
+        cjk := FontMember{res: file_resource(#(crate::design::cjk_face_path(500))) asc: 0.0 desc: 0.0 weight: 500}
+        cjk_rare := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiRegular.ttf") asc: 0.0 desc: 0.0 lazy: 1}
     }
     let OcFace600 = FontFamily{
         latin := FontMember{res: file_resource(#(crate::chrome::face(600))) asc: 0.04 desc: 0.04 weight: 600}
-        cjk := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiBold.ttf") asc: 0.0 desc: 0.0 weight: 600}
+        cjk := FontMember{res: file_resource(#(crate::design::cjk_face_path(600))) asc: 0.0 desc: 0.0 weight: 600}
+        cjk_rare := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiBold.ttf") asc: 0.0 desc: 0.0 lazy: 1}
     }
 
     // The shell's own labels (lib.rs: the brand, the autonomy sections) use
@@ -178,8 +183,9 @@ script_mod! {
         width: 44 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
         View{
             width: 40 height: 24 flow: Overlay
-            tg_off := RoundedView{width: Fill height: Fill draw_bg +: {color: #E5E5EA border_radius: 12.0}}
-            tg_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: #2F6FEB border_radius: 12.0}}
+            tg_off := RoundedView{width: Fill height: Fill draw_bg +: {color: #(crate::chrome::ink("track")) border_radius: 12.0}}
+            // A26: the accent fill follows the display palette.
+            tg_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: #(crate::chrome::ink("accent")) border_radius: 12.0}}
             tg_knob_off := View{
                 width: Fill height: Fill align: Align{x: 0.0 y: 0.5} padding: Inset{left: 2}
                 RoundedView{width: 20 height: 20 draw_bg +: {color: #FFFFFF border_radius: 10.0 border_size: 0.5 border_color: #0000001F}}
@@ -198,8 +204,8 @@ script_mod! {
         rd_off := RoundedView{width: 18 height: 18 draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.5 border_color: #C7C7CC}}
         rd_on := View{
             width: 18 height: 18 flow: Overlay align: Align{x: 0.5 y: 0.5} visible: false
-            RoundedView{width: 18 height: 18 draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.5 border_color: #2F6FEB}}
-            RoundedView{width: 8 height: 8 draw_bg +: {color: #2F6FEB border_radius: 4.0}}
+            RoundedView{width: 18 height: 18 draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.5 border_color: #(crate::chrome::ink("accent"))}}
+            RoundedView{width: 8 height: 8 draw_bg +: {color: #(crate::chrome::ink("accent")) border_radius: 4.0}}
         }
     }
 
@@ -458,7 +464,7 @@ script_mod! {
                 width: Fill height: 30 flow: Overlay
                 View{
                     width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: 28}
-                    OcLabel{text: "Clear search" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
+                    sb_c_text := OcLabel{text: "Clear search" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
                 }
                 sb_c_hit := OcHit{}
             }
@@ -507,6 +513,52 @@ script_mod! {
                 OcLabel{text: "Add workspace"}
             }
             sb_add_hit := OcHit{}
+        }
+    }
+
+    // A26 — the web's sidebar footer entries after Fleet
+    // (ProductSidebar.tsx:984-1016): the theme toggle (its icon and label
+    // follow System / Light / Dark; a click cycles them, use-theme.ts:44-49)
+    // and Settings. The operator chose the web's placement (parity row
+    // shell/g-settings). Same row metrics as + Add workspace and Fleet
+    // (34 px, a 15 px icon, a 10 px gap, the row label); the collapsed rail
+    // keeps the icons only, centred like the rail's buttons
+    // (`.collapsed .settings`, ProductSidebar.module.css:880-884).
+    mod.widgets.OcSidebarFootNav = View{
+        width: Fill height: Fit flow: Down
+        sb_theme := View{
+            width: Fill height: 34 flow: Overlay
+            sb_theme_row := View{
+                width: Fill height: Fill flow: Right spacing: 10 align: Align{y: 0.5}
+                padding: Inset{left: 8}
+                View{
+                    width: 15 height: 15 flow: Overlay
+                    sb_theme_ic_system := View{
+                        width: 15 height: 15
+                        Svg{width: 15 height: 15 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("monitor"))) draw_svg.preserve_viewbox: true}
+                    }
+                    sb_theme_ic_light := View{
+                        width: 15 height: 15 visible: false
+                        Svg{width: 15 height: 15 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("sun"))) draw_svg.preserve_viewbox: true}
+                    }
+                    sb_theme_ic_dark := View{
+                        width: 15 height: 15 visible: false
+                        Svg{width: 15 height: 15 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("moon"))) draw_svg.preserve_viewbox: true}
+                    }
+                }
+                sb_theme_label := OcLabel{text: "System"}
+            }
+            sb_theme_hit := OcHit{}
+        }
+        sb_settings := View{
+            width: Fill height: 34 flow: Overlay
+            sb_settings_row := View{
+                width: Fill height: Fill flow: Right spacing: 10 align: Align{y: 0.5}
+                padding: Inset{left: 8}
+                Svg{width: 15 height: 15 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("gear"))) draw_svg.preserve_viewbox: true}
+                sb_settings_label := OcLabel{text: "Settings"}
+            }
+            sb_settings_hit := OcHit{}
         }
     }
 
@@ -792,7 +844,9 @@ script_mod! {
     // shows the accent icon on a blue-tinted chip (board 6).
     let OcRailCell = View{
         width: 40 height: 40 flow: Overlay align: Align{x: 0.5 y: 0.5}
-        rl_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: #EEF3FE border_radius: 10.0}}
+        // A26: the chip and the selected icon follow the look (light keeps
+        // board 6's #EEF3FE and #2F6FEB).
+        rl_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: #(crate::chrome::ink("accent_tint")) border_radius: 10.0}}
         rl_off_icon := View{
             width: 20 height: 20
             rl_icon := Svg{
@@ -807,6 +861,7 @@ script_mod! {
                 width: 20 height: 20 animating: false
                 draw_svg.svg: file_resource(#(crate::chrome::icon("gear_accent")))
                 draw_svg.preserve_viewbox: true
+                draw_svg.color: #(crate::chrome::ink("accent"))
             }
         }
         rl_hit := OcHit{draw_bg.border_radius: 10.0}
@@ -831,6 +886,26 @@ script_mod! {
             }
         }
         vb_hit := OcHit{}
+    }
+    // A26 — one display palette (the web's Theme select option,
+    // PreferencesDialog.tsx:55-70): the radio and the name on the left, three
+    // swatches of the palette (surface / accent / text) on the right, one hit
+    // over the row. An Overlay of two aligned rows (a Fill spacer between Fit
+    // siblings does not resolve here, #40b).
+    let OcPaletteRow = View{
+        width: Fill height: 30 flow: Overlay
+        pl_left := View{
+            width: Fill height: Fill flow: Right spacing: 12 align: Align{y: 0.5}
+            pl_radio := OcRadio{}
+            pl_title := OcRowTitle{width: Fit text: ""}
+        }
+        pl_right := View{
+            width: Fill height: Fill flow: Right spacing: 4 align: Align{x: 1.0 y: 0.5}
+            pl_sw_1 := RoundedView{width: 18 height: 18 draw_bg +: {color: #FFFFFF border_radius: 5.0 border_size: 1.0 border_color: #8080805A}}
+            pl_sw_2 := RoundedView{width: 18 height: 18 draw_bg +: {color: #2F6FEB border_radius: 5.0 border_size: 1.0 border_color: #8080805A}}
+            pl_sw_3 := RoundedView{width: 18 height: 18 draw_bg +: {color: #1C1F22 border_radius: 5.0 border_size: 1.0 border_color: #8080805A}}
+        }
+        pl_hit := OcHit{}
     }
 
     mod.widgets.OcSettingsPanel = RoundedView{
@@ -893,27 +968,41 @@ script_mod! {
                 }
             }
             OcRule{}
-            // A plain View: a ScrollYView lays its children out at an
-            // unbounded width, so wrapping help text never wrapped (clipped).
-            set_body := View{
+            // A ScrollYView (as the board-3 dialog bodies, ui::body_open_id):
+            // a section taller than the dialog scrolls instead of clipping
+            // its last rows (Preferences with Language + Palette cut "Save
+            // preferences" to 6 px). Help text keeps wrapping: its rows are
+            // width-Fill inside the body's bounded width.
+            set_body := ScrollYView{
                 width: Fill height: Fill flow: Down
                 padding: Inset{left: 24 right: 24 top: 4 bottom: 16}
 
                 // ----- General (board 6)
                 sec_general := View{
                     width: Fill height: Fit flow: Down
-                    View{
+                    // A25: the web's toggle row (GeneralSettingsContent.tsx
+                    // :213-247) on board 2's toggle: the toggle while the OS
+                    // can answer (aria-pressed = on/off), "Enabling…" while
+                    // its permission prompt waits, "Unavailable" when this
+                    // process cannot post notices; the message under it
+                    // (role=status), red when it is an error (role=alert).
+                    notify_row := View{
                         width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
                         View{
                             width: Fill height: 32 flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Desktop notifications"}}
-                            View{width: Fill height: Fill align: Align{x: 1.0 y: 0.5} tg_notify := OcToggle{}}
+                            View{
+                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                tg_notify := OcToggle{}
+                                notify_state := OcMuted{text: "" visible: false draw_text +: {text_style +: {font_size: 10.5}}}
+                            }
                         }
                         // Help text wraps only as a direct child of a Down
                         // flow (inside a Right/Overlay row it stays one line).
                         View{
                             width: Fill height: Fit flow: Down padding: Inset{right: 64}
-                            OcRowHelp{text: "Notify when a turn needs you or finishes while OctosCode is in the background"}
+                            notify_help := OcRowHelp{text: "Notify when a turn needs you or finishes while OctosCode is in the background"}
+                            notify_alert := OcRowHelp{text: "" visible: false draw_text +: {color: #(crate::chrome::ink("danger"))}}
                         }
                     }
                     OcRule{}
@@ -1271,8 +1360,62 @@ script_mod! {
                 // once; Save writes only the display whitelist.
                 sec_preferences := View{
                     width: Fill height: Fit flow: Down visible: false
+                    // A24: Language — the web dialog's first field
+                    // (PreferencesDialog.tsx:42-55, its options "English" /
+                    // "简体中文"); a choice re-renders every surface at once.
                     View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
+                        width: Fill height: Fit flow: Down padding: Inset{top: 6 bottom: 8}
+                        View{
+                            width: Fill height: 32 flow: Overlay
+                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Language"}}
+                            View{
+                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                RoundedView{
+                                    width: Fit height: Fill flow: Right padding: 2
+                                    draw_bg +: {color: theme.color_bg_even border_radius: 9.0}
+                                    lang_en := OcSegment{width: 84}
+                                    lang_zh := OcSegment{width: 84}
+                                }
+                            }
+                        }
+                    }
+                    OcRule{}
+                    // A26 — the display palette (the web's Theme select,
+                    // PreferencesDialog.tsx:55-75, `DISPLAY_THEMES` order).
+                    // Applies at once; Save below remembers it. Titled
+                    // "Palette": General's "Theme" row is the System /
+                    // Light / Dark appearance Terminal follows.
+                    View{
+                        width: Fill height: Fit flow: Down spacing: 0 padding: Inset{top: 8 bottom: 6}
+                        pal_title := OcRowTitle{width: Fit text: "Palette"}
+                        View{
+                            width: Fill height: Fit flow: Down padding: Inset{top: 2 bottom: 2 right: 24}
+                            pal_help := OcRowHelp{text: "Terminal follows the light or dark theme; named palettes are dark."}
+                        }
+                        pal_terminal := OcPaletteRow{
+                            pl_left +: {pl_title +: {text: "Terminal"}}
+                            pl_right +: {pl_sw_1 +: {draw_bg +: {color: #FFFFFF}} pl_sw_2 +: {draw_bg +: {color: #2F6FEB}} pl_sw_3 +: {draw_bg +: {color: #1C1F22}}}
+                        }
+                        pal_codex := OcPaletteRow{
+                            pl_left +: {pl_title +: {text: "Codex"}}
+                            pl_right +: {pl_sw_1 +: {draw_bg +: {color: #x0F1218}} pl_sw_2 +: {draw_bg +: {color: #x6EBCFF}} pl_sw_3 +: {draw_bg +: {color: #xECEFF4}}}
+                        }
+                        pal_claude := OcPaletteRow{
+                            pl_left +: {pl_title +: {text: "Claude"}}
+                            pl_right +: {pl_sw_1 +: {draw_bg +: {color: #x261F1A}} pl_sw_2 +: {draw_bg +: {color: #xF28F5D}} pl_sw_3 +: {draw_bg +: {color: #xF4F1EA}}}
+                        }
+                        pal_slate := OcPaletteRow{
+                            pl_left +: {pl_title +: {text: "Slate"}}
+                            pl_right +: {pl_sw_1 +: {draw_bg +: {color: #x141923}} pl_sw_2 +: {draw_bg +: {color: #x6397FF}} pl_sw_3 +: {draw_bg +: {color: #xE6ECF2}}}
+                        }
+                        pal_solarized := OcPaletteRow{
+                            pl_left +: {pl_title +: {text: "Solarized"}}
+                            pl_right +: {pl_sw_1 +: {draw_bg +: {color: #x002B36}} pl_sw_2 +: {draw_bg +: {color: #x268BD2}} pl_sw_3 +: {draw_bg +: {color: #xEEE8D5}}}
+                        }
+                    }
+                    OcRule{}
+                    View{
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 8 bottom: 8}
                         View{
                             width: Fill height: 32 flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Vim editing"}}
@@ -1281,27 +1424,6 @@ script_mod! {
                         View{
                             width: Fill height: Fit flow: Down padding: Inset{right: 64}
                             OcRowHelp{text: "Use Vim-style normal and insert modes in the composer."}
-                        }
-                    }
-                    OcRule{}
-                    View{
-                        width: Fill height: Fit flow: Down spacing: 12 padding: Inset{top: 14 bottom: 14}
-                        View{
-                            width: Fill height: Fit flow: Down
-                            OcRowHelp{text: "Changes apply immediately. Save remembers them on this device; no server configuration, credentials or conversations are stored."}
-                        }
-                        View{
-                            width: Fill height: Fit flow: Right spacing: 12 align: Align{y: 0.5}
-                            View{
-                                width: 148 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                                RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_even border_radius: 9.0}}
-                                OcLabel{text: "Save preferences" draw_text +: {text_style +: {font_size: 9.75}}}
-                                prefs_save := OcHit{draw_bg.border_radius: 9.0}
-                            }
-                            View{
-                                width: Fill height: Fit flow: Down
-                                prefs_status := OcMuted{width: Fill text: ""}
-                            }
                         }
                     }
                 }
@@ -1322,6 +1444,32 @@ script_mod! {
                         OcRowText{
                             OcRowTitle{text: "Server"}
                             set_about_server := OcRowHelp{text: ""}
+                        }
+                    }
+                }
+            }
+            // The Preferences footer (the web dialog's fixed footer: the body scrolls,
+            // Save stays in view). Shown only while Preferences is the section.
+            set_footer := View{
+                width: Fill height: Fit flow: Down visible: false padding: Inset{left: 24 right: 24 top: 0 bottom: 0}
+                OcRule{}
+                View{
+                    width: Fill height: Fit flow: Down spacing: 10 padding: Inset{top: 10 bottom: 8}
+                    View{
+                        width: Fill height: Fit flow: Down
+                        OcRowHelp{text: "Changes apply immediately. Save remembers them on this device; no server configuration, credentials or conversations are stored."}
+                    }
+                    View{
+                        width: Fill height: Fit flow: Right spacing: 12 align: Align{y: 0.5}
+                        View{
+                            width: 148 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                            RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_even border_radius: 9.0}}
+                            OcLabel{text: "Save preferences" draw_text +: {text_style +: {font_size: 9.75}}}
+                            prefs_save := OcHit{draw_bg.border_radius: 9.0}
+                        }
+                        View{
+                            width: Fill height: Fit flow: Down
+                            prefs_status := OcMuted{width: Fill text: ""}
                         }
                     }
                 }
@@ -1437,6 +1585,46 @@ pub fn set_toggle<W: Widget>(cx: &mut Cx, root: &W, toggle: LiveId, on: bool) {
     show(cx, root, &[toggle, live_id!(tg_knob_off)], !on);
 }
 
+/// What the Desktop notifications row shows for the attention settings
+/// (GeneralSettingsContent.tsx:213-247): the toggle (pressed = enabled)
+/// unless the request is pending ("Enabling…", :239-243) or this process
+/// cannot post notices at all (the web's disabled button, :236); the
+/// message as status, or as an alert when it is an error (:225).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NotifyRow {
+    pub toggle: Option<bool>,
+    pub state: &'static str,
+    pub message: String,
+    pub alert: bool,
+}
+
+pub fn notify_row(s: &crate::attention::AttentionSettings) -> NotifyRow {
+    let state = if s.pending {
+        "Enabling…"
+    } else if !s.available {
+        "Unavailable"
+    } else {
+        ""
+    };
+    NotifyRow {
+        toggle: state.is_empty().then_some(s.enabled),
+        state,
+        message: s.message.clone(),
+        alert: s.error,
+    }
+}
+
+pub fn sync_notify_row<W: Widget>(cx: &mut Cx, view: &W, s: &crate::attention::AttentionSettings) {
+    let row = notify_row(s);
+    show(cx, view, ids!(tg_notify), row.toggle.is_some());
+    set_toggle(cx, view, live_id!(tg_notify), row.toggle == Some(true));
+    show(cx, view, ids!(notify_state), !row.state.is_empty());
+    text(cx, view, ids!(notify_state), row.state);
+    show(cx, view, ids!(notify_help), !row.alert);
+    show(cx, view, ids!(notify_alert), row.alert);
+    text(cx, view, if row.alert { ids!(notify_alert) } else { ids!(notify_help) }, &row.message);
+}
+
 /// Flip a radio's two layers.
 pub fn set_radio<W: Widget>(cx: &mut Cx, root: &W, radio: LiveId, on: bool) {
     show(cx, root, &[radio, live_id!(rd_on)], on);
@@ -1487,66 +1675,31 @@ pub struct ChromeRuntime {
     pub docked: Option<String>,
     /// The session whose driver record was last read (board 12's probe).
     pub driver_probe: Option<String>,
-    /// Whether the app window has focus (desktop notifications fire only in
-    /// the background).
-    pub unfocused: bool,
-    /// The attention facts last seen, so a notification fires once per change.
-    pub attention: Option<Attention>,
     /// The profile's model list was requested for this connection.
     pub models_requested: bool,
     /// A19b — the active Session's history is still loading or could not be
     /// read (`flow::History`): its conversation is not a New chat's, so the
     /// "New chat defaults" strip stays off.
     pub history_unsettled: bool,
+    /// A24 — the static shell's English sources, re-texted on a language
+    /// switch (`i18n::tree`).
+    pub texts: crate::i18n::tree::StaticTexts,
 }
 
-/// What the desktop-notification hook compares between syncs: the active
-/// session's newest settled turn and whether it waits for the person.
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct Attention {
-    pub session: String,
-    pub settled_turn: Option<String>,
-    pub waiting: bool,
-}
-
-impl Attention {
-    /// The active session's attention facts from the store.
-    pub fn of(store: &octoscode_store::Store) -> Option<Attention> {
-        let session = store.active_session()?;
-        let entries = store.domains.session.timeline.entries(&session);
-        let settled_turn = entries
-            .iter()
-            .rev()
-            .filter_map(|e| e.turn_id.clone())
-            .find(|t| store.domains.turn.terminal(t).is_some());
-        let waiting = crate::screens::sidebar::session_status(store, &session, Some(&session))
-            == crate::screens::sidebar::Status::Waiting;
-        Some(Attention { session, settled_turn, waiting })
-    }
-}
-
-/// The web's attention notice (desktop-notifications.ts: "Notify when a turn
-/// needs you or finishes while OctosCode is in the background"): a notice
-/// only when enabled, unfocused, and the SAME session newly settled a turn
-/// or newly waits. Returns (title, body).
-pub fn attention_notice(
-    prev: Option<&Attention>,
-    now: &Attention,
-    title: &str,
-    enabled: bool,
-    unfocused: bool,
-) -> Option<(String, String)> {
-    let prev = prev.filter(|p| p.session == now.session)?;
-    if !enabled || !unfocused {
-        return None;
-    }
-    if now.waiting && !prev.waiting {
-        return Some(("OctosCode needs you".to_owned(), format!("{title} is waiting for input")));
-    }
-    if now.settled_turn.is_some() && now.settled_turn != prev.settled_turn {
-        return Some(("OctosCode".to_owned(), format!("{title} finished")));
-    }
-    None
+/// A24 — the NAMED shell labels whose DSL text is static copy (code never
+/// sets them); anonymous labels are static by construction.
+pub fn static_named() -> [LiveId; 8] {
+    [
+        // The Settings nav cells' labels (`OcNavCell{… nv_label +: {text: …}}`).
+        live_id!(nv_label),
+        live_id!(hd_tab_chat_on),
+        live_id!(hd_tab_chat_off),
+        live_id!(hd_tab_traj_on),
+        live_id!(hd_tab_traj_off),
+        live_id!(hd_review_label),
+        live_id!(hd_settings_label),
+        live_id!(fleet_nav_label),
+    ]
 }
 
 /// What the chrome's clicks ask the host to perform.
@@ -1691,12 +1844,27 @@ impl ChromeRuntime {
             if c(cx, live_id!(set_models_manage)) {
                 out.push(Intent::Action("dialog.open.models", 0));
             }
+            // A24: Preferences - Language (English | 简体中文).
+            if segment_hit(cx, view, live_id!(lang_en), actions) {
+                out.push(Intent::Action(crate::screens::a9_prefs::ACTION_LANG_EN, 0));
+            }
+            if segment_hit(cx, view, live_id!(lang_zh), actions) {
+                out.push(Intent::Action(crate::screens::a9_prefs::ACTION_LANG_ZH, 0));
+            }
             // A9: Preferences - Vim editing, Save.
             if toggle_hit(cx, view, live_id!(tg_vim), actions) {
                 out.push(Intent::Action(crate::screens::a9_prefs::ACTION_VIM, 0));
             }
             if c(cx, live_id!(prefs_save)) {
                 out.push(Intent::Action(crate::screens::a9_prefs::ACTION_SAVE, 0));
+            }
+            // A26 — a display palette row.
+            for action in crate::screens::a9_prefs::PALETTE_ACTIONS {
+                let id = action.trim_start_matches(crate::screens::a9_prefs::ACTION_PALETTE);
+                let row = LiveId::from_str(&format!("pal_{id}"));
+                if clicked(cx, view, &[row, live_id!(pl_hit)], actions) {
+                    out.push(Intent::Action(action, 0));
+                }
             }
             // A9: the Connection row's Disconnect / Forget server (each asks
             // first when work would be lost; screens::a9_settings).
@@ -1760,6 +1928,16 @@ impl ChromeRuntime {
         }
         if c(cx, live_id!(sb_add_hit)) {
             out.push(Intent::Action("workspace.add", 0));
+        }
+        // A26 — the footer's theme toggle and Settings (the web's order after
+        // Fleet). A hidden Button still reports MouseUp, so they count only
+        // while the sidebar is on screen (the column, or the open drawer).
+        if !self.compact || sb.drawer_open {
+            for entry in [FooterEntry::Theme, FooterEntry::Settings] {
+                if c(cx, LiveId::from_str(entry.hit())) {
+                    out.extend(footer_intents(entry, self.compact));
+                }
+            }
         }
         // The collapse toggle and the collapsed rail.
         if c(cx, live_id!(sidebar_collapse)) {
@@ -1834,6 +2012,21 @@ impl ChromeRuntime {
         // The collapsed rail keeps the Fleet entry as its icon only; the web
         // drops the label (ProductSidebar.tsx:980). Left in, it clipped to 3 px.
         show(cx, view, ids!(fleet_nav_label), !rail);
+        // A26 — the footer's theme toggle and Settings: icons only in the
+        // rail too (ProductSidebar.tsx:995/1015); the toggle's icon and label
+        // follow the appearance preference (System / Light / Dark).
+        for entry in [FooterEntry::Theme, FooterEntry::Settings] {
+            show(cx, view, &[LiveId::from_str(entry.label())], !rail);
+        }
+        {
+            let pref = crate::screens::theme::preference();
+            let on = footer_theme_icon(&pref);
+            for layer in ["sb_theme_ic_system", "sb_theme_ic_light", "sb_theme_ic_dark"] {
+                show(cx, view, &[LiveId::from_str(layer)], layer == on);
+            }
+            text(cx, view, ids!(sb_theme_label), theme_label(&pref));
+            text(cx, view, ids!(sb_settings_label), a26_copy::SETTINGS);
+        }
         show(cx, view, ids!(sidebar_collapse_slot), !compact && !rail);
         if crate::screens::sidebar::take_focus_search() {
             view.widget(cx, ids!(sb_search)).set_key_focus(cx);
@@ -1850,6 +2043,14 @@ impl ChromeRuntime {
             self.applied = key;
             let mut col = view.widget(cx, ids!(threads_column));
             script_apply_eval!(cx, col, { width: #(sidebar_w) });
+            // A26 — the footer rows (Fleet, the theme toggle, Settings): in
+            // the collapsed rail their icons sit on the rail buttons' centre
+            // line (`.collapsed .settings { justify-content: center }`).
+            let row_pad = Inset { left: footer_row_inset(rail), right: 0.0, top: 0.0, bottom: 0.0 };
+            for row in ["fleet_nav_row", "sb_theme_row", "sb_settings_row"] {
+                let mut r = view.widget(cx, &[LiveId::from_str(row)]);
+                script_apply_eval!(cx, r, { padding: #(row_pad) });
+            }
             // The desktop spacer reserves the column + its 1 px rule.
             let spacer_w = sidebar_w + 1.0;
             let mut spacer = view.widget(cx, ids!(sidebar_spacer));
@@ -1897,7 +2098,7 @@ impl ChromeRuntime {
         show(cx, view, ids!(hd_copy), copy_offered);
         if copy_offered {
             let sid = store.active_session().unwrap_or_default();
-            text(cx, view, ids!(hd_copy_label), crate::screens::copy_button::phase(&sid).label());
+            text(cx, view, ids!(hd_copy_label), tr(crate::screens::copy_button::phase(&sid).label()));
         }
 
         // ---- header: the active session's title + its workspace path.
@@ -1907,8 +2108,8 @@ impl ChromeRuntime {
             .and_then(|a| store.sessions().into_iter().find(|s| s.id == a));
         let title = session
             .as_ref()
-            .map(|s| s.label_stem().unwrap_or_else(|| "New chat".to_owned()))
-            .unwrap_or_else(|| "New chat".to_owned());
+            .map(|s| s.label_stem().unwrap_or_else(|| tr("New chat").to_owned()))
+            .unwrap_or_else(|| tr("New chat").to_owned());
         let root = active
             .as_deref()
             .and_then(|a| store.domains.session.workspace_root(a))
@@ -1916,6 +2117,9 @@ impl ChromeRuntime {
             .unwrap_or_default();
         text(cx, view, ids!(hd_title), &title);
         text(cx, view, ids!(hd_path), &root);
+        // An empty path line still takes its height and lifts a lone title
+        // above the tabs' centre line; without a path the title centres.
+        show(cx, view, ids!(hd_path), !root.is_empty());
         // Board 10: the defaults strip shows above an EMPTY conversation —
         // a New chat's (A19b: not a Session whose history is still loading,
         // or could not be read: that one is not empty, its rows are coming).
@@ -1941,15 +2145,15 @@ impl ChromeRuntime {
                 cx,
                 view,
                 ids!(hd_held_text),
-                &format!("This session is open in {who}. You can read along; take over to send."),
+                &tr_with("This session is open in {who}. You can read along; take over to send.", &[("who", &who)]),
             );
         }
 
         // ---- sidebar controls.
         let grouped = sb.mode == sidebar::Mode::Grouped;
-        set_segment(cx, view, live_id!(sb_seg_ws), "By workspace", grouped);
-        set_segment(cx, view, live_id!(sb_seg_all), "All", !grouped);
-        text(cx, view, ids!(sb_sort_label), sb.sort.label());
+        set_segment(cx, view, live_id!(sb_seg_ws), tr("By workspace"), grouped);
+        set_segment(cx, view, live_id!(sb_seg_all), tr("All"), !grouped);
+        text(cx, view, ids!(sb_sort_label), tr(sb.sort.label()));
         show(cx, view, ids!(sb_search_clear_row), !sb.query.is_empty());
         if sb.query.is_empty() {
             // `search.clear` emptied the state: empty the field too.
@@ -1984,21 +2188,22 @@ impl ChromeRuntime {
             show(cx, view, &[rail, live_id!(rl_off_icon)], !on);
             show(cx, view, &[sec], on);
         }
+        show(cx, view, ids!(set_footer), st.section == Section::Preferences);
         show(cx, view, ids!(set_nav), !compact);
         show(cx, view, ids!(set_rail), compact);
         show(cx, view, ids!(set_close_slot), !compact);
-        text(cx, view, ids!(set_title), st.section.title());
+        text(cx, view, ids!(set_title), tr(st.section.title()));
         // General.
-        set_toggle(cx, view, live_id!(tg_notify), st.notifications);
+        sync_notify_row(cx, view, &crate::attention::settings());
         let theme = theme_label(&crate::screens::theme::preference());
-        text(cx, view, &[live_id!(set_theme), live_id!(vb_text)], theme);
+        text(cx, view, &[live_id!(set_theme), live_id!(vb_text)], tr(theme));
         let endpoint = server_label();
         // A9: the web's five connection states (a9_settings::status_of) with
         // the status dot; the origin on the right.
         {
             use crate::screens::a9_settings::{self as a9s, Dot};
             let status = a9s::status_of(&store.connection(), false);
-            text(cx, view, ids!(set_server_status), status.copy());
+            text(cx, view, ids!(set_server_status), tr(status.copy()));
             let dot = status.dot();
             show(cx, view, ids!(set_server_dot_ok), dot == Dot::Ok);
             show(cx, view, ids!(set_server_dot_busy), dot == Dot::Busy);
@@ -2028,9 +2233,9 @@ impl ChromeRuntime {
         set_radio(cx, view, live_id!(pm_full_radio), preset == Some(settings::Preset::Full));
         text(cx, view, ids!(set_perm_readback), &settings::permission_readback(store));
         let state_line = if st.saving.is_some() {
-            Some("Saving…".to_owned())
+            Some(tr("Saving…").to_owned())
         } else {
-            st.last_error.as_ref().map(|e| format!("Failed: {e}"))
+            st.last_error.as_ref().map(|e| tr_with("Failed: {value0}", &[("value0", e)]))
         };
         show(cx, view, ids!(set_perm_state), state_line.is_some());
         if let Some(line) = state_line {
@@ -2039,9 +2244,12 @@ impl ChromeRuntime {
         // Model.
         text(cx, view, &[live_id!(set_model), live_id!(vb_text)], &settings::model_of(store));
         let thinking = settings::thinking_of(store);
-        set_segment(cx, view, live_id!(th_off), "Off", thinking == settings::Thinking::Off);
-        set_segment(cx, view, live_id!(th_on), "On", thinking == settings::Thinking::On);
-        set_segment(cx, view, live_id!(th_high), "High", thinking == settings::Thinking::High);
+        // A24: the web has no key for "Off" / "On": this one control stays
+        // English rather than read "Off | On | 高" (i18n::keep).
+        use crate::i18n::keep;
+        set_segment(cx, view, live_id!(th_off), keep("Off"), thinking == settings::Thinking::Off);
+        set_segment(cx, view, live_id!(th_on), keep("On"), thinking == settings::Thinking::On);
+        set_segment(cx, view, live_id!(th_high), keep("High"), thinking == settings::Thinking::High);
         show(cx, view, ids!(set_models_row), crate::screens::dialog::advertises(store, "profile/llm/list"));
         // Sandbox (new-chat defaults).
         set_toggle(cx, view, live_id!(tg_sb_write), st.sandbox.workspace_write);
@@ -2060,17 +2268,31 @@ impl ChromeRuntime {
         // A9: Preferences.
         {
             let prefs = crate::screens::a9_prefs::snapshot();
+            // A24: the options are the web's own labels, never translated.
+            let zh = prefs.current.language == "zh";
+            set_segment(cx, view, live_id!(lang_en), "English", !zh);
+            set_segment(cx, view, live_id!(lang_zh), "简体中文", zh);
             set_toggle(cx, view, live_id!(tg_vim), prefs.current.vim_mode);
-            text(cx, view, ids!(prefs_status), prefs.status());
+            text(cx, view, ids!(prefs_status), tr(prefs.status()));
+            // A26 — the display palette: the chosen row's radio is on.
+            text(cx, view, ids!(pal_title), tr(a26_copy::PALETTE_TITLE));
+            text(cx, view, ids!(pal_help), tr(a26_copy::PALETTE_HELP));
+            for p in crate::screens::theme::Palette::ALL {
+                let row = LiveId::from_str(&format!("pal_{}", p.id()));
+                let on = prefs.current.theme == p.id();
+                show(cx, view, &[row, live_id!(rd_on)], on);
+                show(cx, view, &[row, live_id!(rd_off)], !on);
+                text(cx, view, &[row, live_id!(pl_title)], tr(p.label()));
+            }
         }
-        text(cx, view, ids!(set_about_version), &format!("Version {}", env!("CARGO_PKG_VERSION")));
+        text(cx, view, ids!(set_about_version), &tr_with("Version {version}", &[("version", env!("CARGO_PKG_VERSION"))]));
         let methods = store.domains.config.supported_methods().len();
         text(
             cx,
             view,
             ids!(set_about_server),
             &if methods > 0 {
-                format!("{} · {methods} protocol methods advertised", server_label())
+                tr_with("{server} · {methods} protocol methods advertised", &[("server", &server_label()), ("methods", &methods.to_string())])
             } else {
                 server_label()
             },
@@ -2080,7 +2302,18 @@ impl ChromeRuntime {
         // ---- the Stop dialog.
         show(cx, view, ids!(stop_dock), live && st.stop_pending);
         show(cx, view, ids!(stop_error), st.stop_failed);
-        text(cx, view, ids!(stop_confirm_label), if st.stop_busy { "Stopping…" } else { "Stop server" });
+        text(cx, view, ids!(stop_confirm_label), tr(if st.stop_busy { "Stopping…" } else { "Stop server" }));
+
+        // ---- A24: the static shell's copy in the current language (on the
+        // first sync and after every switch; `i18n::tree`).
+        let n = self.texts.sync(cx, view, &static_named());
+        if n > 0 {
+            makepad_widgets::log!(
+                "[octoscode] a24 shell copy: {n} text(s) set ({}; {} source(s))",
+                crate::i18n::language().code(),
+                self.texts.sources()
+            );
+        }
     }
 }
 
@@ -2141,6 +2374,87 @@ pub fn theme_label(pref: &str) -> &'static str {
         "dark" => "Dark",
         "light" => "Light",
         _ => "System",
+    }
+}
+
+/// A26 — every new user-visible string of the three A26 rows, in one place
+/// (A24 wraps them with `tr()` once its catalog lands).
+pub mod a26_copy {
+    /// The footer's Settings entry (ProductSidebar.tsx:1010-1015).
+    pub const SETTINGS: &str = "Settings";
+    /// Settings > Preferences: the palette block's title (the web's Theme
+    /// select — General's "Theme" row is the appearance Terminal follows).
+    pub const PALETTE_TITLE: &str = "Palette";
+    /// The note under it (PreferencesDialog.tsx:71-75, native wording).
+    pub const PALETTE_HELP: &str = "Terminal follows the light or dark theme; named palettes are dark.";
+}
+
+/// A26 — the sidebar footer's entries after + Add workspace, in the web's
+/// order (ProductSidebar.tsx:969-1016). Fleet is A4's row, routed by the
+/// shell (`fleet_nav_hit`); Theme and Settings route here.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FooterEntry {
+    Fleet,
+    Theme,
+    Settings,
+}
+
+impl FooterEntry {
+    pub const ALL: [FooterEntry; 3] = [FooterEntry::Fleet, FooterEntry::Theme, FooterEntry::Settings];
+
+    /// The row's hit target id.
+    pub fn hit(self) -> &'static str {
+        match self {
+            FooterEntry::Fleet => "fleet_nav_hit",
+            FooterEntry::Theme => "sb_theme_hit",
+            FooterEntry::Settings => "sb_settings_hit",
+        }
+    }
+
+    /// The row's label id (hidden in the collapsed rail, ProductSidebar.tsx:
+    /// 981/995/1015).
+    pub fn label(self) -> &'static str {
+        match self {
+            FooterEntry::Fleet => "fleet_nav_label",
+            FooterEntry::Theme => "sb_theme_label",
+            FooterEntry::Settings => "sb_settings_label",
+        }
+    }
+}
+
+/// A26 — what a click on a footer entry asks the host to do (`App.tsx:
+/// 2333-2343`): the theme toggle cycles the appearance (`cycleTheme`);
+/// Settings opens the Settings surface, closing the phone drawer first
+/// (`if (compact) setSidebarCollapsed(true)`). Fleet is the shell's
+/// `fleet_nav_hit` arm (it opens the Fleet pane and closes the drawer).
+pub fn footer_intents(entry: FooterEntry, compact: bool) -> Vec<Intent> {
+    match entry {
+        FooterEntry::Fleet => Vec::new(),
+        FooterEntry::Theme => vec![Intent::Action("theme.cycle", 0)],
+        FooterEntry::Settings if compact => vec![Intent::Action("drawer.close", 0), Intent::OpenSettings],
+        FooterEntry::Settings => vec![Intent::OpenSettings],
+    }
+}
+
+/// A26 — the theme entry's icon for a preference (`ThemeIcon`, ui/ThemeIcon.tsx:
+/// moon for dark, sun for light, the monitor for system): the id of the
+/// layer the footer shows.
+pub fn footer_theme_icon(pref: &str) -> &'static str {
+    match pref {
+        "dark" => "sb_theme_ic_dark",
+        "light" => "sb_theme_ic_light",
+        _ => "sb_theme_ic_system",
+    }
+}
+
+/// A26 — the left inset of a footer row: the column's 8 px, or, in the
+/// collapsed rail, the inset that centres the 15 px icon in the rail's 36 px
+/// content box (the rail buttons' own centre).
+pub fn footer_row_inset(rail: bool) -> f64 {
+    if rail {
+        (36.0 - 15.0) / 2.0
+    } else {
+        8.0
     }
 }
 
@@ -2301,6 +2615,8 @@ pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode
             }
             Row::ClearSearch => {
                 let item = list.item(cx, id, id!(SbClearTpl));
+                // A24: a list row is drawn from data (the static pass skips lists).
+                item.label(cx, ids!(sb_c_text)).set_text(cx, tr("Clear search"));
                 item.draw_all_unscoped(cx);
             }
             Row::Divider => {
@@ -2416,6 +2732,7 @@ pub fn seed_board2(store: &octoscode_store::Store, variant: &str) {
         title: "Which branch?".into(),
         body: String::new(),
         questions: serde_json::Value::Null,
+        ..Default::default()
     });
     let tl = &store.domains.session.timeline;
     tl.append("b2:s3", Some("b2:t3".into()), EntryKind::ASSISTANT_TEXT, "Reviewed.".into());
@@ -2474,23 +2791,19 @@ mod tests {
         assert_eq!(fit_segments("New chat defaults", 10.0), "New chat defaults", "the first segment stays");
     }
 
+    /// A25 — GeneralSettingsContent.tsx:213-247 on board 2's toggle.
     #[test]
-    fn a_notice_fires_once_per_new_settle_or_wait_and_only_in_the_background() {
-        let base = Attention { session: "s1".into(), settled_turn: Some("t1".into()), waiting: false };
-        let settled = Attention { settled_turn: Some("t2".into()), ..base.clone() };
-        let waiting = Attention { waiting: true, ..base.clone() };
-        // In the background, enabled: a new settled turn and a new wait notify.
-        assert!(attention_notice(Some(&base), &settled, "Fix it", true, true)
-            .is_some_and(|(_, b)| b == "Fix it finished"));
-        assert!(attention_notice(Some(&base), &waiting, "Fix it", true, true)
-            .is_some_and(|(_, b)| b == "Fix it is waiting for input"));
-        // No change, focused, disabled, first sight, or another session: none.
-        assert_eq!(attention_notice(Some(&base), &base, "x", true, true), None);
-        assert_eq!(attention_notice(Some(&base), &settled, "x", true, false), None);
-        assert_eq!(attention_notice(Some(&base), &settled, "x", false, true), None);
-        assert_eq!(attention_notice(None, &settled, "x", true, true), None);
-        let other = Attention { session: "s2".into(), ..settled };
-        assert_eq!(attention_notice(Some(&base), &other, "x", true, true), None);
+    fn the_notifications_row_shows_toggle_pending_unavailable_and_alert_states() {
+        use crate::attention::AttentionSettings as S;
+        let base = S { enabled: false, pending: false, available: true, message: "m".into(), error: false };
+        assert_eq!(notify_row(&base), NotifyRow { toggle: Some(false), state: "", message: "m".into(), alert: false });
+        assert_eq!(notify_row(&S { enabled: true, ..base.clone() }).toggle, Some(true), "aria-pressed");
+        let pending = notify_row(&S { pending: true, ..base.clone() });
+        assert_eq!((pending.toggle, pending.state), (None, "Enabling…"), "no toggle to press while asking");
+        let unavailable = notify_row(&S { available: false, ..base.clone() });
+        assert_eq!((unavailable.toggle, unavailable.state), (None, "Unavailable"), "the web's disabled button");
+        let error = notify_row(&S { error: true, ..base.clone() });
+        assert_eq!((error.toggle, error.alert), (Some(false), true), "an error is an alert, the toggle stays");
     }
 
     #[test]

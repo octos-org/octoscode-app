@@ -1,0 +1,64 @@
+== native walk a26_toasts [desktop] (tools/walk/a26_toasts.py)
+-- run 1: exit 0 in 18 s
+PASS no toast before anything failed
+CLICK sb_new_chat_hit r=[64, 128, 260, 34] at (194,145)
+PASS a refused New chat raises one toast — [("Couldn't start a new chat.", 'the replay fixture refused session/open #2 (--refuse)')]
+PASS its lead says what failed, plainly — "Couldn't start a new chat."
+PASS its cause is the server's own reason — 'the replay fixture refused session/open #2 (--refuse)'
+PASS the server really refused it (the wire)
+PASS the arrival is announced in the app log
+PASS the toast sits inside the conversation, under its header — card=[668, 188, 360, 74] col=[335, 76, 709, 603] head=[335, 76, 709, 100]
+PASS right-aligned in the conversation (16 px inset), at most 360 px — card=[668, 188, 360, 74] col=[335, 76, 709, 603]
+PASS clear of the composer — card=[668, 188, 360, 74] composer=[359, 571, 661, 92]
+PASS × is a >= 28 px target inside the toast — [994, 198, 28, 28]
+PASS a26_toast_lead_1 lies whole inside its toast — [716, 201, 268, 16] in [668, 188, 360, 74]
+PASS a26_toast_cause_1 lies whole inside its toast — [716, 220, 268, 33] in [668, 188, 360, 74]
+SHOT desktop-toast-one-light
+TYPE 'still typing'
+PASS the composer still takes typing under a toast — 'still typing'
+CLICK sb_new_chat_hit r=[64, 128, 260, 34] at (194,145)
+CLICK sb_new_chat_hit r=[64, 128, 260, 34] at (194,145)
+CLICK sb_new_chat_hit r=[64, 128, 260, 34] at (194,145)
+PASS four failures keep three toasts and say one was pushed out — 3 shown; note='1 earlier error no longer shown'
+PASS the newest is on top — ['the replay fixture refused session/open #5 (--refuse)', 'the replay fixture refused session/open #4 (--refuse)', 'the replay fixture refused session/open #3 (--refuse)']
+PASS the push-out is announced
+PASS the whole stack stays clear of the composer — stack=[668, 188, 360, 255] composer=[359, 571, 661, 92]
+SHOT desktop-toast-stack-light
+CLICK sb_settings_hit r=[64, 637, 260, 34] at (194,654)
+PASS Settings opens from the footer
+PASS Settings holds the stack: no toast over the dialog
+SHOT desktop-toast-held-settings
+CLICK settings_close r=[905, 154, 32, 32] at (921,170)
+PASS the stack returns when Settings closes
+CLICK × on the newest toast r=[994, 198, 28, 28]
+PASS × dismisses that toast
+PASS the rest leave on their own (8 s on screen)
+PASS their expiry is announced
+CLICK sb_theme_hit r=[64, 603, 260, 34] at (194,620)
+CLICK sb_theme_hit r=[64, 603, 260, 34] at (194,620)
+PASS the footer's toggle reaches Dark
+CLICK sb_new_chat_hit r=[64, 128, 260, 34] at (194,145)
+PASS dark: a refused New chat raises its toast
+PASS dark: the toast card is drawn raised on the dark window (#2C2C2E) — pixel (44, 44, 46)
+SHOT desktop-toast-one-dark
+CLICK sb_new_chat_hit r=[64, 128, 260, 34] at (194,145)
+SHOT desktop-toast-stack-dark
+CLICK sb_theme_hit r=[64, 603, 260, 34] at (194,620)
+PASS back to Light
+== 27/27 checks passed
+-- fixture log tail:
+[replay-serve] -> session/list (history) null
+[replay-serve] <- session/status/read (id=22)
+[replay-serve] -> session/status/read (recorded reply)
+[replay-serve] <- session/open (id=23)
+[replay-serve] -> session/open refused (--refuse, request 6)
+[replay-serve] <- session/list (id=24)
+[replay-serve] -> session/list (history) null
+[replay-serve] <- session/status/read (id=25)
+[replay-serve] -> session/status/read (recorded reply)
+[replay-serve] <- session/open (id=26)
+[replay-serve] -> session/open refused (--refuse, request 7)
+[replay-serve] <- session/list (id=27)
+[replay-serve] -> session/list (history) null
+[replay-serve] <- session/status/read (id=28)
+[replay-serve] -> session/status/read (recorded reply)

@@ -148,6 +148,12 @@ impl Core {
     }
 }
 
+/// The transport's own history read (messages); A8/A20's parked-interaction
+/// read names `include: ["pending_approvals"]` and gets a plain reply.
+fn messages_read(p: &Value) -> bool {
+    !p["include"].as_array().is_some_and(|a| a.iter().any(|x| x == "pending_approvals"))
+}
+
 fn opened(session: &str, cwd: &str, effort: Option<&str>) -> Value {
     let mut o = json!({
         "session_id": session, "active_profile_id": PROFILE, "workspace_root": cwd,
@@ -155,7 +161,10 @@ fn opened(session: &str, cwd: &str, effort: Option<&str>) -> Value {
         "capabilities": {
             "version": {"protocol": "octos-ui/v1alpha1", "schema_version": 1, "jsonrpc": "2.0"},
             "capabilities_schema_version": 2,
-            "supported_methods": ["session/open", "session/hydrate", "session/list", "turn/start", "turn/interrupt"],
+            // A20: a question gets a card only when its answer is negotiated
+            // (`user_question/respond` + `user_question.v1`).
+            "supported_methods": ["session/open", "session/hydrate", "session/list", "turn/start", "turn/interrupt",
+                                  "user_question/respond"],
             "supported_notifications": ["turn/started", "projection/envelope", "user_question/requested"],
             "supported_features": ["state.session_hydrate.v1", "projection.envelope.v2", "session.workspace_cwd.v1", "user_question.v1"]
         }
@@ -423,7 +432,7 @@ async fn row_203_a_candidates_live_events_wait_for_its_history_then_release_in_o
         let session = p["session_id"].as_str().unwrap_or("").to_owned();
         match method {
             "session/open" => Reply::Ok(opened(&session, p["cwd"].as_str().unwrap_or(CWD), None)),
-            "session/hydrate" if session == b => Reply::Around {
+            "session/hydrate" if session == b && messages_read(p) => Reply::Around {
                 before: vec![
                     // A replayed frame of T2 — B's history already holds it.
                     env(b, T2, 4, 13, json!({"type": "assistant_persisted", "data": {
@@ -499,7 +508,7 @@ async fn row_203_a_candidate_fails_closed_on_the_4097th_buffered_event() {
         let session = p["session_id"].as_str().unwrap_or("").to_owned();
         match method {
             "session/open" => Reply::Ok(opened(&session, p["cwd"].as_str().unwrap_or(CWD), None)),
-            "session/hydrate" if session == b => Reply::Around {
+            "session/hydrate" if session == b && messages_read(p) => Reply::Around {
                 before: (1..=CANDIDATE_LIMIT as u64 + 1)
                     .map(|i| env(b, T3, i, 14 + i, json!({"type": "assistant_delta", "data": {"text": "x", "assistant_segment_id": "s"}})))
                     .collect(),
@@ -543,7 +552,7 @@ async fn row_203_a_newer_open_replaces_an_unprepared_candidate() {
         let session = p["session_id"].as_str().unwrap_or("").to_owned();
         match method {
             "session/open" => Reply::Ok(opened(&session, p["cwd"].as_str().unwrap_or(CWD), None)),
-            "session/hydrate" if session == b => Reply::Late {
+            "session/hydrate" if session == b && messages_read(p) => Reply::Late {
                 before: vec![
                     started(b, T3),
                     env(b, T3, 1, 15, json!({"type": "user_message", "data": {"text": "B's live prompt"}})),
@@ -551,7 +560,7 @@ async fn row_203_a_newer_open_replaces_an_unprepared_candidate() {
                 delay_ms: 900,
                 result: hydrated(b, 14, vec![row(1, "user", "B history", T1)], &[(T1, 1)]),
             },
-            "session/hydrate" if session == c => Reply::Around {
+            "session/hydrate" if session == c && messages_read(p) => Reply::Around {
                 before: vec![
                     started(c, T3.replace("a3", "c3").as_str()),
                     env(c, &T3.replace("a3", "c3"), 1, 9, json!({"type": "user_message", "data": {"text": "C live"}})),

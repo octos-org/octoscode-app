@@ -42,6 +42,7 @@ use serde_json::{json, Value};
 use octoscode_store::Store;
 
 use crate::bindings::Ctx;
+use crate::i18n::{tr, tr1, tr_with};
 
 /// The action ids the sidebar owns. ONE OWNER: these never reach the
 /// conversation router — `lib.rs` routes them through [`resolve`] first.
@@ -500,7 +501,7 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
             if query.is_empty() {
                 rows.extend(all.into_iter().map(|it| row_of(it, None)));
                 if rows.is_empty() {
-                    rows.push(Row::Note("No chats yet.".to_owned()));
+                    rows.push(Row::Note(tr("No chats yet.").to_owned()));
                 }
             } else {
                 let hits: Vec<Row> = all
@@ -508,7 +509,7 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
                     .filter_map(|it| find_ci(&it.title, &query).map(|m| row_of(it, Some(m))))
                     .collect();
                 if hits.is_empty() {
-                    rows.push(Row::Note(format!("No chats match \u{201c}{query}\u{201d}")));
+                    rows.push(Row::Note(tr1("No chats match \u{201c}{value0}\u{201d}", &query)));
                     rows.push(Row::ClearSearch);
                 } else {
                     rows.extend(hits);
@@ -535,7 +536,7 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
                         continue;
                     }
                     if members.is_empty() {
-                        rows.push(Row::Note("No chats yet.".to_owned()));
+                        rows.push(Row::Note(tr("No chats yet.").to_owned()));
                     }
                     rows.extend(members.into_iter().map(|it| row_of(it, None)));
                 } else {
@@ -547,9 +548,9 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
                         .collect();
                     if hits.is_empty() {
                         any_miss = true;
-                        rows.push(Row::Note(format!(
-                            "No chats in {} match \u{201c}{query}\u{201d}",
-                            g.label
+                        rows.push(Row::Note(tr_with(
+                            "No chats in {value0} match \u{201c}{value1}\u{201d}",
+                            &[("value0", &g.label), ("value1", &query)],
                         )));
                     } else {
                         rows.extend(hits);
@@ -558,9 +559,9 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
             }
             if groups.is_empty() {
                 rows.push(Row::Note(if query.is_empty() {
-                    "No chats yet.".to_owned()
+                    tr("No chats yet.").to_owned()
                 } else {
-                    format!("No chats match \u{201c}{query}\u{201d}")
+                    tr1("No chats match \u{201c}{value0}\u{201d}", &query)
                 }));
                 any_miss = !query.is_empty();
             }
@@ -576,14 +577,14 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
 /// (`workspace-session-catalog.ts:120`); a session with neither is a "New
 /// chat" (`ProductSidebar.tsx:1223`, the board's copy).
 fn title_of(s: &octoscode_store::Session) -> String {
-    s.label_stem().unwrap_or_else(|| "New chat".to_owned())
+    s.label_stem().unwrap_or_else(|| tr("New chat").to_owned())
 }
 
 /// A group's display label: the workspace folder name (`workspaceName`,
 /// `workspace-recents.ts:81-85`), or "Sessions" when the path is unknown.
 fn group_label(key: &str) -> String {
     if key.is_empty() {
-        "Sessions".to_owned()
+        tr("Sessions").to_owned()
     } else {
         crate::screens::recents::workspace_name(key)
     }
@@ -594,13 +595,13 @@ fn group_label(key: &str) -> String {
 /// waiting > running > the newest settled turn (completed / failed) > idle.
 pub fn session_status(store: &Store, id: &str, active: Option<&str>) -> Status {
     let is_active = active == Some(id);
-    let question = store
-        .domains
-        .approval
-        .question()
-        .is_some_and(|q| q.session_id == id);
-    let approval = is_active && store.domains.approval.pending().iter().any(|a| !a.decided && !a.cancelled);
-    if question || approval {
+    // A20 (parity row 250): Waiting is THIS Session's own interaction — an
+    // approval or question whose recorded origin is `id`, selected or not
+    // (a blocked background Session surfaces without selection,
+    // `session-record-manager.ts:351-357`). Before, ANY pending approval made
+    // the SELECTED row read Waiting (Session X's wait shown as Y's), and X's
+    // own row did not.
+    if store.domains.approval.waiting(id) {
         return Status::Waiting;
     }
     let listed_running = store
@@ -658,10 +659,11 @@ pub struct Background {
 }
 
 /// The record's own pending interaction (`record.interactions
-/// .waitingSnapshot().length > 0`): a user question of THIS Session, or an
-/// actionable approval whose payload names it.
+/// .waitingSnapshot().length > 0`): A20's ledger answers for THIS Session's
+/// own key — an actionable approval or an outstanding question whose
+/// recorded origin is `id`.
 pub fn waiting_for(store: &Store, id: &str) -> bool {
-    store.domains.approval.question().is_some_and(|q| q.session_id == id) || store.domains.approval.showing(id).is_some()
+    store.domains.approval.waiting(id)
 }
 
 /// `backgroundSessionState(queue, waiting, timeline)`
@@ -1328,6 +1330,10 @@ mod tests {
             title: "Which branch?".into(),
             body: String::new(),
             questions: serde_json::Value::Null,
+            topic: None,
+            generation: 0,
+            unread: false,
+            seq: 0,
         };
         store.domains.approval.set_question(question("ledger"));
         assert_eq!(st("ledger"), Status::Waiting);
@@ -1365,6 +1371,7 @@ mod tests {
             title: "Which branch?".into(),
             body: String::new(),
             questions: serde_json::Value::Null,
+            ..Default::default()
         });
         // done / failed: the newest terminal turn of the session's timeline
         let tl = &store.domains.session.timeline;

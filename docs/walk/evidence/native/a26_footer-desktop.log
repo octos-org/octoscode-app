@@ -1,0 +1,76 @@
+== native walk a26_footer [desktop] (tools/walk/a26_footer.py)
+-- run 1: exit 0 in 13 s
+PASS light: the footer rows are on screen (+ Add workspace, Fleet, theme, Settings) — [[64, 535, 260, 34], [64, 569, 260, 34], [64, 603, 260, 34], [64, 637, 260, 34]]
+PASS light: in the web's order, one stack (Fleet, then the theme toggle, then Settings) — y=[535, 569, 603, 637]
+PASS light: one row height and one left edge (A3's row metrics) — [[64, 535, 260, 34], [64, 569, 260, 34], [64, 603, 260, 34], [64, 637, 260, 34]]
+PASS light: inside the sidebar column — col=[54, 76, 280, 603]
+PASS light: the labels (Fleet, the theme, Settings) — {'fleet_nav_label': 'Fleet', 'sb_theme_label': 'Light', 'sb_settings_label': 'Settings'}
+PASS light: sb_theme_label sits whole inside its row — [97, 611, 33, 17] in [64, 603, 260, 34]
+PASS light: sb_settings_label sits whole inside its row — [97, 645, 54, 17] in [64, 637, 260, 34]
+PASS the toggle reads the current theme (Light)
+SHOT desktop-footer-light
+CLICK sb_theme_hit r=[64, 603, 260, 34] at (194,620)
+PASS the theme toggle cycles to System — 'System'
+PASS System: the toggle shows its icon (system) — ['sb_theme_ic_system']
+PASS System: the choice is saved at once (system removes it) — None
+CLICK sb_theme_hit r=[64, 603, 260, 34] at (194,620)
+PASS the theme toggle cycles to Dark — 'Dark'
+PASS Dark: the toggle shows its icon (dark) — ['sb_theme_ic_dark']
+PASS Dark: the choice is saved at once (system removes it) — 'dark'
+PASS Dark: the whole app re-themes live — pixel (28, 31, 34) at (222, 511) vs dark (28, 31, 34)
+PASS dark: the footer rows are on screen (+ Add workspace, Fleet, theme, Settings) — [[64, 535, 260, 34], [64, 569, 260, 34], [64, 603, 260, 34], [64, 637, 260, 34]]
+PASS dark: in the web's order, one stack (Fleet, then the theme toggle, then Settings) — y=[535, 569, 603, 637]
+PASS dark: one row height and one left edge (A3's row metrics) — [[64, 535, 260, 34], [64, 569, 260, 34], [64, 603, 260, 34], [64, 637, 260, 34]]
+PASS dark: inside the sidebar column — col=[54, 76, 280, 603]
+PASS dark: the labels (Fleet, the theme, Settings) — {'fleet_nav_label': 'Fleet', 'sb_theme_label': 'Dark', 'sb_settings_label': 'Settings'}
+PASS dark: sb_theme_label sits whole inside its row — [97, 611, 31, 17] in [64, 603, 260, 34]
+PASS dark: sb_settings_label sits whole inside its row — [97, 645, 54, 17] in [64, 637, 260, 34]
+SHOT desktop-footer-dark
+CLICK sb_theme_hit r=[64, 603, 260, 34] at (194,620)
+PASS the theme toggle cycles to Light — 'Light'
+PASS Light: the toggle shows its icon (light) — ['sb_theme_ic_light']
+PASS Light: the choice is saved at once (system removes it) — 'light'
+PASS Light: the whole app re-themes live — pixel (255, 255, 255) at (222, 511) vs light (255, 255, 255)
+CLICK sb_settings_hit r=[64, 637, 260, 34] at (194,654)
+PASS Settings opens from the footer's Settings — 'General'
+SHOT desktop-footer-settings
+CLICK settings_close r=[905, 154, 32, 32] at (921,170)
+PASS Settings closes
+CLICK fleet_nav_hit r=[64, 569, 260, 34] at (194,586)
+PASS Fleet opens from the footer's Fleet
+SHOT desktop-footer-fleet
+KEY Escape
+CLICK sidebar_collapse r=[292, 89, 32, 32] at (308,105)
+PASS rail: the footer labels are gone (icons only) — still shown: []
+PASS rail: the three footer targets stay inside the 56 px rail, >= 28 px — col=[54, 76, 56, 603] hits=[[64, 569, 36, 34], [64, 603, 36, 34], [64, 637, 36, 34]]
+PASS rail: the footer icons sit on the rail buttons' centre line — centre=82.0 offsets=[0.5, 0.5, 0.5]
+SHOT desktop-rail-light
+CLICK sb_theme_hit r=[64, 603, 36, 34] at (82,620)
+PASS rail: the theme icon still cycles (Light -> System)
+CLICK sb_theme_hit r=[64, 603, 36, 34] at (82,620)
+PASS rail: …and again (System -> Dark)
+SHOT desktop-rail-dark
+CLICK sb_settings_hit r=[64, 637, 36, 34] at (82,654)
+PASS rail: the Settings icon opens Settings
+CLICK settings_close r=[905, 154, 32, 32] at (921,170)
+CLICK sb_theme_hit r=[64, 603, 36, 34] at (82,620)
+PASS rail: back to Light
+CLICK rail_expand r=[64, 88, 36, 36] at (82,106)
+PASS the column expands back with its labels
+== 37/37 checks passed
+-- fixture log tail:
+[replay-serve] -> session/hydrate (history) "dsflash:main"
+[replay-serve] <- permission/profile/list (id=5)
+[replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] <- profile/llm/list (id=6)
+[replay-serve] -> profile/llm/list (recorded reply)
+[replay-serve] <- session/status/read (id=7)
+[replay-serve] -> session/status/read (recorded reply)
+[replay-serve] <- profile/skills/list (id=8)
+[replay-serve] -> profile/skills/list (recorded reply)
+[replay-serve] <- permission/profile/list (id=9)
+[replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] <- profile/sub_providers/list (id=10)
+[replay-serve] -> profile/sub_providers/list (recorded reply)
+[replay-serve] <- profile/sub_providers/list (id=11)
+[replay-serve] -> profile/sub_providers/list (recorded reply)

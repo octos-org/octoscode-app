@@ -72,8 +72,14 @@ def main():
     check("the toggle reads the current Vim editing", on == (PHASE == "relaunch"), f"on={on}")
     small = [(i, rect(i, s=s)) for i in ("tg_vim", "prefs_save") if not rect(i, s=s) or rect(i, s=s)[3] < 28]
     check("Preferences controls are >= 28 px targets", not small, f"{small}")
-    for wid in ("tg_vim", "prefs_save", "prefs_status"):
-        check(f"{wid} inside the body", sw.inside(wid, "set_body", s), f"{rect(wid, s=s)}")
+    check("tg_vim inside the body", sw.inside("tg_vim", "set_body", s), f"{rect('tg_vim', s=s)}")
+    # Save and its status live in Preferences' fixed footer under the
+    # scrolling body, so they stay whole however tall the body grows.
+    for wid in ("prefs_save", "prefs_status"):
+        check(f"{wid} inside the fixed footer", sw.inside(wid, "set_footer", s), f"{rect(wid, s=s)}")
+    body, foot = rect("set_body", s=s), rect("set_footer", s=s)
+    check("the footer sits below the body", bool(body and foot and foot[1] >= body[1] + body[3] - 1),
+          f"body={body} footer={foot}")
     log_since()
     click("tg_vim")
     want_on = PHASE != "relaunch"

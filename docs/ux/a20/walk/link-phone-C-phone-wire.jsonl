@@ -1,0 +1,9 @@
+{"method":"session/open","params":{"cwd":"/home/user/a20-ws","profile_id":"a20","session_id":"a20:main"}}
+{"method":"session/list","params":{}}
+{"method":"session/hydrate","params":{"include":["messages"],"session_id":"a20:main"}}
+{"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
+{"method":"session/hydrate","params":{"include":["pending_approvals"],"session_id":"a20:main"}}
+{"method":"profile/llm/list","params":{"profile_id":"a20"}}
+{"method":"profile/skills/list","params":{"profile_id":"a20"}}
+{"method":"profile/sub_providers/list","params":{"profile_id":"a20"}}
+{"method":"session/status/read","params":{"profile_id":"a20","session_id":"a20:main"}}

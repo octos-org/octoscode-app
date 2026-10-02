@@ -69,7 +69,7 @@ pub fn foreign_lease_busy_copy(expires_at_ms: u64) -> String {
         .single()
         .map(|t| t.format("%H:%M:%S").to_string())
         .unwrap_or_else(|| "the lease expires".to_owned());
-    FOREIGN_LEASE_BUSY_TEMPLATE.replace("{time}", &time)
+    crate::i18n::tr_with(FOREIGN_LEASE_BUSY_TEMPLATE, &[("time", &time)])
 }
 
 /// A driver binding as disclosed on the wire (`DriverBindingView`).

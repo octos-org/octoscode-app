@@ -1,0 +1,11 @@
+bundle: OctosCode A25.app (dev.octoscode.desktop.a25), ad-hoc signed
+PASS private octos serve is up
+PASS the bundled app is up (hidden)
+PASS the app runs with the platform notification API and is not focused — e/src/attention.rs:936:9 - [octoscode] attention: start (platform api true, focused false)
+macOS authorization for dev.octoscode.desktop.a25: NotDetermined
+PASS request: the row reads Enabling… while macOS asks — Enabling…
+the permission prompt on screen: [{"x": 1368.0, "y": 49.0, "w": 344.0, "h": 73.0}]
+PERMISSION PROMPT SHOWN — the operator must allow "OctosCode A25" (the prompt, or System Settings > Notifications > OctosCode A25), then re-run this script.
+app stopped
+serve stopped, the data copy deleted
+PASS no saved file carries the token

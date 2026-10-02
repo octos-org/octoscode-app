@@ -12,6 +12,7 @@ import subprocess
 import sys
 import time
 import urllib.request
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SD = ROOT / "tmp" / "walk" / "35c" / "phone"

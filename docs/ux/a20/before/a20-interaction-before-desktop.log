@@ -1,0 +1,58 @@
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <PATH> --remote 8483 --module octoscode
+[makepad-remote] listening on 127.0.0.1:8483 pid=15228 app=octosense-main-before grabs=<TMP>
+[headless] up: pid 15228  port 8483  log <PATH>
+[headless] drive it:  curl -s http://127.0.0.1:8483/snap?q=Button   |   harness/headless.sh shot 8483 out.png
+PASS the sidebar lists Session X and Session Y — ['Main', 'Session X — clean the scratch dir', 'Session Y — release notes']
+CLICK sb_r_title 'Session X — clean the scratch dir' r=[92, 300, 203, 17]
+PASS CLICK row 'Session X' -> session/open X
+TYPE 'please run rm -rf scratch_dir in this repo'
+KEY Return
+PASS wire: X's turn/start
+PASS X: the approval takes X's composer over — 'rm -rf scratch_dir'
+PASS X's approval card: layout frame=661x173 centre_dx=140.5 margins L=18 R=18 labels=8 outside=0 overlaps=0 controls=3 under28=0 gutters>=12=True — {"ok": true, "frame": [359, 489, 661, 173], "centre_dx": 140.5, "margins": [18, 18], "labels": 8, "outside": [], "overlaps": [], "controls": 3, "under28": []}
+SHOT desktop-01-x-approval
+CLICK sb_r_title 'Session Y — release notes' r=[92, 332, 203, 17]
+PASS CLICK row 'Session Y' -> session/open Y
+PASS Y: no card (X's approval is not Y's)
+SHOT desktop-02-y-no-card
+KEY y
+KEY s
+KEY n
+FAIL Y: the keyboard sends nothing (Y / S / N resolve to typing) — [{'approval_id': '01a0e773-f844-7d50-a20a-000000000001', 'approval_scope': 'request', 'decision': 'approve', 'session_id': 'a20:api:yankee'}, {'approval_id': '01a0e773-f844-7d50-a20a-000000000001', 'approval_scope': 'session', 'decision': 'approve', 'session_id': 'a20:api:yankee'}, {'approval_id': '01a0e773-f844-7d50-a20a-000000000001', 'approval_scope': 'request', 'decision': 'deny', 'session_id': 'a20:api:yankee'}]
+FAIL log: Y's bare Y resolves to Ignore
+FAIL X's row waits (its own approval)
+FAIL Y's row does not wait on X's approval
+FAIL layout: X's Waiting dot is centred on X's row, left of its title — dot=[] title=[92, 300, 203, 17]
+SHOT desktop-03-sidebar-x-waits
+TYPE 'ask me which color to use'
+KEY Return
+PASS wire: Y's turn/start
+PASS Y: its own question takes Y's composer over
+PASS Y's question card: layout frame=661x343 centre_dx=140.5 margins L=18 R=18 labels=13 outside=0 overlaps=0 controls=3 under28=0 gutters>=12=True — {"ok": true, "frame": [359, 320, 661, 343], "centre_dx": 140.5, "margins": [18, 18], "labels": 13, "outside": [], "overlaps": [], "controls": 3, "under28": []}
+SHOT desktop-04-y-question
+CLICK sb_r_title 'Session X — clean the scratch dir' r=[92, 300, 203, 17]
+PASS CLICK row 'Session X' -> session/open X again
+PASS wire: X's canonical hydrate read its parked interactions
+PASS X: its approval again, never Y's question
+PASS X's restored approval card: layout frame=661x173 centre_dx=140.5 margins L=18 R=18 labels=8 outside=0 overlaps=0 controls=3 under28=0 gutters>=12=True — {"ok": true, "frame": [359, 489, 661, 173], "centre_dx": 140.5, "margins": [18, 18], "labels": 8, "outside": [], "overlaps": [], "controls": 3, "under28": []}
+SHOT desktop-05-x-approval-again
+CLICK cv_ap_once r=[884, 615, 118, 34] at (943,632)
+PASS CLICK Approve once
+FAIL wire: exactly one approval/respond, to X with X's ids — [{'approval_id': '01a0e773-f844-7d50-a20a-000000000001', 'approval_scope': 'request', 'decision': 'approve', 'session_id': 'a20:api:yankee'}, {'approval_id': '01a0e773-f844-7d50-a20a-000000000001', 'approval_scope': 'session', 'decision': 'approve', 'session_id': 'a20:api:yankee'}, {'approval_id': '01a0e773-f844-7d50-a20a-000000000001', 'approval_scope': 'request', 'decision': 'deny', 'session_id': 'a20:api:yankee'}, {'approval_id': '01a0e773-f844-7d50-a20a-000000000001', 'approval_scope': 'request', 'decision': 'approve', 'session_id': 'a20:api:xray'}]
+PASS X: decided, the composer is back
+CLICK sb_r_title 'Session Y — release notes' r=[92, 332, 203, 17]
+PASS CLICK row 'Session Y' -> session/open Y again
+PASS Y: its question survived X's approval
+CLICK cv_q_0_opt_1 r=[377, 484, 621, 49] at (688,508)
+PASS CLICK option 'Green'
+PASS the primary is live
+CLICK cv_q_submit r=[852, 611, 150, 38] at (927,630)
+PASS CLICK Submit answer
+PASS wire: user_question/respond to Y with Y's ids — [{'answers': [{'selected_labels': ['Green']}], 'question_id': '01a0e773-f844-7d50-a20b-000000000002', 'session_id': 'a20:api:yankee'}]
+PASS Y: answered, the composer is back
+SHOT desktop-06-y-answered
+FAIL wire: nothing was ever answered on Y for X
+== 23/30 checks passed
+gq: {"png":[],"quit":1,"err":"w0: grab frame could not be submitted at arming; retry"}
+[headless] pid 15228 exited after /gq
+[headless] port 8483 free

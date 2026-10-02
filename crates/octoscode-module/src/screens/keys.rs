@@ -245,58 +245,25 @@ pub fn parity_suppressed(shortcut: ParityShortcut, f: ShortcutFacts, inside_appr
     }
 }
 
-/// The oldest actionable pending approval's id — the id a keyboard decision
-/// answers (the web decides the card that is showing; natively the store's
-/// pending list is FIFO, `domains/approval.rs:79`).
+/// The id a keyboard decision answers: the oldest actionable approval OF THE
+/// SESSION ON SCREEN — the card that is showing (the web decides the card
+/// that is showing, `ApprovalPanel.tsx:30-56`; natively the store's pending
+/// list is FIFO). A20 (parity row 250): never another Session's — the old
+/// global FIFO let a bare `y` typed in Session Y answer Session X's approval
+/// with Y's id. No Session on screen, or a row with no recorded origin:
+/// nothing to answer.
 pub fn oldest_pending_id(store: &Store) -> Option<String> {
-    store
-        .domains
-        .approval
-        .pending()
-        .into_iter()
-        .find(|a| !a.decided && !a.cancelled)
-        .map(|a| a.id)
+    let session = store.active_session()?;
+    store.domains.approval.showing(&session).map(|(p, _)| p.id)
 }
 
-/// A22 audit — the approval the keyboard answers in `session`: the card
-/// that Session shows (its payload names it — the same row the card's own
-/// buttons answer, `surfaces::perform` `showing(session)`), never another
-/// Session's; a row with no payload (a proof seed) names no Session and is
-/// answerable as before. [`oldest_pending_id`] is the store-wide FIFO.
-pub fn oldest_pending_id_in(store: &Store, session: &str) -> Option<String> {
-    if let Some((p, _)) = store.domains.approval.showing(session) {
-        return Some(p.id);
-    }
-    store
-        .domains
-        .approval
-        .pending()
-        .into_iter()
-        .find(|a| !a.decided && !a.cancelled && store.domains.approval.detail(&a.id).is_none())
-        .map(|a| a.id)
-}
-
-/// A22 audit — the diff preview id of the row [`oldest_pending_id_in`]
-/// returns for `session`, so `D` and Y/S/N act on the same card.
-pub fn preview_id_in(store: &Store, session: &str) -> Option<String> {
-    let id = oldest_pending_id_in(store, session)?;
-    store.domains.approval.pending().into_iter().find(|a| a.id == id).and_then(|a| a.preview_id)
-}
-
-/// A22 audit — the `approval/respond` body a decision key sends in
-/// `session` (the Session on screen when it was pressed): its own showing
-/// approval, under its own id; `None` = nothing to answer there.
-pub fn key_decision(store: &Store, session: &str, action: &KeyAction) -> Option<serde_json::Value> {
-    let id = oldest_pending_id_in(store, session)?;
-    respond_body(action, session, &id)
-}
-
-/// #P4f2 row 7: the diff preview id of the SAME FIFO row
-/// [`oldest_pending_id`] returns, so `D` and Y/S/N can never act on different
-/// cards. `None` when the showing approval is not a diff approval — the web's
-/// `previewId` absent, which leaves `D` inert (`ApprovalPanel.tsx:45`).
+/// #P4f2 row 7: the diff preview id of the SAME row [`oldest_pending_id`]
+/// returns, so `D` and Y/S/N can never act on different cards. `None` when
+/// the showing approval is not a diff approval — the web's `previewId`
+/// absent, which leaves `D` inert (`ApprovalPanel.tsx:45`).
 pub fn preview_id(store: &Store) -> Option<String> {
-    store.domains.approval.oldest_preview_id()
+    let session = store.active_session()?;
+    store.domains.approval.preview_id_for(&session)
 }
 
 /// The outbound `approval/respond` body for a keyboard decision — the r5-turn

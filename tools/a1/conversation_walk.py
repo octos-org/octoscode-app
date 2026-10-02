@@ -28,6 +28,8 @@ import tempfile
 import time
 import urllib.error
 import urllib.request
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../walk"))  # noqa: E402
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 # A11: the walk aggregator's convention (tools/walk/native.py; never imported).
 # Desktop only: the seeded sidebar row is a drawer on the phone.

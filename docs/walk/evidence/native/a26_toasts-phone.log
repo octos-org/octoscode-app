@@ -1,0 +1,79 @@
+== native walk a26_toasts [phone] (tools/walk/a26_toasts.py)
+-- run 1: exit 0 in 19 s
+PASS no toast before anything failed
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK sb_new_chat_hit r=[10, 126, 292, 34] at (156,143)
+PASS a refused New chat raises one toast — [("Couldn't start a new chat.", 'the replay fixture refused session/open #2 (--refuse)')]
+PASS its lead says what failed, plainly — "Couldn't start a new chat."
+PASS its cause is the server's own reason — 'the replay fixture refused session/open #2 (--refuse)'
+PASS the server really refused it (the wire)
+PASS the arrival is announced in the app log
+PASS the toast sits inside the conversation, under its header — card=[12, 182, 336, 74] col=[0, 74, 360, 776] head=[0, 74, 360, 100]
+PASS full width on the phone (12 px gutters) — card=[12, 182, 336, 74] module=[0, 74, 360, 776]
+PASS clear of the composer — card=[12, 182, 336, 74] composer=[12, 729, 336, 93]
+PASS × is a >= 28 px target inside the toast — [314, 192, 28, 28]
+PASS a26_toast_lead_1 lies whole inside its toast — [60, 195, 244, 16] in [12, 182, 336, 74]
+PASS a26_toast_cause_1 lies whole inside its toast — [60, 214, 244, 33] in [12, 182, 336, 74]
+SHOT phone-toast-one-light
+TYPE 'still typing'
+PASS the composer still takes typing under a toast — 'still typing'
+TAP the keyboard's hide chevron (337,513)
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK sb_new_chat_hit r=[10, 126, 292, 34] at (156,143)
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK sb_new_chat_hit r=[10, 126, 292, 34] at (156,143)
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK sb_new_chat_hit r=[10, 126, 292, 34] at (156,143)
+PASS four failures keep three toasts and say one was pushed out — 3 shown; note='1 earlier error no longer shown'
+PASS the newest is on top — ['the replay fixture refused session/open #5 (--refuse)', 'the replay fixture refused session/open #4 (--refuse)', 'the replay fixture refused session/open #3 (--refuse)']
+PASS the push-out is announced
+PASS the whole stack stays clear of the composer — stack=[12, 182, 336, 255] composer=[12, 729, 336, 93]
+SHOT phone-toast-stack-light
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+PASS the open drawer holds the stack (hidden under it)
+CLICK drawer_close r=[270, 87, 32, 32] at (286,103)
+PASS …and it returns when the drawer closes
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK sb_settings_hit r=[10, 812, 292, 34] at (156,829)
+PASS Settings opens from the footer
+PASS Settings holds the stack: no toast over the dialog
+SHOT phone-toast-held-settings
+CLICK set_back r=[8, 84, 40, 40] at (28,104)
+PASS the stack returns when Settings closes
+CLICK × on the newest toast r=[314, 192, 28, 28]
+PASS × dismisses that toast
+PASS the rest leave on their own (8 s on screen)
+PASS their expiry is announced
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK sb_theme_hit r=[10, 778, 292, 34] at (156,795)
+CLICK sb_theme_hit r=[10, 778, 292, 34] at (156,795)
+PASS the footer's toggle reaches Dark
+CLICK drawer_close r=[270, 87, 32, 32] at (286,103)
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK sb_new_chat_hit r=[10, 126, 292, 34] at (156,143)
+PASS dark: a refused New chat raises its toast
+PASS dark: the toast card is drawn raised on the dark window (#2C2C2E) — pixel (44, 44, 46)
+SHOT phone-toast-one-dark
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK sb_new_chat_hit r=[10, 126, 292, 34] at (156,143)
+SHOT phone-toast-stack-dark
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK sb_theme_hit r=[10, 778, 292, 34] at (156,795)
+PASS back to Light
+== 29/29 checks passed
+-- fixture log tail:
+[replay-serve] -> session/list (history) null
+[replay-serve] <- session/status/read (id=22)
+[replay-serve] -> session/status/read (recorded reply)
+[replay-serve] <- session/open (id=23)
+[replay-serve] -> session/open refused (--refuse, request 6)
+[replay-serve] <- session/list (id=24)
+[replay-serve] -> session/list (history) null
+[replay-serve] <- session/status/read (id=25)
+[replay-serve] -> session/status/read (recorded reply)
+[replay-serve] <- session/open (id=26)
+[replay-serve] -> session/open refused (--refuse, request 7)
+[replay-serve] <- session/list (id=27)
+[replay-serve] -> session/list (history) null
+[replay-serve] <- session/status/read (id=28)
+[replay-serve] -> session/status/read (recorded reply)

@@ -41,6 +41,7 @@ import urllib.error
 import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 from snapsafe import scrub  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

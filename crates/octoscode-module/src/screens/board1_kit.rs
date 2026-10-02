@@ -80,18 +80,15 @@ pub fn font_spaced(weight: u16, px: f64, line_spacing: f64) -> String {
         _ => "ux/Inter-400.ttf",
     };
     let latin = crate::design::font_file(face).display().to_string();
-    let cjk = if weight >= 600 {
-        "LXGWWenKaiBold.ttf"
-    } else {
-        "LXGWWenKaiRegular.ttf"
-    };
+    // Noto Sans SC first, LXGW WenKai as the lazy rare-glyph fallback (operator, board 4).
+    let cjk_members = crate::design::cjk_members(weight as u32);
     let emoji = if cfg!(target_os = "macos") {
         "file_resource(\"/System/Library/Fonts/Apple Color Emoji.ttc\")"
     } else {
         "crate_resource(\"makepad_widgets:resources/NotoColorEmoji.ttf\")"
     };
     format!(
-        "TextStyle{{font_family: FontFamily{{latin := FontMember{{res: file_resource({latin:?}) asc: 0.04 desc: 0.04 weight: {weight}}} cjk := FontMember{{res: crate_resource(\"makepad_widgets:resources/{cjk}\") asc: 0.0 desc: 0.0 weight: {weight}}} symbols := FontMember{{res: crate_resource(\"makepad_widgets:resources/jetbrains_mono_variable.ttf\") asc: 0 desc: 0 weight: 400}} emoji := FontMember{{res: {emoji} asc: 0 desc: 0}}}} font_size: {:.2} line_spacing: {line_spacing}}}",
+        "TextStyle{{font_family: FontFamily{{latin := FontMember{{res: file_resource({latin:?}) asc: 0.04 desc: 0.04 weight: {weight}}} {cjk_members} symbols := FontMember{{res: crate_resource(\"makepad_widgets:resources/jetbrains_mono_variable.ttf\") asc: 0 desc: 0 weight: 400}} emoji := FontMember{{res: {emoji} asc: 0 desc: 0}}}} font_size: {:.2} line_spacing: {line_spacing}}}",
         scaled(px) * 0.75
     )
 }
@@ -376,11 +373,13 @@ pub fn callout(red: bool, info_icon: bool, head: &str, next: Option<&str>) -> St
     } else {
         (SUBTLE, HAIR, INK)
     };
+    // A24: a callout carries product copy only (the pairing / browse
+    // message tables): shown in the current language.
     let mut body = String::new();
-    body.push_str(&Text::new("", head).px(15.0).color(head_ink).fill().dsl());
+    body.push_str(&Text::new("", crate::i18n::tr(head)).px(15.0).color(head_ink).fill().dsl());
     if let Some(n) = next {
         body.push_str(&gap(6.0));
-        body.push_str(&Text::new("", n).px(14.0).color(MUTED).fill().dsl());
+        body.push_str(&Text::new("", crate::i18n::tr(n)).px(14.0).color(MUTED).fill().dsl());
     }
     let icon_dsl = if info_icon {
         format!(
@@ -436,7 +435,8 @@ pub fn list_card_scroll(id: &str, rows: &[String], max_h: Option<f64>) -> String
 pub fn kv_row(key: &str, value: &str) -> String {
     format!(
         "View {{ width: Fill height: 52 flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 16 right: 16}} spacing: 12\n{}{}}}\n",
-        Text::new("", key).px(15.0).one_line().dsl(),
+        // A24: the key is product copy (the value is data, shown as is).
+        Text::new("", crate::i18n::tr(key)).px(15.0).one_line().dsl(),
         Text::new("", value).px(15.0).color(MUTED).fill().right().one_line().dsl()
     )
 }
@@ -445,7 +445,7 @@ pub fn kv_row(key: &str, value: &str) -> String {
 pub fn note_row(text: &str, color: &str) -> String {
     format!(
         "View {{ width: Fill height: 52 flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 16 right: 16}}\n{}}}\n",
-        Text::new("", text).px(15.0).color(color).fill().one_line().dsl()
+        Text::new("", crate::i18n::tr(text)).px(15.0).color(color).fill().one_line().dsl()
     )
 }
 
@@ -453,7 +453,7 @@ pub fn note_row(text: &str, color: &str) -> String {
 pub fn or_divider() -> String {
     format!(
         "View {{ width: Fill height: 18 flow: Right align: Align{{x: 0.5 y: 0.5}} spacing: 12\nSolidView {{ width: Fill height: 1 draw_bg.color: {HAIR} }}\n{}SolidView {{ width: Fill height: 1 draw_bg.color: {HAIR} }}\n}}\n",
-        Text::new("", "or").px(14.0).color(MUTED).dsl()
+        Text::new("", crate::i18n::tr("or")).px(14.0).color(MUTED).dsl()
     )
 }
 

@@ -65,8 +65,9 @@ impl NotificationHandler for TurnCompletedHandler {
             // (clearPlanForTurn, plan.ts:31).
             self.store.domains.task.clear_plan_for_turn(&session, &turn_id);
             // A6: the turn's pending approval/question cards die with it
-            // (`session-interaction-ledger.ts:307-321` settleTurn).
-            self.store.domains.approval.settle_turn(&turn_id);
+            // (`session-interaction-ledger.ts:319-333` settleTurn) — A20:
+            // only THIS Session's (its key + topic), never another's.
+            self.store.domains.approval.settle_turn_in(&session, completed.topic.as_deref(), &turn_id);
             // A turn boundary closes the assistant entry it belongs to, so
             // later deltas start a new block instead of appending to a
             // finished one.
@@ -92,7 +93,7 @@ impl NotificationHandler for TurnErrorHandler {
             self.store.domains.turn.note_session_terminal(&session, &turn_id, "errored");
             // #P4b1 [14]: an errored authoring turn drops its plan too.
             self.store.domains.task.clear_plan_for_turn(&session, &turn_id);
-            self.store.domains.approval.settle_turn(&turn_id);
+            self.store.domains.approval.settle_turn_in(&session, error.topic.as_deref(), &turn_id);
             self.store.domains.session.timeline.close_turn(&session, &turn_id);
             // A6: a readable system notice with a DETERMINISTIC id — the web's
             // `settleTimelineTurn` upserts `terminal:<turn>`
@@ -431,8 +432,9 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
                 // turn's plan (the web's terminalTurnId treats turn_terminal
                 // as the canonical terminal, entry-model.ts:87-99).
                 self.store.domains.task.clear_plan_for_turn(&session, &turn_id);
-                // A6: the turn's interaction cards settle with it.
-                self.store.domains.approval.settle_turn(&turn_id);
+                // A6: the turn's interaction cards settle with it (A20: this
+                // Session's only).
+                self.store.domains.approval.settle_turn_in(&session, frame.topic.as_deref(), &turn_id);
                 match outcome {
                     TurnTerminalOutcome::Completed => {
                         timeline.close_turn(&session, &turn_id);

@@ -58,6 +58,10 @@ struct World {
     running: HashMap<String, Running>,
     /// Sessions whose `session/hydrate` is held (never answered).
     held: HashSet<String>,
+    /// The approvals Core holds per Session (served by the canonical
+    /// `session/hydrate {include: ["pending_approvals"]}`, answered by
+    /// `approval/respond` on the Session that owns them).
+    parked: HashMap<String, Vec<Value>>,
     cursor: u64,
 }
 
@@ -79,10 +83,11 @@ fn opened(session: &str, cwd: &str) -> Value {
             "version": {"protocol": "octos-ui/v1alpha1", "schema_version": 1, "jsonrpc": "2.0"},
             "capabilities_schema_version": 2,
             "supported_methods": ["session/open", "session/hydrate", "session/list", "turn/start", "turn/interrupt", "turn/steer",
-                                  "turn/state/get", "session/driver/get", "session/driver/acquire", "session/driver/release"],
-            "supported_notifications": ["turn/started", "projection/envelope"],
+                                  "turn/state/get", "session/driver/get", "session/driver/acquire", "session/driver/release",
+                                  "approval/respond"],
+            "supported_notifications": ["turn/started", "projection/envelope", "approval/requested"],
             "supported_features": ["state.session_hydrate.v1", "projection.envelope.v2", "session.workspace_cwd.v1",
-                                   "event.turn_steer_dropped.v1"]
+                                   "event.turn_steer_dropped.v1", "approval.typed.v1"]
         }
     }})
 }
@@ -129,7 +134,32 @@ impl Core {
                                 if world.lock().unwrap().held.contains(&session) {
                                     continue; // never answered
                                 }
-                                let _ = tx.send(ok(json!({"session_id": session, "cursor": {"stream": session, "seq": 1}, "messages": []})));
+                                let parked_read =
+                                    p["include"].as_array().is_some_and(|a| a.iter().any(|x| x == "pending_approvals"));
+                                let reply = if parked_read {
+                                    let approvals = world.lock().unwrap().parked.get(&session).cloned().unwrap_or_default();
+                                    json!({"session_id": session, "cursor": {"stream": session, "seq": 1},
+                                           "pending_approvals": approvals, "pending_questions": []})
+                                } else {
+                                    json!({"session_id": session, "cursor": {"stream": session, "seq": 1}, "messages": []})
+                                };
+                                let _ = tx.send(ok(reply));
+                            }
+                            "approval/respond" => {
+                                // Core answers a request only on the Session
+                                // that owns it.
+                                let id = p["approval_id"].as_str().unwrap_or_default().to_owned();
+                                let mut w = world.lock().unwrap();
+                                let list = w.parked.entry(session.clone()).or_default();
+                                let frame = match list.iter().position(|a| a["approval_id"] == json!(id)) {
+                                    Some(i) => {
+                                        list.remove(i);
+                                        ok(json!({"approval_id": id, "accepted": true, "status": "accepted", "runtime_resumed": true}))
+                                    }
+                                    None => json!({"jsonrpc": "2.0", "id": v["id"], "error": {"code": -32602,
+                                                   "message": format!("approval {id} is not pending in {session}")}}).to_string(),
+                                };
+                                let _ = tx.send(frame);
                             }
                             "session/list" => {
                                 let _ = tx.send(ok(json!({"sessions": [], "workspace_root": CWD, "profile_id": PROFILE})));
@@ -257,6 +287,19 @@ impl Core {
         if let Some(tx) = self.push.lock().unwrap().as_ref() {
             let _ = tx.send(note(method, params));
         }
+    }
+
+    /// Core parks an approval for `session`'s turn and announces it (the
+    /// recorded r5 `approval/requested` shape).
+    fn raise_approval(&self, session: &str, approval_id: &str, turn: &str) {
+        let a = json!({
+            "approval_id": approval_id, "approval_kind": "command", "body": "printf a22", "risk": "low",
+            "session_id": session, "title": "A22 approval", "tool_name": "shell", "turn_id": turn,
+            "typed_details": {"command": {"argv": ["printf", "a22"], "command_line": "printf a22",
+                                          "tool_call_id": "a22-approval-1"}, "kind": "command"}
+        });
+        self.world.lock().unwrap().parked.entry(session.to_owned()).or_default().push(a.clone());
+        self.notify("approval/requested", a);
     }
 
     /// Another client holds `session`'s driver seat.
@@ -534,13 +577,17 @@ async fn the_queue_and_recovery_controls_act_on_the_session_they_were_tapped_in(
     quit(&conv);
 }
 
-/// The approval keys (A22 audit, the row-250 class): an approval pending in
-/// X never turns Y/S/N into a decision while Y is on screen — nothing is
-/// answered there under Y's id — and in X the keys answer X's own approval
+/// The approval keys (A22 audit, the row-250 class — fixed on main by A20's
+/// interaction ledger; this pins it on the merged build): an approval pending
+/// in X never turns Y/S/N into a decision while Y is on screen — nothing is
+/// answered there — and in X the keyboard's production path (`y` ->
+/// `cv.approval.once` -> `surfaces::perform`) answers X's own approval
 /// under X. The shape is the recorded r5 `approval/requested`.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn the_approval_keys_answer_only_the_approval_of_the_session_on_screen() {
+    use makepad_widgets::KeyCode;
     use octoscode_module::screens::keys::{self, KeyAction};
+    use octoscode_module::screens::surfaces::{self, Outcome};
     let core = Core::start().await;
     let conv = launch(&core).await;
     let x = conv.session_id();
@@ -548,27 +595,42 @@ async fn the_approval_keys_answer_only_the_approval_of_the_session_on_screen() {
     let approval = "01a0e773-f844-7d50-b171-b38d159f02aa";
     let tx = run_long_turn(&conv, &core, "a job in X that asks").await;
     open(&conv, y).await;
-    core.notify("approval/requested", json!({
-        "approval_id": approval, "approval_kind": "command", "body": "printf a22", "risk": "low",
-        "session_id": x, "title": "A22 approval", "tool_name": "shell", "turn_id": tx,
-        "typed_details": {"command": {"argv": ["printf", "a22"], "command_line": "printf a22",
-                                      "tool_call_id": "a22-approval-1"}, "kind": "command"}
-    }));
+    core.raise_approval(&x, approval, &tx);
     until("X's approval is pending", || conv.store.domains.approval.detail(approval).is_some()).await;
+    // What a bare `y` resolves to in the Session on screen (lib.rs's gate).
+    let bare_y = |conv: &Conversation| {
+        keys::resolve(
+            KeyCode::KeyY,
+            false,
+            false,
+            false,
+            false,
+            false,
+            keys::oldest_pending_id(&conv.store).is_some(),
+            keys::preview_id(&conv.store),
+            false,
+            true,
+        )
+    };
     // In Y: the keys see no approval of Y — no decision, nothing sent.
-    let in_y = conv.store.active_session().unwrap();
-    assert_eq!(in_y, y);
-    assert_eq!(keys::oldest_pending_id_in(&conv.store, &in_y), None, "Y shows no approval");
-    assert_eq!(keys::key_decision(&conv.store, &in_y, &KeyAction::ApprovalApproveRequest), None);
-    assert!(!conv.ui().lock().unwrap().approval_pending(), "Y's window is not waiting on X's approval");
+    assert_eq!(conv.store.active_session().as_deref(), Some(y));
+    assert_eq!(keys::oldest_pending_id(&conv.store), None, "Y shows no approval");
+    assert_eq!(bare_y(&conv), KeyAction::Ignore, "a bare `y` typed in Y is typing, not X's approval");
+    let ui = conv.ui();
+    assert_eq!(surfaces::perform("cv.approval.once", 0, &conv.store, &ui), Outcome::Done, "no decision from Y");
+    assert!(!ui.lock().unwrap().approval_pending(), "Y's window is not waiting on X's approval");
+    assert!(core.params_of("approval/respond").is_empty(), "nothing was answered from Y");
     // Back in X: the key answers X's own approval, under X.
     open(&conv, &x).await;
-    let body = keys::key_decision(&conv.store, &x, &KeyAction::ApprovalApproveRequest).expect("X's approval");
-    assert_eq!((body["approval_id"].clone(), body["session_id"].clone()), (json!(approval), json!(x)), "{body}");
-    conv.client().request("approval/respond", body).await.expect("sent");
+    until("X's approval shows again in X", || keys::oldest_pending_id(&conv.store).as_deref() == Some(approval)).await;
+    assert_eq!(bare_y(&conv), KeyAction::ApprovalApproveRequest);
+    match surfaces::perform("cv.approval.once", 0, &conv.store, &ui) {
+        Outcome::Spawn(job) => surfaces::run(job, &conv).await.expect("accepted for X"),
+        other => panic!("expected a decision job in X, got {other:?}"),
+    };
     let sent = core.params_of("approval/respond");
     assert_eq!(sent.len(), 1, "exactly the one decision made in X: {sent:?}");
-    assert_eq!(sent[0]["session_id"], json!(x));
+    assert_eq!((sent[0]["session_id"].clone(), sent[0]["approval_id"].clone()), (json!(x), json!(approval)), "{sent:?}");
     quit(&conv);
 }
 

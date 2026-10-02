@@ -26,11 +26,13 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.parse
 import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 from snapsafe import scrub  # noqa: E402
 
 BIN, PORT, SERVE, OUT = sys.argv[1], int(sys.argv[2]), sys.argv[3], os.path.abspath(sys.argv[4])
@@ -129,9 +131,13 @@ def check(name, ok, detail=""):
 
 
 def redact(text):
+    """This machine's paths out of a saved file: the live dir, then any path
+    under the home or the temp directory (whole path token)."""
     text = text.replace(LIVE, "<live>")
-    text = re.sub(r"/Users/[^\"\s]*", "<home>", text)
-    return re.sub(r"/var/folders/[^\"\s]*", "<tmp>", text)
+    tmp = tempfile.gettempdir()
+    for root, label in ((os.path.expanduser("~"), "<home>"), (os.path.realpath(tmp), "<tmp>"), (tmp, "<tmp>")):
+        text = re.sub(re.escape(root) + r"[^\"\s]*", label, text)
+    return text
 
 
 def capture(name):

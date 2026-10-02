@@ -1,0 +1,64 @@
+== native walk a26_footer [phone] (tools/walk/a26_footer.py)
+-- run 1: exit 0 in 6 s
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+PASS the drawer opens from the header's menu
+PASS light: the footer rows are on screen (+ Add workspace, Fleet, theme, Settings) — [[10, 710, 292, 34], [10, 744, 292, 34], [10, 778, 292, 34], [10, 812, 292, 34]]
+PASS light: in the web's order, one stack (Fleet, then the theme toggle, then Settings) — y=[710, 744, 778, 812]
+PASS light: one row height and one left edge (A3's row metrics) — [[10, 710, 292, 34], [10, 744, 292, 34], [10, 778, 292, 34], [10, 812, 292, 34]]
+PASS light: inside the sidebar column — col=[0, 74, 312, 776]
+PASS light: the labels (Fleet, the theme, Settings) — {'fleet_nav_label': 'Fleet', 'sb_theme_label': 'Light', 'sb_settings_label': 'Settings'}
+PASS light: sb_theme_label sits whole inside its row — [43, 787, 33, 17] in [10, 778, 292, 34]
+PASS light: sb_settings_label sits whole inside its row — [43, 821, 54, 17] in [10, 812, 292, 34]
+PASS the toggle reads the current theme (Light)
+SHOT phone-footer-light
+CLICK sb_theme_hit r=[10, 778, 292, 34] at (156,795)
+PASS the theme toggle cycles to System — 'System'
+PASS System: the toggle shows its icon (system) — ['sb_theme_ic_system']
+PASS System: the choice is saved at once (system removes it) — None
+CLICK sb_theme_hit r=[10, 778, 292, 34] at (156,795)
+PASS the theme toggle cycles to Dark — 'Dark'
+PASS Dark: the toggle shows its icon (dark) — ['sb_theme_ic_dark']
+PASS Dark: the choice is saved at once (system removes it) — 'dark'
+PASS Dark: the whole app re-themes live — pixel (28, 31, 34) at (187, 686) vs dark (28, 31, 34)
+PASS the drawer stays open on the toggle
+PASS dark: the footer rows are on screen (+ Add workspace, Fleet, theme, Settings) — [[10, 710, 292, 34], [10, 744, 292, 34], [10, 778, 292, 34], [10, 812, 292, 34]]
+PASS dark: in the web's order, one stack (Fleet, then the theme toggle, then Settings) — y=[710, 744, 778, 812]
+PASS dark: one row height and one left edge (A3's row metrics) — [[10, 710, 292, 34], [10, 744, 292, 34], [10, 778, 292, 34], [10, 812, 292, 34]]
+PASS dark: inside the sidebar column — col=[0, 74, 312, 776]
+PASS dark: the labels (Fleet, the theme, Settings) — {'fleet_nav_label': 'Fleet', 'sb_theme_label': 'Dark', 'sb_settings_label': 'Settings'}
+PASS dark: sb_theme_label sits whole inside its row — [43, 787, 31, 17] in [10, 778, 292, 34]
+PASS dark: sb_settings_label sits whole inside its row — [43, 821, 54, 17] in [10, 812, 292, 34]
+SHOT phone-footer-dark
+CLICK sb_theme_hit r=[10, 778, 292, 34] at (156,795)
+PASS the theme toggle cycles to Light — 'Light'
+PASS Light: the toggle shows its icon (light) — ['sb_theme_ic_light']
+PASS Light: the choice is saved at once (system removes it) — 'light'
+PASS Light: the whole app re-themes live — pixel (255, 255, 255) at (187, 686) vs light (255, 255, 255)
+CLICK sb_settings_hit r=[10, 812, 292, 34] at (156,829)
+PASS Settings opens from the footer's Settings — 'General'
+PASS …closing the drawer first
+SHOT phone-footer-settings
+CLICK set_back r=[8, 84, 40, 40] at (28,104)
+PASS Settings closes
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK fleet_nav_hit r=[10, 744, 292, 34] at (156,761)
+PASS Fleet opens from the footer's Fleet
+SHOT phone-footer-fleet
+KEY Escape
+== 32/32 checks passed
+-- fixture log tail:
+[replay-serve] -> session/hydrate (history) "dsflash:main"
+[replay-serve] <- permission/profile/list (id=5)
+[replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] <- profile/llm/list (id=6)
+[replay-serve] -> profile/llm/list (recorded reply)
+[replay-serve] <- session/status/read (id=7)
+[replay-serve] -> session/status/read (recorded reply)
+[replay-serve] <- permission/profile/list (id=8)
+[replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] <- profile/skills/list (id=9)
+[replay-serve] -> profile/skills/list (recorded reply)
+[replay-serve] <- profile/sub_providers/list (id=10)
+[replay-serve] -> profile/sub_providers/list (recorded reply)
+[replay-serve] <- profile/sub_providers/list (id=11)
+[replay-serve] -> profile/sub_providers/list (recorded reply)
