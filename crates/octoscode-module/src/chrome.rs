@@ -20,6 +20,8 @@
 
 use makepad_widgets::*;
 
+use crate::i18n::{tr, tr_with};
+
 /// The absolute path of an Inter face (`resources/ux/Inter-<w>.ttf`), through
 /// the materialized design root (the phone has no checkout).
 pub fn face(weight: u16) -> String {
@@ -1271,6 +1273,26 @@ script_mod! {
                 // once; Save writes only the display whitelist.
                 sec_preferences := View{
                     width: Fill height: Fit flow: Down visible: false
+                    // A24: Language — the web dialog's first field
+                    // (PreferencesDialog.tsx:42-55, its options "English" /
+                    // "简体中文"); a choice re-renders every surface at once.
+                    View{
+                        width: Fill height: Fit flow: Down padding: Inset{top: 10 bottom: 12}
+                        View{
+                            width: Fill height: 32 flow: Overlay
+                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Language"}}
+                            View{
+                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                RoundedView{
+                                    width: Fit height: Fill flow: Right padding: 2
+                                    draw_bg +: {color: theme.color_bg_even border_radius: 9.0}
+                                    lang_en := OcSegment{width: 84}
+                                    lang_zh := OcSegment{width: 84}
+                                }
+                            }
+                        }
+                    }
+                    OcRule{}
                     View{
                         width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
                         View{
@@ -1498,6 +1520,23 @@ pub struct ChromeRuntime {
     /// read (`flow::History`): its conversation is not a New chat's, so the
     /// "New chat defaults" strip stays off.
     pub history_unsettled: bool,
+    /// A24 — the static shell's English sources, re-texted on a language
+    /// switch (`i18n::tree`).
+    pub texts: crate::i18n::tree::StaticTexts,
+}
+
+/// A24 — the NAMED shell labels whose DSL text is static copy (code never
+/// sets them); anonymous labels are static by construction.
+pub fn static_named() -> [LiveId; 7] {
+    [
+        live_id!(hd_tab_chat_on),
+        live_id!(hd_tab_chat_off),
+        live_id!(hd_tab_traj_on),
+        live_id!(hd_tab_traj_off),
+        live_id!(hd_review_label),
+        live_id!(hd_settings_label),
+        live_id!(fleet_nav_label),
+    ]
 }
 
 /// What the desktop-notification hook compares between syncs: the active
@@ -1690,6 +1729,13 @@ impl ChromeRuntime {
             // A5: "Manage models…" opens the Models dialog over Settings.
             if c(cx, live_id!(set_models_manage)) {
                 out.push(Intent::Action("dialog.open.models", 0));
+            }
+            // A24: Preferences - Language (English | 简体中文).
+            if segment_hit(cx, view, live_id!(lang_en), actions) {
+                out.push(Intent::Action(crate::screens::a9_prefs::ACTION_LANG_EN, 0));
+            }
+            if segment_hit(cx, view, live_id!(lang_zh), actions) {
+                out.push(Intent::Action(crate::screens::a9_prefs::ACTION_LANG_ZH, 0));
             }
             // A9: Preferences - Vim editing, Save.
             if toggle_hit(cx, view, live_id!(tg_vim), actions) {
@@ -1897,7 +1943,7 @@ impl ChromeRuntime {
         show(cx, view, ids!(hd_copy), copy_offered);
         if copy_offered {
             let sid = store.active_session().unwrap_or_default();
-            text(cx, view, ids!(hd_copy_label), crate::screens::copy_button::phase(&sid).label());
+            text(cx, view, ids!(hd_copy_label), tr(crate::screens::copy_button::phase(&sid).label()));
         }
 
         // ---- header: the active session's title + its workspace path.
@@ -1907,8 +1953,8 @@ impl ChromeRuntime {
             .and_then(|a| store.sessions().into_iter().find(|s| s.id == a));
         let title = session
             .as_ref()
-            .map(|s| s.label_stem().unwrap_or_else(|| "New chat".to_owned()))
-            .unwrap_or_else(|| "New chat".to_owned());
+            .map(|s| s.label_stem().unwrap_or_else(|| tr("New chat").to_owned()))
+            .unwrap_or_else(|| tr("New chat").to_owned());
         let root = active
             .as_deref()
             .and_then(|a| store.domains.session.workspace_root(a))
@@ -1941,15 +1987,15 @@ impl ChromeRuntime {
                 cx,
                 view,
                 ids!(hd_held_text),
-                &format!("This session is open in {who}. You can read along; take over to send."),
+                &tr_with("This session is open in {who}. You can read along; take over to send.", &[("who", &who)]),
             );
         }
 
         // ---- sidebar controls.
         let grouped = sb.mode == sidebar::Mode::Grouped;
-        set_segment(cx, view, live_id!(sb_seg_ws), "By workspace", grouped);
-        set_segment(cx, view, live_id!(sb_seg_all), "All", !grouped);
-        text(cx, view, ids!(sb_sort_label), sb.sort.label());
+        set_segment(cx, view, live_id!(sb_seg_ws), tr("By workspace"), grouped);
+        set_segment(cx, view, live_id!(sb_seg_all), tr("All"), !grouped);
+        text(cx, view, ids!(sb_sort_label), tr(sb.sort.label()));
         show(cx, view, ids!(sb_search_clear_row), !sb.query.is_empty());
         if sb.query.is_empty() {
             // `search.clear` emptied the state: empty the field too.
@@ -1987,18 +2033,18 @@ impl ChromeRuntime {
         show(cx, view, ids!(set_nav), !compact);
         show(cx, view, ids!(set_rail), compact);
         show(cx, view, ids!(set_close_slot), !compact);
-        text(cx, view, ids!(set_title), st.section.title());
+        text(cx, view, ids!(set_title), tr(st.section.title()));
         // General.
         set_toggle(cx, view, live_id!(tg_notify), st.notifications);
         let theme = theme_label(&crate::screens::theme::preference());
-        text(cx, view, &[live_id!(set_theme), live_id!(vb_text)], theme);
+        text(cx, view, &[live_id!(set_theme), live_id!(vb_text)], tr(theme));
         let endpoint = server_label();
         // A9: the web's five connection states (a9_settings::status_of) with
         // the status dot; the origin on the right.
         {
             use crate::screens::a9_settings::{self as a9s, Dot};
             let status = a9s::status_of(&store.connection(), false);
-            text(cx, view, ids!(set_server_status), status.copy());
+            text(cx, view, ids!(set_server_status), tr(status.copy()));
             let dot = status.dot();
             show(cx, view, ids!(set_server_dot_ok), dot == Dot::Ok);
             show(cx, view, ids!(set_server_dot_busy), dot == Dot::Busy);
@@ -2028,9 +2074,9 @@ impl ChromeRuntime {
         set_radio(cx, view, live_id!(pm_full_radio), preset == Some(settings::Preset::Full));
         text(cx, view, ids!(set_perm_readback), &settings::permission_readback(store));
         let state_line = if st.saving.is_some() {
-            Some("Saving…".to_owned())
+            Some(tr("Saving…").to_owned())
         } else {
-            st.last_error.as_ref().map(|e| format!("Failed: {e}"))
+            st.last_error.as_ref().map(|e| tr_with("Failed: {error}", &[("error", e)]))
         };
         show(cx, view, ids!(set_perm_state), state_line.is_some());
         if let Some(line) = state_line {
@@ -2039,9 +2085,9 @@ impl ChromeRuntime {
         // Model.
         text(cx, view, &[live_id!(set_model), live_id!(vb_text)], &settings::model_of(store));
         let thinking = settings::thinking_of(store);
-        set_segment(cx, view, live_id!(th_off), "Off", thinking == settings::Thinking::Off);
-        set_segment(cx, view, live_id!(th_on), "On", thinking == settings::Thinking::On);
-        set_segment(cx, view, live_id!(th_high), "High", thinking == settings::Thinking::High);
+        set_segment(cx, view, live_id!(th_off), tr("Off"), thinking == settings::Thinking::Off);
+        set_segment(cx, view, live_id!(th_on), tr("On"), thinking == settings::Thinking::On);
+        set_segment(cx, view, live_id!(th_high), tr("High"), thinking == settings::Thinking::High);
         show(cx, view, ids!(set_models_row), crate::screens::dialog::advertises(store, "profile/llm/list"));
         // Sandbox (new-chat defaults).
         set_toggle(cx, view, live_id!(tg_sb_write), st.sandbox.workspace_write);
@@ -2060,17 +2106,21 @@ impl ChromeRuntime {
         // A9: Preferences.
         {
             let prefs = crate::screens::a9_prefs::snapshot();
+            // A24: the options are the web's own labels, never translated.
+            let zh = prefs.current.language == "zh";
+            set_segment(cx, view, live_id!(lang_en), "English", !zh);
+            set_segment(cx, view, live_id!(lang_zh), "简体中文", zh);
             set_toggle(cx, view, live_id!(tg_vim), prefs.current.vim_mode);
-            text(cx, view, ids!(prefs_status), prefs.status());
+            text(cx, view, ids!(prefs_status), tr(prefs.status()));
         }
-        text(cx, view, ids!(set_about_version), &format!("Version {}", env!("CARGO_PKG_VERSION")));
+        text(cx, view, ids!(set_about_version), &tr_with("Version {version}", &[("version", env!("CARGO_PKG_VERSION"))]));
         let methods = store.domains.config.supported_methods().len();
         text(
             cx,
             view,
             ids!(set_about_server),
             &if methods > 0 {
-                format!("{} · {methods} protocol methods advertised", server_label())
+                tr_with("{server} · {methods} protocol methods advertised", &[("server", &server_label()), ("methods", &methods.to_string())])
             } else {
                 server_label()
             },
@@ -2080,7 +2130,18 @@ impl ChromeRuntime {
         // ---- the Stop dialog.
         show(cx, view, ids!(stop_dock), live && st.stop_pending);
         show(cx, view, ids!(stop_error), st.stop_failed);
-        text(cx, view, ids!(stop_confirm_label), if st.stop_busy { "Stopping…" } else { "Stop server" });
+        text(cx, view, ids!(stop_confirm_label), tr(if st.stop_busy { "Stopping…" } else { "Stop server" }));
+
+        // ---- A24: the static shell's copy in the current language (on the
+        // first sync and after every switch; `i18n::tree`).
+        let n = self.texts.sync(cx, view, &static_named());
+        if n > 0 {
+            makepad_widgets::log!(
+                "[octoscode] a24 shell copy: {n} text(s) set ({}; {} source(s))",
+                crate::i18n::language().code(),
+                self.texts.sources()
+            );
+        }
     }
 }
 

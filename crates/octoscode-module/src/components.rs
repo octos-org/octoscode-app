@@ -923,7 +923,8 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
 pub fn lower_artboard(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result<String, String> {
     l0_host::register_vocabulary();
     let component = resolve(kind).0;
-    let mut src = component.ledger.clone();
+    // A24: the authored copy in the current language, before the live values.
+    let mut src = l0_host::localize(&component.ledger);
     for (copy_id, value) in copies {
         if let Some(next) = l0_host::set_copy(&src, copy_id, value) {
             src = next;

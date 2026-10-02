@@ -728,7 +728,8 @@ pub fn lower_screen(screen: Screen, ui: &ConnectUi) -> Result<String, String> {
             .map_err(|e| format!("read {dir}/page.data.json: {e}"))?,
     )
     .map_err(|e| format!("parse page.data.json: {e}"))?;
-    let card_src = crate::l0_host::apply_copies(&card_src, &copies(screen, ui));
+    // A24: the authored copy in the current language, then the live values.
+    let card_src = crate::l0_host::apply_copies(&crate::l0_host::localize(&card_src), &copies(screen, ui));
     let prepared = octoscript_makepad::l0::prepare(
         &card_src,
         &data,

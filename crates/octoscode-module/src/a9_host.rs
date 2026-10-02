@@ -180,6 +180,17 @@ impl OctoscodeView {
                     let ok = a9_prefs::save();
                     makepad_widgets::log!("[octoscode] a9 prefs: save -> {}", if ok { "saved" } else { "not saved" });
                 }
+                // A24: the Language control — every surface re-renders now
+                // (sync_labels below re-texts the shell and re-lowers the rest).
+                _ if a9_prefs::language_of(action).is_some() => {
+                    let lang = a9_prefs::language_of(action).unwrap_or(crate::i18n::Lang::En);
+                    let changed = a9_prefs::set_language(lang);
+                    makepad_widgets::log!(
+                        "[octoscode] a24 language -> {} ({})",
+                        lang.code(),
+                        if changed { "switched" } else { "unchanged" }
+                    );
+                }
                 _ => {}
             }
             self.sync_labels(cx);

@@ -124,6 +124,46 @@ pub(crate) fn set_copy(card_src: &str, copy_id: &str, value: &str) -> Option<Str
     Some(out)
 }
 
+/// A24 — a card's AUTHORED product copy in the current language: every
+/// `copy <id> { class: user-copy, en: "…" }` line whose text the web's
+/// catalog translates (`i18n::tr`, keyed by that English) is rewritten. Call
+/// it on the card source BEFORE the live copies are applied, so a live value
+/// (a name, a path, server text) is never translated. English: unchanged.
+pub fn localize(card_src: &str) -> String {
+    if !crate::i18n::is_zh() {
+        return card_src.to_owned();
+    }
+    let mut out = String::with_capacity(card_src.len() + 256);
+    for line in card_src.split_inclusive('\n') {
+        match localize_copy_line(line) {
+            Some(next) => out.push_str(&next),
+            None => out.push_str(line),
+        }
+    }
+    out
+}
+
+fn localize_copy_line(line: &str) -> Option<String> {
+    if !line.trim_start().starts_with("copy ") || !line.contains("class: user-copy") {
+        return None;
+    }
+    let start = line.find("en: \"")? + 5;
+    let end = line.rfind('"')?;
+    if end < start {
+        return None;
+    }
+    let text = line[start..end]
+        .replace("\\n", "\n")
+        .replace("\\\"", "\"")
+        .replace("\\\\", "\\");
+    let zh = crate::i18n::tr(&text);
+    if zh == text {
+        return None;
+    }
+    let escaped = zh.replace('\\', "\\\\").replace('"', "\\\"").replace('\n', "\\n");
+    Some(format!("{}{}{}", &line[..start], escaped, &line[end..]))
+}
+
 /// Apply a whole batch of live copy rewrites (the per-screen lists
 /// [`crate::screens::connect::copies`] builds). Each rewrite targets its own
 /// `copy <id> {` line, so the order does not matter; an id the card does not
@@ -291,7 +331,8 @@ pub fn lower_slot(
 ) -> Result<String, String> {
     let card = cards::card_for_slot(slot)
         .ok_or_else(|| format!("no card declares slot {}", slot.name()))?;
-    let mut card_src = read(card, &card.artifacts.card)?;
+    // A24: the authored copy in the current language, before the live values.
+    let mut card_src = localize(&read(card, &card.artifacts.card)?);
     let data_text = read(card, &card.artifacts.data).unwrap_or_else(|_| "{}".to_owned());
     let data: serde_json::Value =
         serde_json::from_str(&data_text).map_err(|e| format!("parse {}: {e}", card.artifacts.data))?;

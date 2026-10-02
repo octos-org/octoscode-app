@@ -1338,6 +1338,10 @@ impl OctoscodeView {
     // #28e4 merge: the #28e2 signature (cx — the palette search field is
     // pre-filled through it) carries main's #29d error-screen seed.
     fn start(&mut self, cx: &mut Cx) {
+        // A24 — the stored interface language (or the device's), before
+        // anything lowers: a Chinese preference's first frame is Chinese.
+        let lang = screens::a9_prefs::adopt_language();
+        makepad_widgets::log!("[octoscode] a24 language at launch: {}", lang.code());
         // A19 — the one-time migration's marker, read before any connect can
         // rewrite A1's last-server (screens::remembered).
         screens::remembered::note_process_start();
@@ -4321,13 +4325,15 @@ impl OctoscodeView {
         let key = (
             view.error.clone(),
             format!(
-                "{}|{}|{}|{:?}|{}|{}",
+                "{}|{}|{}|{:?}|{}|{}|{}",
                 view.error_actions,
                 view.last_tried,
                 view.connecting,
                 m.density,
                 screens::theme::resolved(),
-                screens::discovery::appeared().unwrap_or_default()
+                screens::discovery::appeared().unwrap_or_default(),
+                // A24: a language switch re-lowers the card.
+                i18n::language().code()
             ),
         );
         if self.connect_key.as_ref() != Some(&key) {
