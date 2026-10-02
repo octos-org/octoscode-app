@@ -731,7 +731,38 @@ pub struct Conversation {
     /// is persisted for them yet, so Core's "unknown session" means "no
     /// history", never a read to retry.
     fresh_ids: Mutex<std::collections::HashSet<String>>,
+    /// A22 row 203 — the Session being prepared ([`Candidate`]).
+    candidate: Mutex<Option<Candidate>>,
+    /// A22 row 203 — a candidate that failed closed on its buffer bound:
+    /// (Session, generation). That open's history read never commits it
+    /// (`candidate-session.ts:155-161`: the candidate is disposed).
+    overflowed: Mutex<Option<(String, u64)>>,
 }
+
+/// A22 row 203 — a candidate Session: its `session/open` went out and the
+/// history read that open asks for has not committed yet. The web prepares
+/// a candidate before it is shown (`candidate-session.ts:73-220`; on the
+/// pooled socket `active-session-runtime.ts:74-207`, which is the native
+/// shape: one socket, the isolation is in what reaches the product state):
+/// every notification of the candidate's own scope is BUFFERED from the open
+/// on (`:140-157` — scope-filtered, so a foreign flood cannot use its bound),
+/// the hydrate commits, and only then are the buffered events drained in
+/// order (`#emitCandidateProjection`, `:647-681`), the ones the hydrate
+/// already holds dropped as stale (`durable-session.ts:160-180`: a buffered
+/// envelope at or below the hydrate cursor). A failed open or history read
+/// fails closed: the buffer is dropped (`:93-110`, `:215-219`); more than
+/// [`CANDIDATE_LIMIT`] events fail it too.
+#[derive(Debug)]
+struct Candidate {
+    session: String,
+    /// The authority generation (`open_seq`) of the open that began it.
+    generation: u64,
+    staged: Vec<TransportEvent>,
+    started: Instant,
+}
+
+/// `CANDIDATE_NOTIFICATION_LIMIT` (`candidate-session.ts:11`).
+pub const CANDIDATE_LIMIT: usize = 4_096;
 
 /// A19b — what the conversation shows for a Session before its history is
 /// on screen ([`Conversation::history`]).
@@ -947,9 +978,139 @@ impl Conversation {
                 open_watch: Mutex::new(None),
                 history: Mutex::new(HashMap::new()),
                 fresh_ids: Mutex::new(std::collections::HashSet::new()),
+                candidate: Mutex::new(None),
+                overflowed: Mutex::new(None),
             },
             evt_rx,
         ))
+    }
+
+    // ------------------------------------------------ A22 row 203: candidates
+
+    /// Begin preparing `session` (its open is about to go out under the
+    /// current generation). A newer open replaces an older candidate (the
+    /// web aborts it, `use-octos-session.ts:3099-3101`) — its buffer is
+    /// dropped — except a re-open of the SAME Session (the history retry,
+    /// a reconnect), which keeps the events buffered so far: none is lost.
+    fn begin_candidate(&self, session: &str) {
+        let generation = self.generation();
+        let mut c = self.candidate.lock().unwrap();
+        let staged = match c.take() {
+            Some(old) if old.session == session => old.staged,
+            Some(old) => {
+                if !old.staged.is_empty() {
+                    makepad_widgets::log!(
+                        "[octoscode] candidate {}: replaced by {session} — {} buffered events dropped",
+                        old.session,
+                        old.staged.len()
+                    );
+                }
+                Vec::new()
+            }
+            None => Vec::new(),
+        };
+        *c = Some(Candidate { session: session.to_owned(), generation, staged, started: Instant::now() });
+    }
+
+    /// The Session currently being prepared, if any (test seam + logs).
+    pub fn candidate_session(&self) -> Option<String> {
+        self.candidate.lock().unwrap().as_ref().map(|c| c.session.clone())
+    }
+
+    /// Buffer `evt` when it is one of the candidate's own events (the web's
+    /// scope filter, `scope.ts:7-52`: the Session's id, no topic — a topic
+    /// frame belongs to that topic's record). Returns whether it was
+    /// buffered. A candidate whose history read outlived [`HISTORY_WAIT`]
+    /// (the window already says so) or whose buffer overflowed fails closed.
+    fn stage_for_candidate(&self, evt: &TransportEvent, payload: &UiNotification) -> bool {
+        let scoped = match payload {
+            UiNotification::EnvelopeV2(frame) => frame.topic.as_deref().is_none_or(|t| t.trim().is_empty())
+                .then(|| frame.session_id.0.clone()),
+            UiNotification::ReplayLossy(e) => Some(e.session_id.0.clone()),
+            other => crate::screens::peers::notification_session(other),
+        };
+        let Some(session) = scoped.filter(|s| !s.is_empty()) else { return false };
+        let failed = {
+            let mut c = self.candidate.lock().unwrap();
+            let Some(cand) = c.as_mut().filter(|c| c.session == session) else { return false };
+            if cand.started.elapsed() > HISTORY_WAIT {
+                makepad_widgets::log!(
+                    "[octoscode] candidate {session}: its history never committed — {} buffered events dropped",
+                    cand.staged.len()
+                );
+                *c = None;
+                return false;
+            }
+            if cand.staged.len() >= CANDIDATE_LIMIT {
+                *self.overflowed.lock().unwrap() = Some((session.clone(), cand.generation));
+                *c = None;
+                true
+            } else {
+                // The transport's event is not `Clone`; its notification is.
+                let copy = match evt {
+                    TransportEvent::DurableNotification { cursor, .. } => {
+                        TransportEvent::DurableNotification { payload: payload.clone(), cursor: cursor.clone() }
+                    }
+                    _ => TransportEvent::EphemeralNotification { payload: payload.clone() },
+                };
+                cand.staged.push(copy);
+                false
+            }
+        };
+        if failed {
+            // `candidate-session.ts:155-161`: fail closed, said.
+            self.history_failed(&session, "The candidate session emitted too many events while opening.".to_owned());
+        }
+        true
+    }
+
+    /// The candidate's history committed: drain its buffer in wire order
+    /// through the ordinary dispatch, dropping what the hydrate already
+    /// holds (`durable-session.ts:160-180`: same stream, cursor at or below
+    /// the hydrate's). The per-thread window seeded by the hydrate's
+    /// `projection_thread_sequences` drops any other replayed duplicate.
+    fn release_candidate(&self, session: &str, covered: Option<(&str, u64)>) {
+        let staged = {
+            let mut c = self.candidate.lock().unwrap();
+            match c.as_ref() {
+                Some(cand) if cand.session == session => c.take().map(|c| c.staged).unwrap_or_default(),
+                _ => return,
+            }
+        };
+        let total = staged.len();
+        let mut stale = 0usize;
+        for evt in staged {
+            let cursor = match &evt {
+                TransportEvent::DurableNotification { payload: UiNotification::EnvelopeV2(f), cursor } => {
+                    cursor.as_ref().or(f.envelope.cursor.as_ref()).map(|c| (c.stream.clone(), c.seq))
+                }
+                _ => None,
+            };
+            if let (Some((stream, seq)), Some((hs, hseq))) = (cursor, covered) {
+                if stream == hs && seq <= hseq {
+                    stale += 1;
+                    continue;
+                }
+            }
+            let out = self.dispatch(&evt);
+            self.trace.record(self.started, Direction::In, trace_method(&evt), None, Some(format!("released {out:?}")));
+        }
+        if total > 0 {
+            makepad_widgets::log!(
+                "[octoscode] candidate {session}: history committed — released {} buffered events ({stale} already in the history)",
+                total - stale
+            );
+        }
+    }
+
+    /// The candidate's open or history read failed: fail closed, its buffer
+    /// is dropped (`candidate-session.ts:103-110`).
+    fn dispose_candidate(&self, session: &str, why: &str) {
+        let mut c = self.candidate.lock().unwrap();
+        if c.as_ref().is_some_and(|cand| cand.session == session) {
+            let n = c.take().map(|c| c.staged.len()).unwrap_or(0);
+            makepad_widgets::log!("[octoscode] candidate {session}: {why} — {n} buffered events dropped");
+        }
     }
 
     /// A19b — what the conversation of `session` shows before its history is
@@ -1009,24 +1170,32 @@ impl Conversation {
             .and_then(|s| s.as_str())
             .map(str::to_owned)
             .unwrap_or_else(|| self.session_id());
-        let mut h = self.history.lock().unwrap();
-        if let Some(e) = h.get_mut(&session) {
-            if e.failed.is_none() {
-                makepad_widgets::log!("[octoscode] history of {session}: the open was refused: {}", error.message);
-                e.failed = Some(error.message.clone());
+        {
+            let mut h = self.history.lock().unwrap();
+            if let Some(e) = h.get_mut(&session) {
+                if e.failed.is_none() {
+                    makepad_widgets::log!("[octoscode] history of {session}: the open was refused: {}", error.message);
+                    e.failed = Some(error.message.clone());
+                }
             }
         }
+        // A22 row 203 — a refused open fails the candidate closed.
+        self.dispose_candidate(&session, "the open was refused");
     }
 
     fn history_failed(&self, session: &str, reason: String) {
         makepad_widgets::log!("[octoscode] history of {session} could not be read: {reason}");
-        let mut h = self.history.lock().unwrap();
-        let e = h.entry(session.to_owned()).or_insert_with(|| HistoryRead {
-            started: Instant::now(),
-            retried: true,
-            failed: None,
-        });
-        e.failed = Some(reason);
+        {
+            let mut h = self.history.lock().unwrap();
+            let e = h.entry(session.to_owned()).or_insert_with(|| HistoryRead {
+                started: Instant::now(),
+                retried: true,
+                failed: None,
+            });
+            e.failed = Some(reason);
+        }
+        // A22 row 203 — no history, no candidate: it fails closed.
+        self.dispose_candidate(session, "its history could not be read");
     }
 
     /// A19b — a `session/hydrate` the server refused. The error names its
@@ -1059,6 +1228,8 @@ impl Conversation {
         if unknown && self.fresh_ids.lock().unwrap().contains(&session) {
             // A Session this client just created: nothing persisted yet.
             self.history.lock().unwrap().remove(&session);
+            // A22 row 203 — an empty history: its events need not wait.
+            self.release_candidate(&session, None);
             return;
         }
         let retry = {
@@ -1418,6 +1589,9 @@ impl Conversation {
             let mut seq = self.open_seq.lock().unwrap();
             *seq += 1;
         }
+        // A22 row 203 — the opened Session is a candidate until its history
+        // commits: its live events wait (see `Candidate`).
+        self.begin_candidate(&session_id.0);
         // #P4g1 row 204: remember what THIS open asked for, so the reply arm
         // can fail closed on a different returned workspace.
         *self.pending_open_cwd.lock().unwrap() = cwd.clone();
@@ -2172,6 +2346,10 @@ impl Conversation {
         // A15 — the dropped socket's in-flight hydrates are never answered.
         self.hydrate_gen.lock().unwrap().clear();
         *self.open_seq.lock().unwrap() += 1;
+        // A22 row 203 — the re-open is prepared like any open: the Session's
+        // live events wait for its hydrate (the web's recovery buffer,
+        // `active-session-runtime.ts` `#enqueueRecovery`).
+        self.begin_candidate(&session);
         *self.pending_open_cwd.lock().unwrap() = cwd.clone();
         let params = SessionOpenParams {
             session_id: octos_core::SessionKey(session.clone()),
@@ -2235,15 +2413,52 @@ impl Conversation {
     /// workspace is known: octos keeps a workspace's Sessions in
     /// `<cwd>/.octos/<profile>`, and the legacy unscoped listing does not see
     /// them — the live smoke's Session stayed "New chat" after several turns.
+    ///
+    /// A22 row 228 — and only what the web PROJECTS from that reply
+    /// ([`crate::screens::catalog`]): an attested catalog's full Sessions of
+    /// the requested profile (`workspace-session-catalog.ts:66-92`,
+    /// `:197-209`), merged with the Sessions this app opened
+    /// (`Sessions::set_catalog`; `SessionSidebar.tsx:116-140`). An unattested
+    /// scoped reply leaves that workspace `unscoped` (nothing projected); the
+    /// legacy global listing is never a product catalog. Returns the number of
+    /// catalog rows projected. A failed read changes nothing (the web keeps
+    /// the last attested rows, `:210-222`).
     pub async fn refresh_sessions(&self) -> Result<usize, ClientError> {
+        let params = self.catalog_params();
         let result = self
             .client
-            .call::<octoscode_client::domains::session::SessionList>(self.catalog_params())
+            .call::<octoscode_client::domains::session::SessionList>(params.clone())
             .await?;
-        let sessions = result.into_sessions();
-        let n = sessions.len();
-        self.store.set_sessions(sessions);
-        Ok(n)
+        Ok(self.fold_listing(&params, result))
+    }
+
+    /// A22 row 228 — fold one `session/list` reply through the catalog
+    /// projection (see [`Conversation::refresh_sessions`]).
+    fn fold_listing(
+        &self,
+        params: &octoscode_client::domains::session::SessionListParams,
+        result: octoscode_client::domains::session::SessionListResult,
+    ) -> usize {
+        use crate::screens::catalog::{project, Listing};
+        let sessions = &self.store.domains.session;
+        match project(params, result, |id| sessions.is_known(id)) {
+            Listing::Catalog { workspace, rows } => {
+                let n = rows.len();
+                sessions.set_catalog(&workspace, rows);
+                n
+            }
+            Listing::Unscoped { workspace, rows } => {
+                ::log::info!(
+                    "octoscode: session/list for {workspace} is not attested for this profile — {rows} rows not projected"
+                );
+                sessions.set_catalog(&workspace, Vec::new());
+                0
+            }
+            Listing::Legacy { rows } => {
+                ::log::info!("octoscode: legacy session/list ({rows} rows) is not a workspace catalog — not projected");
+                0
+            }
+        }
     }
 
     /// A15 — the catalog's params: `{cwd, profile_id}` for the active
@@ -2654,6 +2869,17 @@ impl Conversation {
                         return FlowEvent::Other("session/open-workspace-mismatch".to_owned());
                     }
                 }
+                // A22 row 203 — the reply names the Session the candidate is
+                // (one socket answers the opens in order; the latest is it).
+                {
+                    let generation = self.generation();
+                    let mut c = self.candidate.lock().unwrap();
+                    if let Some(cand) = c.as_mut().filter(|c| c.generation == generation) {
+                        if cand.session != r.opened.session_id.0 {
+                            cand.session = r.opened.session_id.0.clone();
+                        }
+                    }
+                }
                 if let Some(root) = &r.opened.workspace_root {
                     self.store
                         .domains
@@ -2751,6 +2977,8 @@ impl Conversation {
                 } else {
                     // A19b — no history read is coming: nothing to wait for.
                     self.history.lock().unwrap().remove(&r.opened.session_id.0);
+                    // A22 row 203 — nor anything for its events to wait on.
+                    self.release_candidate(&r.opened.session_id.0, None);
                 }
                 // A15 — and the catalog re-lists for the opened Session's
                 // workspace, now that it is known (the web's `refreshKey`
@@ -2783,13 +3011,13 @@ impl Conversation {
                 FlowEvent::WorkspaceOpened(r.opened.session_id.0.clone())
             }
             TransportEvent::SessionsListed { sessions } => {
-                if let Ok(rows) = serde_json::from_value::<
-                    Vec<octoscode_client::domains::session::SessionListRow>,
-                >(sessions.clone())
-                {
-                    self.store
-                        .set_sessions(rows.into_iter().map(Into::into).collect());
-                }
+                // A22 row 228 — the transport's own `ListSessions` asks the
+                // legacy global listing (no `{cwd, profile_id}`): never a
+                // product catalog (`use-workspace-product.ts:60-63`), so
+                // nothing of it is projected; logged by name, not dropped
+                // silently.
+                let rows = sessions.as_array().map(Vec::len).unwrap_or(0);
+                ::log::info!("octoscode: transport session/list: {rows} legacy rows, not a workspace catalog — not projected");
                 FlowEvent::Other("session/list".to_owned())
             }
             TransportEvent::DurableNotification { payload, .. }
@@ -2800,6 +3028,11 @@ impl Conversation {
                 // (`peerSessionEventFor`, session-peer-coordinator.ts:139).
                 if crate::screens::peers::fold_frame(&self.store, payload) {
                     return FlowEvent::Other(format!("peer-session {}", payload.method()));
+                }
+                // A22 row 203 — a candidate's own events wait for its
+                // history (released in order by the hydrate arm below).
+                if self.stage_for_candidate(evt, payload) {
+                    return FlowEvent::Other(format!("staged {}", payload.method()));
                 }
                 // #P4g1 rows 205/213: the runtime scope gate. The durable
                 // projection (projection/envelope, protocol/replay_lossy)
@@ -2900,6 +3133,18 @@ impl Conversation {
                             }
                             return FlowEvent::Other("session/hydrate-stale-authority".to_owned());
                         }
+                        // A22 row 203 — the candidate this read was asked for
+                        // failed closed (its buffer bound): never committed.
+                        let failed_candidate = {
+                            let o = self.overflowed.lock().unwrap();
+                            o.as_ref().is_some_and(|(s, g)| s == session_id && Some(*g) == requested_gen)
+                        };
+                        if failed_candidate {
+                            ::log::warn!(
+                                "octoscode: session/hydrate for {session_id}: its candidate failed closed — not committed"
+                            );
+                            return FlowEvent::Other("session/hydrate-candidate-failed".to_owned());
+                        }
                         if h.session_id.0 != *session_id {
                             ::log::warn!(
                                 "octoscode: session/hydrate returned session {} for requested {session_id} — hydrate commit rejected",
@@ -2935,6 +3180,10 @@ impl Conversation {
                             self.store.domains.config.mark_recovered(&session_id);
                             // A19b — the history is in: settled.
                             self.history.lock().unwrap().remove(session_id.as_str());
+                            // A22 row 203 — the candidate is prepared: its
+                            // buffered live events follow the history, in
+                            // order, minus what the history already holds.
+                            self.release_candidate(session_id, Some((h.cursor.stream.as_str(), h.cursor.seq)));
                             ::log::info!(
                                 "octoscode: session/hydrate folded for {session_id} (+{added} rows)"
                             );

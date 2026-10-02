@@ -318,6 +318,8 @@ async fn row_228_only_full_sessions_of_the_requested_profile_are_projected() {
             json!({"id": "bare", "message_count": 1, "title": "Bare id row"}),
             // No channel: not a full Session of this profile.
             json!({"id": "a22:legacy", "message_count": 4, "title": "Legacy row"}),
+            // The Session this app opened (its native `<profile>:main`).
+            json!({"id": "a22:main", "message_count": 2, "title": "Main chat", "updated_at": "2026-09-30T08:00:00Z"}),
         ];
         if with_new {
             v.insert(1, json!({"id": "a22:api:web-new", "message_count": 9}));
@@ -363,6 +365,10 @@ async fn row_228_only_full_sessions_of_the_requested_profile_are_projected() {
     let titled: Vec<(String, String)> = drawn.iter().map(|(id, t, _)| (id.clone(), t.clone())).collect();
     assert!(titled.contains(&("a22:api:web-old".to_owned(), "学习一下如何做editable pptx".to_owned())), "{titled:?}");
     assert!(titled.contains(&("a22:api:web-new".to_owned(), "New chat".to_owned())), "{titled:?}");
+    // The stated native adaptation (screens/catalog.rs): the catalog row of
+    // the Session this app opened names it, though `a22:main` is not in the
+    // full grammar; an unopened non-full id (`a22:legacy`) stays out.
+    assert!(titled.contains(&("a22:main".to_owned(), "Main chat".to_owned())), "{titled:?}");
     for foreign in ["other:api:web-x", "bare", "a22:legacy"] {
         assert!(!titled.iter().any(|(id, _)| id == foreign), "{foreign} must never be projected: {titled:?}");
     }
@@ -463,6 +469,50 @@ async fn row_203_a_candidates_live_events_wait_for_its_history_then_release_in_o
         .filter(|e| e.turn_id.as_deref() == Some(T2) && e.kind == octoscode_store::EntryKind::ASSISTANT_TEXT)
         .count();
     assert_eq!(answers_t2, 1, "the replayed frame the history holds is not applied twice");
+    quit(&conv);
+}
+
+/// `candidate-session.test.ts` "fails closed on the 4097th notification
+/// before commit": a candidate whose buffer passes the bound is disposed —
+/// none of its buffered events is applied, the window says why ("Session
+/// recovery required"), and its history read, answered afterwards, does not
+/// commit it.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn row_203_a_candidate_fails_closed_on_the_4097th_buffered_event() {
+    use octoscode_module::flow::{History, CANDIDATE_LIMIT};
+    let _g = lock();
+    let b = "a22:api:flood";
+    let core = Core::start(Arc::new(move |method, p| {
+        let session = p["session_id"].as_str().unwrap_or("").to_owned();
+        match method {
+            "session/open" => Reply::Ok(opened(&session, p["cwd"].as_str().unwrap_or(CWD), None)),
+            "session/hydrate" if session == b => Reply::Around {
+                before: (1..=CANDIDATE_LIMIT as u64 + 1)
+                    .map(|i| env(b, T3, i, 14 + i, json!({"type": "assistant_delta", "data": {"text": "x", "assistant_segment_id": "s"}})))
+                    .collect(),
+                result: hydrated(b, 14, vec![row(1, "user", "First prompt", T1), row(2, "assistant", "Answer one", T1)], &[(T1, 2)]),
+                after: vec![],
+            },
+            "session/hydrate" => Reply::Ok(empty_history(&session)),
+            "session/list" => Reply::Ok(json!({"sessions": []})),
+            _ => Reply::Ok(json!({})),
+        }
+    }))
+    .await;
+    let conv = launch(&core).await;
+    conv.open_session(b, Some(CWD.to_owned())).await.expect("session/open");
+    until("the candidate failed closed", || {
+        matches!(conv.history(b), History::Failed(ref r) if r == "The candidate session emitted too many events while opening.")
+    })
+    .await;
+    // The history read is answered after the flood: it never commits.
+    until("B's history read was answered", || core.params_of("session/hydrate").iter().any(|p| p["session_id"] == json!(b))).await;
+    quiet().await;
+    assert!(matches!(conv.history(b), History::Failed(_)), "still failed: {:?}", conv.history(b));
+    assert!(
+        conv.store.domains.session.timeline.entries(b).is_empty(),
+        "none of the buffered events (nor the uncommitted history) reached the transcript"
+    );
     quit(&conv);
 }
 

@@ -20,6 +20,9 @@ pub mod board1;
 pub mod board1_kit;
 pub mod board3;
 pub mod browser;
+// A22 row 228: the per-workspace catalog's projection (attested, full
+// Sessions of the requested profile).
+pub mod catalog;
 pub mod connect;
 // A8: the header's "Copy as Markdown" (CopyConversationButton phases).
 pub mod copy_button;

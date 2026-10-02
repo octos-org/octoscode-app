@@ -394,11 +394,23 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
             store_index: i,
             id: s.id.clone(),
             title: title_of(s),
-            updated_ms: s.updated_at.as_deref().and_then(parse_rfc3339_ms),
+            // A22 row 228 — the merged row's recency is the later of the
+            // server's `updated_at` and this app's last open
+            // (`mergeWorkspaceSessionRows`, workspace-session-catalog.ts:121,
+            // :131), so the Session just opened is on top.
+            updated_ms: s
+                .updated_at
+                .as_deref()
+                .and_then(parse_rfc3339_ms)
+                .max(store.domains.session.last_opened_ms(&s.id)),
+            // The workspace the Session was opened in, else the one whose
+            // attested catalog listed it (`:183-224`, one state per path),
+            // else the active Session's.
             group: store
                 .domains
                 .session
                 .workspace_root(&s.id)
+                .or_else(|| store.domains.session.listed_root(&s.id))
                 .or_else(|| fallback_root.clone())
                 .unwrap_or_default(),
         })

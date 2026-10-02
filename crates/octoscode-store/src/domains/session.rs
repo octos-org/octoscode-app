@@ -142,6 +142,26 @@ struct Inner {
     /// arms the confirm gate; the gate itself refuses without the exact
     /// typed match (the web's disabled-until-confirmed button).
     pending_resume: HashMap<String, usize>,
+    /// A22 row 228 — the Sessions this app OPENED (the web's tab-known
+    /// registry, `known-session-registry.ts:57`: ref + `lastOpenedAt`,
+    /// bounded to the 100 most recent), oldest first. A catalog read never
+    /// removes one of these (`SessionSidebar.tsx:116-140`).
+    known: Vec<(String, u64)>,
+    /// A22 row 228 — the workspace whose ATTESTED catalog listed each row
+    /// (`workspace-session-catalog.ts:183-224`: one state per requested
+    /// workspace path). A newer attested listing of that workspace replaces
+    /// its rows; another workspace's rows are untouched.
+    listed_under: HashMap<String, String>,
+}
+
+/// A22 — the known registry's bound (`known-session-registry.ts:57`).
+pub const KNOWN_MAX: usize = 100;
+
+fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0)
 }
 
 /// The thinking-effort panel's three values. The store keeps them per
@@ -226,6 +246,14 @@ impl Sessions {
     /// so an open is visible without waiting on a catalog read.
     pub fn note_opened(&self, id: &str, title: Option<String>) {
         let mut i = self.inner.lock().unwrap();
+        // A22 row 228 — the tab-known registry (`known-session-registry.ts`):
+        // the most recent open last, bounded.
+        i.known.retain(|(k, _)| k != id);
+        i.known.push((id.to_owned(), now_ms()));
+        let n = i.known.len();
+        if n > KNOWN_MAX {
+            i.known.drain(..n - KNOWN_MAX);
+        }
         match i.sessions.iter_mut().find(|s| s.id == id) {
             Some(existing) => {
                 if let Some(title) = title {
@@ -248,9 +276,72 @@ impl Sessions {
     pub fn forget(&self, id: &str) {
         let mut i = self.inner.lock().unwrap();
         i.sessions.retain(|s| s.id != id);
+        i.known.retain(|(k, _)| k != id);
+        i.listed_under.remove(id);
         if i.active.as_deref() == Some(id) {
             i.active = None;
         }
+    }
+
+    /// A22 row 228 — fold ONE workspace's attested catalog (the web's
+    /// `catalogSessionsFromList` result for `workspace`, already filtered to
+    /// full Sessions of the requested profile): its rows are the server's
+    /// truth (title, last prompt, time win); a row this workspace's earlier
+    /// listing named that the new one omits is dropped — unless this app
+    /// opened it (`mergeWorkspaceSessionRows`, `workspace-session-catalog.ts:
+    /// 107-135`: a known ref the catalog does not report stays). An EMPTY
+    /// `rows` is the web's `unscoped` state for that workspace (nothing
+    /// projected). Other workspaces' rows and the known Sessions are kept.
+    pub fn set_catalog(&self, workspace: &str, rows: Vec<Session>) {
+        let mut i = self.inner.lock().unwrap();
+        let listed: std::collections::HashSet<String> = rows.iter().map(|s| s.id.clone()).collect();
+        let known: std::collections::HashSet<String> = i.known.iter().map(|(k, _)| k.clone()).collect();
+        let active = i.active.clone();
+        let stale: Vec<String> = i
+            .listed_under
+            .iter()
+            .filter(|(id, w)| w.as_str() == workspace && !listed.contains(*id))
+            .map(|(id, _)| id.clone())
+            .collect();
+        for id in &stale {
+            i.listed_under.remove(id);
+        }
+        let mut merged = rows;
+        for id in &listed {
+            i.listed_under.insert(id.clone(), workspace.to_owned());
+        }
+        for kept in i.sessions.drain(..).collect::<Vec<_>>() {
+            if listed.contains(&kept.id) {
+                continue; // the server's row wins
+            }
+            let dropped = stale.contains(&kept.id) && !known.contains(&kept.id) && active.as_deref() != Some(kept.id.as_str());
+            if !dropped {
+                merged.push(kept);
+            }
+        }
+        i.sessions = merged;
+    }
+
+    /// A22 row 228 — whether this app opened `id` (the tab-known registry).
+    pub fn is_known(&self, id: &str) -> bool {
+        self.inner.lock().unwrap().known.iter().any(|(k, _)| k == id)
+    }
+
+    /// A22 row 228 — when this app last opened `id` (ms since the epoch);
+    /// the merged row's recency is the later of this and the server's
+    /// `updated_at` (`workspace-session-catalog.ts:121`).
+    pub fn last_opened_ms(&self, id: &str) -> Option<u64> {
+        self.inner.lock().unwrap().known.iter().find(|(k, _)| k == id).map(|(_, t)| *t)
+    }
+
+    /// A22 — every Session this app opened, oldest open first.
+    pub fn known(&self) -> Vec<String> {
+        self.inner.lock().unwrap().known.iter().map(|(k, _)| k.clone()).collect()
+    }
+
+    /// A22 row 228 — the workspace whose attested catalog listed `id`.
+    pub fn listed_root(&self, id: &str) -> Option<String> {
+        self.inner.lock().unwrap().listed_under.get(id).cloned()
     }
 
     /// The session count — what the module tile shows.
