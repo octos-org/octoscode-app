@@ -1,18 +1,18 @@
 == native walk a9_settings [phone] (tools/walk/a9_settings_walk.py)
--- run 1: exit 0 in 4 s
+-- run 1: exit 0 in 5 s
 PASS connected to the replay server
 PASS Settings opens from the header
 PASS General shows
 PASS General: the state reads Connected — 'Connected'
 PASS General: the green dot shows (one dot)
-PASS General: the origin is the connected server — '127.0.0.1:8490'
+PASS General: the origin is the connected server — '127.0.0.1:8511'
 PASS General: Current workspace shows (known) — 'octos' '/home/user/src/octos'
 PASS General: Profile shows the opened Profile — 'a9walk'
 PASS General: every row fits the body (no overflow) — body [57, 131, 303, 719] []
-PASS General: state and origin do not overlap — [96, 339, 67, 16] [250, 327, 86, 16]
+PASS General: state and origin do not overlap — [96, 339, 67, 16] [256, 327, 80, 16]
 PASS General: set_ws_value inside the body — [302, 391, 34, 16]
 PASS General: set_profile_value inside the body — [292, 465, 44, 16]
-PASS General: set_server_value inside the body — [250, 327, 86, 16]
+PASS General: set_server_value inside the body — [256, 327, 80, 16]
 SHOT <repo>/tmp/walk/native/a9_settings-phone/out/phone-settings-general.png
 PASS Connection shows
 PASS Connection: Disconnect / Forget server are >= 28 px targets — []
@@ -21,7 +21,7 @@ PASS Connection: settings_forget inside the body — [203, 307, 120, 36]
 SHOT <repo>/tmp/walk/native/a9_settings-phone/out/phone-settings-connection.png
 PASS Disconnect acts at once (no work, no draft)
 PASS …closes the transport and returns to the Connect card
-PASS …on the same server (remembered) — 'http://127.0.0.1:8490'
+PASS …on the same server (remembered) — 'http://127.0.0.1:8511'
 SHOT <repo>/tmp/walk/native/a9_settings-phone/out/phone-after-disconnect.png
 PASS Connect reconnects to the remembered server
 PASS Settings reopens

@@ -1,8 +1,8 @@
 == native walk a10_diff_review [desktop] (tools/walk/a10_diff_review.py)
 -- run 1: exit 0 in 14 s
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=9510 app=octosense grabs=<abs>/octosense-9510
-[headless] up: pid 9510  port 8421  log <repo>/tmp/hs/port-8421.log
+[makepad-remote] listening on 127.0.0.1:8421 pid=9304 app=octosense grabs=<abs>/octosense-9304
+[headless] up: pid 9304  port 8421  log <repo>/tmp/hs/port-8421.log
 [headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
 == 1. no preview yet: the header Review entry
 CLICK review_open_hit r=[841, 87, 86, 30] at (884,102)
@@ -46,5 +46,5 @@ PASS header: the close control CLICK closes it
 CLICK cv_ap_session r=[719, 615, 157, 34] at (798,632)
 == 19/19 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 9510 exited after /gq
+[headless] pid 9304 exited after /gq
 [headless] port 8421 free

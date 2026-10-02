@@ -1,5 +1,5 @@
 == native walk a3_chrome [phone] (tools/walk/a3_chrome_walk.py)
--- run 1: exit 0 in 6 s
+-- run 1: exit 0 in 7 s
 PASS layout: hd_review_label is icon-only in this mode
 PASS layout: hd_settings_label is icon-only in this mode
 PASS Menu opens the drawer — clicked=True log~'drawer.open'

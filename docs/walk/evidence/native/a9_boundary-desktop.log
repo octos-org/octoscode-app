@@ -1,5 +1,5 @@
 == native walk a9_boundary [desktop] (tools/walk/a9_boundary_walk.py)
--- run 1: exit 0 in 2 s
+-- run 1: exit 0 in 3 s
 PASS connected
 PASS the panic is caught by the fatal boundary
 PASS the crash screen is drawn alone (no chrome behind it)

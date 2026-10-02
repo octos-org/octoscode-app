@@ -1,5 +1,5 @@
 == native walk a8_flows [phone] (tools/walk/a8_flows_walk.py)
--- run 1: exit 0 in 21 s
+-- run 1: exit 0 in 29 s
 PASS app is up with the strip
 PASS /resume opens 'Resume chat' — Resume chat
 PASS resume: the catalog was read scoped (session/list {cwd, profile_id})
@@ -23,7 +23,7 @@ PASS switcher: the open Session offers no delete
 PASS draft typed in 'Add session fork' — unsent words
 PASS another Session shows its own (empty) draft — ''
 PASS back: the draft returns to its Session — 'unsent words'
-PASS reconnect: the outage is seen (the transport left Live) — conn: Reconnecting { attempt: 5 }   sessions: 5
+PASS reconnect: the outage is seen (the transport left Live) — conn: Reconnecting { attempt: 7 }   sessions: 5
 PASS reconnect: the active Session is re-opened — a8:api:alpha
 PASS reconnect: and hydrated canonically
 PASS reconnect: Live again — conn: Live   sessions: 5
@@ -43,7 +43,7 @@ PASS nothing opened before the choice
 PASS wire: the chosen profile opens the new Session
 PASS the panel closes
 PASS the draft moved with the committed launch — 'unsent words'
-PASS wire: one turn/start for the sent text — [{'input': [{'kind': 'text', 'text': 'unsent words'}], 'session_id': 'glm-coder:api:01a0fc25-e5c9-7707-a7ec-e9b459ef7883', 'turn_id': '01a0fc25-e86c-723e-9a51-8510edae9e0e'}]
+PASS wire: one turn/start for the sent text — [{'input': [{'kind': 'text', 'text': 'unsent words'}], 'session_id': 'glm-coder:api:01a0fc54-63db-75af-a66d-e22f8fac5243', 'turn_id': '01a0fc54-667d-74cc-8c46-a57c9a0d97ca'}]
 PASS strip: the live word follows the turn (Thinking… -> Running shell… -> Thinking… -> Writing…) — ['Responding', 'Thinking…', 'Running shell…', 'Thinking…', 'Writing…', 'Ready']
 PASS strip: back to 'Ready' when the turn completes — ['Responding', 'Thinking…', 'Running shell…', 'Thinking…', 'Writing…', 'Ready']
 PASS parked: opening the Session read its parked interactions (session/hydrate include pending_approvals)

@@ -1,8 +1,8 @@
 == native walk a10_seats [desktop] (tools/walk/a10_seats.py)
 -- run 1: exit 0 in 21 s
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=70817 app=octosense grabs=<abs>/octosense-70817
-[headless] up: pid 70817  port 8421  log <repo>/tmp/hs/port-8421.log
+[makepad-remote] listening on 127.0.0.1:8421 pid=7438 app=octosense grabs=<abs>/octosense-7438
+[headless] up: pid 7438  port 8421  log <repo>/tmp/hs/port-8421.log
 [headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
 == 1. the seats: permission left, model right
 PASS seats: both seats are drawn (the server offers both menus)
@@ -64,5 +64,5 @@ PASS wire: permission/profile/list read — replay log: 6
 PASS wire: profile/llm/list read — replay log: 5
 == 30/30 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 70817 exited after /gq
+[headless] pid 7438 exited after /gq
 [headless] port 8421 free

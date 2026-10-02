@@ -1,41 +1,41 @@
 == native walk a12_reconnect [phone] (tools/walk/a12_reconnect_walk.py)
--- run 1: exit 0 in 19 s
-PASS server up — port 8498
-[makepad-remote] listening on 127.0.0.1:8421 pid=12561 app=octosense grabs=<abs>/octosense-12561
-[headless] up: pid 12561  port 8421  log <abs>/port-8421.log
+-- run 1: exit 1 in 48 s
+PASS server up — port 8492
+[makepad-remote] listening on 127.0.0.1:8421 pid=21106 app=octosense grabs=<abs>/octosense-21106
+[headless] up: pid 21106  port 8421  log <abs>/port-8421.log
 PASS app launched (hidden, isolated state)
 PASS the shell is up and live
 PASS strip Ready — 'Ready'
 PASS the unsent draft is in the composer — 'unsent words survive the outage'
   shot <repo>/tmp/walk/native/a12_reconnect-phone/out/phone-1-live.png
 PASS outage: the banner appears — after 0.3s
-PASS outage: the banner shows — [12, 515, 336, 100]
+PASS outage: the banner shows — [12, 534, 336, 100]
 PASS outage: 'Reconnecting to Octos' — 'Reconnecting to Octos'
-PASS outage: the detail names the server in use + the retry count — 'Connection lost · retry 6 · 127.0.0.1:8498'
+PASS outage: the detail names the server in use + the retry count — 'Connection lost · retry 5 · 127.0.0.1:8492'
 PASS outage: the shell stays (no Connect card)
 PASS outage: the drawer trigger stays (phone)
 PASS outage: the strip says Reconnecting — 'Reconnecting'
-PASS outage: banner spans the composer column (x/w ±1) — banner [12, 515, 336, 100] composer [12, 729, 336, 93]
-PASS outage: banner inside the conversation column — [12, 515, 336, 100] in [0, 74, 360, 776]
-PASS outage: a12_link_title inside the banner — [70, 527, 264, 16]
-PASS outage: a12_link_detail inside the banner — [70, 546, 264, 13]
-PASS outage: a12_link_mark inside the banner — [28, 528, 30, 30]
-PASS outage: a12_link_retry >= 28 px and inside the banner — [70, 571, 92, 32]
-PASS outage: a12_link_leave >= 28 px and inside the banner — [170, 571, 94, 32]
-PASS outage: banner sits above the strip (no overlap) — [12, 515, 336, 100] / [12, 623, 336, 106]
-PASS outage: title above detail, no overlap — [70, 527, 264, 16] / [70, 546, 264, 13]
+PASS outage: banner spans the composer column (x/w ±1) — banner [12, 534, 336, 100] composer [12, 729, 336, 93]
+PASS outage: banner inside the conversation column — [12, 534, 336, 100] in [0, 74, 360, 776]
+PASS outage: a12_link_title inside the banner — [70, 546, 264, 16]
+PASS outage: a12_link_detail inside the banner — [70, 565, 264, 13]
+PASS outage: a12_link_mark inside the banner — [28, 547, 30, 30]
+PASS outage: a12_link_retry >= 28 px and inside the banner — [70, 590, 92, 32]
+PASS outage: a12_link_leave >= 28 px and inside the banner — [170, 590, 94, 32]
+PASS outage: banner sits above the strip (no overlap) — [12, 534, 336, 100] / [12, 642, 336, 87]
+PASS outage: title above detail, no overlap — [70, 546, 264, 16] / [70, 565, 264, 13]
 PASS outage: the draft is intact — 'unsent words survive the outage'
   shot <repo>/tmp/walk/native/a12_reconnect-phone/out/phone-2-reconnecting.png
 PASS send while down: refused on the banner — 'Not sent — your text stays in the composer.'
 PASS send while down: the draft is kept — 'unsent words survive the outage'
 PASS send while down: no turn/start reached the wire
-PASS held line inside the banner — [70, 545, 264, 15] in [12, 498, 336, 118]
+PASS held line inside the banner — [70, 563, 264, 15] in [12, 516, 336, 118]
   shot <repo>/tmp/walk/native/a12_reconnect-phone/out/phone-3-send-refused.png
 PASS Retry now is clickable
 PASS Retry now re-dials (a fresh transport)
 PASS …and the banner stays while the server is down
 PASS server back on the same port
-PASS recovered: the banner goes by itself (the transport's own re-dial) — 1.6s
+PASS recovered: the banner goes by itself (the transport's own re-dial) — 17.3s
 PASS recovered: strip Ready — 'Ready'
 PASS recovered: the SAME Session re-opened ({reconnect: true}) — [{'reconnect': True, 'session_id': 'a12walk:main'}] vs 'a12walk:main'
 PASS recovered: and re-hydrated (the canonical history came back) — 1 hydrate replies
@@ -48,13 +48,11 @@ PASS typed /review while down: refused on the banner — '/review was not run �
 PASS …the typed command stays in the composer — '/review'
   shot <repo>/tmp/walk/native/a12_reconnect-phone/out/phone-6-command-refused.png
 PASS banner Disconnect is clickable
-PASS the unsaved draft asks first (A9's confirmation) — 'Disconnect from Octos?'
-  shot <repo>/tmp/walk/native/a12_reconnect-phone/out/phone-7-disconnect-confirm.png
-PASS give-up: the Connect card returns
-PASS …showing the server IN USE (not the default) — 'http://127.0.0.1:8498'
+FAIL give-up: the Connect card returns
+FAIL …showing the server IN USE (not the default) — None
   shot <repo>/tmp/walk/native/a12_reconnect-phone/out/phone-8-connect-card.png
 PASS server back
 PASS the card's Connect dials that same server and the shell returns
   shot <repo>/tmp/walk/native/a12_reconnect-phone/out/phone-9-reconnected-from-card.png
-== WALK a12 reconnect phone (replay, TERM): 46/46 passed
-   state dir (trace, serve log): <abs>/a12walk.1ss6q37b
+== WALK a12 reconnect phone (replay, TERM): 43/45 passed
+   state dir (trace, serve log): <abs>/a12walk.z58a2che

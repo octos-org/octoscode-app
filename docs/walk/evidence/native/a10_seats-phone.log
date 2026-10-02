@@ -1,26 +1,26 @@
 == native walk a10_seats [phone] (tools/walk/a10_seats.py)
--- run 1: exit 0 in 20 s
+-- run 1: exit 1 in 46 s
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=74845 app=octosense grabs=<abs>/octosense-74845
-[headless] up: pid 74845  port 8421  log <repo>/tmp/hs/port-8421.log
+[makepad-remote] listening on 127.0.0.1:8421 pid=9876 app=octosense grabs=<abs>/octosense-9876
+[headless] up: pid 9876  port 8421  log <repo>/tmp/hs/port-8421.log
 [headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
 == 1. the seats: permission left, model right
 PASS seats: both seats are drawn (the server offers both menus)
-PASS seats: the permission seat names the server's preset before its menu opens (read at Session open) — Write · Network allowed
+FAIL seats: the permission seat names the server's preset before its menu opens (read at Session open) — Write
 == 2. the permission menu (approval pill CLICK)
-CLICK approval_pill_hit r=[56, 781, 127, 30] at (120,796)
+CLICK approval_pill_hit r=[56, 781, 52, 30] at (82,796)
 PASS permission: approval pill CLICK -> the menu above it (permission/profile/list)
 PASS permission: the current preset first, then the other profiles (shield / name / check)
-menu [34, 568, 310, 205] over seat [56, 781, 127, 30]: gap=8.0 edge=22.0 clamped=True
+menu [34, 568, 310, 205] over seat [56, 781, 52, 30]: gap=8.0 edge=22.0 clamped=True
 PASS permission: the menu sits above the seat, left-aligned to it
 PASS permission menu: menu numeric checks — frame=310x205 centre_dx=9.0 margins L=12 R=12 labels=5 outside=0 overlaps=0 controls=4 under28=0
 SHOT 01-permission-menu-phone
 CLICK b3_perm_opt_1 r=[38, 637, 302, 44] at (189,659)
 PASS permission: 'Read · Network blocked' CLICK -> permission/profile/set; the menu closes
-PASS permission: the seat shows the read-back (the web's trigger label) — Read · Network blocked
+FAIL permission: the seat shows the read-back (the web's trigger label) — Read
 SHOT 01b-permission-applied-phone
 == 3. full access only through the acknowledged confirmation
-CLICK approval_pill_hit r=[56, 781, 126, 30] at (119,796)
+CLICK approval_pill_hit r=[56, 781, 51, 30] at (82,796)
 PASS permission: reopened, the read-back is current (Read · Network blocked first, checked)
 CLICK b3_perm_opt_2 r=[38, 725, 302, 44] at (189,747)
 PASS permission: 'Full access' CLICK -> the confirmation, not a set
@@ -32,14 +32,14 @@ CLICK b3_risk_ack r=[32, 497, 296, 49] at (180,522)
 PASS risk: the acknowledgement CLICK ticks the box; the hint goes; Enable is armed
 SHOT 03-risk-ack-phone
 CLICK b3_risk_confirm r=[171, 578, 157, 36] at (250,596)
-PASS risk: 'Enable full access' CLICK -> permission/profile/set {danger_full_access, allow}; closed
+FAIL risk: 'Enable full access' CLICK -> permission/profile/set {danger_full_access, allow}; closed
 == 4. the model menu (model seat CLICK)
-CLICK model_seat_hit r=[190, 781, 78, 30] at (229,796)
+CLICK model_seat_hit r=[162, 781, 106, 30] at (215,796)
 PASS model: the model label CLICK -> the menu above it (profile/llm/list {session_id})
 PASS model: the two deepseek routes read apart (model · route)
 PASS model: grouped by provider; the unavailable model disabled with its reason
 PASS model: the selected model is checked; the seat names it
-menu [16, 491, 292, 282] over seat [195, 781, 73, 30]: gap=8.0 edge=40.0 clamped=True
+menu [16, 491, 292, 282] over seat [164, 781, 104, 30]: gap=8.0 edge=40.0 clamped=True
 PASS model: the menu sits above the seat, right-aligned to it
 PASS model menu: menu numeric checks — frame=292x282 centre_dx=-18.0 margins L=12 R=12 labels=12 outside=0 overlaps=0 controls=3 under28=0
 SHOT 04-model-menu-phone
@@ -62,7 +62,7 @@ PASS wire: permission/profile/set x2 — replay log: 2
 PASS wire: profile/llm/select x2 — replay log: 2
 PASS wire: permission/profile/list read — replay log: 6
 PASS wire: profile/llm/list read — replay log: 5
-== 30/30 checks passed
+== 27/30 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 74845 exited after /gq
+[headless] pid 9876 exited after /gq
 [headless] port 8421 free

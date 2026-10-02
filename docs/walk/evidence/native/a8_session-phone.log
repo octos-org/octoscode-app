@@ -1,7 +1,7 @@
 == native walk a8_session [phone] (tools/walk/a8_session_walk.py)
 -- run 1: exit 0 in 17 s
 PASS strip is laid out
-PASS strip (phone): the state word spans the strip, above two equal halves — [[12, 676, 167, 31], [12, 644, 336, 31], [180, 676, 167, 31]]
+PASS strip (phone): the state word spans the strip, above two equal halves — [[12, 694, 167, 31], [12, 663, 336, 31], [180, 694, 167, 31]]
 PASS strip: the foreign holder is the state word — Another app is using this session
 PASS strip click opens 'Session settings' — Session settings
 PASS app Settings did not open instead
@@ -38,7 +38,7 @@ PASS advanced: the pane sits inside the window with equal side margins — modul
 PASS advanced: section cards share one left edge and width — [[32, 177, 286, 186], [32, 374, 286, 75]]
 PASS advanced: every pane tap target is >= 28 px high — []
 PASS advanced: no pane label runs past its card — []
-PASS wire: session/driver/acquire at the observed revision — [{'driver_id': 'octoscode-native:402d8d7d-7821-4a26-88ad-0efd8cbb5639', 'expected_revision': 9, 'lease_seconds': 60, 'session_id': 'a8:main'}]
+PASS wire: session/driver/acquire at the observed revision — [{'driver_id': 'octoscode-native:316cd424-3ecc-4a72-a8dd-70b84e140040', 'expected_revision': 9, 'lease_seconds': 60, 'session_id': 'a8:main'}]
 PASS wire: session/driver/release next=internal
 PASS resume chat: the holder banner is gone
 PASS resume chat: 'This app' controls the session now — This app
@@ -50,7 +50,7 @@ PASS inspector: the scope line names the Session — Session: a8:main
 PASS inspector: 'Reading…' settles to 'Refresh' — Refresh
 PASS inspector: Refresh re-reads the snapshot — 1 -> 2
 PASS inspector: 'Conversation link copied.'
-PASS inspector: the full link stays visible in a read-only field — octoscode://session?s=%5B%22%2Fhome%2Fuser%2Foctos%22%2C%22a
+PASS inspector: the link stays visible on one line (whole, or head…tail when longer than its field) — octoscode://session?…Amain%22%5D [56, 604, 238, 14]
 PASS inspector closes
 PASS Settings opens from the header
 PASS Settings > Sandbox shows the three switches
@@ -58,8 +58,8 @@ PASS the third switch is the web's 'Sandbox'
 PASS the defaults persisted per endpoint — {'network': 'deny', 'permissionMode': 'read_only', 'sandbox': {'enabled': True, 'networkAccess': False, 'readAllowPaths': []}, 'version': 1}
 PASS Settings closes
 PASS New chat clicked
-PASS wire: the created open carries the sandbox default — [{'profile_id': 'a8', 'sandbox': {'enabled': True, 'network_access': False}, 'session_id': 'a8:api:01a0fc26-dd16-75e6-b294-876ade38d073'}]
-PASS wire: ONE permission/profile/set for the created id — [{'session_id': 'a8:api:01a0fc26-dd16-75e6-b294-876ade38d073', 'update': {'mode': 'read_only', 'network': 'deny'}}]
+PASS wire: the created open carries the sandbox default — [{'profile_id': 'a8', 'sandbox': {'enabled': True, 'network_access': False}, 'session_id': 'a8:api:01a0fc55-5e50-74f0-a9d6-13e9e9f02a88'}]
+PASS wire: ONE permission/profile/set for the created id — [{'session_id': 'a8:api:01a0fc55-5e50-74f0-a9d6-13e9e9f02a88', 'update': {'mode': 'read_only', 'network': 'deny'}}]
 
 60/60 passed
 -- fixture log tail:

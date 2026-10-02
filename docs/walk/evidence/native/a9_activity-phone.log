@@ -1,5 +1,5 @@
 == native walk a9_activity [phone] (tools/walk/a9_activity_walk.py)
--- run 1: exit 0 in 10 s
+-- run 1: exit 0 in 9 s
 PASS palette /activity opens Activity
 PASS the catalog reads arrive (3 rows) — 3 rows
 PASS one task/list per confirmed session, nothing opened — ['[replay-serve] -> task/list a9walk:review', '[replay-serve] -> task/list a9walk:main', '[replay-serve] -> task/list a9walk:fork', '[replay-serve] -> task/list a9walk:bump', '[replay-serve] -> task/list a9walk:hydrate']
@@ -39,8 +39,8 @@ PASS × closes Activity
 -- fixture log tail:
 [replay-serve] <- session/list (id=21)
 [replay-serve] holding the switch's session/list for 6 s
-[replay-serve] <- permission/profile/list (id=22)
-[replay-serve] <- session/status/read (id=23)
+[replay-serve] <- session/status/read (id=22)
+[replay-serve] <- permission/profile/list (id=23)
 [replay-serve] <- session/hydrate (id=24)
 [replay-serve] <- task/list (id=25)
 [replay-serve] -> task/list a9walk:review

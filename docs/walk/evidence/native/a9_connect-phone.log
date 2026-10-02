@@ -1,13 +1,13 @@
 == native walk a9_connect [phone] (tools/walk/a9_connect_walk.py)
--- run 1: exit 0 in 103 s
+-- run 1: exit 0 in 104 s
 PASS the Connect card shows (nothing reachable at launch)
 PASS an unreachable address: 'Can't reach <address>' — "Can't reach http://127.0.0.1:1"
-PASS …with its actions (check the address · Retry) — Last tried 3:31 AM · check the address · Retry
+PASS …with its actions (check the address · Retry) — Last tried 4:22 AM · check the address · Retry
 PASS …the probe said Unreachable
 SHOT <repo>/tmp/walk/native/a9_connect-phone/out/phone-connect-unreachable.png
 PASS a refused token: 'The server refused this token' — 'The server refused this token'
 PASS …told apart by the probe (401), not guessed
-PASS …with its actions (Re-enter the token · Retry) — Last tried 3:32 AM · Re-enter the token · Retry
+PASS …with its actions (Re-enter the token · Retry) — Last tried 4:23 AM · Re-enter the token · Retry
 PASS …the token field is given the key focus
 PASS …and keeps the typed value — 14 chars
 PASS the error callout sits inside the card — [36, 267, 288, 52] in [16, 205, 328, 474]

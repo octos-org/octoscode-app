@@ -32,8 +32,8 @@ PASS the rest of the app still works (Settings opens)
 PASS connected
 PASS the Fleet pane fails under its own boundary
 PASS an inline section (no backdrop)
-PASS …placed in the conversation column — [24, 229, 312, 226] in [0, 74, 360, 776]
-PASS …under its header (Review / Settings stay reachable) — [24, 229, 312, 226] under [0, 74, 360, 131]
+PASS …placed in the conversation column — [24, 198, 312, 226] in [0, 74, 360, 776]
+PASS …under its header (Review / Settings stay reachable) — [24, 198, 312, 226] under [0, 74, 360, 100]
 SHOT <repo>/tmp/walk/native/a9_boundary-phone/out/phone-unavailable-inline.png
 PASS the sidebar still works beside it (New chat routes)
 PASS Close dismisses it

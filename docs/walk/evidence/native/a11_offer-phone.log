@@ -1,5 +1,5 @@
 == native walk a11_offer [phone] (tools/walk/a11_offer_walk.py)
--- run 1: exit 0 in 53 s
+-- run 1: exit 0 in 52 s
 == A11 offer walk (phone): app :8421, fixtures :8497-8499
 == 1. nothing remembered; the pairing link's refusals; pair; Forget (the device now remembers the server, no credential)
 PASS [114] launch 1: the first-run Connect card shows

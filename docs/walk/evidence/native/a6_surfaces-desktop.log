@@ -1,5 +1,5 @@
 == native walk a6_surfaces [desktop] (tools/walk/a6_surfaces_walk.py)
--- run 1: exit 0 in 59 s
+-- run 1: exit 0 in 58 s
 == A6 surfaces walk (desktop) — app :8421, replay :8503
 PASS window open — size [1400, 900]
 PASS module up: the composer is shown
@@ -16,14 +16,14 @@ PASS CLICK again -> folded
 PASS turn 2: CLICK composer + type + Return -> turn/start
 PASS turn 2: delivered files are attachment rows — ['b3_tl_file_download_6', 'b3_tl_file_download_7']
 PASS files: r23-report.pdf (2 KiB) and coverage.png — ['r23-report.pdf', 'coverage.png'] ['2 KiB', '96 KiB']
-PASS CLICK the tool row -> its output discloses — ['07:29 - [octoscode] tool.toggle: call_00_1nHw0JiGHc6HQdxNySqu4250 open']
+PASS CLICK the tool row -> its output discloses — ['08:29 - [octoscode] tool.toggle: call_00_1nHw0JiGHc6HQdxNySqu4250 open']
   shot tmp/walk/native/a6_surfaces-desktop/out/desktop-03-tool-expanded.png
 PASS CLICK Download -> GET /api/files on the wire, saved to the download dir — saved=True wire=True
 PASS CLICK Preview -> the image shows in its row — b3_tl_file_img_7
 PASS preview: the image keeps its aspect inside its row — [359, 274, 391, 220] in [359, 170, 661, 96]
   shot tmp/walk/native/a6_surfaces-desktop/out/desktop-04-files.png
 PASS fold bar shown at the transcript head
-PASS CLICK Expand all -> every visible block opens — {'b3_tl_think_1': 42} -> {'b3_tl_think_1': 80}
+PASS CLICK Expand all -> every visible block opens — folded {'b3_tl_think_1': 42} -> {block: (open, rect, clipped)} {'b3_tl_think_1': (True, [359, 251, 661, 80], False)} viewport [335, 129, 709, 375]
   shot tmp/walk/native/a6_surfaces-desktop/out/desktop-05-expand-all.png
 PASS CLICK Collapse all -> every block folds — heights {'b3_tl_think_1': 42} (folded {'b3_tl_think_1': 42})
   shot tmp/walk/native/a6_surfaces-desktop/out/desktop-06-collapse-all.png

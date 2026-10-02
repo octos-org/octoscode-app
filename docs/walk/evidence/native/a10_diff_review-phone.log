@@ -1,8 +1,8 @@
 == native walk a10_diff_review [phone] (tools/walk/a10_diff_review.py)
 -- run 1: exit 0 in 11 s
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=12253 app=octosense grabs=<abs>/octosense-12253
-[headless] up: pid 12253  port 8421  log <repo>/tmp/hs/port-8421.log
+[makepad-remote] listening on 127.0.0.1:8421 pid=11830 app=octosense grabs=<abs>/octosense-11830
+[headless] up: pid 11830  port 8421  log <repo>/tmp/hs/port-8421.log
 [headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
 == 1. no preview yet: the header Review entry
 CLICK review_open_hit r=[264, 85, 36, 30] at (282,100)
@@ -15,7 +15,7 @@ SHOT 01-empty-phone
 CLICK b3_diff_native r=[46, 514, 122, 32] at (107,530)
 PASS empty: 'Code review…' CLICK opens the Code review dialog (/review)
 SHOT 01b-code-review-phone
-CLICK dialog_close r=[325, 98, 28, 28] at (339,112)
+CLICK dialog_close r=[300, 254, 28, 28] at (314,268)
 PASS code review: closed again (the composer is back)
 == 2. a typed diff approval's Review diff
 CLICK composer r=[28, 743, 304, 29]
@@ -29,22 +29,22 @@ PASS approval: Deny -> the typed DIFF approval with 'Review diff' — 'Apply a p
 CLICK cv_ap_diff r=[28, 753, 304, 36] at (180,771)
 PASS diff: 'Review diff' CLICK opens the dialog on ONE diff/preview/get — title='Add a --version flag'
 PASS diff: the totals, status · source · id, the file, its hunk and lines — add='+4' del='−1' status='ready' path='src/main.rs' l2='    if args.version {'
-PASS preview: dialog numeric checks — frame=328x359 centre_dx=0.0 margins L=16 R=16 labels=33 outside=0 overlaps=0 controls=2 under28=0
-PASS preview: the close control is >= 28 x 28 px — b3_close=[300, 305, 28, 28]
-PASS preview: the title sits inside the modal card (no header collision) — title=[32, 316, 172, 21] dialog=[16, 285, 328, 359]
+PASS preview: dialog numeric checks — frame=328x318 centre_dx=0.0 margins L=16 R=16 labels=33 outside=0 overlaps=0 controls=2 under28=0
+PASS preview: the close control is >= 28 x 28 px — b3_close=[300, 325, 28, 28]
+PASS preview: the title sits inside the modal card (no header collision) — title=[32, 336, 172, 21] dialog=[16, 305, 328, 318]
 SHOT 02-preview-phone
-CLICK b3_diff_refresh r=[212, 304, 80, 30] at (252,319)
+CLICK b3_diff_refresh r=[212, 324, 80, 30] at (252,339)
 PASS diff: Refresh CLICK -> one more diff/preview/get
-CLICK b3_close r=[300, 305, 28, 28] at (314,319)
+CLICK b3_close r=[300, 325, 28, 28] at (314,339)
 PASS diff: the close CLICK returns to the approval card
 == 3. the header Review entry now opens the announced preview
 CLICK review_open_hit r=[264, 85, 36, 30] at (282,100)
 PASS header: Review CLICK -> the preview (one more read)
 SHOT 03-header-preview-phone
-CLICK b3_close r=[300, 305, 28, 28] at (314,319)
+CLICK b3_close r=[300, 325, 28, 28] at (314,339)
 PASS header: the close control CLICK closes it
 CLICK cv_ap_session r=[28, 647, 304, 46] at (180,670)
 == 19/19 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 12253 exited after /gq
+[headless] pid 11830 exited after /gq
 [headless] port 8421 free
