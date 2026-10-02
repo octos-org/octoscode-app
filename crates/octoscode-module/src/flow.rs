@@ -196,6 +196,10 @@ pub struct FlowUi {
     expanded: Vec<String>,
     /// `answer.expand` state (the "worked for" disclosure).
     answer_expanded: bool,
+    /// A1 — the settled turns whose tool group the person FOLDED under its
+    /// "Worked for" header (UI-local, per turn; absent = shown, the web's
+    /// always-visible tool headers).
+    folded_turns: Vec<String>,
     /// Card #28e: UI-local chrome toggles for board 4. All UI-local — the
     /// store/protocol never sees them (the `tools[].expanded` precedent).
     review_open: bool,
@@ -367,6 +371,28 @@ impl FlowUi {
     /// `answer.expand` — the "worked for" disclosure toggle.
     pub fn answer_expanded(&self) -> bool {
         self.answer_expanded
+    }
+
+    /// A1 — is `turn`'s tool group folded under its "Worked for" header?
+    pub fn is_turn_folded(&self, turn: &str) -> bool {
+        self.folded_turns.iter().any(|t| t == turn)
+    }
+
+    /// A1 — flip `turn`'s tool-group fold (the worked-for row's click);
+    /// returns true when the group is now folded.
+    pub fn toggle_turn_fold(&mut self, turn: &str) -> bool {
+        if let Some(at) = self.folded_turns.iter().position(|t| t == turn) {
+            self.folded_turns.remove(at);
+            false
+        } else {
+            self.folded_turns.push(turn.to_owned());
+            true
+        }
+    }
+
+    /// A1 — every folded turn (the row model skips their tool rows).
+    pub fn folded_turns(&self) -> Vec<String> {
+        self.folded_turns.clone()
     }
 
     /// Card #28e — UI-local chrome state (board 4). All three are toggles the

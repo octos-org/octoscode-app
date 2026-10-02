@@ -195,7 +195,10 @@ fn the_pct_label_has_a_dark_backing_inside_the_hole() {
 fn the_pct_run_is_sized_to_its_box() {
     let dsl = lowered_attachments();
     let npos = dsl.find("att2_pct := ").expect("att2_pct");
-    let head = &dsl[npos..(npos + 700).min(dsl.len())];
+    // A1: the head window grew from 700 — the kit's CJK member is now the
+    // bundled sans face plus a lazy fallback (design::cjk_members), which
+    // pushed `font_size` past 700 chars of the font family.
+    let head = &dsl[npos..(npos + 1600).min(dsl.len())];
     let at = head
         .find("font_size: ")
         .unwrap_or_else(|| panic!("font_size in the lowered label head: {head}"));

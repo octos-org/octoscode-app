@@ -26,21 +26,25 @@ fn copies(kind: ItemKind, text: &str) -> Vec<(String, String)> {
 fn item3_the_bubble_hugs_wraps_and_is_capped() {
     let dsl = components::lower(ItemKind::UserBubble, "0", &copies(ItemKind::UserBubble, "hello"))
         .expect("the bubble lowers");
+    // A1: the cap is the web's `min(680px, 82%)` of the LIVE column
+    // (conv_layout), an absolute number the bubble hugs up to.
+    let cap = octoscode_module::conv_layout::current().bubble_max_w;
     assert!(
-        dsl.contains("width: Fit max_width: \"80%\""),
-        "the bubble root must hug and be capped at 80% of the column; got:\n{dsl}"
+        dsl.contains(&format!("RoundedView{{width: Fit height: Fit max_width: {cap}")),
+        "the bubble must hug and be capped at min(680, 82%) of the column ({cap}); got:\n{dsl}"
     );
     assert!(
-        !dsl.contains("width: 284.01"),
-        "the measured 284px box must not survive; got:\n{dsl}"
+        !dsl.contains("width: 284.01") && !dsl.contains("width: 255.5"),
+        "no measured artboard box may survive; got:\n{dsl}"
     );
     assert!(
         dsl.contains("flow: Right{wrap: true}"),
-        "the bubble's labels must wrap, not hard-clip; got:\n{dsl}"
+        "the bubble's label must wrap, not hard-clip; got:\n{dsl}"
     );
+    // A Fit label wraps at its max only when line-limited (draw_text.rs:2245).
     assert!(
-        !dsl.contains("flow: Right\n"),
-        "no unwrapped label may remain; got:\n{dsl}"
+        dsl.contains("max_lines: "),
+        "the Fit label must carry a line bound so its max width wraps; got:\n{dsl}"
     );
     // Right-aligned in the column, like the approved scenes 01/03.
     assert!(
@@ -153,10 +157,18 @@ fn item3_the_timestamp_clears_the_scrollbar() {
         !dsl.contains("left: 243.64"),
         "the artboard's absolute left must not survive into the mounted row; got:\n{dsl}"
     );
+    // A1 (supersedes #21f's right-flush): on a 680 px column a right-flushed
+    // time floated far from its answer (the operator's "detached" timestamp).
+    // It now follows the action icons in the same row — and the list spans
+    // the pane with the row centred inside ≥24 px gutters, so the scrollbar
+    // (at the pane edge) can never sit on it.
     assert!(
-        dsl.contains("right: 20") && dsl.contains("align: Align{x: 1.0"),
-        "the timestamp must be right-aligned inside a 20px right inset; got:\n{dsl}"
+        !dsl.contains("align: Align{x: 1.0"),
+        "the timestamp must not be flushed to the column's far edge; got:\n{dsl}"
     );
+    let icons = dsl.find("icon_share").expect("the share icon");
+    let time = dsl.find("text: \"now\"").expect("the timestamp");
+    assert!(icons < time, "the time follows the action icons; got:\n{dsl}");
 }
 
 /// Card #21g item 1 — the worked-for row is a small secondary-grey label over a
@@ -169,22 +181,26 @@ fn item3_the_timestamp_clears_the_scrollbar() {
 fn item1_the_worked_for_row_is_small_grey_over_a_rule() {
     let dsl = components::lower(ItemKind::WorkedFor, "0", &copies(ItemKind::WorkedFor, "Worked for 3s ›"))
         .expect("the worked-for row lowers");
-    // 0.85 × the 17.5px body token = 14.875 kit px = 11.15625 app px.
+    // A1: the header of its turn's tool group (board 4 frame 1): the small
+    // secondary size of the density (13 px desktop / 14 px phone = 9.75 /
+    // 10.5 pt), the shell's muted ink, weight 400. The Codex rule under the
+    // row is gone — the row now heads its tool card instead of trailing it.
+    let small_pt = octoscode_module::fluid::scale(octoscode_module::conv_layout::current().density).small * 0.75;
     assert!(
-        dsl.contains("font_size: 11.15625"),
-        "the label must use the small (0.85×) size token; got:\n{dsl}"
+        dsl.contains(&format!("font_size: {small_pt} ")),
+        "the label must use the small size ({small_pt}pt); got:\n{dsl}"
     );
     assert!(
-        dsl.contains("draw_text.color: #6b6b6bff"),
-        "the label must be secondary grey #6b6b6b; got:\n{dsl}"
+        dsl.contains("draw_text.color: #6e6e73ff") || dsl.contains("draw_text.color: #98989dff"),
+        "the label must be the shell's secondary ink; got:\n{dsl}"
     );
     assert!(
         dsl.contains("weight: 400"),
         "the label must be weight 400, not 500; got:\n{dsl}"
     );
     assert!(
-        dsl.contains("height: 1") && dsl.contains("draw_bg.color: #ecececff"),
-        "the row must carry the 1px divider under it; got:\n{dsl}"
+        dsl.contains("text: \"Worked for 3s\""),
+        "the words carry no `›` glyph (the chevron is an icon); got:\n{dsl}"
     );
 }
 
@@ -228,8 +244,12 @@ fn item2_a_long_code_line_is_reachable_not_clipped() {
 fn item2_the_cleared_bubble_line_does_not_reserve_height() {
     let dsl = components::lower(ItemKind::UserBubble, "0", &copies(ItemKind::UserBubble, "hi"))
         .expect("the bubble lowers");
-    assert!(
-        dsl.contains("i0_userbubble_1 := Label {\nwidth: 224.5 height: 0"),
-        "the cleared second label must collapse to height 0; got:\n{dsl}"
+    // A1: the whole message rides ONE wrapping label; the artboard's second
+    // fixture line no longer exists, so it cannot reserve a line box.
+    assert_eq!(
+        dsl.matches(":= Label{").count(),
+        1,
+        "the bubble must carry exactly one text label; got:\n{dsl}"
     );
+    assert!(!dsl.contains("i0_userbubble_1"), "no second fixture label; got:\n{dsl}");
 }

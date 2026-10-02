@@ -256,6 +256,105 @@ mod tests {
         );
     }
 
+    /// A1: every fluid builder's DSL evaluates in the app VM, at the desktop
+    /// and the phone density. A builder that names a property its widget does
+    /// not have (an `Svg` with `visible:`) failed the whole Connect card's
+    /// eval at runtime; this catches that class before a launch.
+    #[test]
+    fn every_fluid_builder_evaluates_in_the_app_vm() {
+        use crate::conv_layout::Metrics;
+        use crate::fluid::*;
+        let mut cx = cx_with_vocabulary();
+        // The controls: the same Svg evaluates, and with `visible:` (the bug
+        // this test exists for) it does not.
+        let svg = |extra: &str| {
+            format!(
+                "x := Svg{{width: 12 height: 12 {extra}draw_svg.svg: file_resource({:?})}}\n",
+                icon("chevron_right.svg").display().to_string()
+            )
+        };
+        assert!(eval_component(&mut cx, MAIN_SPLASH_VM_ID, &svg("")).is_ok(), "the control Svg evaluates");
+        assert!(
+            eval_component(&mut cx, MAIN_SPLASH_VM_ID, &svg("visible: false ")).is_err(),
+            "an Svg cannot take `visible`"
+        );
+        for m in [Metrics::for_window(990.0, true), Metrics::for_window(360.0, false)] {
+            let tool = ToolView {
+                title: "read_file".into(),
+                target: "README.md".into(),
+                state: "done".into(),
+                secs: Some(2),
+                output: "line".into(),
+            };
+            let builders = [
+                ("composer", composer(
+                    &ComposerView {
+                        placeholder: "Ask Octos anything".into(),
+                        approval: "Ask for approval".into(),
+                        model: "v4-flash".into(),
+                    },
+                    &m,
+                )),
+                ("connect", connect_card(&ConnectView { server: "http://127.0.0.1:50190".into(), ..Default::default() }, &m, 261.0)),
+                ("bubble", user_bubble("0", "请用中文回答 hello", &m, false)),
+                ("prose", assistant_prose("0", "**hi** `code`\n\n- a\n- b", &m)),
+                ("tool", tool_row("0", &tool, GroupPos::Single, true, &m)),
+                ("worked", worked_for("0", "Worked for 2s", 2, false, &m)),
+                ("working", working_row("0", "Working…", &m)),
+                ("actions", answer_actions("0", "now", &m)),
+                ("empty", empty_state(Some("octos"), &m)),
+            ];
+            for (name, ui) in builders {
+                assert!(
+                    eval_component(&mut cx, MAIN_SPLASH_VM_ID, &ui).is_ok(),
+                    "{name} at {:?} must evaluate",
+                    m.density
+                );
+            }
+        }
+    }
+
+    /// Parity row "Render settled GFM (headings, lists, tables, strong) and
+    /// keep raw HTML inert" on the production chain: the store's settled
+    /// answer -> the display order -> the row's copies -> the fluid lowering
+    /// (the calls `lib.rs` draw_walk makes through `screen::Cache`) -> the
+    /// app VM. The answer reaches ONE native `Markdown` region verbatim
+    /// (makepad's parser renders headings / strong / tables / lists and
+    /// drops raw HTML: markdown.rs `Options::ENABLE_TABLES`, `InlineHtml`
+    /// keeps only sub/sup), and the lowered region evaluates.
+    #[test]
+    fn a_settled_gfm_answer_lowers_to_one_markdown_region_that_evaluates() {
+        use std::sync::{Arc, Mutex};
+        let store = Arc::new(octoscode_store::Store::new());
+        store.set_sessions(vec![octoscode_store::Session {
+            id: "s1".into(),
+            title: Some("t".into()),
+            message_count: 2,
+            updated_at: None,
+            last_prompt: None,
+            active_turn: false,
+        }]);
+        store.set_active(Some("s1".into()));
+        crate::components::seed_gfm_turn(&store, "s1", "t1");
+        let ui = Arc::new(Mutex::new(crate::flow::FlowUi::default()));
+        let rows = crate::screen::timeline_rows_folded(&store, false, &[]);
+        let prose = rows
+            .iter()
+            .find(|r| r.kind == crate::components::ItemKind::AssistantProse)
+            .expect("the settled answer row");
+        let copies = {
+            let ctx = crate::bindings::Ctx::new(&store, &ui);
+            crate::components::item_copies(prose.kind, &ctx, prose.index, prose.turn.as_deref()).expect("copies")
+        };
+        let dsl = crate::components::lower(prose.kind, "0", &copies).expect("lowers");
+        assert_eq!(dsl.matches("Markdown{").count(), 1, "one native Markdown region: {dsl}");
+        let body = format!("body: {:?}", crate::components::GFM_SAMPLE);
+        assert!(dsl.contains(&body), "the answer reaches the Markdown region verbatim: {dsl}");
+        assert!(dsl.contains("heading_base_scale"), "headings get the prose scale");
+        let mut cx = cx_with_vocabulary();
+        assert!(eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl).is_ok(), "the GFM answer region evaluates");
+    }
+
     #[test]
     fn the_prelude_wraps_the_component_in_a_slot_sized_view() {
         // Card #21c item 3: the wrapper is a stacking (`Down`) `Fit` view, so a

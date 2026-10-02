@@ -505,7 +505,324 @@ pub fn item_copies(
         };
         out.push((b.copy.to_owned(), value));
     }
+    // A1: the fluid rows' extra live facts ride the same copies list, so the
+    // lowering cache key (`screen::Cache`, keyed on the copies) changes
+    // exactly when the drawn row does.
+    match kind {
+        ItemKind::ToolCell => {
+            let (view, pos, open, _) = tool_view(ctx, index, turn);
+            out.push((TOOL_TITLE.to_owned(), view.title));
+            out.push((TOOL_TARGET.to_owned(), view.target));
+            out.push((TOOL_STATE.to_owned(), view.state));
+            out.push((TOOL_SECS.to_owned(), view.secs.map(|s| s.to_string()).unwrap_or_default()));
+            out.push((TOOL_POS.to_owned(), pos.id().to_owned()));
+            out.push((TOOL_OPEN.to_owned(), if open { "1" } else { "0" }.to_owned()));
+            if open {
+                out.push((TOOL_OUTPUT.to_owned(), view.output));
+            }
+        }
+        ItemKind::WorkedFor => {
+            let n = turn_tool_count(ctx, turn);
+            let folded = turn.is_some_and(|t| ctx.ui.lock().unwrap().is_turn_folded(t));
+            out.push((WORKED_TOOLS.to_owned(), n.to_string()));
+            out.push((WORKED_OPEN.to_owned(), if folded { "0" } else { "1" }.to_owned()));
+        }
+        _ => {}
+    }
     Ok(out)
+}
+
+/// A1 — three tool calls on `turn` (list the root, list `.octos`, read the
+/// workspace file), written the way the live client writes them: a
+/// TOOL_CALL timeline entry carrying the call id, and the tool domain's
+/// start/end records. `live` leaves the last call running and marks the
+/// session's turn live (the running-turn capture). A capture seed
+/// (`OCTOSCODE_SYNTHETIC_TOOLS`), never called on the live path.
+pub fn seed_tool_calls(store: &octoscode_store::Store, session: &str, turn: &str, live: bool) {
+    let calls = [
+        ("list_dir", "path: \".\"", "2 entries in .:\n[dir]  .octos\n[file] .octos-workspace.toml"),
+        ("list_dir", "path: \".octos\"", "2 entries in .octos:\n[dir]  dsflash\n[file] active-profile"),
+        ("read_file", "path: \".octos-workspace.toml\"", "[workspace]\nkind = \"session\""),
+    ];
+    let last = calls.len() - 1;
+    for (k, (name, args, out)) in calls.into_iter().enumerate() {
+        let id = format!("seed-{turn}-{k}");
+        store.domains.session.timeline.append_data(
+            session,
+            Some(turn.to_owned()),
+            octoscode_store::EntryKind::TOOL_CALL,
+            name.to_owned(),
+            serde_json::json!({ "tool_call_id": id }),
+        );
+        store.domains.tool.call_started(&id, name, Some(args));
+        if !(live && k == last) {
+            store.domains.tool.call_ended(&id, "complete", Some(out), Some(120));
+        }
+    }
+    if live {
+        store.domains.turn.started(turn);
+        let mut sessions = store.sessions();
+        for s in &mut sessions {
+            if s.id == session {
+                s.active_turn = true;
+            }
+        }
+        store.set_sessions(sessions);
+    }
+}
+
+/// A1 — a settled Chinese turn after the fixture's first (the CJK capture
+/// seed, `OCTOSCODE_SYNTHETIC_TOOLS=zh`): the prompt and the answer a live
+/// dsflash turn returned to it, with its three tool calls.
+pub fn seed_zh_turn(store: &octoscode_store::Store, session: &str, turn: &str) {
+    let prompt = "请用中文回答。每次只调用一个工具：先列出当前目录，再列出 .octos，最后读取 \
+        .octos-workspace.toml。然后给出一个小标题、三个要点（路径用行内代码），最后用 toml \
+        代码块引用 [workspace] 段。";
+    let answer = "## 工作区结构一览\n\n\
+        - 根目录 `.` 只有两项：隐藏目录 `.octos` 和配置文件 `.octos-workspace.toml`。\n\
+        - `.octos` 内含子目录 `dsflash` 和文件 `active-profile`，后者记录当前生效的档案名。\n\
+        - `.octos-workspace.toml` 共 217 行，开头声明 `schema_version = 1`，并把工作区类型定为会话级。\n\n\
+        ```toml\n[workspace]\nkind = \"session\"\n```";
+    let tl = &store.domains.session.timeline;
+    tl.upsert_user_message(session, turn, prompt, serde_json::json!({}));
+    seed_tool_calls(store, session, turn, false);
+    tl.append(session, Some(turn.to_owned()), octoscode_store::EntryKind::ASSISTANT_TEXT, answer.to_owned());
+    tl.finalize_assistant(session, turn, answer);
+    tl.close_turn(session, turn);
+    store.domains.turn.started(turn);
+    store.domains.turn.set_terminal(turn, "completed");
+}
+
+/// A1 — the GFM sample the web's `MarkdownBody` test renders (heading,
+/// strong, a table, an ordered list) plus raw HTML that must stay inert
+/// (`OCTOSCODE_SYNTHETIC_TOOLS=gfm`, a settled turn after the fixture's).
+pub const GFM_SAMPLE: &str = "# Workspace summary\n\n\
+    The root holds **two** entries:\n\n\
+    | Path | Kind |\n\
+    |---|---|\n\
+    | `.octos` | directory |\n\
+    | `.octos-workspace.toml` | file |\n\n\
+    1. `.octos/dsflash` keeps the session state.\n\
+    2. `.octos/active-profile` names the profile.\n\n\
+    <script>alert(\"raw HTML\")</script>\n\n\
+    Inline <b>tags</b> stay plain text.";
+
+/// A1 — a settled turn whose answer is [`GFM_SAMPLE`] (the markdown
+/// capture seed), with no tool calls.
+pub fn seed_gfm_turn(store: &octoscode_store::Store, session: &str, turn: &str) {
+    let tl = &store.domains.session.timeline;
+    tl.upsert_user_message(session, turn, "Summarize the workspace as a table.", serde_json::json!({}));
+    tl.append(session, Some(turn.to_owned()), octoscode_store::EntryKind::ASSISTANT_TEXT, GFM_SAMPLE.to_owned());
+    tl.finalize_assistant(session, turn, GFM_SAMPLE);
+    tl.close_turn(session, turn);
+    store.domains.turn.started(turn);
+    store.domains.turn.set_terminal(turn, "completed");
+}
+
+/// A1 pseudo-copies: live facts the fluid rows draw that no authored `copy`
+/// slot carries (the cache keys on them like on any copy).
+pub const TOOL_TITLE: &str = "@tool.title";
+pub const TOOL_TARGET: &str = "@tool.target";
+pub const TOOL_STATE: &str = "@tool.state";
+pub const TOOL_SECS: &str = "@tool.secs";
+pub const TOOL_POS: &str = "@tool.pos";
+pub const TOOL_OPEN: &str = "@tool.open";
+pub const TOOL_OUTPUT: &str = "@tool.output";
+pub const WORKED_TOOLS: &str = "@worked.tools";
+pub const WORKED_OPEN: &str = "@worked.open";
+
+/// The TOOL_CALL timeline entries of `turn` (every one in the active session
+/// for `None`), in order.
+fn turn_tool_entries(ctx: &bindings::Ctx<'_>, turn: Option<&str>) -> Vec<octoscode_store::timeline::TimelineEntry> {
+    let Some(session) = ctx.store.active_session() else {
+        return Vec::new();
+    };
+    ctx.store
+        .domains
+        .session
+        .timeline
+        .entries(&session)
+        .into_iter()
+        .filter(|e| e.kind == octoscode_store::EntryKind::TOOL_CALL)
+        .filter(|e| turn.is_none() || e.turn_id.as_deref() == turn)
+        .collect()
+}
+
+/// How many tool calls `turn` made (the worked-for header's count).
+pub fn turn_tool_count(ctx: &bindings::Ctx<'_>, turn: Option<&str>) -> usize {
+    turn_tool_entries(ctx, turn).len()
+}
+
+/// The disclosure key of a tool row: its call id, else `turn:ordinal`.
+pub fn tool_key(ctx: &bindings::Ctx<'_>, index: usize, turn: Option<&str>) -> String {
+    tool_view(ctx, index, turn).3
+}
+
+/// A1 — the `index`-th tool call OF ITS OWN TURN, resolved per turn.
+///
+/// Before A1 a tool row read `tools[index]` from the flow's GLOBAL list, so
+/// turn 2's first call showed turn 1's first call. The row now starts from
+/// its turn's own TOOL_CALL entry (`turn.rs` appends one per `tool_start`,
+/// carrying the `tool_call_id`) and folds the store's call record (name,
+/// arguments preview, terminal status, duration, output preview), with the
+/// flow's row as the fallback for a call the store never saw.
+///
+/// Returns the view, the row's place in its turn's card, whether the person
+/// disclosed it, and its disclosure key.
+pub fn tool_view(
+    ctx: &bindings::Ctx<'_>,
+    index: usize,
+    turn: Option<&str>,
+) -> (crate::fluid::ToolView, crate::fluid::GroupPos, bool, String) {
+    let entries = turn_tool_entries(ctx, turn);
+    let pos = crate::fluid::GroupPos::of(index, entries.len());
+    let entry = entries.get(index);
+    let call_id = entry.and_then(|e| {
+        e.data
+            .get("tool_call_id")
+            .and_then(|v| v.as_str())
+            .map(str::to_owned)
+    });
+    let record = call_id.as_ref().and_then(|id| {
+        ctx.store
+            .domains
+            .tool
+            .calls()
+            .into_iter()
+            .find(|c| &c.tool_call_id == id)
+    });
+    let (flow_row, open_key_open) = {
+        let ui = ctx.ui.lock().unwrap();
+        let row = match &call_id {
+            Some(id) => ui.tools().into_iter().find(|t| &t.tool_call_id == id),
+            // No call id (a hand-built or hydrated entry): the flow's own
+            // ordinal, the pre-A1 projection, only when no turn scopes it.
+            None if turn.is_none() => ui.tools().get(index).cloned(),
+            None => None,
+        };
+        let key = call_id
+            .clone()
+            .unwrap_or_else(|| format!("{}:{index}", turn.unwrap_or("")));
+        let open = ui.is_expanded(&key);
+        (row, (key, open))
+    };
+    let (key, open) = open_key_open;
+    let title = record
+        .as_ref()
+        .map(|r| r.name.clone())
+        .filter(|n| !n.is_empty() && Some(n) != call_id.as_ref())
+        .or_else(|| entry.map(|e| e.text.clone()).filter(|t| !t.is_empty()))
+        .or_else(|| flow_row.as_ref().map(|t| t.name.clone()))
+        .unwrap_or_default();
+    // The web's `toolTarget` reads the call's arguments JSON.
+    let target = match record.as_ref().and_then(|r| r.arguments_preview.clone()) {
+        Some(args) => crate::fluid::preview_target(&args),
+        None => entry
+            .and_then(|e| e.data.as_object())
+            .map(crate::fluid::target_of)
+            .unwrap_or_default(),
+    };
+    let turn_settled = turn.is_some_and(|t| ctx.store.domains.turn.terminal(t).is_some());
+    let mut state = record
+        .as_ref()
+        .map(|r| r.status.clone())
+        .or_else(|| flow_row.as_ref().map(|t| t.status.clone()))
+        .or_else(|| {
+            entry
+                .and_then(|e| e.data.get("status"))
+                .and_then(|v| v.as_str())
+                .map(str::to_owned)
+        })
+        .unwrap_or_default();
+    // A call still "running" when its turn already settled never reported its
+    // end: the web labels it by the turn's outcome (model.ts:722-733).
+    if turn_settled && (state.is_empty() || state == "running") {
+        state = "finished".to_owned();
+    }
+    if state.is_empty() {
+        state = "running".to_owned();
+    }
+    let secs = record
+        .as_ref()
+        .and_then(|r| r.duration_ms)
+        .map(|ms| (ms + 500) / 1000);
+    let output = record
+        .as_ref()
+        .and_then(|r| r.output_preview.clone())
+        .unwrap_or_default();
+    (
+        crate::fluid::ToolView { title, target, state, secs, output },
+        pos,
+        open,
+        key,
+    )
+}
+
+/// A1 — lower one conversation row as a FLUID layout ([`crate::fluid`]) from
+/// its copies, or `None` for the kinds that keep the authored artboard (the
+/// sidebar's `thread-row` / `new-chat`, owned by the sidebar card).
+fn lower_fluid(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Option<String> {
+    let m = crate::conv_layout::current();
+    let get = |id: &str| -> String {
+        copies
+            .iter()
+            .find(|(c, _)| c == id)
+            .map(|(_, v)| v.clone())
+            .unwrap_or_default()
+    };
+    let dark = crate::screens::theme::resolved() == "dark";
+    let ui = match kind {
+        ItemKind::UserBubble => crate::fluid::user_bubble(token, &get("t01_text"), &m, dark),
+        ItemKind::AssistantProse => crate::fluid::assistant_prose(token, &get("answer_md_text"), &m),
+        ItemKind::ToolCell => {
+            let view = crate::fluid::ToolView {
+                title: get(TOOL_TITLE),
+                target: get(TOOL_TARGET),
+                state: get(TOOL_STATE),
+                secs: get(TOOL_SECS).parse().ok(),
+                output: get(TOOL_OUTPUT),
+            };
+            let pos = crate::fluid::GroupPos::from_id(&get(TOOL_POS));
+            crate::fluid::tool_row(token, &view, pos, get(TOOL_OPEN) == "1", &m)
+        }
+        ItemKind::WorkingRow => {
+            let text = get("t03_text");
+            let text = if text.is_empty() { "Working…".to_owned() } else { text };
+            crate::fluid::working_row(token, &text, &m)
+        }
+        ItemKind::WorkedFor => crate::fluid::worked_for(
+            token,
+            &get("worked_row_label_text"),
+            get(WORKED_TOOLS).parse().unwrap_or(0),
+            get(WORKED_OPEN) != "0",
+            &m,
+        ),
+        ItemKind::AnswerActions => crate::fluid::answer_actions(token, &get("t11_text"), &m),
+        ItemKind::Composer => {
+            let placeholder = get("composer_idle_input_placeholder");
+            let approval = get("pill1_t_text");
+            crate::fluid::composer(
+                &crate::fluid::ComposerView {
+                    placeholder: if placeholder.is_empty() {
+                        "Ask Octos anything".to_owned()
+                    } else {
+                        placeholder
+                    },
+                    approval: if approval.is_empty() {
+                        "Ask for approval".to_owned()
+                    } else {
+                        approval
+                    },
+                    // The authored model label (`t04_text`, static until a
+                    // `composer.model` binding is declared).
+                    model: "v4-flash".to_owned(),
+                },
+                &m,
+            )
+        }
+        ItemKind::ThreadRow | ItemKind::NewChat => return None,
+    };
+    Some(crate::screens::theme::retint_dsl(&ui))
 }
 
 /// Lower one component with its live copies injected — the SAME chain a card
@@ -516,6 +833,18 @@ pub fn item_copies(
 /// item a unique token (its virtual index), so two instances of the same
 /// component in one isolate never re-bind each other's ids (the #15b lesson).
 pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result<String, String> {
+    l0_host::register_vocabulary();
+    // A1: the conversation rows are fluid (kit tokens, no artboard widths).
+    if let Some(ui) = lower_fluid(kind, token, copies) {
+        return Ok(ui);
+    }
+    lower_artboard(kind, token, copies)
+}
+
+/// The authored-artboard lowering (the L0 chain + the #21x post-processes),
+/// kept for the sidebar's `thread-row` / `new-chat` — and, for the record of
+/// what the conversation kinds lowered to before A1, still callable for them.
+pub fn lower_artboard(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result<String, String> {
     l0_host::register_vocabulary();
     let component = resolve(kind).0;
     let mut src = component.ledger.clone();
@@ -1186,29 +1515,37 @@ mod tests {
     #[test]
     fn the_answer_action_icons_carry_theme_ink() {
         let _theme = crate::screens::theme::test_lock();
+        // A1: the actions are secondary controls — the shell's muted ink per
+        // resolved mode (#36g's point stands: dark gets a LIGHT ink, never
+        // the fixed artboard stroke).
         let dark = lower(ItemKind::AnswerActions, "t0", &[]).expect("lower");
         assert!(
-            dark.contains("draw_svg.color: #f5f5f7ff"),
-            "the icons kept the fixed grey stroke in dark"
+            dark.contains("draw_svg.color: #98989dff"),
+            "the icons kept the light-mode ink in dark"
         );
         crate::screens::theme::set_preference("light");
         let light = lower(ItemKind::AnswerActions, "t1", &[]).expect("lower");
         crate::screens::theme::set_preference("dark");
         assert!(
-            light.contains("draw_svg.color: #1c1f22ff"),
-            "the icons kept the fixed grey stroke in light"
+            light.contains("draw_svg.color: #6e6e73ff"),
+            "the icons lost the muted light ink"
         );
     }
 
+    /// A1 (supersedes #36f item 3): the send disc is placed by the control
+    /// row's FLOW at the card's right padding, so no artboard margin (328 on
+    /// the 374 board, 287 on the 333 column) can push it past the column at
+    /// any width.
     #[test]
     fn the_send_disc_stays_inside_the_mounted_column() {
         let _theme = crate::screens::theme::test_lock();
         let dsl = lower(ItemKind::Composer, "t0", &[]).expect("lower");
-        assert!(
-            dsl.contains("margin: Inset{left: 287"),
-            "the send disc still carries the 374-artboard margin"
-        );
-        assert!(!dsl.contains("left: 328"), "the overflowing margin survived");
+        assert!(!dsl.contains("left: 328"), "the overflowing artboard margin survived");
+        assert!(!dsl.contains("left: 287"), "an artboard-anchored disc survived");
+        let row = dsl.find("i0_composer_row := View{width: Fill").expect("a flowing control row");
+        let fill = dsl[row..].find("View{width: Fill height: 1}").expect("the spacer");
+        let send = dsl[row..].find("send_hit := Button").expect("the send control");
+        assert!(fill < send, "the send control sits right of the spacer, at the row's end");
     }
 
     #[test]

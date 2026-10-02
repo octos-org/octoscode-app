@@ -200,7 +200,8 @@ async fn the_replayed_turn_lists_in_screen_order() {
         .expect("the turn carries an id");
 
     // This fixture's turn calls no tools; add one so the tool POSITION is
-    // asserted too (the screen puts tools after the answer, before worked-for).
+    // asserted too (A1: the work, then its result — the worked-for header
+    // heads the turn's tool group, the answer follows the calls).
     conv.store.domains.session.timeline.append_data(
         &session,
         Some(turn_id.clone()),
@@ -215,16 +216,20 @@ async fn the_replayed_turn_lists_in_screen_order() {
     // The whole order, on REAL traffic.
     assert_eq!(
         kinds,
-        vec!["user-bubble", "assistant-prose", "tool-cell", "worked-for", "answer-actions"],
-        "user first, reasoning folded, answer, tools, worked-for tail — got {kinds:?}"
+        vec!["user-bubble", "worked-for", "tool-cell", "assistant-prose", "answer-actions"],
+        "user first, reasoning folded, header, tools, answer, actions — got {kinds:?}"
     );
 
     // Content: the user row projects the REAL prompt; the answer row the REAL
     // assistant text (both from the fixture's own envelope frames).
     let entries = conv.store.domains.session.timeline.entries(&session);
     assert_eq!(entries[rows[0].index].text, prompt, "the user bubble is the real prompt");
+    let prose = rows
+        .iter()
+        .find(|r| r.kind.id() == "assistant-prose")
+        .expect("an answer row");
     assert!(
-        !entries[rows[1].index].text.is_empty(),
+        !entries[prose.index].text.is_empty(),
         "the assistant prose row carries the streamed answer"
     );
     // Reasoning is FOLDED: it is in the store (the fixture streams it) but no

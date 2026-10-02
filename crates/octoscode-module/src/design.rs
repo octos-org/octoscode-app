@@ -87,6 +87,12 @@ pub fn set_host_dir(dir: Option<String>) {
     *HOST_DIR.write().unwrap() = dir.map(PathBuf::from);
 }
 
+/// The host's app data dir, when the host handed one over (Android's files
+/// dir); `None` on the desktop (A1: the credential store roots there).
+pub fn host_dir() -> Option<PathBuf> {
+    HOST_DIR.read().unwrap().clone()
+}
+
 /// The base-dir resolution, PURE for tests: the explicit override (the env),
 /// then the host's files dir, then `$HOME` — NEVER `temp_dir` (Android's is
 /// unwritable for an app and HOME is usually unset there). `None` = no
@@ -226,7 +232,9 @@ pub fn with_fonts(lowered: Result<String, String>) -> Result<String, String> {
     // the full relative path after self:resources/ (ux/Inter-400.ttf,
     // icons/chevron_down.svg, …).
     const NEEDLE: &str = "crate_resource(\"self:resources/";
-    let dsl = lowered?;
+    // A1: the kit's CJK member is a calligraphic face (LXGW WenKai) that
+    // clashes with Inter; every lowered text style gets the sans face first.
+    let dsl = cjk_sans(&lowered?);
     if !dsl.contains(NEEDLE) {
         return Ok(dsl);
     }
@@ -262,6 +270,77 @@ pub fn with_fonts(lowered: Result<String, String>) -> Result<String, String> {
     }
     out.push_str(rest);
     Ok(out)
+}
+
+/// The bundled sans CJK face for a text weight (A1): Noto Sans SC, subset to
+/// GB2312 (Regular) / GB2312 level 1 (SemiBold) — `resources/ux/NotoSansSC-
+/// OFL.txt` carries the license and the subset recipe. `None` when the file
+/// cannot be resolved (a broken materialization): callers then keep the
+/// renderer's own member, so Chinese never draws blank.
+pub fn cjk_face(weight: u32) -> Option<PathBuf> {
+    let rel = if weight >= 600 {
+        "ux/NotoSansSC-SemiBold.ttf"
+    } else {
+        "ux/NotoSansSC-Regular.ttf"
+    };
+    let path = font_file(rel);
+    path.is_file().then_some(path)
+}
+
+/// The CJK members of a font family (A1), as DSL: the sans face eagerly, then
+/// the renderer's LXGW WenKai as a LAZY last resort (`FontMember.lazy: 1`
+/// loads it only after a glyph the subset lacks — draw_text.rs:3500-3507), so
+/// a rare hanzi still renders instead of a tofu box.
+///
+/// The row metrics come from the family's FIRST member (`layouter.rs:522`,
+/// `finish_current_row` reads `font_family.fonts().first()`), so a mixed
+/// Chinese/Latin line keeps Inter's baseline and line pitch: the CJK members
+/// carry no ascender/descender fudge of their own.
+pub fn cjk_members(weight: u32) -> String {
+    let wenkai = if weight >= 600 {
+        "LXGWWenKaiBold.ttf"
+    } else {
+        "LXGWWenKaiRegular.ttf"
+    };
+    let fallback = format!(
+        "crate_resource(\"makepad_widgets:resources/{wenkai}\") asc: 0.0 desc: 0.0"
+    );
+    match cjk_face(weight) {
+        Some(sans) => format!(
+            "cjk := FontMember{{res: file_resource({:?}) asc: 0.0 desc: 0.0}} \
+             cjk_rare := FontMember{{res: {fallback} lazy: 1}}",
+            sans.display().to_string()
+        ),
+        None => format!("cjk := FontMember{{res: {fallback}}}"),
+    }
+}
+
+/// Rewrite every renderer-emitted WenKai CJK member to [`cjk_members`] (A1).
+///
+/// The renderer (octoscript-makepad `design.rs:536/632`, `lib.rs:829`) emits
+/// `cjk := FontMember{res: crate_resource("makepad_widgets:resources/
+/// LXGWWenKai{Regular,Bold}.ttf") asc: … desc: … [weight: …]}`; the member
+/// ends at its first `}`. A DSL with no such member passes through unchanged.
+pub fn cjk_sans(dsl: &str) -> String {
+    const MEMBER: &str = "cjk := FontMember{res: crate_resource(\"makepad_widgets:resources/LXGWWenKai";
+    if !dsl.contains(MEMBER) {
+        return dsl.to_owned();
+    }
+    let mut out = String::with_capacity(dsl.len() + 256);
+    let mut rest = dsl;
+    while let Some(at) = rest.find(MEMBER) {
+        out.push_str(&rest[..at]);
+        let tail = &rest[at..];
+        let Some(close) = tail.find('}') else {
+            out.push_str(tail);
+            return out;
+        };
+        let bold = tail[MEMBER.len()..close].starts_with("Bold");
+        out.push_str(&cjk_members(if bold { 600 } else { 400 }));
+        rest = &tail[close + 1..];
+    }
+    out.push_str(rest);
+    out
 }
 
 /// The resource STRING for one of the module's own icons
@@ -471,5 +550,43 @@ mod tests {
     fn the_embedded_copy_parses_as_utf8_text() {
         let text = file("cards/index.json").expect("embedded");
         assert!(text.contains("\"cards\""), "the manifest shape");
+    }
+
+    /// A1 — Chinese rendered in LXGW WenKai, a calligraphic face beside Inter.
+    /// Every renderer-emitted WenKai member becomes the bundled sans face
+    /// (eager) with WenKai kept as a LAZY rare-glyph fallback; the weight
+    /// picks the SemiBold subset. FAILS before A1 (no rewrite: the WenKai
+    /// member stays first).
+    #[test]
+    fn the_kit_cjk_member_is_the_sans_face_with_wenkai_as_a_lazy_fallback() {
+        let regular = "TextStyle{font_family: FontFamily{latin := FontMember{res: file_resource(\"/x/Inter-400.ttf\") asc: 0.04 desc: 0.04 weight: 400} cjk := FontMember{res: crate_resource(\"makepad_widgets:resources/LXGWWenKaiRegular.ttf\") asc: 0.0 desc: 0.0 weight: 400} emoji := FontMember{res: x asc: 0 desc: 0}} font_size: 11.25}";
+        let out = cjk_sans(regular);
+        let sans = out.find("NotoSansSC-Regular.ttf").expect("the sans face is a member");
+        let wenkai = out.find("LXGWWenKaiRegular.ttf").expect("WenKai stays as the rare-glyph fallback");
+        assert!(sans < wenkai, "the sans face must come first: {out}");
+        assert!(out.contains("lazy: 1"), "WenKai loads only after a miss: {out}");
+        assert!(out.starts_with("TextStyle{font_family: FontFamily{latin := "), "latin stays first (row metrics): {out}");
+        assert!(out.ends_with("font_size: 11.25}"), "the rest of the style is untouched: {out}");
+        let bold = regular.replace("LXGWWenKaiRegular", "LXGWWenKaiBold");
+        let out = cjk_sans(&bold);
+        assert!(out.contains("NotoSansSC-SemiBold.ttf"), "bold text takes the SemiBold subset: {out}");
+        assert!(out.contains("LXGWWenKaiBold.ttf"), "{out}");
+        // No WenKai member: byte-identical.
+        let plain = "Label{text: \"x\"}";
+        assert_eq!(cjk_sans(plain), plain);
+    }
+
+    #[test]
+    fn the_bundled_cjk_faces_are_real_ofl_subsets() {
+        for w in [400, 600] {
+            let p = cjk_face(w).expect("the CJK face resolves");
+            let len = std::fs::metadata(&p).map(|m| m.len()).unwrap_or(0);
+            assert!(len > 1_000_000, "{} is not a real face ({len} bytes)", p.display());
+            assert!(len < 3_000_000, "{} must stay a subset ({len} bytes)", p.display());
+        }
+        let ofl = Path::new(manifest_dir()).join("resources/ux/NotoSansSC-OFL.txt");
+        let text = std::fs::read_to_string(&ofl).expect("the OFL text ships beside the faces");
+        assert!(text.contains("SIL OPEN FONT LICENSE Version 1.1"));
+        assert!(text.contains("Reserved Font Name 'Source'"));
     }
 }

@@ -368,12 +368,15 @@ async fn each_component_binds_a_real_item_from_the_recorded_turn() {
         ui.lock().unwrap().end_turn_now(true);
         let label = conv.ui().lock().unwrap().worked_for();
         assert!(!label.is_empty(), "the settled turn yields a worked-for label");
+        // A1: the disclosure's `›` is an icon now (it flips to `⌄` when the
+        // group is open), so the label text carries the words only.
+        let words = label.trim_end_matches('›').trim_end().to_owned();
         assert_lowered_with(
             ItemKind::WorkedFor,
             &store,
             &ui,
             0,
-            &[&label],
+            &[&words],
             &["Worked for 3m 4s"],
         );
     }
@@ -416,14 +419,15 @@ async fn each_component_binds_a_real_item_from_the_recorded_turn() {
         ui.lock()
             .unwrap()
             .note_tool_completed_for_test("c1", "read_file", true, Some("main.rs — 12 lines"));
-        // The cell's two slots are the tool's summary line and its status
-        // (card #16's `t01_text` / `t02_text`), both from the flow's own row.
+        // A1: the row is the web's tool header (`Timeline.tsx:251-282`):
+        // `title · target` from the call, then its status word — the output
+        // preview moved under the row's disclosure.
         assert_lowered_with(
             ItemKind::ToolCell,
             &store,
             &ui,
             0,
-            &["main.rs — 12 lines", "done"],
+            &["read_file", "main.rs", "Done"],
             &["• 412 lines"],
         );
     }
