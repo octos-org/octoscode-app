@@ -34,6 +34,8 @@ pub mod drafts;
 // A8: the external-driver disclosure walk (session/driver/get operations chain).
 pub mod driver_discovery;
 pub mod fleet;
+// A10: the external-driver chains behind the Fleet (seat, Start, row control).
+pub mod fleet_driver;
 pub mod history;
 pub mod keys;
 // A8: the workspace launch (launch/resolve, the decision panel, the lease).

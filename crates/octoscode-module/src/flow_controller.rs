@@ -16,7 +16,7 @@ use octoscode_client::ClientError;
 use octoscode_store::domains::composer::{Effects, Lifecycle, PromptTurn, StartOutcome, Submit};
 
 use super::{Conversation, Direction};
-use crate::chrome::NATIVE_DRIVER_ID;
+use crate::chrome::native_driver_id;
 use crate::seat::{self, Plan};
 
 impl Conversation {
@@ -24,6 +24,11 @@ impl Conversation {
     /// prompt (`settleTurn` -> `startTurn(next)`) on the runtime.
     pub fn attach(self: &Arc<Self>) {
         *self.weak_self.lock().unwrap() = Arc::downgrade(self);
+    }
+
+    /// The shared handle [`Conversation::attach`] set (`None` before it).
+    pub fn shared(&self) -> Option<Arc<Self>> {
+        self.weak_self.lock().unwrap().upgrade()
     }
 
     /// The `turn/start` acknowledgement budget (the web client's default
@@ -80,6 +85,29 @@ impl Conversation {
                 self.run_steer(turn, expected_turn_id).await;
                 Ok(String::new())
             }
+        }
+    }
+
+    /// `enqueueTurn` (`use-turn-controller.ts`; `features/peers/gather.ts:
+    /// 124-131`): a turn the app composes (the peer gather's synthesis) —
+    /// FIFO behind the active turn, never steered, the composer's draft
+    /// untouched — dispatched like any prompt, so it crosses the SAME seat
+    /// gate (a held seat is handed back before its `turn/start`). `Ok("")`
+    /// = the controller refused it (blocked).
+    pub async fn enqueue_turn(&self, text: String) -> Result<String, ClientError> {
+        let session = self.session_id();
+        let turn = PromptTurn {
+            turn_id: TurnId::new().0.to_string(),
+            text,
+            reasoning_effort: crate::screens::board3::thinking::effort_param(&self.store, &session),
+            ..Default::default()
+        };
+        let admitted = self.store.domains.composer.enqueue(&session, turn);
+        makepad_widgets::SignalToUI::set_ui_signal();
+        match admitted {
+            Submit::StartNow(turn) => self.dispatch_turn(turn).await,
+            Submit::Queued(turn) => Ok(turn.turn_id),
+            Submit::Refused | Submit::Steer { .. } => Ok(String::new()),
         }
     }
 
@@ -184,10 +212,11 @@ impl Conversation {
     async fn seat_gate(&self, session: &str) -> Result<(), String> {
         seat::set_status(session, None);
         let own = seat::proof(session);
-        let mut plan = seat::plan(own.as_ref(), seat::observed(session).as_ref(), NATIVE_DRIVER_ID, seat::now_ms());
+        let me = native_driver_id();
+        let mut plan = seat::plan(own.as_ref(), seat::observed(session).as_ref(), &me, seat::now_ms());
         if matches!(plan, Plan::WaitForExpiry(_) | Plan::ResumeChat { .. }) {
             self.refresh_seat(session).await;
-            plan = seat::plan(own.as_ref(), seat::observed(session).as_ref(), NATIVE_DRIVER_ID, seat::now_ms());
+            plan = seat::plan(own.as_ref(), seat::observed(session).as_ref(), &me, seat::now_ms());
         }
         match plan {
             Plan::Send => Ok(()),
@@ -198,6 +227,12 @@ impl Conversation {
                 seat::set_status(session, None);
                 makepad_widgets::SignalToUI::set_ui_signal();
                 if released {
+                    // `refreshDriverInventory` before the send: the console's
+                    // next CAS and the pane's disclosure follow the handback.
+                    if crate::screens::fleet_driver::peer_control_admitted(&self.store) {
+                        let _ = crate::screens::fleet_driver::load_inventory(self).await;
+                        crate::screens::board3::session_pane::mirror_inventory(&self.store);
+                    }
                     Ok(())
                 } else {
                     Err(seat::RELEASE_FAILED_MESSAGE.to_owned())
@@ -214,6 +249,12 @@ impl Conversation {
         let reply = self.client.request("session/driver/release", seat::release_params(session, proof)).await;
         let mut released = matches!(&reply, Ok(v) if seat::release_confirmed(v));
         if !released {
+            if let Err(e) = &reply {
+                // A typed stale fence: the proof is dead — the held seat is
+                // dropped, never retried with it (`settleControlState`).
+                let kind = octoscode_client::domains::external_driver::typed_refusal(e);
+                crate::screens::fleet_driver::note_refusal(session, kind.as_deref());
+            }
             self.refresh_seat(session).await;
             released = seat::observed(session).is_some_and(|d| !d.external);
         }
@@ -221,6 +262,8 @@ impl Conversation {
             seat::drop_proof(session);
             seat::observe(session, Some(seat::Disclosure { external: false, binding: None }));
             crate::chrome::set_held(session, None);
+            // `parkControlSeat(record)`: the console's seat is handed back too.
+            crate::screens::fleet_driver::handed_back(session);
         }
         makepad_widgets::log!(
             "[octoscode] seat: hand back {session}: {}",
@@ -246,7 +289,7 @@ impl Conversation {
         let params = serde_json::json!({ "session_id": session });
         match self.client.request("session/driver/get", params).await {
             Ok(v) => {
-                let held = crate::chrome::foreign_holder(&v, NATIVE_DRIVER_ID);
+                let held = crate::chrome::foreign_holder(&v, &native_driver_id());
                 makepad_widgets::log!("[octoscode] driver/get {session}: held={held:?}");
                 crate::chrome::set_held(session, held);
                 seat::observe(session, seat::parse_disclosure(&v));
@@ -279,10 +322,11 @@ impl Conversation {
         makepad_widgets::SignalToUI::set_ui_signal();
         // Board 12's acquire (`chrome::take_over_params`: our driver id, a
         // 60 s lease), CAS on the revision this record was OBSERVED at.
+        crate::screens::fleet_driver::acquiring_driver_id(); // persisted before a lease is taken under it
         let mut params = crate::chrome::take_over_params(&session);
         params["expected_revision"] = serde_json::Value::from(expected);
         let proof = match self.client.request("session/driver/acquire", params).await {
-            Ok(v) => seat::parse_acquire(&v, NATIVE_DRIVER_ID),
+            Ok(v) => seat::parse_acquire(&v, &native_driver_id()),
             Err(e) => {
                 makepad_widgets::log!("[octoscode] seat: acquire refused: {e}");
                 None

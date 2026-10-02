@@ -32,7 +32,7 @@ fn main() {
         st.loading = true;
     }
     let mut d = ui::Dsl::new();
-    session_pane::build(&mut d, &st, &ui::Frame::DESKTOP, &store);
+    session_pane::build(&mut d, &st, &mut Default::default(), &ui::Frame::DESKTOP, &store);
     let dsl = d.finish();
     let want: Vec<usize> = args.iter().skip(2).filter_map(|a| a.parse().ok()).collect();
     for (i, line) in dsl.lines().enumerate() {

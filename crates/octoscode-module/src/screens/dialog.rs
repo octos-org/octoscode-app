@@ -165,9 +165,9 @@ pub fn for_command(name: &str) -> Option<Dialog> {
         "model" | "models" => Dialog::Models,
         "context" | "ctx" | "compact" | "compress" => Dialog::Context,
         "skills" | "skill" => Dialog::Skills,
-        // `agents` and `goal` share the web's `autonomy` intent; the goal is
-        // the dialog's first section (AutonomyPanel.tsx:114).
-        "goal" | "agents" | "agent" => Dialog::Goal,
+        // A10: `/agents` opens its own Agents panel (board-3 host), not the
+        // goal section.
+        "goal" => Dialog::Goal,
         "loop" | "loops" => Dialog::Loops,
         "monitor" | "monitors" => Dialog::Monitors,
         "peer" | "peers" | "fleet" => Dialog::Fleet,
@@ -234,6 +234,35 @@ pub fn set_skills_query(q: Option<String>) {
 /// The Skills search input's widget id (after the dialog's `dlg_skills_` prefix).
 pub const SKILLS_QUERY_INPUT: &str = "dlg_skills_skills_query";
 
+/// A10 — the "Install from source" fields (`SkillsDialog.tsx:276-307`): the
+/// repository (or server-side path) and the branch, kept between remounts
+/// once "Review installation" read them.
+static SKILLS_SOURCE: Mutex<(String, String)> = Mutex::new((String::new(), String::new()));
+pub const SKILLS_SOURCE_REPO_INPUT: &str = "dlg_skills_src_repo";
+pub const SKILLS_SOURCE_BRANCH_INPUT: &str = "dlg_skills_src_branch";
+
+pub fn skills_source() -> (String, String) {
+    SKILLS_SOURCE.lock().unwrap().clone()
+}
+
+pub fn set_skills_source(repo: &str, branch: &str) {
+    *SKILLS_SOURCE.lock().unwrap() = (repo.trim().to_owned(), branch.trim().to_owned());
+}
+
+/// A10 — the web's Profile lock (`profileBusy`, `App.tsx:3843-3849`): skill
+/// (and research-lane) mutations pause while a Profile mutation is in flight
+/// (the store's lease) or known work runs in the Profile (a turn).
+pub fn profile_locked(ctx: &Ctx<'_>) -> bool {
+    ctx.store.domains.profile.profile_busy() || ctx.ui.lock().map(|u| u.turn_active()).unwrap_or(false)
+}
+
+/// The web's lock line (`SkillsDialog.tsx:163-169`).
+pub const SKILLS_LOCKED: &str = "Skill changes are paused while known work is running in this Profile.";
+/// The web's warning paragraph (`SkillsDialog.tsx:158-162`), native wording
+/// ("not installed on this device" for "in your browser").
+pub const SKILLS_WARNING: &str = "Skills are shared by this Profile, not installed on this device. Installation may \
+                                  download executable tools and dependencies. Review and trust the source first.";
+
 /// A create form inside an autonomy dialog — the web's AutonomyPanel forms
 /// (goal objective + optional budget, `AutonomyPanel.tsx:194-219`; the loop
 /// prompt + interval, `LoopCreationControls.tsx:18`). Its fields are real
@@ -252,6 +281,64 @@ pub struct Form {
     /// Why the last Create did not run (the web's `required` / interval
     /// refusals), drawn above the buttons.
     pub error: Option<String>,
+    /// A10 — the loop form's cadence (`maintenance` | `self_paced` |
+    /// `fixed`, `LoopCreationControls.tsx` "Loop cadence"); `None` for a
+    /// form without a mode selector.
+    pub mode: Option<String>,
+    /// A10 — a second, smaller line under the help (the web's static note:
+    /// "Creating a loop schedules server-owned work…").
+    pub note: String,
+    /// A10 — each field's label above its box (the web's `<label>` text:
+    /// "Prompt", "Interval", "Name", "Command", …); empty = placeholders only.
+    pub labels: Vec<String>,
+}
+
+/// A10 — the loop cadences, in the web's order, with their labels.
+pub const LOOP_MODES: &[(&str, &str)] =
+    &[("maintenance", "Maintenance"), ("self_paced", "Self-paced"), ("fixed", "Fixed interval")];
+
+/// A10 — the loop form for `mode` (`LoopCreationControls.tsx:81-149`): the
+/// prompt (optional in maintenance, placeholder per mode), the interval only
+/// for a fixed loop (the web's draft default `5m`), the mode's hint as the
+/// help line, the static note.
+pub fn loop_form(mode: &str, prompt: &str, interval: &str) -> Form {
+    let (placeholder, hint) = match mode {
+        "self_paced" => (
+            "Run the checks and summarize drift",
+            "The server decides the next run from the loop's result.",
+        ),
+        "fixed" => (
+            "Run the checks and summarize drift",
+            "Use the native interval syntax, with a whole number and unit: 60s, 5m, 2h, or 1d.",
+        ),
+        _ => (
+            "Use the server's maintenance prompt",
+            "Native /loop default. Leave the prompt empty to use the server's maintenance prompt and cadence.",
+        ),
+    };
+    let mut fields = vec![("lf_prompt".to_owned(), placeholder.to_owned(), prompt.to_owned())];
+    if mode == "fixed" {
+        let interval = if interval.trim().is_empty() { "5m" } else { interval };
+        fields.push(("lf_interval".to_owned(), "5m".to_owned(), interval.to_owned()));
+    }
+    Form {
+        dialog: Dialog::Loops,
+        action: "loop.create".to_owned(),
+        title: "New loop".to_owned(),
+        fields,
+        help: hint.to_owned(),
+        submit_label: "Create loop".to_owned(),
+        error: None,
+        mode: Some(mode.to_owned()),
+        note: "Creating a loop schedules server-owned work. It does not run in this app, and closing this \
+               panel does not stop it."
+            .to_owned(),
+        labels: match mode {
+            "maintenance" => vec!["Prompt (optional)".to_owned()],
+            "fixed" => vec!["Prompt".to_owned(), "Interval".to_owned()],
+            _ => vec!["Prompt".to_owned()],
+        },
+    }
 }
 
 static FORM: Mutex<Option<Form>> = Mutex::new(None);
@@ -283,20 +370,51 @@ pub fn form_for(action: &str, seed: &str) -> Option<Form> {
             help: "A blank budget is left out; the server applies its default.".to_owned(),
             submit_label: "Set goal".to_owned(),
             error: None,
+            mode: None,
+            note: String::new(),
+            labels: vec!["Objective".to_owned(), "Token budget (optional)".to_owned()],
         }),
-        "loop.create" => Some(Form {
-            dialog: Dialog::Loops,
+        // A10: the web's default cadence is Maintenance; a seeded "prompt |
+        // 15m" opens as a fixed loop with both values.
+        "loop.create" => Some(if second.is_empty() {
+            loop_form("maintenance", &first, "")
+        } else {
+            loop_form("fixed", &first, &second)
+        }),
+        // A10 — the Monitors section's create form (`AutonomyPanel.tsx:431-482`).
+        "monitor.create" => Some(Form {
+            dialog: Dialog::Monitors,
             action: action.to_owned(),
-            title: "New loop".to_owned(),
+            title: "New monitor".to_owned(),
+            // The web's placeholders (`AutonomyPanel.tsx:436-452`).
             fields: vec![
-                ("lf_prompt".to_owned(), "What the loop runs".to_owned(), first),
-                ("lf_interval".to_owned(), "Interval, e.g. 15m".to_owned(), second),
+                ("mf_name".to_owned(), "watch-build".to_owned(), first),
+                ("mf_argv".to_owned(), "[\"./scripts/watch.sh\", \"--verbose\"]".to_owned(), second),
+                ("mf_filter".to_owned(), "ERROR.*".to_owned(), String::new()),
             ],
-            help: "A fixed interval runs every 60s to 24h; leave it empty for a self-paced loop."
+            help: "The command is a JSON array of arguments; it is not run through a shell. \
+                   The monitor polls it on the server."
                 .to_owned(),
-            submit_label: "Create loop".to_owned(),
+            submit_label: "Create monitor".to_owned(),
             error: None,
+            mode: None,
+            note: String::new(),
+            labels: vec!["Name".to_owned(), "Command".to_owned(), "Filter regex (optional)".to_owned()],
         }),
+        _ => None,
+    }
+}
+
+/// A10 — the effect a form's Create runs, from its fields' text: the loop
+/// form through the web's mode-aware validation, the monitor form through
+/// `parseArgvJsonInput`; other forms compose the entry text the autonomy
+/// table parses (`None` here: the caller keeps that path).
+pub fn form_effect(f: &Form, values: &[String]) -> Option<crate::screens::autonomy::Effect> {
+    use crate::screens::autonomy as au;
+    let v = |i: usize| values.get(i).map(String::as_str).unwrap_or("");
+    match (f.action.as_str(), f.mode.as_deref()) {
+        ("loop.create", Some(mode)) => Some(au::loop_form_effect(mode, v(0), v(1))),
+        ("monitor.create", _) => Some(au::monitor_form_effect(v(0), v(1), v(2))),
         _ => None,
     }
 }
@@ -361,22 +479,28 @@ pub fn confirmation_for(action: &str, store: &octoscode_store::Store) -> Option<
             confirm_label: "Confirm remove".to_owned(),
         });
     }
+    // A10: the web's install confirmation (`SkillsDialog.tsx:308-353`):
+    // "{repo} · branch {branch || main}" and the Profile line; the
+    // executable-tools warning is the dialog's own paragraph.
+    let install = |repo: &str, branch: &str| Confirm {
+        dialog: Dialog::Skills,
+        action: action.to_owned(),
+        title: "Confirm server installation".to_owned(),
+        detail: format!("{repo} · branch {}", if branch.is_empty() { "main" } else { branch }),
+        body: format!(
+            "Applies to Profile {profile} and rebuilds its server skill runtime. \
+             Existing skills are not forcibly overwritten."
+        ),
+        confirm_label: "Confirm install".to_owned(),
+    };
+    if action == "skills.install_source" {
+        let (repo, branch) = skills_source();
+        return (!repo.is_empty()).then(|| install(&repo, &branch));
+    }
     if let Some(i) = action.strip_prefix("skills.install_").and_then(|n| n.parse::<usize>().ok()) {
         // `skills.install_N` names registry row N - 3 (`models.rs` INSTALL_BASE).
         let pkg = store.domains.profile.registry_packages().get(i.checked_sub(3)?)?.clone();
-        return Some(Confirm {
-            dialog: Dialog::Skills,
-            action: action.to_owned(),
-            title: "Confirm server installation".to_owned(),
-            detail: format!("{} · branch main", pkg.repo),
-            body: format!(
-                "Skills are shared by this Profile, not installed on this device. \
-                 Installation may download executable tools and dependencies; review \
-                 and trust the source first. Applies to Profile {profile} and rebuilds \
-                 its server skill runtime. Existing skills are not forcibly overwritten."
-            ),
-            confirm_label: "Confirm install".to_owned(),
-        });
+        return Some(install(&pkg.repo, ""));
     }
     None
 }
@@ -426,11 +550,18 @@ pub fn notice_for_refusal(id: &str) -> Option<&'static str> {
         return Some("This server does not advertise that control.");
     }
     Some(match id {
-        "loop.create[empty]" => "Type what the loop runs first.",
+        // A10: the web's own refusals (`loop-creation.ts:68-107`).
+        "loop.create[mode]" => "Choose Maintenance, Self-paced, or Fixed interval.",
+        "loop.create[empty]" => "A prompt is required for self-paced and fixed-interval loops.",
         i if i.starts_with("loop.create[interval") => {
-            "Use a whole-number interval from 60s to 24h, such as 15m."
+            "Use a whole-number native interval such as 60s, 5m, or 2h (60 seconds to 24 hours)."
         }
-        "loop.create[prompt-too-long]" => "The loop prompt is limited to 8 KB.",
+        "loop.create[prompt-too-long]" => "Loop prompt must fit within the server's 8192-byte limit.",
+        // A10: `AutonomyPanel.tsx:455-459` (the argv alert) and the required name.
+        "monitor.create[no-name]" => "Type the monitor's name first.",
+        i if i.starts_with("monitor.create[argv") => {
+            "Probe command must be a JSON array of arguments, e.g. [\"./scripts/watch.sh\", \"--verbose\"]."
+        }
         "goal.set[empty]" => "Type the goal's objective first.",
         i if i.starts_with("goal.set[budget") => {
             "The token budget is a whole number of tokens, such as 100000."
@@ -487,8 +618,13 @@ pub enum Effect {
     SubmitForm,
     /// Close the form (back to the dialog's own card).
     CancelForm,
+    /// A10 — the loop form's cadence selector (`dialog.form_mode.<mode>`).
+    FormMode(String),
     Unhandled(String),
 }
+
+/// A10 — `dialog.form_mode.<mode>`: pick the loop form's cadence.
+pub const ACTION_FORM_MODE: &str = "dialog.form_mode.";
 
 pub fn resolve(id: &str) -> Effect {
     if id == ACTION_CLOSE {
@@ -499,6 +635,9 @@ pub fn resolve(id: &str) -> Effect {
     }
     if let Some(a) = id.strip_prefix(ACTION_ASK).filter(|a| !a.is_empty()) {
         return Effect::Ask(a.to_owned());
+    }
+    if let Some(m) = id.strip_prefix(ACTION_FORM_MODE).filter(|m| LOOP_MODES.iter().any(|(k, _)| k == m)) {
+        return Effect::FormMode(m.to_owned());
     }
     if let Some(a) = id.strip_prefix(ACTION_FORM).filter(|a| !a.is_empty()) {
         return Effect::OpenForm(a.to_owned());
@@ -554,7 +693,10 @@ fn append_notice(tree: &mut UiNode, text: &str, alert: bool, card: (f64, f64)) -
     let mut title: Option<(f64, f64, f64, f64)> = None;
     walk(tree, &mut |n| {
         if n.kind == NodeKind::Text && n.attrs.font_src.is_some() {
-            if proto.is_none() {
+            // A10: a BODY face (the lightest weight), never the bold title's
+            // font file — the line set weight 400 on a bold face before.
+            let lighter = proto.as_ref().is_none_or(|p| n.attrs.weight.unwrap_or(400) < p.attrs.weight.unwrap_or(400));
+            if lighter {
                 proto = Some(n.clone());
             }
             if n.attrs.text.as_deref().is_some_and(|t| !t.trim().is_empty()) {
@@ -576,8 +718,17 @@ fn append_notice(tree: &mut UiNode, text: &str, alert: bool, card: (f64, f64)) -
             right = right.min(x + cw - 12.0);
         }
     });
-    let line_h = 40.0;
-    let y0 = ty + th + 10.0;
+    // A10: the server's words, as the web shows them (whitespace collapsed,
+    // no transport wrapper), in as many lines as they need — a 40 px box
+    // cut a multi-line refusal mid-sentence.
+    let text = display_error(text);
+    let text = text.as_str();
+    let per_line = ((right - tx).max(80.0) / (0.5 * 13.5)).floor().max(1.0);
+    let lines = (text.chars().count() as f64 / per_line).ceil().max(1.0);
+    let line_h = (lines * 13.5 * 1.45).ceil().max(20.0);
+    // A10: 6 px under the title, above anything a dialog inserted there
+    // itself (the Skills warning paragraph starts 8 px under the title).
+    let y0 = ty + th + 6.0;
     let delta = line_h + 6.0;
     // Containers that span the insertion line grow; everything below moves.
     walk_mut(tree, &mut |n| {
@@ -610,6 +761,20 @@ fn append_notice(tree: &mut UiNode, text: &str, alert: bool, card: (f64, f64)) -
     });
     tree.children.push(node);
     grown
+}
+
+/// A10 — an error as the web shows it: the server's message
+/// (`OctosUiProtocolError.message`, rendered in a `<p>`, so whitespace runs
+/// collapse), without the native client's `"{method}: rpc error {code}
+/// (...)"` transport wrapper. Other text is only whitespace-collapsed.
+pub fn display_error(raw: &str) -> String {
+    let inner = raw
+        .split_once(": rpc error ")
+        .and_then(|(_, rest)| rest.split_once(" ("))
+        .filter(|(code, _)| code.trim_start_matches('-').chars().all(|c| c.is_ascii_digit()))
+        .and_then(|(_, msg)| msg.strip_suffix(')'))
+        .unwrap_or(raw);
+    inner.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
 /// Whether the server advertises `name`: a METHOD (`a/b`) is read from the
@@ -911,6 +1076,8 @@ fn live_models(tree: &mut UiNode, ctx: &Ctx<'_>) {
     if !advertises(ctx.store, "profile/llm/fetch_models") {
         remove(tree, &["btn_discover"]);
     }
+    seat_route_pills(tree);
+    manage_providers_pill(tree, ctx);
     match mine.iter().position(|m| m.selected) {
         Some(0) => {}
         Some(1) => {
@@ -922,6 +1089,29 @@ fn live_models(tree: &mut UiNode, ctx: &Ctx<'_>) {
         }
         _ => remove(tree, &["icon_check"]),
     }
+}
+
+/// The expanded provider card holds its route pills with the card's own
+/// inset on every side. The atlas ended the card (y 110 h 290 → 400) exactly
+/// where the 44 px pills end (y 356 → 400), so the card's border cut the
+/// pills' bottoms (A10 judge: clipped on desktop and phone). The card grows
+/// by the missing bottom inset (the pills' 16 px side inset) and every row
+/// below it moves down by the same amount.
+fn seat_route_pills(tree: &mut UiNode) {
+    let Some((cx, cy, _, ch)) = rect_of(tree, "card_deepseek") else { return };
+    let pills: Vec<(f64, f64, f64, f64)> =
+        ["btn_test", "btn_discover"].iter().filter_map(|id| rect_of(tree, id)).collect();
+    let Some(bottom) = pills.iter().map(|(_, y, _, h)| y + h).reduce(f64::max) else { return };
+    let inset = pills.iter().map(|(x, _, _, _)| x - cx).reduce(f64::min).unwrap_or(16.0).max(12.0);
+    let grow = (bottom + inset) - (cy + ch);
+    if grow <= 0.5 {
+        return;
+    }
+    let frames = frame_ids(tree);
+    // Everything that starts below the card's old bottom edge moves first,
+    // then the card grows (its own top is above the cut, so it stays put).
+    shift_below(tree, cy + ch - 0.5, grow, &frames);
+    set_h(tree, "card_deepseek", ch + grow);
 }
 
 /// The confirmed compaction mode (`session/compact/mode/set` read-back).
@@ -1142,6 +1332,10 @@ fn live_skills(tree: &mut UiNode, ctx: &Ctx<'_>) {
     // advertises profile/skills/registry/search; the authored box becomes a
     // real input (Enter searches) holding the last searched query.
     if advertises(ctx.store, "profile/skills/registry/search") {
+        // A10: the input spans the search box's height (its text centres in
+        // it); a 26 px input grew to the phone's 44 px touch minimum from its
+        // own top and sat the query on the box's bottom edge.
+        let boxed = rect_of(tree, "search_box");
         if let Some(n) = find_mut(tree, "t_search") {
             n.kind = NodeKind::Input;
             let a = &mut n.attrs;
@@ -1151,6 +1345,10 @@ fn live_skills(tree: &mut UiNode, ctx: &Ctx<'_>) {
             a.color = Some(0xff1d_1d1f);
             a.w = Some(250.0);
             a.variant = None;
+            if let Some((_, by, _, bh)) = boxed {
+                a.y = Some(by);
+                a.h = Some(bh as f32);
+            }
         }
     } else {
         remove(tree, &["search_box", "icon_search", "t_search"]);
@@ -1254,6 +1452,227 @@ fn live_skills(tree: &mut UiNode, ctx: &Ctx<'_>) {
             a.variant = None;
         }
     }
+}
+
+/// A10 — the parts of the web's Skills dialog the setup-10 card has no slot
+/// for, built from the card's own faces (the confirm/form precedent):
+/// * the warning paragraph and, while the Profile is busy, the lock line
+///   directly under the title (`SkillsDialog.tsx:158-169`);
+/// * every searched registry package as a row of the web's fields — the
+///   name, description, repo, "Provides executable tools" | "Instruction
+///   skills" · licence, "Requires: …", "Installed: …" — and its Install
+///   pill (`:229-272`; tags/version/author are parsed, never rendered);
+/// * "Install from source": the repository and branch inputs and "Review
+///   installation" (`:276-307`).
+/// Row/section geometry flows: each block's height comes from its text.
+fn live_skills_extra(tree: &mut UiNode, ctx: &Ctx<'_>) {
+    let Ok(raw) = card_tree(Dialog::Skills, ctx, &AutonomyState::default()) else { return };
+    let (Some(body_face), Some(head_face), Some(pill_face), Some(box_face), Some(field_face), Some(input_face), Some(div_face)) = (
+        find(&raw, "t_ver6").cloned(),
+        find(&raw, "t_reg_head").cloned(),
+        find(&raw, "btn_3_install").cloned(),
+        find(&raw, "card_registry").cloned(),
+        find(&raw, "search_box").cloned(),
+        find(&raw, "t_search").cloned(),
+        find(&raw, "div_3").cloned(),
+    ) else {
+        return;
+    };
+    let frames = frame_ids(tree);
+    let locked = profile_locked(ctx);
+    let line = |id: &str, text: &str, x: f64, y: f64, w: f64, size: f32, weight: i32, color: u32| -> (UiNode, f64) {
+        let (mut n, h) = wrapped_text(&body_face, id, text, y, w, size, color);
+        n.attrs.x = Some(x);
+        n.attrs.weight = Some(weight);
+        (n, h)
+    };
+    // ---- 1. warning paragraph (+ lock line) under the title.
+    let Some((tx, ty, _, th)) = rect_of(tree, "t_title") else { return };
+    let card_w = rect_of(tree, "card_installed").map(|(x, _, w, _)| x + w).unwrap_or(392.0) - tx;
+    let y0 = ty + th + 8.0;
+    let mut top: Vec<UiNode> = Vec::new();
+    let mut y = y0;
+    let (warn, h) = line("skills_warning", SKILLS_WARNING, tx, y, card_w, 13.0, 400, 0xff6e_6e73);
+    top.push(warn);
+    y += h + 6.0;
+    if locked {
+        let (lock, h) = line("skills_locked", SKILLS_LOCKED, tx, y, card_w, 13.0, 500, 0xff8a_5a00);
+        top.push(lock);
+        y += h + 6.0;
+    }
+    let grow = y - y0 + 6.0;
+    shift_below(tree, y0 - 0.5, grow, &frames);
+    tree.children.extend(top);
+    if locked {
+        // The Remove links stay drawn, paused (not wired — `controls`).
+        walk_mut(tree, &mut |n| {
+            if n.attrs.id.as_deref().is_some_and(|id| id.starts_with("t_remove")) {
+                n.attrs.color = Some(0xffa1_a1a6);
+            }
+        });
+    }
+    // ---- 2. the registry rows (only while there are packages to show).
+    let packages = ctx.store.domains.profile.registry_packages();
+    let install_ok = advertises(ctx.store, "profile/skills/install");
+    if !packages.is_empty() {
+        if let Some((cx, cy, cw, ch)) = rect_of(tree, "card_registry") {
+            remove(tree, &["t_name10", "t_ver11", "btn_3_install", "t_name12", "t_ver13", "btn_4_install", "div_3"]);
+            let (ix, pill_w) = (cx + 22.0, 93.0);
+            let text_w = cw - 44.0 - if install_ok { pill_w + 12.0 } else { 0.0 };
+            let mut rows: Vec<UiNode> = Vec::new();
+            let mut y = cy + 14.0;
+            for (j, p) in packages.iter().enumerate() {
+                if j > 0 {
+                    let mut d = div_face.clone();
+                    d.attrs.id = Some(format!("reg_{j}_div"));
+                    d.attrs.x = Some(ix - 2.0);
+                    d.attrs.y = Some(y);
+                    d.attrs.w = Some((cw - 40.0) as f32);
+                    rows.push(d);
+                    y += 12.0;
+                }
+                let row_top = y;
+                // The name in the installed rows' own face (the web's <strong>).
+                let (mut name, h) = match find(&raw, "t_name3") {
+                    Some(face) => wrapped_text(face, &format!("reg_{j}_name"), &p.name, y, text_w, 16.0, 0xff1d_1d1f),
+                    None => line(&format!("reg_{j}_name"), &p.name, ix, y, text_w, 16.0, 600, 0xff1d_1d1f),
+                };
+                name.attrs.x = Some(ix);
+                name.attrs.weight = find(&raw, "t_name3").and_then(|f| f.attrs.weight).or(Some(600));
+                rows.push(name);
+                y += h + 2.0;
+                let mut add = |id: &str, text: &str, size: f32, color: u32, rows: &mut Vec<UiNode>, y: &mut f64| {
+                    if text.trim().is_empty() {
+                        return;
+                    }
+                    let (n, h) = line(&format!("reg_{j}_{id}"), text, ix, *y, text_w, size, 400, color);
+                    rows.push(n);
+                    *y += h + 1.0;
+                };
+                add("desc", &p.description, 13.5, 0xff3a_3a3c, &mut rows, &mut y);
+                add("repo", &p.repo, 12.5, 0xff6e_6e73, &mut rows, &mut y);
+                let kind = if p.provides_tools { "Provides executable tools" } else { "Instruction skills" };
+                let licence = p.license.clone().unwrap_or_else(|| "License not reported".to_owned());
+                add("kind", &format!("{kind} · {licence}"), 12.5, 0xff6e_6e73, &mut rows, &mut y);
+                if !p.requires.is_empty() {
+                    add("requires", &format!("Requires: {}", p.requires.join(", ")), 12.5, 0xff6e_6e73, &mut rows, &mut y);
+                }
+                if p.installed {
+                    add("installed", &format!("Installed: {}", p.installed_skills.join(", ")), 12.5, 0xff28_7f3b, &mut rows, &mut y);
+                }
+                if install_ok {
+                    let px = cx + cw - 22.0 - pill_w;
+                    let mut pill = kit_pill(&pill_face, &format!("reg_{j}_install"), "Install", px, row_top, pill_w, 40.0, false, 14.5);
+                    if locked {
+                        // Drawn but paused (the web's `disabled={busy || profileBusy}`).
+                        walk_mut(&mut pill, &mut |n| {
+                            if n.attrs.text.is_some() {
+                                n.attrs.color = Some(0xffa1_a1a6);
+                            }
+                        });
+                    }
+                    rows.push(pill);
+                    y = y.max(row_top + 40.0);
+                }
+                y += 4.0;
+            }
+            let new_h = (y - cy) + 10.0;
+            let delta = new_h - ch;
+            shift_below(tree, cy + ch - 0.5, delta, &frames);
+            set_h(tree, "card_registry", new_h);
+            tree.children.extend(rows);
+        }
+    }
+    // ---- 3. Install from source (only when install is advertised).
+    if !install_ok {
+        return;
+    }
+    let mut bottom: f64 = 0.0;
+    walk(tree, &mut |n| {
+        let frame = n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id));
+        if !frame && draws(n) {
+            let (_, y, _, h) = rect(n);
+            bottom = bottom.max(y + h);
+        }
+    });
+    let (bx, _, bw, _) = rect_of(tree, "card_installed").unwrap_or((14.0, 0.0, 378.0, 0.0));
+    let mut y = bottom + 30.0;
+    let mut head = head_face.clone();
+    head.children.clear();
+    head.attrs.id = Some("src_head".to_owned());
+    head.attrs.text = Some("Install from source".to_owned());
+    head.attrs.x = Some(tx);
+    head.attrs.y = Some(y);
+    head.attrs.w = Some(240.0);
+    let head_h = head.attrs.h.unwrap_or(25.0) as f64;
+    let mut nodes = vec![head];
+    y += head_h + 12.0;
+    let card_top = y;
+    let (ix, iw) = (bx + 20.0, bw - 40.0);
+    y += 14.0;
+    let (source, branch) = skills_source();
+    for (id, label, value) in [
+        ("src_repo", "Repository or server-side path", source),
+        ("src_branch", "Branch (server default: main)", branch),
+    ] {
+        let (l, h) = line(&format!("{id}_label"), label, ix, y, iw, 12.5, 500, 0xff6e_6e73);
+        nodes.push(l);
+        y += h + 4.0;
+        let mut b = field_face.clone();
+        b.children.clear();
+        b.attrs.id = Some(format!("{id}_box"));
+        b.attrs.x = Some(ix);
+        b.attrs.y = Some(y);
+        b.attrs.w = Some(iw as f32);
+        b.attrs.h = Some(44.0);
+        b.attrs.tapto = None;
+        nodes.push(b);
+        let mut i = input_face.clone();
+        i.children.clear();
+        i.kind = NodeKind::Input;
+        let a = &mut i.attrs;
+        a.id = Some(id.to_owned());
+        a.placeholder = Some(String::new());
+        a.text = Some(value);
+        a.color = Some(0xff1d_1d1f);
+        a.x = Some(ix + 14.0);
+        a.y = Some(y);
+        a.w = Some((iw - 28.0) as f32);
+        a.h = Some(44.0);
+        a.variant = None;
+        a.tapto = None;
+        nodes.push(i);
+        y += 44.0 + 10.0;
+    }
+    let review_w = 186.0;
+    let mut review = kit_pill(&pill_face, "src_review", "Review installation", ix + iw - review_w, y, review_w, 40.0, false, 14.5);
+    if locked {
+        walk_mut(&mut review, &mut |n| {
+            if n.attrs.text.is_some() {
+                n.attrs.color = Some(0xffa1_a1a6);
+            }
+        });
+    }
+    nodes.push(review);
+    y += 40.0 + 16.0;
+    let mut card = box_face.clone();
+    card.children.clear();
+    card.attrs.id = Some("card_source".to_owned());
+    card.attrs.x = Some(bx);
+    card.attrs.y = Some(card_top);
+    card.attrs.w = Some(bw as f32);
+    card.attrs.h = Some((y - card_top) as f32);
+    card.attrs.tapto = None;
+    // The card paints first (its rows draw over it).
+    tree.children.push(card);
+    tree.children.extend(nodes);
+    // The frame grows to hold the section.
+    walk_mut(tree, &mut |n| {
+        if n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id)) {
+            let h = n.attrs.h.unwrap_or(0.0) as f64;
+            n.attrs.h = Some(h.max(y + 24.0) as f32);
+        }
+    });
 }
 
 /// The goal's status word (`describeGoalStatus`, AutonomyPanel) and its badge
@@ -1375,6 +1794,113 @@ fn loop_rows(tree: &mut UiNode, st: &AutonomyState) {
 /// an active loop, Resume only for a paused one, `AutonomyPanel.tsx:262-300`).
 fn live_loops(tree: &mut UiNode, st: &AutonomyState) {
     loop_rows(tree, st);
+    for i in 1..=st.loops.len().min(3) {
+        row_icons(tree, "loops_card", &format!("loop_{i}"), &["pause", "play", "trash"], Some("dot"));
+    }
+}
+
+/// The row-icon glyph size (design px) every autonomy dialog draws: the
+/// board's 24 px grid less the lowering's growth. The authored loop row mixed
+/// a 30 px pause, a 29 px play and a 44 px trash (each grown 1.1x), so the
+/// same 1.6-unit stroke rendered 2.0 / 1.9 / 2.9 px wide and the trash stood
+/// ~36 px tall (A10 judge). One size gives one stroke (1.6 x 22/24 = 1.47 px,
+/// the weight of the module's own 24-unit line icons at this size).
+pub const ROW_ICON: f64 = 22.0;
+/// Centre-to-centre pitch of a row's icons: the hit targets ([`MIN_HIT`])
+/// tile without overlapping.
+pub const ROW_ICON_PITCH: f64 = 36.0;
+
+/// Seat a row's icons on one grid: every glyph [`ROW_ICON`] square, centred
+/// on the row's text band (its first text line's top to its last line's
+/// bottom), the last icon's right edge 16 px inside the card, the others
+/// [`ROW_ICON_PITCH`] apart leftwards; `lead` (the status dot) one pitch
+/// further left, its own size kept. Icons the live state removed are skipped
+/// without leaving a hole.
+fn row_icons(tree: &mut UiNode, card: &str, row: &str, icons: &[&str], lead: Option<&str>) {
+    let Some((cx, _, cw, _)) = rect_of(tree, card) else { return };
+    // The row's text band: every Text node of the row.
+    let (mut top, mut bottom) = (f64::MAX, f64::MIN);
+    walk(tree, &mut |n| {
+        let mine = n.attrs.id.as_deref().is_some_and(|id| id.starts_with(&format!("{row}_")));
+        if mine && n.kind == NodeKind::Text && n.attrs.text.as_deref().is_some_and(|t| !t.trim().is_empty()) {
+            let (_, y, _, h) = rect(n);
+            top = top.min(y);
+            bottom = bottom.max(y + h);
+        }
+    });
+    if top == f64::MAX {
+        return;
+    }
+    let mid = (top + bottom) / 2.0;
+    let present: Vec<String> = icons
+        .iter()
+        .map(|k| format!("{row}_{k}"))
+        .filter(|id| find(tree, id).is_some())
+        .collect();
+    let right = cx + cw - 16.0;
+    let n = present.len();
+    for (k, id) in present.iter().enumerate() {
+        // The rightmost icon ends at `right`; earlier ones step left.
+        let centre_x = right - ROW_ICON / 2.0 - (n - 1 - k) as f64 * ROW_ICON_PITCH;
+        if let Some(node) = find_mut(tree, id) {
+            let a = &mut node.attrs;
+            a.x = Some(centre_x - ROW_ICON / 2.0);
+            a.y = Some(mid - ROW_ICON / 2.0);
+            a.w = Some(ROW_ICON as f32);
+            a.h = Some(ROW_ICON as f32);
+        }
+    }
+    if let Some(lead) = lead {
+        let id = format!("{row}_{lead}");
+        // One pitch left of the FULL icon set's first column, so every row's
+        // dot shares one column (a paused row has no pause icon, and its dot
+        // must not drift right).
+        let first_centre = right - ROW_ICON / 2.0 - (icons.len().max(1) - 1) as f64 * ROW_ICON_PITCH;
+        if let Some(node) = find_mut(tree, &id) {
+            let (_, _, w, h) = rect(node);
+            node.attrs.x = Some(first_centre - ROW_ICON_PITCH - w / 2.0);
+            node.attrs.y = Some(mid - h / 2.0);
+        }
+    }
+}
+
+/// A10 — the Monitors section's create affordance: the Loops card's own
+/// "+ New loop" link face (autonomy-04 `new_loop`), relabelled "+ New
+/// monitor" and seated at the right end of the title row (the board drew no
+/// create control; the web gates its form on `monitor/create`,
+/// `AutonomyPanel.tsx:431`).
+fn new_monitor_button(tree: &mut UiNode, ctx: &Ctx<'_>, st: &AutonomyState) {
+    if !crate::screens::autonomy::gated(ctx.store, "monitors", "monitor/create") {
+        return;
+    }
+    let Ok(loops) = card_tree(Dialog::Loops, ctx, st) else { return };
+    let Some(mut b) = find(&loops, "new_loop").cloned() else { return };
+    let Some((_, ty, _, th)) = rect_of(tree, "t_title") else { return };
+    let right = rect_of(tree, "mon_1")
+        .or_else(|| rect_of(tree, "monitors_footer"))
+        .map(|(x, _, w, _)| x + w)
+        .unwrap_or(390.0);
+    let (bx, by, bw, bh) = rect(&b);
+    let label = "+ New monitor";
+    let w = bw + 26.0;
+    shift(&mut b, right - w - bx, ty + th / 2.0 - bh / 2.0 - by);
+    walk_mut(&mut b, &mut |n| {
+        if let Some(id) = n.attrs.id.as_mut() {
+            *id = id.replacen("new_loop", "new_monitor", 1);
+        }
+        let x = n.attrs.x.unwrap_or(0.0);
+        if (n.attrs.w.unwrap_or(0.0) as f64 - bw).abs() < 1.0 {
+            n.attrs.w = Some(w as f32);
+        } else {
+            // The label box grows by the same amount, staying centred.
+            n.attrs.x = Some(x);
+            n.attrs.w = Some(n.attrs.w.unwrap_or(0.0) + 26.0);
+        }
+        if n.attrs.text.is_some() {
+            n.attrs.text = Some(label.to_owned());
+        }
+    });
+    tree.children.push(b);
 }
 
 /// autonomy-05 — a row's status line carries the pause reason
@@ -1386,6 +1912,18 @@ fn live_monitors(tree: &mut UiNode, st: &AutonomyState) {
         if let (Some((sx, _, _, _)), Some((ix, _, _, _))) = (rect_of(tree, &state), rect_of(tree, &int)) {
             if let Some(n) = find_mut(tree, &state) {
                 n.attrs.w = Some((ix - 10.0 - sx).max(40.0) as f32);
+            }
+        }
+        // The same glyph size as the Loops dialog's row icons (one icon set).
+        for k in ["pause", "trash"] {
+            let id = format!("mon_{i}_{k}");
+            if let Some(n) = find_mut(tree, &id) {
+                let (x, y, w, h) = rect(n);
+                let (mx, my) = (x + w / 2.0, y + h / 2.0);
+                n.attrs.x = Some(mx - ROW_ICON / 2.0);
+                n.attrs.y = Some(my - ROW_ICON / 2.0);
+                n.attrs.w = Some(ROW_ICON as f32);
+                n.attrs.h = Some(ROW_ICON as f32);
             }
         }
     }
@@ -1406,13 +1944,12 @@ fn live_review(tree: &mut UiNode, ctx: &Ctx<'_>) {
         let ui = ctx.ui.lock().unwrap();
         crate::screens::review::blocked_reason(ctx.store, &ui)
     };
+    // A10 — the "not a diff preview" distinction now lives in the web's own
+    // paragraphs below the card (`NativeReviewDialog.tsx:61-71`).
     let (head, sub) = match (status, blocked) {
         (Some(s), _) => (s, String::new()),
         (None, Some(b)) => (b.to_owned(), String::new()),
-        (None, None) => (
-            "Ready to review the current project changes.".to_owned(),
-            "This starts a Session turn; it is not a diff preview.".to_owned(),
-        ),
+        (None, None) => ("Ready to review the current project changes.".to_owned(), String::new()),
     };
     remove(tree, &["status_spinner"]);
     // Two lines of room: the typed reasons run ~60 characters. The kit
@@ -1441,6 +1978,88 @@ fn live_review(tree: &mut UiNode, ctx: &Ctx<'_>) {
             set_h(tree, "run_status_card", 170.0 + 24.0 + 20.0 - y);
         }
     }
+    review_instructions(tree, ctx);
+}
+
+/// A10 — the instructions field's widget id (the host reads it at Start).
+pub const REVIEW_PROMPT_INPUT: &str = "dlg_review_prompt";
+/// `NativeReviewDialog.tsx:61-71`, verbatim.
+pub const REVIEW_NOT_A_PREVIEW: &str = "Run the server's native review specialists on the current project changes. \
+                                        This starts a Session turn; it is not a diff preview.";
+pub const REVIEW_RESULTS_HERE: &str = "Results and any errors appear in this Session. You can queue ordinary prompts \
+                                       while review runs, or stop it using the Session's Stop control.";
+
+/// A10 — below the status card: the web's two paragraphs, the Session's
+/// scope, and "Review instructions (optional)" — a real multi-line field
+/// whose text is shown and sent as plain text (inert), trimmed, and only
+/// when typed (no default prompt is ever fabricated).
+fn review_instructions(tree: &mut UiNode, ctx: &Ctx<'_>) {
+    let Ok(raw) = card_tree(Dialog::Skills, ctx, &AutonomyState::default()) else { return };
+    let (Some(body_face), Some(field_face), Some(input_face)) =
+        (find(&raw, "t_ver6").cloned(), find(&raw, "search_box").cloned(), find(&raw, "t_search").cloned())
+    else {
+        return;
+    };
+    let frames = frame_ids(tree);
+    let Some((cx, cy, cw, ch)) = rect_of(tree, "run_status_card") else { return };
+    let line = |id: &str, text: &str, y: f64, size: f32, weight: i32, color: u32| -> (UiNode, f64) {
+        let (mut n, h) = wrapped_text(&body_face, id, text, y, cw, size, color);
+        n.attrs.x = Some(cx);
+        n.attrs.weight = Some(weight);
+        (n, h)
+    };
+    let mut nodes = Vec::new();
+    let mut y = cy + ch + 16.0;
+    let session = ctx.store.active_session().unwrap_or_default();
+    for (id, text, size, weight, color) in [
+        ("review_scope", session.as_str(), 12.0, 400, 0xff8e_8e93u32),
+        ("review_not_preview", REVIEW_NOT_A_PREVIEW, 13.0, 400, 0xff3a_3a3c),
+        ("review_results", REVIEW_RESULTS_HERE, 13.0, 400, 0xff6e_6e73),
+    ] {
+        if text.is_empty() {
+            continue;
+        }
+        let (n, h) = line(id, text, y, size, weight, color);
+        nodes.push(n);
+        y += h + 8.0;
+    }
+    y += 4.0;
+    let (l, h) = line("prompt_label", "Review instructions (optional)", y, 12.5, 500, 0xff6e_6e73);
+    nodes.push(l);
+    y += h + 6.0;
+    let field_h = 96.0;
+    let mut b = field_face.clone();
+    b.children.clear();
+    b.attrs.id = Some("prompt_box".to_owned());
+    b.attrs.x = Some(cx);
+    b.attrs.y = Some(y);
+    b.attrs.w = Some(cw as f32);
+    b.attrs.h = Some(field_h as f32);
+    b.attrs.tapto = None;
+    nodes.push(b);
+    let mut i = input_face.clone();
+    i.children.clear();
+    i.kind = NodeKind::Input;
+    let a = &mut i.attrs;
+    a.id = Some("prompt".to_owned());
+    a.placeholder = Some("Leave empty to review the current project changes.".to_owned());
+    a.text = Some(String::new());
+    a.color = Some(0xff1d_1d1f);
+    a.x = Some(cx + 14.0);
+    a.y = Some(y + 10.0);
+    a.w = Some((cw - 28.0) as f32);
+    a.h = Some((field_h - 20.0) as f32);
+    a.variant = Some("multiline".to_owned());
+    a.tapto = None;
+    nodes.push(i);
+    y += field_h;
+    tree.children.extend(nodes);
+    walk_mut(tree, &mut |n| {
+        if n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id)) {
+            let h = n.attrs.h.unwrap_or(0.0) as f64;
+            n.attrs.h = Some(h.max(y + 24.0) as f32);
+        }
+    });
 }
 
 /// Every kit button (`X` with `X_surface` + `X_label` children): the label is
@@ -1621,6 +2240,8 @@ pub fn controls(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState) -> Vec<Control> {
         Dialog::Models => vec![
             ctl("btn_test_control", "models.test_route"),
             ctl("btn_discover_control", "models.discover"),
+            // A10 — the configured providers (board-3 Routes dialog).
+            ctl("manage_providers_control", "b3.open.routes"),
         ],
         Dialog::Context => vec![
             ctl("btn_compact_control", format!("{ACTION_ASK}context.compact_now")),
@@ -1629,12 +2250,23 @@ pub fn controls(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState) -> Vec<Control> {
         ],
         Dialog::Skills => {
             let mut v = Vec::new();
+            // A10: while the Profile is busy, no mutation is wired (the web's
+            // `disabled={busy || profileBusy}`); the controls stay drawn.
+            if profile_locked(ctx) {
+                return v;
+            }
             for i in 0..ctx.store.domains.profile.installed_skills().len().min(3) {
                 v.push(ctl(format!("t_remove{i}"), format!("{ACTION_ASK}skills.remove_{i}")));
             }
             for (i, b) in [(3usize, "btn_3_install_control"), (4, "btn_4_install_control")] {
                 v.push(ctl(b, format!("{ACTION_ASK}skills.install_{i}")));
             }
+            // A10: one Install per searched package (`skills.install_N` names
+            // registry row N - 3), and the free-form source's review.
+            for j in 0..ctx.store.domains.profile.registry_packages().len() {
+                v.push(ctl(format!("reg_{j}_install_control"), format!("{ACTION_ASK}skills.install_{}", j + 3)));
+            }
+            v.push(ctl("src_review_control", format!("{ACTION_ASK}skills.install_source")));
             v
         }
         Dialog::Goal => {
@@ -1669,7 +2301,9 @@ pub fn controls(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState) -> Vec<Control> {
             v
         }
         Dialog::Monitors => {
-            let mut v = Vec::new();
+            // A10: "+ New monitor" opens the create form (drawn only when
+            // monitor/create is advertised).
+            let mut v = vec![ctl("new_monitor_control", format!("{ACTION_FORM}monitor.create"))];
             for (i, m) in st.monitors.iter().take(3).enumerate() {
                 let paused = m["status"].as_str() == Some("paused");
                 let r = i + 1;
@@ -1682,7 +2316,8 @@ pub fn controls(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState) -> Vec<Control> {
             v
         }
         Dialog::Fleet => {
-            let n = ctx.store.domains.peer.list().len();
+            // A10: the slice's rows are the Fleet union (same order as the card).
+            let n = crate::screens::board3::fleetview::rows(ctx.store, crate::screens::peers::now_ms()).len();
             (0..n).map(|i| ctl(format!("peer_r{i}_steer"), format!("peer.steer#{i}"))).collect()
         }
         Dialog::Tasks => {
@@ -2037,20 +2672,137 @@ fn live(d: Dialog, tree: &mut UiNode, ctx: &Ctx<'_>, st: &AutonomyState) {
     match d {
         Dialog::Models => live_models(tree, ctx),
         Dialog::Context => live_context(tree, ctx),
-        Dialog::Skills => live_skills(tree, ctx),
+        Dialog::Skills => {
+            live_skills(tree, ctx);
+            live_skills_extra(tree, ctx);
+        }
         Dialog::Goal => live_goal(tree, st),
         Dialog::Loops => live_loops(tree, st),
         Dialog::Review => live_review(tree, ctx),
         Dialog::Fleet | Dialog::Tasks => live_fleet_tasks(tree),
-        Dialog::Monitors => live_monitors(tree, st),
+        Dialog::Monitors => {
+            live_monitors(tree, st);
+            new_monitor_button(tree, ctx, st);
+        }
     }
     centre_button_labels(tree);
 }
 
 /// Lower dialog `d` for a host area of `avail_w × avail_h`.
-/// The form card's two controls.
-fn form_controls() -> Vec<Control> {
-    vec![ctl("ff_cancel_control", ACTION_FORM_CANCEL), ctl("ff_submit_control", ACTION_FORM_SUBMIT)]
+/// The form card's two controls (+ the cadence segments of a loop form).
+fn form_controls(f: Option<&Form>) -> Vec<Control> {
+    let mut v = vec![ctl("ff_cancel_control", ACTION_FORM_CANCEL), ctl("ff_submit_control", ACTION_FORM_SUBMIT)];
+    if f.and_then(|f| f.mode.as_ref()).is_some() {
+        for (m, _) in LOOP_MODES {
+            v.push(ctl(format!("fm_seg_{m}_control"), format!("{ACTION_FORM_MODE}{m}")));
+        }
+    }
+    v
+}
+
+/// A kit pill (`X` + `X_surface` / `X_control` / `X_label`) cloned from the
+/// Context card's `btn_compact` face at `(x, y, w, h)`: `primary` = the
+/// filled black pill with white text, else the outlined one.
+/// A10 — "Manage providers" under the provider cards: opens the Profile's
+/// configured model providers (board-3 Routes dialog: fetch available
+/// models, add, delete — web `ModelManagementSection`).
+fn manage_providers_pill(tree: &mut UiNode, ctx: &Ctx<'_>) {
+    if !advertises(ctx.store, "profile/llm/list") {
+        return;
+    }
+    let Ok(raw) = card_tree(Dialog::Skills, ctx, &AutonomyState::default()) else { return };
+    let Some(face) = find(&raw, "btn_3_install").cloned() else { return };
+    let frames = frame_ids(tree);
+    let mut bottom: f64 = 0.0;
+    let mut right: f64 = 0.0;
+    walk(tree, &mut |n| {
+        let frame = n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id));
+        if !frame && draws(n) {
+            let (x, y, w, h) = rect(n);
+            bottom = bottom.max(y + h);
+            right = right.max(x + w);
+        }
+    });
+    let (w, h) = (176.0, 40.0);
+    let y = bottom + 16.0;
+    let pill = kit_pill(&face, "manage_providers", "Manage providers", right - w, y, w, h, false, 14.5);
+    tree.children.push(pill);
+    walk_mut(tree, &mut |n| {
+        if n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id)) {
+            let fh = n.attrs.h.unwrap_or(0.0) as f64;
+            n.attrs.h = Some(fh.max(y + h + 20.0) as f32);
+        }
+    });
+}
+
+fn kit_pill(face: &UiNode, id: &str, label: &str, x: f64, y: f64, w: f64, h: f64, primary: bool, size: f32) -> UiNode {
+    let base = face.attrs.id.clone().unwrap_or_default();
+    let mut b = face.clone();
+    b.attrs.id = Some(id.to_owned());
+    b.attrs.x = Some(x);
+    b.attrs.y = Some(y);
+    b.attrs.w = Some(w as f32);
+    b.attrs.h = Some(h as f32);
+    for ch in &mut b.children {
+        let old = ch.attrs.id.clone().unwrap_or_default();
+        let suffix = old.strip_prefix(base.as_str()).unwrap_or("").to_owned();
+        let a = &mut ch.attrs;
+        a.id = Some(format!("{id}{suffix}"));
+        a.x = Some(x);
+        a.w = Some(w as f32);
+        a.tapto = None;
+        match suffix.as_str() {
+            "_surface" | "_control" => {
+                a.y = Some(y);
+                a.h = Some(h as f32);
+                if primary && suffix == "_surface" {
+                    a.bg = Some(0xff1d_1d1f);
+                    a.border = None;
+                }
+            }
+            "_label" => {
+                let lh = (size as f64 * 1.45).ceil();
+                a.h = Some(lh as f32);
+                a.y = Some(y + (h - lh) / 2.0);
+                a.size = Some(size);
+                a.line_height = None;
+                a.text = Some(label.to_owned());
+                a.alignx = Some(0.5);
+                a.weight = Some(if primary { 600 } else { 500 });
+                a.color = Some(if primary { 0xffff_ffff } else { 0xff1d_1d1f });
+            }
+            _ => {}
+        }
+    }
+    b
+}
+
+/// A wrapped text line of `text` at `size` px in a `w` box (the confirm
+/// card's estimate: 0.5 em per character, 1.4 line height).
+fn wrapped_text(face: &UiNode, id: &str, text: &str, y: f64, w: f64, size: f32, color: u32) -> (UiNode, f64) {
+    let mut n = face.clone();
+    n.children.clear();
+    n.kind = NodeKind::Text;
+    let per_line = (w / (0.5 * size as f64)).floor().max(1.0);
+    let lines = (text.chars().count() as f64 / per_line).ceil().max(1.0);
+    let h = (lines * size as f64 * 1.4).ceil();
+    let a = &mut n.attrs;
+    a.id = Some(id.to_owned());
+    a.text = Some(text.to_owned());
+    a.placeholder = None;
+    a.x = Some(0.0);
+    a.y = Some(y);
+    a.w = Some(w as f32);
+    a.h = Some(h as f32);
+    a.size = Some(size);
+    a.line_height = None;
+    a.weight = Some(400);
+    a.color = Some(color);
+    a.alignx = Some(0.0);
+    a.variant = None;
+    a.fillw = None;
+    a.tapto = None;
+    (n, h)
 }
 
 /// The form card: the title, one bordered real input per field (the Skills
@@ -2080,7 +2832,30 @@ fn form_tree(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState, f: &Form) -> Result<U
     let title_bottom = rect_of(&tree, "cf_title").map(|(_, y, _, h)| y + h).unwrap_or(28.0);
     let mut y = title_bottom + 14.0;
     let mut nodes = Vec::new();
-    for (id, placeholder, value) in &f.fields {
+    // A10 — the loop form's "Loop cadence" selector (`LoopCreationControls.tsx
+    // :81-93`): three kit pills, the chosen one filled.
+    if let Some(mode) = f.mode.as_deref() {
+        let ctx_card = card_tree(Dialog::Context, ctx, st)?;
+        let Some(pill) = find(&ctx_card, "btn_compact").cloned() else {
+            return Err(format!("{}: the form's pill face is missing", d.card()));
+        };
+        const GAP: f64 = 8.0;
+        const SEG_H: f64 = 36.0;
+        let w = (W - 2.0 * GAP) / 3.0;
+        for (k, (m, label)) in LOOP_MODES.iter().enumerate() {
+            let x = k as f64 * (w + GAP);
+            nodes.push(kit_pill(&pill, &format!("fm_seg_{m}"), label, x, y, w, SEG_H, *m == mode, 13.5));
+        }
+        y += SEG_H + 12.0;
+    }
+    for (k, (id, placeholder, value)) in f.fields.iter().enumerate() {
+        // A10: the field's label above its box (the web's `<label>` text).
+        if let Some(label) = f.labels.get(k).filter(|l| !l.is_empty()) {
+            let (mut l, h) = wrapped_text(&input_face, &format!("{id}_label"), label, y, W, 12.5, 0xff6e_6e73);
+            l.attrs.weight = Some(500);
+            nodes.push(l);
+            y += h + 4.0;
+        }
         let mut b = field_face.clone();
         b.children.clear();
         b.attrs.id = Some(format!("{id}_box"));
@@ -2099,9 +2874,13 @@ fn form_tree(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState, f: &Form) -> Result<U
         a.text = Some(value.clone());
         a.color = Some(0xff1d_1d1f);
         a.x = Some(14.0);
-        a.y = Some(y + (FIELD_H - 26.0) / 2.0);
+        // A10: the input spans its box's full height (the text centres in
+        // it). A 26 px input centred in the box grew to the phone's 44 px
+        // touch minimum from its own top, so the text sat on the box's
+        // bottom edge (measured: input [32,207,296,44] in box [19,196,322,45]).
+        a.y = Some(y);
         a.w = Some((W - 28.0) as f32);
-        a.h = Some(26.0);
+        a.h = Some(FIELD_H as f32);
         a.variant = None;
         a.tapto = None;
         nodes.push(i);
@@ -2115,32 +2894,25 @@ fn form_tree(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState, f: &Form) -> Result<U
         }
     }
     let mut extra = 0.0;
+    // A10 — the static note under the help, then the refusal (wrapped: the
+    // web's interval refusal runs ~85 characters), both above the pills.
+    let mut lines: Vec<(&str, String, f32, u32)> = Vec::new();
+    if !f.note.is_empty() {
+        lines.push(("ff_note", f.note.clone(), 12.5, 0xff8e_8e93));
+    }
     if let Some(err) = &f.error {
-        // The refusal, above the pills (the web's role="alert" line).
+        lines.push(("ff_error", err.clone(), 13.5, 0xffcf_222e));
+    }
+    for (id, text, size, color) in lines {
         let pills_y = rect_of(&tree, "cf_cancel").map(|(_, y, _, _)| y).unwrap_or(y);
-        for id in ["cf_cancel", "cf_confirm"] {
-            if let Some(n) = find_mut(&mut tree, id) {
-                shift(n, 0.0, 30.0);
+        let (node, h) = wrapped_text(&input_face, id, &text, pills_y - 8.0, W, size, color);
+        for pid in ["cf_cancel", "cf_confirm"] {
+            if let Some(n) = find_mut(&mut tree, pid) {
+                shift(n, 0.0, h + 8.0);
             }
         }
-        let mut e = input_face.clone();
-        e.children.clear();
-        e.kind = NodeKind::Text;
-        let a = &mut e.attrs;
-        a.id = Some("ff_error".to_owned());
-        a.text = Some(err.clone());
-        a.placeholder = None;
-        a.x = Some(0.0);
-        a.y = Some(pills_y - 6.0);
-        a.w = Some(W as f32);
-        a.h = Some(20.0);
-        a.size = Some(13.5);
-        a.weight = Some(400);
-        a.color = Some(0xffcf_222e);
-        a.variant = None;
-        a.tapto = None;
-        nodes.push(e);
-        extra = 30.0;
+        nodes.push(node);
+        extra += h + 8.0;
     }
     tree.children.extend(nodes);
     // The confirm card's ids become the form's.
@@ -2274,7 +3046,7 @@ pub fn lower(d: Dialog, ctx: &Ctx<'_>, avail_w: f64, avail_h: f64) -> Result<Mou
     let form = pending_form().filter(|f| f.dialog == d);
     let (mut tree, ctrls) = match (&confirm, &form) {
         (Some(c), _) => (confirm_tree(d, ctx, &st, c)?, confirm_controls()),
-        (None, Some(f)) => (form_tree(d, ctx, &st, f)?, form_controls()),
+        (None, Some(f)) => (form_tree(d, ctx, &st, f)?, form_controls(Some(f))),
         (None, None) => {
             let mut tree = card_tree(d, ctx, &st)?;
             live(d, &mut tree, ctx, &st);
@@ -2461,6 +3233,9 @@ pub const RECORDED_METHODS: &[&str] = &[
     "peer/gather", "profile/skills/list", "profile/skills/registry/search",
     "profile/skills/install", "profile/skills/remove", "session/compact",
     "session/compact/mode/set",
+    // A10: the agent controls r1's open reply advertises (the Agents panel).
+    "agent/list", "agent/status/read", "agent/output/read", "agent/artifact/list",
+    "agent/artifact/read", "agent/interrupt", "agent/close",
 ];
 
 /// The reference-board fixture (the Stage-A setup/autonomy atlas prompts'
@@ -2562,6 +3337,8 @@ pub fn seed_fixture(store: &octoscode_store::Store) {
         store.domains.peer.upsert(Peer::named(name));
     }
     store.domains.peer.mark_closed("review");
+    // A10: the per-session Fleet slice reads the roster (the union).
+    crate::screens::fleet::seed_capture_roster(store);
     // The Tasks card's running + settled rows (the atlas command), the
     // `fleet::capture_store` shapes.
     use octoscode_store::domains::task::TaskSnapshot;
@@ -2738,7 +3515,14 @@ mod tests {
         assert_eq!(remove.detail, store.domains.profile.installed_skills()[1].name);
         assert!(remove.body.contains("Applies to Profile dsflash"), "{}", remove.body);
         let install = confirmation_for("skills.install_3", &store).expect("install asks");
-        assert!(install.detail.ends_with("· branch main") && install.body.contains("executable tools"));
+        // A10: the web's confirm (`SkillsDialog.tsx:308-353`); the
+        // executable-tools warning is the dialog's own paragraph.
+        assert!(install.detail.ends_with("· branch main") && install.body.contains("not forcibly overwritten"));
+        set_skills_source(" octos-org/linter ", " dev ");
+        let src = confirmation_for("skills.install_source", &store).expect("source asks");
+        assert_eq!(src.detail, "octos-org/linter · branch dev");
+        set_skills_source("", "");
+        assert!(confirmation_for("skills.install_source", &store).is_none(), "a blank repo asks nothing");
         let compact = confirmation_for("context.compact_now", &store).expect("compact asks");
         assert!(compact.body.starts_with("Compact this session now?"));
         assert!(confirmation_for("skills.remove_9", &store).is_none(), "a gone row asks nothing");
@@ -2818,16 +3602,44 @@ mod tests {
         assert!(m.missing.is_empty(), "{:?}", m.missing);
         assert!(m.dsl.contains("dlg_loops_lf_prompt := DesignInput"));
         assert!(m.dsl.contains("dlg_loops_lf_interval := DesignInput"));
-        assert!(m.dsl.contains("empty_text: \"Interval, e.g. 15m\""));
+        assert!(m.dsl.contains("empty_text: \"5m\"") && m.dsl.contains("text: \"Interval\""), "the web placeholder + label");
         assert!(m.dsl.contains("text: \"Run CI smoke\""));
         let got = events(&m);
         assert!(got.contains(&ACTION_FORM_SUBMIT.to_owned()), "{got:?}");
         assert!(got.contains(&ACTION_FORM_CANCEL.to_owned()), "{got:?}");
+        // A10: the three cadence segments route the mode switch.
+        for (mode, _) in LOOP_MODES {
+            assert!(got.contains(&format!("{ACTION_FORM_MODE}{mode}")), "{mode}: {got:?}");
+        }
         assert!(!got.iter().any(|e| e.starts_with("loop.")), "the form replaces the list");
         let mut refused = f.clone();
-        refused.error = Some("Type what the loop runs first.".into());
+        refused.error = Some(notice_for_refusal("loop.create[interval=\"90s0\"]").unwrap().to_owned());
         set_form(Some(refused));
-        assert!(lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap().dsl.contains("Type what the loop runs first."));
+        let dsl = lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap().dsl;
+        assert!(dsl.contains("Use a whole-number native interval such as 60s, 5m, or 2h (60 seconds to 24 hours)."));
+        // The seedless form is the web's default cadence (Maintenance): one
+        // optional prompt, no interval field.
+        let m0 = form_for("loop.create", "").unwrap();
+        assert_eq!(m0.mode.as_deref(), Some("maintenance"));
+        assert_eq!(m0.fields.len(), 1);
+        assert_eq!(
+            form_effect(&m0, &[String::new()]),
+            Some(au::Effect::LoopCreateMaintenance { prompt: String::new() })
+        );
+        let sp = loop_form("self_paced", "", "");
+        assert_eq!(
+            form_effect(&sp, &[" ".into()]),
+            Some(au::Effect::Unhandled("loop.create[empty]".into())),
+            "a self-paced loop needs a prompt"
+        );
+        let fx = loop_form("fixed", "check", "");
+        assert_eq!(fx.fields[1].2, "5m", "the web's draft interval");
+        assert_eq!(
+            form_effect(&fx, &["check".into(), "1.5h".into()]),
+            Some(au::Effect::Unhandled("loop.create[interval=\"1.5h\"]".into()))
+        );
+        assert_eq!(resolve("dialog.form_mode.fixed"), Effect::FormMode("fixed".into()));
+        assert_eq!(resolve("dialog.form_mode.weekly"), Effect::Unhandled("dialog.form_mode.weekly".into()));
         assert!(lower(Dialog::Loops, &ctx, 360.0, 776.0).unwrap().frame.0 <= 360.5, "the phone sheet");
         apply(&Effect::Close);
         assert!(pending_form().is_none(), "close drops the form");
@@ -2856,7 +3668,11 @@ mod tests {
         let m = lower(Dialog::Skills, &ctx, 990.0, 603.0).unwrap();
         assert!(m.dsl.contains("dlg_skills_skills_query := DesignInput"), "a real input");
         assert!(m.dsl.contains("empty_text: \"Search registry\""));
-        assert!(m.dsl.contains("1.1.0 · License not reported"), "a registry row's detail line");
+        // A10: a registry row carries the web's fields (`SkillsDialog.tsx:229-272`).
+        assert!(m.dsl.contains("Instruction skills · License not reported"), "a registry row's kind/licence line");
+        assert!(m.dsl.contains("octos-org/code-linter"), "the row's repo");
+        assert!(m.dsl.contains("Install from source") && m.dsl.contains("Review installation"));
+        assert!(m.dsl.contains(SKILLS_WARNING));
         set_skills_query(Some("zzz".into()));
         store.domains.profile.set_registry_packages(vec![]);
         let m = lower(Dialog::Skills, &ctx, 990.0, 603.0).unwrap();
@@ -2939,6 +3755,62 @@ mod tests {
         }
     }
 
+    /// A10 judge fix 1: the Models dialog's route pills sit INSIDE the
+    /// expanded provider card with the card's own inset under them (the atlas
+    /// ended the card on the pills' bottom edge, so its border cut them), and
+    /// the collapsed provider cards below keep their gap.
+    #[test]
+    fn the_route_pills_sit_inside_their_provider_card() {
+        let _s = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        let (tree, _) = live_tree(Dialog::Models, &ctx).expect("models");
+        let card = rect_of(&tree, "card_deepseek").expect("the expanded card");
+        for id in ["btn_test", "btn_discover"] {
+            let (x, y, w, h) = rect_of(&tree, id).unwrap_or_else(|| panic!("{id}"));
+            let bottom_inset = (card.1 + card.3) - (y + h);
+            let side_inset = (x - card.0).min((card.0 + card.2) - (x + w));
+            assert!(bottom_inset >= 12.0, "{id}: bottom inset {bottom_inset} (card {card:?})");
+            assert!((bottom_inset - side_inset).abs() <= 2.5, "{id}: bottom {bottom_inset} vs side {side_inset}");
+        }
+        let kimi = rect_of(&tree, "card_kimi").expect("the second provider");
+        assert!(kimi.1 >= card.1 + card.3 + 12.0, "the next card keeps its gap: {kimi:?} after {card:?}");
+    }
+
+    /// A10 judge fix 2: every Loops row icon is ONE square size (so one
+    /// stroke weight), on the row's centre line, at one pitch; the Monitors
+    /// dialog draws the same size.
+    #[test]
+    fn loop_and_monitor_row_icons_are_one_size_on_one_grid() {
+        let _s = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        let (tree, _) = live_tree(Dialog::Loops, &ctx).expect("loops");
+        let mut dots = Vec::new();
+        for i in 1..=3 {
+            let icons: Vec<(f64, f64, f64, f64)> = ["pause", "play", "trash"]
+                .iter()
+                .filter_map(|k| rect_of(&tree, &format!("loop_{i}_{k}")))
+                .collect();
+            assert!(icons.len() >= 2, "row {i}: {icons:?}");
+            for (_, _, w, h) in &icons {
+                assert!((*w - ROW_ICON).abs() < 0.01 && (*h - ROW_ICON).abs() < 0.01, "row {i}: {icons:?}");
+            }
+            let mids: Vec<f64> = icons.iter().map(|(_, y, _, h)| y + h / 2.0).collect();
+            assert!(mids.iter().all(|m| (m - mids[0]).abs() < 0.01), "row {i} centre line {mids:?}");
+            for pair in icons.windows(2) {
+                assert!(((pair[1].0 - pair[0].0) - ROW_ICON_PITCH).abs() < 0.01, "row {i} pitch {icons:?}");
+            }
+            dots.push(rect_of(&tree, &format!("loop_{i}_dot")).expect("dot").0);
+        }
+        assert!(dots.iter().all(|x| (x - dots[0]).abs() < 0.01), "one dot column {dots:?}");
+        let (tree, _) = live_tree(Dialog::Monitors, &ctx).expect("monitors");
+        for id in ["mon_1_pause", "mon_1_trash", "mon_2_pause", "mon_2_trash"] {
+            let (_, _, w, h) = rect_of(&tree, id).unwrap_or_else(|| panic!("{id}"));
+            assert!((w - ROW_ICON).abs() < 0.01 && (h - ROW_ICON).abs() < 0.01, "{id} {w}x{h}");
+        }
+    }
+
     /// The close square never sits on a title-row control (`+ New loop`,
     /// `Start native review`): those move left of it.
     #[test]
@@ -2967,7 +3839,6 @@ mod tests {
             ("ctx", Dialog::Context),
             ("/skills", Dialog::Skills),
             ("/goal", Dialog::Goal),
-            ("/agents", Dialog::Goal),
             ("/loop", Dialog::Loops),
             ("/monitor", Dialog::Monitors),
             ("/peer", Dialog::Fleet),
@@ -3003,7 +3874,7 @@ mod tests {
         open(Dialog::Loops);
         set_notice(notice_for_refusal("loop.create[empty]").unwrap());
         let m = lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap();
-        assert!(m.dsl.contains("Type what the loop runs first."), "the notice renders");
+        assert!(m.dsl.contains("A prompt is required for self-paced and fixed-interval loops."), "the notice renders");
         let plain = {
             clear_notice();
             lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap()

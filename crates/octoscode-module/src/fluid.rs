@@ -1053,14 +1053,17 @@ pub fn composer(c: &ComposerView, m: &Metrics) -> String {
          {approval}}}\n\
          {approval_hit}}}\n\
          View{{width: Fill height: 1}}\n\
-         i0_composer_model := View{{width: Fit height: 30 margin: Inset{{left: {gap}}} flow: Right \
+         i0_composer_model := View{{width: Fit height: 30 margin: Inset{{left: {gap}}} flow: Overlay\n\
+         View{{width: Fit height: 30 flow: Right \
          align: Align{{y: 0.5}} spacing: {COMPOSER_CHEVRON_GAP} \
          padding: Inset{{left: {model_pad} right: {model_pad}}}\n\
          {model}{model_chev}}}\n\
+         {model_hit}}}\n\
          {mic}\
          i0_composer_5 := View{{width: {COMPOSER_CONTROL} height: {COMPOSER_CONTROL} margin: Inset{{left: {gap}}} \
          flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n\
          RoundedView{{width: 32 height: 32 draw_bg +: {{color: #000000ff border_radius: 16.0}}}}\n\
+         composer_stop_busy := RoundedView{{width: 32 height: 32 visible: false draw_bg +: {{color: #c7c7ccff border_radius: 16.0}}}}\n\
          composer_send_icon := View{{width: 16 height: 16 flow: Overlay\n{send_icon}}}\n\
          composer_stop_icon := View{{width: 16 height: 16 flow: Overlay visible: false\n{stop_icon}}}\n\
          {send_hit}}}\n\
@@ -1088,6 +1091,9 @@ pub fn composer(c: &ComposerView, m: &Metrics) -> String {
             one_line,
         ),
         model_chev = svg("i0_composer_4_chev", "chevron_down.svg", COMPOSER_CHEVRON, MUTED),
+        // A10 — the model seat opens the model menu (web `ModelControl`'s
+        // trigger); the host hides the seat when the server lacks the menu.
+        model_hit = hit("model_seat_hit", 15.0),
         mic = icon_btn("mic_hit", "icon_mic1.svg", 18.0, gap),
         send_icon = svg("i0_composer_5_0", "components/composer/assets/icon_send.svg", 16.0, "#ffffffff"),
         // The running turn's STOP glyph (conversation-08 `stop2`): shown by

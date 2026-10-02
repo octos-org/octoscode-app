@@ -28,6 +28,8 @@ fn ctx() -> (Arc<Store>, Ctx<'static>) {
     let store: &'static Arc<Store> = Box::leak(Box::new(Arc::new(Store::new())));
     let ui: &'static Mutex<FlowUi> = Box::leak(Box::new(Mutex::new(FlowUi::default())));
     store.domains.session.set_active(Some("dsflash:main".into()));
+    // A10: an open, connected Session is ready (`sessionNotReady` otherwise).
+    store.set_connection("Live".into(), true);
     (store.clone(), Ctx::new(store, ui))
 }
 
@@ -184,14 +186,49 @@ fn start_maps_the_confirmed_turn_with_the_web_params() {
     let (store, ctx) = ctx();
     caps_for(&store, &["review/start", "review.start.v1"]);
     seed_run();
-    match review::resolve("review.start", 0, &ctx) {
-        review::Effect::StartReview { session_id, turn_id } => {
-            // history.ts:250 sends {session_id, turn_id, delivery: "inline"}.
+    // A10: a review is a NEW turn — a fresh protocol UUID per start
+    // (`native-review.ts:177` crypto.randomUUID()), never the last turn's id,
+    // and no prompt unless instructions were typed (no fabricated default).
+    let first = match review::resolve("review.start", 0, &ctx) {
+        review::Effect::StartReview { session_id, turn_id, prompt } => {
             assert_eq!(session_id, "dsflash:main");
-            assert_eq!(turn_id, "01920000-0000-7000-8000-0000000000a1");
+            assert_ne!(turn_id, "01920000-0000-7000-8000-0000000000a1", "not the confirmed turn");
+            assert_eq!(turn_id.len(), 36, "a protocol UUID: {turn_id}");
+            assert_eq!(prompt, None, "empty instructions send no prompt");
+            turn_id
+        }
+        other => panic!("expected StartReview, got {other:?}"),
+    };
+    // Typed instructions ride trimmed and verbatim (inert: markup stays text).
+    review::set_prompt("  <b>focus</b> on the parser  ");
+    match review::resolve("review.start", 0, &ctx) {
+        review::Effect::StartReview { turn_id, prompt, .. } => {
+            assert_ne!(turn_id, first, "each start mints its own turn");
+            assert_eq!(prompt.as_deref(), Some("<b>focus</b> on the parser"));
         }
         other => panic!("expected StartReview, got {other:?}"),
     }
+    review::set_prompt("");
+}
+
+/// A10 — `sessionNotReady` is the Session's readiness (connected and open),
+/// not the existence of an earlier turn.
+#[test]
+fn start_waits_for_a_ready_session_not_a_previous_turn() {
+    let _seq = review::test_lock();
+    review::reset();
+    let (store, ctx) = ctx();
+    caps_for(&store, &["review/start", "review.start.v1"]);
+    // No turn has completed: still admitted.
+    assert!(matches!(review::resolve("review.start", 0, &ctx), review::Effect::StartReview { .. }));
+    store.set_connection("Reconnecting".into(), false);
+    match review::resolve("review.start", 0, &ctx) {
+        review::Effect::Blocked(r) => {
+            assert_eq!(r, "Wait for this Session to finish recovery before starting review.")
+        }
+        other => panic!("expected Blocked, got {other:?}"),
+    }
+    store.set_connection("Live".into(), true);
 }
 
 #[test]
@@ -576,15 +613,20 @@ async fn replay_the_recorded_review_start_reaches_the_wire() {
             .expect("connect");
     conv.open_workspace(None).await.expect("session/open");
 
-    // The screen action maps to the recorded request shape…
+    // The screen action maps to the recorded request shape (no prompt: the
+    // recording typed none)…
     let turn = recorded["turn_id"].as_str().unwrap().to_owned();
     let effect = review::Effect::StartReview {
         session_id: conv.session_id(),
-        turn_id: turn,
+        turn_id: turn.clone(),
+        prompt: None,
     };
-    review::perform(effect, &conv).await.expect("review/start sends");
+    // The recording's reply is a server refusal (no receipt): the web's
+    // `parseReviewStartResult` rejects it, so the start fails visibly.
+    let err = review::perform(effect, &conv).await.expect_err("an unparseable receipt fails");
+    assert!(err.starts_with("review/start:"), "{err}");
 
-    // …and the server saw it.
+    // …and the server saw exactly the recorded params.
     let seen = server.received.lock().unwrap().clone();
     let (_m, params) = seen
         .iter()
@@ -592,6 +634,19 @@ async fn replay_the_recorded_review_start_reaches_the_wire() {
         .expect("the wire carried review/start");
     assert_eq!(params["delivery"], "inline");
     assert_eq!(params["turn_id"], recorded["turn_id"]);
-    // The recorded (null) reply is tolerated: nothing folds on accepted!=true.
+    assert!(params.get("prompt").is_none(), "no fabricated prompt");
+    // Nothing folds; the Session records the request and the failure.
     assert!(conv.store.domains.review.last_review().is_none());
+    let notes: Vec<String> = conv
+        .store
+        .domains
+        .session
+        .timeline
+        .entries(&conv.session_id())
+        .into_iter()
+        .filter(|e| e.turn_id.as_deref() == Some(turn.as_str()))
+        .map(|e| e.text)
+        .collect();
+    assert_eq!(notes[0], "Native code review: Review requested for current project changes.");
+    assert!(notes[1].starts_with("Native code review not started: "), "{notes:?}");
 }

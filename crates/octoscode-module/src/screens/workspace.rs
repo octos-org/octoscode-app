@@ -128,6 +128,13 @@ fn state() -> MutexGuard<'static, WsState> {
         .unwrap()
 }
 
+/// A10 — the permission seat's menu read a profile list or applied a set:
+/// the composer pill (`set.permission_mode`) follows the read-back.
+pub fn note_permission_mode(mode: Option<&str>) {
+    state().permission_mode = mode.map(str::to_owned);
+    makepad_widgets::SignalToUI::set_ui_signal();
+}
+
 /// The concrete thing the module does for a routed board-2 action.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Effect {
@@ -301,6 +308,15 @@ async fn refresh(conv: &Conversation) -> Result<(), String> {
         let mut st = state();
         st.permission_mode = perms["current"]["mode"].as_str().map(str::to_owned);
         st.profiles = perms["profiles"].as_array().cloned().unwrap_or_default();
+    }
+    // A10 — the same read feeds the store the permission seat reads (its
+    // label is the web's trigger, "{mode} · {network}").
+    if perms["session_id"].as_str() == Some(conv.session_id().as_str()) {
+        let sel = |v: &Value| serde_json::from_value::<octoscode_store::domains::profile::PermissionProfileSelection>(v.clone()).ok();
+        if let Some(current) = sel(&perms["current"]) {
+            let profiles = perms["profiles"].as_array().map(|a| a.iter().filter_map(sel).collect()).unwrap_or_default();
+            conv.store.domains.profile.set_permission(current, profiles);
+        }
     }
     let profile = conv.profile().to_owned();
     let llms = client

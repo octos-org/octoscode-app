@@ -26,6 +26,7 @@
 //! | `task` | `r4-task-a6ea8505` | `task/updated`, task artifacts |
 //! | `peer` | `r6-peer-a6ea8505` | `peer/gather`, `peer/prepare` |
 //! | `session` | `r3-session-a6ea8505` | the context-compaction lifecycle |
+//! | `fleet` | `a10-fleet-driver-synthetic` (SYNTHETIC) | the external-driver chain: walk, acquire, prepare, dispatch, peer frames, peer/control |
 //!
 //! ## Session-id rewriting (why the recording is portable)
 //!
@@ -82,6 +83,17 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         // are r1-autonomy's; every REQUEST the dialogs send is answered from
         // the recorded replies (`screens_replies`).
         "screens" => ("screens", "r1-autonomy-a6ea8505.jsonl"),
+        // A10: the `screens` replies plus, for the methods no recording
+        // carries, the faithful `a10-*-faithful.jsonl` frames served IN ORDER
+        // (a load-more's second read gets the second reply).
+        "a10" => ("a10", "r1-autonomy-a6ea8505.jsonl"),
+        // A10 fleet: the FAITHFUL external-driver fixture (synthetic — no
+        // live server advertises `external_driver_v1`; built by
+        // tools/fixtures/a10_fleet_fixture.py from r6/r23/c24 + the web's
+        // protocol). Its open advertises the driver methods; `FleetSim`
+        // answers the chain, echoing each request's ids like the web's own
+        // fixture server.
+        "fleet" => ("fleet", "a10-fleet-driver-synthetic.jsonl"),
         // A9: the Activity walk. r4-task's handshake (task/list,
         // task/output/read advertised); `session/list` names five sessions of
         // the opened Profile; `task/list` answers each from the recorded c24b
@@ -281,6 +293,591 @@ fn screens_replies() -> BTreeMap<String, (Value, String)> {
         put("session/goal/clear", c.clone());
     }
     out
+}
+
+/// A10 — every `a10-*-faithful.jsonl` fixture's inbound replies, per method,
+/// in file order (`(body, session)`; the session the frames name is the one
+/// rewritten to the opened session).
+fn a10_sequenced() -> BTreeMap<String, Vec<(Value, String)>> {
+    let mut out: BTreeMap<String, Vec<(Value, String)>> = BTreeMap::new();
+    let dir = format!("{}/../octoscode-client/tests/fixtures", env!("CARGO_MANIFEST_DIR"));
+    let mut files: Vec<String> = std::fs::read_dir(&dir)
+        .map(|rd| {
+            rd.filter_map(|e| e.ok())
+                .map(|e| e.file_name().to_string_lossy().to_string())
+                .filter(|n| n.starts_with("a10-") && n.ends_with("-faithful.jsonl"))
+                // The seats' fixture is served by the stateful simulator.
+                .filter(|n| n != "a10-seats-faithful.jsonl" && n != "a10-routes-faithful.jsonl")
+                .collect()
+        })
+        .unwrap_or_default();
+    files.sort();
+    for file in files {
+        let frames = fixture(&file);
+        let session = frames
+            .iter()
+            .find(|f| f.dir == "note")
+            .and_then(|f| f.body.get("session").and_then(|s| s.as_str()).map(str::to_owned))
+            .unwrap_or_else(|| recorded_session(&frames));
+        for f in frames.iter().filter(|f| f.dir == "in") {
+            out.entry(f.method.clone()).or_default().push((f.body.clone(), session.clone()));
+        }
+    }
+    out
+}
+
+/// A10 — the composer seats' simulator (scenario a10): the permission
+/// profile and the selected model follow each set/select, so a click walk
+/// sees the read-back it caused. The permission state starts from the
+/// recorded r2 list; the session model list and the per-model select
+/// replies are `a10-seats-faithful.jsonl` (selecting the r2-route fallback
+/// answers with r2's recorded select reply).
+#[derive(Clone)]
+struct SeatSim {
+    current: Value,
+    profiles: Value,
+    models: Vec<Value>,
+    selects: Vec<Value>,
+    r2_select: Value,
+    /// r26's recorded interrupted `turn_terminal` envelope (re-pointed at
+    /// the app's turn when it presses Stop).
+    r26_terminal: Value,
+    /// Envelope sequence for the terminals this simulator emits.
+    seq: u64,
+    /// The Profile's configured providers (r2's recorded config with the
+    /// r2-route fallback), changed by each upsert / delete.
+    config: Value,
+    /// `a10-routes-faithful.jsonl`: the fetch_models and passing test replies.
+    fetched: Value,
+    tested: Value,
+}
+
+impl SeatSim {
+    fn load() -> Self {
+        let r2 = fixture("r2-profile-a6ea8505.jsonl");
+        let list = r2
+            .iter()
+            .find(|f| f.dir == "in" && f.method == "permission/profile/list")
+            .map(|f| f.body.clone())
+            .unwrap_or_default();
+        let r2_select = r2
+            .iter()
+            .find(|f| f.dir == "in" && f.method == "profile/llm/select")
+            .map(|f| f.body.clone())
+            .unwrap_or_default();
+        let seats = fixture("a10-seats-faithful.jsonl");
+        let models = seats
+            .iter()
+            .find(|f| f.dir == "in" && f.method == "profile/llm/list")
+            .and_then(|f| f.body["models"].as_array().cloned())
+            .unwrap_or_default();
+        let selects = seats
+            .iter()
+            .filter(|f| f.dir == "in" && f.method == "profile/llm/select")
+            .map(|f| f.body.clone())
+            .collect();
+        let r26_terminal = fixture("r26-interrupted-a6ea8505.jsonl")
+            .into_iter()
+            .find(|f| f.dir == "in" && f.body["payload"]["type"] == "turn_terminal" && f.body["payload"]["data"]["outcome"] == "interrupted")
+            .map(|f| f.body)
+            .unwrap_or_default();
+        let config = r2
+            .iter()
+            .filter(|f| f.dir == "in" && f.method == "profile/llm/list")
+            .map(|f| f.body.clone())
+            .find(|b| b["fallbacks"].as_array().is_some_and(|a| !a.is_empty()))
+            .unwrap_or_default();
+        let routes = fixture("a10-routes-faithful.jsonl");
+        let reply = |m: &str| routes.iter().find(|f| f.dir == "in" && f.method == m).map(|f| f.body.clone()).unwrap_or_default();
+        let (fetched, tested) = (reply("profile/llm/fetch_models"), reply("profile/llm/test"));
+        SeatSim {
+            current: list["current"].clone(),
+            profiles: list["profiles"].clone(),
+            models,
+            selects,
+            r2_select,
+            r26_terminal,
+            seq: 0,
+            config,
+            fetched,
+            tested,
+        }
+    }
+
+    /// The reply (or the JSON-RPC error) for one seat method.
+    fn answer(&mut self, method: &str, params: &Value, session: &str) -> Result<Value, Value> {
+        match method {
+            "permission/profile/list" => Ok(serde_json::json!({
+                "session_id": session, "current": self.current, "profiles": self.profiles,
+            })),
+            "permission/profile/set" => {
+                let network = match params["update"]["network"].as_str() {
+                    Some(n) => Value::from(n),
+                    None => self.current["network"].clone(),
+                };
+                let want = serde_json::json!({ "mode": params["update"]["mode"], "network": network });
+                let offered = self.profiles.as_array().is_some_and(|p| p.contains(&want)) || want == self.current;
+                if !offered {
+                    return Err(serde_json::json!({"code": -32602, "message": "permission profile not offered for this session"}));
+                }
+                self.current = want;
+                Ok(serde_json::json!({"applied": true, "current": self.current, "session_id": session}))
+            }
+            "profile/llm/list" => Ok(serde_json::json!({"session_id": session, "models": self.models})),
+            // A10 — the configured providers (the Routes dialog).
+            "profile/llm/list@profile" => Ok(self.config.clone()),
+            "profile/llm/fetch_models" => {
+                let mut r = self.fetched.clone();
+                r["family_id"] = params["selection"]["family_id"].clone();
+                Ok(r)
+            }
+            "profile/llm/test" => Ok(self.tested.clone()),
+            "profile/llm/upsert" => {
+                let sel = &params["selection"];
+                let row = serde_json::json!({
+                    "family_id": sel["family_id"], "model_id": sel["model_id"], "model": sel["model_id"],
+                    "provider": sel["family_id"], "route": sel["route"], "route_id": sel["route"]["route_id"],
+                    "has_api_key": true, "available": true, "selected": false,
+                });
+                if let Some(f) = self.config["fallbacks"].as_array_mut() {
+                    f.push(row);
+                }
+                let mut r = self.config.clone();
+                r["applied"] = Value::Bool(true);
+                Ok(r)
+            }
+            "profile/llm/delete" => {
+                let hit = |m: &Value| {
+                    m["family_id"] == params["family_id"] && m["model_id"] == params["model_id"]
+                        && m["route"]["route_id"] == params["route_id"]
+                };
+                if let Some(f) = self.config["fallbacks"].as_array_mut() {
+                    f.retain(|m| !hit(m));
+                }
+                if hit(&self.config["primary"]) {
+                    self.config["primary"] = Value::Null;
+                }
+                let mut r = self.config.clone();
+                r["applied"] = Value::Bool(true);
+                r["restart_required"] = Value::Bool(true);
+                Ok(r)
+            }
+            // A10 — native review (octos-core `ReviewStartResult`, the web's
+            // `parseReviewStartResult`): the request's own turn echoed.
+            "review/start" => Ok(serde_json::json!({
+                "session_id": session, "turn_id": params["turn_id"], "accepted": true,
+                "workflow": "code_review", "backend": "native", "agent_count": 3,
+            })),
+            "profile/llm/select" => {
+                let model = params["model_id"].as_str().unwrap_or("").to_owned();
+                let route = params["route_id"].as_str().unwrap_or("").to_owned();
+                let Some(i) = self.models.iter().position(|m| m["model"] == model.as_str() && m["route"] == route.as_str()) else {
+                    return Err(serde_json::json!({"code": -32602, "message": "unknown model"}));
+                };
+                let row = self.models[i].clone();
+                if row["available"] != Value::Bool(true) {
+                    return Ok(serde_json::json!({"applied": false, "session_id": session, "selected": row}));
+                }
+                if row["selected"] == Value::Bool(true) {
+                    return Ok(serde_json::json!({"applied": true, "runtime_disposition": "unchanged", "session_id": session, "selected": row}));
+                }
+                for m in self.models.iter_mut() {
+                    let hit = m["model"] == model.as_str() && m["route"] == route.as_str();
+                    m["selected"] = Value::Bool(hit);
+                }
+                let fixture_reply = self
+                    .selects
+                    .iter()
+                    .find(|r| r["selected"]["model"] == model.as_str() && r["selected"]["route"] == route.as_str() && r["applied"] == Value::Bool(true))
+                    .cloned();
+                let mut reply = match fixture_reply {
+                    Some(r) => r,
+                    None if route == "r2-route" => self.r2_select.clone(),
+                    None => serde_json::json!({"applied": true, "runtime_disposition": "reloaded", "selected": self.models[i]}),
+                };
+                reply["session_id"] = Value::from(session);
+                Ok(reply)
+            }
+            _ => Err(serde_json::json!({"code": -32601, "message": "not a seat method"})),
+        }
+    }
+}
+
+/// A10 — the `fleet` scenario's external-driver simulator. Every reply is a
+/// fixture shape (`a10-fleet-driver-synthetic.jsonl`) with the per-request
+/// ids echoed (operation id, requested lane, acquiring driver, control
+/// target), the way `apps/web/scripts/mock-ui-server.mjs` answers its
+/// `peer-control-*` workspaces; the binding's revision moves on acquire /
+/// release, dispatches join the walked inventory, and a dispatched peer's
+/// background attach gets its session's frames (turn/started; the FIRST
+/// peer then asks for an approval, the SECOND a question). `lane-review` is listed but answers
+/// `driver_model_unavailable` (the fixture's typed refusal frame: a lane
+/// whose credentials the server lacks), so the refusal path is clickable.
+struct FleetSim {
+    get: Value,
+    acquire: Value,
+    lanes: Value,
+    started: Value,
+    requested: Value,
+    question: Value,
+    decided: Value,
+    turn_error: Value,
+    refusal: Value,
+    binding: Value,
+    revision: u64,
+    token: Option<String>,
+    ops: Vec<Value>,
+    slugs: Vec<String>,
+    receipts: BTreeMap<String, Value>,
+    controls: Vec<String>,
+    approvals: BTreeMap<String, String>,
+    dispatched: u64,
+    workspace: String,
+    /// A10 seat walk: the driver mode (`external` after an acquire or a
+    /// parking release, `internal` after a `next: internal` handback).
+    external: bool,
+    /// A10 seat walk (`--revoke-file <path>`): when the file exists, the next
+    /// renew finds the lease taken by another app (`driver_fence_stale`);
+    /// the file is removed so a later acquire holds again.
+    revoke_file: Option<String>,
+}
+
+/// One reply + the notifications that follow it (`(delay ms, method, params)`).
+type SimOut = (Result<Value, Value>, Vec<(u64, String, Value)>);
+
+fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0)
+}
+
+impl FleetSim {
+    fn new(frames: &[Frame], workspace: &str) -> Self {
+        let body = |m: &str| -> Value {
+            frames
+                .iter()
+                .find(|f| f.dir == "in" && f.method == m)
+                .map(|f| f.body.clone())
+                .unwrap_or_else(|| panic!("the fleet fixture has no {m}"))
+        };
+        let get = body("session/driver/get");
+        let binding = get["binding"].clone();
+        let revision = binding["revision"].as_u64().unwrap_or(0);
+        let ops = get["operations"]["items"].as_array().cloned().unwrap_or_default();
+        let mut sim = FleetSim {
+            acquire: body("session/driver/acquire"),
+            lanes: body("profile/sub_providers/list"),
+            started: body("turn/started"),
+            requested: body("approval/requested"),
+            question: body("user_question/requested"),
+            decided: body("approval/decided"),
+            turn_error: body("turn/error"),
+            refusal: body("err:peer/dispatch"),
+            get,
+            binding,
+            revision,
+            token: None,
+            ops,
+            slugs: Vec::new(),
+            receipts: BTreeMap::new(),
+            controls: Vec::new(),
+            approvals: BTreeMap::new(),
+            dispatched: 0,
+            workspace: workspace.to_owned(),
+            external: true,
+            revoke_file: None,
+        };
+        let ws = sim.workspace.clone();
+        for v in [&mut sim.get, &mut sim.binding] {
+            rewrite_session(v, "<WORKSPACE>", &ws);
+        }
+        // The fixture's prior dispatch is anchored 18 minutes before this
+        // run (its recorded epoch-ms would read as months of elapsed time).
+        let then = now_ms().saturating_sub(18 * 60_000);
+        for op in sim.ops.iter_mut() {
+            rewrite_session(op, "<WORKSPACE>", &ws);
+            op["created_at_ms"] = then.into();
+            op["started_at_ms"] = (then + 1000).into();
+            op["acceptance"]["accepted_at_ms"] = then.into();
+        }
+        sim
+    }
+
+    fn handles(method: &str) -> bool {
+        matches!(
+            method,
+            "session/driver/get"
+                | "session/driver/acquire"
+                | "session/driver/renew"
+                | "session/driver/release"
+                | "profile/sub_providers/list"
+                | "peer/prepare"
+                | "peer/dispatch"
+                | "peer/control"
+        )
+    }
+
+    fn refuse(&self, kind: &str) -> Value {
+        let mut e = self.refusal.clone();
+        e["data"]["kind"] = Value::String(kind.to_owned());
+        e
+    }
+
+    /// The held fence matches the request's (`driver_fence_stale` otherwise).
+    fn fenced(&self, p: &Value) -> bool {
+        self.token.as_deref().is_some_and(|t| p["control_token"] == t)
+            && p["driver_id"] == self.binding["driver_id"]
+            && p["epoch"] == self.binding["epoch"]
+    }
+
+    fn slugify(text: &str) -> String {
+        let mut out = String::new();
+        for c in text.chars().flat_map(char::to_lowercase) {
+            if c.is_ascii_alphanumeric() {
+                out.push(c);
+            } else if !out.ends_with('-') && !out.is_empty() {
+                out.push('-');
+            }
+            if out.len() >= 24 {
+                break;
+            }
+        }
+        let out = out.trim_matches('-').to_owned();
+        if out.is_empty() { "peer".to_owned() } else { out }
+    }
+
+    fn reply(&mut self, method: &str, p: &Value, base: &str) -> SimOut {
+        let now = now_ms();
+        match method {
+            "session/driver/get" => {
+                let mut v = if self.external {
+                    serde_json::json!({"mode": "external", "recovery": "none", "binding": self.binding})
+                } else if self.binding.is_null() {
+                    // Never bound (a cold master): no binding, revision 0.
+                    serde_json::json!({"mode": "internal", "recovery": "none", "binding": null})
+                } else {
+                    // Handed back: the RETAINED binding, inactive (lease 0) —
+                    // its revision is the next acquire's CAS basis.
+                    let mut b = self.binding.clone();
+                    b["lease_expires_at_ms"] = 0.into();
+                    serde_json::json!({"mode": "internal", "recovery": "none", "binding": b})
+                };
+                if p.get("operations").is_some() {
+                    // The page is strictly ordered by operation id (UTF-8
+                    // bytes) — the protocol's contract the walk enforces.
+                    let mut items = self.ops.clone();
+                    items.sort_by(|a, b| a["operation_id"].as_str().cmp(&b["operation_id"].as_str()));
+                    v["operations"] = serde_json::json!({
+                        "items": items,
+                        "snapshot": format!("synthetic-snapshot-{}", self.revision),
+                        "observed_revision": self.revision.to_string(),
+                        "complete": true,
+                        "next_cursor": null,
+                    });
+                }
+                (Ok(v), Vec::new())
+            }
+            "session/driver/acquire" => {
+                if p["expected_revision"].as_u64() != Some(self.revision) {
+                    return (Err(self.refuse("driver_revision_conflict")), Vec::new());
+                }
+                self.revision += 1;
+                self.external = true;
+                let epoch = self.binding["epoch"].as_u64().unwrap_or(0) + 1;
+                let lease = p["lease_seconds"].as_u64().unwrap_or(120);
+                self.binding["driver_id"] = p["driver_id"].clone();
+                self.binding["epoch"] = epoch.into();
+                self.binding["revision"] = self.revision.into();
+                self.binding["lease_expires_at_ms"] = (now + lease * 1000).into();
+                let token = format!("synthetic-control-token-{epoch}");
+                self.token = Some(token.clone());
+                let mut a = self.acquire.clone();
+                a["control_token"] = Value::String(token);
+                a["binding"] = self.binding.clone();
+                (Ok(a), Vec::new())
+            }
+            "session/driver/renew" => {
+                if let Some(path) = self.revoke_file.as_deref().filter(|f| std::path::Path::new(f).exists()) {
+                    // Another app acquired: our proof is dead from now on.
+                    let _ = std::fs::remove_file(path);
+                    self.revision += 1;
+                    let epoch = self.binding["epoch"].as_u64().unwrap_or(0) + 1;
+                    self.binding["driver_id"] = "octos-tui".into();
+                    self.binding["epoch"] = epoch.into();
+                    self.binding["revision"] = self.revision.into();
+                    self.token = None;
+                    println!("[replay-serve] fleet sim: the lease was revoked (another app acquired)");
+                }
+                if !self.fenced(p) {
+                    return (Err(self.refuse("driver_fence_stale")), Vec::new());
+                }
+                let lease = p["lease_seconds"].as_u64().unwrap_or(120);
+                self.binding["lease_expires_at_ms"] = (now + lease * 1000).into();
+                (Ok(serde_json::json!({ "lease_expires_at_ms": self.binding["lease_expires_at_ms"] })), Vec::new())
+            }
+            "session/driver/release" => {
+                if !self.fenced(p) {
+                    return (Err(self.refuse("driver_fence_stale")), Vec::new());
+                }
+                self.revision += 1;
+                self.token = None;
+                self.binding["revision"] = self.revision.into();
+                self.binding["lease_expires_at_ms"] = 0.into();
+                let next = p["next"].as_str().unwrap_or("external").to_owned();
+                self.external = next == "external";
+                let binding = if next == "external" { self.binding.clone() } else { Value::Null };
+                (Ok(serde_json::json!({ "mode": next, "recovery": "none", "binding": binding })), Vec::new())
+            }
+            "profile/sub_providers/list" => (Ok(self.lanes.clone()), Vec::new()),
+            "peer/prepare" => {
+                let title = p["title"].as_str().filter(|t| !t.trim().is_empty()).or(p["brief"].as_str()).unwrap_or("peer");
+                let mut slug = Self::slugify(title);
+                let mut n = 2;
+                while self.slugs.contains(&slug) {
+                    slug = format!("{}-{n}", Self::slugify(title));
+                    n += 1;
+                }
+                self.slugs.push(slug.clone());
+                let profile = p["profile_id"].as_str().unwrap_or("dsflash");
+                let peer = serde_json::json!({
+                    "slug": slug, "topic": format!("peer-{slug}"), "profile_id": profile, "cwd": self.workspace,
+                    "brief_path": format!("~/.octos/profiles/{profile}/data/peers/{slug}/brief.md"),
+                });
+                let mut v = peer.clone();
+                v["peers"] = serde_json::json!([peer]);
+                (Ok(v), Vec::new())
+            }
+            "peer/dispatch" => {
+                if !self.fenced(p) {
+                    return (Err(self.refuse("driver_fence_stale")), Vec::new());
+                }
+                let op = p["operation_id"].as_str().unwrap_or("").to_owned();
+                if let Some(r) = self.receipts.get(&op) {
+                    let mut r = r.clone();
+                    r["duplicate"] = true.into();
+                    return (Ok(r), Vec::new());
+                }
+                let lane = p["model"].as_str().unwrap_or("");
+                if lane == "lane-review" {
+                    return (Err(self.refuse("driver_model_unavailable")), Vec::new());
+                }
+                let Some(model) = self.lanes["sub_providers"]
+                    .as_array()
+                    .and_then(|ls| ls.iter().find(|l| l["key"] == lane))
+                    .map(|l| l["model"].clone())
+                else {
+                    return (Err(self.refuse("driver_model_unavailable")), Vec::new());
+                };
+                let slug = match p["dispatch"]["kind"].as_str() {
+                    Some("existing_slug") => p["dispatch"]["slug"].as_str().unwrap_or("peer").to_owned(),
+                    _ => p["dispatch"]["title"].as_str().map(Self::slugify).unwrap_or_else(|| "peer".to_owned()),
+                };
+                self.dispatched += 1;
+                let adopted = format!("{base}#peer-{slug}");
+                let turn = format!("00000000-0000-4000-8000-{:012x}", 0xd1 + self.dispatched);
+                let acceptance = serde_json::json!({
+                    "model": model, "model_lane": lane, "workspace_root": self.workspace, "scoped_goal": null,
+                    "adopted_turn_id": turn, "adopted_session_id": adopted, "slug": slug,
+                    "accepted_at_ms": now, "payload_digest": format!("synthetic-payload-digest-{}", self.dispatched),
+                });
+                self.ops.push(serde_json::json!({
+                    "operation_id": op, "kind": "peer_dispatch", "lifecycle": "started",
+                    "created_at_ms": now, "started_at_ms": now, "acceptance": acceptance,
+                }));
+                let mut r = acceptance.clone();
+                r["operation_id"] = Value::String(op.clone());
+                r["state"] = "accepted".into();
+                r["duplicate"] = false.into();
+                self.receipts.insert(op, r.clone());
+                (Ok(r), Vec::new())
+            }
+            "peer/control" => {
+                if !self.fenced(p) {
+                    return (Err(self.refuse("driver_fence_stale")), Vec::new());
+                }
+                let target = p["target_operation_id"].as_str().unwrap_or("");
+                let (slug, session) = match self.ops.iter().find(|o| o["operation_id"] == target) {
+                    Some(o) => (
+                        o["acceptance"]["slug"].as_str().unwrap_or("").to_owned(),
+                        o["acceptance"]["adopted_session_id"].as_str().unwrap_or("").to_owned(),
+                    ),
+                    // The acquire's pending work (the seat's target).
+                    None => ("lint-sweep".to_owned(), format!("{base}#peer-lint-sweep")),
+                };
+                let op = p["operation_id"].as_str().unwrap_or("").to_owned();
+                let duplicate = self.controls.contains(&op);
+                self.controls.push(op.clone());
+                let turn = p["expected_turn_id"].clone();
+                let mut pushes = Vec::new();
+                match p["command"]["kind"].as_str() {
+                    Some("approval_respond") => {
+                        if let Some(approval) = self.approvals.remove(&session) {
+                            let mut d = self.decided.clone();
+                            d["session_id"] = Value::String(session.clone());
+                            d["turn_id"] = turn.clone();
+                            d["approval_id"] = Value::String(approval);
+                            d["decision"] = p["command"]["decision"].clone();
+                            pushes.push((200, "approval/decided".to_owned(), d));
+                        }
+                    }
+                    Some("interrupt") => {
+                        let mut e = self.turn_error.clone();
+                        e["session_id"] = Value::String(session.clone());
+                        e["turn_id"] = turn.clone();
+                        pushes.push((300, "turn/error".to_owned(), e));
+                        if let Some(o) = self.ops.iter_mut().find(|o| o["operation_id"] == target) {
+                            o["lifecycle"] = "terminal".into();
+                            o["terminal_at_ms"] = now.into();
+                        }
+                    }
+                    _ => {}
+                }
+                let r = serde_json::json!({
+                    "operation_id": op, "state": "accepted", "target_operation_id": target,
+                    "expected_turn_id": turn, "target_session_id": session, "slug": slug,
+                    "accepted_at_ms": now, "payload_digest": "synthetic-payload-digest", "duplicate": duplicate,
+                });
+                (Ok(r), pushes)
+            }
+            _ => (Ok(serde_json::json!({})), Vec::new()),
+        }
+    }
+
+    /// A dispatched peer's background attach: its own frames follow.
+    fn attached(&mut self, peer: &str) -> Vec<(u64, String, Value)> {
+        let Some(op) = self.ops.iter().find(|o| o["acceptance"]["adopted_session_id"] == peer) else {
+            return Vec::new();
+        };
+        let turn = op["acceptance"]["adopted_turn_id"].clone();
+        let first = self.ops.iter().filter(|o| o["acceptance"]["model_lane"].is_string()).position(|o| o["acceptance"]["adopted_session_id"] == peer);
+        let mut started = self.started.clone();
+        started["session_id"] = Value::String(peer.to_owned());
+        started["turn_id"] = turn.clone();
+        let mut out = vec![(300, "turn/started".to_owned(), started)];
+        // The FIRST dispatched peer asks for an approval (the row's
+        // Approve / Deny); later ones keep working.
+        if first == Some(1) && !self.approvals.contains_key(peer) {
+            let id = format!("01a0eb92-9444-7101-aa6f-{:012x}", self.dispatched);
+            let mut r = self.requested.clone();
+            r["session_id"] = Value::String(peer.to_owned());
+            r["turn_id"] = turn;
+            r["approval_id"] = Value::String(id.clone());
+            self.approvals.insert(peer.to_owned(), id);
+            out.push((1500, "approval/requested".to_owned(), r));
+        }
+        // The SECOND asks a question (r23's recorded question): the row's
+        // answer card. A question_respond is acknowledged by its receipt; the
+        // row stays blocked until the turn moves (the web's semantics).
+        if first == Some(2) {
+            let mut q = self.question.clone();
+            q["session_id"] = Value::String(peer.to_owned());
+            q["turn_id"] = op["acceptance"]["adopted_turn_id"].clone();
+            q["question_id"] = Value::String(format!("01a0eb8f-7b23-7030-9f26-{:012x}", self.dispatched));
+            out.push((1500, "user_question/requested".to_owned(), q));
+        }
+        out
+    }
 }
 
 /// A9 — the `activity` scenario's sessions (suffix, title): the opened
@@ -724,7 +1321,22 @@ async fn main() {
     // never matches, the app's turn never ends and every later prompt queues.
     let adopt_turn_ids = args.iter().any(|a| a == "--adopt-turn-ids");
     let (label, file) = scenario_fixture(&scenario);
-    let replies = if label == "screens" { screens_replies() } else { BTreeMap::new() };
+    let replies =
+        if label == "screens" || label == "a10" || label == "fleet" { screens_replies() } else { BTreeMap::new() };
+    let sequenced = if label == "a10" { a10_sequenced() } else { BTreeMap::new() };
+    let seat_sim = (label == "a10").then(SeatSim::load);
+    // A10: `--slow <method>=<ms>` (repeatable) delays that method's faithful reply.
+    let slow: BTreeMap<String, u64> = args
+        .windows(2)
+        .filter(|w| w[0] == "--slow")
+        .filter_map(|w| w[1].split_once('=').and_then(|(m, ms)| Some((m.to_owned(), ms.parse().ok()?))))
+        .collect();
+    if !sequenced.is_empty() {
+        println!(
+            "[replay-serve] a10: faithful sequenced replies: {:?}",
+            sequenced.iter().map(|(m, v)| format!("{m} x{}", v.len())).collect::<Vec<_>>()
+        );
+    }
     if !replies.is_empty() {
         println!(
             "[replay-serve] screens: {} recorded replies: {:?}",
@@ -742,7 +1354,29 @@ async fn main() {
             by_turn.entry(t.to_owned()).or_default().push(f.clone());
         }
     }
-    let open_result = recorded_open_result(&frames).expect("the fixture has a session/open result");
+    let mut open_result = recorded_open_result(&frames).expect("the fixture has a session/open result");
+    // A10 seat walk: `--drop-method <m>` / `--drop-feature <f>` withdraw one
+    // capability from the advertised set (the web e2e's no-method /
+    // no-feature variants).
+    for w in args.windows(2) {
+        let key = match w[0].as_str() {
+            "--drop-method" => "supported_methods",
+            "--drop-feature" => "supported_features",
+            _ => continue,
+        };
+        if let Some(list) = open_result["capabilities"][key].as_array_mut() {
+            list.retain(|x| x != w[1].as_str());
+            println!("[replay-serve] capabilities: {} withdrawn", w[1]);
+        }
+    }
+    let fleet_cold = args.iter().any(|a| a == "--fleet-cold");
+    let revoke_file = args.iter().position(|a| a == "--revoke-file").and_then(|i| args.get(i + 1)).cloned();
+    let first_turn: usize = args
+        .iter()
+        .position(|a| a == "--first-turn")
+        .and_then(|i| args.get(i + 1))
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0);
     let recorded = recorded_session(&frames);
     let recorded_turns: Vec<String> = by_turn
         .iter()
@@ -757,7 +1391,11 @@ async fn main() {
     // the monitor as created, the goal as set — the same step its reads
     // answer with), so the store's autonomy domain, and with it the
     // sidebar's GOALS / LOOPS rows, hold what the dialogs show.
-    let standalone = if label == "screens" {
+    let standalone = if label == "fleet" {
+        // The fleet fixture's inbound frames are replies + peer-session
+        // frames, never standalone notifications.
+        Vec::new()
+    } else if label == "screens" || label == "a10" {
         let all = standalone_notifications(&frames);
         ["loop/updated", "monitor/updated", "session/goal/updated"]
             .iter()
@@ -790,8 +1428,28 @@ async fn main() {
         let recorded_turns = recorded_turns.clone();
         let standalone = standalone.clone();
         let replies = replies.clone();
+        let sequenced = sequenced.clone();
+        let slow = slow.clone();
+        let revoke_file = revoke_file.clone();
+        let mut seat_sim = seat_sim.clone();
+        let fleet_frames = if label == "fleet" { frames.clone() } else { Vec::new() };
         let activity = label == "activity";
         tokio::spawn(async move {
+            // A10 fleet: the per-connection external-driver simulator.
+            let workspace = open_result["workspace_root"].as_str().unwrap_or("workspace").to_owned();
+            let mut fleet = (label == "fleet").then(|| {
+                let mut sim = FleetSim::new(&fleet_frames, &workspace);
+                if fleet_cold {
+                    // A COLD master: internal, never bound (revision 0).
+                    sim.external = false;
+                    sim.binding = Value::Null;
+                    sim.revision = 0;
+                }
+                sim.revoke_file = revoke_file.clone();
+                sim
+            });
+            // A10: how many sequenced replies each method has consumed.
+            let mut seq_pos: BTreeMap<String, usize> = BTreeMap::new();
             // A6 `surfaces`: the web's delivered-file download
             // (`GET /api/files?path=…&session=…`, `media.ts:147-165`) is plain
             // HTTP on the same port; answer it with a small PDF body.
@@ -825,7 +1483,7 @@ async fn main() {
             };
             let (tx, mut rx) = ws.split();
             let tx = std::sync::Arc::new(tokio::sync::Mutex::new(tx));
-            let mut played = 0usize;
+            let mut played = first_turn;
             // A9 — session/open requests on this connection (the activity
             // scenario holds a SWITCH's session/list reply back, so the walk
             // can reopen Activity while that switch is still in flight).
@@ -853,6 +1511,74 @@ async fn main() {
                 // A helper to send one JSON-RPC reply/notification.
                 async fn send(tx: &std::sync::Arc<tokio::sync::Mutex<futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>, Message>>>, v: Value) {
                     let _ = tx.lock().await.send(Message::Text(v.to_string().into())).await;
+                }
+
+                // A10 fleet: send `(delay, method, params)` notifications
+                // after a reply, in order.
+                fn push_later(
+                    tx: &std::sync::Arc<tokio::sync::Mutex<futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>, Message>>>,
+                    frames: Vec<(u64, String, Value)>,
+                ) {
+                    if frames.is_empty() {
+                        return;
+                    }
+                    let tx = tx.clone();
+                    tokio::spawn(async move {
+                        for (delay, m, params) in frames {
+                            tokio::time::sleep(std::time::Duration::from_millis(delay)).await;
+                            println!("[replay-serve] => {m} (fleet)");
+                            let frame = serde_json::json!({"jsonrpc": "2.0", "method": m, "params": params});
+                            let _ = tx.lock().await.send(Message::Text(frame.to_string().into())).await;
+                        }
+                    });
+                }
+
+                // A10 fleet: a dispatched peer's background attach.
+                if method == "session/open" {
+                    if let (Some(sim), Some(peer)) = (fleet.as_mut(), v["params"]["session_id"].as_str().filter(|s| s.contains("#peer-"))) {
+                        let peer = peer.to_owned();
+                        let mut opened = open_result.clone();
+                        rewrite_session(&mut opened, &recorded, &peer);
+                        if let Some(obj) = opened.as_object_mut() {
+                            obj.insert("session_id".to_owned(), Value::String(peer.clone()));
+                        }
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {"opened": opened}})).await;
+                        let mut frames = sim.attached(&peer);
+                        for f in frames.iter_mut() {
+                            rewrite_session(&mut f.2, &recorded, &active_session);
+                        }
+                        push_later(&tx, frames);
+                        continue;
+                    }
+                }
+                if let Some(sim) = fleet.as_mut().filter(|_| FleetSim::handles(&method)) {
+                    let (reply, mut pushes) = sim.reply(&method, &v["params"], &active_session);
+                    let frame = match reply {
+                        Ok(mut r) => {
+                            rewrite_session(&mut r, &recorded, &active_session);
+                            // The ids each frame carried (operation / target /
+                            // expected turn / lane): the walk's wire proof.
+                            let p = &v["params"];
+                            let ids: Vec<String> = ["operation_id", "target_operation_id", "expected_turn_id", "model", "expected_revision", "next"]
+                                .iter()
+                                .filter_map(|k| p.get(*k).filter(|x| !x.is_null()).map(|x| format!("{k}={}", x.to_string().trim_matches('"'))))
+                                .chain(p["command"]["kind"].as_str().map(|k| format!("command={k}")))
+                                .collect();
+                            println!("[replay-serve] -> {method} (fleet sim) {}", ids.join(" "));
+                            serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r})
+                        }
+                        Err(e) => {
+                            let op = v["params"]["operation_id"].as_str().unwrap_or("").to_owned();
+                            println!("[replay-serve] -> {method} REFUSED {} (fleet sim) operation_id={op}", e["data"]["kind"]);
+                            serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e})
+                        }
+                    };
+                    send(&tx, frame).await;
+                    for f in pushes.iter_mut() {
+                        rewrite_session(&mut f.2, &recorded, &active_session);
+                    }
+                    push_later(&tx, pushes);
+                    continue;
                 }
 
                 // A6 `surfaces`: stream a turn's frames until a hold; the
@@ -1100,6 +1826,74 @@ async fn main() {
                             }]}
                         })).await;
                     }
+                    // A10 — the composer seats' simulator (scenario a10).
+                    m @ ("permission/profile/list" | "permission/profile/set" | "profile/llm/select" | "review/start"
+                        | "profile/llm/fetch_models" | "profile/llm/test" | "profile/llm/upsert" | "profile/llm/delete")
+                        if seat_sim.is_some() =>
+                    {
+                        let sim = seat_sim.as_mut().expect("a10");
+                        let frame = match sim.answer(m, &v["params"], &active_session) {
+                            Ok(r) => serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r}),
+                            Err(e) => serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e}),
+                        };
+                        println!("[replay-serve] -> {m} (seat simulator) {}", v["params"]);
+                        match slow.get(m).copied() {
+                            Some(ms) => {
+                                let tx2 = tx.clone();
+                                tokio::spawn(async move {
+                                    tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                                    let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                });
+                            }
+                            None => send(&tx, frame).await,
+                        }
+                    }
+                    // A10 — the Stop control's walk: a start Core accepts
+                    // only after `--slow turn/start=<ms>` (Starting…), a turn
+                    // that stays live, an interrupt answered after `--slow
+                    // turn/interrupt=<ms>` (Stopping…) and then r26's recorded
+                    // interrupted terminal for the app's own turn.
+                    "turn/start" if seat_sim.is_some() => {
+                        let ms = slow.get("turn/start").copied().unwrap_or(0);
+                        println!("[replay-serve] -> turn/start (a10: accepted after {ms} ms; live until interrupted) {}", v["params"]["turn_id"]);
+                        let frame = serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {"accepted": true}});
+                        let tx2 = tx.clone();
+                        tokio::spawn(async move {
+                            tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                            let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                        });
+                    }
+                    "turn/interrupt" if seat_sim.is_some() => {
+                        let ms = slow.get("turn/interrupt").copied().unwrap_or(0);
+                        let sim = seat_sim.as_mut().expect("a10");
+                        sim.seq += 1;
+                        let seq = 900_000 + sim.seq;
+                        let turn = v["params"]["turn_id"].clone();
+                        let mut term = sim.r26_terminal.clone();
+                        term["turn_id"] = turn.clone();
+                        term["thread_id"] = turn.clone();
+                        term["session_id"] = Value::from(active_session.clone());
+                        term["seq"] = Value::from(seq);
+                        term["cursor"] = serde_json::json!({"seq": seq, "stream": active_session});
+                        println!("[replay-serve] -> turn/interrupt (a10: answered after {ms} ms, then r26's interrupted terminal) {turn}");
+                        let reply = serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {}});
+                        let note = serde_json::json!({"jsonrpc": "2.0", "method": "projection/envelope", "params": term});
+                        let tx2 = tx.clone();
+                        tokio::spawn(async move {
+                            tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                            let _ = tx2.lock().await.send(Message::Text(reply.to_string().into())).await;
+                            tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+                            let _ = tx2.lock().await.send(Message::Text(note.to_string().into())).await;
+                        });
+                    }
+                    "profile/llm/list" if seat_sim.is_some() => {
+                        let sim = seat_sim.as_mut().expect("a10");
+                        let scoped = v["params"].get("session_id").is_some();
+                        let m = if scoped { "profile/llm/list" } else { "profile/llm/list@profile" };
+                        let r = sim.answer(m, &v["params"], &active_session).unwrap_or_default();
+                        println!("[replay-serve] -> profile/llm/list (seat simulator, {})", if scoped { "session-scoped" } else { "profile config" });
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r})).await;
+                    }
                     // #P4a1 — echo the requested mode as the read-back.
                     "permission/profile/set" => {
                         send(&tx, serde_json::json!({
@@ -1153,6 +1947,40 @@ async fn main() {
                                 tokio::time::sleep(std::time::Duration::from_millis(delay_ms)).await;
                             }
                         });
+                    }
+                    // A10 — a faithful sequenced reply (in order, the last
+                    // one repeating), re-pointed at the opened session.
+                    m if sequenced.contains_key(m) => {
+                        let list = &sequenced[m];
+                        let k = seq_pos.entry(m.to_owned()).or_insert(0);
+                        let (mut body, from) = list[(*k).min(list.len() - 1)].clone();
+                        *k += 1;
+                        rewrite_session(&mut body, &from, &active_session);
+                        // A faithful refusal (`{"__error__": {code, message,
+                        // data}}`) answers as a JSON-RPC error.
+                        let frame = match body.get("__error__").cloned() {
+                            Some(err) => {
+                                println!("[replay-serve] -> {m} (faithful ERROR #{k})");
+                                serde_json::json!({"jsonrpc": "2.0", "id": id, "error": err})
+                            }
+                            None => {
+                                println!("[replay-serve] -> {m} (faithful reply #{k})");
+                                serde_json::json!({"jsonrpc": "2.0", "id": id, "result": body})
+                            }
+                        };
+                        // `--slow <method>=<ms>`: answer this method late (a
+                        // walk can then see the in-flight state), without
+                        // holding up the other requests.
+                        match slow.get(m).copied() {
+                            Some(ms) => {
+                                let tx2 = tx.clone();
+                                tokio::spawn(async move {
+                                    tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                                    let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                });
+                            }
+                            None => send(&tx, frame).await,
+                        }
                     }
                     // A5 — the `screens` scenario: the recorded reply for
                     // this method, re-pointed at the session the app opened.

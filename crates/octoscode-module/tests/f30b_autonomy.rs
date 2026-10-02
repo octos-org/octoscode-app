@@ -647,18 +647,25 @@ async fn monitor_create_parses_and_matches_the_recorded_body() {
     assert_eq!(params["argv"], serde_json::json!(["./scripts/watch.sh"]));
     assert_eq!(params["filter_regex"], serde_json::json!("ERROR"));
     assert_eq!(params["mode"], serde_json::json!("poll"));
-    // The recorded body's keys are all present (the create matches the wire).
+    // A10: the web's exact body (`buildMonitorCreateParams`,
+    // packages/client/src/autonomy.ts:1032-1089) — no interval, no explicit
+    // nulls. The c24b recording was an earlier NATIVE request carrying its
+    // own tooling fields; the server's required keys are all present.
+    let keys: std::collections::BTreeSet<&str> =
+        params.as_object().unwrap().keys().map(String::as_str).collect();
+    assert_eq!(
+        keys,
+        ["argv", "filter_regex", "mode", "name", "session_id"].into_iter().collect(),
+        "{params}"
+    );
     let frames = load("c24b-subagent-a6ea8505.jsonl");
     let recorded = frames
         .iter()
         .find(|f| f.dir == "out" && f.method == "monitor/create")
         .map(|f| f.body.clone())
         .unwrap();
-    for key in recorded.as_object().unwrap().keys() {
-        assert!(
-            params.get(key).is_some(),
-            "recorded key {key} missing from the sent params"
-        );
+    for key in ["name", "argv", "mode", "session_id"] {
+        assert!(recorded.get(key).is_some() && params.get(key).is_some(), "{key}");
     }
 
     // A non-array argv is refused locally by resolve — the pure router never

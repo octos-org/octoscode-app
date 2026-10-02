@@ -312,8 +312,13 @@ fn lock() -> std::sync::MutexGuard<'static, ()> {
     std::env::set_var("OCTOSCODE_RECENTS_DIR", &dir);
     std::env::set_var("OCTOSCODE_SHOW_THINKING_FILE", dir.join("show-thinking.json"));
     std::env::set_var("OCTOSCODE_PANE_ADVANCED_FILE", dir.join("pane-advanced.json"));
+    std::env::set_var("OCTOSCODE_DRIVER_ID", ME);
     g
 }
+
+/// This app's driver id, pinned for the run (the product mints
+/// `octoscode-native:<uuid>` once per install).
+const ME: &str = "octoscode-native:00000000-0000-4000-8000-0000000000a8";
 
 fn spawn_of(o: Outcome) -> Job {
     match o {
@@ -479,7 +484,7 @@ async fn resume_chat_takes_the_seat_hands_it_back_and_sends_the_prompt_once() {
     host::run(job, &conv).await.expect("resume chat");
     let acquire = &server.params_of("session/driver/acquire")[0];
     assert_eq!(acquire["expected_revision"], json!(9), "CAS on the observed revision");
-    assert_eq!(acquire["driver_id"], json!("octoscode-native"));
+    assert_eq!(acquire["driver_id"], json!(ME));
     let release = &server.params_of("session/driver/release")[0];
     assert_eq!(release["next"], json!("internal"));
     assert_eq!(release["expected_revision"], json!(10), "the acquire's binding revision");

@@ -11,10 +11,11 @@ Generic checks (the human judge still looks at every PNG):
   overlap  - two sibling text nodes overlap by more than 25% of the smaller one
   small    - a Button / hit narrower or shorter than 28 px (touch / pointer target)
 """
-import json, os, subprocess, sys, time, urllib.parse, urllib.request
+import json, os, re, subprocess, sys, time, urllib.parse, urllib.request
 
 PORT, MODE, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
-FIRST_RUN = len(sys.argv) > 4 and sys.argv[4] == "first-run"
+PHASE = sys.argv[4] if len(sys.argv) > 4 else "live"   # live | commands | first-run
+FIRST_RUN = PHASE == "first-run"
 BASE = f"http://127.0.0.1:{PORT}"
 os.makedirs(OUT, exist_ok=True)
 N = [0]
@@ -161,11 +162,40 @@ def capture(name):
     print(f"{stem}: {len(found)} flags {' '.join(found[:6])}")
 
 
+CLOSERS = ("b3_img_close_btn", "dialog_close", "b3_close", "review_close", "set_back", "settings_close", "drawer_close",
+           "a9_act_close")
+CLOSE_ID = re.compile(r"(^|_)close(_btn)?$")
+
+
+def app_in_front():
+    return bool(find("hd_bar") or find("i0_composer_0") or find("connect_btn"))
+
+
+def open_closers():
+    return [n for n, _ in nodes() if n.get("ty") == "Button" and n["r"][2] > 0 and n["r"][3] > 0
+            and n.get("v", 1) != 0 and ((n.get("i") or "") in CLOSERS or CLOSE_ID.search(n.get("i") or ""))]
+
+
 def close_overlays():
-    for _ in range(3):
-        key("escape")
-    for wid in ("drawer_close", "settings_close", "review_close", "b3_close", "dlg_close"):
-        click(wid)
+    # On the shell's phone page Escape means "home": it closes the app, so phone
+    # tours close overlays by their own controls only. The topmost (last laid
+    # out) close control goes first; an overlay that leaves one behind is
+    # recorded, because every later capture would show it instead.
+    if MODE != "phone":
+        for _ in range(3):
+            key("escape")
+    for _ in range(4):
+        left = open_closers()
+        if not left:
+            break
+        click_rect(left[-1]["r"])
+    else:
+        left = open_closers()
+        if left:
+            with open(os.path.join(OUT, "checks.tsv"), "a") as f:
+                f.write(f"close\t{MODE}\tstuck\t{' '.join(n.get('i') for n in left)}\n")
+    if MODE == "phone" and not app_in_front():
+        raise SystemExit("phone: the app left the foreground - tour stopped")
 
 
 def clear_composer():
@@ -216,7 +246,11 @@ def tour_live():
     if click("sb_add_hit") or click_text("Add workspace"):
         capture("add-workspace")
         close_overlays()
-    # the palette, then every implemented command that opens a surface
+
+
+def tour_commands():
+    """Every implemented command that opens a surface, against a CONNECTED app (a replay server):
+    with no transport (synthetic seeds) the actions are dropped, so commands can only be judged here."""
     if click("i0_composer_0"):
         clear_composer()
         type_text("/")
@@ -252,6 +286,8 @@ if __name__ == "__main__":
     open(os.path.join(OUT, "checks.tsv"), "w").close()
     if FIRST_RUN:
         tour_first_run()
+    elif PHASE == "commands":
+        tour_commands()
     else:
         tour_live()
     print("tour done:", OUT)

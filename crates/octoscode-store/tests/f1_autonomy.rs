@@ -23,6 +23,8 @@ fn agent(id: &str, status: &str) -> AgentRecord {
         artifact_count: 0,
         output_tail: None,
         updated_at_ms: 1,
+        last_task: None,
+        summary: None,
     }
 }
 

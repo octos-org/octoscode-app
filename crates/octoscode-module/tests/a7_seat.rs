@@ -24,7 +24,9 @@ use octoscode_module::flow::{Conversation, FlowEvent};
 use octoscode_module::{chrome, seat};
 
 const PROFILE: &str = "a7";
-const ME: &str = chrome::NATIVE_DRIVER_ID;
+/// This app's driver id, pinned for the run (`OCTOSCODE_DRIVER_ID`; the
+/// product mints `octoscode-native:<uuid>` once per install).
+const ME: &str = "octoscode-native:00000000-0000-4000-8000-0000000000a7";
 
 enum Reply {
     Ok(Value),
@@ -234,6 +236,7 @@ fn lock() -> std::sync::MutexGuard<'static, ()> {
     static L: Mutex<()> = Mutex::new(());
     let g = L.lock().unwrap_or_else(|p| p.into_inner());
     std::env::set_var("OCTOSCODE_TURN_START_TIMEOUT_MS", "1500");
+    std::env::set_var("OCTOSCODE_DRIVER_ID", ME);
     std::env::remove_var("OCTOSCODE_HELD_BY");
     let dir = std::env::temp_dir().join(format!("a7-seat-{}", std::process::id()));
     let _ = std::fs::create_dir_all(&dir);
