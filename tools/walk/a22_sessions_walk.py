@@ -62,11 +62,17 @@ RESULTS = []
 SHOT_N = [0]
 
 
+READ_PAUSES = (1.5, 3.0, 6.0)
+
+
 def get(path, timeout=20):
-    """A read is retried; an input (/click, /t, /k, /m) never is: a click
-    re-sent after a slow frame lands on whatever moved under the pointer."""
+    """A read is retried after growing pauses (the instrument answers 404 when
+    a frame misses its window on a loaded machine); an input (/click, /t, /k,
+    /m) never is: its 404 is a coalesced frame, the input was delivered, and a
+    click re-sent after a slow frame lands on whatever moved under the
+    pointer."""
     once = path.startswith(("/click", "/t?", "/k?", "/m?"))
-    for attempt in range(4):
+    for attempt in range(len(READ_PAUSES) + 1):
         try:
             with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
                 return r.read()
@@ -74,9 +80,9 @@ def get(path, timeout=20):
             if once:
                 time.sleep(0.3)
                 return b"{}"
-            if attempt == 3:
+            if attempt == len(READ_PAUSES):
                 raise
-        time.sleep(0.5)
+            time.sleep(READ_PAUSES[attempt])
 
 
 def snap():
@@ -499,6 +505,10 @@ def phase_236():
     time.sleep(1.0)
     send("[slow] build it")
     check("236: the build runs", wait(lambda: shown("composer_stop_icon"), 6))
+    # The status strip reads the window's live turn, which is per Session:
+    # the build's own turn shows on the build's strip (the positive control)…
+    check("236: the build's status strip shows its own live turn (not 'Ready')",
+          wait(lambda: text("b3_strip_state") not in (None, "", "Ready"), 4), repr(text("b3_strip_state")))
     send("and package it")
     check("236: a prompt waits behind it", wait(lambda: any("1 queued" in t for _, t, _ in texts()), 4))
     check("236: CLICK 'Run the test suite'", open_row("Run the test suite"))
@@ -517,6 +527,9 @@ def phase_236():
     check("236: background dots — build running, tests failed, branch waiting", ok, str(st))
     check("236: the Session on screen is not live for their work",
           shown("composer_send_icon", s) and not shown("composer_stop_icon", s))
+    # …and never on another Session's strip while it runs in the background.
+    check("236: the status strip on screen reads 'Ready' — never the build's live turn",
+          text("b3_strip_state", s) == "Ready", repr(text("b3_strip_state", s)))
     check("236: the Session on screen is 'Startup chat'", text("hd_title", s) == "Startup chat" or PHONE, repr(text("hd_title", s)))
     shot("236-background-grouped", s)
     # Board 2 screen 2 is the flat ("All") list.

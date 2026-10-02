@@ -261,6 +261,12 @@ def stop_app():
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
+def strip_word(s=None):
+    """The status strip's state cell (above the composer)."""
+    w = find("b3_strip_state", s)
+    return w.get("t") if w else None
+
+
 def streaming(s=None):
     s = s if s is not None else snap()
     return find("composer_stop_icon", s) is not None
@@ -328,6 +334,8 @@ def walk():
     send(LONG)
     ok = wait(lambda: len(sent("turn/start")) > n0, 15) and wait(streaming, 30)
     check("X: the long turn streams (Stop shows)", ok)
+    check("X: its status strip shows its own live turn (not 'Ready')",
+          wait(lambda: strip_word() not in (None, "", "Ready"), 10), repr(strip_word()))
     tx = sent("turn/start")[n0].get("turn_id") if len(sent("turn/start")) > n0 else None
     time.sleep(3)
     capture("x-streaming")
@@ -339,6 +347,7 @@ def walk():
     s = snap()
     check("Y: no Stop control (Y has no live turn); Send shows",
           find("composer_stop_icon", s) is None and find("composer_send_icon", s) is not None)
+    check("Y: its status strip reads 'Ready' — never X's live turn", strip_word(s) == "Ready", repr(strip_word(s)))
     check("X keeps working in the background: its sidebar row shows the running dot",
           terminal_of(tx) is None and wait(lambda: other_dots() == ["run"], 5), str(other_dots()))
     capture("y-while-x-streams")
@@ -356,6 +365,8 @@ def walk():
           terminal_at(tx) is None or terminal_at(tx)[1] > stop_ms, str(terminal_at(tx)))
     check("wire: nothing interrupted from Y (no turn/interrupt at all)", len(sent("turn/interrupt")) == n_int,
           json.dumps(sent("turn/interrupt")))
+    check("Y: its status strip still reads 'Ready' while X streams", terminal_of(tx) is None and strip_word() == "Ready",
+          repr(strip_word()))
     capture("y-after-stop")
     # 4. X streams to its end.
     done = wait(lambda: terminal_of(tx) is not None, 240, 1.0)

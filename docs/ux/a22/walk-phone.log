@@ -12,10 +12,10 @@ PASS 203: the live turn is NOT drawn before its history (buffered)
   shot docs/ux/a22/phone-02-203-loading.png
 PASS 203: the live answer completes after the history
 PASS 203: history first, then the live turn — each prompt once — ['First prompt: where does the hydrate start?', 'Second prompt: and the cursor?', 'Third prompt: live from another client'] twice=[]
-PASS 203: the replayed answer the history holds is drawn once — ['The live answer arrived after the history.', 'The hydrate cursor is adopted max-wins.', 'It starts in the open reply arm.']
+PASS 203: the replayed answer the history holds is drawn once — ['The hydrate cursor is adopted max-wins.', 'It starts in the open reply arm.', 'The live answer arrived after the history.']
 PASS 203 wire: the live events went out BEFORE the history reply — push@15 reply@19
 PASS 203 wire: one open, one history read for the Session — opens 1, history reads 1
-PASS 203 layout: transcript rows inside the conversation column — [[110, 127, 218, 43], [146, 300, 182, 44], [93, 473, 235, 44]]
+PASS 203 layout: transcript rows inside the conversation column — [[16, 374, 328, 19], [110, 127, 218, 43], [146, 300, 182, 44]]
   shot docs/ux/a22/phone-03-203-history-then-live.png
 PASS 216: back to 'Startup chat' (CLICK)
 PASS 216: /thinking opens Thinking effort
@@ -42,12 +42,14 @@ PASS 216: then the second comes back, in order — 'second [refuse]'
 PASS 216 wire: the returned second prompt carries its own High — ['high', 'high']
 PASS 236: CLICK 'Build the release'
 PASS 236: the build runs
+PASS 236: the build's status strip shows its own live turn (not 'Ready') — 'Responding'
 PASS 236: a prompt waits behind it
 PASS 236: CLICK 'Run the test suite'
 PASS 236: CLICK 'Pick a branch'
 PASS 236: CLICK 'Startup chat'
 PASS 236: background dots — build running, tests failed, branch waiting — {'Startup chat': 'done', 'Pick a branch': 'wait', 'Run the test suite': 'fail', 'Build the release': 'run', 'Review the hydrate path': 'done'}
 PASS 236: the Session on screen is not live for their work
+PASS 236: the status strip on screen reads 'Ready' — never the build's live turn — 'Ready'
 PASS 236: the Session on screen is 'Startup chat' — 'Startup chat'
   shot docs/ux/a22/phone-07-236-background-grouped.png
   shot docs/ux/a22/phone-08-236-background-flat.png
@@ -60,5 +62,5 @@ PASS 236 layout: 'Run the test suite' dot left of its title, centred on the row 
 PASS 236 layout: 'Build the release' dot left of its title, centred on the row — dot [18, 370, 13, 13] title [38, 368, 226, 17] row [10, 360, 292, 32]
 PASS 236 layout: 'Review the hydrate path' dot left of its title, centred on the row — dot [18, 402, 13, 13] title [38, 400, 226, 17] row [10, 392, 292, 32]
   shot docs/ux/a22/phone-09-236-background-done.png
-== WALK a22 sessions phone: 53/53 passed
+== WALK a22 sessions phone: 55/55 passed
    state dir (serve log, trace): <tmp>

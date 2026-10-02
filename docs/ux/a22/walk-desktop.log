@@ -15,7 +15,7 @@ PASS 203: history first, then the live turn — each prompt once — ['First pro
 PASS 203: the replayed answer the history holds is drawn once — ['The hydrate cursor is adopted max-wins.', 'The live answer arrived after the history.']
 PASS 203 wire: the live events went out BEFORE the history reply — push@15 reply@19
 PASS 203 wire: one open, one history read for the Session — opens 1, history reads 1
-PASS 203 layout: transcript rows inside the conversation column — [[740, 352, 263, 18], [775, 202, 228, 18], [359, 250, 660, 18]]
+PASS 203 layout: transcript rows inside the conversation column — [[359, 250, 660, 18], [740, 352, 263, 18], [775, 202, 228, 18]]
   shot docs/ux/a22/desktop-03-203-history-then-live.png
 PASS 216: back to 'Startup chat' (CLICK)
 PASS 216: /thinking opens Thinking effort
@@ -42,12 +42,14 @@ PASS 216: then the second comes back, in order — 'second [refuse]'
 PASS 216 wire: the returned second prompt carries its own High — ['high', 'high']
 PASS 236: CLICK 'Build the release'
 PASS 236: the build runs
+PASS 236: the build's status strip shows its own live turn (not 'Ready') — 'Responding'
 PASS 236: a prompt waits behind it
 PASS 236: CLICK 'Run the test suite'
 PASS 236: CLICK 'Pick a branch'
 PASS 236: CLICK 'Startup chat'
 PASS 236: background dots — build running, tests failed, branch waiting — {'Startup chat': 'done', 'Pick a branch': 'wait', 'Run the test suite': 'fail', 'Build the release': 'run', 'Review the hydrate path': 'done'}
 PASS 236: the Session on screen is not live for their work
+PASS 236: the status strip on screen reads 'Ready' — never the build's live turn — 'Ready'
 PASS 236: the Session on screen is 'Startup chat' — 'Startup chat'
   shot docs/ux/a22/desktop-07-236-background-grouped.png
   shot docs/ux/a22/desktop-08-236-background-flat.png
@@ -60,5 +62,5 @@ PASS 236 layout: 'Run the test suite' dot left of its title, centred on the row 
 PASS 236 layout: 'Build the release' dot left of its title, centred on the row — dot [72, 362, 13, 13] title [92, 360, 194, 17] row [64, 352, 260, 32]
 PASS 236 layout: 'Review the hydrate path' dot left of its title, centred on the row — dot [72, 394, 13, 13] title [92, 392, 194, 17] row [64, 384, 260, 32]
   shot docs/ux/a22/desktop-09-236-background-done.png
-== WALK a22 sessions desktop: 53/53 passed
+== WALK a22 sessions desktop: 55/55 passed
    state dir (serve log, trace): <tmp>
