@@ -44,6 +44,9 @@ pub mod workspace;
 pub mod review;
 pub mod sessions;
 pub mod theme;
+// A6: the conversation pane's surfaces (approval/question takeovers, the
+// plan card, the Trajectory + task detail, fold-all and view state).
+pub mod surfaces;
 
 /// P4d4: the ONE production entry point for the control surfaces (media +
 /// peers), so `lib.rs`'s action router has a single target to call.

@@ -404,12 +404,17 @@ fn replayed_approval_lifecycle_settles_the_store_rows() {
 #[test]
 fn replayed_user_question_is_outstanding_for_the_sheet() {
     let frames = load_fixture();
-    let (store, _) = replay_into_store(&frames);
-
-    let recorded = frames
+    // A6: replay up to the question (its turn is still running), like the
+    // plan test below — the full replay ends that turn, and the web's
+    // `settleTurn` drops every parked interaction of a settled turn
+    // (`session-interaction-ledger.ts:319-332`), asserted at the end.
+    let at = frames
         .iter()
-        .find(|f| f.method == "user_question/requested")
+        .position(|f| f.method == "user_question/requested")
         .expect("the fixture carries user_question/requested");
+    let (store, _) = replay_into_store(&frames[..=at]);
+
+    let recorded = &frames[at];
     let q = store
         .domains
         .approval
@@ -426,6 +431,9 @@ fn replayed_user_question_is_outstanding_for_the_sheet() {
         q.questions.is_array() && !q.questions.as_array().unwrap().is_empty(),
         "the structured questions survive for the sheet"
     );
+    // The rest of the recording ends the question's turn: settled.
+    let (full, _) = replay_into_store(&frames);
+    assert!(full.domains.approval.question().is_none(), "its turn's terminal settles the question");
 }
 
 // -------------------------------------------------------- steer + progress
