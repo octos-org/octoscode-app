@@ -1393,7 +1393,8 @@ fn glm_guidance(v: &mut Ui) {
     let mut rows = vec![format!(
         "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 16 right: 8 top: 10 bottom: 8}} spacing: 8\nView {{ width: Fill height: Fit flow: Down spacing: 2\n{}{}}}\n{}}}\n",
         Text::new("b1_prov_glm_title", copy::GLM_TITLE).px(14.0).weight(500).fill().dsl(),
-        Text::new("", copy::GLM_SUB).px(13.0).color(kit::MUTED).fill().one_line().dsl(),
+        // Wraps, never an ellipsis: on a phone the link leaves it ~150 px.
+        Text::new("b1_prov_glm_sub", copy::GLM_SUB).px(13.0).color(kit::MUTED).fill().dsl(),
         kit::link("b1_prov_guide", copy::GLM_LINK, kit::BLUE, 14.0, 500)
     )];
     v.button("b1_prov_guide", "provider.guide");

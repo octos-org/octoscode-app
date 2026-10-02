@@ -377,7 +377,8 @@ def main_walk(W: Walk) -> None:
     card_numeric(W, "edit")
     shot(W, f"03-edit-{MODE}")
     W.check("edit: GLM-5.3-Flash shows the provider's read-only guidance",
-            seen(W, "b1_prov_glm_title", EVP) and W.text("b1_prov_glm_title") == "GLM-5.3-Flash recommended settings")
+            seen(W, "b1_prov_glm_title", EVP) and W.text("b1_prov_glm_title") == "GLM-5.3-Flash recommended settings"
+            and W.text("b1_prov_glm_sub") == "Read-only provider guidance")
     scroll_end(W, EVP, up=False)
     card_numeric(W, "edit guidance")
     shot(W, f"03b-edit-guidance-{MODE}")
