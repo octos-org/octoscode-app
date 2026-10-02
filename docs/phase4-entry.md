@@ -22,4 +22,4 @@ Counts use the FINAL bucket (phase4_bucket_manual when set, else phase4_bucket).
 | workspace | 10 | 2 | 0 | 12 |
 | **total** | **296** | **43** | **22** | **361** |
 
-Regenerated 2026-10-02 18:04 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.
+Regenerated 2026-10-02 19:02 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.
