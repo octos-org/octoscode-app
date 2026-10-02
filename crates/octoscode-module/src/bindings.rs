@@ -215,6 +215,9 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         // A10 — the model seat (web `ModelControl`): the selected model's
         // name; the select prompt before any is reported.
         "composer.model" => json!(crate::screens::board3::seats::model_seat_label(store)),
+        // A10 — the permission seat (web `PermissionControl` trigger:
+        // "{mode} · {network}"); null before any read.
+        "composer.permission" => json!(crate::screens::board3::seats::permission_seat_label(store)),
 
         // ---- conversation-04: TOOL CELLS -----------------------------------
         "tools" => json!(tools_json(&ui)),

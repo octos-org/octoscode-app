@@ -261,7 +261,9 @@ pub fn perform(st: &mut SeatsState, action: &str, index: usize, store: &Store) -
             let Some(option) = options.get(index) else { return Outcome::Done };
             let selected = options.first().map(|o| o.id.clone());
             match permission_intent(option, selected.as_deref(), permission_locked(st, store)) {
-                PermIntent::None => Outcome::Done,
+                // `choose` closes the menu first; the selected preset (or a
+                // locked menu) then does nothing else.
+                PermIntent::None => Outcome::Close,
                 PermIntent::Confirm(o) => {
                     st.acknowledged = false;
                     st.pending = Some(o);
@@ -636,10 +638,13 @@ fn popover_open(d: &mut Dsl, frame: &Frame, anchor: Option<Anchor>, right: bool,
     // it; without a measured seat, above the composer's bottom-left/right.
     let a = anchor.unwrap_or(Anchor { x: 16.0, y: frame.avail_h - 96.0, w: 120.0, h: 30.0 });
     let bottom = (frame.avail_h - a.y + 8.0).max(8.0).floor();
+    // Aligned to the seat's edge, but always inside the frame's 16 px margin
+    // (a menu wider than the room beside its seat slides inward).
+    let room = (frame.avail_w - 16.0 - width).max(16.0);
     let (align_x, left, right_pad) = if right {
-        (1.0, 16.0, (frame.avail_w - (a.x + a.w)).max(16.0).floor())
+        (1.0, 16.0, (frame.avail_w - (a.x + a.w)).clamp(16.0, room).floor())
     } else {
-        (0.0, a.x.max(16.0).floor(), 16.0)
+        (0.0, a.x.clamp(16.0, room).floor(), 16.0)
     };
     d.view(
         "b3_anchor",
@@ -666,6 +671,15 @@ fn popover_close(d: &mut Dsl) {
 fn menu_width(frame: &Frame, natural: f64) -> f64 {
     let max = (frame.avail_w - 32.0).min(420.0);
     natural.clamp((frame.avail_w - 32.0).min(260.0), max)
+}
+
+/// The menu's label (`aria-label={labels.menu}`), drawn as the group
+/// titles are (12 px tertiary, the options' 8 px inset).
+fn menu_title(d: &mut Dsl, text: &str) {
+    let row = d.anon();
+    d.view(&row, "width: Fill height: Fit padding: Inset{left: 8 right: 8 top: 4 bottom: 2}");
+    d.text("b3_title", text, &Txt::new(12.0, Face::Medium, tok::FAINT).w(W::Fill));
+    d.close();
 }
 
 fn status_line(d: &mut Dsl, id: &str, text: &str) {
@@ -751,7 +765,7 @@ pub fn build_permission(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Sto
     let width = menu_width(frame, natural);
     let copy_w = width - 8.0 - 16.0 - 18.0 - 18.0 - 16.0;
     popover_open(d, frame, st.perm_anchor, false, width);
-    d.text("b3_title", PERMISSION_MENU, &Txt::new(12.0, Face::Medium, tok::FAINT).w(W::Fill));
+    menu_title(d, PERMISSION_MENU);
     let locked = permission_locked(st, store);
     let available = permission_seat(store);
     if !available {
@@ -819,7 +833,7 @@ fn build_risk(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store, o: &Pe
     // The acknowledgement (`<input type=checkbox>` + label): one press target.
     d.view("b3_risk_ack_box", "width: Fill height: Fit flow: Overlay");
     let ack = d.anon();
-    d.view(&ack, "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 0.0 y: 0.0} padding: Inset{top: 4 bottom: 4}");
+    d.view(&ack, "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 0.0 y: 0.0} padding: Inset{top: 7 bottom: 7}");
     d.icon("b3_risk_ack_icon", if st.acknowledged { "b3_box_on.svg" } else { "b3_box_off.svg" }, 18.0, tok::RED);
     d.text("b3_risk_ack_label", RISK_ACK, &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     d.close();
@@ -866,14 +880,25 @@ fn danger_button(d: &mut Dsl, id: &str, label: &str, event: &str, armed: bool) {
 pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) {
     let models = store.domains.profile.llm_models();
     let groups = model_groups(&models);
+    // `width: max-content` (260..420): the widest name or description.
     let natural = models
         .iter()
-        .map(|m| ui::text_w(if m.title.is_empty() { &m.model } else { &m.title }, 14.0, Face::Medium) + 18.0 + 16.0 + 16.0 + 8.0 + 24.0)
+        .map(|m| {
+            let name = ui::text_w(if m.title.is_empty() { &m.model } else { &m.title }, 14.0, Face::Medium);
+            let desc = if !m.available {
+                ui::text_w(MODEL_UNAVAILABLE_REASON, 12.0, Face::Regular)
+            } else if !m.title.is_empty() && m.title != m.model {
+                ui::text_w(&m.model, 12.0, Face::Regular)
+            } else {
+                0.0
+            };
+            name.max(desc) + 18.0 + 16.0 + 16.0 + 8.0 + 24.0
+        })
         .fold(260.0_f64, f64::max);
     let width = menu_width(frame, natural);
     let copy_w = width - 8.0 - 16.0 - 18.0 - 8.0;
     popover_open(d, frame, st.model_anchor, true, width);
-    d.text("b3_title", MODEL_MENU, &Txt::new(12.0, Face::Medium, tok::FAINT).w(W::Fill));
+    menu_title(d, MODEL_MENU);
     let available = model_seat(store);
     let locked = model_locked(st, store);
     if !available {
@@ -895,14 +920,23 @@ pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) 
         d.view(&gt, "width: Fill height: Fit padding: Inset{left: 8 right: 8 top: 5 bottom: 3}");
         d.text(&format!("b3_model_group_{g}"), name, &Txt::new(12.0, Face::Medium, tok::FAINT).w(W::Fill));
         d.close();
+        let name_of = |m: &ProfileLlmModel| if m.title.is_empty() { m.model.clone() } else { m.title.clone() };
         for (i, m) in rows {
-            let name = if m.title.is_empty() { m.model.clone() } else { m.title.clone() };
+            let name = name_of(m);
             let description = if !m.available {
                 Some(MODEL_UNAVAILABLE_REASON.to_owned())
             } else if !m.title.is_empty() && m.title != m.model {
                 Some(m.model.clone())
             } else {
                 None
+            };
+            // Two routes of one model read alike in the web's menu; the
+            // route tells them apart (the select already names it).
+            let twin = rows.iter().filter(|(_, o)| name_of(o) == name).count() > 1;
+            let description = match (twin, m.route.as_deref(), description) {
+                (true, Some(route), Some(d)) if m.available => Some(format!("{d} · {route}")),
+                (true, Some(route), None) => Some(route.to_owned()),
+                (_, _, d) => d,
             };
             option_row(
                 d,
@@ -1001,7 +1035,7 @@ mod tests {
         assert!(st.pending.is_none());
         assert_eq!(perform(&mut st, "b3.perm.choose", 1, &s), Outcome::Spawn(Job::PermissionSet("read_only", "deny")));
         st.turn_busy = true;
-        assert_eq!(perform(&mut st, "b3.perm.choose", 1, &s), Outcome::Done, "locked while a turn runs");
+        assert_eq!(perform(&mut st, "b3.perm.choose", 1, &s), Outcome::Close, "locked while a turn runs: nothing but the close");
     }
 
     #[test]

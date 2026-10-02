@@ -234,7 +234,7 @@ pub fn slots(kind: ItemKind) -> &'static [Binding] {
             // #P4a1 — the approval pill carries the live permission mode
             // (read-back from permission/profile/set); the static art text
             // stays until the server has answered at least once.
-            Binding { copy: "pill1_t_text", binding: "set.permission_mode" },
+            Binding { copy: "pill1_t_text", binding: "composer.permission" },
         ],
     }
 }
@@ -504,6 +504,15 @@ pub fn item_copies(
             "composer.placeholder" => text(&get("composer.placeholder")?),
             // A10 — the model seat's label (the selected configured model).
             "composer.model" => text(&get("composer.model")?),
+            // A10 — the permission seat's label (the web's trigger); never
+            // read yet keeps the authored copy.
+            "composer.permission" => {
+                let v = text(&get("composer.permission")?);
+                if v.is_empty() {
+                    continue;
+                }
+                v
+            }
             other => return Err(format!("{} has no arm for binding {other:?}", kind.id())),
         };
         out.push((b.copy.to_owned(), value));

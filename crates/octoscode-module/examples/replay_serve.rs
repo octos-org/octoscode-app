@@ -287,6 +287,8 @@ fn a10_sequenced() -> BTreeMap<String, Vec<(Value, String)>> {
             rd.filter_map(|e| e.ok())
                 .map(|e| e.file_name().to_string_lossy().to_string())
                 .filter(|n| n.starts_with("a10-") && n.ends_with("-faithful.jsonl"))
+                // The seats' fixture is served by the stateful simulator.
+                .filter(|n| n != "a10-seats-faithful.jsonl")
                 .collect()
         })
         .unwrap_or_default();
@@ -303,6 +305,103 @@ fn a10_sequenced() -> BTreeMap<String, Vec<(Value, String)>> {
         }
     }
     out
+}
+
+/// A10 — the composer seats' simulator (scenario a10): the permission
+/// profile and the selected model follow each set/select, so a click walk
+/// sees the read-back it caused. The permission state starts from the
+/// recorded r2 list; the session model list and the per-model select
+/// replies are `a10-seats-faithful.jsonl` (selecting the r2-route fallback
+/// answers with r2's recorded select reply).
+#[derive(Clone)]
+struct SeatSim {
+    current: Value,
+    profiles: Value,
+    models: Vec<Value>,
+    selects: Vec<Value>,
+    r2_select: Value,
+}
+
+impl SeatSim {
+    fn load() -> Self {
+        let r2 = fixture("r2-profile-a6ea8505.jsonl");
+        let list = r2
+            .iter()
+            .find(|f| f.dir == "in" && f.method == "permission/profile/list")
+            .map(|f| f.body.clone())
+            .unwrap_or_default();
+        let r2_select = r2
+            .iter()
+            .find(|f| f.dir == "in" && f.method == "profile/llm/select")
+            .map(|f| f.body.clone())
+            .unwrap_or_default();
+        let seats = fixture("a10-seats-faithful.jsonl");
+        let models = seats
+            .iter()
+            .find(|f| f.dir == "in" && f.method == "profile/llm/list")
+            .and_then(|f| f.body["models"].as_array().cloned())
+            .unwrap_or_default();
+        let selects = seats
+            .iter()
+            .filter(|f| f.dir == "in" && f.method == "profile/llm/select")
+            .map(|f| f.body.clone())
+            .collect();
+        SeatSim { current: list["current"].clone(), profiles: list["profiles"].clone(), models, selects, r2_select }
+    }
+
+    /// The reply (or the JSON-RPC error) for one seat method.
+    fn answer(&mut self, method: &str, params: &Value, session: &str) -> Result<Value, Value> {
+        match method {
+            "permission/profile/list" => Ok(serde_json::json!({
+                "session_id": session, "current": self.current, "profiles": self.profiles,
+            })),
+            "permission/profile/set" => {
+                let network = match params["update"]["network"].as_str() {
+                    Some(n) => Value::from(n),
+                    None => self.current["network"].clone(),
+                };
+                let want = serde_json::json!({ "mode": params["update"]["mode"], "network": network });
+                let offered = self.profiles.as_array().is_some_and(|p| p.contains(&want)) || want == self.current;
+                if !offered {
+                    return Err(serde_json::json!({"code": -32602, "message": "permission profile not offered for this session"}));
+                }
+                self.current = want;
+                Ok(serde_json::json!({"applied": true, "current": self.current, "session_id": session}))
+            }
+            "profile/llm/list" => Ok(serde_json::json!({"session_id": session, "models": self.models})),
+            "profile/llm/select" => {
+                let model = params["model_id"].as_str().unwrap_or("").to_owned();
+                let route = params["route_id"].as_str().unwrap_or("").to_owned();
+                let Some(i) = self.models.iter().position(|m| m["model"] == model.as_str() && m["route"] == route.as_str()) else {
+                    return Err(serde_json::json!({"code": -32602, "message": "unknown model"}));
+                };
+                let row = self.models[i].clone();
+                if row["available"] != Value::Bool(true) {
+                    return Ok(serde_json::json!({"applied": false, "session_id": session, "selected": row}));
+                }
+                if row["selected"] == Value::Bool(true) {
+                    return Ok(serde_json::json!({"applied": true, "runtime_disposition": "unchanged", "session_id": session, "selected": row}));
+                }
+                for m in self.models.iter_mut() {
+                    let hit = m["model"] == model.as_str() && m["route"] == route.as_str();
+                    m["selected"] = Value::Bool(hit);
+                }
+                let fixture_reply = self
+                    .selects
+                    .iter()
+                    .find(|r| r["selected"]["model"] == model.as_str() && r["selected"]["route"] == route.as_str() && r["applied"] == Value::Bool(true))
+                    .cloned();
+                let mut reply = match fixture_reply {
+                    Some(r) => r,
+                    None if route == "r2-route" => self.r2_select.clone(),
+                    None => serde_json::json!({"applied": true, "runtime_disposition": "reloaded", "selected": self.models[i]}),
+                };
+                reply["session_id"] = Value::from(session);
+                Ok(reply)
+            }
+            _ => Err(serde_json::json!({"code": -32601, "message": "not a seat method"})),
+        }
+    }
 }
 
 #[tokio::main]
@@ -324,6 +423,7 @@ async fn main() {
     let (label, file) = scenario_fixture(&scenario);
     let replies = if label == "screens" || label == "a10" { screens_replies() } else { BTreeMap::new() };
     let sequenced = if label == "a10" { a10_sequenced() } else { BTreeMap::new() };
+    let seat_sim = (label == "a10").then(SeatSim::load);
     // A10: `--slow <method>=<ms>` (repeatable) delays that method's faithful reply.
     let slow: BTreeMap<String, u64> = args
         .windows(2)
@@ -403,6 +503,7 @@ async fn main() {
         let replies = replies.clone();
         let sequenced = sequenced.clone();
         let slow = slow.clone();
+        let mut seat_sim = seat_sim.clone();
         tokio::spawn(async move {
             // A10: how many sequenced replies each method has consumed.
             let mut seq_pos: BTreeMap<String, usize> = BTreeMap::new();
@@ -476,6 +577,33 @@ async fn main() {
                                 "active_turn": false
                             }]}
                         })).await;
+                    }
+                    // A10 — the composer seats' simulator (scenario a10).
+                    m @ ("permission/profile/list" | "permission/profile/set" | "profile/llm/select")
+                        if seat_sim.is_some() =>
+                    {
+                        let sim = seat_sim.as_mut().expect("a10");
+                        let frame = match sim.answer(m, &v["params"], &active_session) {
+                            Ok(r) => serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r}),
+                            Err(e) => serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e}),
+                        };
+                        println!("[replay-serve] -> {m} (seat simulator) {}", v["params"]);
+                        match slow.get(m).copied() {
+                            Some(ms) => {
+                                let tx2 = tx.clone();
+                                tokio::spawn(async move {
+                                    tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                                    let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                });
+                            }
+                            None => send(&tx, frame).await,
+                        }
+                    }
+                    "profile/llm/list" if seat_sim.is_some() && v["params"].get("session_id").is_some() => {
+                        let sim = seat_sim.as_mut().expect("a10");
+                        let r = sim.answer("profile/llm/list", &v["params"], &active_session).unwrap_or_default();
+                        println!("[replay-serve] -> profile/llm/list (seat simulator, session-scoped)");
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r})).await;
                     }
                     // #P4a1 — echo the requested mode as the read-back.
                     "permission/profile/set" => {
