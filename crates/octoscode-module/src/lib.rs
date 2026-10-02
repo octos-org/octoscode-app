@@ -1324,6 +1324,9 @@ pub struct OctoscodeView {
     /// its 12 px gutters); re-applied only when it changes.
     #[rust]
     palette_w: f64,
+    /// A5 — the palette list height last applied (34 px per row, 1..6).
+    #[rust]
+    palette_list_h: f64,
     /// A3: the board-2 chrome's runtime (layout seat, menu anchor, the
     /// in-app docked screen).
     #[rust]
@@ -2363,6 +2366,22 @@ impl OctoscodeView {
         self.view.redraw(cx);
     }
 
+    /// A5 — the palette list shows its rows without an empty tail: 34 px per
+    /// suggestion, 1..6 rows (the web's palette fits its content up to
+    /// min(360, 45dvh)); re-applied only when the count changes.
+    fn fit_palette_list(&mut self, cx: &mut Cx) {
+        let n = {
+            let b = self.bridge.lock().unwrap();
+            screens::palette::suggestions(&b.store, &screens::palette::query_text()).len()
+        };
+        let h = 34.0 * n.clamp(1, 6) as f64;
+        if (h - self.palette_list_h).abs() > 0.5 {
+            self.palette_list_h = h;
+            let mut list = self.view.widget(cx, ids!(palette_list));
+            script_apply_eval!(cx, list, { height: #(h) });
+        }
+    }
+
     /// A5 — mount the open dialog (or hide the dock): lowered for the
     /// OctosCode area's current size, its taps published for the Actions loop.
     fn sync_dialog(&mut self, cx: &mut Cx) {
@@ -3348,6 +3367,9 @@ impl OctoscodeView {
             let mut p = self.view.widget(cx, ids!(palette));
             script_apply_eval!(cx, p, { width: #(pw) });
         }
+        if palette {
+            self.fit_palette_list(cx);
+        }
         self.view
             .widget(cx, ids!(dimmer))
             .set_visible(cx, palette || settings || (review && !wide));
@@ -3833,6 +3855,7 @@ impl Widget for OctoscodeView {
                             .unwrap_or(false);
                         if text.trim_start().starts_with('/') {
                             screens::palette::set_query(&text);
+                            self.fit_palette_list(cx);
                             if open {
                                 self.view
                                     .text_input(cx, &[live_id!(palette_search)])
@@ -3925,6 +3948,7 @@ impl Widget for OctoscodeView {
                     .changed(actions)
                 {
                     screens::palette::set_query(&q);
+                    self.fit_palette_list(cx);
                     self.view.redraw(cx);
                 }
                 let palette_list = self.view.portal_list(cx, ids!(palette_list));
