@@ -174,10 +174,22 @@ pub fn bind(scope_value: &str, storage: Arc<dyn Storage>) -> Option<String> {
         if d.durable.as_ref().is_some_and(|(s, _, _)| s == scope_value) {
             return None;
         }
+        // A21 — a cache already bound to ANOTHER scope belongs to that
+        // principal: it is never merged into this one (the web's
+        // `resetIdentity` clears the cache on an identity change,
+        // `App.tsx:680-693`; `ConnectionGate.tsx:266-300`).
+        if d.durable.is_some() {
+            d.cache = DraftCache::default();
+            d.active = None;
+            d.last.clear();
+            d.carry = false;
+        }
         let loaded = load(&*storage, scope_value);
         let readable = loaded.is_some();
         if let Some(stored) = loaded {
-            // The stored drafts first, this process's own edits on top.
+            // The stored drafts first, this process's own edits on top (the
+            // text typed while THIS identity's principal was loading,
+            // `App.tsx:864-905` migrateTabDrafts).
             let mut merged = DraftCache::from(stored);
             for (k, t) in d.cache.snapshot() {
                 merged.set(&k, &t);
@@ -318,7 +330,17 @@ pub async fn resolve_principal(conv: &crate::flow::Conversation) -> Option<Strin
 pub async fn bind_connection(conv: &crate::flow::Conversation) -> Option<String> {
     let principal = resolve_principal(conv).await?;
     let scope_value = scope(&conv.http_base(), &principal);
-    bind(&scope_value, storage())
+    // A21 — remembered with the tab's identity, so a Forget made while
+    // offline still clears this principal's drafts (`rememberDraftPrincipal`,
+    // `preferences.ts:255-264`; `deployment.md:127-129`).
+    crate::drafts::remember_principal(&principal);
+    let restored = bind(&scope_value, storage());
+    makepad_widgets::log!(
+        "[octoscode] drafts: the principal's scope is bound ({} stored, {})",
+        with(|d| d.cache.len()),
+        if restored.is_some() { "the composer's draft restored" } else { "nothing restored" }
+    );
+    restored
 }
 
 /// The authority epoch whose durable binding was already started (one REST
@@ -362,6 +384,45 @@ fn storage() -> Arc<dyn Storage> {
 /// Test seam.
 pub fn reset() {
     *DRAFTS.lock().unwrap_or_else(|p| p.into_inner()) = None;
+}
+
+/// A21 — a new connection (lib.rs `sync_labels`, at the first frame of a new
+/// authority epoch): the web's `resetIdentity` (`App.tsx:680-693`) — the
+/// previous connection's cache and scope binding go WITHOUT touching any
+/// stored scope (another principal's drafts stay theirs on disk), and the
+/// tab drafts follow the new identity (`crate::drafts::attach`). The
+/// durable binding then starts for this connection's own principal.
+pub fn on_new_connection(conv: &crate::flow::Conversation) {
+    crate::drafts::attach(&conv.http_base(), &conv.bearer());
+    with(|d| *d = Drafts::default());
+}
+
+/// A21 — Forget (`ConnectionGate.tsx:319-330`): clear the confirmed
+/// principal's durable drafts — the bound scope, else `remembered` (the
+/// tab's principal kept for an offline Forget) — then reset like
+/// `resetIdentity`. Returns how many scopes were cleared.
+pub fn forget(remembered: Option<(&str, &str)>) -> usize {
+    let bound = with(|d| d.durable.as_ref().map(|(s, st, _)| (s.clone(), st.clone())));
+    let mut scopes: Vec<(String, Arc<dyn Storage>)> = bound.into_iter().collect();
+    if let Some((origin, principal)) = remembered {
+        let s = scope(origin, principal);
+        if !scopes.iter().any(|(b, _)| *b == s) {
+            scopes.push((s, storage()));
+        }
+    }
+    let mut cleared = 0;
+    for (s, st) in &scopes {
+        // `clearDurableDrafts`: success is the key being gone.
+        let _ = st.remove_item(&storage_key(s));
+        if st.get_item(&storage_key(s)).is_none() {
+            cleared += 1;
+        }
+    }
+    with(|d| *d = Drafts::default());
+    if !scopes.is_empty() {
+        makepad_widgets::log!("[octoscode] drafts: Forget cleared {cleared} of {} principal scope(s)", scopes.len());
+    }
+    cleared
 }
 
 #[cfg(test)]

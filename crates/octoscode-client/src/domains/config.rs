@@ -306,7 +306,7 @@ impl NotificationHandler for WarningHandler {
 /// `background/activity`, `content/*`, `cron/*`, `diff/preview/get`,
 /// `file/attached`, `memory/*`, `permission/profile/*`, `plan/updated`,
 /// `progress/updated`, `projection/envelope`, `queue/state`, `router/*`,
-/// `skill/action/job/updated`, `system/status.get`, `thread/graph/get`,
+/// `system/status.get`, `thread/graph/get`,
 /// `user_question/*`, `mcp/status/list`.
 pub fn register(reg: &mut Registry, store: Arc<Store>) {
     reg.register(ReplayLossyHandler { store: store.clone() });

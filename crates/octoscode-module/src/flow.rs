@@ -1017,7 +1017,10 @@ impl Conversation {
             for (k, v) in &pairs {
                 q.append_pair(k, v);
             }
-            for f in octoscode_client::features::WEB_UI_FEATURES {
+            // A31 — then the native extras (`skill.action_jobs.v1`: the
+            // server sends `skill/action/job/updated` only to a connection
+            // that asked for it).
+            for f in octoscode_client::features::requested_ui_features() {
                 q.append_pair("ui_feature", f);
             }
         }
@@ -1027,7 +1030,7 @@ impl Conversation {
             profile_id: ProfileId::new(profile.to_owned()),
             cursor: None,
             cursor_file: None,
-            requested_capabilities: octoscode_client::features::web_capabilities(),
+            requested_capabilities: octoscode_client::features::requested_capabilities(),
             workspace_cwd,
             local_kernel: false,
         };
@@ -1047,7 +1050,7 @@ impl Conversation {
             Direction::Out,
             "connect",
             None,
-            Some(format!("features={}", octoscode_client::features::WEB_UI_FEATURES.len())),
+            Some(format!("features={}", octoscode_client::features::requested_ui_features().count())),
         );
         Ok((
             Self {
