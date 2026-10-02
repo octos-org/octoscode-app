@@ -32,6 +32,70 @@ pub struct AgentRecord {
     pub artifact_count: usize,
     pub output_tail: Option<String>,
     pub updated_at_ms: i64,
+    /// A10: the roster's "Last task" (`last_task ?? title ?? "—"`,
+    /// web `AgentPanel.tsx:183`) and the status card's summary (`:262`).
+    pub last_task: Option<String>,
+    pub summary: Option<String>,
+}
+
+/// A10 — one artifact row of `agent/artifact/list` (web `AgentArtifact`,
+/// `packages/client/src/autonomy.ts:1310-1316`).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct AgentArtifactRow {
+    pub id: String,
+    pub title: String,
+    pub kind: String,
+    pub status: String,
+    pub path: Option<String>,
+}
+
+/// A10 — the output viewer (`agent/output/read`): the text read so far and
+/// the cursor a "Load more" continues from (web `state.agentOutput`).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct AgentOutputView {
+    pub agent_id: String,
+    pub text: String,
+    pub next_offset: Option<u64>,
+    pub has_more: bool,
+}
+
+/// A10 — the read artifact (`agent/artifact/read`): its row and content
+/// (`None` = "No readable content available.").
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct AgentArtifactView {
+    pub agent_id: String,
+    pub artifact: AgentArtifactRow,
+    pub content: Option<String>,
+}
+
+/// A10 — the Agents panel's single-viewer state (web `autonomy/store.ts`
+/// `agentStatus` / `agentArtifacts` / `agentArtifact` / `agentOutput` /
+/// `pendingAgentIds` / `agentDetailBusy` / `agentOutputBusy`). Status, the
+/// artifact list and an artifact read share ONE detail viewer; the output has
+/// its own. Each viewer is latest-request-wins: a result whose gate ticket is
+/// no longer the newest is dropped (`store.ts:743-831`).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct AgentViewer {
+    pub status: Option<AgentRecord>,
+    pub artifacts: Option<(String, Vec<AgentArtifactRow>)>,
+    pub artifact: Option<AgentArtifactView>,
+    pub output: Option<AgentOutputView>,
+    /// Agent ids with an interrupt/close in flight (a second click on the
+    /// same id is refused — `controlAgent` returns `false`).
+    pub pending: Vec<String>,
+    pub detail_busy: bool,
+    pub output_busy: bool,
+    /// The last control's activity line ("Agent {id} {status}").
+    pub activity: Option<String>,
+}
+
+/// The ticket a viewer read is dispatched under: its gate token, the
+/// authority epoch and the `agents` revision at dispatch.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AgentTicket {
+    pub token: u64,
+    pub epoch: u64,
+    pub revision: u64,
 }
 
 /// One recurring loop (`loop/*`).
@@ -126,6 +190,12 @@ struct Inner {
     /// Per-family busy holder, stamped with the epoch that took it, so an
     /// authority change drops every busy/pending marker (`store.ts:222-224`).
     busy: HashMap<String, u64>,
+    // ---- A10: the Agents panel viewers ----
+    viewer: AgentViewer,
+    /// The newest detail (status / artifact list / artifact read) ticket.
+    detail_gate: u64,
+    /// The newest output ticket.
+    output_gate: u64,
 }
 
 /// The autonomy domain.
@@ -423,6 +493,8 @@ impl Autonomy {
         i.revisions.clear();
         i.busy.clear();
         i.errors.clear();
+        // A10: the viewers belonged to the retired authority too.
+        i.viewer = AgentViewer::default();
         if had_any {
             // `resetAutonomyForSession` (model.ts:101-104): a stale store must
             // never survive an identity change under the same session id.
@@ -452,6 +524,148 @@ impl Autonomy {
         i.revisions.clear();
         i.busy.clear();
         i.errors.clear();
+        i.viewer = AgentViewer::default();
+        true
+    }
+
+    // ---- A10: the Agents panel's viewers (web `autonomy/store.ts:743-869`) --
+
+    /// A snapshot of the viewers.
+    pub fn agent_viewer(&self) -> AgentViewer {
+        self.inner.lock().unwrap().viewer.clone()
+    }
+
+    /// Begin a DETAIL read (status, artifact list or artifact read): the
+    /// previous detail is cleared with the agents error (`clearAgentDetail`,
+    /// `store.ts:971-979`), the viewer is busy, and the returned ticket is the
+    /// newest — any older detail read in flight is now superseded.
+    pub fn begin_agent_detail(&self) -> AgentTicket {
+        let mut i = self.inner.lock().unwrap();
+        i.detail_gate += 1;
+        i.viewer.status = None;
+        i.viewer.artifacts = None;
+        i.viewer.artifact = None;
+        i.viewer.detail_busy = true;
+        i.errors.remove("agents");
+        AgentTicket {
+            token: i.detail_gate,
+            epoch: i.epoch,
+            revision: i.revisions.get("agents").copied().unwrap_or(0),
+        }
+    }
+
+    /// Settle a detail read. `apply` runs only while the ticket is still the
+    /// newest, the authority epoch is unchanged and no control/notification
+    /// moved the `agents` revision since dispatch (web: "a status read
+    /// captured before an acknowledged close cannot restore running
+    /// details"). Returns whether it applied. Only the owning ticket clears
+    /// the busy flag.
+    pub fn finish_agent_detail(&self, ticket: AgentTicket, apply: impl FnOnce(&mut AgentViewer)) -> bool {
+        let mut i = self.inner.lock().unwrap();
+        if ticket.token != i.detail_gate {
+            return false;
+        }
+        i.viewer.detail_busy = false;
+        let current = i.identity.is_some()
+            && ticket.epoch == i.epoch
+            && ticket.revision == i.revisions.get("agents").copied().unwrap_or(0);
+        if current {
+            apply(&mut i.viewer);
+        }
+        current
+    }
+
+    /// Begin an OUTPUT read. A load-more continues from the viewer's cursor
+    /// only for the SAME agent (otherwise a fresh read with no cursor —
+    /// `store.ts:744-747`); the returned offset is the cursor to send.
+    pub fn begin_agent_output(&self, agent_id: &str, load_more: bool) -> (AgentTicket, Option<u64>) {
+        let mut i = self.inner.lock().unwrap();
+        i.output_gate += 1;
+        i.viewer.output_busy = true;
+        let cursor = if load_more {
+            i.viewer.output.as_ref().filter(|o| o.agent_id == agent_id).and_then(|o| o.next_offset)
+        } else {
+            None
+        };
+        (
+            AgentTicket {
+                token: i.output_gate,
+                epoch: i.epoch,
+                revision: i.revisions.get("agents").copied().unwrap_or(0),
+            },
+            cursor,
+        )
+    }
+
+    /// Settle an output read: newest ticket + same epoch + the echoed agent is
+    /// the requested one. A load-more on the same agent with a non-null echoed
+    /// cursor APPENDS; anything else replaces (`store.ts:758-766`).
+    pub fn finish_agent_output(
+        &self,
+        ticket: AgentTicket,
+        requested: &str,
+        echoed_cursor: bool,
+        load_more: bool,
+        out: AgentOutputView,
+    ) -> bool {
+        let mut i = self.inner.lock().unwrap();
+        if ticket.token != i.output_gate {
+            return false;
+        }
+        i.viewer.output_busy = false;
+        if i.identity.is_none() || ticket.epoch != i.epoch || out.agent_id != requested {
+            return false;
+        }
+        let append = load_more
+            && echoed_cursor
+            && i.viewer.output.as_ref().is_some_and(|o| o.agent_id == out.agent_id);
+        if append {
+            if let Some(o) = i.viewer.output.as_mut() {
+                o.text.push_str(&out.text);
+                o.next_offset = out.next_offset;
+                o.has_more = out.has_more;
+            }
+        } else {
+            i.viewer.output = Some(out);
+        }
+        i.errors.remove("agents");
+        true
+    }
+
+    /// Begin an interrupt/close for `agent_id`: `None` when that agent already
+    /// has a control in flight (the web's double-submit guard), else the
+    /// epoch to settle under.
+    pub fn begin_agent_control(&self, agent_id: &str) -> Option<u64> {
+        let mut i = self.inner.lock().unwrap();
+        if i.viewer.pending.iter().any(|p| p == agent_id) {
+            return None;
+        }
+        i.viewer.pending.push(agent_id.to_owned());
+        Some(i.epoch)
+    }
+
+    /// Settle a control. On success (`status` = the server's `interrupted` /
+    /// `closed`) the roster row and the status card take the new status, the
+    /// activity line names it, and the `agents` revision moves (so a detail
+    /// read dispatched before it is dropped). The pending mark is released
+    /// either way, but only while the authority is unchanged.
+    pub fn finish_agent_control(&self, agent_id: &str, epoch: u64, status: Option<&str>) -> bool {
+        let mut i = self.inner.lock().unwrap();
+        if i.identity.is_none() || epoch != i.epoch {
+            return false;
+        }
+        i.viewer.pending.retain(|p| p != agent_id);
+        let Some(status) = status else { return false };
+        if let Some(a) = i.agents.get_mut(agent_id) {
+            a.status = status.to_owned();
+        }
+        if let Some(s) = i.viewer.status.as_mut().filter(|s| s.agent_id == agent_id) {
+            s.status = status.to_owned();
+        }
+        i.viewer.activity = Some(format!("Agent {agent_id} {status}"));
+        let next = i.revisions.get("agents").copied().unwrap_or(0) + 1;
+        i.revisions.insert("agents".to_owned(), next);
+        i.errors.remove("agents");
         true
     }
 
