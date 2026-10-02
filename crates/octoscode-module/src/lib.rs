@@ -866,6 +866,11 @@ script_mod! {
             // lacks those glyphs) — small SVGs instead of text glyphs.
             palette_hint := View {
                 width: Fill height: Fit flow: Right spacing: 4
+                // A5: the 9 px glyph SVGs centre on the 10 pt labels (they sat
+                // on the line's top), and the hint starts at the rows' text
+                // edge (row padding 6).
+                align: Align{y: 0.5}
+                padding: Inset{left: 6 top: 2 bottom: 2}
                 Svg {
                     width: 9 height: 9
                     animating: false

@@ -836,6 +836,18 @@ fn live_context(tree: &mut UiNode, ctx: &Ctx<'_>) {
         remove(tree, &["t_comp", "seg_box", "seg_div", "t_llm", "t_heur"]);
         return;
     }
+    // The segmented control ends on the values' right edge (the atlas put it
+    // 6 px past the bar/values column).
+    if let Some((bx, _, bw, _)) = rect_of(tree, "seg_box") {
+        let shift = right - (bx + bw);
+        if shift.abs() > 0.5 {
+            for id in ["seg_box", "seg_div", "t_llm", "t_heur"] {
+                if let Some(n) = find_mut(tree, id) {
+                    n.attrs.x = n.attrs.x.map(|x| x + shift);
+                }
+            }
+        }
+    }
     if let (Some(m), Some((bx, by, bw, bh)), Some((dx, _, _, _))) =
         (mode.as_deref(), rect_of(tree, "seg_box"), rect_of(tree, "seg_div"))
     {
@@ -1129,6 +1141,20 @@ fn centre_button_labels(tree: &mut UiNode) {
     });
 }
 
+/// Shorten `text` with a trailing "…" so it fits `w` px at font `size` (an
+/// Inter estimate, 0.5 em per character: "cargo test -p octos-cli
+/// steer_queue" measures 216 px at 13, i.e. 0.475 em); fitting text is kept.
+pub fn ellipsize(text: &str, w: f64, size: f64) -> String {
+    let per = 0.5 * size.max(1.0);
+    if (text.chars().count() as f64) * per <= w {
+        return text.to_owned();
+    }
+    let keep = ((w / per).floor() as usize).saturating_sub(1).max(1);
+    let mut s: String = text.chars().take(keep).collect::<String>().trim_end().to_owned();
+    s.push('…');
+    s
+}
+
 /// A mounted card is rebuilt whenever its lowered text changes, so a clock
 /// that ticks every second (`formatElapsed`'s `42s` / `1m30s`) would remount
 /// the dialog every second — flicker, and a click can land mid-remount. The
@@ -1160,11 +1186,36 @@ fn live_fleet_tasks(tree: &mut UiNode) {
     for prefix in ["run_r", "done_r"] {
         for i in 0..8 {
             let (cmd, pill) = (format!("{prefix}{i}_cmd"), format!("{prefix}{i}_pill"));
+            let (status, dur) = (format!("{prefix}{i}_status"), format!("{prefix}{i}_dur"));
+            // No duration is reported (the slot stays blank): the status pill
+            // takes the row's right end, and the command the room it leaves.
+            let blank = find_mut(tree, &dur)
+                .map(|n| n.attrs.text.as_deref().unwrap_or("").trim().is_empty())
+                .unwrap_or(false);
+            if let (true, Some((dx, _, dw, _)), Some((px, _, pw, _))) =
+                (blank, rect_of(tree, &dur), rect_of(tree, &pill))
+            {
+                let shift = (dx + dw) - (px + pw);
+                if shift > 0.5 {
+                    for id in [&pill, &status] {
+                        if let Some(n) = find_mut(tree, id) {
+                            n.attrs.x = n.attrs.x.map(|x| x + shift);
+                        }
+                    }
+                }
+            }
             if let (Some((cx, _, _, _)), Some((px, _, _, _))) = (rect_of(tree, &cmd), rect_of(tree, &pill)) {
                 if let Some(n) = find_mut(tree, &cmd) {
                     let w = n.attrs.w.unwrap_or(0.0) as f64;
                     if cx + w > px - 8.0 {
                         n.attrs.w = Some((px - 8.0 - cx).max(40.0) as f32);
+                    }
+                    // A command longer than its box ends in "…" (never clipped
+                    // mid-glyph at the box edge).
+                    let w = n.attrs.w.unwrap_or(0.0) as f64;
+                    let size = n.attrs.size.unwrap_or(13.0) as f64;
+                    if let Some(t) = n.attrs.text.as_mut() {
+                        *t = ellipsize(t, w, size);
                     }
                 }
             }
@@ -2271,6 +2322,28 @@ mod tests {
         assert!(!m.dsl.contains("\"Compact now\"") && !m.dsl.contains("\"Heuristic\""));
         let m = lower(Dialog::Models, &ctx, 990.0, 603.0).unwrap();
         assert!(!events(&m).iter().any(|e| e.starts_with("models.")), "read-only models");
+    }
+
+    /// A task row: the status pill takes the blank duration slot's place at
+    /// the row end, the command fits the room left (the seed's command whole),
+    /// and a command too long for its box ends in "…".
+    #[test]
+    fn a_task_command_is_never_clipped_by_its_pill() {
+        assert_eq!(ellipsize("cargo test", 100.0, 13.0), "cargo test");
+        let long = ellipsize(&"x".repeat(60), 213.0, 13.0);
+        assert!(long.ends_with('…') && long.chars().count() as f64 * 6.5 <= 213.0, "{long}");
+        let _g = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        let (tree, _) = live_tree(Dialog::Tasks, &ctx).expect("tasks tree");
+        let r = |id: &str| rect_of(&tree, id).unwrap_or_else(|| panic!("{id}"));
+        let (cx, _, cw, _) = r("run_r0_cmd");
+        let (px, _, pw, _) = r("run_r0_pill");
+        let (dx, _, dw, _) = r("run_r0_dur");
+        assert!(cx + cw <= px - 7.9, "command {cx}+{cw} runs under the pill at {px}");
+        assert!(((px + pw) - (dx + dw)).abs() < 0.6, "pill ends at the row end");
+        let cmd = find(&tree, "run_r0_cmd").and_then(|n| n.attrs.text.clone()).unwrap_or_default();
+        assert_eq!(cmd, "cargo test -p octos-cli steer_queue");
     }
 
     /// A per-second clock never remounts the dialog: elapsed shows at minute
