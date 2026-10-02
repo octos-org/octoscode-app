@@ -2522,6 +2522,26 @@ def relabel_unwalked(out_rows: list, rows: list, parity: list) -> int:
     return n
 
 
+def demote_unbuilt(out_rows: list, rows: list, parity: list) -> int:
+    """A row that PASSES only on run.py's own area-matched checks while a
+    capability the parity matrix cites for its case is still C cannot be a
+    pass: generic checks (a Phase-3 regex match on the case title) cannot
+    prove an unbuilt capability. It becomes `not-yet-implemented`, naming the
+    capability, the passing checks kept in the reason. Native rows (re-pointed
+    to click walks) are never demoted here. Returns the count."""
+    n = 0
+    for r in out_rows:
+        if r["status"] != "pass" or r.get("depth") not in ("smoke", "specific"):
+            continue
+        missing = [p["capability"] for p in parity_hits(rows[r["row_id"] - 1], parity) if final_bucket(p) == "C"]
+        if missing:
+            r["reason"] = ("missing: " + "; ".join(f"{c[:110]} [C]" for c in missing[:2])
+                           + f" — run.py's area-matched checks passed ({r['reason']}) but cannot prove it")
+            r["status"] = "not-yet-implemented"
+            n += 1
+    return n
+
+
 def merge_native(out_rows: list, check_rows: list, native_rows: dict) -> tuple:
     """Re-point every row a native walk maps: its verdict, depth, evidence and
     per-check rows become the native walk's (run.py's area-mapped checks for
@@ -2584,7 +2604,9 @@ def native_only(args) -> int:
     check_rows = read_csv(WALK / "results-checks.csv")
     native_rows = run_native(args)
     out_rows, check_rows = merge_native(out_rows, check_rows, native_rows)
-    relabel_unwalked(out_rows, rows, load_parity())
+    parity = load_parity()
+    relabel_unwalked(out_rows, rows, parity)
+    demote_unbuilt(out_rows, rows, parity)
     with open(WALK / "results.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "status", "depth", "evidence", "reason"])
         w.writeheader()
@@ -2868,7 +2890,9 @@ def main():
     if args.native and not args.live:
         native_rows = run_native(args)
         out_rows, check_rows = merge_native(out_rows, check_rows, native_rows)
-    relabel_unwalked(out_rows, rows, load_parity())
+    parity = load_parity()
+    relabel_unwalked(out_rows, rows, parity)
+    demote_unbuilt(out_rows, rows, parity)
 
     live_suffix = "_live" if args.live else ""
     # #43b: a WALK_ONLY_ROWS run drives a SUBSET of rows, but the loop above

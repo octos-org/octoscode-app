@@ -126,6 +126,17 @@ class ParityReasons(unittest.TestCase):
         self.assertIn("missing thing [C]", reason)
         self.assertIsNone(run.parity_reason({"spec": "e2e/other.spec.ts", "case": "x"}, self.parity))
 
+    def test_a_generic_pass_over_an_unbuilt_capability_is_demoted_but_a_native_one_is_not(self):
+        rows = [{"spec": "e2e/demo.spec.ts", "case": "missing case here"},
+                {"spec": "e2e/demo.spec.ts", "case": "missing case here"},
+                {"spec": "e2e/demo.spec.ts", "case": "built case here"}]
+        out = [{"row_id": 1, "status": "pass", "depth": "smoke", "reason": "2 checks, all pass"},
+               {"row_id": 2, "status": "pass", "depth": "native", "reason": "native"},
+               {"row_id": 3, "status": "pass", "depth": "smoke", "reason": "1 checks, all pass"}]
+        self.assertEqual(run.demote_unbuilt(out, rows, self.parity), 1)
+        self.assertEqual([r["status"] for r in out], ["not-yet-implemented", "pass", "pass"])
+        self.assertIn("missing thing [C]", out[0]["reason"])
+
 
 if __name__ == "__main__":
     unittest.main()

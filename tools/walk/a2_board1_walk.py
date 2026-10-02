@@ -390,16 +390,25 @@ def main():
     report("p4-08: picking a subfolder fills the path box without leaving the parent",
            path == "/home/user/code/octoscode-app" and rows1 == rows0, f"path {path!r}, rows {rows1}")
     capture("p4-08_browser")
-    click("b1_br_row_1")
-    end = time.time() + 6
-    while time.time() < end and (find("b1_br_row_t0") or {}).get("t") != "crates":
-        time.sleep(0.25)
+    # The first tap rebuilt the dialog (the picked row's fill): a click that
+    # lands mid-rebuild is dropped, so tap again until the effect shows. A
+    # repeat is harmless — inside the subfolder it only picks a row.
+    for _ in range(3):
+        click("b1_br_row_1")
+        end = time.time() + 4
+        while time.time() < end and (find("b1_br_row_t0") or {}).get("t") != "crates":
+            time.sleep(0.25)
+        if (find("b1_br_row_t0") or {}).get("t") == "crates":
+            break
     inside = [(find(f"b1_br_row_t{i}") or {}).get("t") for i in range(3)]
     report("p4-08: a second tap drills into the folder", inside == ["crates", "design", "docs"], f"{inside}")
-    click("b1_br_crumb_3")
-    end = time.time() + 6
-    while time.time() < end and (find("b1_br_row_t0") or {}).get("t") != rows0[0]:
-        time.sleep(0.25)
+    for _ in range(3):
+        click("b1_br_crumb_3")
+        end = time.time() + 4
+        while time.time() < end and (find("b1_br_row_t0") or {}).get("t") != rows0[0]:
+            time.sleep(0.25)
+        if (find("b1_br_row_t0") or {}).get("t") == rows0[0]:
+            break
     back = [(find(f"b1_br_row_t{i}") or {}).get("t") for i in range(4)]
     report("p4-08: the breadcrumb drills back out", back == rows0, f"{back}")
     click("b1_br_crumb_2"); time.sleep(1.0)
