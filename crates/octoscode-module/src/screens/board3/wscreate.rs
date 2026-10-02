@@ -461,7 +461,7 @@ fn pick_view(d: &mut Dsl, st: &WsState, store: &Store, inner_w: f64) {
     d.view(&help, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
     d.text(
         "b3_ws_help",
-        "Enter a path on the Octos server, for example /home/you/projects/my-app.",
+        "Enter a path on the Octos server, for example /home/user/projects/my-app.",
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     if browse_advertised(store) {
