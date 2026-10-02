@@ -27,6 +27,15 @@ use octoscode_module::screens::session_defaults as sd;
 
 const PROFILE: &str = "a8";
 
+/// A17 — the web onboarding methods the panel needs (all of them).
+const ONBOARDING_METHODS: &[&str] = &[
+    "profile/llm/catalog",
+    "profile/llm/delete",
+    "profile/llm/fetch_models",
+    "profile/llm/test",
+    "profile/llm/upsert",
+];
+
 const METHODS: &[&str] = &[
     "session/open",
     "session/list",
@@ -69,6 +78,10 @@ struct Script {
     launch: Option<Value>,
     /// Hold `launch/resolve` replies back this long (ms).
     launch_delay_ms: u64,
+    /// A17 — also advertise the web onboarding methods (`onboarding-
+    /// methods.ts:4-13`) and answer them (a keyless catalog), so a
+    /// `no_profile` launch onboards through the panel.
+    onboarding: bool,
     mode: String,
     network: String,
     approval: String,
@@ -136,14 +149,24 @@ fn reply(method: &str, p: &Value, script: &Mutex<Script>) -> Result<Value, Value
             "capabilities": {
                 "version": {"protocol": "octos-ui/v1alpha1", "schema_version": 1, "jsonrpc": "2.0"},
                 "capabilities_schema_version": 2,
-                "supported_methods": METHODS,
+                "supported_methods": if s.onboarding {
+                    METHODS.iter().copied().chain(ONBOARDING_METHODS.iter().copied()).collect::<Vec<_>>()
+                } else {
+                    METHODS.to_vec()
+                },
                 "supported_notifications": ["turn/started"],
                 "supported_features": features
             }
         }}),
         "session/list" => json!({"sessions": s.list_rows}),
         "launch/resolve" => s.launch.clone().unwrap_or(json!({})),
-        "profile/local/create" => json!({"profile_id": p["requested_id"]}),
+        // The recorded r29a line 8 shape (A17's panel decodes it typed).
+        "profile/local/create" => json!({"profile_id": p["requested_id"], "user_id": p["requested_id"], "name": p["name"],
+                                         "username": p["requested_id"], "email": "", "created": true, "runtime_mode": "solo"}),
+        // A17 — the onboarding panel's catalog / test / save (r29a shapes).
+        "profile/llm/catalog" => json!({"families": {"ollama": {"env": "", "models": [{"id": "qwen3", "endpoints": []}]}}}),
+        "profile/llm/test" => json!({"profile_id": p["profile_id"], "applied": true, "message": "Provider test succeeded"}),
+        "profile/llm/upsert" => json!({"profile_id": p["profile_id"], "applied": true}),
         // r3-session line 29 (`{}`); a busy session refuses.
         "session/delete" => {
             if session.contains("locked") {
@@ -912,16 +935,26 @@ async fn a_newer_launch_retires_the_older_resolver() {
 
 #[tokio::test]
 async fn no_profile_offers_to_create_the_local_profile_then_opens() {
-    use octoscode_module::screens::launch;
+    use octoscode_module::screens::{launch, onboarding};
     let _g = launch_lock();
-    let server = FakeServer::start(Script { launch: Some(json!({"decision": "no_profile"})), ..Default::default() }).await;
+    let server = FakeServer::start(Script { launch: Some(json!({"decision": "no_profile"})), onboarding: true, ..Default::default() }).await;
     let (conv, _ev) = connected(&server).await;
     assert_eq!(launch::create(&conv, "/home/user/octos".into()).await, launch::Launched::AwaitingChoice);
-    assert!(host::lower_open(&conv.store).unwrap().dsl.contains("Create the local profile"));
-    let job = spawn_of(host::perform("b3.launch.create_profile", 0, &conv.store));
+    // A17 — the web's `no_profile` IS its onboarding panel
+    // (`LaunchDecisionPanel.tsx:33-48`): create the local coding profile
+    // from the catalog, test + save its provider, then open.
+    assert!(host::lower_open(&conv.store).unwrap().dsl.contains("Create your local coding profile"));
+    for _ in 0..100 {
+        if onboarding::snapshot().phase == onboarding::Phase::Ready {
+            break;
+        }
+        tokio::time::sleep(Duration::from_millis(30)).await;
+    }
+    let job = spawn_of(host::perform("b3.onb.submit", 0, &conv.store));
     host::run(job, &conv).await.unwrap();
     assert_eq!(server.params_of("profile/local/create").len(), 1);
     let open = server.params_of("session/open").last().unwrap().clone();
     assert_eq!(open["cwd"], json!("/home/user/octos"));
+    assert_eq!(open["profile_id"], json!("coding"));
     assert_eq!(host::open_dialog(), None);
 }
