@@ -19,6 +19,9 @@ pub mod autonomy;
 pub mod board1;
 pub mod board1_kit;
 pub mod board3;
+// A21: the pre-connection bootstrap (default endpoint, the auto-start
+// decision) and the native connection envelope (the web's tab/durable split).
+pub mod bootstrap;
 pub mod browser;
 pub mod connect;
 // A8: the header's "Copy as Markdown" (CopyConversationButton phases).

@@ -177,7 +177,14 @@ def main():
     check("Confirm forgets: transport closed, the Connect card returns",
           soon(lambda: is_shown("connect_card")) and any("a9 leave done: Forget" in l for l in lines + log_since()), "")
     srv = w.visible(snap(), "connect_server")
-    check("…on the default address (the saved one is gone)", srv and srv[0].get("t") == "http://127.0.0.1:50190", f"{srv and srv[0].get('t')!r}")
+    # A21: Forget returns to the web's initialConnection, whose address is
+    # the DEFAULT endpoint (`connection-bootstrap.ts:11-23`) — this launch's
+    # OCTOS_BASE_URL, the build's VITE_OCTOS_DEFAULT_ENDPOINT (the built-in
+    # http://127.0.0.1:50190 when unset). That the saved address and token
+    # are gone is walked by tools/walk/a21_bootstrap_walk.py (relaunch: no
+    # restore, no token for any origin).
+    default = os.environ.get("A9_DEFAULT_ENDPOINT", f"http://127.0.0.1:{SERVE}")
+    check("…on the default address (the saved one is gone)", srv and srv[0].get("t") == default, f"{srv and srv[0].get('t')!r}")
     shot(f"{MODE}-after-forget")
 
     failed = [n for n, ok, _ in w.RESULTS if not ok]

@@ -23,6 +23,18 @@
 //! thinking, a `shell` tool start + end, the answer text, `turn/completed`
 //! — what the session strip's live word follows.
 //!
+//! `--principal-from-token` (A21): `/api/auth/me` names the user BEHIND the
+//! bearer — the token's part before its first `.` (`alice.1` and `alice.2`
+//! are one user with a rotated token, `bob.1` another; no token is a 401) —
+//! so a walk can connect as two principals (the drafts' scope,
+//! `durable-session-drafts.ts:10-35`). Without it every caller is `a8-user`.
+//!
+//! `--advertise` (A21): `config/capabilities/list` answers with this
+//! server's methods and features (a real server's authenticate read, which a
+//! connection with no profile id needs before `launch/resolve` — A19's fresh
+//! launch, `screens::launch::read_capabilities`). Without it the read is `{}`
+//! and only a launch with OCTOS_PROFILE_ID opens a Session.
+//!
 //! `--parked` advertises `approval/respond` + `user_question/respond` and
 //! lists "Parked approval" (`a8:api:parked`), whose canonical hydrate
 //! (`include: ["pending_approvals"]`) carries one parked approval in the
@@ -47,6 +59,8 @@ struct Cfg {
     launch: String,
     parked: bool,
     log: Option<String>,
+    principal_from_token: bool,
+    advertise: bool,
 }
 
 /// The server's mutable state (shared by every socket).
@@ -78,6 +92,8 @@ async fn main() {
         launch: flag("--launch").unwrap_or_else(|| "activate".to_owned()),
         parked: args.iter().any(|a| a == "--parked"),
         log: flag("--log"),
+        principal_from_token: args.iter().any(|a| a == "--principal-from-token"),
+        advertise: args.iter().any(|a| a == "--advertise"),
     };
     let world = Arc::new(Mutex::new(World {
         permission: ("workspace_write".into(), "allow".into()),
@@ -116,11 +132,32 @@ async fn main() {
             } else if text.starts_with("get /api/auth/me") {
                 // The drafts' principal (`resolveDraftPrincipal`).
                 let mut stream = stream;
-                let body = r#"{"user":{"id":"a8-user"}}"#;
-                let resp = format!(
-                    "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{body}",
-                    body.len()
-                );
+                let user = if cfg.principal_from_token {
+                    // The header as sent (`text` is lowercased: re-read it).
+                    let raw = String::from_utf8_lossy(&head[..n]).to_string();
+                    let token = raw
+                        .lines()
+                        .find_map(|l| {
+                            let (k, v) = l.split_once(':')?;
+                            k.trim().eq_ignore_ascii_case("authorization").then(|| v.trim().to_owned())
+                        })
+                        .and_then(|v| v.strip_prefix("Bearer ").map(str::to_owned))
+                        .unwrap_or_default();
+                    token.split('.').next().filter(|u| !u.is_empty()).map(str::to_owned)
+                } else {
+                    Some("a8-user".to_owned())
+                };
+                println!("[a8-serve] <- GET /api/auth/me ({})", if user.is_some() { "200" } else { "401" });
+                let resp = match user {
+                    Some(id) => {
+                        let body = json!({"user": {"id": id}}).to_string();
+                        format!(
+                            "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{body}",
+                            body.len()
+                        )
+                    }
+                    None => "HTTP/1.1 401 Unauthorized\r\ncontent-length: 0\r\nconnection: close\r\n\r\n".to_owned(),
+                };
                 let _ = stream.write_all(resp.as_bytes()).await;
             } else {
                 // No other HTTP routes here (no solo login, no pairing): 404.
@@ -404,6 +441,13 @@ async fn ws(stream: TcpStream, cfg: Cfg, world: Arc<Mutex<World>>) {
                         {"seq": 2, "role": "assistant", "content": "The queue now re-drains after the socket is back.", "persisted_at": "2026-10-01T09:00:01Z"}
                     ]) } else { json!([]) }
                 })),
+                // A21 `--advertise`: the server's own capability object.
+                "config/capabilities/list" if cfg.advertise => Ok(json!({"capabilities": {
+                    "capabilities_schema_version": 2,
+                    "supported_methods": methods(&cfg),
+                    "supported_notifications": ["turn/started", "turn/completed"],
+                    "supported_features": features,
+                }})),
                 "thread/graph/get" => Ok(json!({"session_id": session, "cursor": {"stream": session, "seq": 1}, "threads": [], "orphans": []})),
                 "approval/scopes/list" => Ok(json!({"scopes": []})),
                 // Accepted; the scripted turn streams after the reply.
