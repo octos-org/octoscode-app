@@ -710,6 +710,9 @@ pub struct Conversation {
     /// A12 — the outage's attempt count before the current transport
     /// started (each transport counts its own re-dials from 1).
     attempt_base: Mutex<u32>,
+    /// A15 — the last turn edge (`<turn>:start|end`) that re-listed the
+    /// catalog (a turn's end arrives both bare and as an envelope).
+    catalog_edge: Mutex<Option<String>>,
 }
 
 /// A4 — the HTTP origin for the media endpoints (`media.ts:14-35`): `ws` ->
@@ -891,6 +894,7 @@ impl Conversation {
                 transport_suspended: Mutex::new(false),
                 link,
                 attempt_base: Mutex::new(0),
+                catalog_edge: Mutex::new(None),
             },
             evt_rx,
         ))
@@ -1820,17 +1824,70 @@ impl Conversation {
 
     /// `session/list` — re-ask for the session rows and fold them into the
     /// store (the `session.refresh` action). Returns the row count.
+    ///
+    /// A15 — the rows carry the server's titles (`title`, else `last_prompt`:
+    /// octos titles a Session from its first prompt), so the list is the
+    /// web's per-workspace catalog, `session/list {cwd, profile_id}`
+    /// (`workspace-session-catalog.ts:188-196`), whenever the server offers
+    /// it (`session/list` + `session.workspace_cwd.v1`,
+    /// `supportsWorkspaceSessionCatalog` `:56-63`) and the active Session's
+    /// workspace is known: octos keeps a workspace's Sessions in
+    /// `<cwd>/.octos/<profile>`, and the legacy unscoped listing does not see
+    /// them — the live smoke's Session stayed "New chat" after several turns.
     pub async fn refresh_sessions(&self) -> Result<usize, ClientError> {
         let result = self
             .client
-            .call::<octoscode_client::domains::session::SessionList>(
-                octoscode_client::domains::session::SessionListParams::default(),
-            )
+            .call::<octoscode_client::domains::session::SessionList>(self.catalog_params())
             .await?;
         let sessions = result.into_sessions();
         let n = sessions.len();
         self.store.set_sessions(sessions);
         Ok(n)
+    }
+
+    /// A15 — the catalog's params: `{cwd, profile_id}` for the active
+    /// Session's workspace under the opened Profile (`App.tsx:751-760`
+    /// `catalogProfileId`: the opened `active_profile_id`, else the
+    /// connection's), else the legacy `{}`.
+    pub fn catalog_params(&self) -> octoscode_client::domains::session::SessionListParams {
+        let config = &self.store.domains.config;
+        let offered = config.supported_methods().iter().any(|m| m == "session/list")
+            && config.supported_features().iter().any(|f| f == "session.workspace_cwd.v1");
+        let root = self
+            .store
+            .active_session()
+            .and_then(|s| self.store.domains.session.workspace_root(&s))
+            .filter(|r| !r.trim().is_empty());
+        match root {
+            Some(cwd) if offered => {
+                let profile = self
+                    .store
+                    .domains
+                    .profile
+                    .current()
+                    .filter(|p| !p.trim().is_empty())
+                    .unwrap_or_else(|| self.profile());
+                octoscode_client::domains::session::SessionListParams { cwd: Some(cwd), profile_id: Some(profile) }
+            }
+            _ => octoscode_client::domains::session::SessionListParams::default(),
+        }
+    }
+
+    /// A15 — re-list the catalog off the event path (the web re-lists when
+    /// the opened Session changes or a turn starts or finishes: the catalog's
+    /// `refreshKey` is `authority \n opened.session_id \n queue.active.turnId`,
+    /// `App.tsx:753-760`, "so a new conversation or a retitled one shows up
+    /// without a reload"). Needs the shared handle ([`Conversation::attach`]).
+    fn spawn_catalog_refresh(&self, why: &'static str) {
+        let Some(me) = self.weak_self.lock().unwrap().upgrade() else { return };
+        let Ok(handle) = tokio::runtime::Handle::try_current() else { return };
+        handle.spawn(async move {
+            match me.refresh_sessions().await {
+                Ok(n) => ::log::info!("octoscode: session/list after {why}: {n} rows"),
+                Err(e) => ::log::warn!("octoscode: session/list after {why}: {e}"),
+            }
+            makepad_widgets::SignalToUI::set_ui_signal();
+        });
     }
 
     /// `composer.submit` — the composer's send button: `turn/start` with the
@@ -2277,6 +2334,10 @@ impl Conversation {
                 if caps.supported_methods.iter().any(|m| m == "session/hydrate") {
                     self.request_hydrate(&r.opened.session_id.0);
                 }
+                // A15 — and the catalog re-lists for the opened Session's
+                // workspace, now that it is known (the web's `refreshKey`
+                // carries `opened.session_id`): the server's titles.
+                self.spawn_catalog_refresh("open");
                 FlowEvent::WorkspaceOpened(r.opened.session_id.0.clone())
             }
             TransportEvent::SessionsListed { sessions } => {
@@ -2316,6 +2377,26 @@ impl Conversation {
                     return FlowEvent::Other(format!("wrong-session {}", payload.method()));
                 }
                 let ev = self.note_notification(payload);
+                // A15 — a turn starting or finishing re-lists the catalog
+                // (the web's `refreshKey` carries the active turn id,
+                // `App.tsx:753-760`): the server's title for a new Session
+                // (its first prompt) and the row's recency show up.
+                let turn_edge = match &ev {
+                    FlowEvent::TurnStarted(t) => Some(format!("{t}:start")),
+                    FlowEvent::TurnEnded { turn_id, .. } => Some(format!("{turn_id}:end")),
+                    _ => None,
+                };
+                if let Some(edge) = turn_edge {
+                    let fresh = {
+                        let mut last = self.catalog_edge.lock().unwrap();
+                        let fresh = last.as_deref() != Some(edge.as_str());
+                        *last = Some(edge);
+                        fresh
+                    };
+                    if fresh {
+                        self.spawn_catalog_refresh("a turn edge");
+                    }
+                }
                 self.registry.lock().unwrap().dispatch(payload);
                 // A6: the open task detail appends this session's live
                 // `task/output/delta` by byte offset (`use-supervision.ts:516-522`).

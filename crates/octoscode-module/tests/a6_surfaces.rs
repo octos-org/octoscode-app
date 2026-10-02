@@ -732,7 +732,8 @@ async fn the_trajectory_lists_recorded_tasks_and_status_and_merges_live_updates(
     assert_eq!(job, Job::Refresh);
     surfaces::run(job, &conv).await.expect("refresh");
     assert_eq!(server.params_of("task/list"), vec![json!({"session_id": SESSION})]);
-    assert_eq!(server.params_of("session/status/read"), vec![json!({"session_id": SESSION})]);
+    // A15 — the status read names the Profile (`dsflash:main` embeds none).
+    assert_eq!(server.params_of("session/status/read"), vec![json!({"session_id": SESSION, "profile_id": PROFILE})]);
     let pane = surfaces::lower_trajectory(store, 990.0, false).expect("the pane").dsl;
     for fact in ["Trajectory", "Session status", "deepseek-v4-flash", "workspace_write", "Background tasks", "c24b-probe completed", "running", "Cancel"] {
         assert!(pane.contains(fact), "{fact} in the pane");

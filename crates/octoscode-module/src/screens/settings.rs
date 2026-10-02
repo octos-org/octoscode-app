@@ -214,10 +214,26 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
     let Some((method, params)) = action_params(action, store) else {
         return Err(format!("screens/settings: no protocol mapping for {action:?}"));
     };
-    conv.client()
+    let session = params.get("session_id").and_then(|s| s.as_str()).map(str::to_owned);
+    let v = conv
+        .client()
         .request(&method, params)
         .await
-        .map_err(|e| format!("{method}: {e}"))
+        .map_err(|e| format!("{method}: {e}"))?;
+    // A15 — a preset's read-back is the Session's selection from now on (the
+    // seat, the strip and the readback show what the server applied), the
+    // seat's own `updatePermission` rule (`board3::seats::set_permission`):
+    // only a reply naming this Session.
+    if method == "permission/profile/set" {
+        let echoed = v.get("session_id").and_then(|s| s.as_str()).is_some_and(|s| Some(s) == session.as_deref());
+        let current = v.get("current").and_then(|c| {
+            serde_json::from_value::<octoscode_store::domains::profile::PermissionProfileSelection>(c.clone()).ok()
+        });
+        if let (true, Some(sel)) = (echoed, current) {
+            store.domains.profile.set_permission_current(sel);
+        }
+    }
+    Ok(v)
 }
 
 /// Bookkeeping after a confirmed send (the caller calls this on Ok).
@@ -261,14 +277,9 @@ pub enum Preset {
 }
 
 impl Preset {
-    /// The readback line under the presets (board 8's "Server: …").
-    pub fn readback(self) -> &'static str {
-        match self {
-            Preset::Ask => "Server: ask before shell, write and network",
-            Preset::Workspace => "Server: auto-approve inside the workspace",
-            Preset::Full => "Server: full access, no prompts",
-        }
-    }
+    // A15: the readback line under the presets is the server's report
+    // (`permission_readback`), no longer a preset's static claim ("ask before
+    // shell, write and network" — octos asks only before risky commands).
     pub fn label(self) -> &'static str {
         match self {
             Preset::Ask => "Ask for approval",
@@ -572,21 +583,104 @@ pub fn set_thinking(store: &Store, t: Thinking) {
     }
 }
 
-/// The preset the radios show: what this client last set, else the server's
-/// effective selection (mode + network) read back from the store.
-pub fn preset_of(store: &Store) -> Preset {
-    use octoscode_store::domains::profile::{PermissionNetworkPolicy, PermissionProfileMode};
-    if let Some(p) = snapshot().permission {
-        return p;
+/// The preset the radios show — the one the SERVER's selection for the
+/// active Session matches, or none.
+///
+/// A15: this used to fall back to "Ask for approval" for anything that was
+/// not full access, so a Session the server runs as Write · Network allowed
+/// (octos' default for a local Session: `effective_session_permission_state`,
+/// `ui_protocol_transport.rs:1681-1726`) read as the Ask preset (Write ·
+/// Network blocked · approval on request) — and the header promised it. The
+/// server's list reports mode + network (`permission/profile/list`); the
+/// approval policy rides its status stamp (`session/status/read`
+/// `runtime_policy_stamp.approval_policy`, the web's readback,
+/// `App.tsx:3228-3234`); a preset this client set and the server still
+/// reports wins for the approval (the web's "as set here").
+pub fn preset_of(store: &Store) -> Option<Preset> {
+    use octoscode_store::domains::profile::{PermissionNetworkPolicy as N, PermissionProfileMode as M};
+    let mine = snapshot().permission;
+    let Some(sel) = store.domains.profile.permission() else {
+        return mine;
+    };
+    match (sel.mode, sel.network) {
+        (M::DangerFullAccess, N::Allow) => Some(Preset::Full),
+        (M::WorkspaceWrite, N::Deny) => Some(match approval_of(store, mine) {
+            Some(Approval::Never) => Preset::Workspace,
+            _ => Preset::Ask,
+        }),
+        _ => None,
     }
-    match store.domains.profile.permission() {
-        Some(sel) if sel.mode == PermissionProfileMode::DangerFullAccess
-            && sel.network == PermissionNetworkPolicy::Allow =>
-        {
-            Preset::Full
-        }
-        _ => Preset::Ask,
+}
+
+/// The approval policy the server applies to the active Session (octos'
+/// two values, `parse_permission_approval_policy`, `:10700-10719`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Approval {
+    /// `on-request`: the server asks when its command policy wants a human
+    /// (octos `SafePolicy` ask patterns: `sudo`, `rm -rf`,
+    /// `git push --force`, `git reset --hard`, `octos-agent/src/policy.rs`);
+    /// workspace writes and other commands run without a prompt.
+    OnRequest,
+    /// `never`: nothing asks — a command that would ask fails instead
+    /// (`coding_tools.rs` "approval_policy is never"); full access forces it.
+    Never,
+}
+
+/// The active Session's approval policy: a preset this client set that the
+/// server's selection still matches, else the status stamp's
+/// (`board3::strip::load_status` records it), else octos' rule for the mode
+/// (`permission_selection_policy_fields`: never with full access, else
+/// on-request).
+pub fn approval_of(store: &Store, mine: Option<Preset>) -> Option<Approval> {
+    use octoscode_store::domains::profile::{PermissionNetworkPolicy as N, PermissionProfileMode as M};
+    let sel = store.domains.profile.permission()?;
+    if sel.mode == M::DangerFullAccess {
+        return Some(Approval::Never);
     }
+    let mine_matches = |p: Preset| match p {
+        Preset::Ask => sel.mode == M::WorkspaceWrite && sel.network == N::Deny,
+        Preset::Workspace => sel.mode == M::WorkspaceWrite && sel.network == N::Deny,
+        Preset::Full => false,
+    };
+    if let Some(p) = mine.filter(|p| mine_matches(*p)) {
+        return Some(if p == Preset::Workspace { Approval::Never } else { Approval::OnRequest });
+    }
+    let session = store.active_session().unwrap_or_default();
+    match crate::screens::board3::strip::stamp_approval(&session).as_deref() {
+        Some("never") => Some(Approval::Never),
+        _ => Some(Approval::OnRequest),
+    }
+}
+
+/// The web's permission option name (`permissionName`,
+/// `SessionControlBar.tsx:254-256`; labels `permission-projection.ts:53-66`):
+/// "Write · Network allowed" — the composer seat's words.
+pub fn permission_name(
+    mode: octoscode_store::domains::profile::PermissionProfileMode,
+    network: octoscode_store::domains::profile::PermissionNetworkPolicy,
+) -> String {
+    use octoscode_store::domains::profile::{PermissionNetworkPolicy as N, PermissionProfileMode as M};
+    let m = match mode {
+        M::ReadOnly => "Read",
+        M::WorkspaceWrite => "Write",
+        M::DangerFullAccess => "Full access",
+    };
+    let n = if network == N::Allow { "Network allowed" } else { "Network blocked" };
+    format!("{m} · {n}")
+}
+
+/// Settings > Permissions' readback: what the server reports for the active
+/// Session — its selection in the seat's words and its approval policy
+/// (the web's "Approval policy: <stamp>", `permissions-section.tsx:54-62`).
+pub fn permission_readback(store: &Store) -> String {
+    let Some(sel) = store.domains.profile.permission() else {
+        return "Server: permissions not reported yet".to_owned();
+    };
+    let approval = match approval_of(store, snapshot().permission) {
+        Some(Approval::Never) => "never asks",
+        _ => "asks on request",
+    };
+    format!("Server: {} · {approval}", permission_name(sel.mode, sel.network))
 }
 
 /// The current model's display name: the profile's selected configured model
@@ -601,19 +695,49 @@ pub fn model_of(store: &Store) -> String {
         .unwrap_or_else(|| "Default model".to_owned())
 }
 
-/// The board-10 strip: "New chat defaults · <approval> · <mode> · <model> ·
-/// Thinking: <On>".
+/// The board-10 strip: "New chat defaults · <approval> · <permissions> ·
+/// <model> · Thinking: <On>" — what a New chat ACTUALLY gets.
+///
+/// A15 (live smoke: the line said "Ask for approval · Workspace write" while
+/// the Session ran Write · Network allowed and wrote files with no card):
+/// * the permissions are the stored new-session defaults `Conversation::
+///   new_chat` applies — ONE `permission/profile/set {mode, network}` right
+///   after the created Session opens (the web, `App.tsx:1913-1975`), in the
+///   seat's words; with nothing stored nothing is applied and the server's
+///   own default holds (octos: Write · Network allowed for a local Session),
+///   so the line says so instead of showing the Settings fallback;
+/// * the approval is the policy the server derives for that mode — no client
+///   (web or native) sends one at creation: never with full access, else on
+///   request (`permission_selection_policy_fields`). It was the ACTIVE
+///   Session's Settings preset, with "Ask" for anything not full access;
+/// * the model is the profile's selected model (a new Session runs it).
 pub fn defaults_line(store: &Store) -> String {
-    let st = snapshot();
-    let preset = preset_of(store);
-    let mode = if st.sandbox.workspace_write { "Workspace write" } else { "Read only" };
-    format!(
-        "New chat defaults · {} · {} · {} · Thinking: {}",
-        preset.label(),
-        mode,
-        model_of(store),
-        thinking_of(store).label()
-    )
+    let live = crate::screens::session_defaults::current();
+    let mut parts = vec!["New chat defaults".to_owned()];
+    parts.extend(new_chat_permissions(&live));
+    parts.push(model_of(store));
+    parts.push(format!("Thinking: {}", thinking_of(store).label()));
+    parts.join(" · ")
+}
+
+/// [`defaults_line`]'s permission facts for the new-session defaults:
+/// `[approval, permissions]` when stored, `["Server default permissions"]`
+/// when nothing is stored (nothing is applied at creation).
+pub fn new_chat_permissions(live: &crate::screens::session_defaults::Live) -> Vec<String> {
+    use crate::screens::session_defaults::{NetworkPolicy, PermissionMode};
+    use octoscode_store::domains::profile::{PermissionNetworkPolicy as N, PermissionProfileMode as M};
+    if !live.stored {
+        return vec!["Server default permissions".to_owned()];
+    }
+    let d = &live.value;
+    let mode = match d.permission_mode {
+        PermissionMode::ReadOnly => M::ReadOnly,
+        PermissionMode::WorkspaceWrite => M::WorkspaceWrite,
+        PermissionMode::DangerFullAccess => M::DangerFullAccess,
+    };
+    let network = if d.network == NetworkPolicy::Allow { N::Allow } else { N::Deny };
+    let approval = if mode == M::DangerFullAccess { "No approval prompts" } else { "Approval on request" };
+    vec![approval.to_owned(), permission_name(mode, network)]
 }
 
 /// The settings state, readable through the same `set.*` surface the
@@ -755,6 +879,65 @@ mod tests {
         let st = snapshot();
         assert!(st.sandbox.network && !st.sandbox.workspace_write);
         let store = Store::new();
-        assert!(defaults_line(&store).contains("Read only"));
+        // A15: the line names what New chat applies, in the seat's words.
+        assert_eq!(
+            defaults_line(&store),
+            "New chat defaults · Approval on request · Read · Network allowed · Default model · Thinking: On"
+        );
+    }
+
+    /// A15 — the live smoke: nothing stored, so New chat applies nothing and
+    /// the server's own default holds; the line must not claim the Settings
+    /// fallback ("Ask for approval · Workspace write") as applied.
+    #[test]
+    fn with_nothing_stored_the_line_names_the_servers_defaults() {
+        let _g = lock();
+        reset_state();
+        let store = Store::new();
+        assert!(!crate::screens::session_defaults::current().stored);
+        let line = defaults_line(&store);
+        assert_eq!(line, "New chat defaults · Server default permissions · Default model · Thinking: On");
+        assert!(!line.contains("Ask for approval"));
+        // Full access stored: the server asks for nothing.
+        crate::screens::session_defaults::update(|d| {
+            d.permission_mode = crate::screens::session_defaults::PermissionMode::DangerFullAccess;
+            d.network = crate::screens::session_defaults::NetworkPolicy::Allow;
+        });
+        assert_eq!(
+            defaults_line(&store),
+            "New chat defaults · No approval prompts · Full access · Network allowed · Default model · Thinking: On"
+        );
+        reset_state();
+    }
+
+    /// A15 — the radios and the readback follow the SERVER: a Session it runs
+    /// as Write · Network allowed matches no preset (it read as "Ask for
+    /// approval" before), and the readback says what the server reports.
+    #[test]
+    fn the_permission_radios_follow_the_servers_selection() {
+        use octoscode_store::domains::profile::{
+            PermissionNetworkPolicy as N, PermissionProfileMode as M, PermissionProfileSelection as Sel,
+        };
+        let _g = lock();
+        reset_state();
+        let store = Store::new();
+        store.set_active(Some("s1".into()));
+        assert_eq!(preset_of(&store), None, "nothing reported, nothing set here");
+        assert_eq!(permission_readback(&store), "Server: permissions not reported yet");
+        store.domains.profile.set_permission_current(Sel { mode: M::WorkspaceWrite, network: N::Allow });
+        assert_eq!(preset_of(&store), None, "Write · Network allowed is none of the presets");
+        assert_eq!(permission_readback(&store), "Server: Write · Network allowed · asks on request");
+        store.domains.profile.set_permission_current(Sel { mode: M::WorkspaceWrite, network: N::Deny });
+        assert_eq!(preset_of(&store), Some(Preset::Ask));
+        // This client set "Auto-approve in workspace" (approval never): the
+        // server's list carries no approval policy, the preset set here does.
+        apply_ui("perm_workspace.select");
+        note_sent("perm_workspace.select");
+        assert_eq!(preset_of(&store), Some(Preset::Workspace));
+        assert_eq!(permission_readback(&store), "Server: Write · Network blocked · never asks");
+        store.domains.profile.set_permission_current(Sel { mode: M::DangerFullAccess, network: N::Allow });
+        assert_eq!(preset_of(&store), Some(Preset::Full));
+        assert_eq!(permission_readback(&store), "Server: Full access · Network allowed · never asks");
+        reset_state();
     }
 }

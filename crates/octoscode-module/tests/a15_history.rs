@@ -446,3 +446,52 @@ async fn switching_sessions_back_and_forth_shows_each_history_once() {
     }
     quit(&conv);
 }
+
+/// The sidebar row and the header name a Session the way the web does: the
+/// server's catalog row (`title`, else `last_prompt`), listed per workspace
+/// (`session/list {cwd, profile_id}`) and re-listed when the opened Session
+/// changes and when a turn starts or ends (`App.tsx:753-760`). octos titles a
+/// Session from its first prompt; the legacy unscoped listing never sees a
+/// workspace's Sessions, so the row stayed "New chat" after several turns.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_sessions_title_is_the_servers_catalog_row_after_its_first_turn() {
+    use octoscode_module::screens::sidebar;
+    let core = Core::start().await;
+    let (conv, mut ev) = launch(&core).await;
+    let session = conv.session_id();
+    let label = |c: &Conversation| {
+        c.store.sessions().into_iter().find(|s| s.id == session).and_then(|s| s.label_stem())
+    };
+    assert_eq!(label(&conv), None, "an empty Session has no title yet (\"New chat\")");
+    run_turn(&conv, &mut ev, "What does main.rs print?").await;
+    run_turn(&conv, &mut ev, "And why?").await;
+    // The catalog re-list lands off the event path.
+    assert!(
+        fold_until(&conv, &mut ev, 10, |c| label(c).as_deref() == Some("What does main.rs print?")).await,
+        "the row takes the server's title: {:?}",
+        label(&conv)
+    );
+    // The web's catalog request: the opened workspace under the opened Profile.
+    let scoped: Vec<Value> = core.params_of("session/list").into_iter().filter(|p| p.get("cwd").is_some()).collect();
+    assert!(!scoped.is_empty(), "the catalog is read per workspace");
+    assert!(scoped.iter().all(|p| *p == json!({"cwd": CWD, "profile_id": PROFILE})), "{scoped:?}");
+    // What the sidebar draws.
+    let p = sidebar::project_with(&conv.store, &sidebar::SidebarUi::default(), 0, &[]);
+    let titles: Vec<String> = p
+        .rows
+        .iter()
+        .filter_map(|r| match r {
+            sidebar::Row::Session { title, .. } => Some(title.clone()),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(titles, vec!["What does main.rs print?".to_owned()], "one row, titled — never \"New chat\"");
+    // A restarted app shows the title at once (the open re-lists).
+    quit(&conv);
+    let (again, mut ev2) = launch(&core).await;
+    assert!(
+        fold_until(&again, &mut ev2, 5, |c| c.store.sessions().iter().any(|s| s.id == session && s.label_stem().as_deref() == Some("What does main.rs print?"))).await,
+        "the restarted app names the Session from the catalog"
+    );
+    quit(&again);
+}
