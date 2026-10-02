@@ -141,6 +141,9 @@ struct Inner {
     /// method half of the coding gate. The feature half already lands in
     /// `capabilities` (the store's advertised-feature list).
     supported_methods: Vec<String>,
+    /// A7: the open reply's `supported_features` (safe steering needs
+    /// `event.turn_steer_dropped.v1`).
+    supported_features: Vec<String>,
     /// #P4g1 row 217: the coding gate's current missing list (empty = open),
     /// evaluated from the open reply by the client's `features` module.
     coding_gate: Vec<String>,
@@ -178,6 +181,15 @@ impl Config {
 
     pub fn supported_methods(&self) -> Vec<String> {
         self.inner.lock().unwrap().supported_methods.clone()
+    }
+
+    /// A7: record the open reply's supported features.
+    pub fn set_supported_features(&self, features: Vec<String>) {
+        self.inner.lock().unwrap().supported_features = features;
+    }
+
+    pub fn supported_features(&self) -> Vec<String> {
+        self.inner.lock().unwrap().supported_features.clone()
     }
 
     /// #P4g1 row 217: record the coding gate's missing list (empty = open).

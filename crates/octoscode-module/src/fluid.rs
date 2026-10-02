@@ -1149,6 +1149,165 @@ pub fn composer(c: &ComposerView, m: &Metrics) -> String {
     )
 }
 
+/// A7 — what the composer dock shows above the composer card, from the turn
+/// controller's state (never the draft).
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct ComposerExtras {
+    /// Prompts waiting behind the active turn (FIFO count).
+    pub queued: usize,
+    /// "Steer now" is offered (an accepted turn runs and the server steers).
+    pub steer: bool,
+    /// The held turn's recovery phase: `checking` / `unknown` /
+    /// `unavailable` / `error` (`TurnRecoveryState.phase`).
+    pub recovery: Option<String>,
+    /// A focused peer Session's slug: the composer is read-only.
+    pub peer_readonly: Option<String>,
+}
+
+/// A7 — the queued chip (conversation-08 `queued_row`: `1 queued · Steer
+/// now · ✕` on the tip-grey pill above the composer; behaviour
+/// `QueuedPrompts.tsx`: the count, steering, removal without interrupting
+/// the server), the turn recovery notice (`TurnRecoveryNotice.tsx` + its
+/// CSS) and the read-only peer row (`ComposerInput.tsx:255-265`). The hit
+/// ids (`queue_steer_hit`, `queue_remove_hit`, `recovery_check_hit`,
+/// `recovery_continue_hit`) are routed by the host.
+pub fn composer_extras(x: &ComposerExtras, m: &Metrics) -> String {
+    let mut out = String::new();
+    if let Some(phase) = &x.recovery {
+        out.push_str(&recovery_notice(phase, x.queued > 0, m));
+    }
+    if x.queued > 0 {
+        out.push_str(&queue_chip(x.queued, x.steer, m));
+    }
+    if let Some(slug) = &x.peer_readonly {
+        out.push_str(&peer_readonly_row(slug, m));
+    }
+    if out.is_empty() {
+        return String::new();
+    }
+    format!("composer_extras := View{{width: Fill height: Fit flow: Down spacing: 8 padding: Inset{{bottom: 8}}\n{out}}}\n")
+}
+
+fn queue_chip(queued: usize, steer: bool, m: &Metrics) -> String {
+    let (px, h) = match m.density {
+        Density::Desktop => (13.0, 32.0),
+        Density::Phone => (14.0, 34.0),
+    };
+    let st = style(Face::Medium, px, 20.0);
+    let dot = || label("", "·", &st, MUTED, "width: Fit height: Fit");
+    let steer_part = if steer {
+        format!(
+            "{dot}View{{width: Fit height: {h} flow: Overlay align: Align{{y: 0.5}}\n\
+             View{{width: Fit height: Fill flow: Right align: Align{{y: 0.5}} padding: Inset{{left: 2 right: 2}}\n{l}}}\n\
+             {hit}}}\n",
+            dot = dot(),
+            l = label("queue_steer_label", "Steer now", &st, INK, "width: Fit height: Fit"),
+            hit = hit("queue_steer_hit", 6.0),
+        )
+    } else {
+        String::new()
+    };
+    format!(
+        "queue_chip := RoundedView{{width: Fit height: {h} flow: Right align: Align{{y: 0.5}} spacing: 6 \
+         padding: Inset{{left: 12 right: 2}}\n\
+         draw_bg +: {{color: {TIP} border_radius: 10.0 border_size: 1.0 border_color: {BORDER}}}\n\
+         {count}{steer_part}{dot}\
+         View{{width: 28 height: 28 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n{x}{remove}}}\n\
+         }}\n",
+        count = label("queue_count", &format!("{queued} queued"), &st, INK, "width: Fit height: Fit"),
+        dot = dot(),
+        x = svg("queue_remove_icon", "b3_close.svg", 11.0, MUTED),
+        remove = hit("queue_remove_hit", 14.0),
+    )
+}
+
+fn recovery_notice(phase: &str, queued: bool, m: &Metrics) -> String {
+    let checking = phase == "checking";
+    let title = if checking { "Checking the last response" } else { "Response status is uncertain" };
+    let mut body = vec![if checking {
+        "Checking whether Octos is still working or has finished. Your message will not be sent again."
+    } else {
+        "Octos has not confirmed whether the last response is still running or has finished. Sending is paused so the same work is not started twice."
+    }];
+    if phase == "unavailable" {
+        body.push("This server does not support checking response status. You can copy your text and manage the connection in Settings.");
+    }
+    if phase == "error" {
+        body.push("The status check failed. You can try again.");
+    }
+    if !checking {
+        body.push("If the response was lost, for example because the server restarted, continue without confirming its outcome. This does not stop or resend it; queued messages send next.");
+    }
+    let s = scale(m.density);
+    let title_st = style(Face::SemiBold, s.body, s.body_line);
+    let body_st = style(Face::Regular, s.small, s.small_line + 1.0);
+    let wrap = format!("width: Fill height: Fit flow: Right{{wrap: true}} max_lines: {FIT_WRAP_LINES}");
+    let mut paras = String::new();
+    for (i, p) in body.iter().enumerate() {
+        paras.push_str(&label(&format!("recovery_body_{i}"), p, &body_st, INK, &wrap));
+    }
+    let btn = |id: &str, text: &str, live: bool| {
+        let fg = if live { INK } else { MUTED };
+        let hit_part = if live { hit(id, 8.0) } else { String::new() };
+        format!(
+            "View{{width: Fit height: 36 flow: Overlay\n\
+             RoundedView{{width: Fit height: 36 flow: Right align: Align{{y: 0.5}} padding: Inset{{left: 14 right: 14}} \
+             draw_bg +: {{color: {SURFACE} border_radius: 8.0 border_size: 1.0 border_color: {BORDER}}}\n{l}}}\n\
+             {hit_part}}}\n",
+            l = label(&format!("{id}_label"), text, &style(Face::Medium, s.small, s.small_line), fg, "width: Fit height: Fit"),
+        )
+    };
+    let mut buttons = String::new();
+    if phase != "unavailable" {
+        buttons.push_str(&btn("recovery_check_hit", if checking { "Checking status…" } else { "Check status" }, !checking));
+    }
+    if !checking {
+        buttons.push_str(&btn("recovery_continue_hit", "Continue without it", true));
+    }
+    let footer = if queued {
+        label(
+            "recovery_footer",
+            "Queued messages remain here. You can remove them below.",
+            &style(Face::Regular, s.tiny, s.small_line),
+            MUTED,
+            &wrap,
+        )
+    } else {
+        String::new()
+    };
+    format!(
+        "recovery_notice := RoundedView{{width: Fill height: Fit flow: Down spacing: 8 \
+         padding: Inset{{left: 16 right: 16 top: 14 bottom: 14}}\n\
+         draw_bg +: {{color: {SURFACE} border_radius: 12.0 border_size: 1.0 border_color: #f3d7a6ff}}\n\
+         {t}\
+         View{{width: Fill height: Fit flow: Down spacing: 4\n{paras}}}\n\
+         View{{width: Fill height: Fit flow: Right{{wrap: true}} spacing: 8\n{buttons}}}\n\
+         {footer}\
+         }}\n",
+        t = label("recovery_title", title, &title_st, INK, &wrap),
+    )
+}
+
+/// `PEER_READONLY_HINT` (`peer-readonly.ts:17-18`): "↳ read-only peer ·
+/// {slug} · steer from the master" — the dim status row that replaces the
+/// editable composer (`ComposerInput.tsx:255-265`).
+fn peer_readonly_row(slug: &str, m: &Metrics) -> String {
+    let s = scale(m.density);
+    format!(
+        "peer_readonly := RoundedView{{width: Fill height: 48 flow: Right align: Align{{y: 0.5}} \
+         padding: Inset{{left: 16 right: 16}}\n\
+         draw_bg +: {{color: {TIP} border_radius: 9.0 border_size: 1.0 border_color: {BORDER}}}\n\
+         {l}}}\n",
+        l = label(
+            "peer_readonly_label",
+            &format!("↳ read-only peer · {slug} · steer from the master"),
+            &style(Face::Regular, s.small, s.small_line),
+            MUTED,
+            "width: Fill height: Fit max_lines: 1 text_overflow: TextOverflow.Ellipsis",
+        ),
+    )
+}
+
 /// The empty conversation (`Timeline.tsx:111-134` + conversation-02): a
 /// quiet mark, the question, the web's one-line hint, and the workspace chip
 /// when the session reported its root.

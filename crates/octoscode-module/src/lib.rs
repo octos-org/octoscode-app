@@ -39,6 +39,8 @@ pub mod components;
 pub mod conv_layout;
 pub mod credentials;
 pub mod design;
+// A7: composer draft recovery across restarts.
+pub mod drafts;
 pub mod fallback;
 pub mod fluid;
 pub mod l0_host;
@@ -213,6 +215,11 @@ script_mod! {
                     // permissions) above the composer (SessionStatusStrip.tsx,
                     // the web's composer footer, App.tsx:2963-2982).
                     strip_splash := Splash { width: Fill height: Fit }
+                    // A7 — above the composer card: the turn recovery notice,
+                    // the queued chip (conversation-08 `1 queued · Steer now
+                    // · ✕`) and the read-only peer row (fluid.rs
+                    // `composer_extras`).
+                    queue_splash := Splash { width: Fill height: Fit }
                     composer_row := View {
                         width: Fill height: Fit flow: Down
                         composer_splash := Splash { width: Fill height: Fit }
@@ -1241,6 +1248,9 @@ pub struct OctoscodeView {
     /// label returns to "Copy" (`CodeBlock.tsx:75-79`).
     #[rust]
     code_copy_timer: Timer,
+    /// A7 — the Session whose saved unsent draft was offered to the composer.
+    #[rust]
+    drafts_restored_for: Option<String>,
 }
 
 impl OctoscodeView {
@@ -1379,6 +1389,8 @@ impl OctoscodeView {
         };
         screens::recents::set_connected_endpoint(&base);
         let conv = Arc::new(conv);
+        // A7: the turn controller starts queued prompts on the runtime.
+        conv.attach();
 
         {
             let mut b = self.bridge.lock().unwrap();
@@ -1949,6 +1961,8 @@ impl OctoscodeView {
             match connected {
                 Ok((conv, mut evt_rx)) => {
                     let conv = Arc::new(conv);
+        // A7: the turn controller starts queued prompts on the runtime.
+        conv.attach();
                     {
                         let mut b = bridge.lock().unwrap();
                         b.store = conv.store.clone();
@@ -2702,6 +2716,8 @@ impl OctoscodeView {
                     Ok((conv, evt_rx)) => {
                         screens::recents::set_connected_endpoint(&server);
                         let conv = Arc::new(conv);
+        // A7: the turn controller starts queued prompts on the runtime.
+        conv.attach();
                         let mut evt_rx = evt_rx;
                         if let Ok(mut b) = bridge.lock() {
                             // #32h: swap ALL THREE, mirroring the start()
@@ -3306,6 +3322,8 @@ impl OctoscodeView {
         // the module's own laid-out rect, so the dialog sizes like the web's
         // `min(<max>px, 100%)` card on the desktop window AND a phone.
         self.sync_board3(cx);
+        // A7: the queued chip / recovery notice / peer row + draft recovery.
+        self.sync_composer_extras(cx);
         // #28e4 item 2: the first-run card area mounts the REAL board-2
         // Connect screen (setup-01, #29a) — `screens::connect::lower_screen`
         // lowers the authored Stage B card with the ConnectUi copies applied,
@@ -3344,6 +3362,110 @@ impl OctoscodeView {
     /// A4 — mount the open board-3 dialog into `board3_splash` (the mount
     /// cache dedupes an unchanged DSL), publish its taps through the shared
     /// `taps::wired_taps` path, and apply the inputs' live visibility.
+    /// A7 — the composer dock's extras from the turn controller (the queued
+    /// chip, the recovery notice, the read-only peer row), and draft
+    /// recovery: parked not-sent text, else the Session's saved unsent text,
+    /// enters an EMPTY composer (never dispatched).
+    fn sync_composer_extras(&mut self, cx: &mut Cx) {
+        let (store, ui, conv) = {
+            let b = self.bridge.lock().unwrap();
+            (b.store.clone(), b.ui.clone(), b.conv.clone())
+        };
+        let session = store.active_session().filter(|_| store.is_live());
+        let extras = match &session {
+            None => fluid::ComposerExtras::default(),
+            Some(session) => {
+                {
+                    let mut u = ui.lock().unwrap();
+                    if u.draft().trim().is_empty() {
+                        if let Some(text) = u.take_parked_restore(session) {
+                            makepad_widgets::log!("[octoscode] composer: not-sent text returned ({} chars)", text.chars().count());
+                            u.set_draft_inner(text);
+                        } else if self.drafts_restored_for.as_deref() != Some(session.as_str()) {
+                            if let Some(text) = drafts::load(session) {
+                                makepad_widgets::log!(
+                                    "[octoscode] composer: unsent draft restored ({} chars, not sent)",
+                                    text.chars().count()
+                                );
+                                u.set_draft_inner(text);
+                            }
+                        }
+                    }
+                }
+                self.drafts_restored_for = Some(session.clone());
+                let composer = &store.domains.composer;
+                let snap = composer.snapshot(session);
+                use octoscode_store::domains::composer::RecoveryPhase;
+                fluid::ComposerExtras {
+                    queued: snap.pending.len(),
+                    steer: conv.as_ref().is_some_and(|c| c.can_steer()) && composer.can_steer_now(session),
+                    recovery: composer.recovery(session).map(|r| {
+                        match r.phase {
+                            RecoveryPhase::Checking => "checking",
+                            RecoveryPhase::Unknown => "unknown",
+                            RecoveryPhase::Unavailable => "unavailable",
+                            RecoveryPhase::Error(_) => "error",
+                        }
+                        .to_owned()
+                    }),
+                    peer_readonly: screens::peers::readonly_slug(&store, session),
+                }
+            }
+        };
+        let dsl = screens::theme::retint_dsl(&fluid::composer_extras(&extras, &conv_layout::current()));
+        let splash = self.view.splash(cx, ids!(queue_splash));
+        match self.mounts.mount(cx, &splash, &dsl) {
+            Err(e) => makepad_widgets::log!("[octoscode] composer extras mount: {e}"),
+            Ok(true) => makepad_widgets::log!(
+                "[octoscode] composer extras: {} queued, steer={}, recovery={:?}, peer={:?}",
+                extras.queued,
+                extras.steer,
+                extras.recovery,
+                extras.peer_readonly
+            ),
+            Ok(false) => {}
+        }
+        // A focused peer is a read-only watch surface: the editable composer
+        // is replaced by the status row (`ComposerInput.tsx:255-265`).
+        self.view
+            .widget(cx, ids!(composer_row))
+            .set_visible(cx, extras.peer_readonly.is_none());
+    }
+
+    /// A7 — one of the composer extras' controls (fluid.rs `composer_extras`).
+    fn composer_extra_tap(&mut self, which: &str) {
+        let (store, conv) = {
+            let b = self.bridge.lock().unwrap();
+            (b.store.clone(), b.conv.clone())
+        };
+        let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) else { return };
+        let session = conv.session_id();
+        makepad_widgets::log!("[octoscode] composer extra: {which}");
+        match which {
+            "steer" => {
+                rt.spawn(async move {
+                    let steered = conv.steer_queued_head().await;
+                    makepad_widgets::log!("[octoscode] steer now: {}", if steered { "sent" } else { "not admitted" });
+                    SignalToUI::set_ui_signal();
+                });
+            }
+            "remove" => {
+                if let Some(head) = store.domains.composer.snapshot(&session).pending.first() {
+                    let removed = conv.remove_queued(&head.turn_id);
+                    makepad_widgets::log!("[octoscode] queued prompt {} removed: {removed}", head.turn_id);
+                }
+            }
+            "check" => {
+                rt.spawn(async move {
+                    conv.check_turn_state().await;
+                    SignalToUI::set_ui_signal();
+                });
+            }
+            "continue" => conv.continue_without_turn(),
+            _ => {}
+        }
+    }
+
     fn sync_board3(&mut self, cx: &mut Cx) {
         let rect = self.view.area().rect(cx);
         screens::board3::host::set_frame(rect.size.x, rect.size.y);
@@ -4557,6 +4679,10 @@ impl Widget for OctoscodeView {
                         }
                     }
                     self.bridge.lock().unwrap().ui.lock().unwrap().set_draft_inner(text.clone());
+                    // A7: the unsent text survives a restart (drafts.rs).
+                    if let Some(session) = { self.bridge.lock().unwrap().store.active_session() } {
+                        drafts::save(&session, &text);
+                    }
                     // The widget is the source here: remember what it holds
                     // so the external-sync below never writes back over it.
                     self.composer_synced = Some(text.clone());
@@ -4749,6 +4875,19 @@ impl Widget for OctoscodeView {
                 if b3_dirty {
                     let store = { self.bridge.lock().unwrap().store.clone() };
                     self.board3_visibility(cx, &store);
+                }
+                // A7 — the composer extras' controls (fluid.rs
+                // `composer_extras`): Steer now / remove the queued prompt,
+                // Check status / Continue without it.
+                for (id, which) in [
+                    (live_id!(queue_steer_hit), "steer"),
+                    (live_id!(queue_remove_hit), "remove"),
+                    (live_id!(recovery_check_hit), "check"),
+                    (live_id!(recovery_continue_hit), "continue"),
+                ] {
+                    if self.view.button(cx, &[live_id!(queue_splash), id]).clicked(actions) {
+                        self.composer_extra_tap(which);
+                    }
                 }
                 // A4 — the session strip opens the Session settings pane.
                 if self
