@@ -1,14 +1,14 @@
     log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
     log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
     log: [I] apps/octoscode/module/src/lib.rs:3300:17 - [octoscode] composer remounted
-    log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
-    log: [I] apps/octoscode/module/src/lib.rs:3398:38 - [octoscode] chrome: 3 profile reads folded
-    log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
     log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
     log: [I] apps/octoscode/module/src/lib.rs:3726:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
+    log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+    log: [I] apps/octoscode/module/src/lib.rs:3398:38 - [octoscode] chrome: 3 profile reads folded
 CLICK sb_add_hit r=[64, 603, 260, 34] at (194,620)
 PASS + Add workspace opens the folder browser
-CLICK b1_br_use r=[307, 448, 484, 44] at (549,470)
+CLICK b1_br_use r=[307, 455, 484, 44] at (549,477)
 PASS wire: the launch asked launch/resolve for the folder — [{'cwd': '/srv/work/no-profile', 'profile_id': 'dsflash'}]
 PASS the panel opens: 'Create your local coding profile'
 PASS loading: 'Loading providers from Octos…'
@@ -90,7 +90,7 @@ PASS the panel closes once the Session opened
 PASS wire: the retry never re-creates (create x1, test x2, save x1) — 1/2/1
 PASS wire: the Official API route DERIVED from the family (deepseek, 'Official API', DEEPSEEK_API_KEY, openai) — [{"api_key": "sk-t\u2026(13)", "profile_id": "coding-2", "selection": {"family_id": "deepseek", "model_id": "deepseek-v4-pro", "route": {"api_key_env": "DEEPSEEK_API_KEY", "api_type": "openai", "label": "Official API", "route_id": "deepseek"}}}]
 PASS wire: saved exactly as tested, as the primary — [{"api_key": "sk-t\u2026(13)", "profile_id": "coding-2", "selection": {"family_id": "deepseek", "model_id": "deepseek-v4-pro", "route": {"api_key_env": "DEEPSEEK_API_KEY", "api_type": "openai", "label": "Official API", "route_id": "deepseek"}}, "set_primary": true}]
-PASS wire: the coding Session opens in the folder under Core's profile (coding-2:api:…) — [{"cwd": "/srv/work/no-profile", "profile_id": "coding-2", "session_id": "coding-2:api:01a0fc83-c1a4-77c9-a955-69838ad92748"}]
+PASS wire: the coding Session opens in the folder under Core's profile (coding-2:api:…) — [{"cwd": "/srv/work/no-profile", "profile_id": "coding-2", "session_id": "coding-2:api:01a0fc99-0f54-77f0-9d36-34145f8b3d3f"}]
 SHOT 09-opened-desktop
     log: [I] apps/octoscode/module/src/lib.rs:4177:13 - [octoscode] chrome: Action("workspace.add", 0)
     log: [I] apps/octoscode/module/src/lib.rs:1931:21 - [octoscode] sidebar action: workspace.add
@@ -212,7 +212,7 @@ SHOT 09-opened-desktop
     log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.submit #0 -> Spawn(OnboardingSubmit)
     log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 2 tap(s), 0 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:4110:42 - [octoscode] board3 OnboardingSubmit: onboarded: coding-2 tested, saved and opened
-    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session coding-2:api:01a0fc83-c1a4-77c9-a955-69838ad92748 restored (following)
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session coding-2:api:01a0fc99-0f54-77f0-9d36-34145f8b3d3f restored (following)
     log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
     log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
 PASS the app log never carries the key

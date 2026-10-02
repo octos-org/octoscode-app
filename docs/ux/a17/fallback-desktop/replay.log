@@ -7,14 +7,16 @@
 [replay-serve] -> session/open (onboarding) {"cwd":"/srv/work/octos","profile_id":"dsflash","session_id":"dsflash:main"}
 [replay-serve] <- session/list (id=1)
 [replay-serve] <- session/hydrate (id=2)
-[replay-serve] <- permission/profile/list (id=3)
-[replay-serve] <- profile/llm/list (id=4)
-[replay-serve] <- profile/skills/list (id=5)
-[replay-serve] <- profile/sub_providers/list (id=6)
-[replay-serve] <- session/status/read (id=7)
-[replay-serve] <- onboarding/workspace_list (id=8)
+[replay-serve] <- session/list (id=3)
+[replay-serve] <- session/hydrate (id=4)
+[replay-serve] <- permission/profile/list (id=5)
+[replay-serve] <- profile/llm/list (id=6)
+[replay-serve] <- profile/skills/list (id=7)
+[replay-serve] <- profile/sub_providers/list (id=8)
+[replay-serve] <- session/status/read (id=9)
+[replay-serve] <- onboarding/workspace_list (id=10)
 [replay-serve] -> onboarding/workspace_list (onboarding) {"path":null}
-[replay-serve] <- onboarding/workspace_list (id=9)
+[replay-serve] <- onboarding/workspace_list (id=11)
 [replay-serve] -> onboarding/workspace_list (onboarding) {"path":null}
-[replay-serve] <- launch/resolve (id=10)
+[replay-serve] <- launch/resolve (id=12)
 [replay-serve] -> launch/resolve (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"dsflash"}

@@ -6,36 +6,40 @@
 [replay-serve] -> session/open (onboarding) {"cwd":"/srv/work/octos","profile_id":"dsflash","session_id":"dsflash:main"}
 [replay-serve] <- session/list (id=1)
 [replay-serve] <- session/hydrate (id=2)
-[replay-serve] <- permission/profile/list (id=3)
-[replay-serve] <- profile/llm/list (id=4)
-[replay-serve] <- profile/skills/list (id=5)
-[replay-serve] <- profile/sub_providers/list (id=6)
-[replay-serve] <- session/status/read (id=7)
-[replay-serve] <- onboarding/workspace_list (id=8)
+[replay-serve] <- session/list (id=3)
+[replay-serve] <- session/hydrate (id=4)
+[replay-serve] <- permission/profile/list (id=5)
+[replay-serve] <- profile/llm/list (id=6)
+[replay-serve] <- profile/skills/list (id=7)
+[replay-serve] <- profile/sub_providers/list (id=8)
+[replay-serve] <- session/status/read (id=9)
+[replay-serve] <- onboarding/workspace_list (id=10)
 [replay-serve] -> onboarding/workspace_list (onboarding) {"path":null}
-[replay-serve] <- onboarding/workspace_list (id=9)
+[replay-serve] <- onboarding/workspace_list (id=11)
 [replay-serve] -> onboarding/workspace_list (onboarding) {"path":null}
-[replay-serve] <- launch/resolve (id=10)
+[replay-serve] <- launch/resolve (id=12)
 [replay-serve] -> launch/resolve (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"dsflash"}
-[replay-serve] <- profile/llm/catalog (id=11)
+[replay-serve] <- profile/llm/catalog (id=13)
 [replay-serve] -> profile/llm/catalog (onboarding) {}
-[replay-serve] => profile/llm/catalog reply sent after 1500 ms (onboarding)
-[replay-serve] <- profile/llm/catalog (id=12)
+[replay-serve] => profile/llm/catalog reply sent after 3000 ms (onboarding)
+[replay-serve] <- profile/llm/catalog (id=14)
 [replay-serve] -> profile/llm/catalog (onboarding) {}
-[replay-serve] => profile/llm/catalog reply sent after 1500 ms (onboarding)
-[replay-serve] <- profile/local/create (id=13)
+[replay-serve] => profile/llm/catalog reply sent after 3000 ms (onboarding)
+[replay-serve] <- profile/local/create (id=15)
 [replay-serve] -> profile/local/create (onboarding) {"email":"","make_default":false,"name":"Coding","requested_id":"coding","username":""}
-[replay-serve] <- profile/llm/test (id=14)
+[replay-serve] <- profile/llm/test (id=16)
 [replay-serve] -> profile/llm/test (onboarding) {"api_key":"sk-t…(16)","profile_id":"coding-2","selection":{"family_id":"deepseek","model_id":"deepseek-v4-pro","route":{"api_key_env":"AUTODL_API_KEY","api_type":"openai","base_url":"https://www.autodl.art/api/v1","label":"AutoDL","route_id":"autodl"}}}
 [replay-serve] => profile/llm/test reply sent after 1500 ms (onboarding)
-[replay-serve] <- profile/llm/test (id=15)
+[replay-serve] <- profile/llm/test (id=17)
 [replay-serve] -> profile/llm/test (onboarding) {"api_key":"sk-t…(13)","profile_id":"coding-2","selection":{"family_id":"deepseek","model_id":"deepseek-v4-pro","route":{"api_key_env":"DEEPSEEK_API_KEY","api_type":"openai","label":"Official API","route_id":"deepseek"}}}
 [replay-serve] => profile/llm/test reply sent after 1500 ms (onboarding)
-[replay-serve] <- profile/llm/upsert (id=16)
+[replay-serve] <- profile/llm/upsert (id=18)
 [replay-serve] -> profile/llm/upsert (onboarding) {"api_key":"sk-t…(13)","profile_id":"coding-2","selection":{"family_id":"deepseek","model_id":"deepseek-v4-pro","route":{"api_key_env":"DEEPSEEK_API_KEY","api_type":"openai","label":"Official API","route_id":"deepseek"}},"set_primary":true}
-[replay-serve] <- session/open (id=17)
-[replay-serve] -> session/open (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"coding-2","session_id":"coding-2:api:01a0fc84-97e6-7417-b4df-3440ba5ac995"}
-[replay-serve] <- session/list (id=18)
-[replay-serve] <- session/hydrate (id=19)
-[replay-serve] <- permission/profile/list (id=20)
-[replay-serve] <- session/status/read (id=21)
+[replay-serve] <- session/open (id=19)
+[replay-serve] -> session/open (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"coding-2","session_id":"coding-2:api:01a0fc99-78b2-7474-8ca0-770e612ba464"}
+[replay-serve] <- session/list (id=20)
+[replay-serve] <- session/hydrate (id=21)
+[replay-serve] <- session/list (id=22)
+[replay-serve] <- session/hydrate (id=23)
+[replay-serve] <- permission/profile/list (id=24)
+[replay-serve] <- session/status/read (id=25)

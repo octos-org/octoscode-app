@@ -95,7 +95,7 @@ PASS the panel closes once the Session opened
 PASS wire: the retry never re-creates (create x1, test x2, save x1) — 1/2/1
 PASS wire: the Official API route DERIVED from the family (deepseek, 'Official API', DEEPSEEK_API_KEY, openai) — [{"api_key": "sk-t\u2026(13)", "profile_id": "coding-2", "selection": {"family_id": "deepseek", "model_id": "deepseek-v4-pro", "route": {"api_key_env": "DEEPSEEK_API_KEY", "api_type": "openai", "label": "Official API", "route_id": "deepseek"}}}]
 PASS wire: saved exactly as tested, as the primary — [{"api_key": "sk-t\u2026(13)", "profile_id": "coding-2", "selection": {"family_id": "deepseek", "model_id": "deepseek-v4-pro", "route": {"api_key_env": "DEEPSEEK_API_KEY", "api_type": "openai", "label": "Official API", "route_id": "deepseek"}}, "set_primary": true}]
-PASS wire: the coding Session opens in the folder under Core's profile (coding-2:api:…) — [{"cwd": "/srv/work/no-profile", "profile_id": "coding-2", "session_id": "coding-2:api:01a0fc84-97e6-7417-b4df-3440ba5ac995"}]
+PASS wire: the coding Session opens in the folder under Core's profile (coding-2:api:…) — [{"cwd": "/srv/work/no-profile", "profile_id": "coding-2", "session_id": "coding-2:api:01a0fc99-78b2-7474-8ca0-770e612ba464"}]
 SHOT 09-opened-phone
     log: [I] apps/octoscode/module/src/lib.rs:4177:13 - [octoscode] chrome: Action("drawer.open", 0)
     log: [I] apps/octoscode/module/src/lib.rs:1883:21 - [octoscode] sidebar action: drawer.open
@@ -205,7 +205,7 @@ SHOT 09-opened-phone
     log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.submit #0 -> Spawn(OnboardingSubmit)
     log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 2 tap(s), 0 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:4110:42 - [octoscode] board3 OnboardingSubmit: onboarded: coding-2 tested, saved and opened
-    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session coding-2:api:01a0fc84-97e6-7417-b4df-3440ba5ac995 restored (following)
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session coding-2:api:01a0fc99-78b2-7474-8ca0-770e612ba464 restored (following)
     log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
     log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
 PASS the app log never carries the key

@@ -401,7 +401,7 @@ def phase_fallback(w) -> None:
 
 
 PHASES = {
-    "main": (phase_main, ["--fail-once", "profile/llm/catalog", "--slow", "profile/llm/catalog=1500", "--slow", "profile/llm/test=1500"]),
+    "main": (phase_main, ["--fail-once", "profile/llm/catalog", "--slow", "profile/llm/catalog=3000", "--slow", "profile/llm/test=1500"]),
     "supersede": (phase_supersede, ["--slow", "profile/llm/catalog=2500", "--slow", "profile/llm/test=2500"]),
     "fallback": (phase_fallback, ["--drop-method", "profile/llm/fetch_models"]),
 }
