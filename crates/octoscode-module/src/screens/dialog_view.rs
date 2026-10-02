@@ -393,6 +393,13 @@ fn models(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     }
     if groups.is_empty() {
         b.text("t_ds_count", "No models are configured for this Profile.", &para(tok::MUTED));
+        // A23 — an empty Profile still reaches its providers (the web's
+        // empty state carries "Add provider", ModelManagementSection.tsx:1270).
+        if dlg::advertises(ctx.store, "profile/llm/list") {
+            b.gap(8.0);
+            let avail = b.inner;
+            actions(b, &[("manage_providers", "Manage providers", "b3.open.routes".into(), Btn::Outline)], avail);
+        }
         finish(b);
         return;
     }

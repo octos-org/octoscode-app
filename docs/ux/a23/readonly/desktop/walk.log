@@ -1,0 +1,13 @@
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'mo'
+CLICK palette_row_name '/model' r=[286, 252, 63, 28]
+PASS models: /model palette CLICK opens the Models dialog
+CLICK dlg_models_manage_providers_control r=[675, 500, 144, 32] at (747,516)
+PASS providers: 'Manage providers' CLICK opens the providers dialog
+PASS readonly: the web's notice, no Add provider, no Edit, no route add
+PASS readonly: Delete rides its own advertised method
+PASS readonly: dialog numeric checks — frame=640x558 centre_dx=0.0 margins L=20 R=20 labels=16 outside=0 overlaps=0 controls=4 under28=0
+SHOT 01-readonly-desktop
+PASS 01-readonly-desktop: the capture carries no typed key (whole, first 8, last 8)
+== 6/6 checks passed

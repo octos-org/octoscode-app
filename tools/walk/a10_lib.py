@@ -21,7 +21,7 @@ import urllib.request
 import os as _os, sys as _sys
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
 from snapsafe import scrub as _scrub  # noqa: E402
-import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
+import bridgeauth  # noqa: E402  (D10c: the bridge token on every request; input_was_queued)
 
 TOL = 1.5
 
@@ -59,11 +59,11 @@ class Walk:
             with urllib.request.urlopen(self.base + path, timeout=timeout) as r:
                 return r.read().decode()
         except urllib.error.HTTPError as e:
-            # An input route with wait=1 answers 404 when the frame it waited
-            # on was coalesced: the input itself was delivered (walk_env's
-            # App.get, and the judge tour's rule since 4c3e51e8). A21: the
-            # A19 live walk's scroll-read crashed on one.
-            if e.code == 404 and path.startswith(("/click", "/t?", "/k?", "/m?")):
+            # Only the bridge's frame-wait timeout on an input route: the input
+            # was queued and applied but no frame followed in 5 s (A21: the
+            # A19 live walk's scroll-read at the end of the list). The step's
+            # effect assertion decides; any other error raises.
+            if bridgeauth.input_was_queued(path, e):
                 return ""
             if tolerant:
                 return ""

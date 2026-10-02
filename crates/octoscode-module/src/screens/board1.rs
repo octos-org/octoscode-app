@@ -207,6 +207,12 @@ struct Host {
     was_open: bool,
     /// The view was rebuilt since the last [`take_ime_reset`].
     ime_reset: bool,
+    /// A23 — the surface the dock last mounted (`None` after the stack
+    /// changed), so a state-change remount of the SAME surface keeps its
+    /// body's scroll ([`note_mounted`]).
+    mounted: Option<Surface>,
+    /// A23 — the body scroll a same-surface remount restores after layout.
+    pending_scroll: Option<f64>,
 }
 
 fn host() -> MutexGuard<'static, Host> {
@@ -234,6 +240,7 @@ fn push_surface(s: Surface) {
     h.stack.retain(|x| *x != s);
     h.stack.push(s);
     h.dirty = true;
+    h.mounted = None;
 }
 
 /// Close the visible surface (back to the one under it, or closed).
@@ -241,13 +248,39 @@ pub fn pop() {
     let mut h = host();
     h.stack.pop();
     h.dirty = true;
+    h.mounted = None;
 }
 
 pub fn close_all() {
     let mut h = host();
     h.stack.clear();
     h.dirty = true;
+    h.mounted = None;
 }
+
+/// A23 — the host is about to mount the dock: whether it shows the SAME
+/// surface it last mounted (a state-change remount, whose body scroll the
+/// host keeps — the provider editor's Test / Fetch / select would otherwise
+/// jump back to its top), false for a fresh open.
+pub fn note_mounted() -> bool {
+    let mut h = host();
+    let top = h.stack.last().copied();
+    let same = top.is_some() && h.mounted == top;
+    h.mounted = top;
+    same
+}
+
+/// A23 — the scroll a same-surface remount restores (applied after layout).
+pub fn set_pending_scroll(y: f64) {
+    host().pending_scroll = Some(y);
+}
+
+pub fn take_pending_scroll() -> Option<f64> {
+    host().pending_scroll.take()
+}
+
+/// The scroll view a surface's body scrolls in (the provider editor's).
+pub const SCROLL_ID: &str = "b1_prov_scroll";
 
 pub fn picker() -> PickerUi {
     host().picker.clone()
@@ -278,8 +311,14 @@ pub enum Work {
     Forget,
     /// `profile/llm/list` + `profile/llm/catalog` into the editor.
     ProviderLoad,
-    /// The editor's Test / Save.
+    /// The editor's Test / Save / Fetch (A23). It carries no key: the
+    /// transport reads it from the editor when it runs.
     ProviderTransport(provider::Effect),
+    /// A23 — the editor opened from the providers dialog closed: reopen the
+    /// dialog (re-read), with the editor's outcome line.
+    ReturnToProviders { notice: Option<String> },
+    /// A23 — open a URL in the platform browser (the GLM guide link).
+    OpenUrl(String),
     /// `onboarding/workspace_list`.
     BrowserList { path: Option<String>, resolve_ancestor: bool },
     /// `onboarding/workspace_create`.
@@ -295,6 +334,7 @@ pub const OPENERS: &[(&str, &str)] = &[
     ("b1.open.pairing", "open Pair with Octos (p4-01) — the Connect screen's link"),
     ("b1.open.connection", "open Connection (p4-05) — Settings → General"),
     ("b1.open.provider", "open Edit provider (p4-06) — Settings → Model"),
+    ("b1.open.provider.routes", "A23: the providers dialog's Edit / Add provider — the editor the dialog seeded (no reload)"),
     ("b1.open.picker", "open the new-session workspace picker (the web's view \"choose\")"),
     ("b1.open.add", "+ Add workspace: the folder browser over the picker (the web's view \"add\"/\"browse\"; the picker alone when browsing is not advertised)"),
     ("b1.backdrop", "a click on the dialog's backdrop closes it (ModalSurface closeOnBackdrop)"),
@@ -345,19 +385,27 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
         "b1.open.provider" => {
             // Each operation on its own advertised method (row 37): the open
             // reply's `supported_methods`, failing closed.
+            // A23: a fresh editor every time (the web's `openEdit`), seeded
+            // by the load.
             let methods = host().methods.clone();
             let caps = provider::Caps::from_methods(&methods);
             {
-                let mut p = provider::state();
-                p.edited = false;
-                p.busy = false;
-                p.caps = caps;
-                p.accept();
+                let mut fresh = provider::ProviderUi::new("deepseek");
+                fresh.caps = caps;
+                fresh.can_fetch = methods.iter().any(|m| m == "profile/llm/fetch_models");
+                fresh.origin = provider::Origin::Settings;
+                provider::set(fresh);
             }
             push_surface(Surface::Provider);
             if caps.read || caps.catalog {
                 out.push(Work::ProviderLoad);
             }
+        }
+        "b1.open.provider.routes" => {
+            // A23 — `board3::routes` seeded the editor (a configured row or
+            // the catalog's new provider) and closed itself.
+            provider::state().busy = false;
+            push_surface(Surface::Provider);
         }
         "b1.open.picker" => {
             {
@@ -407,7 +455,11 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
             // dialog while work is in flight (`closeOnBackdrop={!creating}`).
             let busy = pairing::state().exchanging || provider::state().busy || starting();
             if !busy {
+                let from_routes = top() == Some(Surface::Provider) && provider::state().origin == provider::Origin::Routes;
                 close_all();
+                if from_routes {
+                    out.push(Work::ReturnToProviders { notice: None });
+                }
             }
         }
         "pair.scan.cancelled" => {
@@ -453,8 +505,17 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
             }
             match e {
                 None => {}
-                Some(provider::Effect::Close) => pop(),
-                Some(t @ (provider::Effect::Test | provider::Effect::Save)) => out.push(Work::ProviderTransport(t)),
+                Some(provider::Effect::Close) => {
+                    pop();
+                    // A23 — opened from the providers dialog: back to it.
+                    if provider::state().origin == provider::Origin::Routes {
+                        out.push(Work::ReturnToProviders { notice: None });
+                    }
+                }
+                Some(t @ (provider::Effect::Test | provider::Effect::Save | provider::Effect::Fetch)) => {
+                    out.push(Work::ProviderTransport(t))
+                }
+                Some(provider::Effect::OpenUrl(u)) => out.push(Work::OpenUrl(u)),
                 Some(_) => {}
             }
         }
@@ -485,17 +546,8 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
 /// Live text never rebuilds the view: the field keeps its focus and caret
 /// (the composer's #32h lesson — re-mounting per keystroke kills the IME).
 fn is_typing(action: &str) -> bool {
-    matches!(
-        action,
-        "pair.paste"
-            | "connect.server"
-            | "connect.token"
-            | "provider.name"
-            | "provider.url"
-            | "provider.key"
-            | "browser.path"
-            | "browser.create_name"
-    )
+    matches!(action, "pair.paste" | "connect.server" | "connect.token" | "browser.path" | "browser.create_name")
+        || provider::is_input(action)
 }
 
 fn route_picker(action: &str) -> Vec<Work> {
@@ -976,12 +1028,31 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
                 mark_dirty();
                 return need_conv("provider save");
             };
+            let fetch = effect == provider::Effect::Fetch;
             match provider::perform_transport(&conv, effect).await {
                 Ok(true) => {
                     makepad_widgets::log!("[octoscode] board1 provider: saved (profile/llm/upsert applied)");
                     if top() == Some(Surface::Provider) {
                         pop();
                     }
+                    // A23 — back to the providers dialog with the web's line
+                    // (`ModelManagementSection` save).
+                    let (origin, mode) = {
+                        let p = provider::state();
+                        (p.origin, p.mode)
+                    };
+                    if origin == provider::Origin::Routes {
+                        let notice = if mode == provider::Mode::Edit {
+                            super::model_settings::copy::SAVED_EDIT
+                        } else {
+                            super::model_settings::copy::SAVED
+                        };
+                        leave_for_host(Work::ReturnToProviders { notice: Some(notice.to_owned()) });
+                    }
+                    Ok(())
+                }
+                Ok(false) if fetch => {
+                    makepad_widgets::log!("[octoscode] board1 provider: models fetched");
                     Ok(())
                 }
                 Ok(false) => {
@@ -1081,7 +1152,12 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
                 }
             }
         }
-        Work::Connect { .. } | Work::LeaveToForm { .. } | Work::Scan | Work::Forget => {
+        Work::Connect { .. }
+        | Work::LeaveToForm { .. }
+        | Work::Scan
+        | Work::Forget
+        | Work::ReturnToProviders { .. }
+        | Work::OpenUrl(_) => {
             makepad_widgets::log!("[octoscode] board1: {work:?} is the host's to perform");
             Err("board1: host work".to_owned())
         }

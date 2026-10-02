@@ -533,6 +533,16 @@ pub fn open(dialog: Dialog) -> Outcome {
     }
 }
 
+/// A23 — the board-1 provider editor opened from the providers dialog closed
+/// (Back, Cancel, the backdrop, or a save): the dialog returns with what it
+/// listed, re-reads, and shows the editor's outcome line.
+pub fn reopen_routes(notice: Option<String>) -> Outcome {
+    let mut st = state();
+    st.open = Some(Dialog::Routes);
+    st.mounted = None;
+    super::routes::on_reopen(&mut st.routes, notice)
+}
+
 /// Close `dialog` if it is the open one (a finished job's own close).
 pub fn close_if(dialog: Dialog) {
     if open_dialog() == Some(dialog) {
@@ -680,7 +690,15 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
         return super::seats::perform(&mut st.seats, action, index, store);
     }
     if action.starts_with("b3.routes.") {
-        return super::routes::perform(&mut st.routes, action, index, store);
+        let out = super::routes::perform(&mut st.routes, action, index, store);
+        if matches!(out, Outcome::Action(_)) {
+            // A23 — Edit / Add provider: the board-1 editor takes this
+            // dialog's place (one modal at a time); `reopen_routes` brings it
+            // back with its state.
+            st.open = None;
+            st.mounted = None;
+        }
+        return out;
     }
     if action.starts_with("b3.sc.") {
         return super::session_pane::perform(&mut st.pane, action, index, store);
