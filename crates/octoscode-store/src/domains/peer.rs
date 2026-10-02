@@ -331,6 +331,9 @@ pub enum PeerSessionEvent {
     TurnStarted { turn_id: Option<String> },
     AttentionRequested { request_id: Option<String>, kind: Option<RequestKind>, detail: Option<RequestDetail> },
     AttentionResolved,
+    /// A30 — the resolution of ONE named request (`approval/decided`,
+    /// `approval/auto_resolved`, `approval/cancelled` carry the approval id).
+    AttentionResolvedFor { request_id: String },
     TurnTerminal { outcome: Outcome, error: Option<String> },
     ControlAck { interrupt: bool },
     Usage { output_tokens: u64 },
@@ -554,7 +557,7 @@ impl Peers {
                 row.acknowledgment = None;
                 row.activity = Activity::Blocked;
             }
-            PeerSessionEvent::AttentionResolved => {
+            PeerSessionEvent::AttentionResolved | PeerSessionEvent::AttentionResolvedFor { .. } => {
                 let restored = i.pre_block.remove(identity);
                 let row = &mut i.rows[pos];
                 if restored.is_some() || row.activity == Activity::Blocked {

@@ -57,6 +57,8 @@ pub mod pairing;
 // #D1: the two provider-editor cards (p4-06/07) — draft kept, error redacted.
 pub mod provider;
 pub mod palette;
+// A30: the peer dock in the sidebar (parity row 270, board 4 regions 6/7).
+pub mod peer_dock;
 pub mod peers;
 // P4h1 rows 304-307: the recent-workspaces cache (the web's
 // `features/workspace/workspace-recents.ts`), with its own storage seam.
