@@ -2,85 +2,127 @@
  {
   "name": "zh-settings-preferences",
   "surface": "Settings > Preferences",
-  "png": "tmp/noto4-desktop/zh-settings-preferences.png",
-  "checks": "cjk=12 outside=0 overflow=0 truncated=0 overlaps=0 controls=17 under28=0",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-preferences.png",
+  "checks": "cjk=19 outside=0 overflow=0 truncated=0 overlaps=0 controls=17 under28=0",
   "ok": true
  },
  {
   "name": "zh-settings-general",
   "surface": "Settings > General",
-  "png": "tmp/noto4-desktop/zh-settings-general.png",
-  "checks": "cjk=13 outside=0 overflow=0 truncated=0 overlaps=0 controls=10 under28=0",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-general.png",
+  "checks": "cjk=21 outside=0 overflow=0 truncated=0 overlaps=0 controls=10 under28=0",
   "ok": true
  },
  {
   "name": "zh-settings-permissions",
   "surface": "Settings > Permissions",
-  "png": "tmp/noto4-desktop/zh-settings-permissions.png",
-  "checks": "cjk=9 outside=0 overflow=0 truncated=0 overlaps=0 controls=12 under28=0",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-permissions.png",
+  "checks": "cjk=17 outside=0 overflow=0 truncated=0 overlaps=0 controls=12 under28=0",
   "ok": true
  },
  {
   "name": "zh-settings-model",
   "surface": "Settings > Model",
-  "png": "tmp/noto4-desktop/zh-settings-model.png",
-  "checks": "cjk=10 outside=0 overflow=0 truncated=0 overlaps=0 controls=14 under28=0",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-model.png",
+  "checks": "cjk=22 outside=0 overflow=0 truncated=0 overlaps=0 controls=14 under28=0",
   "ok": true
  },
  {
   "name": "zh-settings-sandbox",
   "surface": "Settings > Sandbox",
-  "png": "tmp/noto4-desktop/zh-settings-sandbox.png",
-  "checks": "cjk=10 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-sandbox.png",
+  "checks": "cjk=16 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0",
   "ok": true
  },
  {
   "name": "zh-settings-connection",
   "surface": "Settings > Connection",
-  "png": "tmp/noto4-desktop/zh-settings-connection.png",
-  "checks": "cjk=11 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-connection.png",
+  "checks": "cjk=18 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0",
   "ok": true
  },
  {
   "name": "zh-settings-about",
   "surface": "Settings > About",
-  "png": "tmp/noto4-desktop/zh-settings-about.png",
-  "checks": "cjk=7 outside=0 overflow=0 truncated=0 overlaps=0 controls=8 under28=0",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-about.png",
+  "checks": "cjk=12 outside=0 overflow=0 truncated=0 overlaps=0 controls=8 under28=0",
   "ok": true
  },
  {
   "name": "zh-shell",
   "surface": "shell (sidebar, header, composer, strip)",
-  "png": "tmp/noto4-desktop/zh-shell.png",
-  "checks": "cjk=15 outside=0 overflow=0 truncated=0 overlaps=0 controls=27 under28=0",
+  "png": "docs/ux/a24/zh-desktop/zh-shell.png",
+  "checks": "cjk=26 outside=0 overflow=0 truncated=0 overlaps=0 controls=27 under28=0",
   "ok": true
  },
  {
   "name": "zh-permission-menu",
   "surface": "composer permission menu",
-  "png": "tmp/noto4-desktop/zh-permission-menu.png",
+  "png": "docs/ux/a24/zh-desktop/zh-permission-menu.png",
   "checks": "cjk=2 outside=0 overflow=0 truncated=0 overlaps=0 controls=1 under28=0",
   "ok": true
  },
  {
   "name": "zh-slash-menu",
   "surface": "slash menu",
-  "png": "tmp/noto4-desktop/zh-slash-menu.png",
-  "checks": "cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=6 under28=0",
+  "png": "docs/ux/a24/zh-desktop/zh-slash-menu.png",
+  "checks": "cjk=9 outside=0 overflow=0 truncated=0 overlaps=0 controls=6 under28=0",
   "ok": true
  },
  {
   "name": "zh-connect",
   "surface": "Connect card (board 1)",
-  "png": "tmp/noto4-desktop/zh-connect.png",
-  "checks": "cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
+  "png": "docs/ux/a24/zh-desktop/zh-connect.png",
+  "checks": "cjk=7 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
   "ok": true
  },
  {
   "name": "zh-pairing",
   "surface": "Pair with Octos (board 1 p4-01)",
-  "png": "tmp/noto4-desktop/zh-pairing.png",
-  "checks": "cjk=0 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
+  "png": "docs/ux/a24/zh-desktop/zh-pairing.png",
+  "checks": "cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-review",
+  "surface": "Code review dialog",
+  "png": "docs/ux/a24/zh-desktop/surfaces/zh-review.png",
+  "checks": "cjk=6 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-thinking",
+  "surface": "Thinking effort",
+  "png": "docs/ux/a24/zh-desktop/surfaces/zh-thinking.png",
+  "checks": "cjk=11 outside=0 overflow=0 truncated=0 overlaps=0 controls=7 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-inspector",
+  "surface": "Inspector (/threads)",
+  "png": "docs/ux/a24/zh-desktop/surfaces/zh-inspector.png",
+  "checks": "cjk=12 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-fleet",
+  "surface": "Fleet",
+  "png": "docs/ux/a24/zh-desktop/surfaces/zh-fleet.png",
+  "checks": "cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-session-settings",
+  "surface": "Session settings",
+  "png": "docs/ux/a24/zh-desktop/surfaces/zh-session-settings.png",
+  "checks": "cjk=10 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-trajectory",
+  "surface": "Trajectory",
+  "png": "docs/ux/a24/zh-desktop/surfaces/zh-trajectory.png",
+  "checks": "cjk=11 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
   "ok": true
  }
 ]

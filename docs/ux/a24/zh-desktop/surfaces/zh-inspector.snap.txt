@@ -1,0 +1,41 @@
+hd_title	Label	[347, 87, 217, 16]	Why does main.rs print 5?
+hd_path	Label	[347, 104, 217, 13]	<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace
+hd_tab_chat_on	Label	[580, 94, 26, 16]	聊天
+hd_tab_traj_off	Label	[628, 94, 26, 16]	轨迹
+hd_copy_label	Label	[730, 94, 107, 16]	复制为 Markdown
+hd_review_label	Label	[888, 94, 52, 16]	审查更改
+hd_settings_label	Label	[990, 94, 26, 16]	设置
+history_title	Label	[429, 294, 520, 27]	需要恢复会话
+history_hint	Label	[449, 329, 480, 39]	无法加载对话历史：session/hydrate returned an invalid result: missing field `session_id`。请从侧栏重新打开以重试。
+b3_strip_model	Label	[369, 524, 201, 16]	deepseek-v4-flash
+b3_strip_state	Label	[589, 524, 201, 16]	就绪
+b3_strip_perm	Label	[809, 524, 201, 16]	工作区写入
+b3_strip_caption	Label	[361, 552, 656, 15]	模型、权限、沙箱
+i0_composer_2_0	Label	[419, 629, 89, 16]	写入 · 允许联网
+i0_composer_4	Label	[793, 629, 119, 16]	deepseek-v4-flash
+-	Label	[72, 95, 220, 21]	OctosCode
+1	Label	[98, 137, 56, 17]	新建会话
+sg_text_on	Label	[106, 224, 39, 16]	工作区
+sg_text_off	Label	[190, 224, 52, 16]	统一列表
+sb_sort_label	Label	[276, 224, 26, 16]	最近
+sb_g_label	Label	[92, 265, 190, 18]	workspace
+sb_r_title	Label	[92, 300, 215, 17]	Why does main.rs print 5?
+sb_r_time	Label	[313, 301, 3, 15]	 
+1	Label	[97, 543, 70, 17]	添加工作区
+fleet_nav_label	Label	[97, 577, 28, 17]	舰队
+sb_theme_label	Label	[97, 611, 56, 17]	跟随系统
+sb_settings_label	Label	[97, 645, 28, 17]	设置
+b3_insp_slash	Label	[169, 164, 732, 18]	/threads
+b3_title	Label	[169, 193, 760, 24]	线程图
+b3_insp_scope	Label	[169, 224, 732, 14]	会话： dsflash:main
+b3_insp_note	Label	[169, 245, 760, 14]	只读服务器快照。读取不会更改对话、排队请求或当前会话。
+b3_insp_error	Label	[169, 271, 750, 15]	服务器无法为此所有者返回有效的检查结果。请重试读取。
+b3_insp_graph_title	Label	[183, 309, 722, 16]	线程图
+b3n_6	Label	[183, 329, 96, 15]	尚未读取线程图。
+b3_insp_scopes_title	Label	[183, 380, 722, 16]	批准范围
+b3n_7	Label	[183, 399, 96, 15]	未读取批准范围。
+b3_insp_scopes_note	Label	[183, 418, 722, 14]	此视图仅列出服务器保存的决策，不会清除或更改权限。
+b3_insp_link_title	Label	[183, 475, 610, 16]	复制链接
+b3_insp_copy_btn_label	Label	[810, 475, 78, 16]	复制对话链接
+b3_insp_link_value	Label	[193, 515, 702, 14]	octoscode://session?s=%5B%22%3CWORKSPACE%3E%2Ftmp%2Fr1-serve-d…sh%22%2C%22dsflash%3Amain%22%5D
+b3_insp_refresh_label	Label	[886, 571, 26, 16]	刷新

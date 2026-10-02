@@ -2,30 +2,30 @@ hd_title	Label	[54, 85, 126, 16]	Fix steer queue drop on reconnect
 hd_path	Label	[54, 102, 126, 13]	/home/user/src/octos
 hd_tab_chat_on	Label	[190, 92, 26, 16]	聊天
 hd_tab_traj_off	Label	[226, 92, 26, 16]	轨迹
-history_title	Label	[24, 338, 312, 24]	需要恢复会话
-history_hint	Label	[24, 370, 312, 83]	The conversation history could not be loaded: session/hydrate returned an invalid result: missing field `session_id`. Reopen it from the sidebar to try again.
+history_title	Label	[24, 347, 312, 24]	需要恢复会话
+history_hint	Label	[24, 379, 312, 61]	无法加载对话历史：session/hydrate returned an invalid result: missing field `session_id`。请从侧栏重新打开以重试。
 b3_strip_state	Label	[22, 671, 318, 15]	就绪
 b3_strip_model	Label	[22, 702, 149, 15]	模型未报告
 b3_strip_perm	Label	[190, 702, 149, 15]	权限未报告
-i0_composer_2_0	Label	[66, 788, 82, 16]	Ask for approval
-i0_composer_4	Label	[173, 788, 77, 16]	Select a model
+i0_composer_2_0	Label	[66, 788, 52, 16]	请求批准
+i0_composer_4	Label	[198, 788, 52, 16]	选择模型
 -	Label	[18, 93, 252, 21]	OctosCode
 1	Label	[44, 135, 56, 17]	新建会话
 sg_text_on	Label	[52, 232, 39, 16]	工作区
 sg_text_off	Label	[136, 232, 52, 16]	统一列表
 sb_sort_label	Label	[254, 232, 26, 16]	最近
-sb_r_title	Label	[38, 372, 235, 17]	Bump octos-core to a6ea8505
-sb_r_time	Label	[279, 373, 15, 15]	3d
-sb_r_title	Label	[38, 436, 235, 17]	Why is hydrate slow?
-sb_r_time	Label	[279, 437, 15, 15]	3d
-sb_r_title	Label	[38, 340, 235, 17]	Add session fork
-sb_r_time	Label	[279, 341, 15, 15]	3d
+sb_r_title	Label	[38, 308, 215, 17]	Fix steer queue drop on reconnect
+sb_r_time	Label	[259, 309, 35, 15]	3 天前
+sb_r_title	Label	[38, 404, 215, 17]	Review PR #2566
+sb_r_time	Label	[259, 405, 35, 15]	3 天前
+sb_r_title	Label	[38, 436, 215, 17]	Why is hydrate slow?
+sb_r_time	Label	[259, 437, 35, 15]	3 天前
+sb_r_title	Label	[38, 340, 215, 17]	Add session fork
+sb_r_time	Label	[259, 341, 35, 15]	3 天前
 sb_g_label	Label	[38, 273, 222, 18]	octos
-sb_r_title	Label	[38, 404, 235, 17]	Review PR #2566
-sb_r_time	Label	[279, 405, 15, 15]	3d
-sb_r_title	Label	[38, 308, 235, 17]	Fix steer queue drop on reconnect
-sb_r_time	Label	[279, 309, 15, 15]	3d
+sb_r_title	Label	[38, 372, 215, 17]	Bump octos-core to a6ea8505
+sb_r_time	Label	[259, 373, 35, 15]	3 天前
 1	Label	[43, 719, 70, 17]	添加工作区
 fleet_nav_label	Label	[43, 753, 28, 17]	舰队
-sb_theme_label	Label	[43, 787, 49, 17]	System
-sb_settings_label	Label	[43, 821, 54, 17]	Settings
+sb_theme_label	Label	[43, 787, 56, 17]	跟随系统
+sb_settings_label	Label	[43, 821, 28, 17]	设置

@@ -1,33 +1,35 @@
 PASS relaunch: connected
-PASS relaunch: the first frame is Chinese — ['聊天', '轨迹', '需要恢复会话', '就绪', '模型未报告', '权限未报告']
+PASS relaunch: the first frame is Chinese — ['聊天', '轨迹', '需要恢复会话', '无法加载对话历史：session/hydrate returned an invalid result: missing field `session_id`。请从侧栏重新打开以重试。', '就绪', '模型未报告', '权限未报告', '向 Octos 提出任何问题']
     log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
     log: [I] apps/octoscode/module/src/design.rs:413:9 - [octoscode] font faces resolve under <PATH>
     log: [I] apps/octoscode/module/src/lib.rs:1376:9 - [octoscode] a24 language at launch: zh
+    log: [I] apps/octoscode/module/src/screens/bootstrap.rs:169:5 - [octoscode] bootstrap: Harness(http://127.0.0.1:8508, token: true) (remembered server: false, saved token: false, restore target: false, auto-connect: None)
     log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
-    log: [I] apps/octoscode/module/src/attention.rs:938:9 - [octoscode] attention: start (platform api true, focused false)
-    log: [I] apps/octoscode/module/src/lib.rs:3358:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/attention.rs:938:9 - [octoscode] attention: start (platform api false, focused false)
+    log: [I] apps/octoscode/module/src/lib.rs:1651:13 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/flow.rs:1049:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
+    log: [I] apps/octoscode/module/src/lib.rs:3404:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4223:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
+    log: [I] apps/octoscode/module/src/lib.rs:3508:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4223:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
     log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
-    log: [I] apps/octoscode/module/src/lib.rs:3775:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
-    log: [I] apps/octoscode/module/src/lib.rs:1623:13 - [octoscode] startup: Explicit("dsflash:main")
-    log: [I] apps/octoscode/module/src/flow.rs:1046:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
-    log: [I] apps/octoscode/module/src/chrome.rs:2308:13 - [octoscode] a24 shell copy: 47 text(s) set (zh; 86 source(s))
-    log: [I] apps/octoscode/module/src/lib.rs:4160:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
-    log: [I] apps/octoscode/module/src/lib.rs:3456:38 - [octoscode] chrome: 3 profile reads folded
-    log: [I] apps/octoscode/module/src/lib.rs:4160:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+    log: [I] apps/octoscode/module/src/lib.rs:3838:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/chrome.rs:2316:13 - [octoscode] a24 shell copy: 81 text(s) set (zh; 86 source(s))
     log: [I] apps/octoscode/module/src/attention.rs:984:9 - [octoscode] attention: os Authorization { status: Unavailable, requested: false, error: None }
-    log: [I] apps/octoscode/module/src/lib.rs:3358:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3404:17 - [octoscode] composer remounted
 PASS relaunch: adopted at launch (log)
 CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
 CLICK rl_hit r=[8, 384, 40, 40] at (28,404)
 PASS relaunch: 简体中文 reads selected — '简体中文'
 CLICK lang_en r=[166, 143, 84, 28]
-    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: OpenSettings
-    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.panel.open
-    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("settings.section.preferences", 0)
-    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.section.preferences
-    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("a9.prefs.lang.en", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:4309:13 - [octoscode] chrome: OpenSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1879:13 - [octoscode] settings action: settings.panel.open
+    log: [I] apps/octoscode/module/src/lib.rs:4309:13 - [octoscode] chrome: Action("settings.section.preferences", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1879:13 - [octoscode] settings action: settings.section.preferences
+    log: [I] apps/octoscode/module/src/lib.rs:4309:13 - [octoscode] chrome: Action("a9.prefs.lang.en", 0)
     log: [I] apps/octoscode/module/src/a9_host.rs:188:21 - [octoscode] a24 language -> en (switched)
-    log: [I] apps/octoscode/module/src/chrome.rs:2308:13 - [octoscode] a24 shell copy: 47 text(s) set (en; 86 source(s))
+    log: [I] apps/octoscode/module/src/lib.rs:3404:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/chrome.rs:2316:13 - [octoscode] a24 shell copy: 81 text(s) set (en; 86 source(s))
 CLICK prefs_save r=[81, 810, 148, 36] at (155,828)
 PASS relaunch: English saved back — {'language': 'en', 'theme': 'terminal', 'version': 1, 'vimMode': False}
 CLICK set_back r=[8, 84, 40, 40] at (28,104)
