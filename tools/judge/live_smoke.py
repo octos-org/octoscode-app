@@ -8,7 +8,7 @@ a queued prompt, Stop mid-stream, and an app restart that reopens the session wi
 
 The token is read from $LIVE_DIR/token and reaches the app only through its environment (OCTOS_BEARER); it is never
 printed, logged or saved. No /snap JSON is written to disk (the instrument reports masked fields' raw values); only
-PNG captures and <outdir>/checks.txt. About five model turns.
+PNG captures, <outdir>/checks.txt and the app's protocol trace <outdir>/trace.jsonl. About six model turns.
 """
 import json, os, subprocess, sys, time, urllib.parse, urllib.request
 
@@ -126,6 +126,7 @@ def env():
         "OCTOS_WORKSPACE_CWD": os.path.join(LIVE, "ws"),
         "OCTOSCODE_DESIGN_DIR": os.path.join(ROOT, "design"), "MAKEPAD_WM_TEST_APP": "octoscode",
         "HEADLESS_STATE": os.path.join(OUT, "hs"),
+        "OCTOSCODE_TRACE_FILE": os.path.join(OUT, "trace.jsonl"),
         "HEADLESS_ARGS": "--module octoscode" + (" --test-action page:0 --test-action launch-octoscode" if MODE == "phone" else ""),
     })
     if MODE == "phone":
@@ -257,6 +258,15 @@ def main():
             hist = wait(has_history, 20)
             capture("restart-reopened")
     check("restart: the session's earlier turns are shown after reopening", hist)
+    if hist:
+        t = " ".join(t for _, t in texts())
+        back = [k for k in ("judge.txt", "main.rs", "done", "lighthouse") if k in t]
+        check("restart: every earlier turn is back (file, CJK, queue, stop)", len(back) >= 3, f"found {back}")
+    capture("restart-history")
+    s, d = turn("Reply with one short sentence: what is 2 + 3?", 90)
+    check("restart: the next prompt streams and completes", s and d)
+    check("restart: the new answer renders", "5" in prose())
+    capture("restart-next-turn")
     stop_app()
     passed = sum(1 for _, ok, _ in RESULTS if ok)
     print(f"== {passed}/{len(RESULTS)} live checks passed ({MODE})")

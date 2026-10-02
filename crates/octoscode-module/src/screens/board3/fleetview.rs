@@ -1051,6 +1051,34 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
     d.close();
 }
 
+/// A14 — the pane's empty state, the app's own (the conversation's
+/// `fluid::empty_state`: a quiet glyph tile, the line, the hint under it, all
+/// centred in the column) carrying the web's copy: "No peers yet"
+/// (`FleetView.tsx:478-480`) or "Open a project first", and the
+/// start-unavailable note as its hint. `line` / `hint` are (id, text).
+fn empty_state(d: &mut Dsl, line: (&str, &str), hint: Option<(&str, &str)>) {
+    d.view("b3_fleet_empty", "width: Fill height: Fit flow: Down align: Align{x: 0.5 y: 0.0} padding: Inset{top: 48 bottom: 24}");
+    let tile_row = d.anon();
+    d.view(&tile_row, "width: Fill height: Fit flow: Right align: Align{x: 0.5 y: 0.5}");
+    d.surface("b3_fleet_empty_mark_box", "width: 44 height: 44 flow: Overlay align: Align{x: 0.5 y: 0.5}", "#f4f4f5ff", 10.0, None);
+    d.icon("b3_fleet_empty_mark", "b3_sparkle.svg", 20.0, tok::TEXT);
+    d.close();
+    d.close();
+    d.gap(W::Fill, 14.0);
+    let line_row = d.anon();
+    d.view(&line_row, "width: Fill height: Fit flow: Right align: Align{x: 0.5 y: 0.5}");
+    d.text(line.0, line.1, &Txt::new(17.0, Face::Semibold, tok::TEXT));
+    d.close();
+    if let Some((id, text)) = hint {
+        d.gap(W::Fill, 6.0);
+        let hint_row = d.anon();
+        d.view(&hint_row, "width: Fill height: Fit flow: Right align: Align{x: 0.5 y: 0.5}");
+        d.text(id, text, &Txt::new(13.0, Face::Regular, tok::MUTED));
+        d.close();
+    }
+    d.close();
+}
+
 pub fn build(d: &mut Dsl, st: &mut FleetState, frame: &Frame, store: &Store) {
     // The pane replaces the chat area: a full-height panel over the
     // conversation column, its content a centred max-720 column
@@ -1073,15 +1101,14 @@ pub fn build(d: &mut Dsl, st: &mut FleetState, frame: &Frame, store: &Store) {
     d.surface("b3_fleet_panel", "width: Fill height: Fill flow: Down align: Align{x: 0.5 y: 0.0}", tok::SURFACE, 0.0, None);
     d.open("b3_scroll", "ScrollYView", "width: Fill height: Fill flow: Down align: Align{x: 0.5 y: 0.0} padding: Inset{left: 16 right: 16 top: 16 bottom: 24}");
     d.view("b3_fleet_col", &format!("width: {} height: Fit flow: Down spacing: 12", col_w.floor()));
-    // Header: Back + "Fleet" + the empty-state word on the right.
+    // Header: Back + "Fleet" (+ Peer gather). A14: the empty state is no
+    // longer a word floating at the header's far right — it is the pane's
+    // own centred empty state below ([`empty_state`]).
     let head = d.anon();
     d.view(&head, "width: Fill height: 34 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
     d.button("b3_fleet_back", "Back", "b3.close", Btn::Outline, W::Fit, 30.0);
     d.text("b3_title", &t("Fleet"), &ui::title().w(W::Fill));
     let session_open = store.domains.session.active().is_some();
-    if list.is_empty() && session_open {
-        d.text("b3_fleet_none", &t("No peers yet"), &ui::meta());
-    }
     // The blackboard gather (`/gather`): the synthesis rides one turn.
     if session_open && gather_admitted(store) {
         let label = if st.gathering { t("Gathering…") } else { t("Peer gather") };
@@ -1091,15 +1118,30 @@ pub fn build(d: &mut Dsl, st: &mut FleetState, frame: &Frame, store: &Store) {
     if let Some(a) = &st.announcement {
         d.text("b3_fleet_announce", a, &Txt::new(12.0, Face::Medium, tok::BLUE).w(W::Fill).wrap());
     }
+    let empty = list.is_empty();
+    let none = t("No peers yet");
     if !session_open {
-        d.text("b3_fleet_noproject", &t("Open a project first"), &Txt::new(14.0, Face::Medium, tok::MUTED));
+        empty_state(d, ("b3_fleet_noproject", t("Open a project first").as_str()), None);
     } else {
-        if !advertised {
-            d.text("b3_fleet_unsupported", &t("This server does not support starting peers"), &ui::meta().w(W::Fill).wrap());
+        // The start-unavailable notes (`FleetView.tsx:289-311`): with no
+        // peer to show, the note is the empty state's hint; otherwise a
+        // line above the groups.
+        let note = if !advertised {
+            Some(("b3_fleet_unsupported", t("This server does not support starting peers")))
         } else if !control_ready {
-            d.text("b3_fleet_notready", &t("Peer controls are not ready"), &ui::meta().w(W::Fill).wrap());
+            Some(("b3_fleet_notready", t("Peer controls are not ready")))
         } else {
-            start_form(d, st, store);
+            None
+        };
+        match (&note, empty) {
+            (Some((id, text)), true) => empty_state(d, ("b3_fleet_none", none.as_str()), Some((*id, text.as_str()))),
+            (Some((id, text)), false) => d.text(id, text, &ui::meta().w(W::Fill).wrap()),
+            (None, _) => {
+                start_form(d, st, store);
+                if empty {
+                    empty_state(d, ("b3_fleet_none", none.as_str()), None);
+                }
+            }
         }
         for (gi, g) in groups.iter().enumerate() {
             let heading = match &g.goal_id {

@@ -26,6 +26,9 @@ pub mod copy_button;
 // A5: the dialog host — the Stage-B screens reachable from the palette and
 // the sidebar, lowered slot-relative, wired by node id.
 pub mod dialog;
+// A14: the dialog host's family drawn with the board-3 kit (frame, header,
+// type ramp, pills, per-dialog widths), the ids its walks address kept.
+pub mod dialog_view;
 // A11: pairing discovery — the remembered server, probed once, offered once
 // on the first-run Connect card (walk row 114).
 pub mod discovery;

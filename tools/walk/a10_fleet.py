@@ -31,7 +31,10 @@ WALK = {
     "title": "Fleet: the pane, lane picker, Start (one dispatch), row actions, Finished, Advanced, the seat",
     "modes": ["desktop", "phone"],
     "app": "self",
-    "runs": [{"argv": ["{mode}", "{out}"], "env": {"A10_PORT": "{port}", "A10_REPLAY_PORT": "{fport}"}}],
+    # This walk passes its own ports to run_session (A10_FLEET_PORT /
+    # A10_FLEET_REPLAY), so the aggregator's are given under those names too.
+    "runs": [{"argv": ["{mode}", "{out}"], "env": {"A10_PORT": "{port}", "A10_REPLAY_PORT": "{fport}",
+                                                   "A10_FLEET_PORT": "{port}", "A10_FLEET_REPLAY": "{fport}"}}],
     "needs": ["target/debug/examples/replay_serve"],
     "timeout": 900,
     "rows": {

@@ -116,7 +116,21 @@ pub fn state_word_held(store: &Store, active_turn: Option<&str>, handover: Optio
         }
         return activity_word(store, &session, turn).unwrap_or_else(|| "Responding".into());
     }
-    let peers = store.domains.peer.list().into_iter().filter(|p| !p.closed).count();
+    // "Peers running (n)" counts the peer manager's ROSTER rows that are
+    // opening or started (`App.tsx:2071-2083`: `peers.manager.snapshot()
+    // .peers` with status `opening` | `started`). A14: never the staged map
+    // `store.domains.peer.list()`, which also holds the Profile BLACKBOARD
+    // rows a `peer/gather` folds (`fleet::fold_peer_gather`) — the web keeps
+    // those apart ("Gathering never creates an owned session or opens a
+    // peer", `peer-manager.ts:266-279`), so a gathered `r6-smoke` read
+    // "Peers running (1)" beside a Fleet slice of 0 peers.
+    let peers = store
+        .domains
+        .peer
+        .rows()
+        .iter()
+        .filter(|r| matches!(r.status, octoscode_store::domains::peer::RowStatus::Opening | octoscode_store::domains::peer::RowStatus::Started))
+        .count();
     if peers > 0 {
         return format!("Peers running ({peers})");
     }
@@ -285,23 +299,29 @@ pub fn lower(
     // (`SessionStatusStrip.tsx:106`, "Model, permissions, sandbox"); on its
     // right, the composer's Vim field note while Vim editing is on
     // (`ComposerInput.tsx:270-274`: `Vim · Insert` / `Vim · Normal`).
-    let caption = d.anon();
-    d.view(
-        &caption,
-        &format!("width: {width} height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 2 right: 2}}"),
-    );
-    // A Fill run before a Fit one takes the whole row (the flow is one
-    // pass), so with the note present the caption gets an explicit width.
-    let caption_w = match (vim_note, st.width) {
-        (Some(note), Some(w)) => W::Px((w - 4.0 - super::ui::text_w(note, 12.0, Face::Medium) - 8.0).max(60.0)),
-        (Some(_), None) => W::Px(super::ui::text_w("Model, permissions, sandbox", 12.0, Face::Regular) + 12.0),
-        _ => W::Fill,
-    };
-    d.text("b3_strip_caption", "Model, permissions, sandbox", &Txt::new(12.0, Face::Regular, tok::MUTED).w(caption_w));
-    if let Some(note) = vim_note {
-        d.text("b3_strip_vim", note, &Txt::new(12.0, Face::Medium, tok::TEXT));
+    // A13 (judge: phone chat chrome stacked up above the composer): a phone
+    // drops the caption line — the web shows it only as the strip's tooltip
+    // (`SessionStatusStrip.tsx:106` `title=`), and the strip itself says
+    // what it is. The Vim note keeps the line.
+    if !narrow || vim_note.is_some() {
+        let caption = d.anon();
+        d.view(
+            &caption,
+            &format!("width: {width} height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 2 right: 2}}"),
+        );
+        // A Fill run before a Fit one takes the whole row (the flow is one
+        // pass), so with the note present the caption gets an explicit width.
+        let caption_w = match (vim_note, st.width) {
+            (Some(note), Some(w)) => W::Px((w - 4.0 - super::ui::text_w(note, 12.0, Face::Medium) - 8.0).max(60.0)),
+            (Some(_), None) => W::Px(super::ui::text_w("Model, permissions, sandbox", 12.0, Face::Regular) + 12.0),
+            _ => W::Fill,
+        };
+        d.text("b3_strip_caption", "Model, permissions, sandbox", &Txt::new(12.0, Face::Regular, tok::MUTED).w(caption_w));
+        if let Some(note) = vim_note {
+            d.text("b3_strip_vim", note, &Txt::new(12.0, Face::Medium, tok::TEXT));
+        }
+        d.close();
     }
-    d.close();
     // The transitional states read in blue under it (the board's
     // "Reconnecting" / "Resuming chat…" / "Handing back control…").
     if matches!(state.as_str(), "Reconnecting" | "Resuming chat…" | "Handing back control…") {
@@ -374,6 +394,31 @@ mod tests {
         for id in ["b3_strip_model_cell", "b3_strip_state_cell", "b3_strip_perm_cell"] {
             assert!(desk.contains(&format!("{id} := View {{\nwidth: 219 ")), "{id}: a third");
         }
+        // A13: the caption line is the desktop's; a phone drops it (the web's
+        // tooltip) unless the Vim note needs the line.
+        assert!(desk.contains("b3_strip_caption := Label"));
+        assert!(!phone.contains("b3_strip_caption"), "no caption line on a phone");
+        let vim = lower(&s, &st(330.0), None, Some("workspace_write"), Some("Vim · Insert"));
+        assert!(vim.contains("b3_strip_vim := Label") && vim.contains("b3_strip_caption"), "the Vim note keeps its line");
+    }
+
+    /// A14 — "Peers running (n)" counts the peer manager's roster rows that
+    /// are opening or started (`App.tsx:2071-2083`), never a Profile
+    /// blackboard row a `peer/gather` folded (`peer-manager.ts:266-279`); a
+    /// self-held seat with no row still reads "(1)" (`:2084-2086`).
+    #[test]
+    fn peers_running_counts_the_roster_not_the_blackboard() {
+        use octoscode_store::domains::peer::{Origin, PeerRow};
+        let s = live_store();
+        crate::screens::fleet::fold_peer_gather(
+            serde_json::json!({"peers": [{"slug": "r6-smoke", "topic": "peer-r6-smoke", "closed": false}], "profile_id": "dsflash"}),
+            &s,
+        );
+        assert_eq!(s.domains.peer.list().len(), 1, "the gathered row is folded");
+        assert_eq!(state_word(&s, None, None), "Ready", "a blackboard row is not a running peer");
+        assert_eq!(state_word_held(&s, None, None, true), "Peers running (1)", "the self-held seat");
+        assert!(s.domains.peer.stage_row(PeerRow::opening("dsflash:main#peer-a", "a", Origin::Dispatch, "t", 1_000), false));
+        assert_eq!(state_word(&s, None, None), "Peers running (1)", "an opening roster row runs");
     }
 
     #[test]

@@ -464,11 +464,16 @@ def env_port() -> int:
     return int(os.environ.get("A10_PORT", "8420"))
 
 
+def env_replay_port() -> int:
+    return int(os.environ.get("A10_REPLAY_PORT", "8432"))
+
+
 # ------------------------------------------------------------------ runner
 ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
+_ENV = object()  # run_session's "use the env/default port" marker
 
 
-def run_session(walk_fn, *, mode: str, outdir: str, port: int = 8420, replay_port: int | None = 8432,
+def run_session(walk_fn, *, mode: str, outdir: str, port: int | None = None, replay_port=_ENV,
                 scenario: str = "a10", env: dict | None = None, app_bin: str | None = None,
                 replay_args: list | None = None) -> int:
     """Start the replay server (recorded/faithful traffic, no model) and the
@@ -477,16 +482,17 @@ def run_session(walk_fn, *, mode: str, outdir: str, port: int = 8420, replay_por
     the operator's no-lingering-instances rule.
 
     `app_bin` defaults to $OCTOSCODE_APP_BIN. Phone mode uses the shell's
-    phone page with the 360x780 frame and opens OctosCode from its home."""
+    phone page with the 360x780 frame and opens OctosCode from its home.
+
+    `port` defaults to $A10_PORT (8420) and `replay_port` to $A10_REPLAY_PORT
+    (8432), so a walk can run on another agent's own ports; `replay_port=None`
+    runs without a replay server."""
+    port = port or env_port()
+    if replay_port is _ENV:
+        replay_port = env_replay_port()
     app_bin = app_bin or os.environ.get("OCTOSCODE_APP_BIN")
     if not app_bin:
         raise SystemExit("set OCTOSCODE_APP_BIN to the HOST binary (outer/scripts/hostbuild.sh)")
-    # A11: the walk aggregator (tools/walk/native.py) runs these walks in ITS
-    # port block — A10_PORT / A10_REPLAY_PORT override the defaults (unset,
-    # every walk keeps A10's own ports).
-    port = int(os.environ.get("A10_PORT") or port)
-    if replay_port:
-        replay_port = int(os.environ.get("A10_REPLAY_PORT") or replay_port)
     state = ROOT / "tmp" / "hs"
     state.mkdir(parents=True, exist_ok=True)
     replay = None

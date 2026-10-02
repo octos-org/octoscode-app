@@ -161,6 +161,108 @@ pub fn fit_w(s: &str, px_budget: f64, px: f64, face: Face) -> String {
     out
 }
 
+/// A13 — shorten `s` IN THE MIDDLE so its estimated run fits `px_budget`:
+/// the head and the tail stay (a link keeps its scheme and the session id at
+/// its end), joined by one `…`. Unchanged when it already fits.
+pub fn fit_middle(s: &str, px_budget: f64, px: f64, face: Face) -> String {
+    let budget = px_budget * 0.97;
+    if text_w(s, px, face) <= budget {
+        return s.to_owned();
+    }
+    let k = px * weight_factor(face);
+    let room = (budget - char_em('…', face) * k).max(0.0);
+    let chars: Vec<char> = s.chars().collect();
+    // The head takes up to two thirds of the room (a link's scheme and path
+    // name what it is); the tail takes what is left.
+    let mut head = 0usize;
+    let mut used = 0.0;
+    while head < chars.len() {
+        let cw = char_em(chars[head], face) * k;
+        if used + cw > room * 2.0 / 3.0 {
+            break;
+        }
+        used += cw;
+        head += 1;
+    }
+    let mut tail = chars.len();
+    while tail > head {
+        let cw = char_em(chars[tail - 1], face) * k;
+        if used + cw > room {
+            break;
+        }
+        used += cw;
+        tail -= 1;
+    }
+    let mut out: String = chars[..head].iter().collect();
+    out.push('…');
+    out.extend(chars[tail..].iter());
+    out
+}
+
+/// A13 (judge: raw protocol errors in dialogs) — is this error text
+/// developer wording rather than a sentence written for people? The
+/// client's own errors carry the JSON-RPC method and a transport wrapper
+/// (`octoscode_client::ClientError`: `{method}: rpc error …`, `{method}: bad
+/// result: …`, `{method}: transport: …`); the web's scope checks throw
+/// "Invalid or wrong-scope …" (`packages/client/src/inventory.ts:179-190`).
+pub fn is_protocol_error(s: &str) -> bool {
+    let t = s.trim();
+    let method_prefix = t.split_once(": ").is_some_and(|(head, _)| {
+        head.contains('/')
+            && !head.starts_with('/')
+            && head.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || matches!(c, '/' | '_' | '.' | '-'))
+    });
+    method_prefix
+        || ["rpc error", "bad result", ": transport: ", "wrong-scope", "missing field", "invalid type", "unknown variant"]
+            .iter()
+            .any(|k| t.contains(k))
+}
+
+/// A13 — a failure as people read it: a plain-language lead naming what
+/// failed (`lead`), then the cause the web would print (`cause.message`,
+/// e.g. `InventoryDialog.tsx:56-61`, capped at 512 characters like the web)
+/// on a smaller muted line under it, so the information stays but no longer
+/// leads. Ids: `{id}` is the lead, `{id}_detail` the cause.
+pub fn failure(d: &mut Dsl, id: &str, lead: &str, cause: &str) {
+    let cause = clean_cause(cause);
+    let col = d.anon();
+    d.view(&col, "width: Fill height: Fit flow: Down spacing: 2");
+    d.text(id, lead, &Txt::new(13.0, Face::Medium, tok::RED).w(W::Fill).wrap());
+    if !cause.is_empty() && cause != lead {
+        d.text(&format!("{id}_detail"), &cause, &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    }
+    d.close();
+}
+
+/// A13 — an error line that may be either: developer wording
+/// ([`is_protocol_error`]) gets the plain `lead` over it ([`failure`]); a
+/// message already written for people ("History belongs to another
+/// Session.") shows alone, red, as before.
+pub fn error_line(d: &mut Dsl, id: &str, lead: &str, msg: &str) {
+    if is_protocol_error(msg) {
+        failure(d, id, lead, msg);
+    } else {
+        d.text(id, &clean_cause(msg), &Txt::new(12.5, Face::Regular, tok::RED).w(W::Fill).wrap());
+    }
+}
+
+/// A13 — a dialog's error: when the dialog recorded what failed for THIS
+/// error text (`failed` = the plain lead and the cause it was recorded
+/// with), the lead with the cause muted under it ([`failure`]); otherwise
+/// [`error_line`] (an error set elsewhere never inherits a stale lead).
+pub fn dialog_error(d: &mut Dsl, id: &str, e: &str, failed: Option<&(&'static str, String)>, fallback: &str) {
+    match failed.filter(|(_, cause)| cause == e) {
+        Some((lead, _)) => failure(d, id, lead, e),
+        None => error_line(d, id, fallback, e),
+    }
+}
+
+/// Whitespace collapsed (the web renders the cause in a `<p>`), capped at
+/// 512 characters (`.slice(0, 512)`).
+fn clean_cause(s: &str) -> String {
+    s.split_whitespace().collect::<Vec<_>>().join(" ").chars().take(512).collect()
+}
+
 /// Escape a runtime string for a DSL string literal (`text: "…"`). Debug
 /// formatting escapes quotes, backslashes and control characters.
 pub fn lit(s: &str) -> String {
@@ -418,6 +520,25 @@ impl Dsl {
     /// with a hairline; `Disabled` = grey, no tap target (fail closed — a
     /// disabled control must not route anything).
     pub fn button(&mut self, id: &str, label: &str, event: &str, kind: Btn, width: W, height: f64) {
+        self.button_ids(&format!("{id}_box"), &format!("{id}_label"), id, label, event, kind, width, height);
+    }
+
+    /// [`Dsl::button`] with explicit widget ids for its surface, its label
+    /// and its tap target (A14: the A5 dialog host keeps the
+    /// `<base>_surface` / `<base>_label` / `<base>_control` names its walks
+    /// and tests address).
+    #[allow(clippy::too_many_arguments)]
+    pub fn button_ids(
+        &mut self,
+        box_id: &str,
+        label_id: &str,
+        tap_id: &str,
+        label: &str,
+        event: &str,
+        kind: Btn,
+        width: W,
+        height: f64,
+    ) {
         let (fill, fg, border) = match kind {
             Btn::Primary => (tok::BLACK, tok::WHITE, None),
             Btn::Outline => (tok::SURFACE, tok::TEXT, Some("#c7c7ccff")),
@@ -437,7 +558,7 @@ impl Dsl {
             w => w,
         };
         self.surface(
-            &format!("{id}_box"),
+            box_id,
             &format!(
                 "width: {} height: {} flow: Overlay align: Align{{x: 0.5 y: 0.5}}",
                 width.dsl(),
@@ -452,28 +573,59 @@ impl Dsl {
             &inner,
             "width: Fill height: Fill flow: Right align: Align{x: 0.5 y: 0.5} padding: Inset{left: 12 right: 12 top: 0 bottom: 0}",
         );
-        self.text(&format!("{id}_label"), label, &Txt::new(13.0, Face::Medium, fg));
+        self.text(label_id, label, &Txt::new(13.0, Face::Medium, fg));
         self.close();
         if !matches!(kind, Btn::Disabled | Btn::OutlineOff) {
-            self.tap(id, event);
+            self.tap(tap_id, event);
         }
         self.close();
     }
 
     /// A text link (blue), optionally tappable.
     pub fn link(&mut self, id: &str, label: &str, event: Option<&str>, px: f64) {
-        let wrap = format!("{id}_box");
+        self.link_ids(&format!("{id}_box"), &format!("{id}_label"), id, label, event, px, tok::BLUE);
+    }
+
+    /// [`Dsl::link`] with explicit ids and ink (A14: the dialog host's
+    /// `+ New loop` keeps `…_control`, a skill's Remove keeps `t_removeN` /
+    /// `t_removeN_hit`; a destructive link is red, a paused one faint).
+    #[allow(clippy::too_many_arguments)]
+    pub fn link_ids(
+        &mut self,
+        box_id: &str,
+        label_id: &str,
+        tap_id: &str,
+        label: &str,
+        event: Option<&str>,
+        px: f64,
+        color: &'static str,
+    ) {
         // Explicit box (see `text_w`): the tap target must not measure 0.
         let w = text_w(label, px, Face::Regular) + 4.0;
         // >= 28 px high: the brief's minimum hit size.
         let h = (px * 1.6).ceil().max(28.0);
         self.view(
-            &wrap,
+            box_id,
             &format!("width: {} height: {} flow: Overlay align: Align{{x: 0.0 y: 0.5}}", fmt_num(w), fmt_num(h)),
         );
-        self.text(&format!("{id}_label"), label, &Txt::new(px, Face::Regular, tok::BLUE));
+        self.text(label_id, label, &Txt::new(px, Face::Regular, color));
         if let Some(ev) = event {
-            self.tap(id, ev);
+            self.tap(tap_id, ev);
+        }
+        self.close();
+    }
+
+    /// A14 — a line icon in a square hit box: the glyph is `<base>`
+    /// (`size` px), its box `<base>_box` (`hit` px, centred) and, when
+    /// `event` is given, the tap `<base>_hit` over the whole box (>= 28 px).
+    pub fn icon_hit(&mut self, base: &str, file: &str, size: f64, hit: f64, event: Option<&str>) {
+        self.view(
+            &format!("{base}_box"),
+            &format!("width: {h} height: {h} flow: Overlay align: Align{{x: 0.5 y: 0.5}}", h = fmt_num(hit)),
+        );
+        self.icon(base, file, size, tok::MUTED);
+        if let Some(ev) = event {
+            self.tap(&format!("{base}_hit"), ev);
         }
         self.close();
     }
@@ -516,16 +668,49 @@ impl Dsl {
             8.0,
             Some("#d9d9dcff"),
         );
-        let face = if mono { Face::Mono } else { Face::Regular };
-        let style = text_style(face, 13.0);
-        let props = format!(
-            "width: Fill height: Fit padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: {}\nflow: Right is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {f} color_empty: {f} color_empty_hover: {f} color_empty_focus: {f}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
-            lit(text),
-            lit(placeholder),
-            t = tok::TEXT,
-            f = tok::FAINT,
+        self.open(id, "TextInput", &input_props(text, placeholder, mono, false));
+        self.close();
+        self.close();
+    }
+
+    /// A14 — [`Dsl::input`] with a leading line icon (the registry search's
+    /// magnifier): the glyph and the text share the field's centre line
+    /// (both centred by the field's `align y: 0.5`; a judge capture had the
+    /// placeholder 9 px under the glyph).
+    #[allow(clippy::too_many_arguments)]
+    pub fn input_icon(&mut self, id: &str, key: &str, text: &str, placeholder: &str, icon: &str, height: f64) {
+        self.inputs.push((id.to_owned(), key.to_owned()));
+        self.surface(
+            &format!("{id}_field"),
+            &format!(
+                "width: Fill height: {} flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8 padding: Inset{{left: 10 right: 10 top: 0 bottom: 0}}",
+                fmt_num(height)
+            ),
+            tok::SURFACE,
+            8.0,
+            Some("#d9d9dcff"),
         );
-        self.open(id, "TextInput", &props);
+        self.icon(&format!("{id}_icon"), icon, 16.0, tok::MUTED);
+        self.open(id, "TextInput", &input_props(text, placeholder, false, false));
+        self.close();
+        self.close();
+    }
+
+    /// A14 — a multi-line text field (the review instructions' `<textarea>`):
+    /// the text wraps from the field's top-left corner.
+    pub fn input_multiline(&mut self, id: &str, key: &str, text: &str, placeholder: &str, height: f64) {
+        self.inputs.push((id.to_owned(), key.to_owned()));
+        self.surface(
+            &format!("{id}_field"),
+            &format!(
+                "width: Fill height: {} flow: Down align: Align{{x: 0.0 y: 0.0}} padding: Inset{{left: 10 right: 10 top: 6 bottom: 6}}",
+                fmt_num(height)
+            ),
+            tok::SURFACE,
+            8.0,
+            Some("#d9d9dcff"),
+        );
+        self.open(id, "TextInput", &input_props(text, placeholder, false, true));
         self.close();
         self.close();
     }
@@ -609,6 +794,26 @@ impl Dsl {
     }
 }
 
+/// The kit's `TextInput` properties: 13 px text (mono or Inter), transparent
+/// background (the field surface paints), faint placeholder; `multiline`
+/// wraps and fills the field.
+fn input_props(text: &str, placeholder: &str, mono: bool, multiline: bool) -> String {
+    let face = if mono { Face::Mono } else { Face::Regular };
+    let style = text_style(face, 13.0);
+    let (walk, flow) = if multiline {
+        ("width: Fill height: Fill", "flow: Right{wrap: true} is_multiline: true")
+    } else {
+        ("width: Fill height: Fit", "flow: Right")
+    };
+    format!(
+        "{walk} padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: {}\n{flow} is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {f} color_empty: {f} color_empty_hover: {f} color_empty_focus: {f}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
+        lit(text),
+        lit(placeholder),
+        t = tok::TEXT,
+        f = tok::FAINT,
+    )
+}
+
 /// Segmented-control look.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Seg {
@@ -668,11 +873,48 @@ pub fn dialog_pad(frame: &Frame, width: f64) -> f64 {
     }
 }
 
+/// The widget ids one dialog family's frame carries. Board 3's dialogs use
+/// [`B3_IDS`]; A14: the A5 dialog host (`screens::dialog`) draws the SAME
+/// frame under the ids its walks and the judge tour address
+/// (`dialog_frame`, `dialog_scroll`, `dialog_close`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ShellIds {
+    pub root: &'static str,
+    pub backdrop: &'static str,
+    pub backdrop_box: &'static str,
+    pub backdrop_hit: &'static str,
+    /// The backdrop's routed event; `None` = a press that routes nothing.
+    pub backdrop_event: Option<&'static str>,
+    pub dialog: &'static str,
+    pub scroll: &'static str,
+    /// The close glyph's tap (its box is `<close>_box`, its icon
+    /// `<close>_icon`).
+    pub close: &'static str,
+}
+
+/// Board 3's own frame ids.
+pub const B3_IDS: ShellIds = ShellIds {
+    root: "b3_root",
+    backdrop: "b3_backdrop",
+    backdrop_box: "b3_backdrop_box",
+    backdrop_hit: "b3_backdrop_hit",
+    backdrop_event: Some("b3.noop"),
+    dialog: "b3_dialog",
+    scroll: "b3_scroll",
+    close: "b3_close",
+};
+
 /// Open the backdrop + the centred card (the web's `.backdrop` grid +
 /// `.dialog`). The card hugs its content; [`body_open`] caps the body so the
 /// whole card never exceeds the frame's max height (the web's `max-height:
 /// calc(100dvh - 32px)` + `overflow: auto`).
 pub fn shell_open(d: &mut Dsl, frame: &Frame, width: f64) {
+    shell_open_ids(d, frame, width, &B3_IDS);
+}
+
+/// [`shell_open`] under another family's ids (the same frame, backdrop and
+/// keyboard behaviour).
+pub fn shell_open_ids(d: &mut Dsl, frame: &Frame, width: f64, ids: &ShellIds) {
     let pad = dialog_pad(frame, width);
     // A8 — the root pans its content above an on-screen keyboard (makepad's
     // `KeyboardView`: the focused field stays visible while typing, the way a
@@ -681,19 +923,29 @@ pub fn shell_open(d: &mut Dsl, frame: &Frame, width: f64) {
     // set right under it, above the keyboard too. No keyboard (the desktop),
     // no shift.
     d.open(
-        "b3_root",
+        ids.root,
         "KeyboardView",
         "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5} keyboard_min_shift: 56.",
     );
-    d.rule("b3_backdrop", "width: Fill height: Fill", tok::MASK);
+    d.rule(ids.backdrop, "width: Fill height: Fill", tok::MASK);
     // The backdrop is modal: it swallows presses so nothing under it (the
     // sidebar, the composer) reacts, and it does not close the dialog
     // (`ui/ModalSurface.tsx`: Escape or the close control only).
-    d.view("b3_backdrop_box", "width: Fill height: Fill flow: Overlay");
-    d.tap("b3_backdrop_hit", "b3.noop");
+    d.view(ids.backdrop_box, "width: Fill height: Fill flow: Overlay");
+    match ids.backdrop_event {
+        Some(ev) => d.tap(ids.backdrop_hit, ev),
+        None => {
+            // A transparent button that takes the press and routes nothing.
+            let _ = writeln!(
+                d.out,
+                "{} := Button {{ width: Fill height: Fill text: \"\" draw_bg.color: #00000000 draw_bg.color_hover: #00000000 draw_bg.color_down: #00000000 draw_bg.border_size: 0.0 draw_bg.color_2: #00000000 draw_bg.border_color: #00000000 draw_bg.border_color_2: #00000000 }}",
+                ids.backdrop_hit
+            );
+        }
+    }
     d.close();
     d.surface(
-        "b3_dialog",
+        ids.dialog,
         &format!(
             "width: {} height: Fit flow: Down padding: Inset{{left: {p} right: {p} top: {p} bottom: {p}}}",
             fmt_num(width),
@@ -711,12 +963,17 @@ pub fn shell_open(d: &mut Dsl, frame: &Frame, width: f64) {
 /// `ScrollYView` resolves a `Fit` height against `max_height`
 /// (makepad `scroll_bars.rs:372-378`).
 pub fn body_open(d: &mut Dsl, frame: &Frame, width: f64, chrome_h: f64) {
+    body_open_id(d, frame, width, chrome_h, B3_IDS.scroll);
+}
+
+/// [`body_open`] with the scroll view's id.
+pub fn body_open_id(d: &mut Dsl, frame: &Frame, width: f64, chrome_h: f64, scroll_id: &str) {
     let pad = dialog_pad(frame, width);
     let max_body = (frame.dialog_max_h() - 2.0 * pad - chrome_h).max(120.0).floor();
     // The right inset is the scroll bar's gutter: measured on the phone
     // layout, the bar drew over the first rows' status chips without it.
     d.open(
-        "b3_scroll",
+        scroll_id,
         "ScrollYView",
         &format!(
             "width: Fill height: Fit max_height: {} flow: Down padding: Inset{{left: 0 top: 0 right: 10 bottom: 0}}",
@@ -749,10 +1006,21 @@ pub fn header(d: &mut Dsl, title_text: &str, close_event: &str) {
 
 /// The 28x28 close target with the module's own close icon.
 pub fn close_glyph(d: &mut Dsl, event: &str) {
-    d.view("b3_close_box", "width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}");
-    d.icon("b3_close_icon", "b3_close.svg", 15.0, tok::TEXT);
-    d.tap("b3_close", event);
+    close_glyph_id(d, B3_IDS.close, event);
+}
+
+/// [`close_glyph`] under another tap id (`<id>_box`, `<id>_icon`, `<id>`).
+pub fn close_glyph_id(d: &mut Dsl, id: &str, event: &str) {
+    d.view(&format!("{id}_box"), "width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}");
+    d.icon(&format!("{id}_icon"), "b3_close.svg", 15.0, tok::TEXT);
+    d.tap(id, event);
     d.close();
+}
+
+/// The session / Profile scope line under a dialog's title (the board's
+/// `dsflash:main` subtitle, the web's `.scope`).
+pub fn scope() -> Txt {
+    Txt::new(11.5, Face::Mono, tok::MUTED)
 }
 
 /// A 28x28 icon button (refresh, copy).
@@ -920,6 +1188,57 @@ pub fn leaf(path: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A13 — developer wording is recognised (the client's method-prefixed
+    /// rpc / decode / transport errors, the web's scope refusals); sentences
+    /// for people are not.
+    #[test]
+    fn protocol_errors_are_told_from_sentences_for_people() {
+        for raw in [
+            "session/hydrate: bad result: missing field `session_id`",
+            "tool/status/list: rpc error -32601 (method not found)",
+            "session/open: transport: channel closed",
+            "Invalid or wrong-scope tool status",
+            "agent/status/read: returned agent \"a2\"",
+        ] {
+            assert!(is_protocol_error(raw), "{raw}");
+        }
+        for plain in [
+            "History changed. Reload the checkpoint picker.",
+            "The Session became active. Wait before rewinding.",
+            "Couldn't delete the session: session is busy",
+            "A confirmed session and profile are required",
+            "Upload was not confirmed (500).",
+        ] {
+            assert!(!is_protocol_error(plain), "{plain}");
+        }
+        // failure(): the lead first (red, medium), the cause muted under it,
+        // whitespace collapsed and capped at 512 characters like the web.
+        let mut d = Dsl::new();
+        failure(&mut d, "x_error", "Couldn't read the tools for this session.", &format!("a/b: rpc error 1 ({})", "z ".repeat(400)));
+        let dsl = d.finish();
+        let lead = dsl.find("x_error := Label").unwrap();
+        let detail = dsl.find("x_error_detail := Label").unwrap();
+        assert!(lead < detail && dsl[lead..detail].contains(tok::RED) && dsl[detail..].contains(tok::MUTED));
+        let cause = dsl[detail..].split("text: \"").nth(1).unwrap().split('"').next().unwrap();
+        assert_eq!(cause.chars().count(), 512);
+        // error_line(): a plain message shows alone.
+        let mut d = Dsl::new();
+        error_line(&mut d, "y_error", "Lead", "Couldn't delete the session: session is busy");
+        let dsl = d.finish();
+        assert!(!dsl.contains("Lead") && !dsl.contains("y_error_detail"), "{dsl}");
+    }
+
+    /// A13 — the middle ellipsis keeps both ends and fits the budget.
+    #[test]
+    fn fit_middle_keeps_the_head_and_the_tail() {
+        let s = "abcdefghijklmnopqrstuvwxyz0123456789";
+        let out = fit_middle(s, 120.0, 12.0, Face::Mono);
+        assert!(text_w(&out, 12.0, Face::Mono) <= 120.0, "{out}");
+        let (head, tail) = out.split_once('…').unwrap();
+        assert!(s.starts_with(head) && s.ends_with(tail) && !head.is_empty() && !tail.is_empty(), "{out}");
+        assert_eq!(fit_middle("short", 120.0, 12.0, Face::Mono), "short");
+    }
 
     #[test]
     fn taps_are_in_the_shape_the_shared_tap_path_reads() {

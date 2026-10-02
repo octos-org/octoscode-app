@@ -615,13 +615,13 @@ script_mod! {
                     width: Fit height: Fill flow: Right spacing: 2 visible: false
                     hd_tab_chat := View{
                         width: Fit height: Fill flow: Overlay
-                        View{
+                        hd_tab_chat_pad := View{
                             width: Fit height: Fill flow: Right align: Align{y: 0.5}
                             padding: Inset{left: 10 right: 10}
                             hd_tab_chat_on := OcLabel{text: "Chat" draw_text +: {text_style +: {font_size: 9.75}}}
                             hd_tab_chat_off := OcMuted{text: "Chat" visible: false draw_text +: {text_style +: {font_size: 9.75}}}
                         }
-                        View{
+                        hd_tab_chat_barpad := View{
                             width: Fill height: Fill flow: Down align: Align{y: 1.0}
                             padding: Inset{left: 9 right: 9}
                             hd_tab_chat_bar := RoundedView{width: Fill height: 2 draw_bg +: {color: #2F6FEB border_radius: 1.0}}
@@ -630,13 +630,13 @@ script_mod! {
                     }
                     hd_tab_traj := View{
                         width: Fit height: Fill flow: Overlay
-                        View{
+                        hd_tab_traj_pad := View{
                             width: Fit height: Fill flow: Right align: Align{y: 0.5}
                             padding: Inset{left: 10 right: 10}
                             hd_tab_traj_on := OcLabel{text: "Trajectory" visible: false draw_text +: {text_style +: {font_size: 9.75}}}
                             hd_tab_traj_off := OcMuted{text: "Trajectory" draw_text +: {text_style +: {font_size: 9.75}}}
                         }
-                        View{
+                        hd_tab_traj_barpad := View{
                             width: Fill height: Fill flow: Down align: Align{y: 1.0}
                             padding: Inset{left: 9 right: 9}
                             hd_tab_traj_bar := RoundedView{width: Fill height: 2 visible: false draw_bg +: {color: #2F6FEB border_radius: 1.0}}
@@ -738,8 +738,12 @@ script_mod! {
             View{
                 width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
                 padding: Inset{left: 16 right: 8 top: 8 bottom: 8}
+                // A13 (judge: the strip wrapped to 3 lines on a 360 px
+                // phone): ONE line at every width, ellipsized; the full
+                // defaults are one tap away (Change -> Settings).
                 hd_defaults_text := OcLabel{
                     width: Fill text: "New chat defaults"
+                    max_lines: 1 text_overflow: TextOverflow.Ellipsis
                     draw_text +: {text_style +: {font_size: 9.75 line_spacing: 1.45}}
                 }
                 View{
@@ -1803,6 +1807,9 @@ impl ChromeRuntime {
         show(cx, view, ids!(oc_sidebar_body), !rail);
         show(cx, view, ids!(oc_sidebar_foot), !rail);
         show(cx, view, ids!(sidebar_header), !rail);
+        // The collapsed rail keeps the Fleet entry as its icon only; the web
+        // drops the label (ProductSidebar.tsx:980). Left in, it clipped to 3 px.
+        show(cx, view, ids!(fleet_nav_label), !rail);
         show(cx, view, ids!(sidebar_collapse_slot), !compact && !rail);
         if crate::screens::sidebar::take_focus_search() {
             view.widget(cx, ids!(sb_search)).set_key_focus(cx);
@@ -1844,6 +1851,21 @@ impl ChromeRuntime {
             let mut left = view.widget(cx, ids!(hd_left));
             let pad = Inset { left: 12.0, right: left_pad, top: 0.0, bottom: 0.0 };
             script_apply_eval!(cx, left, { padding: #(pad) });
+            // A13 — the web's phone header (`AppProduct.module.css`, max-width
+            // 400px: `.conversationTabs button { padding: 0 4px }`): the tabs'
+            // padding gives way before the session title does (measured at
+            // 360 px: the title had 63 px, "Why do..").
+            let (tab, bar) = if compact { (4.0, 3.0) } else { (10.0, 9.0) };
+            let tab = Inset { left: tab, right: tab, top: 0.0, bottom: 0.0 };
+            let bar = Inset { left: bar, right: bar, top: 0.0, bottom: 0.0 };
+            let mut v = view.widget(cx, ids!(hd_tab_chat_pad));
+            script_apply_eval!(cx, v, { padding: #(tab) });
+            let mut v = view.widget(cx, ids!(hd_tab_traj_pad));
+            script_apply_eval!(cx, v, { padding: #(tab) });
+            let mut v = view.widget(cx, ids!(hd_tab_chat_barpad));
+            script_apply_eval!(cx, v, { padding: #(bar) });
+            let mut v = view.widget(cx, ids!(hd_tab_traj_barpad));
+            script_apply_eval!(cx, v, { padding: #(bar) });
         }
         show(cx, view, ids!(hd_review_label), !compact);
         show(cx, view, ids!(hd_settings_label), !compact);
@@ -1877,7 +1899,12 @@ impl ChromeRuntime {
             .unwrap_or(true);
         show(cx, view, ids!(hd_defaults), live && empty);
         if live && empty {
-            text(cx, view, ids!(hd_defaults_text), &settings::defaults_line(store));
+            // A13: on a phone the one line ends at a whole segment, then "…"
+            // (the label's own ellipsis stays the safety net). The label's
+            // width: the strip's insets (16 + 8), its spacing (8), Change (72).
+            let line = settings::defaults_line(store);
+            let line = if compact { fit_segments(&line, window_w - 104.0) } else { line };
+            text(cx, view, ids!(hd_defaults_text), &line);
         }
         // Board 12: held by another client.
         let held = held_by_other(store);
@@ -2046,6 +2073,24 @@ fn segment_hit(cx: &mut Cx, view: &View, seg: LiveId, actions: &Actions) -> bool
 
 fn toggle_hit(cx: &mut Cx, view: &View, toggle: LiveId, actions: &Actions) -> bool {
     clicked(cx, view, &[toggle, live_id!(tg_hit)], actions)
+}
+
+/// A13 — an `a · b · c` line cut at a whole segment so it fits `budget` px
+/// (13 px Inter, the kit's advance estimate: it runs wide on ` · `), ending `· …`
+/// when segments were dropped. The first segment always stays.
+pub fn fit_segments(line: &str, budget: f64) -> String {
+    use crate::screens::board3::ui::{text_w, Face};
+    let parts: Vec<&str> = line.split(" · ").collect();
+    let mut out = String::new();
+    for (i, part) in parts.iter().enumerate() {
+        let next = if out.is_empty() { (*part).to_owned() } else { format!("{out} · {part}") };
+        let tail = if i + 1 < parts.len() { " · …" } else { "" };
+        if !out.is_empty() && text_w(&format!("{next}{tail}"), 13.0, Face::Regular) > budget {
+            return format!("{out} · …");
+        }
+        out = next;
+    }
+    out
 }
 
 /// The server origin the settings show (the web's `serverOrigin`): the
@@ -2384,6 +2429,21 @@ pub fn seed_board2(store: &octoscode_store::Store, variant: &str) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A13 (judge: the defaults strip wrapped to 3 lines at 360 px) — on a
+    /// phone the line ends at a whole segment with "· …" inside the label's
+    /// 256 px; a line that fits stays whole.
+    #[test]
+    fn the_defaults_line_is_cut_at_a_whole_segment() {
+        use crate::screens::board3::ui::{text_w, Face};
+        let line = "New chat defaults · Ask for approval · Workspace write · deepseek-v4-flash · Thinking: On";
+        let phone = fit_segments(line, 360.0 - 104.0);
+        assert!(phone.ends_with(" · …") && line.starts_with(phone.trim_end_matches(" · …")), "{phone}");
+        assert!(phone.starts_with("New chat defaults · Ask for approval"), "{phone}");
+        assert!(text_w(&phone, 13.0, Face::Regular) <= 256.0, "{phone}");
+        assert_eq!(fit_segments(line, 900.0), line, "a line that fits stays whole");
+        assert_eq!(fit_segments("New chat defaults", 10.0), "New chat defaults", "the first segment stays");
+    }
 
     #[test]
     fn a_notice_fires_once_per_new_settle_or_wait_and_only_in_the_background() {

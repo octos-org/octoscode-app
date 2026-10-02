@@ -423,6 +423,35 @@ mod tests {
         assert!(eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl).is_ok(), "the streaming answer evaluates");
     }
 
+    /// A13 (judge, 360 px: "Args::\nparse()") — a settled code block lays
+    /// its lines out whole inside a `ScrollXView` (a known grammar coloured,
+    /// an unknown fence plain), the streaming block keeps the wrapping flow,
+    /// and both evaluate in the app VM at both densities.
+    #[test]
+    fn a13_settled_code_scrolls_sideways_and_evaluates() {
+        use crate::conv_layout::Metrics;
+        let mut cx = cx_with_vocabulary();
+        cx.with_vm(crate::code_view::script_mod);
+        let long = "let args = Args::parse(); // a line longer than any phone column, kept whole";
+        for m in [Metrics::for_window(990.0, true), Metrics::for_window(360.0, false)] {
+            for (fence, lang) in [("rust", "rust"), ("", ""), ("brainfuck", "")] {
+                let md = format!("Run:\n\n```{fence}\n{long}\n```\n");
+                let d = crate::markdown::display(&md, false);
+                let dsl = crate::fluid::assistant_answer("0", &d, None, &m);
+                let at = dsl.find("i0_code_1_scroll := ScrollXView{").unwrap_or_else(|| panic!("{fence:?}: {dsl}"));
+                let lines = &dsl[at..];
+                assert!(lines.contains("mod.widgets.A7CodeLines{width: Fit height: Fit\nwrap: false"), "{fence:?}");
+                assert!(lines.contains(&format!("lang: {lang:?}")), "{fence:?}");
+                assert!(lines.contains(&format!("{long:?}")), "the whole line, unbroken");
+                assert!(eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl).is_ok(), "{fence:?} evaluates: {dsl}");
+            }
+            let streaming = crate::markdown::display(&format!("Run:\n\n```rust\n{long}\n"), true);
+            let dsl = crate::fluid::assistant_answer("0", &streaming, None, &m);
+            assert!(!dsl.contains("ScrollXView") && !dsl.contains("A7CodeLines"), "the stream keeps the wrapping flow");
+            assert!(eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl).is_ok());
+        }
+    }
+
     /// A7: the answer's display variants (math typeset through MathView, code
     /// blocks with their banner + Copy hit, unsafe links/images stripped)
     /// evaluate in the app VM at both densities — a widget property the
@@ -476,6 +505,30 @@ mod tests {
         let mut cx = cx_with_vocabulary();
         let r = eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl);
         assert!(r.is_ok(), "the notice row must evaluate: {dsl}");
+    }
+
+    /// A13 — a command receipt's compact notice row (the production rows
+    /// path: store -> `rows::timeline` -> `rows::lower`) evaluates in the
+    /// app VM.
+    #[test]
+    fn a13_receipt_rows_evaluate_in_the_app_vm() {
+        use crate::screens::board3::rows::{self, TRow};
+        let store = std::sync::Arc::new(octoscode_store::Store::new());
+        store.set_active(Some("s".into()));
+        store.domains.session.timeline.append(
+            "s",
+            Some(crate::screens::palette::next_receipt_turn()),
+            crate::screens::palette::REPORT_KIND,
+            "/cost is not available in this native build — nothing was sent to the model.".into(),
+        );
+        let row = rows::timeline(&store, false)
+            .into_iter()
+            .find(|r| matches!(r, TRow::Receipt(_)))
+            .expect("the receipt row");
+        let dsl = rows::lower(&row, &store);
+        let mut cx = cx_with_vocabulary();
+        let r = eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl);
+        assert!(r.is_ok(), "the receipt row must evaluate: {dsl}");
     }
 
     #[test]

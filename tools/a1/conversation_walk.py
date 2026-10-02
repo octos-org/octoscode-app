@@ -55,15 +55,25 @@ LOG_SEQ = [0]
 
 
 def get(path, timeout=20):
-    # A11: an input route with wait=1 answers HTTP 404 when its frame was
-    # coalesced — the input was delivered; only a read may raise.
-    try:
-        with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
-            return r.read().decode()
-    except urllib.error.HTTPError:
-        if path.startswith(("/click", "/t?", "/k?", "/m?")):
+    # An input route with wait=1 answers HTTP 404 when its frame was
+    # coalesced — the input was delivered (A11), so it is never re-sent; a
+    # read that 404s (the UI thread missed its 5 s window on a loaded
+    # machine) is retried once after a pause, which tells a stall from a dead
+    # app (A13).
+    if path.startswith(("/click", "/t?", "/k?", "/m?")):
+        try:
+            with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
+                return r.read().decode()
+        except urllib.error.HTTPError:
             return ""
-        raise
+    for attempt in (0, 1):
+        try:
+            with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
+                return r.read().decode()
+        except urllib.error.HTTPError as e:
+            if attempt or e.code != 404:
+                raise
+            time.sleep(2.0)
 
 
 def snap():

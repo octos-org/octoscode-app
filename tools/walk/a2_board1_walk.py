@@ -329,7 +329,7 @@ def main():
         w0 = find("b1_connect_pair")
         if not (w0 and w0.get("r", [0, 0, 0, 0])[2] > 0):
             clickxy(153, 363); time.sleep(3.0)
-    wait("b1_connect_pair", 20)
+    wait("b1_connect_pair", 45)  # a loaded machine can take ~30 s to lay out the first-run card
     capture_entry("entry_connect", "b1_connect_pair")
     click_until("b1_connect_pair", "b1_pair_submit")
     capture("p4-01_pair")
