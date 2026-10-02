@@ -1,0 +1,13 @@
+PASS the relaunch goes straight back to the Session
+PASS wire: no launch/resolve on a restore
+PASS wire: the remembered Session is opened with its profile — [{"cwd": "<scratch>/live/copied/inst/profiles/dsflash/data/users/dsflash%3Amain/workspace", "profile_id": "dsflash", "sandbox": null, "session_id": "dsflash:main"}]
+PASS wire: nothing created
+SHOT 01-restored-desktop
+redacted 01-restored-desktop: ['hd_path']
+TYPE 'Reply with one short sentence: say hello after the relaunch.'
+CLICK send_hit r=[978, 621, 32, 32] at (994,637)
+PASS the answer streamed to its end ('Worked for')
+PASS wire: one turn/start
+SHOT 02-restored-answer-desktop
+redacted 02-restored-answer-desktop: ['hd_path']
+== 6/6 checks passed

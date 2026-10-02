@@ -1,0 +1,14 @@
+PASS straight to a Session (composer, no panel)
+PASS wire: launch/resolve carries NO profile id — [{"cwd": "<scratch>/live/copied/ws"}]
+PASS wire: Core resolved a profile at once (resume/activate) — [{"decision": "activate", "resolved_profile": "dsflash"}]
+PASS wire: the Session opened under it — [{"cwd": "<scratch>/live/copied/ws", "profile_id": "dsflash", "sandbox": null, "session_id": "dsflash:api:01a0fcd2-96be-74c5-ac73-208860ec3094"}]
+PASS wire: nothing created
+SHOT 01-session-desktop
+redacted 01-session-desktop: ['hd_path']
+TYPE 'In one short sentence: what does main.rs in this workspace print?'
+CLICK send_hit r=[978, 621, 32, 32] at (994,637)
+PASS the answer streamed to its end ('Worked for')
+PASS wire: one turn/start
+SHOT 02-answer-desktop
+redacted 02-answer-desktop: ['hd_path']
+== 7/7 checks passed
