@@ -381,6 +381,12 @@ impl SeatSim {
                 Ok(serde_json::json!({"applied": true, "current": self.current, "session_id": session}))
             }
             "profile/llm/list" => Ok(serde_json::json!({"session_id": session, "models": self.models})),
+            // A10 — native review (octos-core `ReviewStartResult`, the web's
+            // `parseReviewStartResult`): the request's own turn echoed.
+            "review/start" => Ok(serde_json::json!({
+                "session_id": session, "turn_id": params["turn_id"], "accepted": true,
+                "workflow": "code_review", "backend": "native", "agent_count": 3,
+            })),
             "profile/llm/select" => {
                 let model = params["model_id"].as_str().unwrap_or("").to_owned();
                 let route = params["route_id"].as_str().unwrap_or("").to_owned();
@@ -1547,7 +1553,7 @@ async fn main() {
                         })).await;
                     }
                     // A10 — the composer seats' simulator (scenario a10).
-                    m @ ("permission/profile/list" | "permission/profile/set" | "profile/llm/select")
+                    m @ ("permission/profile/list" | "permission/profile/set" | "profile/llm/select" | "review/start")
                         if seat_sim.is_some() =>
                     {
                         let sim = seat_sim.as_mut().expect("a10");

@@ -200,6 +200,18 @@ pub struct RevUi {
     pub agents: Option<u32>,
     /// The typed reason native review is withheld, when it is.
     pub blocked: Option<&'static str>,
+    /// A10 — the dialog's "Review instructions (optional)" text, read from
+    /// its field when Start is pressed (rendered inert: plain text, sent as
+    /// typed, trimmed; never fabricated).
+    pub prompt: String,
+    /// A10 — the accepted review's own turn id (its terminal frees the
+    /// dialog for a new review).
+    pub review_turn: Option<String>,
+}
+
+/// A10 — the instructions field's text at the moment Start is pressed.
+pub fn set_prompt(text: &str) {
+    state().prompt = text.to_owned();
 }
 
 fn state() -> MutexGuard<'static, RevUi> {
@@ -262,6 +274,15 @@ pub fn note_transport_event(evt: &octos_app_transport::TransportEvent) {
 /// so the slot honestly stays None (the authored copy renders) until a real
 /// preview arrives.
 pub fn note_envelope(body: &Value) {
+    // A10 — the accepted review's own turn ending (any outcome) frees the
+    // review: the dialog offers a new start.
+    if body["payload"]["type"] == "turn_terminal" {
+        let mut st = state();
+        if st.review_turn.is_some() && body["turn_id"].as_str() == st.review_turn.as_deref() {
+            st.review_turn = None;
+            st.agents = None;
+        }
+    }
     if body["payload"]["type"] != "turn_terminal"
         || body["payload"]["data"]["outcome"] != "completed"
     {
@@ -327,6 +348,12 @@ pub fn blocked_reason(store: &Store, ui: &crate::flow::FlowUi) -> Option<&'stati
     if !(method_ok && feature_ok) {
         return Some("This server does not advertise native code review.");
     }
+    // A10 — `sessionNotReady` is the Session's own readiness (connected, an
+    // open Session), not a previous turn: a review is a NEW turn with its own
+    // fresh id (`native-review.ts:177`, `crypto.randomUUID()`).
+    if !store.is_live() || store.active_session().is_none() {
+        return Some("Wait for this Session to finish recovery before starting review.");
+    }
     if ui.turn_active() {
         return Some(
             "Wait for this Session's active turn and queued prompts to settle before starting review.",
@@ -336,9 +363,6 @@ pub fn blocked_reason(store: &Store, ui: &crate::flow::FlowUi) -> Option<&'stati
         return Some(
             "Wait for this Session's pending questions and approvals to settle before starting review.",
         );
-    }
-    if state().last_turn_id.is_none() {
-        return Some("Wait for this Session to finish recovery before starting review.");
     }
     None
 }
@@ -437,9 +461,10 @@ pub fn query(_ctx: &Ctx<'_>, id: &str) -> Option<Value> {
 pub enum Effect {
     /// `diff.scope` — cycle the pill and re-fetch the preview for the scope.
     ScopeCycle,
-    /// `review.start` — `review/start` for the confirmed turn
-    /// (`history.ts:250`).
-    StartReview { session_id: String, turn_id: String },
+    /// `review.start` — `review/start` as a NEW turn: a fresh protocol turn
+    /// UUID and the optional trimmed instructions (`history.ts:249-268`,
+    /// `native-review.ts:174-188`; no default prompt is ever fabricated).
+    StartReview { session_id: String, turn_id: String, prompt: Option<String> },
     /// The start was withheld; the typed reason goes to the status row.
     Blocked(&'static str),
     Unhandled(String),
@@ -459,19 +484,19 @@ pub fn resolve(action: &str, _index: usize, ctx: &Ctx<'_>) -> Effect {
         }
         "review.start" => {
             let session_id = ctx.store.active_session().unwrap_or_default();
-            let (turn, blocked) = {
-                let st = state();
-                (st.last_turn_id.clone(), st.blocked)
-            };
             let ui = ctx.ui.lock().unwrap();
-            let blocked = blocked.or(blocked_reason(ctx.store, &ui));
+            let blocked = blocked_reason(ctx.store, &ui);
             drop(ui);
-            match (turn, blocked) {
-                (Some(turn_id), None) => Effect::StartReview { session_id, turn_id },
-                (_, Some(reason)) => Effect::Blocked(reason),
-                (None, None) => Effect::Blocked(
-                    "Wait for this Session to finish recovery before starting review.",
-                ),
+            match blocked {
+                Some(reason) => Effect::Blocked(reason),
+                None => {
+                    let typed = state().prompt.trim().to_owned();
+                    Effect::StartReview {
+                        session_id,
+                        turn_id: octos_core::ui_protocol::TurnId::new().0.to_string(),
+                        prompt: (!typed.is_empty()).then_some(typed),
+                    }
+                }
             }
         }
         other => Effect::Unhandled(other.to_owned()),
@@ -481,8 +506,21 @@ pub fn resolve(action: &str, _index: usize, ctx: &Ctx<'_>) -> Effect {
 /// UI-local half: a blocked start writes its typed reason into the status row
 /// (`NativeReviewDialog.tsx:84-97`).
 pub fn apply(effect: &Effect) {
-    if let Effect::Blocked(reason) = effect {
-        state().blocked = Some(reason);
+    match effect {
+        Effect::Blocked(reason) => state().blocked = Some(reason),
+        // An admitted review closes the dialog at once (`start()` ->
+        // `onClose()`); its progress and errors appear in the Session.
+        Effect::StartReview { .. } => {
+            {
+                let mut st = state();
+                st.blocked = None;
+                st.prompt.clear();
+            }
+            if crate::screens::dialog::current() == Some(crate::screens::dialog::Dialog::Review) {
+                crate::screens::dialog::close();
+            }
+        }
+        _ => {}
     }
 }
 
@@ -507,27 +545,70 @@ pub async fn perform(effect: Effect, conv: &Conversation) -> Result<(), String> 
             fold_preview(&v);
             Ok(())
         }
-        Effect::StartReview { session_id, turn_id } => {
-            let v = conv
-                .client()
-                .request(
-                    "review/start",
-                    json!({"session_id": session_id, "turn_id": turn_id, "delivery": "inline"}),
-                )
-                .await
-                .map_err(|e| format!("review/start: {e}"))?;
-            // Fold the accepted receipt (`review.rs` ReviewStartResult; the
-            // web's parseReviewStartResult) into the store's review domain.
-            if v["accepted"].as_bool() == Some(true) {
-                let agents = v["agent_count"].as_u64().unwrap_or(0) as u32;
-                conv.store
-                    .domains
-                    .review
-                    .note_review(StartedReview { session_id, turn_id, agent_count: agents });
-                state().agents = Some(agents);
-                state().blocked = None;
+        Effect::StartReview { session_id, turn_id, prompt } => {
+            // The Session records the request first (`use-turn-controller.ts`
+            // `addSystemMessage("Native code review", text || …)`): the typed
+            // instructions verbatim, or the web's own line — never invented.
+            let line = match prompt.as_deref() {
+                Some(p) => format!("Native code review: {p}"),
+                None => "Native code review: Review requested for current project changes.".to_owned(),
+            };
+            let timeline = &conv.store.domains.session.timeline;
+            timeline.append(&session_id, Some(turn_id.clone()), octoscode_store::EntryKind::SYSTEM_NOTICE, line);
+            let mut params = json!({"session_id": session_id, "turn_id": turn_id, "delivery": "inline"});
+            if let Some(p) = &prompt {
+                params["prompt"] = json!(p);
             }
-            Ok(())
+            let result = async {
+                let v = conv
+                    .client()
+                    .request("review/start", params)
+                    .await
+                    .map_err(|e| crate::screens::dialog::display_error(&e.to_string()))?;
+                // `parseReviewStartResult` + the controller's checks: this
+                // Session, this turn, the native code_review workflow.
+                let agents = v["agent_count"].as_u64();
+                if v["session_id"] != json!(session_id)
+                    || v["turn_id"] != json!(turn_id)
+                    || v["workflow"] != "code_review"
+                    || v["backend"] != "native"
+                    || !v["accepted"].is_boolean()
+                    || agents.is_none()
+                {
+                    return Err("Native review returned another turn or workflow.".to_owned());
+                }
+                if v["accepted"] != json!(true) {
+                    return Err("The server did not accept native review.".to_owned());
+                }
+                Ok(agents.unwrap_or(0) as u32)
+            }
+            .await;
+            match result {
+                Ok(agents) => {
+                    {
+                        let mut st = state();
+                        st.agents = Some(agents);
+                        st.blocked = None;
+                        st.review_turn = Some(turn_id.clone());
+                    }
+                    conv.store
+                        .domains
+                        .review
+                        .note_review(StartedReview { session_id, turn_id, agent_count: agents });
+                    Ok(())
+                }
+                Err(e) => {
+                    // The failure stays on the Session (the web's
+                    // "Turn not sent" system message).
+                    timeline.append(
+                        &session_id,
+                        Some(turn_id),
+                        octoscode_store::EntryKind::SYSTEM_NOTICE,
+                        format!("Native code review not started: {e}"),
+                    );
+                    Err(format!("review/start: {e}"))
+                }
+            }
         }
         Effect::Blocked(_) | Effect::Unhandled(_) => Ok(()),
     }

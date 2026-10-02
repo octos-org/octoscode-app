@@ -442,6 +442,18 @@ pub fn set_seat_anchors(permission: Option<super::seats::Anchor>, model: Option<
     st.seats.model_anchor = model;
 }
 
+/// Whether the permission seat still needs `session`'s profile read (asked
+/// once per opened Session, so the seat names the server's preset before
+/// its menu is ever opened).
+pub fn seat_read_needed(session: &str) -> bool {
+    let mut st = state();
+    if st.seats.read_for.as_deref() == Some(session) {
+        return false;
+    }
+    st.seats.read_for = Some(session.to_owned());
+    true
+}
+
 pub fn close() {
     let mut st = state();
     if st.open == Some(Dialog::Research) {

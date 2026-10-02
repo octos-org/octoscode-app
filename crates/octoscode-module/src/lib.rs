@@ -1839,6 +1839,14 @@ impl OctoscodeView {
         // #30a: the board-3 review screens' ids route through their own table
         // first (one-owner rule); the conversation router never sees them.
         if screens::review::is_action(action) {
+            // A10 — Start reads the dialog's "Review instructions" field.
+            if action == "review.start" {
+                let typed = self
+                    .view
+                    .text_input(cx, &[LiveId::from_str(screens::dialog::REVIEW_PROMPT_INPUT)])
+                    .text();
+                screens::review::set_prompt(&typed);
+            }
             let (store, ui, conv) = {
                 let b = self.bridge.lock().unwrap();
                 (b.store.clone(), b.ui.clone(), b.conv.clone())
@@ -4156,6 +4164,18 @@ impl OctoscodeView {
         let p = anchor(self.view.widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_2)]).area().rect(cx));
         let m = anchor(self.view.widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_model)]).area().rect(cx));
         screens::board3::host::set_seat_anchors(p, m);
+        // The web reads the permission profile when a Session opens: the seat
+        // names the server's preset before its menu is ever opened.
+        if perm && store.domains.profile.permission().is_none() {
+            if let Some(session) = store.active_session() {
+                if screens::board3::host::seat_read_needed(&session) {
+                    self.board3_outcome(
+                        cx,
+                        screens::board3::host::Outcome::Spawn(screens::board3::host::Job::PermissionLoad),
+                    );
+                }
+            }
+        }
     }
 
     fn apply_composer_fit(&mut self, cx: &mut Cx) {

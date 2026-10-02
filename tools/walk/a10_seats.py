@@ -80,6 +80,8 @@ def walk(W: Walk) -> None:
     W.note("== 1. the seats: permission left, model right")
     W.check("seats: both seats are drawn (the server offers both menus)",
             W.wait(lambda: bool(W.visible("i0_composer_2")) and bool(W.visible("i0_composer_model")), 10))
+    W.check("seats: the permission seat names the server's preset before its menu opens (read at Session open)",
+            W.wait(lambda: W.text("i0_composer_2_0") == "Write · Network allowed", 10), W.text("i0_composer_2_0"))
 
     W.note("== 2. the permission menu (approval pill CLICK)")
     W.check("permission: approval pill CLICK -> the menu above it (permission/profile/list)",

@@ -212,6 +212,9 @@ pub struct SeatsState {
     pub turn_busy: bool,
     pub perm_anchor: Option<Anchor>,
     pub model_anchor: Option<Anchor>,
+    /// The Session whose permission profile the seat already asked for (the
+    /// web reads it once per opened Session, `refreshPermission`).
+    pub read_for: Option<String>,
 }
 
 fn has(store: &Store, m: &str) -> bool {

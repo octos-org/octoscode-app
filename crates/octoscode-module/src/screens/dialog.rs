@@ -1943,13 +1943,12 @@ fn live_review(tree: &mut UiNode, ctx: &Ctx<'_>) {
         let ui = ctx.ui.lock().unwrap();
         crate::screens::review::blocked_reason(ctx.store, &ui)
     };
+    // A10 — the "not a diff preview" distinction now lives in the web's own
+    // paragraphs below the card (`NativeReviewDialog.tsx:61-71`).
     let (head, sub) = match (status, blocked) {
         (Some(s), _) => (s, String::new()),
         (None, Some(b)) => (b.to_owned(), String::new()),
-        (None, None) => (
-            "Ready to review the current project changes.".to_owned(),
-            "This starts a Session turn; it is not a diff preview.".to_owned(),
-        ),
+        (None, None) => ("Ready to review the current project changes.".to_owned(), String::new()),
     };
     remove(tree, &["status_spinner"]);
     // Two lines of room: the typed reasons run ~60 characters. The kit
@@ -1978,6 +1977,88 @@ fn live_review(tree: &mut UiNode, ctx: &Ctx<'_>) {
             set_h(tree, "run_status_card", 170.0 + 24.0 + 20.0 - y);
         }
     }
+    review_instructions(tree, ctx);
+}
+
+/// A10 — the instructions field's widget id (the host reads it at Start).
+pub const REVIEW_PROMPT_INPUT: &str = "dlg_review_prompt";
+/// `NativeReviewDialog.tsx:61-71`, verbatim.
+pub const REVIEW_NOT_A_PREVIEW: &str = "Run the server's native review specialists on the current project changes. \
+                                        This starts a Session turn; it is not a diff preview.";
+pub const REVIEW_RESULTS_HERE: &str = "Results and any errors appear in this Session. You can queue ordinary prompts \
+                                       while review runs, or stop it using the Session's Stop control.";
+
+/// A10 — below the status card: the web's two paragraphs, the Session's
+/// scope, and "Review instructions (optional)" — a real multi-line field
+/// whose text is shown and sent as plain text (inert), trimmed, and only
+/// when typed (no default prompt is ever fabricated).
+fn review_instructions(tree: &mut UiNode, ctx: &Ctx<'_>) {
+    let Ok(raw) = card_tree(Dialog::Skills, ctx, &AutonomyState::default()) else { return };
+    let (Some(body_face), Some(field_face), Some(input_face)) =
+        (find(&raw, "t_ver6").cloned(), find(&raw, "search_box").cloned(), find(&raw, "t_search").cloned())
+    else {
+        return;
+    };
+    let frames = frame_ids(tree);
+    let Some((cx, cy, cw, ch)) = rect_of(tree, "run_status_card") else { return };
+    let line = |id: &str, text: &str, y: f64, size: f32, weight: i32, color: u32| -> (UiNode, f64) {
+        let (mut n, h) = wrapped_text(&body_face, id, text, y, cw, size, color);
+        n.attrs.x = Some(cx);
+        n.attrs.weight = Some(weight);
+        (n, h)
+    };
+    let mut nodes = Vec::new();
+    let mut y = cy + ch + 16.0;
+    let session = ctx.store.active_session().unwrap_or_default();
+    for (id, text, size, weight, color) in [
+        ("review_scope", session.as_str(), 12.0, 400, 0xff8e_8e93u32),
+        ("review_not_preview", REVIEW_NOT_A_PREVIEW, 13.0, 400, 0xff3a_3a3c),
+        ("review_results", REVIEW_RESULTS_HERE, 13.0, 400, 0xff6e_6e73),
+    ] {
+        if text.is_empty() {
+            continue;
+        }
+        let (n, h) = line(id, text, y, size, weight, color);
+        nodes.push(n);
+        y += h + 8.0;
+    }
+    y += 4.0;
+    let (l, h) = line("prompt_label", "Review instructions (optional)", y, 12.5, 500, 0xff6e_6e73);
+    nodes.push(l);
+    y += h + 6.0;
+    let field_h = 96.0;
+    let mut b = field_face.clone();
+    b.children.clear();
+    b.attrs.id = Some("prompt_box".to_owned());
+    b.attrs.x = Some(cx);
+    b.attrs.y = Some(y);
+    b.attrs.w = Some(cw as f32);
+    b.attrs.h = Some(field_h as f32);
+    b.attrs.tapto = None;
+    nodes.push(b);
+    let mut i = input_face.clone();
+    i.children.clear();
+    i.kind = NodeKind::Input;
+    let a = &mut i.attrs;
+    a.id = Some("prompt".to_owned());
+    a.placeholder = Some("Leave empty to review the current project changes.".to_owned());
+    a.text = Some(String::new());
+    a.color = Some(0xff1d_1d1f);
+    a.x = Some(cx + 14.0);
+    a.y = Some(y + 10.0);
+    a.w = Some((cw - 28.0) as f32);
+    a.h = Some((field_h - 20.0) as f32);
+    a.variant = Some("multiline".to_owned());
+    a.tapto = None;
+    nodes.push(i);
+    y += field_h;
+    tree.children.extend(nodes);
+    walk_mut(tree, &mut |n| {
+        if n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id)) {
+            let h = n.attrs.h.unwrap_or(0.0) as f64;
+            n.attrs.h = Some(h.max(y + 24.0) as f32);
+        }
+    });
 }
 
 /// Every kit button (`X` with `X_surface` + `X_label` children): the label is
