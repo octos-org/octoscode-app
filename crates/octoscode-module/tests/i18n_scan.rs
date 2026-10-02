@@ -12,9 +12,13 @@
 //! static pass (`i18n::tree`): anonymous, listed in `chrome::static_named`,
 //! or set by code (then its setter is a builder call, scanned above).
 //!
-//! Phase 1 (A24) holds the CONVERTED files to zero; the rest of `screens/`
-//! is counted and may only go DOWN (the ratchet below) — phase 2 drives it
-//! to zero.
+//! A text argument naming a string constant (`d.text(id, KEY_HINT, …)`) is
+//! that constant's literal, unless the helper translates inside (listed in
+//! TRANSLATING, proven by a test). The CONVERTED files are held to zero, and
+//! every literal (or constant) they route through `tr*()` must read in
+//! Chinese — the web's catalog, an alias, or the reviewed native supplement.
+//! The rest of the crate is counted and may only go DOWN (the ratchet
+//! below: 314 at the end of phase 1, then each conversion lowers it).
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
