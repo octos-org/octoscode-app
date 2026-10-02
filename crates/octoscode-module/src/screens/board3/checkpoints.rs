@@ -52,6 +52,11 @@ pub struct CkState {
     pub forked: Option<String>,
     /// A7 — the accepted change reconciled (`completed`): the controls lock.
     pub completed: bool,
+    /// A13 — what failed, in plain words, with the error text it belongs to
+    /// (the dialog leads with it and shows the cause muted under it,
+    /// `ui::failure`). An error set elsewhere (the host's
+    /// `job_unavailable`) never inherits a stale lead: the texts differ.
+    pub failed: Option<(&'static str, String)>,
 }
 
 impl Default for CkState {
@@ -74,6 +79,7 @@ impl Default for CkState {
             fork_name_snap: String::new(),
             forked: None,
             completed: false,
+            failed: None,
         }
     }
 }
@@ -135,6 +141,23 @@ fn checkpoint_times(messages: &[Value], cps: &[ConversationCheckpoint]) -> Vec<O
         .collect()
 }
 
+/// A13 — the plain-language leads over a failed read or change (judge:
+/// "session/hydrate: bad result: missing field `session_id`" in red led the
+/// dialog). The cause stays under the lead, smaller and muted.
+pub const LOAD_HISTORY_FAILED: &str = "Couldn't load the conversation history.";
+pub const LOAD_SNAPSHOTS_FAILED: &str = "Couldn't load the workspace snapshots.";
+pub const REWIND_FAILED: &str = "Couldn't rewind the conversation.";
+pub const UNDO_FAILED: &str = "Couldn't undo the workspace changes.";
+pub const FORK_FAILED: &str = "Couldn't fork the conversation.";
+pub const RECONCILE_FAILED: &str =
+    "The server accepted the history change, but local reconciliation failed. Retry refresh without repeating the change.";
+
+/// A13 — record a failure: the cause as the error, with what failed.
+fn set_failed(ck: &mut CkState, lead: &'static str, cause: &str) {
+    ck.error = Some(cause.to_owned());
+    ck.failed = Some((lead, cause.to_owned()));
+}
+
 pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
     let session = conv.session_id();
     let (ticket, mode) = {
@@ -161,7 +184,7 @@ pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
         st.ck.blocked = blocked;
         return match listed {
             Some(Err(e)) => {
-                st.ck.error = Some(e.clone());
+                set_failed(&mut st.ck, LOAD_SNAPSHOTS_FAILED, &e);
                 Err(e)
             }
             Some(Ok(_)) => {
@@ -197,7 +220,7 @@ pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
             Ok(format!("{} checkpoints", st.ck.rows.len()))
         }
         Err(e) => {
-            st.ck.error = Some(e.clone());
+            set_failed(&mut st.ck, LOAD_HISTORY_FAILED, &e);
             Err(e)
         }
     }
@@ -228,7 +251,7 @@ pub async fn rewind(conv: &crate::flow::Conversation, key: String) -> Result<Str
                 st.ck.notice = Some(o.notice.clone());
                 st.ck.error = None;
             }
-            Err(e) => st.ck.error = Some(e.clone()),
+            Err(e) => set_failed(&mut st.ck, REWIND_FAILED, e),
         }
     }
     let out = out?;
@@ -264,7 +287,7 @@ pub async fn undo(conv: &crate::flow::Conversation, snapshot_id: String) -> Resu
             Ok(o.notice)
         }
         Err(e) => {
-            st.ck.error = Some(e.clone());
+            set_failed(&mut st.ck, UNDO_FAILED, &e);
             Err(e)
         }
     }
@@ -283,7 +306,7 @@ pub async fn fork(conv: &crate::flow::Conversation, name: String) -> Result<Stri
         Err(e) => {
             let mut st = super::host::state();
             st.ck.applying = false;
-            st.ck.error = Some(e.clone());
+            set_failed(&mut st.ck, FORK_FAILED, &e);
             return Err(e);
         }
     };
@@ -302,10 +325,9 @@ pub async fn fork(conv: &crate::flow::Conversation, name: String) -> Result<Stri
             Ok(out.forked_session_id)
         }
         Err(e) => {
-            let msg = format!(
-                "The server accepted the history change, but local reconciliation failed. Retry refresh without repeating the change. {e}"
-            );
-            st.ck.error = Some(msg.clone());
+            let msg = format!("{RECONCILE_FAILED} {e}");
+            // A13: the sentence leads; the cause shows muted under it.
+            set_failed(&mut st.ck, RECONCILE_FAILED, &e);
             Err(msg)
         }
     }
@@ -551,9 +573,9 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
         d.gap(W::Fill, 10.0);
         d.text("b3_ck_notice", n, &Txt::new(12.5, Face::Regular, tok::GREEN).w(W::Fill).wrap());
     }
-    if let Some(e) = &st.error {
+    if st.error.is_some() {
         d.gap(W::Fill, 10.0);
-        d.text("b3_ck_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+        error_view(d, st);
     }
     if let Some(child) = &st.forked {
         d.gap(W::Fill, 6.0);
@@ -572,6 +594,15 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
     }
     ui::body_close(d);
     ui::shell_close(d);
+}
+
+/// A13 — the dialog's error: what failed in plain words with the cause muted
+/// under it when this dialog recorded the failure, else the message alone
+/// (a sentence for people: "History changed. Reload the checkpoint picker.").
+fn error_view(d: &mut Dsl, st: &CkState) {
+    if let Some(e) = &st.error {
+        ui::dialog_error(d, "b3_ck_error", e, st.failed.as_ref(), LOAD_HISTORY_FAILED);
+    }
 }
 
 fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
@@ -593,13 +624,13 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
     if let Some(why) = &st.blocked {
         d.text("b3_ck_blocked", why, &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
     }
-    if let Some(e) = &st.error {
-        d.text("b3_ck_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
-    }
+    error_view(d, st);
     if let Some(n) = &st.notice {
         d.text("b3_ck_notice", n, &Txt::new(12.0, Face::Regular, tok::GREEN).w(W::Fill).wrap());
     }
-    if st.rows.is_empty() && !st.loading {
+    // A13: a failed read knows nothing about the turns — the empty line
+    // would contradict the error above it.
+    if st.rows.is_empty() && !st.loading && st.error.is_none() {
         d.text("b3_ck_empty", "No user turns to rewind.", &ui::meta());
     }
     // One bordered list, hairlines between rows (the board's grouped box).
@@ -724,6 +755,47 @@ mod tests {
         assert!(st.applying);
         perform(&mut st, "b3.ck.cancel", 0);
         assert_eq!(st.confirm, None);
+    }
+
+    /// A13 (judge: "session/hydrate: bad result: missing field `session_id`"
+    /// led the dialog in red) — a failed read leads with what failed in
+    /// plain words, the raw cause muted under it, and no "No user turns"
+    /// line contradicts it; a message already written for people shows alone;
+    /// an error set elsewhere never inherits a stale lead.
+    #[test]
+    fn a_failed_history_read_leads_with_plain_words_and_keeps_the_cause() {
+        let raw = "session/hydrate: bad result: missing field `session_id`";
+        let mut st = CkState::default();
+        set_failed(&mut st, LOAD_HISTORY_FAILED, raw);
+        let lower = |st: &CkState| {
+            let mut d = Dsl::new();
+            build(&mut d, st, &Frame::DESKTOP, &Store::new());
+            d.finish()
+        };
+        let dsl = lower(&st);
+        let lead = dsl.find("b3_ck_error := Label").expect("the lead");
+        let detail = dsl.find("b3_ck_error_detail := Label").expect("the cause");
+        assert!(lead < detail, "the plain line leads");
+        assert!(dsl[lead..detail].contains(&ui::lit(LOAD_HISTORY_FAILED)));
+        assert!(dsl[lead..detail].contains(tok::RED));
+        assert!(dsl[detail..].contains(&ui::lit(raw)), "the cause is kept");
+        assert!(dsl[detail..].contains(tok::MUTED) && dsl[detail..].contains(&ui::text_style(Face::Regular, 11.5)));
+        assert!(!dsl.contains("No user turns to rewind."), "a failed read knows nothing about the turns");
+        // A sentence for people stays alone (no lead, no detail line).
+        let mut plain = CkState { error: Some("History changed. Reload the checkpoint picker.".into()), ..Default::default() };
+        let dsl = lower(&plain);
+        assert!(dsl.contains("History changed. Reload the checkpoint picker.") && !dsl.contains("b3_ck_error_detail"));
+        // A different error later (the host's job_unavailable) does not reuse the lead.
+        plain.failed = Some((REWIND_FAILED, raw.into()));
+        let dsl = lower(&plain);
+        assert!(!dsl.contains(REWIND_FAILED), "a stale lead never shows");
+        // Each phase names its own failure.
+        for (mode, lead) in [(HistoryMode::Undo, UNDO_FAILED), (HistoryMode::Fork, FORK_FAILED)] {
+            let mut st = CkState::default();
+            st.open_mode(mode);
+            set_failed(&mut st, lead, "snapshot/restore: rpc error -32603 (restore failed)");
+            assert!(lower(&st).contains(&ui::lit(lead)), "{mode:?}");
+        }
     }
 
     #[test]

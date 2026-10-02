@@ -478,6 +478,30 @@ mod tests {
         assert!(r.is_ok(), "the notice row must evaluate: {dsl}");
     }
 
+    /// A13 — a command receipt's compact notice row (the production rows
+    /// path: store -> `rows::timeline` -> `rows::lower`) evaluates in the
+    /// app VM.
+    #[test]
+    fn a13_receipt_rows_evaluate_in_the_app_vm() {
+        use crate::screens::board3::rows::{self, TRow};
+        let store = std::sync::Arc::new(octoscode_store::Store::new());
+        store.set_active(Some("s".into()));
+        store.domains.session.timeline.append(
+            "s",
+            Some(crate::screens::palette::next_receipt_turn()),
+            crate::screens::palette::REPORT_KIND,
+            "/cost is not available in this native build — nothing was sent to the model.".into(),
+        );
+        let row = rows::timeline(&store, false)
+            .into_iter()
+            .find(|r| matches!(r, TRow::Receipt(_)))
+            .expect("the receipt row");
+        let dsl = rows::lower(&row, &store);
+        let mut cx = cx_with_vocabulary();
+        let r = eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl);
+        assert!(r.is_ok(), "the receipt row must evaluate: {dsl}");
+    }
+
     #[test]
     fn the_prelude_wraps_the_component_in_a_slot_sized_view() {
         // Card #21c item 3: the wrapper is a stacking (`Down`) `Fit` view, so a

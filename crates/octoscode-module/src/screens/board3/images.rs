@@ -275,7 +275,8 @@ pub fn build(d: &mut Dsl, st: &ImgState, frame: &Frame, drafts: Option<&media::A
     d.text("b3_img_limit", "20 MiB per image", &ui::meta());
     if let Some(e) = &st.error {
         d.gap(W::Fill, 6.0);
-        d.text("b3_img_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+        // A13: developer wording gets a plain lead; the cause stays muted.
+        ui::error_line(d, "b3_img_error", "Couldn't upload the images.", e);
     }
     if let Some(n) = &st.notice {
         d.gap(W::Fill, 6.0);

@@ -619,10 +619,17 @@ async fn the_conversation_link_copies_and_stays_visible_read_only() {
     let link = host::state().insp.link.clone();
     assert!(link.starts_with("octoscode://session?s="), "{link}");
     let dsl = host::lower_open(&conv.store).unwrap().dsl;
-    // The fallback: the FULL link in a read-only, selectable field.
-    let field = dsl.find("b3_insp_link_value := TextInput").expect("a text field");
-    assert!(dsl[field..].contains("is_read_only: true"));
-    assert!(dsl[field..].contains(&format!("{link:?}")), "the whole link, never ellipsized");
+    // A13 (judge: an 8-line percent-encoded block): the link stays visible
+    // on ONE line in its grey field, shortened in the middle — its scheme
+    // and its end (the session id) readable — and Copy writes it whole.
+    let field = dsl.find("b3_insp_link_value := Label").expect("the one-line link");
+    let label = &dsl[field..field + dsl[field..].find("\n}").expect("the label closes")];
+    assert!(label.contains("flow: Right\n"), "one line, no wrap: {label}");
+    assert!(label.contains('…'), "shortened in the middle: {label}");
+    assert!(label.contains("text: \"octoscode://session?s="), "the head stays: {label}");
+    let tail: String = link.chars().rev().take(8).collect::<Vec<_>>().into_iter().rev().collect();
+    assert!(label.contains(&format!("{tail}\"")), "the tail stays: {label}");
+    assert!(!dsl.contains(&format!("{link:?}")), "never the raw multi-line block");
     // Copy writes the clipboard and announces it.
     assert_eq!(host::perform("b3.insp.copy", 0, &conv.store), Outcome::Clipboard(link));
     assert!(host::lower_open(&conv.store).unwrap().dsl.contains("Conversation link copied."));

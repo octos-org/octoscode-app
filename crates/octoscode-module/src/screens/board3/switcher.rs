@@ -26,7 +26,13 @@ pub struct SwitchState {
     pub confirm_delete: Option<String>,
     /// A8 — the one delete in flight (`deletingSessionRef`, single-flight).
     pub deleting: Option<String>,
+    /// A13 — what failed, in plain words, with the cause it was recorded
+    /// for (`ui::dialog_error`).
+    pub failed: Option<(&'static str, String)>,
 }
+
+/// A13 — the plain lead over a failed open (the cause shows muted under it).
+pub const OPEN_FAILED: &str = "Couldn't open that session.";
 
 /// A8 — `deleteSession` is offered only when `session/delete` is advertised
 /// (`use-workspace-product.ts:96-107`: `supportsMethod(…SESSION_DELETE)`).
@@ -122,7 +128,8 @@ pub async fn open(conv: &crate::flow::Conversation, id: String) -> Result<String
             Ok(format!("opened {opened}"))
         }
         Err(e) => {
-            st.switch.error = Some(format!("Could not open that session: {e}"));
+            st.switch.error = Some(e.clone());
+            st.switch.failed = Some((OPEN_FAILED, e.clone()));
             Err(e)
         }
     }
@@ -214,7 +221,7 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
         d.text("b3_switch_loading", "Loading sessions…", &ui::meta());
     }
     if let Some(e) = &st.error {
-        d.text("b3_switch_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+        ui::dialog_error(d, "b3_switch_error", e, st.failed.as_ref(), OPEN_FAILED);
     }
     if rows.is_empty() && !st.loading {
         d.text("b3_switch_empty", "No sessions yet.", &ui::meta());

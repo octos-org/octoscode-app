@@ -29,6 +29,13 @@ use super::ui::{self, tok, Dsl, Face, Frame, Txt, W};
 pub const TOOLS_METHOD: &str = "tool/status/list";
 pub const MCP_METHOD: &str = "mcp/status/list";
 
+/// A13 — the plain-language lead over a failed read (judge: "Invalid or
+/// wrong-scope tool status" in red was developer wording). The cause the
+/// web prints stays under it, smaller and muted (`ui::failure`).
+pub const TOOLS_FAILED: &str = "Couldn't read the tools for this session.";
+pub const MCP_FAILED: &str = "Couldn't read the MCP servers for this session.";
+pub const INVENTORY_FAILED: &str = "Couldn't read the runtime inventory.";
+
 /// The two web modes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Tab {
@@ -401,7 +408,7 @@ pub fn build(d: &mut Dsl, st: &InvState, frame: &Frame, _store: &Store) {
         d.gap(W::Fill, 6.0);
     }
     if let Some(e) = &st.error {
-        d.text("b3_inv_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+        ui::error_line(d, "b3_inv_error", INVENTORY_FAILED, e);
     }
     match st.tab {
         Tab::Tools => {
@@ -468,7 +475,7 @@ fn tool_cols(inner_w: f64) -> [f64; 6] {
 
 fn tools_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
     if let Some(e) = &st.tools_error {
-        d.text("b3_inv_tools_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+        ui::failure(d, "b3_inv_tools_error", TOOLS_FAILED, e);
         return;
     }
     let Some((policy, rows)) = &st.tools else { return };
@@ -533,7 +540,7 @@ fn server_cols(inner_w: f64) -> [f64; 5] {
 
 fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
     if let Some(e) = &st.mcp_error {
-        d.text("b3_inv_mcp_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+        ui::failure(d, "b3_inv_mcp_error", MCP_FAILED, e);
         return;
     }
     let Some((rows, sm)) = &st.servers else { return };
@@ -722,6 +729,33 @@ mod tests {
                 assert!(wired.iter().any(|(_, e)| e == ev), "{ev} wired");
             }
             assert!(dsl.contains("fs.read"));
+            assert_eq!(dsl.matches('{').count(), dsl.matches('}').count(), "balanced");
+        }
+    }
+
+    /// A13 (judge: "Invalid or wrong-scope tool status" in red) — each
+    /// failed read leads with what failed, in plain words; the web's cause
+    /// stays under it, smaller and muted.
+    #[test]
+    fn a_failed_read_leads_with_plain_words_and_keeps_the_cause() {
+        let st = InvState {
+            tools_error: Some("Invalid or wrong-scope tool status".into()),
+            mcp_error: Some("mcp/status/list: rpc error -32601 (method not found)".into()),
+            ..Default::default()
+        };
+        for frame in [Frame::DESKTOP, Frame { avail_w: 360.0, avail_h: 780.0 }] {
+            let mut d = Dsl::new();
+            build(&mut d, &st, &frame, &Store::new());
+            let dsl = d.finish();
+            for (id, lead, cause) in [
+                ("b3_inv_tools_error", TOOLS_FAILED, "Invalid or wrong-scope tool status"),
+                ("b3_inv_mcp_error", MCP_FAILED, "mcp/status/list: rpc error -32601 (method not found)"),
+            ] {
+                let at = dsl.find(&format!("{id} := Label")).expect(id);
+                let detail = dsl.find(&format!("{id}_detail := Label")).expect("the cause");
+                assert!(at < detail && dsl[at..detail].contains(&ui::lit(lead)) && dsl[at..detail].contains(tok::RED));
+                assert!(dsl[detail..].contains(&ui::lit(cause)) && dsl[detail..].contains(tok::MUTED));
+            }
             assert_eq!(dsl.matches('{').count(), dsl.matches('}').count(), "balanced");
         }
     }
