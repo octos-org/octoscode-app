@@ -479,6 +479,39 @@ impl FlowUi {
     }
 }
 
+/// A8 — the web's `SessionRuntimeScope` (`session-scope.ts:9-28`): a Session
+/// is NOT identified by its id alone — the endpoint, the workspace root and
+/// the profile are part of the key, and an opaque AUTHORITY EPOCH tells apart
+/// the auth identity behind a connection (a new connection = a new epoch;
+/// never a credential, so keys and logs stay credential-free).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SessionScope {
+    pub endpoint: String,
+    pub workspace_root: String,
+    pub profile_id: String,
+    pub session_id: String,
+    pub authority_epoch: u64,
+}
+
+impl SessionScope {
+    /// `sessionRuntimeScopeKey`: a JSON tuple of the trimmed parts (a `::`
+    /// delimiter could collide; a JSON array cannot).
+    pub fn key(&self) -> String {
+        serde_json::json!([
+            self.endpoint.trim(),
+            self.workspace_root.trim(),
+            self.profile_id.trim(),
+            self.session_id.trim(),
+            self.authority_epoch,
+        ])
+        .to_string()
+    }
+}
+
+/// Bumped by every `Conversation::connect` (each connection is a new auth
+/// identity behind its endpoint).
+static AUTHORITY_EPOCH: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
 /// A8 — the turn ids THIS client dispatched (`turn/start`), newest last,
 /// bounded. The strip's "Another client is working in this session" word
 /// is a live turn this client never sent (the web's
@@ -556,6 +589,17 @@ pub struct Conversation {
     /// `workspace_root` (the web's `requireExactWorkspace` resume path,
     /// `candidate-session.ts:230-243`).
     pending_open_cwd: Mutex<Option<String>>,
+    /// A8 — this connection's authority epoch (the scope key's last part).
+    epoch: u64,
+    /// A8 — the transport has been Live before: a later Live is a RECONNECT,
+    /// which re-opens the active Session and hydrates it under a new
+    /// authority generation (`active-session-runtime.ts`: connect -> open ->
+    /// hydrate -> ready, every reconnect a new generation).
+    was_live: Mutex<bool>,
+    /// A8 — the generation (`open_seq`) each in-flight `session/hydrate` was
+    /// requested under, by session: a reply from a retired generation is a
+    /// stale authority and fails closed.
+    hydrate_gen: Mutex<HashMap<String, u64>>,
     /// A8 — the new-session defaults armed by `new_chat` for the FRESH id
     /// only; the open reply for exactly that id takes them once
     /// (`App.tsx:649` `appliedDefaultsForSession`).
@@ -739,6 +783,9 @@ impl Conversation {
                 workspace_opened: Mutex::new(false),
                 pending_open_cwd: Mutex::new(None),
                 creation_defaults: crate::screens::session_defaults::Pending::new(),
+                epoch: AUTHORITY_EPOCH.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1,
+                was_live: Mutex::new(false),
+                hydrate_gen: Mutex::new(HashMap::new()),
                 open_seq: Mutex::new(0),
                 started: Instant::now(),
                 http_base: http_base_of(base),
@@ -812,6 +859,46 @@ impl Conversation {
     pub fn identity(&self) -> String {
         let seq = *self.open_seq.lock().unwrap();
         format!("{}#{}", self.profile(), seq)
+    }
+
+    /// A8 — the active Session's runtime scope (endpoint, workspace root,
+    /// profile, session, authority epoch).
+    pub fn scope(&self) -> SessionScope {
+        let session_id = self.session_id();
+        SessionScope {
+            endpoint: self.http_base.clone(),
+            workspace_root: self.store.domains.session.workspace_root(&session_id).unwrap_or_default(),
+            profile_id: self.profile(),
+            session_id,
+            authority_epoch: self.epoch,
+        }
+    }
+
+    /// A8 — `scope().key()`: async results captured under one key are
+    /// dropped when the key changed before they landed.
+    pub fn scope_key(&self) -> String {
+        self.scope().key()
+    }
+
+    /// A8 — the current authority generation (bumped by every open and every
+    /// reconnect re-open).
+    pub fn generation(&self) -> u64 {
+        *self.open_seq.lock().unwrap()
+    }
+
+    /// A8 — ask for the canonical `session/hydrate` of `session` under the
+    /// CURRENT generation (the reply arm refuses it once the generation moved).
+    pub fn request_hydrate(&self, session: &str) -> bool {
+        let gen = self.generation();
+        self.hydrate_gen.lock().unwrap().insert(session.to_owned(), gen);
+        match self.cmd_tx.try_send(OutboundCommand::HydrateSession { session_id: session.to_owned() }) {
+            Ok(()) => true,
+            Err(e) => {
+                self.hydrate_gen.lock().unwrap().remove(session);
+                ::log::warn!("octoscode: session/hydrate send failed for {session}: {e}");
+                false
+            }
+        }
     }
 
     /// #32h: take the server-verified profile id (`profile/local/create`'s
@@ -1172,19 +1259,11 @@ impl Conversation {
         }
         // Fire-and-forget on the transport's command channel (the same path
         // `session/open` uses). Best-effort: a closed channel just logs.
-        match self
-            .cmd_tx
-            .try_send(OutboundCommand::HydrateSession { session_id: session.clone() })
-        {
-            Ok(()) => {
-                ::log::info!("octoscode: resync requested — session/hydrate {session}");
-                true
-            }
-            Err(e) => {
-                ::log::warn!("octoscode: resync session/hydrate send failed for {session}: {e}");
-                false
-            }
+        let sent = self.request_hydrate(&session);
+        if sent {
+            ::log::info!("octoscode: resync requested — session/hydrate {session}");
         }
+        sent
     }
 
     /// Mint the id for a **new chat** (card #14 defect 4).
@@ -1247,6 +1326,34 @@ impl Conversation {
     /// The created ids whose new-session defaults were applied (test seam).
     pub fn defaults_applied(&self) -> Vec<String> {
         self.creation_defaults.applied()
+    }
+
+    /// A8 — the reconnect path (`active-session-runtime.ts` recovery): bump
+    /// the generation BEFORE anything goes out (every result captured under
+    /// the old one is now stale), re-open the active Session at its workspace
+    /// and ask for its canonical hydrate.
+    fn reopen_after_reconnect(&self) {
+        let session = self.session_id();
+        let cwd = self.store.domains.session.workspace_root(&session);
+        *self.open_seq.lock().unwrap() += 1;
+        *self.pending_open_cwd.lock().unwrap() = cwd.clone();
+        let params = SessionOpenParams {
+            session_id: octos_core::SessionKey(session.clone()),
+            topic: None,
+            profile_id: Some(self.profile()),
+            cwd,
+            sandbox: None,
+            after: None,
+            client_commands: None,
+        };
+        self.frames.out("session/open", &serde_json::json!({"session_id": session, "reconnect": true}));
+        match self.cmd_tx.try_send(OutboundCommand::OpenSession(params)) {
+            Ok(()) => {
+                ::log::info!("octoscode: reconnect — re-opened {session} (generation {})", self.generation());
+                self.request_hydrate(&session);
+            }
+            Err(e) => ::log::warn!("octoscode: reconnect re-open of {session} failed: {e}"),
+        }
     }
 
     /// Send the creation-time permission default for `session` off the event
@@ -1524,7 +1631,18 @@ impl Conversation {
         match evt {
             TransportEvent::ConnectionState(s) => {
                 let live = matches!(s, octos_app_transport::ConnectionState::Live);
+                let was_live_now = self.store.is_live();
                 self.store.set_connection(format!("{s:?}"), live);
+                // A8 — a Live AFTER an earlier Live is a reconnect: the server
+                // dropped this socket's session subscriptions, so re-open the
+                // active Session (the transport replays from its cursor) and
+                // hydrate it, under a NEW authority generation.
+                if live && !was_live_now {
+                    let reconnect = std::mem::replace(&mut *self.was_live.lock().unwrap(), true);
+                    if reconnect && *self.workspace_opened.lock().unwrap() {
+                        self.reopen_after_reconnect();
+                    }
+                }
                 if live {
                     FlowEvent::Live
                 } else {
@@ -1680,6 +1798,25 @@ impl Conversation {
                         // Fail closed: fold nothing, keep the lossy phase so
                         // the resync stays owed, and name the mismatch in the
                         // log (no silent drop).
+                        // A8 — a reply requested under a RETIRED generation (a
+                        // reconnect or another open since) is a stale
+                        // authority: fail closed, fold nothing, and ask again
+                        // under the current one while the session still owes
+                        // its resync (the web's "fails recovery preparation
+                        // before committing the hydrate cursor").
+                        let requested_gen = self.hydrate_gen.lock().unwrap().remove(session_id.as_str());
+                        if requested_gen.is_some_and(|g| g != self.generation()) {
+                            ::log::warn!(
+                                "octoscode: session/hydrate for {session_id} from a retired generation — stale authority, not committed"
+                            );
+                            if self.store.active_session().as_deref() == Some(session_id.as_str())
+                                && self.store.domains.config.recovery(session_id).phase
+                                    != octoscode_store::domains::config::LossyPhase::Healthy
+                            {
+                                self.request_hydrate(session_id);
+                            }
+                            return FlowEvent::Other("session/hydrate-stale-authority".to_owned());
+                        }
                         if h.session_id.0 != *session_id {
                             ::log::warn!(
                                 "octoscode: session/hydrate returned session {} for requested {session_id} — hydrate commit rejected",

@@ -463,6 +463,10 @@ pub fn perform(st: &mut PaneState, action: &str, index: usize, store: &Store) ->
 pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
     let store = &conv.store;
     let session = conv.session_id();
+    // The runtime scope the reads belong to (`session-scope.ts`): a reply
+    // that lands after the endpoint, workspace, profile, session or
+    // authority epoch moved is dropped, never folded into the pane.
+    let scope = conv.scope_key();
     let ticket = {
         let mut st = super::host::state();
         st.pane.ticket += 1;
@@ -517,7 +521,7 @@ pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
     };
     let driver = dd::walk(conv).await;
     let mut st = super::host::state();
-    if st.pane.ticket != ticket || conv.session_id() != session {
+    if st.pane.ticket != ticket || conv.scope_key() != scope {
         return Ok("stale pane read dropped".into());
     }
     let p = &mut st.pane;
