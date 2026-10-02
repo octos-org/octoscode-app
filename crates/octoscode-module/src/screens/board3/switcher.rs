@@ -368,6 +368,27 @@ mod tests {
     use super::*;
     use octoscode_store::Session;
 
+    /// A13 — a failed open leads with "Couldn't open that session." and keeps
+    /// the cause muted under it; the delete refusal (already a sentence for
+    /// people, A8's walk reads it whole) shows alone.
+    #[test]
+    fn a_failed_open_leads_with_plain_words_and_a_delete_refusal_stays_whole() {
+        let store = Store::new();
+        let cause = "session/open: transport: channel closed";
+        let st = SwitchState { error: Some(cause.into()), failed: Some((OPEN_FAILED, cause.into())), ..Default::default() };
+        let mut d = Dsl::new();
+        panel(&mut d, &st, &store, 600.0);
+        let dsl = d.finish();
+        let lead = dsl.find("b3_switch_error := Label").expect("the lead");
+        let detail = dsl.find("b3_switch_error_detail := Label").expect("the cause");
+        assert!(lead < detail && dsl[lead..detail].contains(OPEN_FAILED) && dsl[detail..].contains(cause));
+        let st = SwitchState { error: Some("Couldn't delete the session: session is busy".into()), ..Default::default() };
+        let mut d = Dsl::new();
+        panel(&mut d, &st, &store, 600.0);
+        let dsl = d.finish();
+        assert!(dsl.contains("Couldn't delete the session: session is busy") && !dsl.contains("b3_switch_error_detail"));
+    }
+
     fn sess(id: &str, title: Option<&str>, at: &str) -> Session {
         Session {
             id: id.into(),

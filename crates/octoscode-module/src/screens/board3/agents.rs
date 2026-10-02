@@ -856,6 +856,20 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
 mod tests {
     use super::*;
 
+    /// A13 — a failed agents read leads with which read failed, in plain
+    /// words; the family error (method-prefixed) stays under it, muted.
+    #[test]
+    fn a_failed_agents_read_names_the_read_in_plain_words() {
+        assert_eq!(failure_lead("agent/list: rpc error -32601 (method not found)"), "Couldn't load this session's agents.");
+        assert_eq!(failure_lead("agent/output/read: transport: channel closed"), "Couldn't read the agent's output.");
+        assert_eq!(failure_lead("agent/status/read: returned agent \"a2\""), "Couldn't read the agent's status.");
+        assert_eq!(failure_lead("agent/artifact/read: returned another artifact"), "Couldn't open the agent's artifact.");
+        let mut d = Dsl::new();
+        ui::error_line(&mut d, "b3_agents_error", failure_lead("agent/list: rpc error -32601 (x)"), "agent/list: rpc error -32601 (x)");
+        let dsl = d.finish();
+        assert!(dsl.contains("Couldn't load this session's agents.") && dsl.contains("b3_agents_error_detail"), "{dsl}");
+    }
+
     #[test]
     fn the_spawn_text_is_the_webs() {
         assert_eq!(
