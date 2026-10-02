@@ -21,8 +21,9 @@ pub enum Effect {
     NewChat,
     /// `composer.submit` — `turn/start` with the current draft.
     Submit,
-    /// `turn.steer` — send `text` into the live turn's input buffer.
-    Steer(String),
+    /// `turn.steer` — send `text` into `turn`, the live turn of `session`
+    /// (the Session it was issued in; A22: checked again before it is sent).
+    Steer { session: String, turn: String, text: String },
     /// `turn.interrupt` — stop `turn`, the live turn of `session`: the
     /// Session the Stop was pressed in (A22: a Stop never names another
     /// Session's turn; it is checked again before it is sent).
@@ -65,7 +66,15 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
         "session.refresh" => Effect::Refresh,
         "session.new" => Effect::NewChat,
         "composer.submit" => Effect::Submit,
-        "turn.steer" => Effect::Steer(ctx.ui.lock().unwrap().draft()),
+        // A22 — into the live turn OF the Session on screen.
+        "turn.steer" => {
+            let session = ctx.store.active_session().unwrap_or_default();
+            let ui = ctx.ui.lock().unwrap();
+            match crate::flow::live_turn_in(ctx.store, &ui, &session) {
+                Some(turn) => Effect::Steer { session, turn, text: ui.draft() },
+                None => Effect::Unhandled(action.to_owned()),
+            }
+        }
         // A22 — the live turn OF the Session on screen, never the window's
         // last live turn of whatever Session (A20's cross-session Stop).
         "turn.interrupt" => {
@@ -108,7 +117,7 @@ pub async fn perform_turn(
 ) -> Option<Result<serde_json::Value, octoscode_client::ClientError>> {
     match effect {
         Effect::Interrupt { session, turn } => Some(conv.interrupt_in(&session, &turn).await),
-        Effect::Steer(text) => Some(conv.steer(&text).await),
+        Effect::Steer { session, turn, text } => Some(conv.steer_in(&session, &turn, &text).await),
         _ => None,
     }
 }
@@ -237,7 +246,10 @@ mod tests {
         ui.lock().unwrap().begin_turn_now("t7");
         let ctx = Ctx::new(&store, &ui);
         assert_eq!(resolve("composer.submit", 0, &ctx), Effect::Submit);
-        assert_eq!(resolve("turn.steer", 0, &ctx), Effect::Steer("steer me".into()));
+        assert_eq!(
+            resolve("turn.steer", 0, &ctx),
+            Effect::Steer { session: "s1".into(), turn: "t7".into(), text: "steer me".into() }
+        );
         assert_eq!(resolve("turn.interrupt", 0, &ctx), Effect::Interrupt { session: "s1".into(), turn: "t7".into() });
         assert_eq!(resolve("session.new", 0, &ctx), Effect::NewChat);
         assert_eq!(resolve("session.refresh", 0, &ctx), Effect::Refresh);

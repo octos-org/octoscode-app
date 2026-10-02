@@ -2302,7 +2302,7 @@ impl OctoscodeView {
             // A22 — the turn-scoped effects have ONE performer
             // (`actions::perform_turn`): the Stop button, Escape and `/stop`
             // all resolve `turn.interrupt` and reach the wire through it.
-            effect @ (actions::Effect::Steer(_) | actions::Effect::Interrupt { .. }) => {
+            effect @ (actions::Effect::Steer { .. } | actions::Effect::Interrupt { .. }) => {
                 let name = action.to_owned();
                 rt.spawn(async move {
                     if let Some(Err(e)) = actions::perform_turn(effect, &conv).await {
@@ -3772,8 +3772,10 @@ impl OctoscodeView {
         makepad_widgets::log!("[octoscode] composer extra: {which}");
         match which {
             "steer" => {
+                // A22 — the chip of the Session it was tapped in.
+                let s = session.clone();
                 rt.spawn(async move {
-                    let steered = conv.steer_queued_head().await;
+                    let steered = conv.steer_queued_head_in(&s).await;
                     makepad_widgets::log!("[octoscode] steer now: {}", if steered { "sent" } else { "not admitted" });
                     SignalToUI::set_ui_signal();
                 });

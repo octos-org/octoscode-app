@@ -82,7 +82,7 @@ impl Conversation {
                 Ok(turn.turn_id)
             }
             Submit::Steer { turn, expected_turn_id } => {
-                self.run_steer(turn, expected_turn_id).await;
+                self.run_steer_in(&session, turn, expected_turn_id).await;
                 Ok(String::new())
             }
         }
@@ -372,6 +372,21 @@ impl Conversation {
     /// input}`; the receipt's `{turn_id, steered}` decides.
     pub async fn run_steer(&self, turn: PromptTurn, expected: String) {
         let session = self.session_id();
+        self.run_steer_in(&session, turn, expected).await
+    }
+
+    /// A22 — the steer round trip for `session`, the Session the steer was
+    /// admitted in (the window may have moved on). `expected` must still be
+    /// a live turn OF that Session; else nothing is sent and the steer goes
+    /// back to its queue, in order (a refused steer).
+    pub async fn run_steer_in(&self, session: &str, turn: PromptTurn, expected: String) {
+        let session = session.to_owned();
+        if !self.is_live_turn_of(&session, &expected) {
+            makepad_widgets::log!("[octoscode] turn/steer not sent: {expected} is not a live turn of {session}");
+            let fx = self.store.domains.composer.finish_steer(&session, &turn.turn_id, Err(true));
+            self.apply_effects(&session, fx);
+            return;
+        }
         if !self.store.domains.composer.steer_sent(&session, &turn.turn_id) {
             let fx = self.store.domains.composer.finish_steer(&session, &turn.turn_id, Err(true));
             self.apply_effects(&session, fx);
@@ -409,6 +424,13 @@ impl Conversation {
     /// · ✕`): steer the queue head into the accepted active turn.
     pub async fn steer_queued_head(&self) -> bool {
         let session = self.session_id();
+        self.steer_queued_head_in(&session).await
+    }
+
+    /// A22 — the queued chip's "Steer now" for `session`, the Session whose
+    /// chip was tapped (the window may have moved on since).
+    pub async fn steer_queued_head_in(&self, session: &str) -> bool {
+        let session = session.to_owned();
         if !self.can_steer() {
             makepad_widgets::log!("[octoscode] steer now: turn/steer is not offered by this server");
             return false;
@@ -416,7 +438,7 @@ impl Conversation {
         match self.store.domains.composer.steer_head(&session) {
             Submit::Steer { turn, expected_turn_id } => {
                 makepad_widgets::SignalToUI::set_ui_signal();
-                self.run_steer(turn, expected_turn_id).await;
+                self.run_steer_in(&session, turn, expected_turn_id).await;
                 true
             }
             _ => false,

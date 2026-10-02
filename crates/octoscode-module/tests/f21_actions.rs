@@ -169,8 +169,8 @@ async fn perform(conv: &Conversation, effect: &Effect) {
         Effect::Submit => {
             let _ = conv.submit_draft().await;
         }
-        Effect::Steer(text) => {
-            let _ = conv.steer(text).await;
+        Effect::Steer { session, turn, text } => {
+            let _ = conv.steer_in(session, turn, text).await;
         }
         Effect::Interrupt { session, turn } => {
             let _ = conv.interrupt_in(session, turn).await;
@@ -235,7 +235,10 @@ async fn routed_item_actions_reach_the_protocol_on_the_replay_server() {
         let ui = conv.ui();
         let ctx = Ctx::new(&conv.store, &ui);
         let effect = actions::resolve("turn.steer", 0, &ctx);
-        assert_eq!(effect, Effect::Steer("steer this".into()));
+        assert_eq!(
+            effect,
+            Effect::Steer { session: conv.session_id(), turn: "t-steer".into(), text: "steer this".into() }
+        );
         perform(&conv, &effect).await;
     }
     assert!(server.saw("turn/steer"), "turn.steer reached the server");

@@ -126,6 +126,18 @@ impl Core {
                                 let _ = tx.send(ok(json!({"accepted": true})));
                                 Core::stream(world.clone(), tx.clone(), session, turn, 60);
                             }
+                            "turn/steer" => {
+                                // Accepted only into the named Session's own
+                                // running turn.
+                                let expected = p["expected_turn_id"].as_str().unwrap_or("").to_owned();
+                                let own = world.lock().unwrap().running.get(&expected).is_some_and(|r| r.session == session);
+                                let frame = if own {
+                                    ok(json!({"turn_id": expected, "steered": true}))
+                                } else {
+                                    json!({"jsonrpc": "2.0", "id": v["id"], "error": {"code": -32000, "message": "no such running turn"}}).to_string()
+                                };
+                                let _ = tx.send(frame);
+                            }
                             "turn/interrupt" => {
                                 // Interrupt the turn the frame NAMES, wherever
                                 // it runs (what A20 observed).
@@ -336,5 +348,65 @@ async fn stop_pressed_in_y_never_interrupts_another_sessions_turn() {
         assert_eq!(owner, p["session_id"].as_str(), "an interrupt for another Session's turn: {p}");
     }
     assert!(core.running_in(&x).is_empty());
+    quit(&conv);
+}
+
+fn steers(core: &Core) -> Vec<Value> {
+    core.params_of("turn/steer")
+}
+
+/// The steer controls (A22 audit): the composer's steer action, a stale
+/// steer naming another Session's turn, and the queued chip's "Steer now" —
+/// each carries the Session it was issued in and is checked against THAT
+/// Session's live turn before it is sent.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_steer_reaches_only_the_live_turn_of_the_session_it_was_issued_in() {
+    let core = Core::start().await;
+    let conv = launch(&core).await;
+    let x = conv.session_id();
+    let y = "a22:api:y";
+
+    // A long turn in X; a prompt queued behind it (steering off: it queues).
+    let tx = run_long_turn(&conv, &core, "a long job in X").await;
+    conv.set_draft("queued for X");
+    conv.submit_draft().await.expect("queue");
+    until("X's prompt is queued", || conv.store.domains.composer.snapshot(&x).pending.len() == 1).await;
+    until("X's turn is accepted", || conv.store.domains.composer.can_steer_now(&x)).await;
+
+    // In Y, the steer action has no live turn to steer: nothing is sent.
+    open(&conv, y).await;
+    conv.set_draft("steer into whatever runs");
+    let effect = {
+        let ui = conv.ui();
+        let ctx = Ctx::new(&conv.store, &ui);
+        actions::resolve("turn.steer", 0, &ctx)
+    };
+    assert_eq!(effect, actions::Effect::Unhandled("turn.steer".into()), "Y has no live turn");
+    perform(&conv, effect).await;
+    // A steer naming X's turn under Y is refused before the wire.
+    let r = conv.steer_in(y, &tx, "stale").await.expect("no error");
+    assert!(r.is_null(), "not sent: {r}");
+    assert!(steers(&core).is_empty(), "no turn/steer left the app: {:?}", steers(&core));
+
+    // X's chip "Steer now", tapped in X and run after the window moved to Y:
+    // it steers X's head into X's turn, under X.
+    assert!(conv.steer_queued_head_in(&x).await, "admitted as a steer of X's queue");
+    until("the steer reached the wire", || !steers(&core).is_empty()).await;
+    let sent = steers(&core);
+    assert_eq!(sent.len(), 1, "{sent:?}");
+    assert_eq!((sent[0]["session_id"].clone(), sent[0]["expected_turn_id"].clone()), (json!(x), json!(tx)), "{}", sent[0]);
+    assert_eq!(sent[0]["input"][0]["text"], json!("queued for X"));
+
+    // Positive control: the steer action in X steers X's own turn.
+    open(&conv, &x).await;
+    conv.set_draft("steer X");
+    let effect = {
+        let ui = conv.ui();
+        let ctx = Ctx::new(&conv.store, &ui);
+        actions::resolve("turn.steer", 0, &ctx)
+    };
+    perform(&conv, effect).await;
+    until("X's own steer reached the wire", || steers(&core).len() == 2).await;
+    assert_eq!((steers(&core)[1]["session_id"].clone(), steers(&core)[1]["expected_turn_id"].clone()), (json!(x), json!(tx)));
     quit(&conv);
 }

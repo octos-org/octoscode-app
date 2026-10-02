@@ -1980,9 +1980,26 @@ impl Conversation {
     /// shape: `{session_id, expected_turn_id, input:[{kind:"text",text}]}`
     /// (`domains/turn.rs:141`, web `steer.ts:41`).
     pub async fn steer(&self, text: &str) -> Result<serde_json::Value, ClientError> {
-        let expected = self.ui.lock().unwrap().active_turn();
+        // A22 — the window's Session and ITS live turn (never the window's
+        // last live turn of another Session).
+        let session = self.session_id();
+        let Some(expected) = self.live_turn_of(&session) else {
+            makepad_widgets::log!("[octoscode] turn/steer not sent: {session} has no live turn");
+            return Ok(serde_json::Value::Null);
+        };
+        self.steer_in(&session, &expected, text).await
+    }
+
+    /// A22 — `turn/steer` into `expected`, a live turn OF `session` (the
+    /// Session the steer was issued in). Checked before it is sent; on a
+    /// mismatch nothing is sent.
+    pub async fn steer_in(&self, session: &str, expected: &str, text: &str) -> Result<serde_json::Value, ClientError> {
+        if !self.is_live_turn_of(session, expected) {
+            makepad_widgets::log!("[octoscode] turn/steer not sent: {expected} is not a live turn of {session}");
+            return Ok(serde_json::Value::Null);
+        }
         let params = serde_json::json!({
-            "session_id": self.session_id(),
+            "session_id": session,
             "expected_turn_id": expected,
             "input": [{"kind": "text", "text": text}],
         });
