@@ -3,7 +3,10 @@
 Evidence build: `HOST …/host-agent-aef3e8e3b40196174/target/debug/octosense built from agent-aef3e8e3b40196174@7e969e14`
 (this branch merged with main `acce6587`). Baseline: the same sources at main `487c02fb` (before A18), built
 into a separate host dir. Both measured by the same tool, against the same replay servers, at the shell's
-desktop (1400x900, OctosCode 990x603) and phone (360x780) sizes.
+desktop (1400x900, OctosCode 990x603) and phone (360x780) sizes. Re-confirmed after merging main `53a6f4bc` (A19)
+on `@23e79df3`: the stop walk 9/9 at both sizes; contrast `chrome` light desktop 16/16 and phone 15/15, dark
+desktop 16/16, `seats` 4/4, `surfaces` 3/3; A6 116/116 and 119/119; A15 40/40 and 37/37; the judge tour
+(`tools/judge/tour.py`, live + commands phases) 0 numeric flags: desktop 12 + 38 screens, phone 4 + 34.
 
 ## 1. Light-theme text contrast (walk results row 212)
 
