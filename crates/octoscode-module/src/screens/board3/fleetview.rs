@@ -111,8 +111,9 @@ impl Status {
             Status::WaitingApproval | Status::WaitingAnswer => (tok::AMBER, tok::AMBER_BG),
             Status::Working => (tok::GREEN, tok::GREEN_BG),
             Status::Requested | Status::Starting | Status::StillStarting => (tok::BLUE, tok::BLUE_BG),
-            Status::Finished => (tok::MUTED, tok::SURFACE2),
-            Status::Stopped | Status::Failed | Status::Unknown => (tok::RED, tok::RED_BG),
+            // An operator's own Stop is a calm terminal state, not an error.
+            Status::Finished | Status::Stopped => (tok::MUTED, tok::SURFACE2),
+            Status::Failed | Status::Unknown => (tok::RED, tok::RED_BG),
         }
     }
 }

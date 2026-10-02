@@ -20,7 +20,7 @@ import re
 import sys
 import time
 
-from a10_lib import Walk, checks_line, dialog_checks, run_session
+from a10_lib import Walk, checks_line, dialog_checks, inside, run_session
 
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a10/fleet/{MODE}"
@@ -28,27 +28,71 @@ PORT = 8430
 REPLAY = 8431
 
 
-def shown(W: Walk, wid: str) -> bool:
-    if W.visible(wid):
+def where(W: Walk, wid: str) -> str:
+    """`in` (wholly inside the viewport), `cut-top` / `cut-bottom` (a scroll
+    edge cuts it: /snap reports only the visible part of a clipped widget, so
+    a rect touching an edge is cut), or `out` (not drawn)."""
+    sn = W.snap()
+    vp, r = W.rect("b3_scroll", sn=sn), W.rect(wid, sn=sn)
+    if not (vp and r and inside(r, vp)):
+        return "out"
+    if r[1] <= vp[1] + 1:
+        return "cut-top"
+    if r[1] + r[3] >= vp[1] + vp[3] - 1:
+        return "cut-bottom"
+    return "in"
+
+
+def wholly(W: Walk, wid: str) -> bool:
+    return where(W, wid) == "in"
+
+
+def wheel(W: Walk, dy: float) -> None:
+    vp = W.rect("b3_scroll")
+    if vp:
+        W.get(f"/m?k=scroll&x={vp[0] + vp[2] / 2:.0f}&y={vp[1] + vp[3] / 2:.0f}&dy={dy:.0f}&wait=1", tolerant=True)
+        time.sleep(0.2)
+
+
+def seek(W: Walk, wid: str, steps: int = 40) -> bool:
+    """Bring `wid` wholly into the pane's scroll viewport with the user's
+    wheel: from the top, then down in small steps (content scrolled out of a
+    ScrollYView is not drawn, so an unseen target is searched for; a remount
+    may have reset the offset, so the search always starts at the top)."""
+    if wholly(W, wid):
         return True
-    return W.scroll_into(wid, "b3_scroll")
+    for _ in range(6):
+        wheel(W, -600)
+    for _ in range(steps):
+        at = where(W, wid)
+        if at == "in":
+            return True
+        wheel(W, -60 if at == "cut-top" else 60 if at == "cut-bottom" else 90)
+    ok = wholly(W, wid)
+    if not ok:
+        W.note(f"SEEK {wid} — not found")
+    return ok
+
+
+def shown(W: Walk, wid: str) -> bool:
+    return seek(W, wid)
 
 
 def click_logged(W: Walk, wid: str, needle: str, expect=None, secs: float = 8.0) -> bool:
     time.sleep(0.4)  # let a remount from the previous reply settle
     W.mark()
-    ok = W.click_in(wid, "b3_scroll")
+    ok = seek(W, wid) and W.click(wid)
     logged = W.logged(needle, secs / 2) if ok else False
     if ok and not logged:
         W.note(f"RETRY {wid}")
-        ok = W.click_in(wid, "b3_scroll")
+        ok = seek(W, wid) and W.click(wid)
         logged = W.logged(needle, secs / 2) if ok else False
     seen = W.wait(expect, secs) if (ok and expect) else True
     return ok and logged and seen
 
 
 def type_into(W: Walk, wid: str, text: str) -> None:
-    W.scroll_into(wid, "b3_scroll")
+    seek(W, wid)
     r = W.rect(wid)
     if r:
         W.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
@@ -63,26 +107,41 @@ def replay_lines(W: Walk, needle: str) -> list[str]:
 
 
 def row_of(W: Walk, label_prefix: str) -> int | None:
-    """The drawn index of the row whose label starts with `label_prefix`."""
+    """The drawn index of the row whose label starts with `label_prefix`
+    (scrolled to: rows below the fold are not drawn)."""
     for w in W.prefixed("b3_fleet_row_"):
         m = re.fullmatch(r"b3_fleet_row_(\d+)_label", str(w.get("i")))
         if m and (w.get("t") or "").startswith(label_prefix):
             return int(m.group(1))
+    for i in range(6):
+        if seek(W, f"b3_fleet_row_{i}_label", steps=30) and W.text(f"b3_fleet_row_{i}_label").startswith(label_prefix):
+            return i
     return None
 
 
 def status_of(W: Walk, i: int) -> str:
+    seek(W, f"b3_fleet_row_{i}_status", steps=30)
     return W.text(f"b3_fleet_row_{i}_status")
 
 
 def numeric(W: Walk, name: str):
     sn = W.snap()
     c = dialog_checks(sn, "b3_fleet_panel", ("b3_fleet_", "b3_title"), viewport="b3_scroll")
+    # A control the scroll viewport's edge cuts reports its CLIPPED rect (a
+    # few px tall) — clipped by the scroll by design, not an undersized hit.
+    vp = next((w["r"] for w in sn if w.get("i") == "b3_scroll" and Walk.shown(w)), None)
+    if vp and c.get("under28"):
+        rects = {w["i"]: w["r"] for w in sn if Walk.shown(w)}
+        edge = lambda r: r[1] <= vp[1] + 1 or r[1] + r[3] >= vp[1] + vp[3] - 1  # noqa: E731
+        c["under28"] = [i for i in c["under28"] if not edge(rects.get(i, [0, 0, 0, 0]))]
+        c["ok"] = not c["outside"] and not c["overlaps"] and not c["under28"]
     col = next((w["r"] for w in sn if w.get("i") == "b3_fleet_col" and Walk.shown(w)), None)
     pan = next((w["r"] for w in sn if w.get("i") == "b3_fleet_panel" and Walk.shown(w)), None)
     dx = round((col[0] + col[2] / 2) - (pan[0] + pan[2] / 2), 1) if col and pan else None
     W.check(f"{name}: pane numeric checks (no clipped/overlapping labels, controls >= 28 px, column centred)",
-            c["ok"] and dx is not None and abs(dx) <= 1.5, checks_line(c) + f" column={col and col[2]:.0f} column_dx={dx}")
+            c["ok"] and dx is not None and abs(dx) <= 1.5,
+            checks_line(c) + f" column={col and col[2]:.0f} column_dx={dx}"
+            + (f" under28={c.get('under28')} outside={c.get('outside')} overlaps={c.get('overlaps')}" if not c["ok"] else ""))
     return c
 
 
@@ -105,11 +164,15 @@ def walk(W: Walk) -> None:
             and not W.has_text("lint-sweep"),
             f"group={W.text('b3_fleet_group_0')!r} row0={W.text('b3_fleet_row_0_label')!r} status={status_of(W, 0)!r}")
     W.check("fleet: an inventory-only row reads 'Requested'", "Requested" in status_of(W, 0))
-    W.mark()
-    W.click_in("b3_fleet_start", "b3_scroll")
-    time.sleep(1.5)
-    W.check("fleet: Start with no lane and no brief sends NOTHING (no implicit lane)",
-            not replay_lines(W, "<- session/driver/acquire") and not replay_lines(W, "<- peer/dispatch"))
+    seek(W, "b3_fleet_start_box")
+    r = W.rect("b3_fleet_start_box")
+    if r:
+        W.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
+        time.sleep(1.5)
+    W.check("fleet: Start is disabled with no lane and no brief (no button; a click sends NOTHING — no implicit lane)",
+            r is not None and not W.visible("b3_fleet_start")
+            and not replay_lines(W, "<- session/driver/acquire") and not replay_lines(W, "<- peer/dispatch"),
+            f"start_box={r}")
     numeric(W, "open")
     W.shot(f"01-open-{MODE}")
 
@@ -134,13 +197,15 @@ def walk(W: Walk) -> None:
     W.check("fleet: the adopted row 'Peer 2 · gpt-5.4' appears and the brief clears",
             W.wait(lambda: row_of(W, "Peer 2 · gpt-5.4") is not None, 8)
             and W.text("b3_fleet_brief") in ("", "Describe the task for the peer"))
-    W.check("fleet: the adopted session's own frames drive it to 'Waiting for your approval' (+ the announcement)",
-            W.wait(lambda: row_of(W, "Peer 2") is not None and "Waiting for your approval" in status_of(W, row_of(W, "Peer 2")), 10)
-            and "waiting for your approval" in W.text("b3_fleet_announce"),
-            f"status={status_of(W, row_of(W, 'Peer 2') or 0)!r} announce={W.text('b3_fleet_announce')!r}")
+    waiting = W.wait(lambda: "Waiting for your approval" in status_of(W, 1), 10)
+    W.check("fleet: the adopted session's own frames drive it to 'Waiting for your approval'",
+            waiting, f"status={status_of(W, 1)!r}")
+    W.check("fleet: the live region announces it ('Peer 2 · gpt-5.4 is waiting for your approval')",
+            seek(W, "b3_fleet_announce") and W.text("b3_fleet_announce") == "Peer 2 · gpt-5.4 is waiting for your approval",
+            f"announce={W.text('b3_fleet_announce')!r}")
     r2 = row_of(W, "Peer 2") or 0
     numeric(W, "waiting")
-    W.scroll_into(f"b3_fleet_row_{r2}_approve", "b3_scroll")
+    seek(W, f"b3_fleet_row_{r2}_approve")
     W.shot(f"03-waiting-{MODE}")
 
     W.note("== 4. Approve -> ONE peer/control approval_respond -> approval/decided -> Working")
@@ -159,8 +224,9 @@ def walk(W: Walk) -> None:
                          lambda: any("command=steer" in l for l in replay_lines(W, "-> peer/control")), 10),
             "; ".join(replay_lines(W, "-> peer/control")[-1:]))
 
-    W.note("== 6. a refused Start keeps the brief and shows the bounded label; the next Start mints a NEW id")
-    W.click_in("b3_fleet_model_tap", "b3_scroll")
+    W.note("== 6. a refused Start keeps the brief and the bounded label; its staging is a Failed row; the next Start mints a NEW id")
+    seek(W, "b3_fleet_model_tap")
+    W.click("b3_fleet_model_tap")
     W.wait_shown("b3_fleet_opt_1", 6)
     click_logged(W, "b3_fleet_opt_1", "b3.fleet.lane", lambda: W.text("b3_fleet_model_value") == "lane-review")
     type_into(W, "b3_fleet_brief", "Run the full test suite")
@@ -168,30 +234,41 @@ def walk(W: Walk) -> None:
             click_logged(W, "b3_fleet_start", "b3.fleet.start", lambda: "not configured" in W.text("b3_fleet_error"), 10)
             and W.text("b3_fleet_brief") == "Run the full test suite",
             f"error={W.text('b3_fleet_error')!r} brief={W.text('b3_fleet_brief')!r}")
-    W.scroll_into("b3_fleet_error", "b3_scroll")
+    W.check("fleet: the refused staging settles as a terminal 'Failed' row under Peers' Finished (1)",
+            seek(W, "b3_fleet_finished_1_label") and W.text("b3_fleet_finished_1_label") == "Finished (1)",
+            f"label={W.text('b3_fleet_finished_1_label')!r}")
+    seek(W, "b3_fleet_error")
     W.shot(f"04-refused-{MODE}")
-    W.click_in("b3_fleet_model_tap", "b3_scroll")
+    seek(W, "b3_fleet_model_tap")
+    W.click("b3_fleet_model_tap")
     W.wait_shown("b3_fleet_opt_0", 6)
     click_logged(W, "b3_fleet_opt_0", "b3.fleet.lane", lambda: W.text("b3_fleet_model_value") == "lane-primary")
-    W.check("fleet: Start again (same brief) -> accepted 'Peer 3 · gpt-5.4'",
-            click_logged(W, "b3_fleet_start", "b3.fleet.start", lambda: row_of(W, "Peer 3 · gpt-5.4") is not None, 10))
+    started = click_logged(W, "b3_fleet_start", "b3.fleet.start",
+                           lambda: len(replay_lines(W, "-> peer/dispatch (fleet sim)")) == 2, 10)
+    time.sleep(1.0)
+    W.check("fleet: Start again (same brief, lane-primary) -> accepted 'Peer 4 · gpt-5.4'",
+            started and seek(W, "b3_fleet_row_3_label") and W.text("b3_fleet_row_3_label") == "Peer 4 · gpt-5.4",
+            f"row3={W.text('b3_fleet_row_3_label')!r}")
     ops = [re.search(r"operation_id=(\S+)", l).group(1) for l in replay_lines(W, "peer/dispatch") if "operation_id=" in l and "->" in l]
     W.check("fleet: three Starts = three DISTINCT operation ids on the wire", len(ops) == 3 and len(set(ops)) == 3, f"{ops}")
 
     W.note("== 7. Stop -> ONE interrupt -> the row finishes under its group's Finished (n)")
-    r3 = row_of(W, "Peer 3") or 0
-    W.wait(lambda: "Working" in status_of(W, row_of(W, "Peer 3") or 0), 8)
-    W.check("fleet: Stop CLICK -> peer/control(interrupt) -> 'Finished (1)' under Peers",
-            click_logged(W, f"b3_fleet_row_{r3}_stop", "b3.fleet.stop",
-                         lambda: any(W.text(f"b3_fleet_finished_{g}_label") == "Finished (1)" for g in range(3)), 10)
-            and any("command=interrupt" in l for l in replay_lines(W, "-> peer/control")))
-    g = next((g for g in range(3) if W.text(f"b3_fleet_finished_{g}_label") == "Finished (1)"), 1)
-    W.check("fleet: the Finished (1) disclosure CLICK shows the stopped row",
-            click_logged(W, f"b3_fleet_finished_{g}", "b3.fleet.finished",
-                         lambda: row_of(W, "Peer 3") is not None and "Stopped" in status_of(W, row_of(W, "Peer 3"))),
-            f"status={status_of(W, row_of(W, 'Peer 3') or 0)!r}")
+    r3 = 3
+    W.wait(lambda: "Working" in status_of(W, r3), 8)
+    stopped = click_logged(W, f"b3_fleet_row_{r3}_stop", "b3.fleet.stop",
+                           lambda: any("command=interrupt" in l for l in replay_lines(W, "-> peer/control")), 10)
+    time.sleep(1.5)  # the pushed turn/error folds into the row
+    g = 1  # the groups: Goal goal_01 (0), then Peers (1) — "Peers" last
+    W.check("fleet: Stop CLICK -> peer/control(interrupt) -> turn/error -> 'Finished (2)' under Peers",
+            stopped and seek(W, f"b3_fleet_finished_{g}_label") and W.text(f"b3_fleet_finished_{g}_label") == "Finished (2)",
+            f"label={W.text(f'b3_fleet_finished_{g}_label')!r}")
+    opened = click_logged(W, f"b3_fleet_finished_{g}", "b3.fleet.finished")
+    time.sleep(0.6)
+    W.check("fleet: the Finished (2) disclosure CLICK shows the stopped and the failed rows",
+            opened and "Stopped" in status_of(W, r3) and "Failed" in status_of(W, 2),
+            f"stopped={status_of(W, r3)!r} failed={status_of(W, 2)!r}")
     numeric(W, "finished")
-    W.scroll_into(f"b3_fleet_finished_{g}", "b3_scroll")
+    seek(W, f"b3_fleet_finished_{g}")
     W.shot(f"05-finished-{MODE}")
 
     W.note("== 8. Advanced: the driver disclosure, Release seat -> re-walk -> Acquire seat")
@@ -205,7 +282,7 @@ def walk(W: Walk) -> None:
             f"revision={W.text('b3_fleet_disc_revision_v')!r} epoch={W.text('b3_fleet_disc_epoch_v')!r} "
             f"lease={W.text('b3_fleet_disc_lease_v')!r}")
     W.check("fleet: the session peers roster lists the rows", shown(W, "b3_fleet_console_roster"))
-    W.scroll_into("b3_fleet_disclosure_mode", "b3_scroll")
+    seek(W, "b3_fleet_disclosure_mode")
     numeric(W, "advanced")
     W.shot(f"06-advanced-{MODE}")
     W.check("fleet: Release seat CLICK -> session/driver/release -> 'Acquire seat' appears",
@@ -235,14 +312,14 @@ def walk(W: Walk) -> None:
     W.check("fleet: a composer turn goes out (the master's live turn)",
             W.wait(lambda: len(replay_lines(W, "<- turn/start")) == before + 2, 8))
     W.check("fleet: Fleet entry CLICK reopens the pane", open_fleet(W))
-    if not W.visible("b3_fleet_seat_title"):
-        click_logged(W, "b3_fleet_advanced", "b3.fleet.advanced", lambda: shown(W, "b3_fleet_seat_title"))
+    if not seek(W, "b3_fleet_disclosure_mode"):
+        click_logged(W, "b3_fleet_advanced", "b3.fleet.advanced", lambda: shown(W, "b3_fleet_disclosure_mode"))
     W.check("fleet: the control seat mounts (held seat + pending work + live turn)", shown(W, "b3_fleet_seat_title"))
     W.check("fleet: seat Steer CLICK -> ONE peer/control on the pending work + the master's live turn -> the receipt facts",
             click_logged(W, "b3_fleet_seat_cmd_2", "b3.fleet.console.seat", lambda: shown(W, "b3_fleet_seat_worker_v"), 10)
             and any("target_operation_id=synthetic-pending-op" in l for l in replay_lines(W, "-> peer/control")),
             f"worker={W.text('b3_fleet_seat_worker_v')!r} dup={W.text('b3_fleet_seat_dup_v')!r}")
-    W.scroll_into("b3_fleet_seat_title", "b3_scroll")
+    seek(W, "b3_fleet_seat_title")
     numeric(W, "seat")
     W.shot(f"07-seat-{MODE}")
 

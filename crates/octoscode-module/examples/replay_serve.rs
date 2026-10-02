@@ -391,8 +391,14 @@ impl FleetSim {
         for v in [&mut sim.get, &mut sim.binding] {
             rewrite_session(v, "<WORKSPACE>", &ws);
         }
+        // The fixture's prior dispatch is anchored 18 minutes before this
+        // run (its recorded epoch-ms would read as months of elapsed time).
+        let then = now_ms().saturating_sub(18 * 60_000);
         for op in sim.ops.iter_mut() {
             rewrite_session(op, "<WORKSPACE>", &ws);
+            op["created_at_ms"] = then.into();
+            op["started_at_ms"] = (then + 1000).into();
+            op["acceptance"]["accepted_at_ms"] = then.into();
         }
         sim
     }
@@ -448,8 +454,12 @@ impl FleetSim {
                     "mode": "external", "recovery": "none", "binding": self.binding,
                 });
                 if p.get("operations").is_some() {
+                    // The page is strictly ordered by operation id (UTF-8
+                    // bytes) — the protocol's contract the walk enforces.
+                    let mut items = self.ops.clone();
+                    items.sort_by(|a, b| a["operation_id"].as_str().cmp(&b["operation_id"].as_str()));
                     v["operations"] = serde_json::json!({
-                        "items": self.ops,
+                        "items": items,
                         "snapshot": format!("synthetic-snapshot-{}", self.revision),
                         "observed_revision": self.revision.to_string(),
                         "complete": true,
