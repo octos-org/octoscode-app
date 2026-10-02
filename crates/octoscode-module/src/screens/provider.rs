@@ -471,6 +471,21 @@ impl ProviderUi {
         self.screen = Screen::Rejected;
     }
 
+    /// A23 — "Test connection" failed: redacted against the live key like
+    /// [`ProviderUi::reject`], the draft kept, the editor stays (Save is not
+    /// "Try again"); the line reads where Test was clicked, the key field
+    /// outlined red when the provider refused the key.
+    pub fn test_failed(&mut self, raw_reason: &str) {
+        let safe = redact(raw_reason, &self.key);
+        self.error_status = http_status(&safe);
+        self.key_rejected = is_key_rejection(&safe);
+        self.error = Some(safe);
+        self.save_refused = false;
+        self.busy = false;
+        self.screen = Screen::Editor;
+        self.feedback = Some(Feedback { ok: false, text: format!("{} Your draft is kept.", self.failure_line()) });
+    }
+
     /// The test passed: drop the error, leave the draft alone.
     pub fn accept(&mut self) {
         self.error = None;
@@ -1230,9 +1245,11 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
             kit::svg("", if ui.key_revealed { "b1_eye_off.svg" } else { "b1_eye.svg" }, 22.0),
             kit::hit("b1_prov_eye", true)
         );
+        // p4-07's red outline: the provider refused this key (on a Save or a
+        // Test connection).
         let mut key = Field::new("b1_prov_key", &ui.key)
             .label("API key")
-            .error(ui.screen == Screen::Rejected && ui.key_rejected)
+            .error(ui.key_rejected && (ui.screen == Screen::Rejected || ui.feedback.as_ref().is_some_and(|f| !f.ok)))
             .read_only(read_only)
             .trailing(eye);
         if !ui.key_revealed {
@@ -1250,11 +1267,9 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         v.input("b1_prov_key", "provider.key");
         v.returns("b1_prov_key", "provider.save");
         v.button("b1_prov_eye", "provider.key.reveal");
-        if !read_only {
-            hint(&mut v, "b1_prov_key_hint", if ui.credential_configured() { copy::KEY_CONFIGURED_HINT } else { copy::KEY_WRITE_ONLY_HINT });
-        }
         issue_line(&mut v, ui, ms::Field::ApiKey, "b1_prov_key_issue");
     }
+    // p4-07: a refused SAVE reads under the key it refused (the board).
     if ui.screen == Screen::Rejected {
         v.push(kit::gap(8.0));
         v.push(Text::new("b1_prov_error", &ui.failure_line()).px(15.0).color(kit::RED).fill().dsl());
@@ -1262,19 +1277,35 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
             v.push(kit::gap(2.0));
             v.push(Text::new("b1_prov_kept", "Your draft is kept.").px(15.0).color(kit::RED).fill().one_line().dsl());
         }
-    } else if let Some(f) = &ui.feedback {
-        v.push(kit::gap(10.0));
-        v.push(kit::status_line("b1_prov_feedback", &f.text, f.ok));
     }
-    if !read_only && ui.caps.test {
-        v.push(kit::gap(10.0));
-        let label = if ui.busy && ui.last_op == Op::Test { copy::TESTING } else { copy::TEST };
-        v.push(kit::pill_outline_fit("b1_prov_test", label, 40.0));
-        v.button("b1_prov_test", "prov.test");
-    }
+    // The board's p4-06 order first (Name, Base URL, API key, Models), so
+    // the editor opens on the approved composition; the web editor's other
+    // controls follow it.
     if ui.mode == Mode::Edit {
         v.push(kit::gap(if l.phone { 18.0 } else { 14.0 }));
         models_section(&mut v, l, ui, read_only);
+    }
+    // The credential and its probe: the key's write-only note, the last
+    // Test connection's line (where it was clicked), Test connection.
+    if !read_only {
+        v.push(kit::gap(if l.phone { 18.0 } else { 14.0 }));
+        if ui.credential() != Credential::None {
+            v.push(Text::new("b1_prov_key_hint", if ui.credential_configured() { copy::KEY_CONFIGURED_HINT } else { copy::KEY_WRITE_ONLY_HINT })
+                .px(13.0)
+                .color(kit::MUTED)
+                .fill()
+                .dsl());
+        }
+        if let Some(f) = &ui.feedback {
+            v.push(kit::gap(8.0));
+            v.push(kit::status_line("b1_prov_feedback", &f.text, f.ok));
+        }
+        if ui.caps.test {
+            v.push(kit::gap(10.0));
+            let label = if ui.busy && ui.last_op == Op::Test { copy::TESTING } else { copy::TEST };
+            v.push(kit::pill_outline_fit("b1_prov_test", label, 40.0));
+            v.button("b1_prov_test", "prov.test");
+        }
     }
     // The route's protocol and credential reference (the web editor's
     // "API protocol" select and "Credential environment" field).
@@ -1546,12 +1577,12 @@ pub async fn perform_transport(conv: &crate::flow::Conversation, effect: Effect)
             }
             Ok(t) => {
                 let reason = t.error.unwrap_or_else(|| if t.message.is_empty() { copy::TEST_DID_NOT_PASS.into() } else { t.message });
-                perform_failed(&reason);
-                Err(format!("profile/llm/test: {reason}"))
+                state().test_failed(&reason);
+                Err(format!("profile/llm/test: {}", redact(&reason, &state().key)))
             }
             Err(e) => {
-                perform_failed(&e);
-                Err(format!("profile/llm/test: {e}"))
+                state().test_failed(&e);
+                Err(format!("profile/llm/test: {}", redact(&e, &state().key)))
             }
         },
         Op::Fetch => match ms::fetch_models(client, &profile, &draft, key).await {
@@ -1705,6 +1736,19 @@ mod tests {
         let r = redact("api_key=abcd1234 and Bearer tok_live_9", "");
         assert!(!r.contains("abcd1234") && !r.contains("tok_live_9"), "{r}");
         assert_eq!(redact(&"x".repeat(5_000), "").chars().count(), MAX_REDACTED);
+    }
+
+    #[test]
+    fn a_failed_test_connection_reads_where_it_was_clicked_and_keeps_save() {
+        let mut ui = ProviderUi::new("deepseek");
+        ui.key = SECRET.to_owned();
+        ui.test_failed(&format!("authentication failed \u{2014} HTTP 401 for {SECRET}"));
+        assert_eq!(ui.screen, Screen::Editor, "Save stays Save");
+        let f = ui.feedback.clone().unwrap();
+        assert!(!f.ok && f.text == "The provider rejected this key (401). Your draft is kept.", "{f:?}");
+        assert!(ui.key_rejected && !ui.error.as_deref().unwrap().contains(SECRET));
+        ui.test_failed("upstream timeout");
+        assert_eq!(ui.feedback.unwrap().text, format!("{TEST_FAILED} Your draft is kept."));
     }
 
     #[test]

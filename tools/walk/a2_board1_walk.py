@@ -194,6 +194,21 @@ def check(state, s):
     # are entry points elsewhere in the window, not part of the dialog)
     b1 = [w for w in s if str(w.get("i", "")).startswith("b1_") and w.get("i") not in ("b1_card", "b1_sheet", "b1_backdrop")
           and not str(w.get("i")).startswith("b1_set") and w.get("i") != "b1_connect_pair" and w.get("r", [0, 0, 0, 0])[2] > 0]
+    # A23: the provider editor's body scrolls (b1_prov_scroll). A widget its
+    # top or bottom edge cuts is clipped by the scroll by design — the
+    # instrument reports the CLIPPED rect — so it is not judged (the same rule
+    # as tools/walk/a10_lib.py dialog_checks); everything else still is.
+    sv = find("b1_prov_scroll", s)
+    if sv:
+        sx, sy, sw, sh = sv["r"]
+
+        def cut(r):
+            x, y, ww, hh = r
+            inside_x = x >= sx - 0.5 and x + ww <= sx + sw + 0.5
+            on_edge = abs(y - sy) <= 1.5 or abs((y + hh) - (sy + sh)) <= 1.5
+            return inside_x and (on_edge or y < sy - 0.5 < y + hh or y < sy + sh - 0.5 < y + hh - 0.5)
+
+        b1 = [w for w in b1 if w.get("i") == "b1_prov_scroll" or not cut(w["r"])]
     # 1. the card sits inside the module view with equal side margins (desktop) or fills it (phone)
     left, right = cx_ - vx, (vx + vw) - (cx_ + cw)
     top, bottom = cy_ - vy, (vy + vh) - (cy_ + ch)

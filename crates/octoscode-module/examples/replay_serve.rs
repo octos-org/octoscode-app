@@ -38,9 +38,11 @@
 //! the primary); the dummy key `sk-test-rejected` gets r29a's recorded 401
 //! from `profile/llm/test`; `--providers-extra` adds the web unit tests' two
 //! configured rows (an edit-blocked `strong: false` row and a row with
-//! inference overrides); `--fail-config-list N` refuses the first N
-//! profile-config reads; `--slow profile/llm/list@profile=<ms>` holds them.
-//! The provider methods' log lines mask the key.
+//! inference overrides); `--providers-empty` starts with no configured
+//! provider; `--fail-config-file <path>` refuses the profile-config reads
+//! while <path> exists, and `--slow profile/llm/list@profile=<ms>` holds them
+//! (from 5 s into the connection: the app's start-up reads the configuration
+//! too). The provider methods' log lines mask the key.
 //!
 //! `--history-delay-ms N` / `--history-unknown` (A19b, `history`): the
 //! recorded Session's history read (`session/hydrate {include: [messages]}`)
@@ -1690,8 +1692,14 @@ async fn main() {
     let sequenced = if label == "a10" { a10_sequenced() } else { BTreeMap::new() };
     // A23: `--providers-extra` adds the web unit tests' configured rows.
     let providers_extra = args.iter().any(|a| a == "--providers-extra");
+    // A23: `--providers-empty` — a Profile with no configured provider yet.
+    let providers_empty = args.iter().any(|a| a == "--providers-empty");
     let seat_sim = (label == "a10").then(|| {
-        let sim = SeatSim::load();
+        let mut sim = SeatSim::load();
+        if providers_empty {
+            sim.config["primary"] = Value::Null;
+            sim.config["fallbacks"] = serde_json::json!([]);
+        }
         if providers_extra {
             sim.with_extra_rows()
         } else {
@@ -1764,15 +1772,12 @@ async fn main() {
     let history_unknown = args.iter().any(|a| a == "--history-unknown");
     // A16: `--fail-scoped-list N` — the first N session-scoped
     // `profile/llm/list` reads (per connection) answer an error.
-    // A23: `--fail-config-list N` — the first N profile-config
-    // `profile/llm/list` reads (no session_id, per connection) answer an
-    // error: the providers dialog's UNREAD state and its Try again.
-    let fail_config_list: u64 = args
-        .iter()
-        .position(|a| a == "--fail-config-list")
-        .and_then(|i| args.get(i + 1))
-        .and_then(|v| v.parse().ok())
-        .unwrap_or(0);
+    // A23: `--fail-config-file <path>` — while <path> exists, every
+    // profile-config `profile/llm/list` read (no session_id) answers an
+    // error: the providers dialog's UNREAD state; the walk creates the file
+    // right before it opens the dialog (the Models dialog it passes through
+    // reads the configuration too) and removes it before "Try again".
+    let fail_config_file = args.iter().position(|a| a == "--fail-config-file").and_then(|i| args.get(i + 1)).cloned();
     let fail_scoped_list: u64 = args
         .iter()
         .position(|a| a == "--fail-scoped-list")
@@ -1851,6 +1856,7 @@ async fn main() {
         let sequenced = sequenced.clone();
         let slow = slow.clone();
         let revoke_file = revoke_file.clone();
+        let fail_config_file = fail_config_file.clone();
         let stale_window = stale_window.clone();
         let mut seat_sim = seat_sim.clone();
         let fleet_frames = if label == "fleet" { frames.clone() } else { Vec::new() };
@@ -1886,8 +1892,11 @@ async fn main() {
             let mut seq_pos: BTreeMap<String, usize> = BTreeMap::new();
             // A16: the injected session-scoped list failures still to answer.
             let mut fail_scoped_list = fail_scoped_list;
-            // A23: the injected profile-config list failures still to answer.
-            let mut fail_config_list = fail_config_list;
+            // A23: `--slow profile/llm/list@profile` starts 5 s into the
+            // connection: the app's own start-up reads the configuration too
+            // (the new-chat defaults), the providers dialog opens later.
+            let connected_at = std::time::Instant::now();
+            let after_startup = move || connected_at.elapsed() > std::time::Duration::from_secs(5);
             // A6 `surfaces`: the web's delivered-file download
             // (`GET /api/files?path=…&session=…`, `media.ts:147-165`) is plain
             // HTTP on the same port; answer it with a small PDF body.
@@ -2419,12 +2428,11 @@ async fn main() {
                                 "error": {"code": -32000, "message": "profile store unavailable"}})).await;
                             continue;
                         }
-                        // A23: `--fail-config-list <n>` answers the first n
-                        // profile-config reads with an error (the providers
-                        // dialog's unread state, then its Try again).
-                        if !scoped && fail_config_list > 0 {
-                            fail_config_list -= 1;
-                            println!("[replay-serve] -> profile/llm/list (profile config: injected ERROR, {fail_config_list} left)");
+                        // A23: `--fail-config-file <path>` refuses the
+                        // profile-config reads while <path> exists (the
+                        // providers dialog's unread state, then Try again).
+                        if !scoped && fail_config_file.as_deref().is_some_and(|f| std::path::Path::new(f).exists()) {
+                            println!("[replay-serve] -> profile/llm/list (profile config: injected ERROR)");
                             send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id,
                                 "error": {"code": -32000, "message": "profile store unavailable"}})).await;
                             continue;
@@ -2435,7 +2443,7 @@ async fn main() {
                         let frame = serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r});
                         // A23: `--slow profile/llm/list@profile=<ms>` holds the
                         // profile-config read (the dialog's loading state).
-                        match slow.get(m).copied().filter(|_| !scoped) {
+                        match slow.get(m).copied().filter(|_| !scoped && after_startup()) {
                             Some(ms) => {
                                 let tx2 = tx.clone();
                                 tokio::spawn(async move {

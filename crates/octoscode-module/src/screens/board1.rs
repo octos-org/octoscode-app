@@ -206,6 +206,12 @@ struct Host {
     was_open: bool,
     /// The view was rebuilt since the last [`take_ime_reset`].
     ime_reset: bool,
+    /// A23 — the surface the dock last mounted (`None` after the stack
+    /// changed), so a state-change remount of the SAME surface keeps its
+    /// body's scroll ([`note_mounted`]).
+    mounted: Option<Surface>,
+    /// A23 — the body scroll a same-surface remount restores after layout.
+    pending_scroll: Option<f64>,
 }
 
 fn host() -> MutexGuard<'static, Host> {
@@ -233,6 +239,7 @@ fn push_surface(s: Surface) {
     h.stack.retain(|x| *x != s);
     h.stack.push(s);
     h.dirty = true;
+    h.mounted = None;
 }
 
 /// Close the visible surface (back to the one under it, or closed).
@@ -240,13 +247,39 @@ pub fn pop() {
     let mut h = host();
     h.stack.pop();
     h.dirty = true;
+    h.mounted = None;
 }
 
 pub fn close_all() {
     let mut h = host();
     h.stack.clear();
     h.dirty = true;
+    h.mounted = None;
 }
+
+/// A23 — the host is about to mount the dock: whether it shows the SAME
+/// surface it last mounted (a state-change remount, whose body scroll the
+/// host keeps — the provider editor's Test / Fetch / select would otherwise
+/// jump back to its top), false for a fresh open.
+pub fn note_mounted() -> bool {
+    let mut h = host();
+    let top = h.stack.last().copied();
+    let same = top.is_some() && h.mounted == top;
+    h.mounted = top;
+    same
+}
+
+/// A23 — the scroll a same-surface remount restores (applied after layout).
+pub fn set_pending_scroll(y: f64) {
+    host().pending_scroll = Some(y);
+}
+
+pub fn take_pending_scroll() -> Option<f64> {
+    host().pending_scroll.take()
+}
+
+/// The scroll view a surface's body scrolls in (the provider editor's).
+pub const SCROLL_ID: &str = "b1_prov_scroll";
 
 pub fn picker() -> PickerUi {
     host().picker.clone()

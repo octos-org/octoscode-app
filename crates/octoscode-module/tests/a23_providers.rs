@@ -13,7 +13,6 @@
 //! (`model-management-projection.test.ts:11` `strong: false`, `:53` the
 //! inference overrides). Only dummy keys (`sk-test-dummy`, `sk-test-rejected`).
 
-use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
 
 use futures_util::{SinkExt, StreamExt};
@@ -392,6 +391,36 @@ async fn an_unread_configuration_is_an_error_with_try_again_never_an_empty_list(
     assert!(dsl.contains("No model providers configured") && dsl.contains("Add a provider route to make a model available to Core."));
     assert!(dsl.contains("b3_routes_add_provider"), "an empty configuration can add");
     host::close();
+}
+
+/// Row 281's reachability for a Profile with NO provider yet: the Models
+/// dialog (the entry to the providers dialog) still offers "Manage
+/// providers" under its empty line, and the providers dialog it opens is the
+/// web's empty state with "Add provider" (`ModelManagementSection.tsx:1270`,
+/// `:1403-1408`); the first model added becomes the primary.
+#[tokio::test]
+async fn an_empty_profile_reaches_add_provider_from_the_models_dialog() {
+    let _s = serial();
+    let server = Server::start(Sim::new(json!({"profile_id": "dsflash", "primary": null, "fallbacks": []})), &[]).await;
+    let conv = connect(&server).await;
+    let store = conv.store.clone();
+    let ui = Mutex::new(octoscode_module::flow::FlowUi::default());
+    let ctx = octoscode_module::bindings::Ctx::new(&store, &ui);
+    let models = octoscode_module::screens::dialog::lower(octoscode_module::screens::dialog::Dialog::Models, &ctx, 990.0, 603.0)
+        .expect("the Models dialog lowers")
+        .dsl;
+    assert!(models.contains("No models are configured for this Profile."));
+    assert!(models.contains("Manage providers") && models.contains("b3.open.routes"), "the way to the providers stays");
+    open_providers(&conv).await;
+    assert_eq!(host::perform("b3.routes.add_provider", 0, &store), Outcome::Action("b1.open.provider.routes".into()));
+    click("b1.open.provider.routes", None, &conv).await;
+    assert!(editor().contains("claude-3-5-haiku-20241022 (default)"), "the first model of an empty Profile is its primary");
+    board1::route("provider.key", Some(DUMMY));
+    click("provider.save", None, &conv).await;
+    let ups = server.sent("profile/llm/upsert");
+    assert_eq!(ups.len(), 1);
+    assert_eq!(ups[0]["set_primary"], true, "an empty configuration's first provider is the primary");
+    board1::take_pending();
 }
 
 /// Row 282 edit_blocked (`model-management-projection.test.ts:11`): a row
