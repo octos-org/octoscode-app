@@ -355,6 +355,36 @@ mod tests {
         assert!(eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl).is_ok(), "the GFM answer region evaluates");
     }
 
+    /// A7: the answer's display variants (math typeset through MathView, code
+    /// blocks with their banner + Copy hit, unsafe links/images stripped)
+    /// evaluate in the app VM at both densities — a widget property the
+    /// renderer lacks would fail the whole row at runtime.
+    #[test]
+    fn a7_answer_variants_evaluate_in_the_app_vm() {
+        use crate::conv_layout::Metrics;
+        let mut cx = cx_with_vocabulary();
+        let samples = [
+            ("math", "Energy $E = mc^2$ powers it.\n\n$$\na^2 + b^2 = c^2\n$$"),
+            ("code", "Run it:\n\n```rust\nfn main() {\n    println!(\"hi\");\n}\n```\n\nThen `cargo test`."),
+            ("open fence", "Here:\n\n```ts\nconst x = 1;"),
+            ("links", "[safe](https://example.com) [bad](javascript:alert(1)) ![chart](https://x.test/c.png)"),
+        ];
+        for m in [Metrics::for_window(990.0, true), Metrics::for_window(360.0, false)] {
+            for (name, text) in samples {
+                for streaming in [false, true] {
+                    let d = crate::markdown::display(text, streaming);
+                    let dsl = crate::fluid::assistant_answer("0", &d, Some(1), &m);
+                    assert_eq!(dsl.matches('{').count(), dsl.matches('}').count(), "{name}: balanced");
+                    assert!(
+                        eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl).is_ok(),
+                        "{name} (streaming={streaming}) at {:?} must evaluate: {dsl}",
+                        m.density
+                    );
+                }
+            }
+        }
+    }
+
     #[test]
     fn the_prelude_wraps_the_component_in_a_slot_sized_view() {
         // Card #21c item 3: the wrapper is a stacking (`Down`) `Fit` view, so a

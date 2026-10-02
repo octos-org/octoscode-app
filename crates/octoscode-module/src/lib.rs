@@ -43,6 +43,9 @@ pub mod fallback;
 pub mod fluid;
 pub mod l0_host;
 pub mod flow;
+// A7: the answer's markdown display rules + code-block colouring.
+pub mod highlight;
+pub mod markdown;
 pub mod mount;
 pub mod screen;
 pub mod screens;
@@ -1234,6 +1237,10 @@ pub struct OctoscodeView {
     /// A3: the window's inner height (the settings frame's max height).
     #[rust]
     window_h: f64,
+    /// A7 — fires one second after a code block's Copy, so its "Copied"
+    /// label returns to "Copy" (`CodeBlock.tsx:75-79`).
+    #[rust]
+    code_copy_timer: Timer,
 }
 
 impl OctoscodeView {
@@ -4464,7 +4471,29 @@ impl Widget for OctoscodeView {
             // A3: desktop notifications fire only while in the background.
             Event::WindowLostFocus(_) => self.chrome.unfocused = true,
             Event::WindowGotFocus(_) => self.chrome.unfocused = false,
+            // A7: the code block's "Copied" second is over — redraw so the
+            // row re-lowers with "Copy".
+            Event::Timer(te) if self.code_copy_timer.is_timer(te).is_some() => {
+                self.view.redraw(cx);
+            }
             Event::Actions(actions) => {
+                // A7: a markdown link press opens ONLY an absolute http(s) /
+                // mailto URL (`MarkdownBody.tsx:20-37` `safeUrlTransform`;
+                // the display pass already turned every other link into
+                // text, this is the second fence at the navigation itself).
+                for action in actions.iter() {
+                    if let Some(wa) = action.as_widget_action() {
+                        if let MarkdownAction::LinkNavigated { url, .. } = wa.cast() {
+                            match markdown::safe_link_url(&url) {
+                                Some(safe) => {
+                                    makepad_widgets::log!("[octoscode] link: open {safe}");
+                                    cx.open_url(&safe, OpenUrlInPlace::No);
+                                }
+                                None => makepad_widgets::log!("[octoscode] link refused (not http/https/mailto)"),
+                            }
+                        }
+                    }
+                }
                 // #A2: board 1's events — the dock's controls and inputs, the
                 // always-mounted entries (the Connect screen's pairing link,
                 // the Settings rows) and the platform's QR answer.
@@ -4889,6 +4918,40 @@ impl Widget for OctoscodeView {
                             text.chars().count()
                         );
                         continue;
+                    }
+                    // A7: a code block's Copy (`code_copy_<k>`, fluid.rs
+                    // `code_block`) writes THAT block's trimmed code
+                    // (`CodeBlock.tsx:45`) and reads "Copied" for a second.
+                    if row.kind == components::ItemKind::AssistantProse {
+                        let blocks = {
+                            let b = self.bridge.lock().unwrap();
+                            let ctx = bindings::Ctx::new(&b.store, &b.ui);
+                            components::prose_code_blocks(&ctx, row.index, row.turn.as_deref())
+                        };
+                        let mut copied = false;
+                        for (k, text) in blocks {
+                            if item.button(cx, &[LiveId::from_str(&format!("code_copy_{k}"))]).clicked(actions) {
+                                cx.copy_to_clipboard(&text);
+                                {
+                                    let b = self.bridge.lock().unwrap();
+                                    let key = components::prose_row_key(row.index, row.turn.as_deref());
+                                    b.ui.lock().unwrap().note_code_copied(&key, k);
+                                }
+                                makepad_widgets::log!(
+                                    "[octoscode] code.copy: block {k} of row {}: {} chars to the clipboard",
+                                    row.index,
+                                    text.chars().count()
+                                );
+                                self.code_copy_timer = cx.start_timeout(
+                                    flow::FlowUi::CODE_COPIED_FOR.as_secs_f64() + 0.05,
+                                );
+                                copied = true;
+                            }
+                        }
+                        if copied {
+                            self.view.redraw(cx);
+                            continue;
+                        }
                     }
                     // A1: each clickable row's own header hit (fluid.rs).
                     let clicked = match row.kind {

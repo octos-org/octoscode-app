@@ -205,6 +205,9 @@ pub struct FlowUi {
     review_open: bool,
     settings_open: bool,
     palette_open: bool,
+    /// A7 — the code block whose Copy was pressed: (answer row key, block
+    /// index, when). Shows "Copied" for one second (`CodeBlock.tsx:72-80`).
+    code_copied: Option<(String, usize, Instant)>,
 }
 
 impl FlowUi {
@@ -434,6 +437,23 @@ impl FlowUi {
 
     pub fn approval_pending(&self) -> bool {
         self.approval_pending
+    }
+
+    /// A7 — how long a code block's Copy control reads "Copied"
+    /// (`CodeBlock.tsx:75-79`: a 1 000 ms reset timer).
+    pub const CODE_COPIED_FOR: Duration = Duration::from_millis(1_000);
+
+    /// A7 — record a code block's copy (`row` = the answer row's key).
+    pub fn note_code_copied(&mut self, row: &str, block: usize) {
+        self.code_copied = Some((row.to_owned(), block, Instant::now()));
+    }
+
+    /// A7 — the block of `row` whose Copy was pressed less than a second ago.
+    pub fn code_copied(&self, row: &str) -> Option<usize> {
+        match &self.code_copied {
+            Some((r, k, at)) if r == row && at.elapsed() < Self::CODE_COPIED_FOR => Some(*k),
+            _ => None,
+        }
     }
 
     pub fn question_pending(&self) -> bool {

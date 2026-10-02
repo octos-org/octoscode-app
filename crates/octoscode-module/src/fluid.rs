@@ -251,11 +251,69 @@ pub fn user_bubble(tok: &str, text: &str, m: &Metrics, dark: bool) -> String {
 /// 9/14 px cells, hairline rules, no header fill (makepad's default painted
 /// the header row in the highlight blue).
 pub fn assistant_prose(tok: &str, body: &str, m: &Metrics) -> String {
+    assistant_answer(tok, &crate::markdown::display(body, false), None, m)
+}
+
+/// A7 — the answer from its DISPLAY form (`crate::markdown::display`): each
+/// prose segment is one native `Markdown` region at A1's prose rhythm, each
+/// top-level fenced block the web's code block (`CodeBlock.tsx:94-107`: a
+/// banner with the language and a Copy control over the code;
+/// `markdown.css:182-210`). `copied` = the block whose Copy was pressed in
+/// the last second ("Copied", `CodeBlock.tsx:72-80`).
+pub fn assistant_answer(tok: &str, d: &crate::markdown::Display, copied: Option<usize>, m: &Metrics) -> String {
+    use crate::markdown::Segment;
+    let mut inner = String::new();
+    let last = d.segments.len().saturating_sub(1);
+    let mut prose_n = 0usize;
+    for (k, seg) in d.segments.iter().enumerate() {
+        match seg {
+            Segment::Prose(text) => {
+                let id = if prose_n == 0 {
+                    format!("i{tok}_assistantprose")
+                } else {
+                    format!("i{tok}_assistantprose_{prose_n}")
+                };
+                prose_n += 1;
+                inner.push_str(&markdown_region(&id, text, d.math, m));
+            }
+            Segment::Code { lang, code } => {
+                // The web's `.md-code-block` margin (14 px), collapsed at the
+                // answer's own edges (`markdown.css:16-25`).
+                let top = if k == 0 { 0.0 } else { 14.0 };
+                let bottom = if k == last { 0.0 } else { 14.0 };
+                inner.push_str(&code_block(tok, k, lang.as_deref(), code, copied == Some(k), !d.streaming, top, bottom, m));
+            }
+        }
+    }
+    if inner.is_empty() {
+        inner.push_str(&markdown_region(&format!("i{tok}_assistantprose"), "", false, m));
+    }
+    format!("View{{width: Fill height: Fit flow: Down padding: Inset{{top: 4 bottom: 8}}\n{inner}}}\n")
+}
+
+/// One prose `Markdown` region (A1's look). With `math`, the renderer's math
+/// extension typesets `$…$` / `$$…$$` through makepad's MathView (the web's
+/// KaTeX): `inline_math` sits in the line at the body's height, `display_math`
+/// is its own block. Without it every `$` arrives escaped (`markdown::sanitize`).
+fn markdown_region(id: &str, body: &str, math: bool, m: &Metrics) -> String {
     let s = scale(m.density);
     let line = s.body_line + 1.0;
+    // MathView lays out at `font_size * 1.75` (makepad math_view.rs) and its
+    // font_size is in points like the body's: the body is `s.body * 0.75` pt,
+    // so 0.57 of it keeps inline math at the text's height.
+    let math_dsl = if math {
+        format!(
+            "use_math_widget: true\n\
+             inline_math := MathView{{font_size: {inline:.2} color: {INK}}}\n\
+             display_math := MathView{{font_size: {display:.2} color: {INK}}}\n",
+            inline = s.body * 0.75 * 0.57,
+            display = s.body * 0.75 * 0.66,
+        )
+    } else {
+        String::new()
+    };
     format!(
-        "View{{width: Fill height: Fit flow: Down padding: Inset{{top: 4 bottom: 8}}\n\
-         i{tok}_assistantprose := Markdown{{width: Fill max_width: {max} height: Fit padding: 0 margin: 0\n\
+        "{id} := Markdown{{width: Fill max_width: {max} height: Fit padding: 0 margin: 0\n\
          body: {body:?}\n\
          font_size: {fs}\n\
          font_color: {INK}\n\
@@ -275,12 +333,199 @@ pub fn assistant_prose(tok: &str, body: &str, m: &Metrics) -> String {
          draw_block +: {{code_color: {RAISED} line_color: {INK} sep_color: {BORDER} \
          quote_bg_color: {BORDER} quote_fg_color: {MUTED} \
          table_header_bg_color: #00000000 table_border_color: {BORDER}}}\n\
-         }}\n}}\n",
+         {math_dsl}\
+         }}\n",
         max = m.prose_max_w,
         fs = s.body * 0.75,
         regular = flow_style(Face::Regular, s.body, line),
         bold = flow_style(Face::SemiBold, s.body, line),
         mono = flow_style(Face::Mono, s.body, line),
+    )
+}
+
+/// The code block's code size (`markdown.css:200-207`: 400 12px/20px).
+pub const CODE_PX: f64 = 12.0;
+pub const CODE_LINE: f64 = 20.0;
+
+/// One fenced code block (`CodeBlock.tsx:94-107`, `markdown.css:182-207`): a
+/// rounded tip-grey card; its banner names the language (`text` without one)
+/// and carries the Copy control (`code_copy_<k>`, a >= 28 px hit the host
+/// routes to the clipboard); the code below keeps its whitespace and wraps
+/// at the column (A1's accepted alternative to horizontal scroll).
+#[allow(clippy::too_many_arguments)]
+pub fn code_block(
+    tok: &str,
+    k: usize,
+    lang: Option<&str>,
+    code: &str,
+    copied: bool,
+    highlight: bool,
+    top: f64,
+    bottom: f64,
+    m: &Metrics,
+) -> String {
+    let banner_style = style(Face::Mono, 11.0, 18.0);
+    let copy_style = style(Face::Medium, 11.0, 18.0);
+    let label_text = lang.filter(|l| !l.is_empty()).unwrap_or("text");
+    let shown = crate::markdown::copy_text(code);
+    format!(
+        "i{tok}_code_{k} := RoundedView{{width: Fill max_width: {max} height: Fit flow: Down \
+         margin: Inset{{top: {top} bottom: {bottom}}}\n\
+         draw_bg +: {{color: {RAISED} border_radius: 12.0}}\n\
+         i{tok}_code_{k}_banner := View{{width: Fill height: 34 flow: Right align: Align{{y: 0.5}} \
+         padding: Inset{{left: 13 right: 4}}\n\
+         {lang_label}\
+         View{{width: Fill height: 1}}\n\
+         View{{width: 72 height: 30 flow: Overlay align: Align{{x: 1.0 y: 0.5}}\n\
+         View{{width: Fill height: Fill flow: Right align: Align{{x: 1.0 y: 0.5}} padding: Inset{{right: 9}}\n\
+         {copy_label}}}\n\
+         {copy_hit}}}\n\
+         }}\n\
+         View{{width: Fill height: Fit flow: Down padding: Inset{{left: 16 right: 16 top: 0 bottom: 14}}\n\
+         {body}}}\n\
+         }}\n",
+        max = m.prose_max_w,
+        lang_label = label(&format!("i{tok}_code_{k}_lang"), label_text, &banner_style, MUTED, "width: Fit height: Fit"),
+        copy_label = label(
+            &format!("i{tok}_code_{k}_copy_label"),
+            if copied { "Copied" } else { "Copy" },
+            &copy_style,
+            if copied { INK } else { MUTED },
+            "width: Fit height: Fit",
+        ),
+        copy_hit = hit(&format!("code_copy_{k}"), 6.0),
+        body = match crate::highlight::grammar(lang).filter(|_| highlight && highlightable(&shown)) {
+            Some(g) => highlighted_body(&format!("i{tok}_code_{k}_body"), g, &shown),
+            None => code_body(&format!("i{tok}_code_{k}_body"), &shown),
+        },
+    )
+}
+
+/// The size past which a block stays plain (the lexer runs at lowering time;
+/// the web lazy-loads per visible block, natively the row lowers only when
+/// the virtualized list shows it — this bounds the one-off cost).
+fn highlightable(code: &str) -> bool {
+    code.len() <= 24_000 && code.lines().count() <= 600
+}
+
+/// The highlighted code: one `Html` region holding a `<pre>` (whitespace
+/// verbatim, makepad_html `preserves_whitespace`) whose token runs are
+/// custom tags; each tag is an inline `TextFlowLink` template carrying its
+/// token colour (`theme.css:101-112`, `--shiki-token-*`), so the code still
+/// wraps as one text flow and stays one selectable run.
+fn highlighted_body(id: &str, g: crate::highlight::Grammar, code: &str) -> String {
+    use crate::highlight::Tok;
+    let dark = crate::screens::theme::resolved() == "dark";
+    let mut html = String::from("<pre>");
+    for (i, spans) in crate::highlight::block(Some(g), code).iter().enumerate() {
+        if i > 0 {
+            html.push('\n');
+        }
+        for (tok, text) in spans {
+            let esc = html_escape(text);
+            match tok_tag(*tok) {
+                Some(tag) => {
+                    html.push('<');
+                    html.push_str(tag);
+                    html.push('>');
+                    html.push_str(&esc);
+                    html.push_str("</");
+                    html.push_str(tag);
+                    html.push('>');
+                }
+                None => html.push_str(&esc),
+            }
+        }
+    }
+    html.push_str("</pre>");
+    let template = |tag: &str, tok: Tok| {
+        let c = tok.color(dark);
+        format!(
+            "{tag} := TextFlowLink{{color: {c} color_hover: {c} color_down: {c} margin: 0 \
+             grab_key_focus: false}}\n"
+        )
+    };
+    format!(
+        "{id} := Html{{width: Fill height: Fit padding: 0 margin: 0\n\
+         body: {html:?}\n\
+         font_size: {fs}\n\
+         font_color: {ink}\n\
+         draw_text +: {{color: {ink}}}\n\
+         text_style_normal: {mono}\n\
+         text_style_fixed: {mono}\n\
+         code_layout: Layout{{flow: Right{{wrap: true}} padding: 0}}\n\
+         draw_block +: {{code_color: #00000000 line_color: {ink} sep_color: {BORDER} \
+         quote_bg_color: {BORDER} quote_fg_color: {MUTED} \
+         table_header_bg_color: #00000000 table_border_color: {BORDER}}}\n\
+         {k}{s}{c}{n}{f}\
+         }}\n",
+        fs = CODE_PX * 0.75,
+        ink = Tok::Plain.color(dark),
+        mono = flow_style(Face::Mono, CODE_PX, CODE_LINE),
+        k = template("hk", Tok::Keyword),
+        s = template("hs", Tok::String),
+        c = template("hc", Tok::Comment),
+        n = template("hn", Tok::Constant),
+        f = template("hf", Tok::Function),
+    )
+}
+
+/// The custom tag a token class renders through (`None` = plain text; the
+/// web's punctuation colour is near the text colour, so it stays plain).
+fn tok_tag(tok: crate::highlight::Tok) -> Option<&'static str> {
+    use crate::highlight::Tok;
+    match tok {
+        Tok::Keyword => Some("hk"),
+        Tok::String => Some("hs"),
+        Tok::Comment => Some("hc"),
+        Tok::Constant => Some("hn"),
+        Tok::Function => Some("hf"),
+        Tok::Plain | Tok::Punctuation => None,
+    }
+}
+
+fn html_escape(s: &str) -> String {
+    let mut out = String::with_capacity(s.len() + 8);
+    for ch in s.chars() {
+        match ch {
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            _ => out.push(ch),
+        }
+    }
+    out
+}
+
+/// The code itself: ONE `Markdown` region holding just this block, re-fenced
+/// with a backtick run longer than any inside the code, so its whitespace and
+/// line breaks render exactly (the renderer's own code path, as A1's answer
+/// code), on the card's colour with the web's 12/20 mono.
+fn code_body(id: &str, code: &str) -> String {
+    let longest = code
+        .split(|c| c != '`')
+        .map(|r| r.len())
+        .max()
+        .unwrap_or(0);
+    let fence = "`".repeat(longest.max(2) + 1);
+    let body = format!("{fence}\n{code}\n{fence}");
+    format!(
+        "{id} := Markdown{{width: Fill height: Fit padding: 0 margin: 0\n\
+         body: {body:?}\n\
+         font_size: {fs}\n\
+         font_color: {INK}\n\
+         paragraph_spacing: 0\n\
+         pre_code_spacing: 0\n\
+         fixed_font_size_scale: 1.0\n\
+         text_style_normal: {mono}\n\
+         text_style_fixed: {mono}\n\
+         code_layout: Layout{{flow: Right{{wrap: true}} padding: 0}}\n\
+         draw_block +: {{code_color: #00000000 line_color: {INK} sep_color: {BORDER} \
+         quote_bg_color: {BORDER} quote_fg_color: {MUTED} \
+         table_header_bg_color: #00000000 table_border_color: {BORDER}}}\n\
+         }}\n",
+        fs = CODE_PX * 0.75,
+        mono = flow_style(Face::Mono, CODE_PX, CODE_LINE),
     )
 }
 
