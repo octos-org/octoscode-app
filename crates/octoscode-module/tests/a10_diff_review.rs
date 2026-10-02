@@ -229,7 +229,6 @@ async fn an_announced_preview_is_read_once_and_rendered_like_the_web_dialog() {
         "src/main.rs",
         "modified",
         "@@ -10,6 +10,9 @@ fn main() {",
-        "    if args.version {",
         "docs/cli.md",
         "from docs/usage.md",
         "renamed",
@@ -237,6 +236,14 @@ async fn an_announced_preview_is_read_once_and_rendered_like_the_web_dialog() {
     ] {
         assert!(d.contains(copy), "{copy}");
     }
+    // A28: a decorated line is drawn as its syntax runs
+    // (`<line>_c<k>_<class>`), which join to the line's text.
+    let runs: String = d
+        .lines()
+        .filter(|l| l.starts_with("b3_diff_file_0_h0_l2_c"))
+        .filter_map(|l| l.split_once("text: \"").and_then(|(_, t)| t.rsplit_once('"')).map(|(t, _)| t.replace("\\\"", "\"")))
+        .collect();
+    assert_eq!(runs, "    if args.version {");
     assert!(!d.contains(dr::LOADING));
     let job = job_of(host::perform("b3.diff.refresh", 0, &conv.store));
     host::run(job, &conv).await.expect("refresh");

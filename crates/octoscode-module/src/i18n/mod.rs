@@ -25,6 +25,8 @@
 //! - Never applied to model, user or server prose: only call sites that
 //!   carry product copy call [`tr`] (the web's rule, `zh.ts:1`).
 pub mod alias;
+// A24 phase 2: the reviewed native-only supplement (consulted last).
+pub mod native;
 pub mod tree;
 #[rustfmt::skip]
 pub mod zh;
@@ -168,14 +170,30 @@ pub fn catalog_loaded() -> bool {
 /// the web's key has `can't` — one string, two spellings); `None` = no web
 /// translation.
 pub fn zh_for(source: &str) -> Option<&'static str> {
+    web_zh(source).or_else(|| native_zh(source))
+}
+
+/// The web's own Chinese for a source: its catalog key, or the web key of
+/// the same control ([`alias`]), with typographic quotes folded.
+pub fn web_zh(source: &str) -> Option<&'static str> {
     let cat = catalog();
     let lookup = |s: &str| cat.get(s).copied().or_else(|| alias::web_key(s).and_then(|k| cat.get(k).copied()));
-    lookup(source).or_else(|| {
-        source
-            .contains(['\u{2018}', '\u{2019}', '\u{201c}', '\u{201d}'])
-            .then(|| source.replace(['\u{2018}', '\u{2019}'], "'").replace(['\u{201c}', '\u{201d}'], "\""))
-            .and_then(|plain| lookup(&plain))
-    })
+    lookup(source).or_else(|| fold_quotes(source).and_then(|plain| lookup(&plain)))
+}
+
+/// The reviewed native-only supplement ([`native`]), consulted after the
+/// web: copy the web has no Chinese for.
+pub fn native_zh(source: &str) -> Option<&'static str> {
+    static NATIVE: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
+    let map = NATIVE.get_or_init(|| native::NATIVE_ZH.iter().copied().collect());
+    map.get(source).copied().or_else(|| fold_quotes(source).and_then(|plain| map.get(plain.as_str()).copied()))
+}
+
+/// `can’t` -> `can't`, `“x”` -> `"x"` (None when there is nothing to fold).
+fn fold_quotes(source: &str) -> Option<String> {
+    source
+        .contains(['\u{2018}', '\u{2019}', '\u{201c}', '\u{201d}'])
+        .then(|| source.replace(['\u{2018}', '\u{2019}'], "'").replace(['\u{201c}', '\u{201d}'], "\""))
 }
 
 /// `t(source)` in `lang` (no interpolation).

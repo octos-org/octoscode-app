@@ -295,3 +295,19 @@ fn every_alias_is_a_web_key_of_the_same_shape() {
         assert_eq!(tr_in(Lang::En, a.native), a.native);
     }
 }
+
+/// The native-only supplement ([`native::NATIVE_ZH`]): consulted after the
+/// web (an entry the web or an alias covers is dead), Chinese, keeping its
+/// placeholders, one row per source.
+#[test]
+fn every_native_entry_is_chinese_and_never_a_web_key() {
+    let mut seen = std::collections::HashSet::new();
+    for (en, zh) in native::NATIVE_ZH {
+        assert!(seen.insert(*en), "duplicate native entry {en}");
+        assert!(web_zh(en).is_none(), "{en}: the web (or an alias) already translates it");
+        assert!(zh.chars().any(|c| ('\u{4e00}'..='\u{9fff}').contains(&c)), "{en} -> {zh}: not Chinese");
+        assert_eq!(placeholders(en), placeholders(zh), "{en}");
+        assert_eq!(tr_in(Lang::Zh, en), *zh);
+        assert_eq!(tr_in(Lang::En, en), *en);
+    }
+}

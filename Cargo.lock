@@ -5193,6 +5193,7 @@ dependencies = [
  "octoscript-render",
  "octoscript-ui-l0",
  "octoscript-widgets",
+ "regex",
  "reqwest 0.12.28",
  "serde",
  "serde_json",

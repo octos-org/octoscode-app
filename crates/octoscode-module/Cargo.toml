@@ -32,6 +32,9 @@ log = { workspace = true }
 url = "2"
 # #A2 board 1: p4-05's "Paired  Today, 9:41 PM" in the device's own zone.
 chrono = "0.4"
+# A28: the diff review's word pattern (`[\p{L}\p{N}\p{M}_$]+`, diff-presentation.ts:125)
+# needs Unicode general categories; already in both lockfiles (1.13.1).
+regex = "1"
 
 [dev-dependencies]
 # The fake WS server (card #12 §1 fake test, §5 headless proof). Same
