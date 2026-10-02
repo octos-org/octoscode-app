@@ -15,7 +15,7 @@
 //!   of a turn the history already holds); the rest of that turn follows the
 //!   history.
 //! * **row 216** — `a22:main` opens with `reasoning_effort: "high"`; a prompt
-//!   containing `[refuse]` is refused (`-32000`), `[busy]` runs ~8 s.
+//!   containing `[refuse]` is refused (`-32000`), `[busy]` runs ~18 s.
 //! * **row 236** — prompts drive background work: `[slow]` a ~20 s turn,
 //!   `[fail]` a turn that errors after 3 s, `[ask]` a user question after 4 s.
 //!
@@ -216,7 +216,7 @@ async fn run_turn(out: UnboundedSender<String>, cfg: Cfg, world: Arc<Mutex<World
     let (answer, outcome, ticks, ask) = if prompt.contains("[slow]") {
         ("Built and verified.", "completed", 20u64, false)
     } else if prompt.contains("[busy]") {
-        ("Finished the long task.", "completed", 8, false)
+        ("Finished the long task.", "completed", 18, false)
     } else if prompt.contains("[fail]") {
         ("Running the suite…", "errored", 3, false)
     } else if prompt.contains("[ask]") {

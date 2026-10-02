@@ -505,6 +505,16 @@ impl FlowUi {
         });
     }
 
+    /// A22 row 203 — the live turn `turn_id` actually started at `at` (its
+    /// `turn/started` waited in a candidate's buffer).
+    pub fn backdate_live(&mut self, turn_id: &str, at: Instant) {
+        if let Some((id, started)) = self.active_turn.as_mut() {
+            if id == turn_id && at < *started {
+                *started = at;
+            }
+        }
+    }
+
     /// A7 — park text handed back while the owning composer was busy; it
     /// returns when that composer is empty (`restoreUnsentTurn`).
     pub fn park_restore(&mut self, session: &str, text: &str) {
@@ -782,7 +792,8 @@ struct Candidate {
     session: String,
     /// The authority generation (`open_seq`) of the open that began it.
     generation: u64,
-    staged: Vec<TransportEvent>,
+    /// The buffered events, with when each arrived.
+    staged: Vec<(TransportEvent, Instant)>,
     started: Instant,
 }
 
@@ -1081,7 +1092,7 @@ impl Conversation {
                     }
                     _ => TransportEvent::EphemeralNotification { payload: payload.clone() },
                 };
-                cand.staged.push(copy);
+                cand.staged.push((copy, Instant::now()));
                 false
             }
         };
@@ -1107,7 +1118,7 @@ impl Conversation {
         };
         let total = staged.len();
         let mut stale = 0usize;
-        for evt in staged {
+        for (evt, arrived) in staged {
             let cursor = match &evt {
                 TransportEvent::DurableNotification { payload: UiNotification::EnvelopeV2(f), cursor } => {
                     cursor.as_ref().or(f.envelope.cursor.as_ref()).map(|c| (c.stream.clone(), c.seq))
@@ -1121,6 +1132,11 @@ impl Conversation {
                 }
             }
             let out = self.dispatch(&evt);
+            // A turn that started while it waited started THEN, not at its
+            // release (its "Worked for" counts from its arrival).
+            if let FlowEvent::TurnStarted(turn) = &out {
+                self.ui.lock().unwrap().backdate_live(turn, arrived);
+            }
             self.trace.record(self.started, Direction::In, trace_method(&evt), None, Some(format!("released {out:?}")));
         }
         if total > 0 {

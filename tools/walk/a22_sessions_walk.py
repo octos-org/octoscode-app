@@ -343,11 +343,14 @@ def segment_on(seg_id):
         from PIL import Image
     except ImportError:
         return None
-    r = rect(seg_id)
-    if not r:
+    s = snap()
+    r = rect(seg_id, s)
+    win = rect("main_window", s)
+    if not r or not win:
         return None
     img = Image.open(io.BytesIO(get("/g?raw=1", timeout=30))).convert("RGB")
-    scale = img.width / (360.0 if PHONE else 1400.0)
+    # The capture is the whole shell window; /snap rects are in its points.
+    scale = img.width / float(win[2])
     # Sample a few points inside the pill, off the label's glyphs.
     pts = [(r[0] + 6, r[1] + r[3] / 2), (r[0] + r[2] - 6, r[1] + r[3] / 2), (r[0] + r[2] / 2, r[1] + 4)]
     dark = 0
@@ -441,7 +444,7 @@ def phase_216():
     check("216: back to 'Startup chat' (CLICK)", open_row("Startup chat"))
     time.sleep(1.0)
     check("216: /thinking opens Thinking effort", open_thinking())
-    check("216: the open reply's effort is shown (High)", segment_on("b3_think_effort_2") is True)
+    check("216: the open reply's effort is shown (High)", wait(lambda: segment_on("b3_think_effort_2") is True, 4))
     click("b3_think_effort_0")
     check("216: CLICK Low", wait(lambda: segment_on("b3_think_effort_0") is True, 4))
     shot("216-thinking-low")
@@ -453,8 +456,8 @@ def phase_216():
     n_open = len(requests("session/open", "a22:main"))
     check("216 wire: the Session was re-opened (its reply names High again)", n_open >= 2, str(n_open))
     check("216: /thinking again", open_thinking())
-    kept = segment_on("b3_think_effort_0")
-    check("216: the re-open did not overwrite the person's Low", kept is True)
+    kept = wait(lambda: segment_on("b3_think_effort_0") is True, 4)
+    check("216: the re-open did not overwrite the person's Low", kept)
     shot("216-thinking-kept-low")
     close_dialog()
     # Returned prompts: a long turn runs, two prompts queue, both refused.
@@ -469,7 +472,7 @@ def phase_216():
     send("second [refuse]")
     check("216: the second prompt queued", wait(lambda: any("2 queued" in t for _, t, _ in texts()), 4))
     check("216: both refused when the long turn ends",
-          wait(lambda: len(starts("[refuse]")) >= 2, 20), str(len(starts("[refuse]"))))
+          wait(lambda: len(starts("[refuse]")) >= 2, 40), str(len(starts("[refuse]"))))
     sent = starts("[refuse]")
     check("216 wire: each captured its effort at admission",
           [p.get("reasoning_effort") for p in sent[:2]] == ["low", "high"], str([p.get("reasoning_effort") for p in sent[:2]]))
