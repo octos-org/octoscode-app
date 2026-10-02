@@ -390,11 +390,34 @@ pub async fn apply(effect: Effect, conv: &Conversation) -> Result<(), String> {
         // resume 333: open in the background, verify history, NEVER start a
         // turn. `Conversation::open_session` is exactly that production path
         // (`session/open`, then the session/list refresh).
-        Effect::ResumeConfirm(id) => conv
-            .open_session(&id, None)
-            .await
-            .map(|_| ())
-            .map_err(|e| e.to_string()),
+        //
+        // A20 (row 247): the candidate is a catalog row of the workspace the
+        // catalog was read for (`workspace-session-catalog.ts:26-35`, a row
+        // is "a candidate id the server reported for this workspace"): a
+        // Session this app already confirmed under ANOTHER workspace is
+        // refused before any `session/open` or `session/hydrate`
+        // (`screens::saved_link::precondition`), and the open carries that
+        // workspace — never folder-less — so the open reply's exact check
+        // (row 204) refuses another root before history is read.
+        Effect::ResumeConfirm(id) => {
+            let scope = conv.catalog_params().cwd.filter(|c| !c.trim().is_empty());
+            if let Some(workspace) = &scope {
+                let candidate = crate::screens::saved_link::SavedReference {
+                    workspace_root: workspace.clone(),
+                    profile_id: conv.profile(),
+                    session_id: id.clone(),
+                };
+                let known = conv.store.domains.session.workspace_root(&id);
+                if let Err(refusal) = crate::screens::saved_link::precondition(&candidate, known.as_deref(), None) {
+                    makepad_widgets::log!("[octoscode] resume {id} refused before any open: {}", refusal.lead);
+                    return Err(refusal.lead);
+                }
+            }
+            conv.open_session(&id, scope.or_else(|| conv.resume_cwd(&id)))
+                .await
+                .map(|_| ())
+                .map_err(|e| e.to_string())
+        }
         Effect::AsideAsk(question) => {
             let client = conv.client();
             let asked = conv.session_id();

@@ -1,0 +1,22 @@
+test switching_sessions_never_shows_or_answers_another_sessions_approval ... FAILED
+test a_restore_admits_only_the_askers_well_formed_negotiated_entries ... FAILED
+test each_session_keeps_and_answers_only_its_own_question ... FAILED
+test a_response_on_a_replaced_socket_fails_closed_until_restored ... FAILED
+test a_foreign_topic_request_never_takes_its_base_session_over ... FAILED
+thread 'switching_sessions_never_shows_or_answers_another_sessions_approval' (238864863) panicked at crates/octoscode-module/tests/a20_interaction_origin.rs:403:5:
+assertion `left == right` failed: Y's keyboard has nothing to answer
+  left: Some("01a0e773-f844-7d50-b171-b38d159f20a1")
+ right: None
+thread 'a_restore_admits_only_the_askers_well_formed_negotiated_entries' (238864861) panicked at crates/octoscode-module/tests/a20_interaction_origin.rs:509:5:
+the well-formed parked approval of X is restored, attributed to X: []
+thread 'each_session_keeps_and_answers_only_its_own_question' (238864862) panicked at crates/octoscode-module/tests/a20_interaction_origin.rs:440:5:
+assertion `left == right` failed: X still waits on ITS question
+  left: Idle
+ right: Waiting
+thread 'a_response_on_a_replaced_socket_fails_closed_until_restored' (238864860) panicked at crates/octoscode-module/tests/a20_interaction_origin.rs:566:5:
+a stale record is never answered
+thread 'a_foreign_topic_request_never_takes_its_base_session_over' (238864859) panicked at crates/octoscode-module/tests/a20_interaction_origin.rs:479:5:
+assertion `left == right` failed: X never shows its topic child's request
+  left: Some(Approval("01a0e773-f844-7d50-b171-b38d159f20a1"))
+ right: None
+test result: FAILED. 0 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.49s

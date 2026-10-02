@@ -1443,6 +1443,9 @@ impl OctoscodeView {
         }
         let base =
             std::env::var("OCTOS_BASE_URL").unwrap_or_else(|_| "http://127.0.0.1:50082".to_string());
+        // A20 — a saved conversation link handed over at launch (the web's
+        // `?s=` address): offered on its panel once the launch settled.
+        screens::saved_link::take_launch_link(&base);
         let bearer = std::env::var("OCTOS_BEARER").unwrap_or_default();
         // A19 — the web's launch: a fresh connection carries NO profile id
         // (`connection-bootstrap.ts:21`) and `launch/resolve` decides; a
@@ -1580,6 +1583,8 @@ impl OctoscodeView {
         runtime.spawn(async move {
             let r = screens::launch::startup(&st, start, cwd).await;
             makepad_widgets::log!("[octoscode] startup: {r:?}");
+            // A20 — the pending saved link's panel (row 247).
+            screens::saved_link::offer(&st.store);
             SignalToUI::set_ui_signal();
         });
 
@@ -3053,6 +3058,8 @@ impl OctoscodeView {
                             );
                             let r = screens::launch::startup(&conv2, start, cwd).await;
                             makepad_widgets::log!("[octoscode] startup: {r:?}");
+                            // A20 — a saved link still pending is offered here too.
+                            screens::saved_link::offer(&conv2.store);
                             SignalToUI::set_ui_signal();
                         });
                     }
