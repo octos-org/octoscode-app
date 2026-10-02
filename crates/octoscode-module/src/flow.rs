@@ -1563,6 +1563,28 @@ impl Conversation {
             .filter(|r| !(r.role == "tool" && r.turn_id.as_deref().is_some_and(|t| carded.contains(t))))
             .collect();
         let mut added = if rows.is_empty() { 0 } else { timeline.fold_hydrated_messages(session, &rows) };
+        // A turn that did not complete (stopped, failed, rate limited) keeps
+        // its terminal notice: Core persists no row for an interrupted turn,
+        // and the web renders that server truth ("This turn was stopped
+        // before it completed.", `model.ts:240-270`) rather than an empty
+        // gap. Natively the SAME notice the live terminal draws, under the
+        // same `terminal:<turn>` id (`turn::terminal_notice`), so a turn
+        // stopped live is never noted twice.
+        for env in h.replayed_projection_envelopes.iter().flatten() {
+            if let PayloadV2::TurnTerminal { outcome, error, .. } = &env.payload {
+                use octos_core::ui_protocol::TurnTerminalOutcome as O;
+                let name = match outcome {
+                    O::Completed => continue,
+                    O::Errored => "errored",
+                    O::Interrupted => "interrupted",
+                    O::RateLimited => "rate_limited",
+                };
+                let before = timeline.len(session);
+                let err = error.as_ref().map(|e| (e.code.as_str(), e.message.as_str()));
+                octoscode_client::domains::turn::terminal_notice(&self.store, session, &env.turn_id, name, err, None);
+                added += timeline.len(session) - before;
+            }
+        }
         if tool_envs.is_empty() {
             return added;
         }

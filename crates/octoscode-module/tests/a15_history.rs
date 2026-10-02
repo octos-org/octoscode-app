@@ -38,6 +38,8 @@ struct Persisted {
     rows: Vec<Value>,
     /// Retained tool envelopes (lost when the server restarts).
     tool_envs: Vec<Value>,
+    /// Retained canonical records (`replayed_projection_envelopes`).
+    projection_envs: Vec<Value>,
     /// Per-thread last projection seq.
     thread_seq: BTreeMap<String, u64>,
     title: Option<String>,
@@ -125,6 +127,9 @@ impl Core {
                                 if !p.tool_envs.is_empty() {
                                     r["replayed_tool_envelopes"] = json!(p.tool_envs);
                                 }
+                                if !p.projection_envs.is_empty() {
+                                    r["replayed_projection_envelopes"] = json!(p.projection_envs);
+                                }
                                 r
                             }
                             "session/list" => {
@@ -201,10 +206,26 @@ impl Core {
         frames
     }
 
+    /// A turn that was stopped before Core persisted anything for it: only
+    /// its `turn_terminal` record is retained (the live smoke's lighthouse
+    /// story, recorded against octos a6ea8505).
+    fn retain_stopped_turn(&self, session: &str, turn: &str) {
+        let mut s = self.st.lock().unwrap();
+        s.cursor += 1;
+        let cursor = s.cursor;
+        let p = s.sessions.entry(session.to_owned()).or_default();
+        p.projection_envs.push(json!({
+            "session_id": session, "thread_id": turn, "turn_id": turn, "seq": 1,
+            "cursor": {"stream": session, "seq": cursor},
+            "payload": {"type": "turn_terminal", "data": {"outcome": "interrupted"}}
+        }));
+    }
+
     /// The server restarted: durable rows stay, the replay window is gone.
     fn forget_replay(&self) {
         for p in self.st.lock().unwrap().sessions.values_mut() {
             p.tool_envs.clear();
+            p.projection_envs.clear();
             p.thread_seq.clear();
         }
     }
@@ -494,4 +515,49 @@ async fn a_sessions_title_is_the_servers_catalog_row_after_its_first_turn() {
         "the restarted app names the Session from the catalog"
     );
     quit(&again);
+}
+
+/// The live smoke's last turn was stopped mid-stream: Core persisted no row
+/// for it, only its `turn_terminal` record. A restarted app shows that truth
+/// — the turn's "Turn stopped" notice, as the live terminal drew it (the web
+/// renders a stopped turn with no persisted message, `model.ts:240-270`) —
+/// once, under the same `terminal:<turn>` id across re-opens.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_stopped_turn_keeps_its_stopped_notice_once_after_a_restart() {
+    let core = Core::start().await;
+    let (first, mut ev1) = launch(&core).await;
+    let session = first.session_id();
+    run_turn(&first, &mut ev1, "What does main.rs print?").await;
+    quit(&first);
+    let stopped = "01920000-0000-7000-8000-0000000000aa";
+    core.retain_stopped_turn(&session, stopped);
+
+    let (second, mut ev2) = launch(&core).await;
+    let notices = |c: &Conversation| -> Vec<(String, String)> {
+        c.store
+            .domains
+            .session
+            .timeline
+            .of_kind(&session, EntryKind::SYSTEM_NOTICE)
+            .into_iter()
+            .filter(|e| e.turn_id.as_deref() == Some(stopped))
+            .map(|e| octoscode_module::screens::board3::rows::notice_parts(&e))
+            .collect()
+    };
+    assert_eq!(notices(&second), vec![("Turn stopped".to_owned(), String::new())], "the stopped turn is noted");
+    // The completed turn is still drawn once, above it.
+    let rows = shown(&second);
+    assert_eq!(texts(&rows, ItemKind::UserBubble), vec!["What does main.rs print?"]);
+    // A re-open (a sidebar click away and back) never notes it twice.
+    let b = {
+        let c = second.clone();
+        let h = tokio::spawn(async move { c.new_chat(Some(CWD.to_owned())).await });
+        assert!(fold_until(&second, &mut ev2, 10, |c| c.session_id() != session).await);
+        h.await.unwrap().expect("new chat")
+    };
+    settle(&second, &mut ev2).await;
+    assert_ne!(b, session);
+    open(&second, &mut ev2, &core, &session).await;
+    assert_eq!(notices(&second).len(), 1, "one notice per stopped turn");
+    quit(&second);
 }
