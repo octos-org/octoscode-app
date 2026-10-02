@@ -4485,6 +4485,36 @@ impl OctoscodeView {
         self.view.redraw(cx);
     }
 
+    /// A24 — the phone's Back: the module's top surface closes exactly as
+    /// the desktop's Escape closes it (the `KeyDown` arms in
+    /// `handle_event`, in their order): a board-1 dialog, an A5 dialog, an
+    /// A9 surface, the board-3 dialog or the Fleet pane, the task detail,
+    /// then the chrome (review, menus, Settings, the drawer). The phone
+    /// shell never delivers Escape itself (`mobile_app.rs` makes it Back,
+    /// `mobile_back.rs` offers it here), so before this the Fleet pane and
+    /// every dialog stayed open while the phone left the app. Returns
+    /// whether a surface closed; only then is Back taken.
+    fn back_steps_out(&mut self, cx: &mut Cx) -> bool {
+        if screens::board1::is_open() {
+            let back = screens::board1::escape_action();
+            self.perform_board1(cx, back, None);
+            self.sync_labels(cx);
+        } else if screens::dialog::current().is_some() {
+            self.perform_action(cx, screens::dialog::ACTION_CLOSE, 0);
+        } else if a9_host::escape_owned() {
+            self.a9_escape(cx);
+        } else if screens::board3::host::is_open() {
+            screens::board3::host::close();
+            self.sync_labels(cx);
+        } else if screens::surfaces::detail_open() {
+            self.perform_action(cx, "cv.detail.close", 0);
+        } else {
+            return self.escape_chrome(cx);
+        }
+        makepad_widgets::log!("[octoscode] back: the top surface closed");
+        true
+    }
+
     /// A3: Escape closes the top-most chrome surface (the web's onEscape on
     /// every ModalSurface): the Stop dialog, the workspace menu, Settings,
     /// then the drawer. Returns whether it consumed the key.
@@ -6148,6 +6178,15 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] board3 images dropped: {}", paths.len());
                 screens::board3::host::files_chosen(&paths);
                 self.sync_labels(cx);
+            }
+            // A24 — the phone's Back (the phone shell turns Escape, Android's
+            // Back key and its floating Back into `BackPressed`) steps out of
+            // the open surface as Escape does on the desktop; untaken when
+            // nothing closed, so the phone still leaves the app from the chat.
+            Event::BackPressed { handled } if !handled.get() => {
+                if self.back_steps_out(cx) {
+                    handled.set(true);
+                }
             }
             // #A2: while a board-1 dialog is open its fields own the
             // keyboard — Return must not submit the composer's draft and "/"

@@ -636,11 +636,13 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
         ConsoleOutcome::Idle => None,
     };
     if let Some((text, color)) = copy {
-        d.text("b3_fleet_console_state", &text, &Txt::new(12.0, Face::Regular, color).w(W::Fill).wrap());
+        // The outcome line in the interface language (the refusal labels are
+        // the web's peer-control words).
+        d.text("b3_fleet_console_state", tr(&text), &Txt::new(12.0, Face::Regular, color).w(W::Fill).wrap());
     }
     if let ConsoleOutcome::Accepted { slug, operation_id } = &st.console.outcome {
-        fact(d, "b3_fleet_console_worker", "Worker", slug);
-        fact(d, "b3_fleet_console_operation", "Operation", operation_id);
+        fact(d, "b3_fleet_console_worker", tr("Worker"), slug);
+        fact(d, "b3_fleet_console_operation", tr("Operation"), operation_id);
     }
     d.close();
 }

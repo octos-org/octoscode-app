@@ -100,6 +100,7 @@ const REMAINING_CEILING: usize = 0;
 const BUILDERS: &[(&str, &[usize])] = &[
     // board-3 kit (screens/board3/ui.rs) and its callers.
     (".text(", &[1]),
+    (".chip(", &[1]),
     (".button(", &[1]),
     (".button_ids(", &[3]),
     (".link(", &[1]),
@@ -467,7 +468,15 @@ fn bypasses(src: &str) -> Vec<(usize, String, String)> {
 fn bypasses_in(rel: Option<&str>, src: &str) -> Vec<(usize, String, String)> {
     let code = code_only(src);
     let mut out = Vec::new();
-    for (prefix, idxs) in BUILDERS {
+    // The kit's builders, then the file's own helpers that forward a text
+    // parameter into one of them untranslated.
+    let builders: Vec<(String, Vec<usize>)> = BUILDERS
+        .iter()
+        .map(|(p, i)| (p.to_string(), i.to_vec()))
+        .chain(forwarding(&code).into_iter().map(|(p, i)| (p, vec![i])))
+        .collect();
+    for (prefix, idxs) in &builders {
+        let prefix = prefix.as_str();
         let mut from = 0;
         while let Some(at) = code[from..].find(prefix).map(|n| n + from) {
             from = at + 1;
@@ -502,6 +511,94 @@ fn bypasses_in(rel: Option<&str>, src: &str) -> Vec<(usize, String, String)> {
                         let line = code[..a + (arg.len() - arg.trim_start().len())].matches('\n').count() + 1;
                         out.push((line, prefix.to_string(), value));
                     }
+                }
+            }
+        }
+    }
+    out.sort();
+    out.dedup();
+    out
+}
+
+/// The byte just past the `}` matching the `{` at `open` (strings and chars
+/// skipped: a DSL literal's braces are not the code's).
+fn block_end(code: &str, open: usize) -> usize {
+    let b = code.as_bytes();
+    let (mut depth, mut j) = (0usize, open);
+    while j < b.len() {
+        match b[j] {
+            b'"' | b'r' if b[j] == b'"' || skip_string(b, j).is_some() => {
+                j = skip_string(b, j).unwrap_or(j + 1);
+                continue;
+            }
+            b'\'' => {
+                j = skip_char(b, j);
+                continue;
+            }
+            b'{' => depth += 1,
+            b'}' => {
+                depth -= 1;
+                if depth == 0 {
+                    return j + 1;
+                }
+            }
+            _ => {}
+        }
+        j += 1;
+    }
+    b.len()
+}
+
+/// A24 (phase-2 audit) — the helpers a file defines that put a `&str`
+/// parameter straight into a builder's text position, untranslated
+/// (board3/fleet_console.rs `fn fact(d, id, label: &str, value: &str)` ->
+/// `d.text(…, label, …)`): a literal passed there is drawn as surely as one
+/// passed to the builder, so the call is a builder too. Each is (call
+/// prefix, text index): `name(` for a free fn, `.name(` for a method (its
+/// receiver is not an argument).
+fn forwarding(code: &str) -> Vec<(String, usize)> {
+    let b = code.as_bytes();
+    let mut out = Vec::new();
+    let mut from = 0;
+    while let Some(at) = code[from..].find("fn ").map(|n| n + from) {
+        from = at + 3;
+        if at > 0 && (b[at - 1].is_ascii_alphanumeric() || b[at - 1] == b'_') {
+            continue;
+        }
+        let rest = &code[at + 3..];
+        let name: String = rest.chars().take_while(|c| c.is_ascii_alphanumeric() || *c == '_').collect();
+        let Some(paren) = rest[name.len()..].find('(') else { continue };
+        let between = rest[name.len()..name.len() + paren].trim();
+        if name.is_empty() || !(between.is_empty() || between.starts_with('<')) {
+            continue;
+        }
+        let open = at + 3 + name.len() + paren;
+        let spans = args_of(code, open);
+        let params: Vec<(String, bool)> = spans
+            .iter()
+            .map(|&(a, z)| {
+                let p = code[a..z].trim();
+                let (n, ty) = p.split_once(':').unwrap_or((p, ""));
+                (n.trim().trim_start_matches("mut ").trim().to_owned(), ty.contains("str") || ty.contains("String"))
+            })
+            .collect();
+        let method = params.first().is_some_and(|(n, _)| n.ends_with("self"));
+        let Some(close) = spans.last().map(|&(_, z)| z) else { continue };
+        let Some(body_at) = code[close..].find(['{', ';']).map(|n| n + close) else { continue };
+        if b[body_at] != b'{' {
+            continue; // a signature without a body
+        }
+        let body = &code[body_at..block_end(code, body_at)];
+        for (prefix, idxs) in BUILDERS {
+            let mut f = 0;
+            while let Some(p) = body[f..].find(prefix).map(|n| n + f) {
+                f = p + 1;
+                let args = args_of(body, p + prefix.len() - 1);
+                for &ix in idxs.iter() {
+                    let Some(&(a, z)) = args.get(ix) else { continue };
+                    let arg = body[a..z].trim().trim_start_matches('&').trim();
+                    let Some(k) = params.iter().position(|(n, is_text)| *is_text && n == arg) else { continue };
+                    out.push(if method { (format!(".{name}("), k - 1) } else { (format!("{name}("), k) });
                 }
             }
         }
@@ -647,6 +744,32 @@ mod tests { fn f(d: &mut Dsl) { d.text("x", "Test only", &t); } }
 "#;
     let found: Vec<String> = bypasses(src).into_iter().map(|(_, _, t)| t).collect();
     assert_eq!(found, vec!["Recent".to_owned(), "{} queued".to_owned()], "{found:?}");
+}
+
+/// A helper that forwards its text parameter into a builder untranslated is a
+/// builder too (the phase-2 audit found `fact(d, id, "Operation", op)` in the
+/// Fleet console): its literal argument is a bypass, its wrapped one is not,
+/// and an id it forwards is not prose. A chip is a builder.
+#[test]
+fn the_scanner_follows_a_forwarding_helper_and_sees_chips() {
+    let src = r#"
+fn fact(d: &mut Dsl, id: &str, label: &str, value: &str) {
+    d.text(&format!("{id}_k"), label, &k);
+    d.text(&format!("{id}_v"), value, &v);
+}
+impl B {
+    fn pill(&mut self, base: &str, word: &str) { self.d.chip(base, word, INK, BG, None, false); }
+}
+fn view(d: &mut Dsl, b: &mut B) {
+    fact(d, "f_op", "Operation", op);
+    fact(d, "f_ok", tr("Worker"), "lane-glm");
+    b.pill("p", "Configured");
+    d.chip("c", "Ready", INK, BG, None, false);
+    d.chip("c2", &t("Ready"), INK, BG, None, false);
+}
+"#;
+    let found: Vec<String> = bypasses(src).into_iter().map(|(_, _, t)| t).collect();
+    assert_eq!(found, vec!["Operation".to_owned(), "Configured".to_owned(), "Ready".to_owned()], "{found:?}");
 }
 
 /// The converted surfaces carry no bypass at all.

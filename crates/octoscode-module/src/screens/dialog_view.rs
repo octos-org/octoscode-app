@@ -881,6 +881,8 @@ fn skill_jobs_section(b: &mut B<'_>, ctx: &Ctx<'_>) {
         b.close();
     }
     let w = b.card_w();
+    // A24 — one time column for every row, as wide as its longest time.
+    let time_w = sj::time_column_w(&sec.rows);
     for (i, row) in sec.rows.iter().enumerate() {
         if i > 0 {
             b.d.hairline();
@@ -903,7 +905,7 @@ fn skill_jobs_section(b: &mut B<'_>, ctx: &Ctx<'_>) {
         let l2 = b.d.anon();
         b.d.view(&l2, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
         let chip = format!("{} {}", row.chip.glyph, tr(row.chip.word));
-        let (chip_w, time_w) = (ui::text_w(&chip, 11.0, Face::Medium) + 14.0, 36.0);
+        let chip_w = ui::text_w(&chip, 11.0, Face::Medium) + 14.0;
         let name_w = (w - chip_w - time_w - 20.0).max(48.0);
         b.text(&format!("{rid}_name"), &ui::fit_w(&row.name, name_w, 13.5, Face::Semibold), &row_title().w(W::Fill));
         b.chip(&format!("{rid}_state"), &chip, (row.chip.fg, row.chip.bg));

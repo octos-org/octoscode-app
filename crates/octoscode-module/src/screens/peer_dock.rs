@@ -658,7 +658,8 @@ fn row_view(
         &line2,
         &format!("width: Fill height: 16 flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {}}}", fmt(GLYPH + GAP)),
     );
-    d.text(&format!("{id}_status"), tr(r.status.word()), &Txt::new(12.0, Face::Regular, status_ink(r.status)));
+    // The Fleet's own word for the status (`fleetview::status_word`).
+    d.text(&format!("{id}_status"), &fleetview::status_word(r.status), &Txt::new(12.0, Face::Regular, status_ink(r.status)));
     d.text(&format!("{id}_meta"), "", &Txt::new(12.0, Face::Regular, tok::MUTED));
     texts.push((format!("{id}_meta"), tail(r)));
     d.close();

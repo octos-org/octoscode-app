@@ -823,6 +823,13 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("No models are configured for this Profile.", "此配置档案未配置模型。"),
     ("Back", "返回"),
     ("Describe the task for the peer", "描述要交给同侪的任务"),
+    // ---- copy reaching the screen through a helper or a computed line (the phase-2 audit: tuple tables, forwarding helpers, chips, console states)
+    ("Manage providers", "管理提供商"),
+    ("Configured", "已配置"),
+    ("Operation", "操作"),
+    ("The dispatch could not be confirmed.", "无法确认此次派发。"),
+    ("The control command could not be confirmed.", "无法确认此控制命令。"),
+    ("The peer dispatch was accepted.", "同侪派发已被接受。"),
 ];
 
 /// The web catalog's vocabulary: each English term (matched as a word,

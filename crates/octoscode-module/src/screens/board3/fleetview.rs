@@ -120,6 +120,15 @@ impl Status {
     }
 }
 
+/// A24 (row 117): the status word as the Fleet draws it, in the interface
+/// language (`t(FleetStatusWord)`). The Fleet's chips and fallback titles
+/// and the sidebar's peer dock all draw THIS word, so the two surfaces can
+/// never name one status differently (`tests/a24_dock_words.rs` compares
+/// what each draws for every status, in en and zh).
+pub fn status_word(status: Status) -> String {
+    t(status.word())
+}
+
 /// One roster row's status word (`unionStatusWord` + `fleetStatusWord`):
 /// blocked → waiting (answer for a question, else approval); else the row's
 /// outcome when its turn ended; else its lifecycle — opening → Starting /
@@ -203,7 +212,7 @@ fn question_of(r: &PeerRow) -> Option<String> {
 pub fn row_title(brief: &str, label: &str, status: Status) -> String {
     let first = brief.split('\n').next().unwrap_or("").trim();
     if first.is_empty() {
-        return format!("{label} — {}", t(status.word()));
+        return format!("{label} — {}", status_word(status));
     }
     first.chars().take(60).collect()
 }
@@ -822,7 +831,7 @@ pub fn input_changed(st: &mut FleetState, key: &str, text: &str) {
 
 fn status_chip(d: &mut Dsl, id: &str, status: Status) {
     let (fg, bg) = status.tone();
-    d.chip(id, &format!("{} {}", status.glyph(), t(status.word())), fg, bg, None, false);
+    d.chip(id, &format!("{} {}", status.glyph(), status_word(status)), fg, bg, None, false);
 }
 
 fn lane_summary(d: &mut Dsl, info: &LaneInfo) {
@@ -834,7 +843,7 @@ fn lane_summary(d: &mut Dsl, info: &LaneInfo) {
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 6");
     d.text("b3_fleet_lane_title", &info.title(), &Txt::new(13.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
-    d.chip("b3_fleet_lane_state", "Configured", tok::GREEN_TEXT, tok::GREEN_BG, None, false);
+    d.chip("b3_fleet_lane_state", &t("Configured"), tok::GREEN_TEXT, tok::GREEN_BG, None, false);
     if let Some(desc) = &info.description {
         d.text("b3_fleet_lane_desc", desc, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     }
@@ -955,7 +964,7 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
     d.close();
     // The label never truncates to make room for the chip: when both do not
     // fit on one line (a phone, a long waiting word) the chip drops below.
-    let chip_w = ui::text_w(&format!("{} {}", r.status.glyph(), t(r.status.word())), 11.0, Face::Medium) + 14.0;
+    let chip_w = ui::text_w(&format!("{} {}", r.status.glyph(), status_word(r.status)), 11.0, Face::Medium) + 14.0;
     let room = inner_w - 28.0 - 26.0 - 20.0;
     let label_w = ui::text_w(&r.label, 12.5, Face::Mono);
     let stacked = label_w + chip_w > room;
@@ -982,8 +991,9 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
     let note = if r.turn_changed {
         Some((t("Peer started a new turn"), tok::AMBER))
     } else if let (Status::Failed, Some(reason)) = (r.status, r.error.as_ref()) {
-        // A failed start says why (the bounded refusal copy, never a code).
-        Some((reason.clone(), tok::RED_TEXT))
+        // A failed start says why (the bounded refusal copy, never a code)
+        // — the web's peerDispatchRefusalLabel words, in the interface language.
+        Some((t(reason), tok::RED_TEXT))
     } else if let Some(n) = st.row_note.get(&r.key) {
         let refused = matches!(r.control, Some(RowControl::Refused { .. })) || !matches!(n.as_str(), "Sent" | "Stop requested");
         Some((t(n), if refused { tok::RED_TEXT } else { tok::GREEN_TEXT }))
