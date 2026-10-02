@@ -1766,10 +1766,14 @@ fn chrome(
     let (radius, border) = if sheet { (0.0, 0.0) } else { (14.0, 1.0) };
     let close_icon = crate::design::icon_resource("icon_close.svg");
     let dark = crate::screens::theme::resolved() == "dark";
-    let (surface, edge, scrim) = if dark {
-        ("#1c1f22", "#3a3a3c", "#00000080")
+    // `bar`: the scroll handle. The default handle is `theme.color_outset`
+    // (white): invisible on the white frame except where it poked out past
+    // the rounded top-right corner. A grey handle inset past the corner
+    // radius (bar_side_margin) shows only when the card overflows.
+    let (surface, edge, scrim, bar) = if dark {
+        ("#1c1f22", "#3a3a3c", "#00000080", "#5a5a5e")
     } else {
-        ("#ffffff", "#e5e5e7", "#1d1d1f40")
+        ("#ffffff", "#e5e5e7", "#1d1d1f40", "#c7c7cc")
     };
     format!(
         "dialog_root := View {{ width: Fill height: Fill flow: Overlay\n\
@@ -1779,6 +1783,10 @@ fn chrome(
          dialog_frame := RoundedView {{ width: {fw} height: {fh} flow: Overlay\n\
          draw_bg +: {{color: {surface} border_radius: {radius} border_size: {border} border_color: {edge}}}\n\
          dialog_scroll := ScrollYView {{ width: Fill height: Fill flow: Down\n\
+         scroll_bars.scroll_bar_y.bar_side_margin: {bar_margin}\n\
+         scroll_bars.scroll_bar_y.draw_bg.color: {bar}\n\
+         scroll_bars.scroll_bar_y.draw_bg.color_hover: {bar}\n\
+         scroll_bars.scroll_bar_y.draw_bg.color_drag: {bar}\n\
          dialog_card_{id} := View {{ width: {cw} height: {ch} flow: Overlay\n\
          {card}\n\
          }}\n\
@@ -1799,6 +1807,7 @@ fn chrome(
         clx = close.0,
         cly = close.1,
         close_ev = ACTION_CLOSE,
+        bar_margin = radius + 4.0,
     )
 }
 
