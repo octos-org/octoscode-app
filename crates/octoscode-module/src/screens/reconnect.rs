@@ -29,6 +29,7 @@ use std::sync::Mutex;
 use octoscode_store::Store;
 
 use super::board3::ui::{tok, text_w, Btn, Dsl, Face, Txt, W};
+use crate::i18n::{tr, tr1};
 
 /// Re-dial at once.
 pub const ACTION_RETRY: &str = "a12.link.retry";
@@ -80,9 +81,9 @@ fn lock() -> std::sync::MutexGuard<'static, Option<String>> {
 pub fn held_line(command: Option<&str>) -> String {
     match command {
         Some(cmd) if !cmd.trim().is_empty() => {
-            format!("{} was not run — your text stays in the composer.", cmd.trim())
+            tr1("{value0} was not run — your text stays in the composer.", cmd.trim())
         }
-        _ => "Not sent — your text stays in the composer.".to_owned(),
+        _ => tr("Not sent — your text stays in the composer.").to_owned(),
     }
 }
 
@@ -141,32 +142,32 @@ pub fn view(store: &Store, has_conversation: bool) -> Option<View> {
 pub fn copy(v: &View) -> (String, String) {
     match &v.kind {
         Kind::Reconnecting => {
-            let mut detail = "Connection lost".to_owned();
+            let mut detail = tr("Connection lost").to_owned();
             if v.attempt > 0 {
-                detail.push_str(&format!(" · retry {}", v.attempt));
+                detail.push_str(&format!(" · {}", tr1("retry {value0}", &v.attempt.to_string())));
             }
             if !v.server.is_empty() {
                 detail.push_str(&format!(" · {}", v.server));
             }
-            ("Reconnecting to Octos".to_owned(), detail)
+            (tr("Reconnecting to Octos").to_owned(), detail)
         }
         Kind::Restoring => {
-            let mut detail = "Restoring authoritative session state".to_owned();
+            let mut detail = tr("Restoring authoritative session state").to_owned();
             if !v.server.is_empty() {
                 detail.push_str(&format!(" · {}", v.server));
             }
-            ("Restoring session state".to_owned(), detail)
+            (tr("Restoring session state").to_owned(), detail)
         }
         Kind::RecoveryRequired(reason) => {
             let mut detail = reason.clone();
             if !v.server.is_empty() {
                 detail.push_str(&format!(" · {}", v.server));
             }
-            ("Session recovery required".to_owned(), detail)
+            (tr("Session recovery required").to_owned(), detail)
         }
         Kind::NotConnected => (
-            "Not connected to Octos".to_owned(),
-            "Nothing was sent. Connect to a server first.".to_owned(),
+            tr("Not connected to Octos").to_owned(),
+            tr("Nothing was sent. Connect to a server first.").to_owned(),
         ),
     }
 }
@@ -261,14 +262,14 @@ pub fn lower(v: &View, width: f64, phone: bool) -> Lowered {
 fn actions(d: &mut Dsl, v: &View) {
     match &v.kind {
         Kind::Reconnecting | Kind::RecoveryRequired(_) => {
-            d.button("a12_link_retry", "Retry now", ACTION_RETRY, Btn::Outline, W::Px(text_w("Retry now", 13.0, Face::Medium) + 28.0), 32.0);
-            d.button("a12_link_leave", "Disconnect", ACTION_DISCONNECT, Btn::Ghost, W::Px(text_w("Disconnect", 13.0, Face::Medium) + 24.0), 32.0);
+            d.button("a12_link_retry", tr("Retry now"), ACTION_RETRY, Btn::Outline, W::Px(text_w(tr("Retry now"), 13.0, Face::Medium) + 28.0), 32.0);
+            d.button("a12_link_leave", tr("Disconnect"), ACTION_DISCONNECT, Btn::Ghost, W::Px(text_w(tr("Disconnect"), 13.0, Face::Medium) + 24.0), 32.0);
         }
         Kind::Restoring => {
-            d.button("a12_link_leave", "Disconnect", ACTION_DISCONNECT, Btn::Ghost, W::Px(text_w("Disconnect", 13.0, Face::Medium) + 24.0), 32.0);
+            d.button("a12_link_leave", tr("Disconnect"), ACTION_DISCONNECT, Btn::Ghost, W::Px(text_w(tr("Disconnect"), 13.0, Face::Medium) + 24.0), 32.0);
         }
         Kind::NotConnected => {
-            d.button("a12_link_dismiss", "Dismiss", ACTION_DISMISS, Btn::Ghost, W::Px(text_w("Dismiss", 13.0, Face::Medium) + 24.0), 32.0);
+            d.button("a12_link_dismiss", tr("Dismiss"), ACTION_DISMISS, Btn::Ghost, W::Px(text_w(tr("Dismiss"), 13.0, Face::Medium) + 24.0), 32.0);
         }
     }
 }

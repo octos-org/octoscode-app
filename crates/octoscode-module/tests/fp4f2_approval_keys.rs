@@ -71,8 +71,12 @@ fn wire(mut body: serde_json::Value) -> UiNotification {
 }
 
 /// The production registration path (the one-owner rule: approval's own
-/// `register`, exactly what `Conversation::connect` calls).
+/// `register`, exactly what `Conversation::connect` calls). A20: the Session
+/// on screen is the one the recording's approval belongs to — the keyboard
+/// answers only the approval of the Session that is showing it.
 fn registry(store: &Arc<Store>) -> Registry {
+    let session = recorded_approval_requested()["session_id"].as_str().expect("the recorded session").to_owned();
+    store.set_active(Some(session));
     let mut reg = Registry::new();
     octoscode_client::domains::approval::register(&mut reg, store.clone());
     reg
@@ -291,7 +295,14 @@ fn the_four_shortcuts_are_typing_when_no_approval_is_showing() {
 #[test]
 fn a_settled_card_is_not_acted_on() {
     let store = Arc::new(Store::new());
+    // A20: the card belongs to the Session on screen (a row with no recorded
+    // origin is never a card).
+    store.set_active(Some("s1".into()));
     store.domains.approval.request_with_preview("a1", None, Some(PREVIEW.into()));
+    store.domains.approval.set_detail(
+        "a1",
+        octoscode_store::domains::approval::ApprovalDetail { session_id: "s1".into(), ..Default::default() },
+    );
     assert_eq!(keys::preview_id(&store).as_deref(), Some(PREVIEW));
 
     store.domains.approval.decide("a1");

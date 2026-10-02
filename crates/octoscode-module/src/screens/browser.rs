@@ -28,6 +28,7 @@ use octoscode_client::domains::profile::{
 use serde_json::Value;
 
 use super::board1::{Layout, Ui};
+use crate::i18n::tr;
 use super::board1_kit::{self as kit, Field, Text};
 
 /// The most rows one listing shows (the server's own page cap is what
@@ -282,10 +283,10 @@ impl BrowserUi {
     pub fn notices(&self) -> Vec<String> {
         let mut out = Vec::new();
         if self.truncated {
-            out.push(format!("Only the first {} folders are shown.", self.entries.len()));
+            out.push(crate::i18n::tr1("Only the first {value0} folders are shown.", &self.entries.len().to_string()));
         }
         if self.hidden_skipped > 0 {
-            out.push(format!("{} hidden by the server", self.hidden_skipped));
+            out.push(crate::i18n::tr1("{value0} hidden by the server", &self.hidden_skipped.to_string()));
         }
         out
     }
@@ -600,7 +601,7 @@ fn crumb_row(ui: &BrowserUi, v: &mut Ui) -> String {
 /// The native view of the browser (p4-08, or p4-09 after a refusal).
 pub fn view(ui: &BrowserUi, l: &Layout) -> Ui {
     let mut v = Ui::default();
-    v.header(l, "b1_br_back", "browser.close", "Choose workspace folder");
+    v.header(l, "b1_br_back", "browser.close", tr("Choose workspace folder"));
     v.push(kit::gap(if l.phone { 10.0 } else { 6.0 }));
     let crumbs = crumb_row(ui, &mut v);
     v.push(crumbs);
@@ -639,7 +640,7 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
         .collect();
     if rows.is_empty() {
         let empty = if ui.loading { "Loading folders\u{2026}" } else { "No subfolders here." };
-        v.push(Text::new("b1_br_empty", empty).px(14.0).color(kit::MUTED).fill().dsl());
+        v.push(Text::new("b1_br_empty", tr(empty)).px(14.0).color(kit::MUTED).fill().dsl());
     } else {
         // The card never outgrows the window: rows past what fits scroll
         // inside the list (the fixed chrome around it is ~302 px in a desktop
@@ -655,7 +656,7 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
         "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 6}}\n{}{}}}\n",
         Text::new("b1_br_notice", &notices.join(" ")).px(15.0).color(kit::MUTED).fill().one_line().dsl(),
         if ui.writable && !ui.new_folder_open {
-            kit::link("b1_br_newfolder", "New folder", kit::BLUE, 15.0, 500)
+            kit::link("b1_br_newfolder", tr("New folder"), kit::BLUE, 15.0, 500)
         } else {
             String::new()
         }
@@ -665,18 +666,18 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
     }
     if ui.new_folder_open {
         v.push(kit::gap(8.0));
-        v.push(Field::new("b1_br_newname", &ui.new_folder).label("New folder name").error(ui.name_problem.is_some()).dsl());
+        v.push(Field::new("b1_br_newname", &ui.new_folder).label(tr("New folder name")).error(ui.name_problem.is_some()).dsl());
         v.input("b1_br_newname", "browser.create_name");
         v.returns("b1_br_newname", "browser.create");
         if let Some(p) = ui.name_problem {
             v.push(kit::gap(6.0));
-            v.push(Text::new("b1_br_name_problem", p).px(13.0).color(kit::RED).fill().dsl());
+            v.push(Text::new("b1_br_name_problem", tr(p)).px(13.0).color(kit::RED).fill().dsl());
         }
         v.push(kit::gap(10.0));
         v.push(format!(
             "View {{ width: Fill height: Fit flow: Right spacing: 12\n{}{}}}\n",
-            kit::pill_outline("b1_br_newcancel", "Cancel", "Fill"),
-            kit::pill_primary("b1_br_create", "Create folder", "Fill")
+            kit::pill_outline("b1_br_newcancel", tr("Cancel"), "Fill"),
+            kit::pill_primary("b1_br_create", tr("Create folder"), "Fill")
         ));
         v.button("b1_br_newcancel", "browser.newfolder.cancel");
         v.button("b1_br_create", "browser.create");
@@ -686,7 +687,7 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
     v.input("b1_br_path", "browser.path");
     v.returns("b1_br_path", "browser.go");
     v.push(kit::gap(if l.phone { 12.0 } else { 10.0 }));
-    v.push(kit::pill_primary("b1_br_use", "Use this folder", "Fill"));
+    v.push(kit::pill_primary("b1_br_use", tr("Use this folder"), "Fill"));
     v.button("b1_br_use", "browser.use");
     if l.phone {
         v.push(kit::gap(36.0));

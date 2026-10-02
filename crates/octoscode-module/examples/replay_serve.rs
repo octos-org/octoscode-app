@@ -1814,6 +1814,19 @@ async fn main() {
         fail_once: args.windows(2).filter(|w| w[0] == "--fail-once").map(|w| w[1].clone()).collect(),
         ..Default::default()
     }));
+    // A26 — `--refuse <method>[@<n>]` (any scenario): that method's requests
+    // after the first <n> (default 0) answer a JSON-RPC error, so a walk can
+    // drive a REAL failure through the app (the error toasts). Counted
+    // across connections.
+    let refuse: Vec<(String, usize)> = args
+        .windows(2)
+        .filter(|w| w[0] == "--refuse")
+        .map(|w| match w[1].split_once('@') {
+            Some((m, n)) => (m.to_owned(), n.parse().unwrap_or(0)),
+            None => (w[1].clone(), 0),
+        })
+        .collect();
+    let refuse_seen = std::sync::Arc::new(std::sync::Mutex::new(std::collections::BTreeMap::<String, usize>::new()));
     let standalone = if label == "fleet" || label == "history" || label == "onboarding" {
         // The fleet fixture's inbound frames are replies + peer-session
         // frames, never standalone notifications. A15 `history`: the
@@ -1863,6 +1876,8 @@ async fn main() {
         let activity = label == "activity";
         let onb_catalog = onb_catalog.clone();
         let onb_world = onb_world.clone();
+        let refuse = refuse.clone();
+        let refuse_seen = refuse_seen.clone();
         // A15: the recorded canonical hydrate (the `history` scenario).
         let history = label == "history";
         let recorded_hydrate = if history {
@@ -1958,6 +1973,25 @@ async fn main() {
                 // A helper to send one JSON-RPC reply/notification.
                 async fn send(tx: &std::sync::Arc<tokio::sync::Mutex<futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>, Message>>>, v: Value) {
                     let _ = tx.lock().await.send(Message::Text(v.to_string().into())).await;
+                }
+
+                // A26 — `--refuse <method>[@<n>]`.
+                if let Some((_, after)) = refuse.iter().find(|(m, _)| *m == method) {
+                    let seen = {
+                        let mut seen = refuse_seen.lock().unwrap();
+                        let n = seen.entry(method.clone()).or_insert(0);
+                        *n += 1;
+                        *n
+                    };
+                    if seen > *after {
+                        println!("[replay-serve] -> {method} refused (--refuse, request {seen})");
+                        let frame = serde_json::json!({"jsonrpc": "2.0", "id": id, "error": {
+                            "code": -32603,
+                            "message": format!("the replay fixture refused {method} #{seen} (--refuse)")
+                        }});
+                        send(&tx, frame).await;
+                        continue;
+                    }
                 }
 
                 // A15 `history`: the recorded history and its catalog row.

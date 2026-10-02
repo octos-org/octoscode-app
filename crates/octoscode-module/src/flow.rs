@@ -467,6 +467,14 @@ impl FlowUi {
         self.approval_pending
     }
 
+    /// A20 — another Session is now on screen: the live-prompt flags were the
+    /// previous Session's (the ledger keeps its records; they are not this
+    /// Session's to show).
+    pub fn clear_interaction_flags(&mut self) {
+        self.approval_pending = false;
+        self.question_pending = false;
+    }
+
     /// A7 — how long a code block's Copy control reads "Copied"
     /// (`CodeBlock.tsx:75-79`: a 1 000 ms reset timer).
     pub const CODE_COPIED_FOR: Duration = Duration::from_millis(1_000);
@@ -1001,7 +1009,7 @@ impl Conversation {
     /// names its Session when Core gives one (`data.session_id`), else it is
     /// the open this client sent last (one socket answers in order; a later
     /// open's own read clears a misattributed failure when it is asked).
-    fn on_open_error(&self, error: &octos_core::ui_protocol::RpcError) {
+    fn on_open_error(&self, error: &octos_core::ui_protocol::RpcError, toast: bool) -> bool {
         let session = error
             .data
             .as_ref()
@@ -1015,7 +1023,23 @@ impl Conversation {
                 makepad_widgets::log!("[octoscode] history of {session}: the open was refused: {}", error.message);
                 e.failed = Some(error.message.clone());
             }
+            return true;
         }
+        drop(h);
+        // A26 — no history read is waiting on this open (a NEW chat: its
+        // fresh id has nothing to read), so nothing on screen would say the
+        // server refused it — the window had already switched to the empty
+        // new Session. The error toast says so, with the server's reason.
+        if !toast {
+            return false;
+        }
+        let op = if self.fresh_ids.lock().unwrap().contains(&session) {
+            crate::screens::toasts::Op::NewChat
+        } else {
+            crate::screens::toasts::Op::OpenSession
+        };
+        crate::screens::toasts::failed(op, &error.message);
+        false
     }
 
     fn history_failed(&self, session: &str, reason: String) {
@@ -1464,6 +1488,11 @@ impl Conversation {
         // shows "Loading conversation…" until its history settles, never the
         // empty welcome for the open's round trip.
         self.history_pending(&session_id.0);
+        // A20 — a switch never carries one Session's live-prompt flags into
+        // another (the per-Session records stay in the ledger).
+        if self.store.active_session().as_deref() != Some(session_id.0.as_str()) {
+            self.ui.lock().unwrap().clear_interaction_flags();
+        }
         self.store.set_active(Some(session_id.0.clone()));
         if let Err(e) = self.refresh_sessions().await {
             ::log::warn!("octoscode: session/list after open: {e}");
@@ -2031,56 +2060,40 @@ impl Conversation {
         let store = self.store.clone();
         let gen_cell = self.open_seq.clone();
         let generation = *gen_cell.lock().unwrap();
+        // A20 — the restore's identity: the transport authority generation
+        // the records are armed under, and the ledger mark NOW (a live
+        // request or decision folded after this point is newer than the
+        // snapshot and is kept — the LESSONS reconcile rule).
+        let authority = store.domains.approval.generation();
+        let since = store.domains.approval.observation_mark();
         handle.spawn(async move {
+            // The raw reply: each parked entry is admitted on its own (a
+            // malformed one is dropped, never the whole reply).
             let reply = client
-                .call::<octoscode_client::domains::session::SessionHydrate>(octos_core::ui_protocol::SessionHydrateParams {
-                    session_id: octos_core::SessionKey(session.clone()),
-                    after: None,
-                    include: vec!["pending_approvals".to_owned()],
-                })
+                .request(
+                    "session/hydrate",
+                    serde_json::json!({"session_id": session, "include": ["pending_approvals"]}),
+                )
                 .await;
             let Ok(h) = reply else { return };
-            if h.session_id.0 != session || *gen_cell.lock().unwrap() != generation {
+            if h.get("session_id").and_then(|s| s.as_str()) != Some(session.as_str())
+                || *gen_cell.lock().unwrap() != generation
+                || store.domains.approval.generation() != authority
+            {
                 ::log::warn!("octoscode: parked interactions for {session} from a retired generation — not restored");
                 return;
             }
-            let (mut approvals, mut questions) = (0, 0);
-            for a in h.pending_approvals.unwrap_or_default() {
-                if a.session_id.0 != session {
-                    continue;
-                }
-                let preview = a
-                    .typed_details
-                    .as_ref()
-                    .and_then(|d| d.diff.as_ref())
-                    .map(|d| octoscode_client::protocol_id::preview_id_string(&d.preview_id))
-                    .filter(|id| octoscode_client::protocol_id::is_protocol_uuid(&serde_json::json!(id)));
-                let id = a.approval_id.0.to_string();
-                store.domains.approval.request_with_preview(&id, Some(a.tool_name.clone()), preview);
-                // A6's takeover card draws from the same detail a live
-                // `approval/requested` records: a restored approval is asked
-                // again, exactly like the one that parked it.
-                store.domains.approval.set_detail(&id, octoscode_client::domains::approval::approval_detail(&a));
-                approvals += 1;
-            }
-            for q in h.pending_questions.unwrap_or_default() {
-                if q.session_id.0 != session {
-                    continue;
-                }
-                store.domains.approval.set_question(octoscode_store::domains::approval::PendingQuestion {
-                    question_id: q.question_id.0.to_string(),
-                    session_id: q.session_id.0.clone(),
-                    turn_id: q.turn_id.0.to_string(),
-                    title: q.title.clone(),
-                    body: q.body.clone(),
-                    questions: serde_json::to_value(&q.questions).unwrap_or(serde_json::Value::Null),
-                });
-                questions += 1;
-            }
+            // A6's takeover card draws from the same detail a live
+            // `approval/requested` records: a restored approval is asked
+            // again, exactly like the one that parked it — attributed to its
+            // asker (A20, `session-interaction-ledger.ts:137-172`).
+            let background = store.active_session().as_deref() != Some(session.as_str());
+            let (approvals, questions) =
+                octoscode_client::domains::approval::restore_from_hydrate(&store, &session, since, authority, &h, background);
             if approvals + questions > 0 {
                 makepad_widgets::log!("[octoscode] restored {approvals} parked approval(s), {questions} question(s) for {session}");
-                makepad_widgets::SignalToUI::set_ui_signal();
             }
+            makepad_widgets::SignalToUI::set_ui_signal();
         });
     }
 
@@ -2429,9 +2442,11 @@ impl Conversation {
                     &session,
                     Some(crate::screens::palette::next_receipt_turn()),
                     crate::screens::palette::REPORT_KIND,
-                    format!(
-                        "/{name} is not available in this native build — \
-                         nothing was sent to the model."
+                    // A24: the receipt is written in the current language.
+                    crate::i18n::tr1(
+                        "/{value0} is not available in this native build — \
+                         nothing was sent to the model.",
+                        &name,
                     ),
                 );
                 self.ui.lock().unwrap().set_draft_inner(String::new());
@@ -2598,6 +2613,14 @@ impl Conversation {
                 // that dropped before its first `session/open` answered was
                 // never Live, and its re-dial parked in Handshaking forever.
                 // Any re-dialed socket re-opens the Session the window shows.
+                // A20 — a re-dialed socket is a new transport authority: every
+                // interaction observed on the dropped one is stale until a
+                // canonical restore re-arms it (the web's per-record
+                // generation, `session-interaction-ledger.ts:429-452`).
+                if transition == link::Transition::Redial {
+                    let g = self.store.domains.approval.advance_generation();
+                    ::log::info!("octoscode: interaction authority generation {g} (socket replaced)");
+                }
                 if transition == link::Transition::Redial
                     && (*self.ever_live.lock().unwrap() || self.store.active_session().is_some())
                 {
@@ -2961,8 +2984,11 @@ impl Conversation {
                 // back to a fresh launch).
                 if method == "session/open" {
                     self.settle_open_watch(Err(error.message.clone()));
-                    // A19b — the Session it was opening says why.
-                    self.on_open_error(error);
+                    // A19b — the Session it was opening says why; A26 — or,
+                    // when no surface would, the error toast (never during a
+                    // re-dial: the banner above owns that refusal).
+                    let restoring = self.store.outage().is_some_and(|o| o.restoring);
+                    self.on_open_error(error, !restoring);
                 }
                 // A19b — a refused history read: retried once with the
                 // Session's folder, else shown.
@@ -2994,6 +3020,14 @@ impl Conversation {
     ///   (`scope.ts:23-24`), so the empty key passes too.
     /// Foreign frames are never a silent drop: the caller logs them by name
     /// and records a `wrong-session <method>` FlowEvent.
+    /// A20 — whether a frame naming `session_id` + `topic` belongs to the
+    /// Session on screen (its exact owner, `scope.ts:7-25`).
+    fn on_screen(&self, session_id: &str, topic: Option<&str>) -> bool {
+        self.store.active_session().is_some_and(|active| {
+            octoscode_store::domains::approval::owner_of(session_id, topic).as_deref() == Some(active.as_str())
+        })
+    }
+
     fn out_of_runtime_scope(&self, n: &UiNotification) -> bool {
         let active = self.store.active_session();
         let foreign = |sid: &str| match &active {
@@ -3121,12 +3155,18 @@ impl Conversation {
                     other => FlowEvent::Other(format!("envelope:{other:?}").chars().take(48).collect()),
                 }
             }
-            UiNotification::ApprovalRequested(_) => {
-                ui.approval_pending = true;
+            // A20 — the flags mirror THIS Session's live prompt only: another
+            // Session's request never marks the one on screen as waiting.
+            UiNotification::ApprovalRequested(e) => {
+                if self.on_screen(&e.session_id.0, e.topic.as_deref()) {
+                    ui.approval_pending = true;
+                }
                 FlowEvent::ApprovalPending
             }
-            UiNotification::UserQuestionRequested(_) => {
-                ui.question_pending = true;
+            UiNotification::UserQuestionRequested(e) => {
+                if self.on_screen(&e.session_id.0, e.topic.as_deref()) {
+                    ui.question_pending = true;
+                }
                 FlowEvent::QuestionPending
             }
             other => FlowEvent::Other(other.method().to_owned()),

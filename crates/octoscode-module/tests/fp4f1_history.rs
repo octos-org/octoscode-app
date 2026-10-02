@@ -560,6 +560,7 @@ async fn the_capability_gate_refuses_every_mode_before_the_wire() {
         title: "Allow?".into(),
         body: "Allow?".into(),
         questions: json!([]),
+        ..Default::default()
     });
     assert!(history::blocked_reason(&store, &session, HistoryMode::Fork).is_some());
     store.domains.approval.clear_question();

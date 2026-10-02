@@ -31,11 +31,17 @@ use std::sync::{Arc, Mutex};
 use octoscode_store::Store;
 
 pub mod actions;
+// A25 — attention: desktop/phone notices, focus acknowledgement, the
+// Settings row's states (the web's features/attention).
+pub mod attention;
 // A9 — the host half of the A9 surfaces (Activity, …): mount + routing.
 pub mod a9_host;
 // A12 — the outage host: the connection banner's mount/taps and the offline
 // refusals (impl OctoscodeView, like a9_host).
 pub mod a12_host;
+// A26 — the live re-theme (footer theme toggle, display palettes), the
+// sidebar footer entries and the error toasts (impl OctoscodeView).
+pub mod a26_host;
 pub mod bindings;
 pub mod cards;
 // A7: the highlighted code block body widget.
@@ -54,6 +60,8 @@ pub mod l0_host;
 pub mod flow;
 // A7: the answer's markdown display rules + code-block colouring.
 pub mod highlight;
+// A24: the UI language + the web's Chinese catalog (tr(), keyed by the English).
+pub mod i18n;
 pub mod markdown;
 // A7: the driver-seat handover before one send (composer-seat-handover.ts).
 pub mod seat;
@@ -368,6 +376,9 @@ script_mod! {
                             animating: false
                             draw_svg.svg: file_resource(#(crate::design::icon_resource("b3_sparkle.svg")))
                             draw_svg.preserve_viewbox: true
+                            // A26: the look's glyph ink (the file's #1D1D1F
+                            // vanished on a dark sidebar).
+                            draw_svg.color: #(crate::chrome::ink("glyph"))
                         }
                         fleet_nav_label := Label {
                             width: Fit height: Fit padding: 0 text: "Fleet"
@@ -400,6 +411,9 @@ script_mod! {
                         draw_bg.border_color_2_focus: #00000000
                     }
                 }
+                // A26: the web's footer order after Fleet — the theme toggle
+                // and Settings (chrome.rs `OcSidebarFootNav`).
+                oc_sidebar_footnav := mod.widgets.OcSidebarFootNav {}
             }
             // The 1 px hairline between the sidebar and the conversation.
             sidebar_rule := SolidView {
@@ -949,6 +963,18 @@ script_mod! {
             }
         }
 
+        // A26 — the error toasts (`screens::toasts`): a FIT-size dock placed
+        // by margin under the conversation header (a visible full-window
+        // wrapper would shadow every click under it — the palette_dock
+        // note). Hidden while empty, and while a modal surface holds them.
+        toast_dock := View {
+            width: Fit height: Fit
+            visible: false
+            toast_splash := Splash {
+                width: Fit height: Fit
+            }
+        }
+
     }
 }
 
@@ -1330,12 +1356,24 @@ pub struct OctoscodeView {
     /// A7 — the Session whose saved unsent draft was offered to the composer.
     #[rust]
     drafts_restored_for: Option<String>,
+    /// A26 — the error toasts' × taps (`toast_splash`), the clock that wakes
+    /// when one is due to leave, and the dock margin last applied.
+    #[rust]
+    toast_taps: Vec<(LiveId, String)>,
+    #[rust]
+    toast_timer: Timer,
+    #[rust]
+    toast_key: String,
 }
 
 impl OctoscodeView {
     // #28e4 merge: the #28e2 signature (cx — the palette search field is
     // pre-filled through it) carries main's #29d error-screen seed.
     fn start(&mut self, cx: &mut Cx) {
+        // A24 — the stored interface language (or the device's), before
+        // anything lowers: a Chinese preference's first frame is Chinese.
+        let lang = screens::a9_prefs::adopt_language();
+        makepad_widgets::log!("[octoscode] a24 language at launch: {}", lang.code());
         // A19 — the one-time migration's marker, read before any connect can
         // rewrite A1's last-server (screens::remembered).
         screens::remembered::note_process_start();
@@ -1443,6 +1481,9 @@ impl OctoscodeView {
         }
         let base =
             std::env::var("OCTOS_BASE_URL").unwrap_or_else(|_| "http://127.0.0.1:50082".to_string());
+        // A20 — a saved conversation link handed over at launch (the web's
+        // `?s=` address): offered on its panel once the launch settled.
+        screens::saved_link::take_launch_link(&base);
         let bearer = std::env::var("OCTOS_BEARER").unwrap_or_default();
         // A19 — the web's launch: a fresh connection carries NO profile id
         // (`connection-bootstrap.ts:21`) and `launch/resolve` decides; a
@@ -1580,6 +1621,8 @@ impl OctoscodeView {
         runtime.spawn(async move {
             let r = screens::launch::startup(&st, start, cwd).await;
             makepad_widgets::log!("[octoscode] startup: {r:?}");
+            // A20 — the pending saved link's panel (row 247).
+            screens::saved_link::offer(&st.store);
             SignalToUI::set_ui_signal();
         });
 
@@ -1617,6 +1660,11 @@ impl OctoscodeView {
         // one owner here; the palette's `/activity` row runs `activity.open`.
         if a9_host::routes(action) {
             self.perform_a9(cx, action, index);
+            return;
+        }
+        // A26 — the error toasts' × (`toast.dismiss#<id>`).
+        if screens::toasts::routes(action) {
+            self.perform_toast(cx, action, index);
             return;
         }
         // A12 — the connection banner's ids (Retry now / Disconnect /
@@ -1862,6 +1910,9 @@ impl OctoscodeView {
                         screens::settings::note_failed(action, "not connected");
                     }
                 }
+                // A25 — the Desktop notifications row (asks the OS; the
+                // answer arrives as an action, `attention::handle_actions`).
+                UiEffect::NotificationsToggle => attention::toggle(cx),
                 UiEffect::TakeOver => {
                     // Board 12: claim the session's driver seat — the
                     // external-driver seat API (`session/driver/acquire`,
@@ -1942,7 +1993,11 @@ impl OctoscodeView {
                             };
                             match r {
                                 Ok(id) => ::log::info!("octoscode: new chat in {workspace}: {id}"),
-                                Err(e) => makepad_widgets::log!("[octoscode] new chat dropped: {e}"),
+                                Err(e) => {
+                                    makepad_widgets::log!("[octoscode] new chat dropped: {e}");
+                                    // A26: no longer only the log.
+                                    screens::toasts::failed(screens::toasts::Op::NewChat, &e.to_string());
+                                }
                             }
                             SignalToUI::set_ui_signal();
                         });
@@ -2043,6 +2098,11 @@ impl OctoscodeView {
                         "octoscode: theme -> {preference} (resolves {resolved}); \
                          the next mount lowers the {resolved} card set"
                     );
+                    // A26: the web saves the choice at once (`use-theme.ts:
+                    // 35-42`) and the whole app follows it live.
+                    screens::theme::save_preference();
+                    makepad_widgets::log!("[octoscode] theme -> {preference}");
+                    self.retheme(cx);
                 }
                 screens::theme::Effect::Unhandled(id) => {
                     ::log::warn!("octoscode: unhandled screen action {id:?}");
@@ -2255,6 +2315,7 @@ impl OctoscodeView {
             rt.spawn(async move {
                 if let Err(e) = screens::transcript::perform(&conv, &store).await {
                     ::log::warn!("octoscode: screens: composer.copy_transcript: {e}");
+                    screens::toasts::failed(screens::toasts::Op::CopyConversation, &e.to_string());
                 }
             });
             return;
@@ -2278,6 +2339,7 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     if let Err(e) = conv.refresh_sessions().await {
                         ::log::warn!("octoscode: session.refresh: {e}");
+                        screens::toasts::failed(screens::toasts::Op::Refresh, &e.to_string());
                     }
                 });
             }
@@ -2288,7 +2350,10 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     match conv.new_chat(cwd).await {
                         Ok(id) => ::log::info!("octoscode: new chat opened {id}"),
-                        Err(e) => makepad_widgets::log!("[octoscode] new chat dropped: {e}"),
+                        Err(e) => {
+                            makepad_widgets::log!("[octoscode] new chat dropped: {e}");
+                            screens::toasts::failed(screens::toasts::Op::NewChat, &e.to_string());
+                        }
                     }
                 });
             }
@@ -2296,6 +2361,7 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     if let Err(e) = conv.submit_draft().await {
                         makepad_widgets::log!("[octoscode] submit dropped: {e}");
+                        screens::toasts::failed(screens::toasts::Op::Send, &e.to_string());
                     }
                 });
             }
@@ -2303,6 +2369,7 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     if let Err(e) = conv.steer(&text).await {
                         ::log::warn!("octoscode: turn.steer: {e}");
+                        screens::toasts::failed(screens::toasts::Op::Steer, &e.to_string());
                     }
                 });
             }
@@ -2310,6 +2377,7 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     if let Err(e) = conv.interrupt(&turn).await {
                         ::log::warn!("octoscode: turn.interrupt: {e}");
+                        screens::toasts::failed(screens::toasts::Op::Stop, &e.to_string());
                     }
                 });
             }
@@ -2342,7 +2410,10 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     match conv.open_session(&session, cwd).await {
                         Ok(id) => ::log::info!("octoscode: thread.open opened {id}"),
-                        Err(e) => ::log::warn!("octoscode: thread.open: {e}"),
+                        Err(e) => {
+                            ::log::warn!("octoscode: thread.open: {e}");
+                            screens::toasts::failed(screens::toasts::Op::OpenSession, &e.to_string());
+                        }
                     }
                     screens::activity::note_switch_finished();
                     SignalToUI::set_ui_signal();
@@ -2357,6 +2428,7 @@ impl OctoscodeView {
                         rt.spawn(async move {
                             if let Err(e) = conv.refresh_sessions().await {
                                 ::log::warn!("octoscode: palette.run {name}: session.refresh: {e}");
+                                screens::toasts::failed(screens::toasts::Op::Refresh, &e.to_string());
                             }
                         });
                     }
@@ -2440,7 +2512,7 @@ impl OctoscodeView {
                         .text();
                     screens::dialog::set_skills_source(&repo, &branch);
                     if repo.trim().is_empty() {
-                        screens::dialog::set_notice("Type the repository or server-side path first.");
+                        screens::dialog::set_notice(i18n::tr("Type the repository or server-side path first."));
                     }
                 }
                 let store = { self.bridge.lock().unwrap().store.clone() };
@@ -2580,10 +2652,11 @@ impl OctoscodeView {
                         &session,
                         Some(screens::palette::next_receipt_turn()),
                         screens::palette::REPORT_KIND,
-                        format!(
-                            "Arguments for {name} are not supported in this native build. \
+                        i18n::tr1(
+                            "Arguments for {value0} are not supported in this native build. \
                              Open the command without arguments to use its controls. \
-                             Nothing was sent to the model."
+                             Nothing was sent to the model.",
+                            name,
                         ),
                     );
                     makepad_widgets::log!("[octoscode] palette run {name}: arguments reported");
@@ -3078,6 +3151,8 @@ impl OctoscodeView {
                             );
                             let r = screens::launch::startup(&conv2, start, cwd).await;
                             makepad_widgets::log!("[octoscode] startup: {r:?}");
+                            // A20 — a saved link still pending is offered here too.
+                            screens::saved_link::offer(&conv2.store);
                             SignalToUI::set_ui_signal();
                         });
                     }
@@ -3411,31 +3486,17 @@ impl OctoscodeView {
                 }
             }
         }
-        // A3: desktop notifications (General > Desktop notifications): a
-        // settled turn or a new wait on the active session, while the window
-        // is in the background, posts one OS notice (`Cx::show_notification`).
+        // A25: attention (use-attention.ts:65-96) — the selected Session's
+        // turns through the tracker; a turn that needs the person while the
+        // window is not focused posts one OS notice (General > Desktop
+        // notifications opted in), replacing the previous one.
         {
-            let store = { self.bridge.lock().unwrap().store.clone() };
-            if let Some(now) = chrome::Attention::of(&store) {
-                let title = store
-                    .sessions()
-                    .into_iter()
-                    .find(|s| s.id == now.session)
-                    .and_then(|s| s.label_stem())
-                    .unwrap_or_else(|| "Your chat".to_owned());
-                let notice = chrome::attention_notice(
-                    self.chrome.attention.as_ref(),
-                    &now,
-                    &title,
-                    screens::settings::snapshot().notifications,
-                    self.chrome.unfocused,
-                );
-                if let Some((t, body)) = notice {
-                    makepad_widgets::log!("[octoscode] notify: {t} — {body}");
-                    cx.show_notification(&t, &body);
-                }
-                self.chrome.attention = Some(now);
-            }
+            let (store, ui) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone())
+            };
+            let active_turn = ui.lock().ok().and_then(|u| u.active_turn());
+            attention::observe(cx, &store, active_turn);
         }
         // A3: `+ Add workspace` opens the workspace picker (the web's
         // "Add workspace", ProductSidebar.tsx:578 -> App.tsx onAddWorkspace ->
@@ -3673,6 +3734,8 @@ impl OctoscodeView {
         // store; the mount cache remounts only when its DSL changed.
         self.a9_guarded(cx, a9_host::Guard::Dialog);
         self.sync_chrome(cx);
+        // A26 — the error toasts, once every dock's visibility is settled.
+        self.sync_toasts(cx);
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
     }
 
@@ -4171,6 +4234,26 @@ impl OctoscodeView {
     /// A3 (board 2): perform the chrome's click intents through the one-owner
     /// tables (`screens::sidebar`, `screens::settings`, the router), one log
     /// line each — the click walk's receipts.
+    /// A25 — a clicked notice names its Session: open it through the
+    /// sidebar's own `thread.open` (its store index), unless it is already
+    /// the open one. The platform has already brought the app forward.
+    fn open_attention_session(&mut self, cx: &mut Cx, session: &str) {
+        let store = { self.bridge.lock().unwrap().store.clone() };
+        if store.active_session().as_deref() == Some(session) {
+            makepad_widgets::log!("[octoscode] attention: notice click -> {session} (already open)");
+            return;
+        }
+        match store.sessions().iter().position(|s| s.id == session) {
+            Some(index) => {
+                makepad_widgets::log!("[octoscode] attention: notice click -> open {session} (row {index})");
+                self.perform_action(cx, "thread.open", index);
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+            }
+            None => makepad_widgets::log!("[octoscode] attention: notice click -> {session} is not listed"),
+        }
+    }
+
     fn handle_chrome(&mut self, cx: &mut Cx, actions: &Actions) {
         let (store, settings_open) = {
             let b = self.bridge.lock().unwrap();
@@ -4344,13 +4427,15 @@ impl OctoscodeView {
         let key = (
             view.error.clone(),
             format!(
-                "{}|{}|{}|{:?}|{}|{}",
+                "{}|{}|{}|{:?}|{}|{}|{}",
                 view.error_actions,
                 view.last_tried,
                 view.connecting,
                 m.density,
                 screens::theme::resolved(),
-                screens::discovery::appeared().unwrap_or_default()
+                screens::discovery::appeared().unwrap_or_default(),
+                // A24: a language switch re-lowers the card.
+                i18n::language().code()
             ),
         );
         if self.connect_key.as_ref() != Some(&key) {
@@ -4394,7 +4479,7 @@ impl OctoscodeView {
         // The live validation line takes room only while it says something.
         self.view
             .label(cx, &[live_id!(screen_splash), live_id!(connect_server_error)])
-            .set_text(cx, endpoint_error.unwrap_or(""));
+            .set_text(cx, endpoint_error.map(i18n::tr).unwrap_or(""));
         self.view
             .widget(cx, &[live_id!(screen_splash), live_id!(connect_server_error)])
             .set_visible(cx, endpoint_error.is_some());
@@ -4934,7 +5019,8 @@ impl OctoscodeView {
                         // roving selection), no longer hardcoded row 0.
                         item.widget(cx, ids!(palette_row_bg)).set_visible(cx, Some(row) == sel);
                         item.label(cx, ids!(palette_row_name)).set_text(cx, cmd.name);
-                        item.label(cx, ids!(palette_row_desc)).set_text(cx, cmd.description);
+                        // A24: the description in the current language (the name is an identifier).
+                        item.label(cx, ids!(palette_row_desc)).set_text(cx, i18n::tr(cmd.description));
                         item.draw_all_unscoped(cx);
                     }
                 } else if uid == review_files_uid {
@@ -5128,6 +5214,8 @@ impl OctoscodeView {
         if !self.started {
             self.started = true;
             self.start(cx);
+            // A25: read the notification permission and the window's focus.
+            attention::start(cx);
             self.sync_labels(cx);
         }
         match event {
@@ -5158,15 +5246,35 @@ impl OctoscodeView {
                 self.window_h = ev.new_geom.inner_size.y;
                 self.sync_chrome(cx);
             }
-            // A3: desktop notifications fire only while in the background.
-            Event::WindowLostFocus(_) => self.chrome.unfocused = true,
-            Event::WindowGotFocus(_) => self.chrome.unfocused = false,
+            // A25: a notice fires only while the window is not focused, and
+            // focus acknowledges (use-attention.ts:49-55).
+            Event::WindowLostFocus(_) => attention::focus(cx, false),
+            Event::WindowGotFocus(_) => {
+                attention::focus(cx, true);
+                self.view.redraw(cx);
+            }
+            // A25: the click walks' hooks (the instrument's /event?data=).
+            Event::Custom(data) => {
+                if attention::test_hook(cx, data) {
+                    self.view.redraw(cx);
+                }
+            }
+            // A25 (use-attention.ts:60): withdraw the notice on the way out.
+            Event::Shutdown => attention::dispose(cx),
             // A7: the code block's "Copied" second is over — redraw so the
             // row re-lowers with "Copy".
             Event::Timer(te) if self.code_copy_timer.is_timer(te).is_some() => {
                 self.view.redraw(cx);
             }
+            // A26: a toast is due to leave.
+            Event::Timer(_) if self.toast_timer_fired(cx, event) => {}
             Event::Actions(actions) => {
+                // A25: the OS's notification answers (makepad posts them as
+                // actions): the permission, a failed post, and a click — the
+                // platform brought the app forward; open the notice's Session.
+                if let Some(session) = attention::handle_actions(cx, actions) {
+                    self.open_attention_session(cx, &session);
+                }
                 // A7: a markdown link press opens ONLY an absolute http(s) /
                 // mailto URL (`MarkdownBody.tsx:20-37` `safeUrlTransform`;
                 // the display pass already turned every other link into
@@ -5379,6 +5487,8 @@ impl OctoscodeView {
                 }
                 // A9 — the open A9 surface's taps and its search input.
                 self.a9_actions(cx, actions);
+                // A26 — the error toasts' ×.
+                self.toast_actions(cx, actions);
                 // A12 — the connection banner's Retry now / Disconnect.
                 self.link_actions(cx, actions);
                 // A6 — the conversation surfaces' taps, inputs and the
@@ -5909,9 +6019,9 @@ impl OctoscodeView {
                 // handler lands pushed cards — or the flow's own flag
                 // (module-driven transports). The FlowUi flag alone missed
                 // server-pushed cards (the first live drive's dead Y).
-                let approval_pending =
-                    crate::screens::keys::oldest_pending_id(&store).is_some()
-                        || ui.lock().unwrap().approval_pending();
+                // A20: THIS Session's showing approval only (the FlowUi flag
+                // could be raised by another Session's request).
+                let approval_pending = crate::screens::keys::oldest_pending_id(&store).is_some();
                 // #P4f2 row 7: the SHOWING approval's diff preview id, from the
                 // same FIFO row the decision keys answer, so `D` and Y/S/N can
                 // never act on different cards.
@@ -6000,6 +6110,7 @@ impl OctoscodeView {
                                 handle.spawn(async move {
                                     if let Err(e) = conv.submit_draft().await {
                                         makepad_widgets::log!("[octoscode] submit dropped: {e}");
+                                        screens::toasts::failed(screens::toasts::Op::Send, &e.to_string());
                                     }
                                 });
                             }
@@ -6017,6 +6128,7 @@ impl OctoscodeView {
                                 rt.spawn(async move {
                                     if let Err(e) = conv.interrupt(&turn).await {
                                         ::log::warn!("octoscode: turn.interrupt: {e}");
+                                        screens::toasts::failed(screens::toasts::Op::Stop, &e.to_string());
                                     }
                                 });
                             }
@@ -6028,27 +6140,34 @@ impl OctoscodeView {
                     KeyAction::ApprovalApproveRequest
                     | KeyAction::ApprovalApproveSession
                     | KeyAction::ApprovalDenyRequest => {
-                        if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
-                            let approval_id = crate::screens::keys::oldest_pending_id(&store);
-                            if let Some(approval_id) = approval_id {
-                                let body = crate::screens::keys::respond_body(
-                                    &action,
-                                    &conv.session_id(),
-                                    &approval_id,
-                                );
-                                if let Some(body) = body {
-                                    let client = conv.client().clone();
-                                    rt.spawn(async move {
-                                        if let Err(e) =
-                                            client.request("approval/respond", body).await
-                                        {
-                                            ::log::warn!("octoscode: approval/respond: {e}");
-                                        }
-                                    });
-                                }
-                            } else {
-                                ::log::warn!("octoscode: keyboard decision: no pending approval");
+                        // A20 (parity row 250): the keyboard decides through
+                        // the card's OWN production path (`cv.approval.*` ->
+                        // surfaces::perform -> the ledger's preflight), so it
+                        // answers only the approval of the Session on screen,
+                        // to its recorded owner, on its generation — never
+                        // the oldest approval of ANY Session with this
+                        // Session's id (what a bare `y` typed in Session Y
+                        // did to Session X's approval).
+                        let _ = conv;
+                        // The web's card answers keys only while the focus is
+                        // inside it (`ApprovalPanel.tsx:30-56`, the panel's own
+                        // onKeyDown): a key typed into a dialog or a text field
+                        // above the card is typing, never a decision.
+                        let facts = self.shortcut_facts(cx);
+                        if facts.target_is_text_input || facts.in_dialog || crate::screens::board3::host::is_open() {
+                            makepad_widgets::log!("[octoscode] keyboard decision ignored: the key belongs to {facts:?}");
+                            return;
+                        }
+                        match crate::screens::keys::oldest_pending_id(&store) {
+                            Some(_) => {
+                                let cv = match action {
+                                    KeyAction::ApprovalApproveRequest => "cv.approval.once",
+                                    KeyAction::ApprovalApproveSession => "cv.approval.session",
+                                    _ => "cv.approval.deny",
+                                };
+                                self.perform_action(cx, cv, 0);
                             }
+                            None => ::log::warn!("octoscode: keyboard decision: no approval of this Session"),
                         }
                     }
                     // #P4f2 row 7 — `ApprovalPanel.tsx:45`: D opens the diff

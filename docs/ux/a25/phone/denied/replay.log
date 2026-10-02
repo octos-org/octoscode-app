@@ -1,0 +1,14 @@
+[replay-serve] scenario=activity fixture=r4-task-a6ea8505.jsonl: 26 frames; recorded session `octoscode2391:main`; 1 recorded turns ["01920000-0000-7000-8000-0000000000f4"]; 11 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8514/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- session/hydrate (id=2)
+[replay-serve] <- session/list (id=3)
+[replay-serve] <- session/hydrate (id=4)
+[replay-serve] <- permission/profile/list (id=5)
+[replay-serve] <- profile/llm/list (id=6)
+[replay-serve] <- profile/skills/list (id=7)
+[replay-serve] <- profile/sub_providers/list (id=8)
+[replay-serve] <- session/status/read (id=9)

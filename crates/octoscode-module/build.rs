@@ -17,6 +17,7 @@
 use std::path::{Path, PathBuf};
 
 fn main() {
+    makepad_notifications_cfg();
     let manifest = PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap());
     let design = manifest.join("../../design");
     println!("cargo:rerun-if-changed={}", design.display());
@@ -68,6 +69,25 @@ fn main() {
     // `incomplete_include` requires a single expression — a `;` makes it a
     // statement (that was the :428 error).
     std::fs::write(out.join("design_embedded.rs"), g).expect("write the embed table");
+}
+
+/// A25 — `cfg(makepad_notifications)`: this build's makepad carries the
+/// notification API (patches/makepad/macos-notifications.patch). The OctoSense
+/// builds (the host copy, the APK tree, the fork) compile makepad from
+/// `$OCTOSENSE_WORKSPACE/makepad` (their `.cargo/config.toml` sets it); this
+/// repo's workspace compiles the pinned git rev, which has no such API, and
+/// the app then reports notifications unavailable (src/attention.rs).
+fn makepad_notifications_cfg() {
+    println!("cargo:rustc-check-cfg=cfg(makepad_notifications)");
+    println!("cargo:rerun-if-env-changed=OCTOSENSE_WORKSPACE");
+    let Some(ws) = std::env::var_os("OCTOSENSE_WORKSPACE") else { return };
+    let src = PathBuf::from(ws).join("makepad/platform/src");
+    // The directory (present with or without the patch): a re-applied or
+    // reverted patch reruns this probe.
+    println!("cargo:rerun-if-changed={}", src.display());
+    if src.join("notification.rs").is_file() {
+        println!("cargo:rustc-cfg=makepad_notifications");
+    }
 }
 
 /// The runtime whitelist (see the module doc). `rel` is relative to `design/`.

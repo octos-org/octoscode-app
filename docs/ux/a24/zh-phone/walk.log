@@ -1,0 +1,249 @@
+PASS connected
+PASS start: English (the device default here) — ['Fix steer queue drop on reconnect', '/home/user/src/octos', 'Chat', 'Trajectory', 'Session recovery required', 'The conversation history could not be loaded: session/hydrate returned an invalid result: missing field `session_id`. Reopen it from the sidebar to try again.', 'Ready', 'Model not reported', 'Permissions not reported', 'Ask Octos anything', 'Ask for approval', 'Select a model']
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+PASS Settings opens (CLICK)
+CLICK rl_hit r=[8, 384, 40, 40] at (28,404)
+PASS Preferences shows (CLICK)
+PASS Language: the control shows English | 简体中文, English selected — en=[166, 143, 84, 28] zh=[250, 143, 84, 28] on='English'
+PASS Language: both segments are >= 28 px targets — en=[166, 143, 84, 28] zh=[250, 143, 84, 28]
+SHOT en-settings-preferences
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:413:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:1376:9 - [octoscode] a24 language at launch: en
+    log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+    log: [I] apps/octoscode/module/src/attention.rs:938:9 - [octoscode] attention: start (platform api true, focused false)
+    log: [I] apps/octoscode/module/src/lib.rs:1623:13 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/flow.rs:1046:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
+    log: [I] apps/octoscode/module/src/lib.rs:3358:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4160:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
+    log: [I] apps/octoscode/module/src/lib.rs:3456:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4160:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3775:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/attention.rs:984:9 - [octoscode] attention: os Authorization { status: Unavailable, requested: false, error: None }
+    log: [I] apps/octoscode/module/src/lib.rs:3358:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: OpenSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.panel.open
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("settings.section.preferences", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.section.preferences
+CLICK lang_zh r=[250, 143, 84, 28]
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("a9.prefs.lang.zh", 0)
+    log: [I] apps/octoscode/module/src/a9_host.rs:188:21 - [octoscode] a24 language -> zh (switched)
+    log: [I] apps/octoscode/module/src/chrome.rs:2308:13 - [octoscode] a24 shell copy: 47 text(s) set (zh; 86 source(s))
+PASS switch: 简体中文 CLICK
+PASS switch: the Settings sheet reads Chinese — ['聊天', '轨迹', '需要恢复会话', '就绪', '模型未报告', '权限未报告', '语言', '简体中文', '终端', 'Vim 编辑']
+PASS switch: 简体中文 reads selected — '简体中文'
+PASS switch: the status line says the change is unsaved — Unsaved preferences.
+PASS Settings > Preferences: no clipped or overflowing Chinese label (zh-settings-preferences) — cjk=6 outside=0 overflow=0 truncated=0 overlaps=0 controls=17 under28=0
+SHOT zh-settings-preferences
+CLICK rl_hit r=[8, 134, 40, 40] at (28,154)
+PASS Settings > General: no clipped or overflowing Chinese label (zh-settings-general) — cjk=7 outside=0 overflow=0 truncated=0 overlaps=0 controls=10 under28=0
+SHOT zh-settings-general
+CLICK rl_hit r=[8, 184, 40, 40] at (28,204)
+PASS Settings > Permissions: no clipped or overflowing Chinese label (zh-settings-permissions) — cjk=3 outside=0 overflow=0 truncated=0 overlaps=0 controls=12 under28=0
+SHOT zh-settings-permissions
+CLICK rl_hit r=[8, 234, 40, 40] at (28,254)
+PASS Settings > Model: no clipped or overflowing Chinese label (zh-settings-model) — cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=14 under28=0
+SHOT zh-settings-model
+CLICK rl_hit r=[8, 284, 40, 40] at (28,304)
+PASS Settings > Sandbox: no clipped or overflowing Chinese label (zh-settings-sandbox) — cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0
+SHOT zh-settings-sandbox
+CLICK rl_hit r=[8, 334, 40, 40] at (28,354)
+PASS Settings > Connection: no clipped or overflowing Chinese label (zh-settings-connection) — cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0
+SHOT zh-settings-connection
+CLICK rl_hit r=[8, 434, 40, 40] at (28,454)
+PASS Settings > About: no clipped or overflowing Chinese label (zh-settings-about) — cjk=1 outside=0 overflow=0 truncated=0 overlaps=0 controls=8 under28=0
+SHOT zh-settings-about
+CLICK set_back r=[8, 84, 40, 40] at (28,104)
+PASS shell: the header reads Chinese — ['聊天', '轨迹', '需要恢复会话', '就绪', '模型未报告', '权限未报告']
+PASS shell: the status strip reads Chinese — '' '就绪'
+PASS shell (header, composer, strip): no clipped or overflowing Chinese label (zh-shell) — cjk=6 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0
+SHOT zh-shell
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+PASS shell: the drawer sidebar reads Chinese — ['聊天', '轨迹', '需要恢复会话', '就绪', '模型未报告', '权限未报告', '新建会话', '搜索会话', '工作区', '统一列表', '最近', '添加工作区']
+PASS sidebar drawer: no clipped or overflowing Chinese label (zh-drawer) — cjk=6 outside=0 overflow=0 truncated=0 overlaps=0 controls=16 under28=0
+SHOT zh-drawer
+CLICK drawer_close r=[270, 87, 32, 32] at (286,103)
+CLICK approval_pill_hit r=[56, 781, 102, 30] at (107,796)
+PASS seats: the permission menu reads Chinese — '权限'
+PASS composer permission menu: no clipped or overflowing Chinese label (zh-permission-menu) — cjk=2 outside=0 overflow=0 truncated=0 overlaps=0 controls=1 under28=0
+SHOT zh-permission-menu
+CLICK hd_title r=[54, 85, 126, 16] at (117,93)
+PASS seats: an outside press closes the menu
+TYPE '/'
+PASS slash menu: the descriptions read Chinese — ['显示运行时模型和配置档案模型设置', '检查和管理会话监视器', 'Change permissions', '检查上下文、缓存和压缩控制']
+PASS slash menu: no clipped or overflowing Chinese label (zh-slash-menu) — cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=6 under28=0
+SHOT zh-slash-menu
+KEY Escape
+TAP the keyboard's hide chevron (337,513)
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+CLICK rl_hit r=[8, 334, 40, 40] at (28,354)
+CLICK rl_hit r=[8, 334, 40, 40] at (28,354)
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("settings.section.general", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.section.general
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("settings.section.permissions", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.section.permissions
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("settings.section.model", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.section.model
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("settings.section.sandbox", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.section.sandbox
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("settings.section.connection", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.section.connection
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("settings.section.about", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.section.about
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: CloseSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.panel.close
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("drawer.open", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1958:21 - [octoscode] sidebar action: drawer.open
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("drawer.close", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1958:21 - [octoscode] sidebar action: drawer.close
+    log: [I] apps/octoscode/module/src/lib.rs:5639:21 - [octoscode] permission seat clicked
+    log: [I] apps/octoscode/module/src/lib.rs:3979:17 - [octoscode] board3 mounted Some(Permission): 2 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4160:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
+    log: [I] apps/octoscode/module/src/lib.rs:5451:25 - [octoscode] board3 tap: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:1694:13 - [octoscode] board3 action b3.close #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:6232:17 - [octoscode] nav tap: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:5198:21 - [octoscode] nav route: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:3020:9 - [octoscode] screen action: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 1 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6012:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5333:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: OpenSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.panel.open
+    log: [I] apps/octoscode/module/src/lib.rs:5508:25 - [octoscode] palette row 2 clicked
+    log: [I] apps/octoscode/module/src/lib.rs:2671:17 - [octoscode] palette run /mode -> permission.cycle
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("settings.section.connection", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.section.connection
+CLICK settings_disconnect r=[81, 307, 112, 36] at (137,325)
+PASS board 1: Disconnect CLICK
+PASS board 1: the Connect card returns
+PASS board 1: the Connect card reads Chinese — '连接 Octos'
+PASS Connect card (board 1): no clipped or overflowing Chinese label (zh-connect) — cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0
+SHOT zh-connect
+CLICK b1_connect_pair r=[106, 553, 148, 32] at (180,569)
+PASS Pair with Octos (board 1 p4-01): no clipped or overflowing Chinese label (zh-pairing) — cjk=0 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0
+SHOT zh-pairing
+CLICK b1_pair_back r=[20, 86, 30, 32] at (35,102)
+CLICK connect_btn r=[36, 497, 288, 44] at (180,519)
+PASS board 1: Connect reconnects
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+CLICK rl_hit r=[8, 384, 40, 40] at (28,404)
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("a9.leave.disconnect", 0)
+    log: [I] apps/octoscode/module/src/a9_host.rs:252:17 - [octoscode] a9 leave Disconnect: unfinished=false unsaved=false -> now
+    log: [I] apps/octoscode/module/src/a9_host.rs:331:9 - [octoscode] a9 leave done: Disconnect (transport closed, Offline)
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.panel.close
+    log: [I] apps/octoscode/module/src/lib.rs:2894:13 - [octoscode] board1 action: b1.open.pairing
+    log: [I] apps/octoscode/module/src/lib.rs:2894:13 - [octoscode] board1 action: pair.back
+    log: [I] apps/octoscode/module/src/lib.rs:5405:25 - [octoscode] card tap: connect
+    log: [I] apps/octoscode/module/src/lib.rs:3020:9 - [octoscode] screen action: connect
+    log: [I] apps/octoscode/module/src/lib.rs:3151:17 - [octoscode] connect: http://127.0.0.1:8432
+    log: [I] apps/octoscode/module/src/lib.rs:3167:35 - [octoscode] connect: token stored for http://127.0.0.1:8432
+    log: [I] apps/octoscode/module/src/lib.rs:3124:29 - [octoscode] live: profile="dsflash" plan=Explicit("dsflash")
+    log: [I] apps/octoscode/module/src/lib.rs:3128:29 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/flow.rs:1046:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: OpenSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.panel.open
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("settings.section.preferences", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1851:13 - [octoscode] settings action: settings.section.preferences
+CLICK lang_en r=[166, 143, 84, 28]
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("a9.prefs.lang.en", 0)
+    log: [I] apps/octoscode/module/src/a9_host.rs:188:21 - [octoscode] a24 language -> en (switched)
+    log: [I] apps/octoscode/module/src/chrome.rs:2308:13 - [octoscode] a24 shell copy: 47 text(s) set (en; 86 source(s))
+PASS restore: English CLICK
+PASS restore: the sheet reads English again — ['简体中文']
+PASS restore: no Chinese left on the sheet — ['简体中文']
+SHOT en-restored
+CLICK lang_zh r=[250, 143, 84, 28]
+    log: [I] apps/octoscode/module/src/lib.rs:4246:13 - [octoscode] chrome: Action("a9.prefs.lang.zh", 0)
+    log: [I] apps/octoscode/module/src/a9_host.rs:188:21 - [octoscode] a24 language -> zh (switched)
+    log: [I] apps/octoscode/module/src/chrome.rs:2308:13 - [octoscode] a24 shell copy: 47 text(s) set (zh; 86 source(s))
+CLICK prefs_save r=[81, 810, 148, 36] at (155,828)
+PASS save: the file holds language zh — {'language': 'zh', 'theme': 'terminal', 'version': 1, 'vimMode': False}
+CLICK set_back r=[8, 84, 40, 40] at (28,104)
+== 37/37 checks passed

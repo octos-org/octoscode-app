@@ -359,7 +359,10 @@ pub fn blocked_reason(store: &Store, ui: &crate::flow::FlowUi) -> Option<&'stati
             "Wait for this Session's active turn and queued prompts to settle before starting review.",
         );
     }
-    if ui.approval_pending() || ui.question_pending() {
+    // A20: this Session's own interactions (the ledger, by recorded origin)
+    // or its live-prompt flags — never another Session's wait.
+    let waits = store.active_session().is_some_and(|s| store.domains.approval.waiting(&s));
+    if waits || ui.approval_pending() || ui.question_pending() {
         return Some(
             "Wait for this Session's pending questions and approvals to settle before starting review.",
         );

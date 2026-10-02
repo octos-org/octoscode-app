@@ -1,0 +1,826 @@
+--- /dev/null
++++ b/platform/src/notification.rs
+@@ -0,0 +1,161 @@
++//! System notifications with an identity: post a notice, withdraw it, read or
++//! ask for the permission to post, and learn when the person clicks one.
++//!
++//! - [`Cx::post_notification`] shows (or replaces) the notice keyed by `id`.
++//!   Posting never brings the app forward.
++//! - [`Cx::close_notification`] withdraws the notice keyed by `id`, shown or
++//!   still pending.
++//! - [`Cx::query_notification_authorization`] reads the current permission;
++//!   [`Cx::request_notification_authorization`] asks for it (the OS may show
++//!   its own prompt, once). Both answer with a
++//!   [`NotificationAuthorizationResult`].
++//! - A click on a notice brings the app forward (macOS activates the app and
++//!   orders its main window front; Android resumes the activity) and then
++//!   arrives as a [`NotificationClicked`] carrying the notice's `id`.
++//! - A notice the OS refused to show arrives as a [`NotificationFailed`].
++//! - [`Cx::focused_window`]: the window that has focus now, so code created
++//!   after the last focus event (a module opened mid-run) can still tell
++//!   whether the person is looking at the app.
++//!
++//! Every answer is a bare action sent with [`Cx::post_action`], from whatever
++//! thread the OS answered on; handle it in `Event::Actions`:
++//!
++//! ```ignore
++//! if let Event::Actions(actions) = event {
++//!     for action in actions.iter() {
++//!         if let Some(click) = action.downcast_ref::<NotificationClicked>() {
++//!             // open whatever `click.id` names
++//!         }
++//!     }
++//! }
++//! ```
++//!
++//! Backends:
++//! - macOS: UserNotifications (`UNUserNotificationCenter`). It needs a real
++//!   app bundle — in a bare binary it raises an Objective-C exception that
++//!   aborts the process (platform/build.rs embeds a bundle id even there) —
++//!   so unless the main bundle is an `.app` with an identifier, every query
++//!   answers [`NotificationAuthorization::Unavailable`] and posts are dropped.
++//! - Android: `NotificationManager`; the `POST_NOTIFICATIONS` runtime
++//!   permission from API 33 (declared by cargo-makepad's manifest).
++//! - Every other target answers `Unavailable`.
++//!
++//! The older [`Cx::show_notification`] (no id, no answers) is unchanged.
++
++use crate::{cx::Cx, window::WindowId};
++
++/// Whether this process may post system notifications.
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub enum NotificationAuthorization {
++    /// Notifications cannot be posted from this process at all: no backend,
++    /// or a macOS binary that does not run from an `.app` bundle.
++    Unavailable,
++    /// Not decided yet: a request will ask the person.
++    NotDetermined,
++    /// The person allowed notifications.
++    Granted,
++    /// The person (or a policy) refused; only the system settings change it.
++    Denied,
++}
++
++/// The answer to [`Cx::query_notification_authorization`] or
++/// [`Cx::request_notification_authorization`]. A post that finds the
++/// permission gone answers with one too (`requested: false`) instead of
++/// posting.
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub struct NotificationAuthorizationResult {
++    pub status: NotificationAuthorization,
++    /// `true` when this answers a request, `false` for a query (or the check a
++    /// post makes first).
++    pub requested: bool,
++    /// The OS reported an error for the request; `status` is then the state
++    /// read back afterwards.
++    pub error: Option<String>,
++}
++
++/// A notice posted with [`Cx::post_notification`] was clicked (its default
++/// action). The app was already brought forward.
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub struct NotificationClicked {
++    pub id: String,
++}
++
++/// A notice posted with [`Cx::post_notification`] could not be shown.
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub struct NotificationFailed {
++    pub id: String,
++    pub error: String,
++}
++
++impl Cx {
++    /// Show the notice keyed by `id`, replacing an earlier one with the same
++    /// id. When the permission is not granted the notice is not posted and a
++    /// [`NotificationAuthorizationResult`] (`requested: false`) says why.
++    pub fn post_notification(&mut self, id: &str, title: &str, body: &str) {
++        #[cfg(target_os = "macos")]
++        crate::os::apple::macos::macos_notifications::post(id, title, body);
++        #[cfg(target_os = "android")]
++        unsafe {
++            crate::os::linux::android::android_jni::to_java_post_notification(id, title, body);
++        }
++        #[cfg(not(any(target_os = "macos", target_os = "android")))]
++        {
++            let _ = (id, title, body);
++            Self::answer_unavailable(false);
++        }
++    }
++
++    /// Withdraw the notice keyed by `id` (shown or pending). Unknown ids are
++    /// ignored.
++    pub fn close_notification(&mut self, id: &str) {
++        #[cfg(target_os = "macos")]
++        crate::os::apple::macos::macos_notifications::close(id);
++        #[cfg(target_os = "android")]
++        unsafe {
++            crate::os::linux::android::android_jni::to_java_close_notification(id);
++        }
++        #[cfg(not(any(target_os = "macos", target_os = "android")))]
++        let _ = id;
++    }
++
++    /// Read the current permission; never prompts. Answers with a
++    /// [`NotificationAuthorizationResult`] (`requested: false`).
++    pub fn query_notification_authorization(&mut self) {
++        self.notification_authorization(false);
++    }
++
++    /// Ask for the permission; the OS may show its prompt (once — a decided
++    /// permission answers at once). Answers with a
++    /// [`NotificationAuthorizationResult`] (`requested: true`), which may come
++    /// much later: the OS prompt waits for the person.
++    pub fn request_notification_authorization(&mut self) {
++        self.notification_authorization(true);
++    }
++
++    /// The window that has focus now (the last `WindowGotFocus` not followed
++    /// by its `WindowLostFocus`), or `None` while the app is in the
++    /// background or before any window was focused.
++    pub fn focused_window(&self) -> Option<WindowId> {
++        self.focused_window
++    }
++
++    fn notification_authorization(&mut self, request: bool) {
++        #[cfg(target_os = "macos")]
++        crate::os::apple::macos::macos_notifications::authorization(request);
++        #[cfg(target_os = "android")]
++        unsafe {
++            crate::os::linux::android::android_jni::to_java_notification_authorization(request);
++        }
++        #[cfg(not(any(target_os = "macos", target_os = "android")))]
++        Self::answer_unavailable(request);
++    }
++
++    #[allow(dead_code)]
++    pub(crate) fn answer_unavailable(requested: bool) {
++        Cx::post_action(NotificationAuthorizationResult {
++            status: NotificationAuthorization::Unavailable,
++            requested,
++            error: None,
++        });
++    }
++}
+--- /dev/null
++++ b/platform/src/os/apple/macos/macos_notifications.rs
+@@ -0,0 +1,297 @@
++//! macOS system notifications through UserNotifications
++//! (`UNUserNotificationCenter`): the backend of [`crate::notification`].
++//!
++//! `UNUserNotificationCenter` needs a real app bundle. In a bare binary — a
++//! `cargo run` build, whose Info.plist platform/build.rs embeds, bundle id
++//! included — `currentNotificationCenter` raises an Objective-C exception that
++//! aborts the process. Nothing here touches the center unless the main bundle
++//! is an `.app` with an identifier; otherwise every query answers
++//! `Unavailable` and a post is dropped with a log line.
++//!
++//! Threads: the center runs its completion handlers on a private queue and
++//! calls its delegate on the main thread. Every answer leaves through
++//! `Cx::post_action`, which is safe from any thread and wakes the event loop.
++
++use {
++    crate::{
++        cx::Cx,
++        notification::{
++            NotificationAuthorization, NotificationAuthorizationResult, NotificationClicked,
++            NotificationFailed,
++        },
++        os::{
++            apple::apple_sys::*,
++            apple_util::{nsstring_to_string, str_to_nsstring},
++        },
++    },
++    std::sync::OnceLock,
++};
++
++#[link(name = "UserNotifications", kind = "framework")]
++extern "C" {
++    /// The action identifier of a plain click on the notice.
++    static UNNotificationDefaultActionIdentifier: ObjcId;
++}
++
++// UNAuthorizationOptions
++const UN_AUTHORIZATION_OPTION_BADGE: u64 = 1 << 0;
++const UN_AUTHORIZATION_OPTION_SOUND: u64 = 1 << 1;
++const UN_AUTHORIZATION_OPTION_ALERT: u64 = 1 << 2;
++// UNAuthorizationStatus (NSInteger)
++const UN_AUTHORIZATION_STATUS_NOT_DETERMINED: i64 = 0;
++const UN_AUTHORIZATION_STATUS_DENIED: i64 = 1;
++// UNNotificationPresentationOptions (macOS 11+)
++const UN_PRESENTATION_OPTION_SOUND: u64 = 1 << 1;
++const UN_PRESENTATION_OPTION_LIST: u64 = 1 << 3;
++const UN_PRESENTATION_OPTION_BANNER: u64 = 1 << 4;
++
++/// Whether this process runs from an `.app` bundle with an identifier: the
++/// only case `UNUserNotificationCenter` serves. Decided once per process.
++fn bundle_is_app() -> bool {
++    static IS_APP: OnceLock<bool> = OnceLock::new();
++    *IS_APP.get_or_init(|| unsafe {
++        let bundle: ObjcId = msg_send![class!(NSBundle), mainBundle];
++        if bundle == nil {
++            return false;
++        }
++        let ident: ObjcId = msg_send![bundle, bundleIdentifier];
++        let path: ObjcId = msg_send![bundle, bundlePath];
++        let is_app = ident != nil && path != nil && nsstring_to_string(path).ends_with(".app");
++        if !is_app {
++            crate::log!(
++                "notifications: unavailable — this process does not run from an .app bundle"
++            );
++        }
++        is_app
++    })
++}
++
++/// The process's notification center with our delegate installed, or `None`
++/// outside an `.app` bundle. Main thread (the `Cx` methods call it).
++fn center() -> Option<ObjcId> {
++    if !bundle_is_app() {
++        return None;
++    }
++    unsafe {
++        let center: ObjcId = msg_send![class!(UNUserNotificationCenter), currentNotificationCenter];
++        if center == nil {
++            return None;
++        }
++        install_delegate(center);
++        Some(center)
++    }
++}
++
++/// The center from a completion handler: the bundle check already passed
++/// for the call that scheduled it.
++unsafe fn current_center() -> ObjcId {
++    msg_send![class!(UNUserNotificationCenter), currentNotificationCenter]
++}
++
++fn map_status(status: i64) -> NotificationAuthorization {
++    match status {
++        UN_AUTHORIZATION_STATUS_NOT_DETERMINED => NotificationAuthorization::NotDetermined,
++        UN_AUTHORIZATION_STATUS_DENIED => NotificationAuthorization::Denied,
++        // Authorized, provisional (quiet delivery) and ephemeral all post.
++        2 | 3 | 4 => NotificationAuthorization::Granted,
++        _ => NotificationAuthorization::NotDetermined,
++    }
++}
++
++unsafe fn error_text(error: ObjcId) -> Option<String> {
++    if error == nil {
++        return None;
++    }
++    let text: ObjcId = msg_send![error, localizedDescription];
++    Some(if text == nil { "unknown error".to_string() } else { nsstring_to_string(text) })
++}
++
++/// Read the settled permission and hand it to `answer`.
++unsafe fn with_status(answer: impl Fn(NotificationAuthorization) + 'static) {
++    let handler = objc_block!(move |settings: ObjcId| {
++        let status: i64 = msg_send![settings, authorizationStatus];
++        answer(map_status(status));
++    });
++    let () = msg_send![current_center(), getNotificationSettingsWithCompletionHandler: &handler];
++}
++
++/// `Cx::query_notification_authorization` / `request_notification_authorization`.
++pub fn authorization(request: bool) {
++    if center().is_none() {
++        Cx::answer_unavailable(request);
++        return;
++    }
++    unsafe {
++        if !request {
++            with_status(move |status| {
++                Cx::post_action(NotificationAuthorizationResult { status, requested: false, error: None })
++            });
++            return;
++        }
++        let handler = objc_block!(move |_granted: BOOL, error: ObjcId| {
++            // `granted` cannot tell a refusal from a dismissed or failed
++            // prompt: report the state the request left behind.
++            let error = error_text(error);
++            with_status(move |status| {
++                Cx::post_action(NotificationAuthorizationResult {
++                    status,
++                    requested: true,
++                    error: error.clone(),
++                })
++            });
++        });
++        let options =
++            UN_AUTHORIZATION_OPTION_ALERT | UN_AUTHORIZATION_OPTION_SOUND | UN_AUTHORIZATION_OPTION_BADGE;
++        let () = msg_send![
++            current_center(),
++            requestAuthorizationWithOptions: options
++            completionHandler: &handler
++        ];
++    }
++}
++
++/// `Cx::post_notification`: check the permission, then add the request (the
++/// same identifier replaces the earlier notice).
++pub fn post(id: &str, title: &str, body: &str) {
++    if center().is_none() {
++        crate::log!("notifications: {id:?} not posted (unavailable outside an .app bundle)");
++        Cx::answer_unavailable(false);
++        return;
++    }
++    let (id, title, body) = (id.to_string(), title.to_string(), body.to_string());
++    unsafe {
++        with_status(move |status| {
++            if status != NotificationAuthorization::Granted {
++                Cx::post_action(NotificationAuthorizationResult { status, requested: false, error: None });
++                return;
++            }
++            add_request(&id, &title, &body);
++        });
++    }
++}
++
++unsafe fn add_request(id: &str, title: &str, body: &str) {
++    let pool: ObjcId = msg_send![class!(NSAutoreleasePool), new];
++    let content: ObjcId = msg_send![class!(UNMutableNotificationContent), new];
++    let () = msg_send![content, setTitle: str_to_nsstring(title)];
++    let () = msg_send![content, setBody: str_to_nsstring(body)];
++    let sound: ObjcId = msg_send![class!(UNNotificationSound), defaultSound];
++    let () = msg_send![content, setSound: sound];
++    let request: ObjcId = msg_send![
++        class!(UNNotificationRequest),
++        requestWithIdentifier: str_to_nsstring(id)
++        content: content
++        trigger: nil
++    ];
++    let () = msg_send![content, release];
++    let failed_id = id.to_string();
++    let done = objc_block!(move |error: ObjcId| {
++        if let Some(error) = error_text(error) {
++            crate::log!("notifications: {failed_id:?} was not shown: {error}");
++            Cx::post_action(NotificationFailed { id: failed_id.clone(), error });
++        }
++    });
++    let () = msg_send![current_center(), addNotificationRequest: request withCompletionHandler: &done];
++    let () = msg_send![pool, drain];
++}
++
++/// `Cx::close_notification`: withdraw it from Notification Center, and from
++/// the pending queue if it was not delivered yet.
++pub fn close(id: &str) {
++    let Some(center) = center() else { return };
++    unsafe {
++        let ids: ObjcId = msg_send![class!(NSArray), arrayWithObject: str_to_nsstring(id)];
++        let () = msg_send![center, removeDeliveredNotificationsWithIdentifiers: ids];
++        let () = msg_send![center, removePendingNotificationRequestsWithIdentifiers: ids];
++    }
++}
++
++/// Bring the app forward for a click: activate it and order its main window
++/// front (deminiaturized). A hidden test instance (`MAKEPAD_HIDE_WINDOWS`)
++/// keeps its windows off screen.
++unsafe fn bring_forward() {
++    let ns_app: ObjcId = msg_send![class!(NSApplication), sharedApplication];
++    let () = msg_send![ns_app, activateIgnoringOtherApps: YES];
++    if std::env::var_os("MAKEPAD_HIDE_WINDOWS").is_some() {
++        return;
++    }
++    let windows: ObjcId = msg_send![ns_app, windows];
++    let count: usize = msg_send![windows, count];
++    for i in 0..count {
++        let window: ObjcId = msg_send![windows, objectAtIndex: i];
++        let can_be_main: BOOL = msg_send![window, canBecomeMainWindow];
++        if can_be_main == YES {
++            let miniaturized: BOOL = msg_send![window, isMiniaturized];
++            if miniaturized == YES {
++                let () = msg_send![window, deminiaturize: nil];
++            }
++            let () = msg_send![window, makeKeyAndOrderFront: nil];
++            break;
++        }
++    }
++}
++
++extern "C" fn did_receive_response(
++    _this: &Object,
++    _sel: Sel,
++    _center: ObjcId,
++    response: ObjcId,
++    completion: ObjcId,
++) {
++    unsafe {
++        let action: ObjcId = msg_send![response, actionIdentifier];
++        let notification: ObjcId = msg_send![response, notification];
++        let request: ObjcId = msg_send![notification, request];
++        let ident: ObjcId = msg_send![request, identifier];
++        let is_click: BOOL = msg_send![action, isEqualToString: UNNotificationDefaultActionIdentifier];
++        if is_click == YES {
++            let id = nsstring_to_string(ident);
++            crate::log!("notifications: {id:?} clicked");
++            bring_forward();
++            Cx::post_action(NotificationClicked { id });
++        }
++        objc_block_invoke!(completion, invoke());
++    }
++}
++
++extern "C" fn will_present(
++    _this: &Object,
++    _sel: Sel,
++    _center: ObjcId,
++    _notification: ObjcId,
++    completion: ObjcId,
++) {
++    // Show the banner even while the app is frontmost: the app decides when
++    // a notice is due (e.g. only while its window is not focused).
++    let options = UN_PRESENTATION_OPTION_BANNER | UN_PRESENTATION_OPTION_LIST | UN_PRESENTATION_OPTION_SOUND;
++    unsafe {
++        objc_block_invoke!(completion, invoke((options): u64));
++    }
++}
++
++/// Install the `UNUserNotificationCenterDelegate` once (it receives the
++/// clicks). The center keeps a weak reference: the instance lives for the
++/// process.
++unsafe fn install_delegate(center: ObjcId) {
++    static DELEGATE: OnceLock<usize> = OnceLock::new();
++    DELEGATE.get_or_init(|| {
++        let superclass = class!(NSObject);
++        let mut decl = ClassDecl::new("MakepadUserNotificationDelegate", superclass)
++            .expect("MakepadUserNotificationDelegate is declared once");
++        decl.add_method(
++            sel!(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:),
++            did_receive_response as extern "C" fn(&Object, Sel, ObjcId, ObjcId, ObjcId),
++        );
++        decl.add_method(
++            sel!(userNotificationCenter:willPresentNotification:withCompletionHandler:),
++            will_present as extern "C" fn(&Object, Sel, ObjcId, ObjcId, ObjcId),
++        );
++        if let Some(protocol) = Protocol::get("UNUserNotificationCenterDelegate") {
++            decl.add_protocol(protocol);
++        }
++        let class = decl.register();
++        let delegate: ObjcId = msg_send![class, new];
++        let () = msg_send![center, setDelegate: delegate];
++        delegate as usize
++    });
++}
+--- a/platform/src/cx.rs
++++ b/platform/src/cx.rs
+@@ -121,6 +121,9 @@
+     pub(crate) next_frame_id: u64,
+     pub(crate) permissions_request_id: i32,
+     pub(crate) storage_state: StorageState,
++    /// The window that has focus now (`Cx::focused_window`), recorded from
++    /// every `WindowGotFocus` / `WindowLostFocus` the platform dispatches.
++    pub(crate) focused_window: Option<crate::window::WindowId>,
+ 
+     pub keyboard: CxKeyboard,
+     pub(crate) cancel_scopes: CxCancelScopes,
+@@ -899,6 +902,7 @@
+             next_frame_id: 1,
+             permissions_request_id: 0,
+             storage_state: StorageState::default(),
++            focused_window: None,
+ 
+             keyboard: Default::default(),
+             cancel_scopes: Default::default(),
+--- a/platform/src/lib.rs
++++ b/platform/src/lib.rs
+@@ -89,6 +89,7 @@
+ pub mod perf_monitor;
+ pub mod sploded;
+ pub mod permission;
++pub mod notification;
+ mod screen;
+ mod texture;
+ mod uniform_buffer;
+--- a/platform/src/os/cx_shared.rs
++++ b/platform/src/os/cx_shared.rs
+@@ -1286,6 +1286,15 @@
+         }
+         let routed = self.sploded_route(event);
+         let event = routed.as_ref().unwrap_or(event);
++        // `Cx::focused_window`: recorded before the handlers run, so they
++        // (and anything created later) read the state this event leaves.
++        match event {
++            Event::WindowGotFocus(window_id) => self.focused_window = Some(*window_id),
++            Event::WindowLostFocus(window_id) if self.focused_window == Some(*window_id) => {
++                self.focused_window = None
++            }
++            _ => {}
++        }
+         if let Event::PermissionResult(result) = event {
+             self.handle_camera_permission_result(result);
+         }
+--- a/platform/src/os/apple/macos/mod.rs
++++ b/platform/src/os/apple/macos/mod.rs
+@@ -4,6 +4,7 @@
+ pub mod macos_delegates;
+ pub mod macos_event;
+ mod macos_ime;
++pub mod macos_notifications;
+ pub mod macos_stdin;
+ pub mod macos_window;
+ pub use self::macos::*;
+--- a/platform/src/os/linux/android/android_jni.rs
++++ b/platform/src/os/linux/android/android_jni.rs
+@@ -2986,9 +2986,110 @@
+         "(Ljava/lang/String;Ljava/lang/String;)V",
+         title,
+         body
++    );
++}
++
++// ---- System notifications with an id (`crate::notification`) -------------
++// The activity posts, withdraws and authorizes on its own looper and answers
++// through the `onNotification*` callbacks below.
++
++pub unsafe fn to_java_post_notification(id: &str, title: &str, body: &str) {
++    let env = attach_jni_env();
++    let id = new_java_string(env, id);
++    let title = new_java_string(env, title);
++    let body = new_java_string(env, body);
++    ndk_utils::call_void_method!(
++        env,
++        get_activity(),
++        "postNotification",
++        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
++        id,
++        title,
++        body
++    );
++    ((**env).DeleteLocalRef.unwrap())(env, id);
++    ((**env).DeleteLocalRef.unwrap())(env, title);
++    ((**env).DeleteLocalRef.unwrap())(env, body);
++}
++
++pub unsafe fn to_java_close_notification(id: &str) {
++    let env = attach_jni_env();
++    let id = new_java_string(env, id);
++    ndk_utils::call_void_method!(env, get_activity(), "closeNotification", "(Ljava/lang/String;)V", id);
++    ((**env).DeleteLocalRef.unwrap())(env, id);
++}
++
++pub unsafe fn to_java_notification_authorization(request: bool) {
++    let env = attach_jni_env();
++    ndk_utils::call_void_method!(
++        env,
++        get_activity(),
++        "notificationAuthorization",
++        "(Z)V",
++        request as jni_sys::jboolean as c_uint
+     );
+ }
+ 
++unsafe fn jstring_lossy(env: *mut jni_sys::JNIEnv, java_string: jni_sys::jstring) -> String {
++    if java_string.is_null() {
++        return String::new();
++    }
++    let chars = (**env).GetStringUTFChars.unwrap()(env, java_string, std::ptr::null_mut());
++    let text = std::ffi::CStr::from_ptr(chars).to_string_lossy().into_owned();
++    (**env).ReleaseStringUTFChars.unwrap()(env, java_string, chars);
++    text
++}
++
++/// A click on a notice posted with an id (`MakepadActivity.onNewIntent`);
++/// the activity is already in front.
++#[no_mangle]
++pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onNotificationClicked(
++    env: *mut jni_sys::JNIEnv,
++    _: jni_sys::jclass,
++    id: jni_sys::jstring,
++) {
++    crate::cx::Cx::post_action(crate::notification::NotificationClicked {
++        id: jstring_lossy(env, id),
++    });
++}
++
++/// The permission: 0 not determined, 1 granted, 2 denied, 3 unavailable.
++#[no_mangle]
++pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onNotificationAuthorization(
++    env: *mut jni_sys::JNIEnv,
++    _: jni_sys::jclass,
++    status: jni_sys::jint,
++    requested: jni_sys::jboolean,
++    error: jni_sys::jstring,
++) {
++    use crate::notification::NotificationAuthorization as A;
++    let status = match status {
++        1 => A::Granted,
++        2 => A::Denied,
++        3 => A::Unavailable,
++        _ => A::NotDetermined,
++    };
++    let error = (!error.is_null()).then(|| jstring_lossy(env, error));
++    crate::cx::Cx::post_action(crate::notification::NotificationAuthorizationResult {
++        status,
++        requested: requested != 0,
++        error,
++    });
++}
++
++#[no_mangle]
++pub unsafe extern "C" fn Java_dev_makepad_android_MakepadNative_onNotificationFailed(
++    env: *mut jni_sys::JNIEnv,
++    _: jni_sys::jclass,
++    id: jni_sys::jstring,
++    error: jni_sys::jstring,
++) {
++    crate::cx::Cx::post_action(crate::notification::NotificationFailed {
++        id: jstring_lossy(env, id),
++        error: jstring_lossy(env, error),
++    });
++}
++
+ pub unsafe fn to_java_android_integration(channel: &str, payload: &str) {
+     let env = attach_jni_env();
+     let channel = new_java_string(env, channel);
+--- a/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadActivity.java
++++ b/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadActivity.java
+@@ -1855,6 +1855,7 @@
+         }
+         restoreSurfaceViewForWarmResumeIfNeeded();
+         handleDeepLinkIntent(intent);
++        handleNotificationIntent(intent);
+     }
+ 
+     // Extract a URL from an ACTION_VIEW deep link or an ACTION_SEND share and hand
+@@ -1945,7 +1946,24 @@
+                 showQrScanner();
+             } else {
+                 MakepadNative.onQrCancelled("permission_denied");
++            }
++        }
++
++        // The notification permission (notificationAuthorization(true)):
++        // refused once (Android asks again) reads "not determined", refused
++        // for good reads "denied"; an interrupted request decided nothing.
++        if (requestId == MAKEPAD_NOTIFICATION_PERMISSION_REQ) {
++            int status;
++            if (grantResults == null || grantResults.length == 0) {
++                status = 0;
++            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
++                status = notificationAuthorizationStatusOrUnknown();
++            } else if (shouldShowRequestPermissionRationale(MAKEPAD_POST_NOTIFICATIONS)) {
++                status = 0;
++            } else {
++                status = 2;
+             }
++            MakepadNative.onNotificationAuthorization(status, true, null);
+         }
+ 
+         // Location permission granted → start GPS updates.
+@@ -2801,11 +2819,129 @@
+                     nm.notify((int) (System.currentTimeMillis() & 0x7fffffff), b.build());
+                 } catch (Throwable t) {
+                     Log.e("Makepad", "showNotification failed: " + t.toString());
++                }
++            }
++        });
++    }
++
++    // ---- System notifications with an id (makepad_platform::notification) ----
++    // A notice is keyed by its id (the notify tag): the same id replaces it,
++    // closeNotification withdraws it. A click opens this activity (singleTask:
++    // onNewIntent) with the id in MAKEPAD_NOTIFICATION_ID_EXTRA and Rust gets
++    // NotificationClicked. Posting never brings the app forward. Answers go
++    // to MakepadNative.onNotificationAuthorization / onNotificationFailed;
++    // status 0 not determined, 1 granted, 2 denied, 3 unavailable.
++    static final String MAKEPAD_NOTIFICATION_ID_EXTRA = "dev.makepad.notification.id";
++    static final String MAKEPAD_NOTIFICATION_ACTION = "dev.makepad.notification.OPEN";
++    static final String MAKEPAD_NOTIFICATION_CHANNEL = "makepad_notifications";
++    static final String MAKEPAD_POST_NOTIFICATIONS = "android.permission.POST_NOTIFICATIONS";
++    static final int MAKEPAD_NOTIFICATION_PERMISSION_REQ = 0x0C71;
++    static final int MAKEPAD_NOTIFICATION_TAG_ID = 0x0C70;
++
++    private int notificationAuthorizationStatus() {
++        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
++        if (nm == null) return 3;
++        // API 33+: a runtime permission. Not granted yet means a request
++        // decides (Android answers at once when it was refused for good).
++        if (Build.VERSION.SDK_INT >= 33
++                && checkSelfPermission(MAKEPAD_POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
++            return 0;
++        }
++        // Granted (or API < 33): the app's switch in the system settings.
++        return nm.areNotificationsEnabled() ? 1 : 2;
++    }
++
++    public void notificationAuthorization(final boolean request) {
++        runOnUiThread(new Runnable() {
++            @Override
++            public void run() {
++                try {
++                    int status = notificationAuthorizationStatus();
++                    if (request && status == 0 && Build.VERSION.SDK_INT >= 33) {
++                        // Answered from onRequestPermissionsResult.
++                        requestPermissions(new String[]{MAKEPAD_POST_NOTIFICATIONS},
++                            MAKEPAD_NOTIFICATION_PERMISSION_REQ);
++                        return;
++                    }
++                    MakepadNative.onNotificationAuthorization(status, request, null);
++                } catch (Throwable t) {
++                    MakepadNative.onNotificationAuthorization(notificationAuthorizationStatusOrUnknown(), request, t.toString());
++                }
++            }
++        });
++    }
++
++    private int notificationAuthorizationStatusOrUnknown() {
++        try {
++            return notificationAuthorizationStatus();
++        } catch (Throwable t) {
++            return 0;
++        }
++    }
++
++    public void postNotification(final String id, final String title, final String body) {
++        runOnUiThread(new Runnable() {
++            @Override
++            public void run() {
++                try {
++                    int status = notificationAuthorizationStatus();
++                    if (status != 1) {
++                        MakepadNative.onNotificationAuthorization(status, false, null);
++                        return;
++                    }
++                    NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
++                    if (android.os.Build.VERSION.SDK_INT >= 26) {
++                        NotificationChannel ch = new NotificationChannel(MAKEPAD_NOTIFICATION_CHANNEL,
++                            "Notifications", NotificationManager.IMPORTANCE_DEFAULT);
++                        nm.createNotificationChannel(ch);
++                    }
++                    Intent open = new Intent(MakepadActivity.this, MakepadActivity.this.getClass());
++                    open.setAction(MAKEPAD_NOTIFICATION_ACTION);
++                    open.putExtra(MAKEPAD_NOTIFICATION_ID_EXTRA, id);
++                    open.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
++                    int piFlags = PendingIntent.FLAG_UPDATE_CURRENT;
++                    if (android.os.Build.VERSION.SDK_INT >= 23) piFlags |= PendingIntent.FLAG_IMMUTABLE;
++                    // One PendingIntent per id: the extra differs, the request code keeps them apart.
++                    PendingIntent pi = PendingIntent.getActivity(MakepadActivity.this, id.hashCode(), open, piFlags);
++                    Notification.Builder b = (android.os.Build.VERSION.SDK_INT >= 26)
++                        ? new Notification.Builder(MakepadActivity.this, MAKEPAD_NOTIFICATION_CHANNEL)
++                        : new Notification.Builder(MakepadActivity.this);
++                    b.setSmallIcon(getApplicationInfo().icon)
++                        .setContentTitle(title == null ? "" : title)
++                        .setContentText(body == null ? "" : body)
++                        .setStyle(new Notification.BigTextStyle().bigText(body == null ? "" : body))
++                        .setAutoCancel(true)
++                        .setContentIntent(pi);
++                    nm.notify(id, MAKEPAD_NOTIFICATION_TAG_ID, b.build());
++                } catch (Throwable t) {
++                    Log.e("Makepad", "postNotification failed: " + t.toString());
++                    MakepadNative.onNotificationFailed(id, t.toString());
+                 }
+             }
+         });
+     }
+ 
++    public void closeNotification(final String id) {
++        runOnUiThread(new Runnable() {
++            @Override
++            public void run() {
++                try {
++                    NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
++                    if (nm != null) nm.cancel(id, MAKEPAD_NOTIFICATION_TAG_ID);
++                } catch (Throwable t) {
++                    Log.e("Makepad", "closeNotification failed: " + t.toString());
++                }
++            }
++        });
++    }
++
++    // A click on a notice posted with an id: hand the id to Rust.
++    private void handleNotificationIntent(Intent intent) {
++        if (intent == null || !MAKEPAD_NOTIFICATION_ACTION.equals(intent.getAction())) return;
++        String id = intent.getStringExtra(MAKEPAD_NOTIFICATION_ID_EXTRA);
++        if (id != null) MakepadNative.onNotificationClicked(id);
++    }
++
+     // Native file picker (Storage Access Framework). One dialog at a time; the
+     // pending call id is stored and read back in onActivityResult. Called from Rust
+     // via to_java_open_file_dialog (the card's octos.invoke("dialog.open", {mime})).
+--- a/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadNative.java
++++ b/tools/cargo_makepad/src/android/java/dev/makepad/android/MakepadNative.java
+@@ -111,6 +111,12 @@
+     // permissions
+     public native static void onPermissionResult(String permission, int requestId, int status);
+ 
++    // system notifications with an id (makepad_platform::notification):
++    // status 0 not determined, 1 granted, 2 denied, 3 unavailable.
++    public native static void onNotificationClicked(String id);
++    public native static void onNotificationAuthorization(int status, boolean requested, String error);
++    public native static void onNotificationFailed(String id, String error);
++
+     // location
+     public native static void onLocationUpdate(
+         double longitude, double latitude, float accuracy,
+--- a/tools/cargo_makepad/src/android/mod.rs
++++ b/tools/cargo_makepad/src/android/mod.rs
+@@ -124,6 +124,8 @@
+                 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+                 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+                 <uses-permission android:name="android.permission.USE_BIOMETRIC" />
++                <!-- makepad_platform::notification: the runtime permission from API 33. -->
++                <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+                 <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
+ 
+                 <queries>

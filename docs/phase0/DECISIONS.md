@@ -106,3 +106,11 @@ through the same `serialize_request` + `RpcRegistry` path as the typed commands.
   **and** `octos-app-store` at the fork path (both, so the graph keeps one copy).
 - **Exit:** drop the `[patch]` and bump the git rev to the merged commit when the PR lands. Nothing else changes —
   our `Client` sits on the variant, not on the fork.
+
+## D10b. Makepad notification API (macOS + Android): DECIDED (operator, 2026-10-02)
+Desktop and phone notifications on macOS AND Android. The pinned makepad (`6cf03859`) handles `ShowNotification` only on
+Android, with no id, permission or click. We carry ONE patch, `patches/makepad/macos-notifications.patch`
+(`Cx::post_notification` / `close_notification` / `query_` + `request_notification_authorization` / `focused_window`;
+answers as actions; UserNotifications on macOS — "unavailable" outside an `.app`; NotificationManager +
+`POST_NOTIFICATIONS` on Android), applied to every tree by `scripts/apply-makepad-patches.sh`. Record, trees, exit:
+`docs/decisions/D10b-makepad-macos-notifications.md`; PR text for the operator: `docs/decisions/D10b-upstream-pr.md`.

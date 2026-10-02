@@ -1,0 +1,526 @@
+{
+ "desktop/unavailable": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "_rects": {
+   "row": [
+    362,
+    203,
+    563,
+    74
+   ],
+   "title": [
+    362,
+    219,
+    150,
+    18
+   ],
+   "control": [
+    848,
+    220,
+    77,
+    17
+   ],
+   "message": [
+    362,
+    247,
+    499,
+    16
+   ]
+  }
+ },
+ "desktop/off": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "_rects": {
+   "row": [
+    362,
+    203,
+    563,
+    74
+   ],
+   "title": [
+    362,
+    219,
+    150,
+    18
+   ],
+   "control": [
+    881,
+    213,
+    44,
+    32
+   ],
+   "message": [
+    362,
+    247,
+    499,
+    16
+   ]
+  }
+ },
+ "desktop/on": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "_rects": {
+   "row": [
+    362,
+    203,
+    563,
+    74
+   ],
+   "title": [
+    362,
+    219,
+    150,
+    18
+   ],
+   "control": [
+    881,
+    213,
+    44,
+    32
+   ],
+   "message": [
+    362,
+    247,
+    499,
+    16
+   ]
+  }
+ },
+ "desktop/pending": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "_rects": {
+   "row": [
+    362,
+    203,
+    563,
+    74
+   ],
+   "title": [
+    362,
+    219,
+    150,
+    18
+   ],
+   "control": [
+    856,
+    220,
+    69,
+    17
+   ],
+   "message": [
+    362,
+    247,
+    499,
+    16
+   ]
+  }
+ },
+ "desktop/denied": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "alert in danger ink": true,
+  "_rects": {
+   "row": [
+    362,
+    203,
+    563,
+    74
+   ],
+   "title": [
+    362,
+    219,
+    150,
+    18
+   ],
+   "control": [
+    881,
+    213,
+    44,
+    32
+   ],
+   "message": [
+    362,
+    247,
+    499,
+    16
+   ]
+  }
+ },
+ "desktop/error": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "alert in danger ink": true,
+  "_rects": {
+   "row": [
+    362,
+    203,
+    563,
+    74
+   ],
+   "title": [
+    362,
+    219,
+    150,
+    18
+   ],
+   "control": [
+    881,
+    213,
+    44,
+    32
+   ],
+   "message": [
+    362,
+    247,
+    499,
+    16
+   ]
+  }
+ },
+ "desktop/dismissed": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "alert in danger ink": true,
+  "_rects": {
+   "row": [
+    362,
+    203,
+    563,
+    74
+   ],
+   "title": [
+    362,
+    219,
+    150,
+    18
+   ],
+   "control": [
+    881,
+    213,
+    44,
+    32
+   ],
+   "message": [
+    362,
+    247,
+    499,
+    16
+   ]
+  }
+ },
+ "phone/unavailable": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "_rects": {
+   "row": [
+    81,
+    135,
+    255,
+    94
+   ],
+   "title": [
+    81,
+    152,
+    150,
+    18
+   ],
+   "control": [
+    259,
+    153,
+    77,
+    17
+   ],
+   "message": [
+    81,
+    179,
+    191,
+    36
+   ]
+  }
+ },
+ "phone/off": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "_rects": {
+   "row": [
+    81,
+    135,
+    255,
+    115
+   ],
+   "title": [
+    81,
+    152,
+    150,
+    18
+   ],
+   "control": [
+    292,
+    145,
+    44,
+    32
+   ],
+   "message": [
+    81,
+    179,
+    191,
+    57
+   ]
+  }
+ },
+ "phone/on": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "_rects": {
+   "row": [
+    81,
+    135,
+    255,
+    74
+   ],
+   "title": [
+    81,
+    152,
+    150,
+    18
+   ],
+   "control": [
+    292,
+    145,
+    44,
+    32
+   ],
+   "message": [
+    81,
+    179,
+    191,
+    16
+   ]
+  }
+ },
+ "phone/pending": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "_rects": {
+   "row": [
+    81,
+    135,
+    255,
+    115
+   ],
+   "title": [
+    81,
+    152,
+    150,
+    18
+   ],
+   "control": [
+    267,
+    153,
+    69,
+    17
+   ],
+   "message": [
+    81,
+    179,
+    191,
+    57
+   ]
+  }
+ },
+ "phone/denied": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "alert in danger ink": true,
+  "_rects": {
+   "row": [
+    81,
+    135,
+    255,
+    115
+   ],
+   "title": [
+    81,
+    152,
+    150,
+    18
+   ],
+   "control": [
+    292,
+    145,
+    44,
+    32
+   ],
+   "message": [
+    81,
+    179,
+    191,
+    57
+   ]
+  }
+ },
+ "phone/error": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "alert in danger ink": true,
+  "_rects": {
+   "row": [
+    81,
+    135,
+    255,
+    115
+   ],
+   "title": [
+    81,
+    152,
+    150,
+    18
+   ],
+   "control": [
+    292,
+    145,
+    44,
+    32
+   ],
+   "message": [
+    81,
+    179,
+    191,
+    57
+   ]
+  }
+ },
+ "phone/dismissed": {
+  "title inside row": true,
+  "control inside row": true,
+  "control flush right": true,
+  "message inside row": true,
+  "message clear of the control column": true,
+  "title/control no overlap": true,
+  "message/control no overlap": true,
+  "left edge = Theme row": true,
+  "hit >= 28 px": true,
+  "alert in danger ink": true,
+  "_rects": {
+   "row": [
+    81,
+    135,
+    255,
+    115
+   ],
+   "title": [
+    81,
+    152,
+    150,
+    18
+   ],
+   "control": [
+    292,
+    145,
+    44,
+    32
+   ],
+   "message": [
+    81,
+    179,
+    191,
+    57
+   ]
+  }
+ }
+}

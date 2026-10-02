@@ -38,6 +38,7 @@ use makepad_widgets::*;
 use super::board1_kit::{self as kit, Text};
 use super::{browser, pairing, provider};
 use crate::flow::Conversation;
+use crate::i18n::tr;
 
 // ------------------------------------------------------------------- layout
 
@@ -603,13 +604,13 @@ fn route_picker(action: &str) -> Vec<Work> {
 
 fn picker_view(pk: &PickerUi, l: &Layout) -> Ui {
     let mut v = Ui::default();
-    v.header(l, "b1_pk_back", "picker.close", "Open a workspace");
+    v.header(l, "b1_pk_back", "picker.close", tr("Open a workspace"));
     v.push(kit::gap(if l.phone { 22.0 } else { 16.0 }));
     let (root_label, root_path) = match &pk.server_root {
-        Some(p) => ("Server folder", p.clone()),
-        None if pk.loading => ("Server folder", "Reading the server\u{2026}".to_owned()),
+        Some(p) => (tr("Server folder"), p.clone()),
+        None if pk.loading => (tr("Server folder"), tr("Reading the server\u{2026}").to_owned()),
         // server-working-directory.ts:2-23 — the fallback when no root was reported.
-        None => ("Server folder (path not reported)", String::new()),
+        None => (tr("Server folder (path not reported)"), String::new()),
     };
     let root_row = format!(
         "View {{ width: Fill height: {} flow: Overlay\nView {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 18 right: 16}} spacing: 16\n{}View {{ width: Fill height: Fit flow: Down spacing: 3\n{}{}}}\n{}}}\n{}}}\n",
@@ -623,7 +624,7 @@ fn picker_view(pk: &PickerUi, l: &Layout) -> Ui {
     v.push(kit::list_card("b1_pk_server_card", &[root_row]));
     v.button("b1_pk_server", "picker.server");
     v.push(kit::gap(if l.phone { 22.0 } else { 16.0 }));
-    v.push(Text::new("", "Recent").px(15.0).fill().one_line().dsl());
+    v.push(Text::new("", tr("Recent")).px(15.0).fill().one_line().dsl());
     v.push(kit::gap(8.0));
     let rows: Vec<String> = pk
         .recents
@@ -644,29 +645,29 @@ fn picker_view(pk: &PickerUi, l: &Layout) -> Ui {
         })
         .collect();
     if rows.is_empty() {
-        v.push(Text::new("b1_pk_norecent", "No recent workspaces yet.").px(14.0).color(kit::MUTED).fill().dsl());
+        v.push(Text::new("b1_pk_norecent", tr("No recent workspaces yet.")).px(14.0).color(kit::MUTED).fill().dsl());
     } else {
         v.push(kit::list_card("b1_pk_recents", &rows));
     }
     if let Some(e) = &pk.error {
         v.push(kit::gap(10.0));
-        v.push(Text::new("b1_pk_error", e).px(14.0).color(kit::RED).fill().dsl());
+        v.push(Text::new("b1_pk_error", tr(e)).px(14.0).color(kit::RED).fill().dsl());
     }
     if let Some(p) = &pk.starting {
         v.push(kit::gap(10.0));
-        let line = format!("Starting a session in {}\u{2026}", super::recents::workspace_name(p));
+        let line = crate::i18n::tr1("Starting a session in {value0}\u{2026}", &super::recents::workspace_name(p));
         v.push(Text::new("b1_pk_starting", &line).px(14.0).color(kit::MUTED).fill().one_line().dsl());
     }
     // Row 166: Browse / New folder exist ONLY when the server advertised the
     // browse feature — fail closed, structurally.
     if pk.browse_advertised {
         v.push(kit::gap(if l.phone { 30.0 } else { 20.0 }));
-        v.push(kit::pill_outline("b1_pk_browse", "Browse folders\u{2026}", "Fill"));
+        v.push(kit::pill_outline("b1_pk_browse", tr("Browse folders\u{2026}"), "Fill"));
         v.button("b1_pk_browse", "picker.browse");
         v.push(kit::gap(10.0));
         v.push(format!(
             "View {{ width: Fill height: Fit align: Align{{x: 0.5 y: 0.0}}\n{}}}\n",
-            kit::link("b1_pk_newfolder", "New folder", kit::INK, 15.0, 400)
+            kit::link("b1_pk_newfolder", tr("New folder"), kit::INK, 15.0, 400)
         ));
         v.button("b1_pk_newfolder", "picker.newfolder");
     }
