@@ -1,0 +1,40 @@
+PASS [199] first launch, nothing remembered: the Connect card
+PASS [199] …prefilled with the default endpoint (OCTOS_BASE_URL) — 'http://127.0.0.1:8491'
+PASS [199] …and no token (the initial draft)
+PASS [199] …and NO socket: the server saw no connection and no REST read — sockets=0
+PASS [199] …the bootstrap decided: no auto-start
+PASS UX first launch: the Connect card by numbers — card=[439, 159, 480, 411] pane=[54, 76, 990, 603] centre_dx=0.5 outside=[] under28=[] overlaps=0
+SHOT 01-first-launch-desktop
+PASS [199] Connect (a click) dials the prefilled server and goes live
+PASS [199] …one socket, opened by the click — sockets=1
+PASS [199] …the connection authenticated: it may restore at the next launch
+PASS [199] …a Session opened in the startup folder — [{'cwd': '/home/user/octos', 'profile_id': 'a8', 'session_id': 'a8:api:01a0fe57-783e-750d-9b42-54b64d810479'}]
+PASS [199] relaunch: the remembered server restores itself — no click
+PASS [199] …a socket to it, opened by the restore — sockets=2
+PASS [199] …the remembered Session re-opened directly (no launch/resolve) — ['a8:api:01a0fe57-783e-750d-9b42-54b64d810479'] vs a8:api:01a0fe57-783e-750d-9b42-54b64d810479
+PASS [199] …the bootstrap decided: restore
+PASS UX restored at launch: the composer by numbers — composer=[375, 585, 629, 28] row=[359, 571, 661, 92] column=[335, 76, 709, 603]
+SHOT 02-restored-desktop
+PASS Settings > Connection > Disconnect returns the Connect card
+PASS [199] after a Disconnect the relaunch shows the Connect card
+PASS [199] …NO socket (a Disconnect stops the unattended restore) — sockets=2 before=2
+PASS [199] …the server and its token kept on the card (the tab's identity) — 'http://127.0.0.1:8491'
+PASS UX relaunch after Disconnect: the Connect card by numbers — card=[439, 159, 480, 411] pane=[54, 76, 990, 603] centre_dx=0.5 outside=[] under28=[] overlaps=0
+SHOT 03-after-disconnect-relaunch-desktop
+PASS [195] Connect to another server goes live
+PASS [195] one identity: only the new server keeps a token — ['http://127.0.0.1:8493']
+PASS [195] …the durable address is the new server — 'http://127.0.0.1:8493'
+PASS [195] …the first server's restore hints went with its identity — ['http://127.0.0.1:8493']
+PASS [195] relaunch: a token saved for another origin (the former device memory) is purged at start — ['http://127.0.0.1:8493']
+PASS [195] …the connection's own token stays and it restores itself
+PASS UX restored after the switch: the composer by numbers — composer=[375, 585, 629, 28] row=[359, 571, 661, 92] column=[335, 76, 709, 603]
+SHOT 04-restored-after-switch-desktop
+PASS Settings > Connection > Forget server returns the Connect card
+PASS [199] Forget: the initial draft — the default endpoint, no token — 'http://127.0.0.1:8491'
+PASS [195] Forget: no token for any origin, no remembered address, no restore hint — [] None []
+PASS [199] after Forget the relaunch shows the Connect card
+PASS [199] …NO socket — sockets=4 before=4
+PASS [199] …on the default endpoint, no token
+PASS UX relaunch after Forget: the Connect card by numbers — card=[439, 159, 480, 411] pane=[54, 76, 990, 603] centre_dx=0.5 outside=[] under28=[] overlaps=0
+SHOT 05-after-forget-relaunch-desktop
+== WALK a21 bootstrap desktop: 34/34 passed
