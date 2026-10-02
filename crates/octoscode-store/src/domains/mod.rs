@@ -14,6 +14,8 @@ pub mod peer;
 pub mod profile;
 pub mod review;
 pub mod session;
+// A31: background skill-action jobs (parity row 15).
+pub mod skill_jobs;
 pub mod task;
 pub mod tool;
 pub mod turn;
@@ -39,6 +41,8 @@ pub struct State {
     pub models: models::ModelNotices,
     pub config: config::Config,
     pub composer: composer::Composer,
+    /// A31 — background skill-action jobs per (Profile, Session).
+    pub skill_jobs: skill_jobs::SkillJobs,
 }
 
 impl State {

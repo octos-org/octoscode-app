@@ -570,6 +570,8 @@ pub const ACTION_FORM_CANCEL: &str = "dialog.form_cancel";
 pub const ACTION_REFRESH_PROFILE: &str = "dialog.refresh.profile";
 pub const ACTION_REFRESH_CONTEXT: &str = "dialog.refresh.context";
 pub const ACTION_REFRESH_FLEET: &str = "dialog.refresh.fleet";
+/// A31 — the Skills dialog's job list read (`skill/action/job/list`).
+pub const ACTION_REFRESH_SKILL_JOBS: &str = "dialog.refresh.skill_jobs";
 
 /// The host's own action ids: `dialog.close`, `dialog.open.<id>` and the
 /// three on-open refreshes that have no other owner.
@@ -594,6 +596,9 @@ pub enum Effect {
     RefreshContext,
     /// `task/list` + `peer/gather` (`screens::fleet::refresh`).
     RefreshFleet,
+    /// A31 — `skill/action/job/list` for the dialog's Profile + Session
+    /// (`screens::skill_jobs::refresh`).
+    RefreshSkillJobs,
     /// Ask before running this action (its confirm card).
     Ask(String),
     /// Run the pending confirmation's action.

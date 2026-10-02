@@ -28,6 +28,8 @@ pub mod peer;
 pub mod profile;
 pub mod review;
 pub mod session;
+// A31: background skill-action jobs (parity row 15).
+pub mod skill_jobs;
 pub mod task;
 pub mod tool;
 pub mod turn;

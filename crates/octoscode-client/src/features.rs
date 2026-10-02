@@ -64,6 +64,10 @@ pub const WEB_UI_FEATURES: &[&str] = &[
     "external_driver_v1",
 ];
 
+/// A31 — the features the native client asks for BEYOND the web's list.
+/// FAILING-FIRST STUB: declared, not yet sent (main's behaviour).
+pub const NATIVE_UI_FEATURES: &[&str] = &["skill.action_jobs.v1"];
+
 /// The subset the transport has a typed boolean for
 /// (`octos-app-transport`'s `Capabilities` fields). The rest go through
 /// `Capabilities::raw`.
