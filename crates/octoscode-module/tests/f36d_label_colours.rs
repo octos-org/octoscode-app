@@ -90,8 +90,10 @@ fn read(rel: &str) -> String {
 fn every_label_in_the_shell_script_mod_sets_a_text_colour() {
     let src = read(SHELL);
     let blocks = label_blocks(&src);
+    // A5: 21 after the GOALS / LOOPS / FLEET sidebar sections (9 Labels)
+    // were removed; the guard still catches a scanner that finds a handful.
     assert!(
-        blocks.len() >= 30,
+        blocks.len() >= 20,
         "expected the whole shell to be scanned, found only {} Label blocks — the \
          scanner regressed",
         blocks.len()
@@ -131,9 +133,9 @@ fn the_measured_meta_labels_carry_a_colour_too() {
         "status := Label {",
         "sessions := Label {",
         "palette_row_name := Label {",
-        "goal_row_1 := Label {",
-        "loop_row_1 := Label {",
-        "fleet_row_1 := Label {",
+        // A5: the GOALS / LOOPS / FLEET sidebar rows were removed (not in the
+        // approved board-2 sidebar; the autonomy dialogs and A4's Fleet pane
+        // carry that data now).
     ] {
         let at = src
             .find(needle)

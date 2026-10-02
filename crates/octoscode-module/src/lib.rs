@@ -295,138 +295,11 @@ script_mod! {
                 // New chat, Search chats, By workspace | All + Recent, and
                 // the tree (`thread_list`): chrome.rs `OcSidebarBody`.
                 oc_sidebar_body := mod.widgets.OcSidebarBody {}
-                // Card #28e item 1: GOALS / LOOPS / FLEET appear only when the
-                // session has them (board 4 frame 3), above the footer.
-                autonomy_sections := View {
-                    width: Fill height: Fit flow: Down spacing: 4 visible: false
-                    Label {
-                        width: Fill height: Fit text: "GOALS"
-                        draw_text.text_style: theme.oc_text_caps
-                        draw_text.color: theme.color_text_muted
-                    }
-                    // A5: a click on a section's rows opens its dialog
-                    // (Goal / Loops / Fleet) — A3's Overlay + hit pattern.
-                    View {
-                    width: Fill height: Fit flow: Overlay
-                    goals_list := View {
-                        width: Fill height: Fit flow: Down spacing: 2
-                        // #28e2 item 3: the goal row carries the board's
-                        // progress ring; rows ellipsize with "…" instead of
-                        // clipping mid-word.
-                        goal_wrap_1 := View {
-                            width: Fill height: 28 flow: Right spacing: 6 align: Align{y: 0.5}
-                            goal_ring := Svg {
-                                width: 14 height: 14
-                                animating: false
-                                draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_ring.svg")))
-                                draw_svg.preserve_viewbox: true
-                            }
-                            goal_row_1 := Label {
-                                width: Fill height: Fit text: ""
-                                draw_text.text_style: theme.oc_text_row
-                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                             draw_text.color: theme.color_fg_app}
-                        }
-                        goal_row_2 := Label {
-                            width: Fill height: 28 text: ""
-                            draw_text.text_style: theme.oc_text_row
-                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                         draw_text.color: theme.color_fg_app}
-                    }
-                    goals_open := mod.widgets.OcHitRound {draw_bg.border_radius: 6.0}
-                    }
-                    Label {
-                        width: Fill height: Fit text: "LOOPS"
-                        draw_text.text_style: theme.oc_text_caps
-                        draw_text.color: theme.color_text_muted
-                    }
-                    View {
-                    width: Fill height: Fit flow: Overlay
-                    loops_list := View {
-                        width: Fill height: Fit flow: Down spacing: 2
-                        loop_row_1 := Label {
-                            width: Fill height: 28 text: ""
-                            draw_text.text_style: theme.oc_text_row
-                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                         draw_text.color: theme.color_fg_app}
-                        loop_row_2 := Label {
-                            width: Fill height: 28 text: ""
-                            draw_text.text_style: theme.oc_text_row
-                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                         draw_text.color: theme.color_fg_app}
-                    }
-                    loops_open := mod.widgets.OcHitRound {draw_bg.border_radius: 6.0}
-                    }
-                    Label {
-                        width: Fill height: Fit text: "FLEET"
-                        draw_text.text_style: theme.oc_text_caps
-                        draw_text.color: theme.color_text_muted
-                    }
-                    View {
-                    width: Fill height: Fit flow: Overlay
-                    fleet_list := View {
-                        width: Fill height: Fit flow: Down spacing: 2
-                        // #28e3 item 2: every fleet row reserves the SAME
-                        // 14px status slot, so all rows share one text inset
-                        // (the #28e2 dots collapsed when hidden and pushed
-                        // only the Blocked row's text). The dot itself is a
-                        // RoundedView — a plain View never paints draw_bg —
-                        // and sync_labels shows it on the Blocked row only.
-                        fleet_wrap_1 := View {
-                            width: Fill height: 28 flow: Right spacing: 6 align: Align{y: 0.5}
-                            fleet_slot_1 := View {
-                                width: 14 height: 14 flow: Overlay
-                                fleet_dot_1 := RoundedView {
-                                    width: 8 height: 8
-                                    margin: Inset{left: 3 top: 3}
-                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
-                                    visible: false
-                                }
-                            }
-                            fleet_row_1 := Label {
-                                width: Fill height: Fit text: ""
-                                draw_text.text_style: theme.oc_text_row
-                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                             draw_text.color: theme.color_fg_app}
-                        }
-                        fleet_wrap_2 := View {
-                            width: Fill height: 28 flow: Right spacing: 6 align: Align{y: 0.5}
-                            fleet_slot_2 := View {
-                                width: 14 height: 14 flow: Overlay
-                                fleet_dot_2 := RoundedView {
-                                    width: 8 height: 8
-                                    margin: Inset{left: 3 top: 3}
-                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
-                                    visible: false
-                                }
-                            }
-                            fleet_row_2 := Label {
-                                width: Fill height: Fit text: ""
-                                draw_text.text_style: theme.oc_text_row
-                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                             draw_text.color: theme.color_fg_app}
-                        }
-                        fleet_wrap_3 := View {
-                            width: Fill height: 28 flow: Right spacing: 6 align: Align{y: 0.5}
-                            fleet_slot_3 := View {
-                                width: 14 height: 14 flow: Overlay
-                                fleet_dot_3 := RoundedView {
-                                    width: 8 height: 8
-                                    margin: Inset{left: 3 top: 3}
-                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
-                                    visible: false
-                                }
-                            }
-                            fleet_row_3 := Label {
-                                width: Fill height: Fit text: ""
-                                draw_text.text_style: theme.oc_text_row
-                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                             draw_text.color: theme.color_fg_app}
-                        }
-                    }
-                    fleet_open := mod.widgets.OcHitRound {draw_bg.border_radius: 6.0}
-                    }
-                }
+                // A5 (judge, board 2): the old GOALS / LOOPS / FLEET sections
+                // (card #28e) are gone — they are not in the approved board-2
+                // sidebar and squeezed its tree. Goals, loops and monitors
+                // open from the autonomy dialogs (/goal /loop /monitor), the
+                // fleet from A4's footer Fleet pane.
                 // + Add workspace (chrome.rs `OcSidebarFoot`).
                 oc_sidebar_foot := mod.widgets.OcSidebarFoot {}
                 // A4: the footer's "Fleet" destination (fleet-navigation.ts:21-25
@@ -4092,75 +3965,6 @@ impl OctoscodeView {
             .widget(cx, ids!(screen_dock_close_slot))
             .set_visible(cx, live && self.chrome.docked.is_some());
 
-        // GOALS / LOOPS / FLEET rows (board 4 frame 3): visible only when the
-        // session has them.
-        let (goals, loops, fleet) = {
-            let b = self.bridge.lock().unwrap();
-            let session = b.store.active_session();
-            let goal = session
-                .as_deref()
-                .and_then(|s| b.store.domains.autonomy.goal(s));
-            let goal_txt = goal
-                .map(|g| format!("{} · {}", g.objective, g.status))
-                .unwrap_or_default();
-            let loops: Vec<String> = b
-                .store
-                .domains
-                .autonomy
-                .loops()
-                .into_iter()
-                .map(|l| match l.interval_seconds {
-                    // Board 4 frame 3: "Run CI smoke · every 15 min"; a loop
-                    // without a cadence shows its status (paused).
-                    Some(s) if s % 60 == 0 => format!("{} · every {} min", l.prompt, s / 60),
-                    _ => format!("{} · {}", l.prompt, l.status),
-                })
-                .collect();
-            let fleet: Vec<String> = b
-                .store
-                .domains
-                .peer
-                .list()
-                .into_iter()
-                .map(|p| {
-                    // Board 4 frame 3: "tests · Running" — the peer's topic
-                    // when it has one, else the open/closed state.
-                    let state = p.topic.clone().unwrap_or_else(|| {
-                        if p.closed { "closed".into() } else { "open".into() }
-                    });
-                    format!("{} · {}", p.name, state)
-                })
-                .collect();
-            (goal_txt, loops, fleet)
-        };
-        let any = !goals.is_empty() || !loops.is_empty() || !fleet.is_empty();
-        // A3: the collapsed rail shows no sections (it is icons only).
-        let rail = screens::sidebar::snapshot().rail && !self.chrome.compact;
-        self.view.widget(cx, ids!(autonomy_sections)).set_visible(cx, any && !rail);
-        self.view.label(cx, ids!(goal_row_1)).set_text(cx, &goals);
-        let mut set_rows = |ids: &[LiveId], rows: &[String]| {
-            for (i, id) in ids.iter().enumerate() {
-                let txt = rows.get(i).cloned().unwrap_or_default();
-                self.view.label(cx, &[*id]).set_text(cx, &txt);
-            }
-        };
-        set_rows(&[live_id!(loop_row_1), live_id!(loop_row_2)], &loops);
-        set_rows(
-            &[live_id!(fleet_row_1), live_id!(fleet_row_2), live_id!(fleet_row_3)],
-            &fleet,
-        );
-        // #28e2 item 3: the Blocked row carries the board's yellow status dot.
-        for (i, dot) in [
-            live_id!(fleet_dot_1),
-            live_id!(fleet_dot_2),
-            live_id!(fleet_dot_3),
-        ]
-        .iter()
-        .enumerate()
-        {
-            let blocked = fleet.get(i).map(|t| t.contains("Blocked")).unwrap_or(false);
-            self.view.widget(cx, &[*dot]).set_visible(cx, blocked);
-        }
         // #A2: board 1's dock (visibility + mount at the module's size).
         self.sync_board1(cx);
     }
@@ -4757,18 +4561,6 @@ impl Widget for OctoscodeView {
                         makepad_widgets::log!("[octoscode] board3 tap: {ev}");
                         let (base, row) = screens::taps::split_row(ev);
                         self.perform_action(cx, base, row.unwrap_or(0));
-                    }
-                }
-                // A5 — the sidebar's GOALS / LOOPS / FLEET rows open their
-                // dialogs (the same ids the palette rows run).
-                for (hit, open) in [
-                    (live_id!(goals_open), "dialog.open.goal"),
-                    (live_id!(loops_open), "dialog.open.loops"),
-                    (live_id!(fleet_open), "dialog.open.fleet"),
-                ] {
-                    if self.view.button(cx, &[hit]).clicked(actions) {
-                        makepad_widgets::log!("[octoscode] sidebar section -> {open}");
-                        self.perform_action(cx, open, 0);
                     }
                 }
                 // A5 — the Skills dialog's registry search: Enter in its box
