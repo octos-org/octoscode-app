@@ -131,6 +131,9 @@ struct Drafts {
     /// The Session key the composer currently shows, and the text last filed.
     active: Option<String>,
     last: String,
+    /// A launch's profile choice is opening: the NEXT switch MOVES the
+    /// composer's text to the new Session instead of filing it under the old.
+    carry: bool,
 }
 
 static DRAFTS: Mutex<Option<Drafts>> = Mutex::new(None);
@@ -212,6 +215,19 @@ pub fn follow(active: Option<&str>, composer: &str) -> Option<String> {
                 persist(d);
                 return None;
             }
+            if std::mem::take(&mut d.carry) {
+                // The transition committed: the text moves with it.
+                if let Some(old) = d.active.clone() {
+                    d.cache.set(&old, "");
+                }
+                if let Some(k) = active {
+                    d.cache.set(k, composer);
+                }
+                d.active = active.map(str::to_owned);
+                d.last = composer.to_owned();
+                persist(d);
+                return None;
+            }
             if let Some(old) = d.active.clone() {
                 if let Some(ev) = d.cache.set(&old, composer) {
                     ::log::info!("octoscode: draft for {ev} evicted (bound {MAX_DRAFTS})");
@@ -244,6 +260,18 @@ pub fn restore_for(key: &str, text: &str) {
         d.cache.set(key, &merged);
         persist(d);
     });
+}
+
+/// A launch transition is opening: carry the composer's text to the Session
+/// it commits (`product.spec.ts` "moves drafts only after a profile-choice
+/// Session transition commits").
+pub fn carry_next_switch() {
+    with(|d| d.carry = true);
+}
+
+/// The transition failed: nothing moves.
+pub fn cancel_carry() {
+    with(|d| d.carry = false);
 }
 
 /// The stored draft of `key` (tests and the restore path).

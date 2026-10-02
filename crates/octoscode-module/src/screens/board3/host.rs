@@ -42,6 +42,8 @@ pub enum Dialog {
     Vim,
     /// A8 — the Session settings pane (the strip's click, `App.tsx:3139`).
     SessionPane,
+    /// A8 — the workspace launch decision panel (`LaunchDecisionPanel`).
+    Launch,
 }
 
 impl Dialog {
@@ -57,6 +59,7 @@ impl Dialog {
             "fleet" => Dialog::Fleet,
             "vim" => Dialog::Vim,
             "session-settings" | "session_pane" => Dialog::SessionPane,
+            "launch" => Dialog::Launch,
             _ => return None,
         })
     }
@@ -219,6 +222,7 @@ pub fn lower_open(store: &Store) -> Option<Lowered> {
         Dialog::Switcher => super::switcher::build(&mut d, &st.switch, &st.frame, store, &st.vim),
         Dialog::Vim => super::vim::build_help(&mut d, &st.vim, &st.frame),
         Dialog::SessionPane => super::session_pane::build(&mut d, &st.pane, &st.frame, store),
+        Dialog::Launch => crate::screens::launch::build(&mut d, &st.frame),
         Dialog::Images => {
             let session = store.domains.session.active().unwrap_or_default();
             let drafts = crate::screens::media::drafts_for_session(&session);
@@ -273,6 +277,10 @@ pub enum Job {
     PanePerm(super::session_pane::PermIntent),
     /// A8 — Resume chat: acquire -> release(internal) -> send once.
     PaneResumeChat,
+    /// A8 — the launch panel's profile choice.
+    LaunchChoose(String),
+    /// A8 — the launch panel's "Create the local profile" (no_profile).
+    LaunchCreateProfile,
 }
 
 /// What a routed action asks of the host.
@@ -368,6 +376,7 @@ pub fn open(dialog: Dialog) -> Outcome {
         }
         Dialog::Vim => Outcome::Done,
         Dialog::SessionPane => super::session_pane::on_open(&mut st.pane),
+        Dialog::Launch => Outcome::Done,
     }
 }
 
@@ -379,6 +388,9 @@ pub fn close() {
             store.cancel_uploads(); // closing cancels transfers, keeps selections
         }
         st = state();
+    }
+    if st.open == Some(Dialog::Launch) && crate::screens::launch::snapshot().phase != crate::screens::launch::Phase::Opening {
+        crate::screens::launch::cancel();
     }
     st.open = None;
     st.mounted = None;
@@ -458,6 +470,10 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
     }
     if action.starts_with("b3.sc.") {
         return super::session_pane::perform(&mut st.pane, action, index, store);
+    }
+    if action.starts_with("b3.launch.") {
+        drop(st);
+        return crate::screens::launch::perform(action, index);
     }
     Outcome::Unrouted
 }
@@ -634,6 +650,7 @@ pub fn job_unavailable(job: &Job) {
             st.pane.resume_busy = false;
             st.pane.resume_notice = Some("Couldn't resume chat — nothing was sent".into());
         }
+        Job::LaunchChoose(_) | Job::LaunchCreateProfile => crate::screens::launch::cancel(),
         Job::FileFetch(id, _) => {
             drop(st);
             let mut f = super::rows::file_state();
@@ -699,6 +716,14 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         // Boxed: resume chat sends the prompt through `submit_draft`, which
         // itself routes slash commands back into this function.
         Job::PaneResumeChat => Box::pin(super::session_pane::resume_chat(conv)).await,
+        Job::LaunchChoose(profile) => match crate::screens::launch::choose(conv, profile).await {
+            crate::screens::launch::Launched::Opened(id) => Ok(format!("launched {id}")),
+            other => Err(format!("{other:?}")),
+        },
+        Job::LaunchCreateProfile => match crate::screens::launch::create_profile_and_open(conv).await {
+            crate::screens::launch::Launched::Opened(id) => Ok(format!("launched {id}")),
+            other => Err(format!("{other:?}")),
+        },
     }
 }
 

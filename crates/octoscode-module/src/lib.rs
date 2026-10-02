@@ -1763,10 +1763,20 @@ impl OctoscodeView {
                     let conv = { self.bridge.lock().unwrap().conv.clone() };
                     if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                         rt.spawn(async move {
-                            match conv.new_chat(path).await {
+                            // A8 — a workspace launch resolves first when advertised.
+                            let r = match path {
+                                Some(cwd) => match screens::launch::create(&conv, cwd).await {
+                                    screens::launch::Launched::Opened(id) => Ok(id),
+                                    screens::launch::Launched::Failed(e) => Err(e),
+                                    other => Ok(format!("{other:?}")),
+                                },
+                                None => conv.new_chat(None).await,
+                            };
+                            match r {
                                 Ok(id) => ::log::info!("octoscode: new chat in {workspace}: {id}"),
                                 Err(e) => makepad_widgets::log!("[octoscode] new chat dropped: {e}"),
                             }
+                            SignalToUI::set_ui_signal();
                         });
                     }
                     return;

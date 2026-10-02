@@ -23,6 +23,8 @@ pub mod driver_discovery;
 pub mod fleet;
 pub mod history;
 pub mod keys;
+// A8: the workspace launch (launch/resolve, the decision panel, the lease).
+pub mod launch;
 pub mod media;
 pub mod models;
 // #D1: the five native-pairing cards (p4-01..p4-05) — one owner per action id.

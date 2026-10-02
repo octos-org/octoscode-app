@@ -44,6 +44,8 @@ const METHODS: &[&str] = &[
     "turn/state/get",
     "session/hydrate",
     "session/delete",
+    "launch/resolve",
+    "profile/local/create",
 ];
 
 /// What the server answers (the knobs a test turns).
@@ -63,6 +65,10 @@ struct Script {
     empty_for: Vec<String>,
     /// Hold `session/hydrate` replies back this long (ms).
     hydrate_delay_ms: u64,
+    /// `launch/resolve`'s reply; `None` = the launch probe is not advertised.
+    launch: Option<Value>,
+    /// Hold `launch/resolve` replies back this long (ms).
+    launch_delay_ms: u64,
     mode: String,
     network: String,
     approval: String,
@@ -120,6 +126,9 @@ fn reply(method: &str, p: &Value, script: &Mutex<Script>) -> Result<Value, Value
     if !s.no_sandbox_feature {
         features.push("session.sandbox.v1");
     }
+    if s.launch.is_some() {
+        features.push("session.workspace_cwd.v1");
+    }
     Ok(match method {
         "session/open" => json!({"opened": {
             "session_id": session, "active_profile_id": PROFILE, "workspace_root": p["cwd"].as_str().unwrap_or("/home/user/octos"),
@@ -133,6 +142,8 @@ fn reply(method: &str, p: &Value, script: &Mutex<Script>) -> Result<Value, Value
             }
         }}),
         "session/list" => json!({"sessions": s.list_rows}),
+        "launch/resolve" => s.launch.clone().unwrap_or(json!({})),
+        "profile/local/create" => json!({"profile_id": p["requested_id"]}),
         // r3-session line 29 (`{}`); a busy session refuses.
         "session/delete" => {
             if session.contains("locked") {
@@ -242,7 +253,11 @@ async fn serve(stream: TcpStream, seen: Arc<Mutex<Vec<(String, Value)>>>, script
             Ok(r) => json!({"jsonrpc": "2.0", "id": v["id"].clone(), "result": r}),
             Err(e) => json!({"jsonrpc": "2.0", "id": v["id"].clone(), "error": e}),
         };
-        let delay = if method == "session/hydrate" { script.lock().unwrap().hydrate_delay_ms } else { 0 };
+        let delay = match method.as_str() {
+            "session/hydrate" => script.lock().unwrap().hydrate_delay_ms,
+            "launch/resolve" => script.lock().unwrap().launch_delay_ms,
+            _ => 0,
+        };
         if delay > 0 {
             tokio::time::sleep(Duration::from_millis(delay)).await;
         }
@@ -745,4 +760,112 @@ async fn delete_removes_a_confirmed_row_and_keeps_a_refused_one_with_its_reason(
     assert!(host::run(job, &conv).await.is_err());
     assert!(conv.store.sessions().iter().any(|s| s.id == "a8:api:locked"), "the row stays");
     assert_eq!(host::state().switch.error.as_deref(), Some("Couldn't delete the session: session is busy"));
+}
+
+fn launch_lock() -> std::sync::MutexGuard<'static, ()> {
+    let g = lock();
+    octoscode_module::screens::launch::reset();
+    octoscode_module::screens::drafts::reset();
+    octoscode_module::screens::drafts::set_storage(Arc::new(MemoryStore::new()));
+    g
+}
+
+#[tokio::test]
+async fn a_cross_profile_launch_waits_for_the_choice_and_moves_the_draft_only_after_the_open_commits() {
+    use octoscode_module::screens::{drafts, launch};
+    let _g = launch_lock();
+    let server = FakeServer::start(Script {
+        launch: Some(json!({"decision": "cross_profile", "resolved_profile": "a8", "existing_profiles": ["glm-coder"]})),
+        ..Default::default()
+    })
+    .await;
+    let (conv, mut ev) = connected(&server).await;
+    // What the person typed while the launch was pending stays with its Session.
+    let a = drafts::active_key(&conv).unwrap();
+    drafts::follow(Some(&a), "");
+    conv.set_draft("plan the fix");
+    drafts::follow(Some(&a), "plan the fix");
+    let opens = server.params_of("session/open").len();
+    assert_eq!(launch::create(&conv, "/home/user/octos".into()).await, launch::Launched::AwaitingChoice);
+    assert_eq!(server.params_of("launch/resolve"), vec![json!({"cwd": "/home/user/octos", "profile_id": "a8"})]);
+    assert_eq!(server.params_of("session/open").len(), opens, "nothing opens before the choice");
+    assert_eq!(launch::snapshot().phase, launch::Phase::AwaitingChoice);
+    assert_eq!(host::open_dialog(), Some(Dialog::Launch));
+    let dsl = host::lower_open(&conv.store).unwrap().dsl;
+    for t in ["Choose this workspace’s profile", "Start a8 here", "Start new session with glm-coder", "Server decision"] {
+        assert!(dsl.contains(t), "{t}");
+    }
+    // The person chooses glm-coder (the panel's second button).
+    let job = spawn_of(host::perform("b3.launch.choose", 1, &conv.store));
+    assert_eq!(job, Job::LaunchChoose("glm-coder".into()));
+    assert_eq!(drafts::get(&a).as_deref(), Some("plan the fix"), "not moved before the commit");
+    host::run(job, &conv).await.unwrap();
+    let open = server.params_of("session/open").last().unwrap().clone();
+    assert!(open["session_id"].as_str().unwrap().starts_with("glm-coder:api:"), "{open}");
+    assert_eq!((open["profile_id"].clone(), open["cwd"].clone()), (json!("glm-coder"), json!("/home/user/octos")));
+    assert_eq!(host::open_dialog(), None, "the panel closes on success");
+    assert_eq!(launch::snapshot().phase, launch::Phase::Idle);
+    // The open committed (its reply named the workspace): the draft moves now.
+    drain(&conv, &mut ev).await;
+    let b = drafts::active_key(&conv).unwrap();
+    assert_ne!(a, b);
+    assert_eq!(drafts::follow(Some(&b), "plan the fix"), None, "the composer keeps the text");
+    assert_eq!(drafts::get(&b).as_deref(), Some("plan the fix"), "moved to the committed Session");
+    assert_eq!(drafts::get(&a), None, "and gone from the old one");
+}
+
+#[tokio::test]
+async fn resume_and_activate_open_at_once_and_an_unadvertised_probe_is_skipped() {
+    use octoscode_module::screens::launch;
+    let _g = launch_lock();
+    let server = FakeServer::start(Script { launch: Some(json!({"decision": "activate", "resolved_profile": "a8"})), ..Default::default() }).await;
+    let (conv, _ev) = connected(&server).await;
+    match launch::create(&conv, "/home/user/octos".into()).await {
+        launch::Launched::Opened(id) => assert!(id.starts_with("a8:api:")),
+        other => panic!("{other:?}"),
+    }
+    assert_eq!(server.params_of("launch/resolve").len(), 1);
+    let quiet = FakeServer::start(Script::default()).await;
+    let (conv2, _e2) = connected(&quiet).await;
+    assert!(matches!(launch::create(&conv2, "/home/user/octos".into()).await, launch::Launched::Opened(_)));
+    assert!(quiet.params_of("launch/resolve").is_empty(), "unadvertised: the launch opens directly");
+}
+
+#[tokio::test]
+async fn a_newer_launch_retires_the_older_resolver() {
+    use octoscode_module::screens::launch;
+    let _g = launch_lock();
+    let server = FakeServer::start(Script {
+        launch: Some(json!({"decision": "activate", "resolved_profile": "a8"})),
+        launch_delay_ms: 300,
+        ..Default::default()
+    })
+    .await;
+    let (conv, _ev) = connected(&server).await;
+    let conv = Arc::new(conv);
+    let c1 = conv.clone();
+    let first = tokio::spawn(async move { launch::create(&c1, "/home/user/first".into()).await });
+    tokio::time::sleep(Duration::from_millis(80)).await;
+    let second = launch::create(&conv, "/home/user/second".into()).await;
+    assert!(matches!(second, launch::Launched::Opened(_)));
+    assert_eq!(first.await.unwrap(), launch::Launched::Stale, "the older resolver is rejected");
+    let cwds: Vec<Value> = server.params_of("session/open").into_iter().map(|p| p["cwd"].clone()).collect();
+    assert!(!cwds.contains(&json!("/home/user/first")), "the stale launch never opened: {cwds:?}");
+    assert!(cwds.contains(&json!("/home/user/second")));
+}
+
+#[tokio::test]
+async fn no_profile_offers_to_create_the_local_profile_then_opens() {
+    use octoscode_module::screens::launch;
+    let _g = launch_lock();
+    let server = FakeServer::start(Script { launch: Some(json!({"decision": "no_profile"})), ..Default::default() }).await;
+    let (conv, _ev) = connected(&server).await;
+    assert_eq!(launch::create(&conv, "/home/user/octos".into()).await, launch::Launched::AwaitingChoice);
+    assert!(host::lower_open(&conv.store).unwrap().dsl.contains("Create the local profile"));
+    let job = spawn_of(host::perform("b3.launch.create_profile", 0, &conv.store));
+    host::run(job, &conv).await.unwrap();
+    assert_eq!(server.params_of("profile/local/create").len(), 1);
+    let open = server.params_of("session/open").last().unwrap().clone();
+    assert_eq!(open["cwd"], json!("/home/user/octos"));
+    assert_eq!(host::open_dialog(), None);
 }
