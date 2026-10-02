@@ -198,15 +198,29 @@ fn rewrite_session(value: &mut Value, from: &str, to: &str) {
 /// the home Session — titled by its first prompt (the session file's
 /// `title`, cut at 50 chars), its last prompt, its row count — attesting the
 /// scope when the request names `{cwd, profile_id}` (`SessionListResult`).
-fn history_reply(method: &str, p: &Value, home: &str, hydrate: &Value) -> Option<Value> {
+/// As octos a6ea8505 does: the legacy unscoped listing does not see a
+/// workspace's `<cwd>/.octos/<profile>` store (empty), and a status read
+/// that names no profile for a key that embeds none falls back to `_main`
+/// and is refused (`raw_profile_id`, `profile_unresolved_error`).
+fn history_reply(method: &str, p: &Value, home: &str, hydrate: &Value) -> Option<Result<Value, Value>> {
     match method {
         "session/hydrate" => {
             let s = p["session_id"].as_str().unwrap_or(home);
-            Some(if s == home {
+            Some(Ok(if s == home {
                 hydrate.clone()
             } else {
                 serde_json::json!({"session_id": s, "cursor": {"stream": s, "seq": 1}, "messages": []})
-            })
+            }))
+        }
+        "session/status/read"
+            if p.get("profile_id").and_then(|v| v.as_str()).is_none_or(str::is_empty)
+                && p["session_id"].as_str().is_some_and(|s| s.split(':').count() < 3) =>
+        {
+            Some(Err(serde_json::json!({
+                "code": -32602,
+                "message": "profile '_main' is not configured for this AppUI session",
+                "data": {"kind": "profile_unresolved", "profile_id": "_main", "recoverable": true}
+            })))
         }
         "session/list" => {
             let msgs = hydrate["messages"].as_array().cloned().unwrap_or_default();
@@ -223,12 +237,12 @@ fn history_reply(method: &str, p: &Value, home: &str, hydrate: &Value) -> Option
                 "updated_at": "2026-10-01T15:48:13Z",
                 "active_turn": false
             });
-            Some(match (p["cwd"].as_str(), p["profile_id"].as_str()) {
+            Some(Ok(match (p["cwd"].as_str(), p["profile_id"].as_str()) {
                 (Some(cwd), Some(profile)) => {
                     serde_json::json!({"sessions": [row], "workspace_root": cwd, "profile_id": profile})
                 }
-                _ => serde_json::json!({"sessions": [row]}),
-            })
+                _ => serde_json::json!({"sessions": []}),
+            }))
         }
         _ => None,
     }
@@ -1574,7 +1588,11 @@ async fn main() {
                 if history {
                     if let Some(reply) = history_reply(&method, &v["params"], &recorded, &recorded_hydrate) {
                         println!("[replay-serve] -> {method} (history) {}", v["params"]["session_id"]);
-                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": reply})).await;
+                        let frame = match reply {
+                            Ok(r) => serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r}),
+                            Err(e) => serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e}),
+                        };
+                        send(&tx, frame).await;
                         continue;
                     }
                 }
