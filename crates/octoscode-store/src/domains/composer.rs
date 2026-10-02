@@ -303,6 +303,12 @@ pub struct Effects {
     /// Text to hand back to the owning Session's composer (a turn that never
     /// started: collision/rejection, or an interrupted turn's prompt).
     pub restore: Option<(String, String)>,
+    /// A22 row 216 — the WHOLE turn that never started (collision,
+    /// rejection, a refused seat): its text, the effort and the uploaded
+    /// media it captured at admission, for its owning Session
+    /// (`onTurnNotSentRestore` -> `restoreUnsentTurn`,
+    /// `session-composer-drafts.ts:129-137`). `restore` carries its text too.
+    pub returned: Option<(String, PromptTurn)>,
     /// Ask the server for this turn's lifecycle (`turn/state/get`).
     pub check_state: Option<String>,
 }
@@ -576,6 +582,7 @@ impl Composer {
                         st.queue.restore_active(PromptTurn::adopted(&occupier), true);
                     }
                     fx.restore = Some((session.to_owned(), ours.text.clone()));
+                    fx.returned = Some((session.to_owned(), ours.clone()));
                     fx.notices.push(Notice {
                         key: format!("send-busy:{turn_id}"),
                         turn_id: turn_id.to_owned(),
@@ -591,6 +598,7 @@ impl Composer {
                     let ours = st.queue.active.clone().expect("checked");
                     retire_local_dispatch(st, turn_id);
                     fx.restore = Some((session.to_owned(), ours.text.clone()));
+                    fx.returned = Some((session.to_owned(), ours.clone()));
                     fx.notices.push(Notice {
                         key: format!("send-error:{turn_id}"),
                         turn_id: turn_id.to_owned(),
@@ -629,6 +637,7 @@ impl Composer {
             let Some(ours) = st.queue.active.clone().filter(|a| a.turn_id == turn_id) else { return fx };
             retire_local_dispatch(st, turn_id);
             fx.restore = Some((session.to_owned(), ours.text.clone()));
+            fx.returned = Some((session.to_owned(), ours.clone()));
             fx.notices.push(Notice {
                 key: format!("send-error:{turn_id}"),
                 turn_id: turn_id.to_owned(),
@@ -1204,6 +1213,9 @@ fn merge(fx: &mut Effects, more: Effects) {
     fx.notices.extend(more.notices);
     if more.restore.is_some() && fx.restore.is_none() {
         fx.restore = more.restore;
+        if fx.returned.is_none() {
+            fx.returned = more.returned;
+        }
     }
     if more.check_state.is_some() {
         fx.check_state = more.check_state;

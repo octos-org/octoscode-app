@@ -1,0 +1,35 @@
+PASS loading: replay server up
+PASS loading: app up
+  shot tmp/a22-regress/a19/desktop-01-loading.png
+PASS loading: never the empty welcome, from the first frame until the history arrived — 42 frames: 0 welcome, 41 loading
+PASS loading: 'Loading conversation…' while the read is in flight
+PASS loading: the hint is 'Restoring session state' — 'Restoring session state'
+PASS loading: no transcript row under it
+PASS loading: the column, title and hint are laid out — col [335, 237, 709, 118] title [429, 303, 520, 27] hint [449, 338, 480, 17] area [335, 237, 709, 118]
+PASS loading: title centred in the conversation (|dx| <= 2) — title cx 689.0, area cx 689.5
+PASS loading: hint centred under it (|dx| <= 2) — hint cx 689.0, title cx 689.0
+PASS loading: the hint follows the title (gap 0-16 px) — gap 8.0
+PASS loading: the column inside the conversation's width — col [335, 237, 709, 118] area [335, 237, 709, 118]
+PASS loading: clear of the composer (hint bottom < composer top) — hint bottom 355.0, composer top 585.0
+PASS loading: clear of the header — title top 303, header bottom 103
+PASS loading: no 'New chat defaults' strip over it (this is not a New chat) — None
+PASS loading: the history replaced it (rows, no loading state)
+PASS wire: ONE history read (it was only late) — 1
+  shot tmp/a22-regress/a19/desktop-02-history-arrived.png
+PASS failed: replay server up
+PASS failed: app up
+PASS failed: 'Session recovery required' once the retry is refused too — 'Session recovery required'
+PASS failed: never the empty welcome on the way — 1 frames: 0 welcome
+PASS failed: the reason is shown (the server's message) — 'The conversation history could not be loaded: unknown session: dsflash:main. Reopen it from the sidebar to try again.'
+PASS failed: no transcript row
+PASS wire: refused, retried once in the catalog's folder, refused again — 2 refusals, opens [False, True]
+PASS failed: the column, title and hint are laid out — col [335, 228, 709, 140] title [429, 294, 520, 27] hint [449, 329, 480, 39] area [335, 228, 709, 140]
+PASS failed: title centred in the conversation (|dx| <= 2) — title cx 689.0, area cx 689.5
+PASS failed: hint centred under it (|dx| <= 2) — hint cx 689.0, title cx 689.0
+PASS failed: the hint follows the title (gap 0-16 px) — gap 8.0
+PASS failed: the column inside the conversation's width — col [335, 228, 709, 140] area [335, 228, 709, 140]
+PASS failed: clear of the composer (hint bottom < composer top) — hint bottom 368.0, composer top 585.0
+PASS failed: clear of the header — title top 294, header bottom 103
+PASS failed: no 'New chat defaults' strip over it (this is not a New chat) — None
+  shot tmp/a22-regress/a19/desktop-03-failed.png
+== WALK a19 history states desktop: 31/31 passed

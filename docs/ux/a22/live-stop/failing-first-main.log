@@ -1,0 +1,20 @@
+# The same scenario against main b1fe23fb (scratch copy, not committed): phase 1 = the coordinator's exact case
+# (a turn running in X, switch to Y, Stop) with main's host arm `Effect::Interrupt(turn) => conv.interrupt(&turn)`
+running 1 test
+test stop_pressed_in_y_never_interrupts_another_sessions_turn ... FAILED
+
+failures:
+
+---- stop_pressed_in_y_never_interrupts_another_sessions_turn stdout ----
+
+thread 'stop_pressed_in_y_never_interrupts_another_sessions_turn' (241734388) panicked at crates/octoscode-module/tests/a22_cross_main.rs:294:5:
+Stop in Y sent an interrupt for X's turn: [Object {"session_id": String("a22:api:y"), "turn_id": String("01a0fe48-cbaa-703a-9415-68cfa4e0161b")}]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    stop_pressed_in_y_never_interrupts_another_sessions_turn
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+error: test failed, to rerun pass `-p octoscode-module --test a22_cross_main`

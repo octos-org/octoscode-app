@@ -251,7 +251,8 @@ fn open_reply(session: &str) -> Value {
             "supported_notifications": [
                 "message/delta", "turn/started", "turn/completed", "turn/error", "turn/steer_dropped", "peer/staged"
             ],
-            "supported_features": ["event.turn_steer_dropped.v1", "turn.state_get.v1"]
+            // A22 row 228: the scoped catalog, as octos a6ea8505 advertises it.
+            "supported_features": ["event.turn_steer_dropped.v1", "turn.state_get.v1", "session.workspace_cwd.v1"]
         }
     }})
 }
@@ -278,7 +279,13 @@ async fn handle(world: Arc<Mutex<World>>, tx: Tx, v: Value, counter: Arc<AtomicU
             reply(&tx, &id, open_reply(&session));
         }
         "session/list" => {
-            let l = world.lock().unwrap().list();
+            let mut l = world.lock().unwrap().list();
+            // A22 row 228: a `{cwd, profile_id}` read is ATTESTED
+            // (octos-core `SessionListResult.workspace_root/profile_id`).
+            if let (Some(cwd), Some(profile)) = (p["cwd"].as_str(), p["profile_id"].as_str()) {
+                l["workspace_root"] = json!(cwd);
+                l["profile_id"] = json!(profile);
+            }
             reply(&tx, &id, l);
         }
         "session/hydrate" => {

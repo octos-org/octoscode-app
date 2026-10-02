@@ -210,9 +210,10 @@ fn a_terminal_for_another_turn_does_not_clear_the_running_turn() {
     // …and the stop click still names the running turn.
     let store = Arc::new(octoscode_store::Store::new());
     let ctx = Ctx::new(&store, &ui);
+    // A22: the Effect names the Session too (here none is open).
     assert_eq!(
         actions::resolve("turn.interrupt", 0, &ctx),
-        Effect::Interrupt("turn-A".into()),
+        Effect::Interrupt { session: String::new(), turn: "turn-A".into() },
         "the stop control resolves to the RUNNING turn's id"
     );
 
@@ -258,10 +259,9 @@ async fn the_stop_control_sends_turn_interrupt_with_the_running_turn_id() {
     let ui = conv.ui();
     let ctx = Ctx::new(&conv.store, &ui);
     let effect = actions::resolve("turn.interrupt", 0, &ctx);
-    assert_eq!(effect, Effect::Interrupt(running.clone()));
-    if let Effect::Interrupt(turn) = effect {
-        conv.interrupt(&turn).await.expect("turn/interrupt");
-    }
+    // A22: the Stop names the open Session's own live turn.
+    assert_eq!(effect, Effect::Interrupt { session: conv.session_id(), turn: running.clone() });
+    actions::perform_turn(effect, &conv).await.expect("a turn effect").expect("turn/interrupt");
 
     let params = server
         .param_of("turn/interrupt")

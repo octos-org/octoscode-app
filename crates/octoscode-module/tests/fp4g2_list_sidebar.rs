@@ -73,6 +73,7 @@ impl ListServer {
                         let opened = serde_json::json!({
                             "session_id": session,
                             "active_profile_id": "dsflash",
+                            "workspace_root": "/home/user/octos",
                             "cursor": {"stream": "dsflash:main", "seq": 1},
                             "capabilities": {
                                 "version": {"protocol": "octos-ui/v1alpha1",
@@ -84,7 +85,9 @@ impl ListServer {
                                                             "peer/staged", "peer/closed"],
                                 "supported_features": ["approval.typed.v1",
                                                        "state.session_hydrate.v1",
-                                                       "projection.envelope.v2"]
+                                                       "projection.envelope.v2",
+                                                       // A22 row 228: the scoped catalog.
+                                                       "session.workspace_cwd.v1"]
                             }
                         });
                         let frame =
@@ -107,11 +110,27 @@ impl ListServer {
                         });
                     }
                     "session/list" => {
-                        let reply = list_replies
-                            .get(list_idx)
-                            .cloned()
-                            .unwrap_or(serde_json::json!({"sessions": []}));
-                        list_idx += 1;
+                        // A22 row 228: the scripted replies answer the scoped
+                        // catalog reads (`{cwd, profile_id}`), ATTESTED as
+                        // octos a6ea8505 does; the legacy `{}` read lists
+                        // nothing a client may place.
+                        let p = &v["params"];
+                        let scoped = (p["cwd"].as_str(), p["profile_id"].as_str());
+                        let reply = match scoped {
+                            (Some(cwd), Some(profile)) => {
+                                let mut r = list_replies
+                                    .get(list_idx)
+                                    .cloned()
+                                    .unwrap_or(serde_json::json!({"sessions": []}));
+                                list_idx += 1;
+                                if r.get("__error__").is_none() {
+                                    r["workspace_root"] = serde_json::json!(cwd);
+                                    r["profile_id"] = serde_json::json!(profile);
+                                }
+                                r
+                            }
+                            _ => serde_json::json!({"sessions": []}),
+                        };
                         let frame = if reply.get("__error__").is_some() {
                             serde_json::json!({
                                 "jsonrpc": "2.0", "id": id,
@@ -149,6 +168,24 @@ impl ListServer {
     }
 }
 
+/// A22 row 228 — open the startup Session and fold its reply, so the
+/// workspace is known and `refresh_sessions` reads the scoped catalog.
+async fn open_and_fold(
+    conv: &Conversation,
+    events: &mut tokio::sync::mpsc::Receiver<octos_app_transport::TransportEvent>,
+) {
+    conv.open_workspace(None).await.expect("session/open");
+    for _ in 0..50 {
+        if conv.store.domains.session.workspace_root(&conv.session_id()).is_some() {
+            return;
+        }
+        if let Ok(Some(evt)) = tokio::time::timeout(Duration::from_millis(100), events.recv()).await {
+            conv.on_event(evt);
+        }
+    }
+    panic!("the open reply never named the workspace");
+}
+
 fn peer_staged(session: &str, slug: &str) -> serde_json::Value {
     serde_json::json!({
         "session_id": session,
@@ -173,7 +210,7 @@ async fn a_failed_refresh_keeps_the_last_attested_rows() {
             serde_json::json!({"sessions": [
                 {"id": "dsflash:main", "title": "First attested", "message_count": 3,
                  "updated_at": "2h ago", "last_prompt": null, "active_turn": false},
-                {"id": "dsflash:pr", "title": "Review PR #2566", "message_count": 17,
+                {"id": "dsflash:api:pr", "title": "Review PR #2566", "message_count": 17,
                  "updated_at": "3d ago", "last_prompt": null, "active_turn": false}
             ]}),
             serde_json::json!({"__error__": true}),
@@ -181,8 +218,10 @@ async fn a_failed_refresh_keeps_the_last_attested_rows() {
         vec![],
     )
     .await;
-    let (conv, _events) =
+    let (conv, mut events) =
         Conversation::connect(&server.base_url, "dummy", "dsflash", None, None).expect("connect");
+    // A22 row 228: the catalog is the OPENED workspace's (`{cwd, profile_id}`).
+    open_and_fold(&conv, &mut events).await;
 
     // The attesting refresh folds its rows through the production path.
     let n = conv.refresh_sessions().await.expect("first refresh");
@@ -204,7 +243,7 @@ async fn a_failed_refresh_keeps_the_last_attested_rows() {
         "a failed refresh keeps the last attested rows: {kept:?}"
     );
     assert_eq!(kept[0].title.as_deref(), Some("First attested"));
-    assert_eq!(kept[1].id, "dsflash:pr");
+    assert_eq!(kept[1].id, "dsflash:api:pr");
 }
 
 // ---- 230: retained peers merge into the rows without stealing focus --------
@@ -299,17 +338,19 @@ async fn row_titles_fall_back_to_the_last_prompt() {
         vec![serde_json::json!({"sessions": [
             {"id": "dsflash:main", "title": "Titled", "message_count": 1,
              "updated_at": null, "last_prompt": null, "active_turn": false},
-            {"id": "dsflash:pr", "title": null, "message_count": 9,
+            {"id": "dsflash:api:pr", "title": null, "message_count": 9,
              "updated_at": null, "last_prompt": "Review the diff line by line",
              "active_turn": false},
-            {"id": "dsflash:mt", "title": "  ", "message_count": 2,
+            {"id": "dsflash:api:mt", "title": "  ", "message_count": 2,
              "updated_at": null, "last_prompt": null, "active_turn": false}
         ]})],
         vec![],
     )
     .await;
-    let (conv, _events) =
+    let (conv, mut events) =
         Conversation::connect(&server.base_url, "dummy", "dsflash", None, None).expect("connect");
+    // A22 row 228: the catalog is the OPENED workspace's (`{cwd, profile_id}`).
+    open_and_fold(&conv, &mut events).await;
     conv.refresh_sessions().await.expect("attest rows");
 
     let ui = conv.ui();

@@ -79,14 +79,24 @@ fn result_for(method: &str, params: &Value) -> Value {
                 "capabilities_schema_version": 1,
                 "supported_methods": METHODS,
                 "supported_notifications": ["turn/started"],
-                "supported_features": []
+                // A22 row 228: the scoped catalog, as octos a6ea8505 offers it.
+                "supported_features": ["session.workspace_cwd.v1"]
             }
         }}),
-        "session/list" => json!({"sessions": [
-            {"id": "a4:main", "message_count": 4, "updated_at": "2026-10-01T09:00:00Z"},
-            {"id": "a4:api:alpha", "title": "Fix steer queue drop", "message_count": 3, "updated_at": "2026-10-01T10:00:00Z"},
-            {"id": "bare-id", "title": "Unscoped row", "message_count": 1, "updated_at": "2026-09-30T10:00:00Z"}
-        ]}),
+        "session/list" => {
+            let mut l = json!({"sessions": [
+                {"id": "a4:main", "message_count": 4, "updated_at": "2026-10-01T09:00:00Z"},
+                {"id": "a4:api:alpha", "title": "Fix steer queue drop", "message_count": 3, "updated_at": "2026-10-01T10:00:00Z"},
+                {"id": "bare-id", "title": "Unscoped row", "message_count": 1, "updated_at": "2026-09-30T10:00:00Z"}
+            ]});
+            // A22 row 228: a `{cwd, profile_id}` read is ATTESTED
+            // (octos-core `SessionListResult`).
+            if let (Some(cwd), Some(profile)) = (params["cwd"].as_str(), params["profile_id"].as_str()) {
+                l["workspace_root"] = json!(cwd);
+                l["profile_id"] = json!(profile);
+            }
+            l
+        }
         "tool/status/list" => json!({
             "session_id": session, "profile_id": PROFILE, "policy_id": "profile",
             "tools": [

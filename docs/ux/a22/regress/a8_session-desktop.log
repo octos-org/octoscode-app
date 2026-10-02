@@ -1,0 +1,83 @@
+== native walk a8_session [desktop] (tools/walk/a8_session_walk.py)
+-- run 1: exit 0 in 29 s
+PASS strip is laid out
+PASS strip: three equal cells — [[359, 506, 219, 32], [579, 497, 219, 51], [799, 506, 219, 32]]
+PASS strip: the foreign holder is the state word — Another app is using this session
+PASS strip click opens 'Session settings' — Session settings
+PASS app Settings did not open instead
+PASS pane read the runtime model (session/status/read) — deepseek-v4-flash
+PASS wire: the pane sent session/status/read — 2
+PASS wire: the pane sent permission/profile/list — 3
+PASS wire: the pane sent profile/llm/list — 2
+PASS wire: the pane sent session/driver/get — 2
+PASS wire: the driver walk asked for an operations page
+PASS holder banner: 'Another app is using this session' + Resume chat
+PASS open: the pane sits inside the window with equal side margins — module=[54, 76, 990, 603] dialog=[269, 96, 560, 563]
+PASS open: section cards share one left edge and width — [[289, 264, 510, 233], [289, 509, 510, 129]]
+PASS open: every pane tap target is >= 28 px high — []
+PASS open: no pane label runs past its card — []
+PASS model pick: notice 'Saved. The server keeps running deepseek-v4-flash until it restarts' — Saved. The server keeps running deepseek-v4-flash until it restarts
+PASS wire: profile/llm/select carries model glm-5 + route_id zhipu — [{'family_id': 'zhipu', 'model_id': 'glm-5', 'profile_id': 'a8', 'route_id': 'zhipu', 'session_id': 'a8:main'}]
+PASS preset 'Read · Network blocked': Saved — Saved
+PASS wire: permission/profile/set {mode read_only, network deny} — [{'session_id': 'a8:main', 'update': {'mode': 'read_only', 'network': 'deny'}}]
+PASS the selected preset reads back — Read · Network blocked
+PASS approval 'Never ask' reads back from the stamp — never
+PASS wire: permission/profile/set {approval_policy: never} — [{'session_id': 'a8:main', 'update': {'approval_policy': 'never'}}]
+PASS the Full access preset is offered — b3_sc_perm_2
+PASS full access shows the risk confirmation
+PASS 'Enable full access' is disabled until the box is ticked
+PASS Cancel closes the confirmation
+PASS wire: nothing sent for full access
+PASS sandbox: effective values read-only — on blocked
+PASS show thinking: the preference is written OFF — <repo>/tmp/a22-regress/scratch/a8_session-desktop/state/show-thinking.json
+PASS show thinking: the pane kept its scroll position across the remount — [741, 546, 44, 32] -> [741, 546, 44, 32]
+PASS advanced: 'Another controller' — Another controller
+PASS advanced: the disclosure names the driver octos-tui
+PASS advanced: the operations list shows the peer
+PASS advanced: the pane sits inside the window with equal side margins — module=[54, 76, 990, 603] dialog=[269, 96, 560, 563]
+PASS advanced: section cards share one left edge and width — [[289, 173, 510, 28], [289, 213, 510, 57]]
+PASS advanced: every pane tap target is >= 28 px high — []
+PASS advanced: no pane label runs past its card — []
+PASS wire: session/driver/acquire at the observed revision — [{'driver_id': 'octoscode-native:37feaf20-fc42-4bd7-b4ee-7ca49b353fc3', 'expected_revision': 9, 'lease_seconds': 60, 'session_id': 'a8:main'}]
+PASS wire: session/driver/release next=internal
+PASS resume chat: the holder banner is gone
+PASS resume chat: 'This app' controls the session now — This app
+PASS close: the pane is gone
+PASS strip: the state word left the foreign-holder copy — Ready
+PASS header: 'Copy as Markdown' is offered — Copy as Markdown
+PASS header copy: 'Copied' — Copied
+PASS wire: the copy read the canonical history (session/hydrate)
+PASS header copy: the result resets after 2.5 s — Copy as Markdown
+PASS /permissions opens 'Remembered approvals' — Remembered approvals
+PASS inspector: the scope line names the Session — Session: a8:main
+PASS inspector: 'Reading…' settles to 'Refresh' — Refresh
+PASS inspector: Refresh re-reads the snapshot — 1 -> 2
+PASS inspector: 'Conversation link copied.'
+PASS inspector: the link stays visible on one line (whole, or head…tail when longer than its field) — octoscode://session?s=%5B%22%2Fhome%2Fuser%2Foctos%22%2C%22a [193, 490, 702, 14]
+PASS inspector closes
+PASS Settings opens from the header
+PASS Settings > Sandbox shows the three switches
+PASS the third switch is the web's 'Sandbox'
+PASS the defaults persisted per endpoint — {'network': 'deny', 'permissionMode': 'read_only', 'sandbox': {'enabled': True, 'networkAccess': False, 'readAllowPaths': []}, 'version': 1}
+PASS Settings closes
+PASS New chat clicked
+PASS wire: the created open carries the sandbox default — [{'profile_id': 'a8', 'sandbox': {'enabled': True, 'network_access': False}, 'session_id': 'a8:api:01a0fee9-9f80-76b7-91af-12ff8596bd6c'}]
+PASS wire: ONE permission/profile/set for the created id — [{'session_id': 'a8:api:01a0fee9-9f80-76b7-91af-12ff8596bd6c', 'update': {'mode': 'read_only', 'network': 'deny'}}]
+
+63/63 passed
+-- fixture log tail:
+[a8-serve] <- session/driver/get
+[a8-serve] <- session/hydrate
+[a8-serve] <- thread/graph/get
+[a8-serve] <- approval/scopes/list
+[a8-serve] <- thread/graph/get
+[a8-serve] <- approval/scopes/list
+[a8-serve] <- session/open
+[a8-serve] <- session/list
+[a8-serve] <- session/driver/get
+[a8-serve] <- session/hydrate
+[a8-serve] <- session/list
+[a8-serve] <- permission/profile/set
+[a8-serve] <- session/status/read
+[a8-serve] <- permission/profile/list
+[a8-serve] socket closed

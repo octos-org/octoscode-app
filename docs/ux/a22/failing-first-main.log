@@ -1,0 +1,58 @@
+# A22 failing-first run: crates/octoscode-module/tests/a22_sessions.rs against main b1fe23fb (no implementation)
+# cargo test -p octoscode-module --test a22_sessions
+running 5 tests
+test row_203_a_candidates_live_events_wait_for_its_history_then_release_in_order ... FAILED
+test row_236_a_background_session_keeps_its_own_visible_state ... FAILED
+test row_216_the_effort_is_seeded_once_per_record ... FAILED
+test row_228_only_full_sessions_of_the_requested_profile_are_projected ... FAILED
+test row_216_returned_prompts_come_back_whole_and_in_order ... FAILED
+
+failures:
+
+---- row_203_a_candidates_live_events_wait_for_its_history_then_release_in_order stdout ----
+
+thread 'row_203_a_candidates_live_events_wait_for_its_history_then_release_in_order' (238467178) panicked at crates/octoscode-module/tests/a22_sessions.rs:445:5:
+assertion `left == right` failed: the history first, then the live turn — each prompt once
+  left: ["Second prompt", "Third prompt", "First prompt"]
+ right: ["First prompt", "Second prompt", "Third prompt"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- row_236_a_background_session_keeps_its_own_visible_state stdout ----
+
+thread 'row_236_a_background_session_keeps_its_own_visible_state' (238467182) panicked at crates/octoscode-module/tests/a22_sessions.rs:636:5:
+assertion `left == right` failed: B's own queue is still working
+  left: Some(Idle)
+ right: Some(Running)
+
+---- row_216_the_effort_is_seeded_once_per_record stdout ----
+
+thread 'row_216_the_effort_is_seeded_once_per_record' (238467180) panicked at crates/octoscode-module/tests/a22_sessions.rs:501:5:
+assertion `left == right` failed: the re-open's reply does not overwrite the person's choice
+  left: "high"
+ right: "low"
+
+---- row_228_only_full_sessions_of_the_requested_profile_are_projected stdout ----
+
+thread 'row_228_only_full_sessions_of_the_requested_profile_are_projected' (238467181) panicked at crates/octoscode-module/tests/a22_sessions.rs:355:5:
+assertion `left == right` failed: only full Sessions of a22 from the attested catalog, plus the Session this app opened
+  left: ["a22:api:web-new", "a22:api:web-old", "a22:legacy", "a22:main", "bare", "other:api:web-x"]
+ right: ["a22:api:web-new", "a22:api:web-old", "a22:main"]
+
+---- row_216_returned_prompts_come_back_whole_and_in_order stdout ----
+
+thread 'row_216_returned_prompts_come_back_whole_and_in_order' (238467179) panicked at crates/octoscode-module/tests/a22_sessions.rs:570:5:
+assertion `left == right` failed: the returned turn's own effort
+  left: "low"
+ right: "high"
+
+
+failures:
+    row_203_a_candidates_live_events_wait_for_its_history_then_release_in_order
+    row_216_returned_prompts_come_back_whole_and_in_order
+    row_216_the_effort_is_seeded_once_per_record
+    row_228_only_full_sessions_of_the_requested_profile_are_projected
+    row_236_a_background_session_keeps_its_own_visible_state
+
+test result: FAILED. 0 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.49s
+
+error: test failed, to rerun pass `-p octoscode-module --test a22_sessions`
