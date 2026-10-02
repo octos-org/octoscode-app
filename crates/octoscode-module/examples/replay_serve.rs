@@ -28,6 +28,10 @@
 //! | `session` | `r3-session-a6ea8505` | the context-compaction lifecycle |
 //! | `fleet` | `a10-fleet-driver-synthetic` (SYNTHETIC) | the external-driver chain: walk, acquire, prepare, dispatch, peer frames, peer/control |
 //!
+//! `--stale-window` (A18, any scenario): every `session/hydrate` answers with
+//! the A15 live smoke's first-launch hydrate (`a18-stale-window-a6ea8505`): no
+//! durable rows, an earlier run's retained turn terminals (a reset store).
+//!
 //! ## Session-id rewriting (why the recording is portable)
 //!
 //! A recording carries the session id of the profile it was captured under
@@ -1437,6 +1441,16 @@ async fn main() {
         }
     }
     let fleet_cold = args.iter().any(|a| a == "--fleet-cold");
+    // A18 — `--stale-window`: every `session/hydrate` answers with the A15
+    // live smoke's FIRST-launch hydrate (`a18-stale-window-a6ea8505.jsonl`,
+    // cut from docs/ux/a15-live/smoke/trace.jsonl): no durable rows, while the
+    // replay window still holds an earlier run's four completed turns and its
+    // stop — the serve's session store had been reset. That stop drew a
+    // second "Turn stopped" under the smoke's one real Stop.
+    let stale_window = args
+        .iter()
+        .any(|a| a == "--stale-window")
+        .then(|| fixture("a18-stale-window-a6ea8505.jsonl").into_iter().next().map(|f| f.body).unwrap_or(Value::Null));
     let revoke_file = args.iter().position(|a| a == "--revoke-file").and_then(|i| args.get(i + 1)).cloned();
     let first_turn: usize = args
         .iter()
@@ -1499,6 +1513,7 @@ async fn main() {
         let sequenced = sequenced.clone();
         let slow = slow.clone();
         let revoke_file = revoke_file.clone();
+        let stale_window = stale_window.clone();
         let mut seat_sim = seat_sim.clone();
         let fleet_frames = if label == "fleet" { frames.clone() } else { Vec::new() };
         let activity = label == "activity";
@@ -1603,6 +1618,15 @@ async fn main() {
                         send(&tx, frame).await;
                         continue;
                     }
+                }
+                // A18 `--stale-window`: the reset store's hydrate (see main).
+                if let Some(stale) = stale_window.as_ref().filter(|_| method == "session/hydrate") {
+                    let mut body = stale.clone();
+                    let from = body["session_id"].as_str().unwrap_or("dsflash:main").to_owned();
+                    rewrite_session(&mut body, &from, &active_session);
+                    println!("[replay-serve] -> session/hydrate (the stale window: no rows, an earlier run's terminals)");
+                    send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": body})).await;
+                    continue;
                 }
 
                 // A10 fleet: send `(delay, method, params)` notifications

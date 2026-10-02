@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """A18 — the contrast walk (web e2e/theme.spec.ts:72-112, walk results row 212).
 
-    python3 tools/judge/contrast_walk.py <host-bin> <desktop|phone> <port> <rport> <outdir> [light|dark] [chrome|surfaces|seats]
+    python3 tools/judge/contrast_walk.py <host-bin> <desktop|phone> <port> <rport> <outdir> [light|dark] [chrome|surfaces|approval|plan|seats]
 
 The web runs axe's color-contrast rule on the conversation after a real turn, then on Settings, in MANUAL light mode
 on a dark OS, and expects zero violations. Natively the theme is `OCTOSCODE_THEME=light` (the stored preference; the
@@ -12,8 +12,9 @@ OS stays as it is) and every surface is reached by CLICKS against a replay serve
   the fresh chat (header, empty state, status strip, composer placeholder, sidebar), the completed turn, the
   stopped turn ("Turn stopped" notice), the phone's sidebar drawer, the composer's menus (model, permission, +),
   the session pane (the strip's tap), the sidebar's sort and workspace menus, and every Settings section;
-`surfaces` (A6's `surfaces` scenario, r23's recorded turns): reasoning rows + answer, a tool row and delivered
-  files, the question card, the approval card, the plan;
+`surfaces` / `approval` / `plan` (A6's `surfaces` scenario, r23's recorded turns; the last two start the replay at
+  the approval turn / the plan turn, `--first-turn 3|4`): reasoning rows + answer, a tool row and delivered files,
+  the question card; the approval card; the plan, then Stop;
 `seats` (A10's `a10` scenario, its seat simulator): the composer with both seats read back, the permission menu,
   the model menu (provider groups, rows), the session pane.
 
@@ -26,6 +27,7 @@ server are always stopped (a10_lib.run_session).
 from __future__ import annotations
 
 import pathlib
+import re
 import sys
 import time
 
@@ -92,13 +94,26 @@ def main() -> int:
         if not count:
             w.note(f"{name}: no text appeared after {trigger} — not measured")
             return
-        measure(w, name, before=before, clip=LISTS)
+        # No list clip: the overlay is drawn OVER the transcript (it overlaps the list without being inside it);
+        # what lies beneath it is left out by `before`.
+        measure(w, name, before=before)
         if close and w.click(close):
             time.sleep(0.6)
-        elif not phone:
+            return
+        # tools/judge/tour.py's dismissal: Escape on desktop (on the phone shell Escape leaves the app), then the
+        # topmost close control still shown; a menu with none closes on its trigger (its backdrop).
+        if not phone:
             w.key("Escape")
             time.sleep(0.6)
-        else:
+        for _ in range(3):
+            closers = [x for x in w.snap() if a10_lib.Walk.shown(x) and x.get("ty") == "Button"
+                       and re.search(r"(^|_)close(_btn)?$", str(x.get("i") or ""))]
+            if not closers:
+                break
+            r = closers[-1]["r"]
+            w.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
+            time.sleep(0.6)
+        if any(w.visible(c) for c in ("b3_dialog", "sb_menu")) and w.visible(trigger):
             w.click(trigger)
             time.sleep(0.6)
 
@@ -140,12 +155,14 @@ def main() -> int:
                 if w.visible(trigger):
                     overlay(w, name, trigger)
         # Settings (a centred dialog on desktop, a full sheet on the phone): each section counts what is not the
-        # conversation beneath it — every node shown before Settings opened is left out.
+        # conversation beneath it — every node shown before Settings opened is left out, and on desktop only the
+        # dialog's own nodes count (a sidebar row's time can change while the dialog covers it).
         under = keys(w)
+        inner = {} if phone else {"within": ["settings_drawer"]}
         if w.click("settings_open_hit") or w.click("hd_settings_label"):
             w.wait(lambda: bool(w.visible("set_title")), 10)
             time.sleep(1.0)
-            measure(w, "settings-general", before=under)
+            measure(w, "settings-general", before=under, **inner)
             if w.visible("server_stop_request"):
                 # Settings > General's "Stop server…": the confirm sheet (then Cancel — nothing is stopped).
                 pre = keys(w)
@@ -163,22 +180,8 @@ def main() -> int:
                 r = hit["r"]
                 w.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
                 time.sleep(1.2)
-                measure(w, f"settings-{sec.lower()}", before=under)
+                measure(w, f"settings-{sec.lower()}", before=under, **inner)
             w.click("settings_close") or w.click("set_back")
-
-    def held(w: a10_lib.Walk, card: str, release: str, name: str, tries: int = 6) -> None:
-        """A takeover card the turn waits on: measure the first one, then release every hold."""
-        if not w.wait_shown(card, 25):
-            w.check(f"{name}: the card shows", False)
-            return
-        time.sleep(1.0)
-        measure(w, name, clip=LISTS)
-        for _ in range(tries):
-            if not w.visible(card):
-                break
-            w.click(release)
-            time.sleep(1.5)
-        w.wait(lambda: idle(w), 20)
 
     def surfaces(w: a10_lib.Walk) -> None:
         send(w, PROMPTS[0])
@@ -190,9 +193,23 @@ def main() -> int:
         w.wait(lambda: idle(w), 25)
         measure(w, "tool-and-files", clip=LISTS)
         send(w, PROMPTS[2])
-        held(w, "cv_q_card", "cv_q_stop", "question-card")
+        if w.wait_shown("cv_q_card", 25):
+            time.sleep(1.0)
+            measure(w, "question-card", clip=LISTS)
+        else:
+            w.check("question-card: the card shows", False)
+
+    def approval(w: a10_lib.Walk) -> None:
+        # The replay starts at r23's approval turn (--first-turn 3): its typed command approval holds the turn.
         send(w, PROMPTS[3])
-        held(w, "cv_ap_card", "cv_ap_deny", "approval-card")
+        if w.wait_shown("cv_ap_card", 25):
+            time.sleep(1.0)
+            measure(w, "approval-card", clip=LISTS)
+        else:
+            w.check("approval-card: the card shows", False)
+
+    def plan(w: a10_lib.Walk) -> None:
+        # The replay starts at r23's plan turn (--first-turn 4): plan/updated, held until Stop.
         send(w, PROMPTS[4])
         if w.wait(lambda: w.prefixed("cv_pl_"), 25):
             time.sleep(1.0)
@@ -201,7 +218,7 @@ def main() -> int:
             w.check("plan: the plan card shows", False)
         w.click("send_hit")
         w.wait(lambda: idle(w), 20)
-        measure(w, "conversation-after", clip=LISTS)
+        measure(w, "plan-stopped", clip=LISTS)
 
     def seats(w: a10_lib.Walk) -> None:
         w.wait(lambda: bool(w.visible("i0_composer_2")) and bool(w.visible("i0_composer_model")), 15)
@@ -213,12 +230,14 @@ def main() -> int:
                 overlay(w, name, trigger)
 
     def walk(w: a10_lib.Walk) -> None:
-        {"surfaces": surfaces, "seats": seats}.get(flow, chrome)(w)
+        {"surfaces": surfaces, "approval": approval, "plan": plan, "seats": seats}.get(flow, chrome)(w)
         print("== contrast surfaces: " + ", ".join(f"{s} {b} below (min {lo:.2f})" for s, b, lo in totals))
 
-    scenario = {"surfaces": "surfaces", "seats": "a10"}.get(flow, "interrupt")
+    scenario = {"surfaces": "surfaces", "approval": "surfaces", "plan": "surfaces", "seats": "a10"}.get(flow, "interrupt")
+    first = {"approval": ["--first-turn", "3"], "plan": ["--first-turn", "4"]}.get(flow, [])
     return a10_lib.run_session(walk, mode=mode, outdir=outdir, port=port, replay_port=rport, scenario=scenario,
-                               env={"OCTOSCODE_THEME": theme}, app_bin=app_bin, replay_args=["--adopt-turn-ids"])
+                               env={"OCTOSCODE_THEME": theme}, app_bin=app_bin,
+                               replay_args=["--adopt-turn-ids"] + first)
 
 
 if __name__ == "__main__":
