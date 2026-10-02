@@ -951,6 +951,9 @@ async fn a_history_that_cannot_be_read_is_a_visible_failure_not_an_empty_transcr
     let dsl = octoscode_module::fluid::history_state(Some(&reason), &m);
     assert!(dsl.contains("Session recovery required") && dsl.contains("unknown session: dsflash:main"));
     assert!(!dsl.contains("What should we build"));
+    // A reason that ends its own sentence reads once, not "..".
+    let timed_out = octoscode_module::fluid::history_state(Some("the server did not answer in time."), &m);
+    assert!(timed_out.contains("could not be loaded: the server did not answer in time. Reopen it"), "{timed_out}");
     let _ = std::fs::remove_dir_all(dir);
 }
 

@@ -1444,7 +1444,10 @@ pub fn history_state(failed: Option<&str>, m: &Metrics) -> String {
         None => ("Loading conversation…".to_owned(), "Restoring session state".to_owned(), INK),
         Some(reason) => (
             "Session recovery required".to_owned(),
-            format!("The conversation history could not be loaded: {reason}. Reopen it from the sidebar to try again."),
+            format!(
+                "The conversation history could not be loaded: {}. Reopen it from the sidebar to try again.",
+                reason.trim().trim_end_matches('.')
+            ),
             "#cf222eff",
         ),
     };

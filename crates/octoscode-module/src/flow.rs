@@ -959,7 +959,7 @@ impl Conversation {
             None => History::Ready,
             Some(HistoryRead { failed: Some(reason), .. }) => History::Failed(reason.clone()),
             Some(h) if h.started.elapsed() > HISTORY_WAIT => {
-                History::Failed("The conversation history did not arrive from the server.".to_owned())
+                History::Failed("the server did not answer in time".to_owned())
             }
             Some(_) => History::Loading,
         }
