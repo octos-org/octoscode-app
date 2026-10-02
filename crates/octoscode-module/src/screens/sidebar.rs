@@ -1298,7 +1298,7 @@ mod tests {
         use octoscode_store::domains::composer::PromptTurn;
         use octoscode_store::timeline::EntryKind;
         let store = Store::new();
-        for id in ["fg", "never", "noise", "latest", "latest2", "ledger", "ledger2", "queued"] {
+        for id in ["fg", "never", "noise", "latest", "latest2", "stopped", "limited", "only-stopped", "ledger", "ledger2", "queued"] {
             store.domains.session.note_record(id);
         }
         store.set_active(Some("fg".into()));
@@ -1322,6 +1322,20 @@ mod tests {
         store.domains.turn.note_session_terminal("latest2", "one", "completed");
         tl.upsert_notice("latest2", Some("two".into()), "warning:later", "Warning", "later", "error");
         assert_eq!(st("latest2"), Status::Done);
+        // Only REAL terminals count: an interrupted or rate-limited turn's
+        // terminal is `info` (timeline/model.ts `settleTimelineTurn`), which
+        // `backgroundSessionState` passes over for the one before it.
+        store.domains.turn.note_session_terminal("stopped", "one", "completed");
+        store.domains.turn.note_session_terminal("stopped", "two", "interrupted");
+        assert_eq!(st("stopped"), Status::Done, "a stopped turn is passed over");
+        store.domains.turn.note_session_terminal("limited", "one", "errored");
+        store.domains.turn.note_session_terminal("limited", "two", "rate_limited");
+        assert_eq!(st("limited"), Status::Failed, "a rate-limited turn is passed over");
+        store.domains.turn.note_session_terminal("only-stopped", "one", "interrupted");
+        assert_eq!(st("only-stopped"), Status::Idle, "no real terminal");
+        // (the SELECTED row keeps the web's own rule: its latest terminal,
+        // a stop reading 'Stopped' on the failed dot — SessionSidebar.tsx:86-97)
+        assert_eq!(row_status(&store, "stopped", Some("stopped")), Status::Failed);
         // "prioritizes the interaction ledger even without a local queue head"
         let question = |s: &str| PendingQuestion {
             question_id: format!("q-{s}"),
