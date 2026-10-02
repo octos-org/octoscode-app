@@ -741,6 +741,7 @@ pub async fn resume_chat(conv: &crate::flow::Conversation) -> Result<String, Str
         let st = super::host::state();
         st.pane.driver.disclosure().and_then(|d| d.binding.as_ref()).map(|b| b.revision)
     };
+    crate::screens::fleet_driver::acquiring_driver_id(); // persisted before a lease is taken under it
     let mut acquire = crate::chrome::take_over_params(&session);
     if let Some(r) = revision {
         acquire["expected_revision"] = json!(r);

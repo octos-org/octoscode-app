@@ -310,6 +310,9 @@ fn lock() -> std::sync::MutexGuard<'static, ()> {
     let dir = std::env::temp_dir().join(format!("a4-board3-test-{}", std::process::id()));
     let _ = std::fs::create_dir_all(&dir);
     std::env::set_var("OCTOSCODE_RECENTS_DIR", &dir);
+    // A10: the Fleet's Start takes a lease under this app's driver id — a
+    // test's id never lands in the operator's home.
+    std::env::set_var("OCTOSCODE_DRIVER_ID_PATH", dir.join("driver-id"));
     std::env::set_var("OCTOSCODE_SHOW_THINKING_FILE", dir.join("show-thinking.json"));
     g
 }

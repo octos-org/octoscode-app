@@ -322,6 +322,7 @@ impl Conversation {
         makepad_widgets::SignalToUI::set_ui_signal();
         // Board 12's acquire (`chrome::take_over_params`: our driver id, a
         // 60 s lease), CAS on the revision this record was OBSERVED at.
+        crate::screens::fleet_driver::acquiring_driver_id(); // persisted before a lease is taken under it
         let mut params = crate::chrome::take_over_params(&session);
         params["expected_revision"] = serde_json::Value::from(expected);
         let proof = match self.client.request("session/driver/acquire", params).await {

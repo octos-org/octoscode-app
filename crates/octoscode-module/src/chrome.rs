@@ -2139,7 +2139,9 @@ pub fn take_over_params(session: &str) -> serde_json::Value {
         .unwrap_or(0);
     serde_json::json!({
         "session_id": session,
-        "driver_id": crate::screens::fleet_driver::acquiring_driver_id(),
+        // The stable id, read without a write: the caller persists it right
+        // before the acquire is sent (`fleet_driver::acquiring_driver_id`).
+        "driver_id": crate::screens::fleet_driver::driver_id(),
         "expected_revision": revision,
         "lease_seconds": 60,
     })
