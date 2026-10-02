@@ -103,8 +103,14 @@ impl Record {
     fn disclosure(&self) -> Value {
         if self.external {
             json!({"mode": "external", "recovery": "none", "binding": self.binding()})
-        } else {
+        } else if self.epoch == 0 {
+            // Never bound: no binding (the CAS basis is 0).
             json!({"mode": "internal", "recovery": "none", "binding": null})
+        } else {
+            // Handed back: the retained binding, inactive (lease 0).
+            let mut b = self.binding();
+            b["lease_expires_at_ms"] = json!(0);
+            json!({"mode": "internal", "recovery": "none", "binding": b})
         }
     }
 
@@ -537,7 +543,16 @@ async fn a_stale_renew_drops_the_seat_and_keeps_the_label() {
     assert_eq!(renews, 2, "one good renew, then the stale one");
     tokio::time::sleep(Duration::from_millis(400)).await;
     assert_eq!(server.sent("session/driver/renew").len(), renews, "never retried with the dead fence");
+    assert!(
+        wait_until(
+            || host::state().pane.driver.disclosure().and_then(|d| d.binding.clone()).is_some_and(|b| b.driver_id == "octos-tui"),
+            3000
+        )
+        .await,
+        "the drop re-walks: the disclosure names the new holder"
+    );
     let d = dsl(&conv);
+    assert!(d.contains("Another app is using this session"), "the foreign-holder banner");
     assert!(d.contains("Your control of this session expired"), "the §6 label stays");
     assert!(!d.contains("fixture text never shown"), "never the server's copy");
     assert!(d.contains("b3_fleet_console_acquire"), "the console re-offers Acquire");
@@ -571,6 +586,12 @@ async fn a_chat_send_hands_the_held_seat_back_before_its_one_turn() {
     assert!(!fleet_driver::seat_held(&session) && fleet_driver::seat_parked(&session), "parkControlSeat(record)");
     assert!(seat::proof(&session).is_none());
     assert!(dsl(&conv).contains("b3_fleet_console_acquire"), "Acquire seat is offered again");
+    // The handback re-walked the record (before the send): the next acquire's
+    // CAS is the RETAINED binding's revision, so it holds at once.
+    click(&conv, "b3.fleet.console.acquire", 0).await;
+    assert_eq!(server.sent("session/driver/acquire").len(), 2);
+    assert_eq!(server.sent("session/driver/acquire")[1]["expected_revision"], 2, "the handback moved it to 2");
+    assert!(fleet_driver::seat_held(&session));
 }
 
 /// e2e `each of the four commands emits exactly ONE peer/control frame` +

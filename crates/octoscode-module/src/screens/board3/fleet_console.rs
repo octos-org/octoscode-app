@@ -310,7 +310,13 @@ pub async fn run_seat_change(conv: &crate::flow::Conversation, acquire: bool) ->
 }
 
 pub async fn run_seat(conv: &crate::flow::Conversation, kind: String, live_turn: Option<String>) -> Result<String, String> {
+    let held = fleet_driver::seat_held(&conv.session_id());
     let r = fleet_driver::seat_control(conv, &kind, live_turn.as_deref()).await;
+    if held && !fleet_driver::seat_held(&conv.session_id()) {
+        // A stale fence dropped the seat: re-walk so the disclosure follows.
+        let _ = fleet_driver::load_inventory(conv).await;
+        super::session_pane::mirror_inventory(&conv.store);
+    }
     let mut st = super::host::state();
     st.fleet.console.seat = match &r {
         Ok((slug, duplicate)) => SeatPanel::Receipt { slug: slug.clone(), duplicate: *duplicate },

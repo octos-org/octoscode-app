@@ -651,8 +651,15 @@ impl FleetSim {
             "session/driver/get" => {
                 let mut v = if self.external {
                     serde_json::json!({"mode": "external", "recovery": "none", "binding": self.binding})
-                } else {
+                } else if self.binding.is_null() {
+                    // Never bound (a cold master): no binding, revision 0.
                     serde_json::json!({"mode": "internal", "recovery": "none", "binding": null})
+                } else {
+                    // Handed back: the RETAINED binding, inactive (lease 0) —
+                    // its revision is the next acquire's CAS basis.
+                    let mut b = self.binding.clone();
+                    b["lease_expires_at_ms"] = 0.into();
+                    serde_json::json!({"mode": "internal", "recovery": "none", "binding": b})
                 };
                 if p.get("operations").is_some() {
                     // The page is strictly ordered by operation id (UTF-8

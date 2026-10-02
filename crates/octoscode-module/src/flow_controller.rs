@@ -88,6 +88,29 @@ impl Conversation {
         }
     }
 
+    /// `enqueueTurn` (`use-turn-controller.ts`; `features/peers/gather.ts:
+    /// 124-131`): a turn the app composes (the peer gather's synthesis) —
+    /// FIFO behind the active turn, never steered, the composer's draft
+    /// untouched — dispatched like any prompt, so it crosses the SAME seat
+    /// gate (a held seat is handed back before its `turn/start`). `Ok("")`
+    /// = the controller refused it (blocked).
+    pub async fn enqueue_turn(&self, text: String) -> Result<String, ClientError> {
+        let session = self.session_id();
+        let turn = PromptTurn {
+            turn_id: TurnId::new().0.to_string(),
+            text,
+            reasoning_effort: crate::screens::board3::thinking::effort_param(&self.store, &session),
+            ..Default::default()
+        };
+        let admitted = self.store.domains.composer.enqueue(&session, turn);
+        makepad_widgets::SignalToUI::set_ui_signal();
+        match admitted {
+            Submit::StartNow(turn) => self.dispatch_turn(turn).await,
+            Submit::Queued(turn) => Ok(turn.turn_id),
+            Submit::Refused | Submit::Steer { .. } => Ok(String::new()),
+        }
+    }
+
     /// `startTurn` (`use-turn-controller.ts:248-487`): the ONE `turn/start`
     /// for an admitted queue head, then its classified outcome — accepted,
     /// unconfirmed (held for recovery, never resent), a collision (the text

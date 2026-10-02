@@ -659,10 +659,17 @@ pub async fn run_gather(conv: &crate::flow::Conversation) -> Result<String, Stri
             return Err(e);
         }
     };
-    match conv.start_turn(text).await {
-        Ok(turn) => {
+    // "Synthesis is ordinary input" (`gather.ts:124-131`): the turn
+    // controller's FIFO `enqueueTurn`, so it queues behind a running turn and
+    // crosses the seat gate like any prompt.
+    match conv.enqueue_turn(text).await {
+        Ok(turn) if !turn.is_empty() => {
             settle(GATHER_QUEUED);
             Ok(format!("queued {turn} ({} peers)", peers.len()))
+        }
+        Ok(_) => {
+            settle(GATHER_FAILED);
+            Err("the turn controller refused the synthesis".into())
         }
         Err(e) => {
             settle(GATHER_FAILED);

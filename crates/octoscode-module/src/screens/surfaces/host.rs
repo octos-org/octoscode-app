@@ -78,7 +78,11 @@ impl crate::OctoscodeView {
         // 2. The Trajectory replaces the transcript and the composer.
         self.view.widget(cx, ids!(conversation_inner)).set_visible(cx, !traj);
         self.view.widget(cx, ids!(traj_view)).set_visible(cx, traj);
-        self.view.widget(cx, ids!(composer_dock)).set_visible(cx, !traj);
+        // A10 — the Fleet pane replaces the chat area, composer included
+        // (`sync_board3` hides it; this sync must not show it again).
+        let fleet_open =
+            crate::screens::board3::host::open_dialog() == Some(crate::screens::board3::host::Dialog::Fleet);
+        self.view.widget(cx, ids!(composer_dock)).set_visible(cx, !traj && !fleet_open);
         let traj_dsl = sf::lower_trajectory(&store, m.pane_w, phone).map(|l| l.dsl).unwrap_or_default();
         let splash = self.view.splash(cx, ids!(traj_splash));
         match self.mounts.mount(cx, &splash, &quiet(&traj_dsl)) {

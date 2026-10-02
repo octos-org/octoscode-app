@@ -16,6 +16,7 @@ ids it carried.
 
 usage: OCTOSCODE_APP_BIN=<host octosense> a10_fleet.py <desktop|phone> <outdir>
 """
+import os
 import re
 import sys
 import time
@@ -24,8 +25,10 @@ from a10_lib import Walk, checks_line, dialog_checks, inside, run_session
 
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a10/fleet/{MODE}"
-PORT = 8430
-REPLAY = 8431
+# A10's app port is 8420; the replay port is free per run (another agent's
+# app once held 8431).
+PORT = int(os.environ.get("A10_FLEET_PORT", "8420"))
+REPLAY = int(os.environ.get("A10_FLEET_REPLAY", "8434"))
 
 
 def where(W: Walk, wid: str) -> str:
@@ -353,7 +356,17 @@ def walk(W: Walk) -> None:
             open_fleet(W) and W.composer() is None)
     if not seek(W, "b3_fleet_disclosure_mode"):
         click_logged(W, "b3_fleet_advanced", "b3.fleet.advanced", lambda: shown(W, "b3_fleet_disclosure_mode"))
-    W.check("fleet: the control seat mounts (held seat + pending work + live turn)", shown(W, "b3_fleet_seat_title"))
+    # The gather's synthesis is a chat turn: the composer's seat gate handed
+    # this app's seat back first (`next: internal`, before its turn/start —
+    # `releaseControlSeatForUserTurn`), so the console offers Acquire again.
+    W.check("fleet: the synthesis turn handed the seat back first (release next=internal before its turn/start)",
+            any("next=internal" in l for l in replay_lines(W, "-> session/driver/release"))
+            and seek(W, "b3_fleet_console_acquire"),
+            "; ".join(replay_lines(W, "-> session/driver/release")))
+    W.check("fleet: Acquire seat CLICK -> ONE more acquire; the control seat mounts (held seat + pending work + live turn)",
+            click_logged(W, "b3_fleet_console_acquire", "b3.fleet.console.acquire",
+                         lambda: len(replay_lines(W, "-> session/driver/acquire")) == 3, 10)
+            and W.wait(lambda: seek(W, "b3_fleet_seat_title"), 8))
     W.check("fleet: seat Steer CLICK -> ONE peer/control on the pending work + the master's live turn -> the receipt facts",
             click_logged(W, "b3_fleet_seat_cmd_2", "b3.fleet.console.seat", lambda: shown(W, "b3_fleet_seat_worker_v"), 10)
             and any("target_operation_id=synthetic-pending-op" in l for l in replay_lines(W, "-> peer/control")),
@@ -363,8 +376,8 @@ def walk(W: Walk) -> None:
     W.shot(f"07-seat-{MODE}")
 
     W.note("== 11. the wire: every click's method reached the replay server")
-    for method, n in [("session/driver/acquire", 2), ("peer/prepare", 3), ("peer/dispatch", 3),
-                      ("session/driver/release", 1), ("peer/gather", 1)]:
+    for method, n in [("session/driver/acquire", 3), ("peer/prepare", 3), ("peer/dispatch", 3),
+                      ("session/driver/release", 2), ("peer/gather", 1)]:
         got = len(replay_lines(W, f"<- {method} "))
         W.check(f"wire: {method} x{n}", got == n, f"replay log: {got}")
     W.check("wire: peer/control x5 (approve, steer, answer, stop, seat steer)", len(replay_lines(W, "<- peer/control ")) == 5,

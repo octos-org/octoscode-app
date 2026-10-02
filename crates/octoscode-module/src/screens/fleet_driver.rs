@@ -282,9 +282,11 @@ fn held_fence(session: &str) -> Option<xd::ControlFence> {
     SEAT.lock().unwrap().as_ref().filter(|s| s.session_id == session).map(|s| s.view.fence.clone())
 }
 
-/// Test seam: drop the held seat.
+/// Test seam: drop the held seat (and its proof in the composer's cell).
 pub fn reset_seat() {
-    *SEAT.lock().unwrap() = None;
+    if let Some(s) = SEAT.lock().unwrap().take() {
+        crate::seat::drop_proof(&s.session_id);
+    }
     *PARKED.lock().unwrap() = None;
     *EXPIRED.lock().unwrap() = None;
 }
@@ -396,7 +398,15 @@ fn spawn_renew(conv: &Conversation, session: &str, epoch: u64) {
             }
             match renew_seat(&conv).await {
                 Ok(_) => makepad_widgets::log!("[octoscode] seat: {session}: lease renewed"),
-                Err(e) => makepad_widgets::log!("[octoscode] seat: {session}: renew: {e}"),
+                Err(e) => {
+                    makepad_widgets::log!("[octoscode] seat: {session}: renew: {e}");
+                    if !same(&session) {
+                        // The lease is gone: re-walk, so the disclosure (and
+                        // the next CAS) name who holds the session now.
+                        let _ = load_inventory(&conv).await;
+                        crate::screens::board3::session_pane::mirror_inventory(&conv.store);
+                    }
+                }
             }
             makepad_widgets::SignalToUI::set_ui_signal();
         }
