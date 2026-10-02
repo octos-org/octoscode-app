@@ -181,12 +181,14 @@ pub fn themed_icons(dsl: &str) -> String {
     if crate::screens::theme::resolved() != "dark" {
         return dsl.to_owned();
     }
+    // A26: a named display palette tints them its own muted grey.
+    let ink = crate::screens::theme::icon_ink();
     let mut out = String::with_capacity(dsl.len() + 64);
     for line in dsl.lines() {
         out.push_str(line);
         if line.contains("draw_svg.svg:") && !line.contains("draw_svg.color:") {
             out.push_str(" draw_svg.color: ");
-            out.push_str(DARK_ICON_INK);
+            out.push_str(&ink);
         }
         out.push('\n');
     }

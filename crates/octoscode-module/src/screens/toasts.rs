@@ -1,0 +1,402 @@
+//! A26 — error toasts (parity row `error/error` "error toasts (transient,
+//! bounded queue)").
+//!
+//! The web oracle has NO toast component (A9's evidence: `grep -ri toast
+//! apps/web/src` finds nothing); the row came from the old appcard's
+//! `ToastQueue` (depth 3, `octos-app-store/src/toasts.rs:28`). The operator
+//! chose to build them, from the app's own notice kit: A13's plain-language
+//! lead with the raw cause muted under it (`board3::ui::failure`) on board 3's
+//! notice card (the transcript's system-notice row: a 26 px icon chip, a
+//! 13 px title, a muted body; a white card, a 1 px hairline, radius 12).
+//!
+//! What they carry: the failures that, before them, reached ONLY the app log —
+//! an open, a new chat, a send, a Stop, a steer, a session-list refresh, a
+//! copy of the conversation (each `lib.rs` arm that logged `… : {e}` now also
+//! calls [`failed`]). An error a surface already shows inline (a dialog's
+//! error line, the connection banner, the Connect card) is never toasted.
+//!
+//! The rules:
+//! * **Transient** — a toast stays [`SHOW_MS`] on screen, then leaves on its
+//!   own; × dismisses it at once.
+//! * **Bounded** — at most [`CAPACITY`] at a time; a newer one pushes the
+//!   oldest out, and the stack SAYS so ("1 earlier error no longer shown")
+//!   until it empties. The same failure again bumps a count on its toast
+//!   ("×2") and restarts its clock instead of stacking a copy.
+//! * **Never in the way** — the stack sits under the conversation header,
+//!   right-aligned (full width on a phone), far from the composer; while any
+//!   modal surface is open (Settings, a dialog, the command palette, the
+//!   phone drawer…) the stack is HELD — not drawn, its clocks stopped — so it
+//!   can never cover a dialog's primary action; it shows when that closes.
+//! * **Announced honestly** — every toast is logged by name when it arrives
+//!   (`[octoscode] toast: <lead> — <cause>`), and when it leaves (dismissed,
+//!   expired, or pushed out); the lead says what failed, plainly, and never
+//!   suggests it worked; the cause is the client's own error text.
+use std::collections::VecDeque;
+use std::sync::Mutex;
+
+use super::board3::ui::{self, tok, Dsl, Face, Txt, W};
+
+/// At most three toasts at a time (the appcard's `ToastQueue::default()`).
+pub const CAPACITY: usize = 3;
+/// How long a toast stays on screen (the clock runs only while it is drawn).
+pub const SHOW_MS: u64 = 8_000;
+/// A cause longer than this is cut (the whole text stays in the log).
+pub const CAUSE_MAX: usize = 180;
+
+/// The dismiss tap's action id (`toast.dismiss#<toast id>`).
+pub const ACTION_DISMISS: &str = "toast.dismiss";
+
+/// A failure that, before the toasts, reached only the log — each names
+/// what failed in plain words (A13's lead).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Op {
+    /// A session row / switcher open (`thread.open`).
+    OpenSession,
+    /// New chat (`conv.new_chat`).
+    NewChat,
+    /// A prompt's send (`conv.submit_draft`).
+    Send,
+    /// Stop (`turn/interrupt`).
+    Stop,
+    /// Steer now (`turn/steer`).
+    Steer,
+    /// The sessions list refresh (`session/list`).
+    Refresh,
+    /// Copy as Markdown / copy the transcript.
+    CopyConversation,
+}
+
+impl Op {
+    /// The plain-language lead.
+    pub fn lead(self) -> &'static str {
+        match self {
+            Op::OpenSession => "Couldn't open that session.",
+            Op::NewChat => "Couldn't start a new chat.",
+            Op::Send => "Your message was not sent.",
+            Op::Stop => "Couldn't stop the turn.",
+            Op::Steer => "Couldn't steer the turn.",
+            Op::Refresh => "Couldn't refresh the sessions.",
+            Op::CopyConversation => "Couldn't copy the conversation.",
+        }
+    }
+}
+
+/// One toast.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Toast {
+    pub id: u64,
+    pub lead: String,
+    pub cause: String,
+    /// How many times this same failure arrived while it was up.
+    pub count: u32,
+    /// Milliseconds it has been ON SCREEN (stopped while held).
+    pub shown_ms: u64,
+}
+
+/// The queue (one per process, like the theme preference).
+#[derive(Debug, Default)]
+pub struct Queue {
+    pub items: VecDeque<Toast>,
+    /// Toasts pushed out by newer ones since the stack was last empty.
+    pub dropped: u32,
+    next_id: u64,
+    last_tick_ms: Option<u64>,
+}
+
+static QUEUE: Mutex<Option<Queue>> = Mutex::new(None);
+
+fn with<R>(f: impl FnOnce(&mut Queue) -> R) -> R {
+    let mut g = QUEUE.lock().unwrap_or_else(|p| p.into_inner());
+    f(g.get_or_insert_with(Queue::default))
+}
+
+/// The client's error as a toast cause: whitespace collapsed (the web prints
+/// a cause in a `<p>`), cut at [`CAUSE_MAX`] characters.
+pub fn clean_cause(s: &str) -> String {
+    let flat = s.split_whitespace().collect::<Vec<_>>().join(" ");
+    if flat.chars().count() <= CAUSE_MAX {
+        return flat;
+    }
+    let mut out: String = flat.chars().take(CAUSE_MAX - 1).collect();
+    out = out.trim_end().to_owned();
+    out.push('…');
+    out
+}
+
+/// A failure of `op` with the client's error text: queue it and wake the UI.
+/// Called from the runtime threads (the `lib.rs` arms that used to only log).
+pub fn failed(op: Op, cause: &str) {
+    push(op.lead(), cause);
+    makepad_widgets::SignalToUI::set_ui_signal();
+}
+
+/// Queue one toast. Returns its id.
+pub fn push(lead: &str, cause: &str) -> u64 {
+    let cause_shown = clean_cause(cause);
+    makepad_widgets::log!("[octoscode] toast: {lead} — {}", cause.trim());
+    with(|q| {
+        if let Some(t) = q.items.iter_mut().find(|t| t.lead == lead && t.cause == cause_shown) {
+            t.count += 1;
+            t.shown_ms = 0;
+            return t.id;
+        }
+        if q.items.is_empty() {
+            // A fresh stack: its clock starts at the next tick (an old
+            // timestamp would age the newcomer by the idle time).
+            q.last_tick_ms = None;
+        }
+        if q.items.len() >= CAPACITY {
+            if let Some(old) = q.items.pop_front() {
+                q.dropped += 1;
+                makepad_widgets::log!("[octoscode] toast pushed out (queue full, {CAPACITY}): {}", old.lead);
+            }
+        }
+        q.next_id += 1;
+        let id = q.next_id;
+        q.items.push_back(Toast { id, lead: lead.to_owned(), cause: cause_shown, count: 1, shown_ms: 0 });
+        id
+    })
+}
+
+/// × on a toast.
+pub fn dismiss(id: u64) -> bool {
+    with(|q| {
+        let before = q.items.len();
+        q.items.retain(|t| {
+            if t.id == id {
+                makepad_widgets::log!("[octoscode] toast dismissed: {}", t.lead);
+            }
+            t.id != id
+        });
+        let gone = q.items.len() != before;
+        if q.items.is_empty() {
+            q.dropped = 0;
+        }
+        gone
+    })
+}
+
+/// Advance the on-screen clocks to `now_ms` (a monotonic clock): while
+/// `held`, nothing ages. Expired toasts leave. `true` when the stack changed.
+pub fn tick(now_ms: u64, held: bool) -> bool {
+    with(|q| {
+        let dt = q.last_tick_ms.map(|t| now_ms.saturating_sub(t)).unwrap_or(0);
+        q.last_tick_ms = Some(now_ms);
+        if held || dt == 0 {
+            return false;
+        }
+        let before = q.items.len();
+        for t in q.items.iter_mut() {
+            t.shown_ms += dt;
+        }
+        q.items.retain(|t| {
+            let keep = t.shown_ms < SHOW_MS;
+            if !keep {
+                makepad_widgets::log!("[octoscode] toast expired: {}", t.lead);
+            }
+            keep
+        });
+        if q.items.is_empty() {
+            q.dropped = 0;
+        }
+        q.items.len() != before
+    })
+}
+
+/// The time until the next toast expires (ms), if any is up.
+pub fn next_expiry_ms() -> Option<u64> {
+    with(|q| q.items.iter().map(|t| SHOW_MS.saturating_sub(t.shown_ms)).min())
+}
+
+/// The toasts now, oldest first, and the pushed-out count.
+pub fn snapshot() -> (Vec<Toast>, u32) {
+    with(|q| (q.items.iter().cloned().collect(), q.dropped))
+}
+
+/// Test seam: an empty queue.
+pub fn reset() {
+    *QUEUE.lock().unwrap_or_else(|p| p.into_inner()) = None;
+}
+
+/// A monotonic millisecond clock for [`tick`].
+pub fn now_ms() -> u64 {
+    static START: std::sync::OnceLock<std::time::Instant> = std::sync::OnceLock::new();
+    START.get_or_init(std::time::Instant::now).elapsed().as_millis() as u64
+}
+
+/// The ids this surface owns.
+pub fn routes(action: &str) -> bool {
+    action == ACTION_DISMISS
+}
+
+/// The stack's line under the toasts when newer ones pushed older out.
+pub fn dropped_line(n: u32) -> String {
+    if n == 1 {
+        "1 earlier error no longer shown".to_owned()
+    } else {
+        format!("{n} earlier errors no longer shown")
+    }
+}
+
+/// The lowered stack.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Lowered {
+    pub dsl: String,
+    /// (widget id, routed event) — the × taps.
+    pub taps: Vec<(String, String)>,
+}
+
+/// The stack's width: 360 px at most; the window less its 12 px gutters on a
+/// phone.
+pub fn stack_width(avail_w: f64, compact: bool) -> f64 {
+    if compact {
+        (avail_w - 24.0).max(200.0)
+    } else {
+        (avail_w - 32.0).clamp(240.0, 360.0)
+    }
+}
+
+/// Lower the stack for `width` px (board-3 kit, the theme's surfaces), or
+/// `None` when nothing is up.
+pub fn lower(width: f64) -> Option<Lowered> {
+    let (items, dropped) = snapshot();
+    if items.is_empty() {
+        return None;
+    }
+    let mut d = Dsl::new();
+    d.view("a26_toasts", &format!("width: {} height: Fit flow: Down spacing: 8", width.round()));
+    // Newest on top: the one that just arrived is where the eye lands.
+    for t in items.iter().rev() {
+        let id = t.id;
+        d.surface(
+            &format!("a26_toast_{id}"),
+            "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 0.0 y: 0.0} padding: Inset{left: 12 right: 6 top: 10 bottom: 10}",
+            tok::SURFACE,
+            12.0,
+            Some(tok::HAIRLINE),
+        );
+        // The notice row's icon chip, with the error mark.
+        d.surface(
+            &format!("a26_toast_mark_box_{id}"),
+            "width: 26 height: 26 flow: Overlay align: Align{x: 0.5 y: 0.5}",
+            tok::RED_BG,
+            13.0,
+            None,
+        );
+        let mark = crate::design::icon_resource("a26_error.svg");
+        d.raw(&format!(
+            "a26_toast_mark_{id} := Svg {{\nwidth: 15 height: 15 animating: false draw_svg.svg: file_resource({mark:?}) draw_svg.preserve_viewbox: true draw_svg.color: {}\n}}",
+            tok::RED
+        ));
+        d.close();
+        let col = d.anon();
+        d.view(&col, "width: Fill height: Fit flow: Down spacing: 3 padding: Inset{top: 3}");
+        d.text(&format!("a26_toast_lead_{id}"), &t.lead, &Txt::new(13.0, Face::Medium, tok::RED_TEXT).w(W::Fill).wrap());
+        if !t.cause.is_empty() && t.cause != t.lead {
+            d.text(&format!("a26_toast_cause_{id}"), &t.cause, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        }
+        if t.count > 1 {
+            d.text(&format!("a26_toast_count_{id}"), &format!("×{}", t.count), &Txt::new(11.5, Face::Medium, tok::MUTED));
+        }
+        d.close();
+        // ×: a 28 px target (the board's small close glyph).
+        let x = format!("a26_toast_x_{id}");
+        d.view(&format!("{x}_box"), "width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}");
+        d.icon("", "b3_x_small.svg", 12.0, tok::TEXT);
+        d.tap(&x, &format!("{ACTION_DISMISS}#{id}"));
+        d.close();
+        d.close();
+    }
+    if dropped > 0 {
+        d.surface(
+            "a26_toasts_dropped_box",
+            "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 12 right: 12 top: 6 bottom: 6}",
+            tok::SURFACE,
+            10.0,
+            Some(tok::HAIRLINE),
+        );
+        d.text("a26_toasts_dropped", &dropped_line(dropped), &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill));
+        d.close();
+    }
+    d.close();
+    let taps = d.taps.clone();
+    let dsl = ui::themed_icons(&crate::screens::theme::retint_dsl(&d.finish()));
+    Some(Lowered { dsl, taps })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn guard() -> std::sync::MutexGuard<'static, ()> {
+        crate::screens::theme::test_lock()
+    }
+
+    #[test]
+    fn the_queue_is_bounded_and_says_what_it_pushed_out() {
+        let _g = guard();
+        reset();
+        for i in 0..5 {
+            push("Couldn't open that session.", &format!("session/open: rpc error {i}"));
+        }
+        let (items, dropped) = snapshot();
+        assert_eq!(items.len(), CAPACITY);
+        assert_eq!(dropped, 2);
+        assert_eq!(items[0].cause, "session/open: rpc error 2", "the oldest went first");
+        let low = lower(360.0).unwrap();
+        assert!(low.dsl.contains("2 earlier errors no longer shown"), "{}", low.dsl);
+        assert_eq!(low.taps.len(), CAPACITY, "one × per toast");
+        reset();
+    }
+
+    #[test]
+    fn the_same_failure_counts_instead_of_stacking() {
+        let _g = guard();
+        reset();
+        let a = push("Couldn't stop the turn.", "turn/interrupt: transport: closed");
+        let b = push("Couldn't stop the turn.", "turn/interrupt:  transport:\nclosed");
+        assert_eq!(a, b);
+        let (items, _) = snapshot();
+        assert_eq!((items.len(), items[0].count), (1, 2));
+        assert!(lower(360.0).unwrap().dsl.contains("×2"));
+        reset();
+    }
+
+    #[test]
+    fn a_toast_expires_only_while_it_is_on_screen() {
+        let _g = guard();
+        reset();
+        push("Couldn't refresh the sessions.", "session/list: timeout");
+        tick(1_000, false);
+        tick(1_000 + SHOW_MS, true);
+        assert_eq!(snapshot().0.len(), 1, "held: the clock stops");
+        tick(1_000 + SHOW_MS + SHOW_MS - 1, false);
+        assert_eq!(snapshot().0.len(), 1, "one ms short");
+        assert!(tick(1_000 + 2 * SHOW_MS, false));
+        assert!(snapshot().0.is_empty());
+        assert!(lower(360.0).is_none());
+        reset();
+    }
+
+    #[test]
+    fn dismiss_takes_one_and_the_note_clears_with_the_stack() {
+        let _g = guard();
+        reset();
+        let ids: Vec<u64> = (0..4).map(|i| push("Couldn't start a new chat.", &format!("e{i}"))).collect();
+        assert_eq!(snapshot().1, 1);
+        assert!(!dismiss(ids[0]), "already pushed out");
+        for id in &ids[1..] {
+            assert!(dismiss(*id));
+        }
+        assert_eq!(snapshot(), (vec![], 0));
+        reset();
+    }
+
+    #[test]
+    fn a_long_cause_is_cut_but_logged_whole() {
+        let long = "x".repeat(500);
+        let c = clean_cause(&long);
+        assert_eq!(c.chars().count(), CAUSE_MAX);
+        assert!(c.ends_with('…'));
+    }
+}

@@ -36,6 +36,9 @@ pub mod a9_host;
 // A12 — the outage host: the connection banner's mount/taps and the offline
 // refusals (impl OctoscodeView, like a9_host).
 pub mod a12_host;
+// A26 — the live re-theme (footer theme toggle, display palettes), the
+// sidebar footer entries and the error toasts (impl OctoscodeView).
+pub mod a26_host;
 pub mod bindings;
 pub mod cards;
 // A7: the highlighted code block body widget.
@@ -368,6 +371,9 @@ script_mod! {
                             animating: false
                             draw_svg.svg: file_resource(#(crate::design::icon_resource("b3_sparkle.svg")))
                             draw_svg.preserve_viewbox: true
+                            // A26: the look's glyph ink (the file's #1D1D1F
+                            // vanished on a dark sidebar).
+                            draw_svg.color: #(crate::chrome::ink("glyph"))
                         }
                         fleet_nav_label := Label {
                             width: Fit height: Fit padding: 0 text: "Fleet"
@@ -400,6 +406,9 @@ script_mod! {
                         draw_bg.border_color_2_focus: #00000000
                     }
                 }
+                // A26: the web's footer order after Fleet — the theme toggle
+                // and Settings (chrome.rs `OcSidebarFootNav`).
+                oc_sidebar_footnav := mod.widgets.OcSidebarFootNav {}
             }
             // The 1 px hairline between the sidebar and the conversation.
             sidebar_rule := SolidView {
@@ -949,6 +958,18 @@ script_mod! {
             }
         }
 
+        // A26 — the error toasts (`screens::toasts`): a FIT-size dock placed
+        // by margin under the conversation header (a visible full-window
+        // wrapper would shadow every click under it — the palette_dock
+        // note). Hidden while empty, and while a modal surface holds them.
+        toast_dock := View {
+            width: Fit height: Fit
+            visible: false
+            toast_splash := Splash {
+                width: Fit height: Fit
+            }
+        }
+
     }
 }
 
@@ -1330,6 +1351,14 @@ pub struct OctoscodeView {
     /// A7 — the Session whose saved unsent draft was offered to the composer.
     #[rust]
     drafts_restored_for: Option<String>,
+    /// A26 — the error toasts' × taps (`toast_splash`), the clock that wakes
+    /// when one is due to leave, and the dock margin last applied.
+    #[rust]
+    toast_taps: Vec<(LiveId, String)>,
+    #[rust]
+    toast_timer: Timer,
+    #[rust]
+    toast_key: String,
 }
 
 impl OctoscodeView {
@@ -1617,6 +1646,11 @@ impl OctoscodeView {
         // one owner here; the palette's `/activity` row runs `activity.open`.
         if a9_host::routes(action) {
             self.perform_a9(cx, action, index);
+            return;
+        }
+        // A26 — the error toasts' × (`toast.dismiss#<id>`).
+        if screens::toasts::routes(action) {
+            self.perform_toast(cx, action, index);
             return;
         }
         // A12 — the connection banner's ids (Retry now / Disconnect /
@@ -1942,7 +1976,11 @@ impl OctoscodeView {
                             };
                             match r {
                                 Ok(id) => ::log::info!("octoscode: new chat in {workspace}: {id}"),
-                                Err(e) => makepad_widgets::log!("[octoscode] new chat dropped: {e}"),
+                                Err(e) => {
+                                    makepad_widgets::log!("[octoscode] new chat dropped: {e}");
+                                    // A26: no longer only the log.
+                                    screens::toasts::failed(screens::toasts::Op::NewChat, &e.to_string());
+                                }
                             }
                             SignalToUI::set_ui_signal();
                         });
@@ -2043,6 +2081,11 @@ impl OctoscodeView {
                         "octoscode: theme -> {preference} (resolves {resolved}); \
                          the next mount lowers the {resolved} card set"
                     );
+                    // A26: the web saves the choice at once (`use-theme.ts:
+                    // 35-42`) and the whole app follows it live.
+                    screens::theme::save_preference();
+                    makepad_widgets::log!("[octoscode] theme -> {preference}");
+                    self.retheme(cx);
                 }
                 screens::theme::Effect::Unhandled(id) => {
                     ::log::warn!("octoscode: unhandled screen action {id:?}");
@@ -2255,6 +2298,7 @@ impl OctoscodeView {
             rt.spawn(async move {
                 if let Err(e) = screens::transcript::perform(&conv, &store).await {
                     ::log::warn!("octoscode: screens: composer.copy_transcript: {e}");
+                    screens::toasts::failed(screens::toasts::Op::CopyConversation, &e.to_string());
                 }
             });
             return;
@@ -2278,6 +2322,7 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     if let Err(e) = conv.refresh_sessions().await {
                         ::log::warn!("octoscode: session.refresh: {e}");
+                        screens::toasts::failed(screens::toasts::Op::Refresh, &e.to_string());
                     }
                 });
             }
@@ -2288,7 +2333,10 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     match conv.new_chat(cwd).await {
                         Ok(id) => ::log::info!("octoscode: new chat opened {id}"),
-                        Err(e) => makepad_widgets::log!("[octoscode] new chat dropped: {e}"),
+                        Err(e) => {
+                            makepad_widgets::log!("[octoscode] new chat dropped: {e}");
+                            screens::toasts::failed(screens::toasts::Op::NewChat, &e.to_string());
+                        }
                     }
                 });
             }
@@ -2296,6 +2344,7 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     if let Err(e) = conv.submit_draft().await {
                         makepad_widgets::log!("[octoscode] submit dropped: {e}");
+                        screens::toasts::failed(screens::toasts::Op::Send, &e.to_string());
                     }
                 });
             }
@@ -2303,6 +2352,7 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     if let Err(e) = conv.steer(&text).await {
                         ::log::warn!("octoscode: turn.steer: {e}");
+                        screens::toasts::failed(screens::toasts::Op::Steer, &e.to_string());
                     }
                 });
             }
@@ -2310,6 +2360,7 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     if let Err(e) = conv.interrupt(&turn).await {
                         ::log::warn!("octoscode: turn.interrupt: {e}");
+                        screens::toasts::failed(screens::toasts::Op::Stop, &e.to_string());
                     }
                 });
             }
@@ -2342,7 +2393,10 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     match conv.open_session(&session, cwd).await {
                         Ok(id) => ::log::info!("octoscode: thread.open opened {id}"),
-                        Err(e) => ::log::warn!("octoscode: thread.open: {e}"),
+                        Err(e) => {
+                            ::log::warn!("octoscode: thread.open: {e}");
+                            screens::toasts::failed(screens::toasts::Op::OpenSession, &e.to_string());
+                        }
                     }
                     screens::activity::note_switch_finished();
                     SignalToUI::set_ui_signal();
@@ -2357,6 +2411,7 @@ impl OctoscodeView {
                         rt.spawn(async move {
                             if let Err(e) = conv.refresh_sessions().await {
                                 ::log::warn!("octoscode: palette.run {name}: session.refresh: {e}");
+                                screens::toasts::failed(screens::toasts::Op::Refresh, &e.to_string());
                             }
                         });
                     }
@@ -3648,6 +3703,8 @@ impl OctoscodeView {
         // store; the mount cache remounts only when its DSL changed.
         self.a9_guarded(cx, a9_host::Guard::Dialog);
         self.sync_chrome(cx);
+        // A26 — the error toasts, once every dock's visibility is settled.
+        self.sync_toasts(cx);
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
     }
 
@@ -5134,6 +5191,8 @@ impl OctoscodeView {
             Event::Timer(te) if self.code_copy_timer.is_timer(te).is_some() => {
                 self.view.redraw(cx);
             }
+            // A26: a toast is due to leave.
+            Event::Timer(_) if self.toast_timer_fired(cx, event) => {}
             Event::Actions(actions) => {
                 // A7: a markdown link press opens ONLY an absolute http(s) /
                 // mailto URL (`MarkdownBody.tsx:20-37` `safeUrlTransform`;
@@ -5347,6 +5406,8 @@ impl OctoscodeView {
                 }
                 // A9 — the open A9 surface's taps and its search input.
                 self.a9_actions(cx, actions);
+                // A26 — the error toasts' ×.
+                self.toast_actions(cx, actions);
                 // A12 — the connection banner's Retry now / Disconnect.
                 self.link_actions(cx, actions);
                 // A6 — the conversation surfaces' taps, inputs and the
@@ -5968,6 +6029,7 @@ impl OctoscodeView {
                                 handle.spawn(async move {
                                     if let Err(e) = conv.submit_draft().await {
                                         makepad_widgets::log!("[octoscode] submit dropped: {e}");
+                                        screens::toasts::failed(screens::toasts::Op::Send, &e.to_string());
                                     }
                                 });
                             }
@@ -5985,6 +6047,7 @@ impl OctoscodeView {
                                 rt.spawn(async move {
                                     if let Err(e) = conv.interrupt(&turn).await {
                                         ::log::warn!("octoscode: turn.interrupt: {e}");
+                                        screens::toasts::failed(screens::toasts::Op::Stop, &e.to_string());
                                     }
                                 });
                             }

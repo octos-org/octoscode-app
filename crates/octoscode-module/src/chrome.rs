@@ -39,7 +39,7 @@ pub fn icon(name: &str) -> String {
 /// as the colour value a `#rrggbb` literal parses to (RGBA, alpha ff), so a
 /// template can splice it where a literal stood: `color: #(crate::chrome::ink("link"))`.
 pub fn ink(name: &str) -> ScriptValue {
-    ScriptValue::from_color(rgba(crate::screens::theme::shell_ink(name)))
+    ScriptValue::from_color(rgba(&crate::screens::theme::shell_ink(name)))
 }
 
 /// `#rrggbb` -> `0xRRGGBBFF` (the script tokenizer's colour encoding).
@@ -178,8 +178,9 @@ script_mod! {
         width: 44 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
         View{
             width: 40 height: 24 flow: Overlay
-            tg_off := RoundedView{width: Fill height: Fill draw_bg +: {color: #E5E5EA border_radius: 12.0}}
-            tg_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: #2F6FEB border_radius: 12.0}}
+            tg_off := RoundedView{width: Fill height: Fill draw_bg +: {color: #(crate::chrome::ink("track")) border_radius: 12.0}}
+            // A26: the accent fill follows the display palette.
+            tg_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: #(crate::chrome::ink("accent")) border_radius: 12.0}}
             tg_knob_off := View{
                 width: Fill height: Fill align: Align{x: 0.0 y: 0.5} padding: Inset{left: 2}
                 RoundedView{width: 20 height: 20 draw_bg +: {color: #FFFFFF border_radius: 10.0 border_size: 0.5 border_color: #0000001F}}
@@ -198,8 +199,8 @@ script_mod! {
         rd_off := RoundedView{width: 18 height: 18 draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.5 border_color: #C7C7CC}}
         rd_on := View{
             width: 18 height: 18 flow: Overlay align: Align{x: 0.5 y: 0.5} visible: false
-            RoundedView{width: 18 height: 18 draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.5 border_color: #2F6FEB}}
-            RoundedView{width: 8 height: 8 draw_bg +: {color: #2F6FEB border_radius: 4.0}}
+            RoundedView{width: 18 height: 18 draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.5 border_color: #(crate::chrome::ink("accent"))}}
+            RoundedView{width: 8 height: 8 draw_bg +: {color: #(crate::chrome::ink("accent")) border_radius: 4.0}}
         }
     }
 
@@ -510,6 +511,52 @@ script_mod! {
         }
     }
 
+    // A26 — the web's sidebar footer entries after Fleet
+    // (ProductSidebar.tsx:984-1016): the theme toggle (its icon and label
+    // follow System / Light / Dark; a click cycles them, use-theme.ts:44-49)
+    // and Settings. The operator chose the web's placement (parity row
+    // shell/g-settings). Same row metrics as + Add workspace and Fleet
+    // (34 px, a 15 px icon, a 10 px gap, the row label); the collapsed rail
+    // keeps the icons only, centred like the rail's buttons
+    // (`.collapsed .settings`, ProductSidebar.module.css:880-884).
+    mod.widgets.OcSidebarFootNav = View{
+        width: Fill height: Fit flow: Down
+        sb_theme := View{
+            width: Fill height: 34 flow: Overlay
+            sb_theme_row := View{
+                width: Fill height: Fill flow: Right spacing: 10 align: Align{y: 0.5}
+                padding: Inset{left: 8}
+                View{
+                    width: 15 height: 15 flow: Overlay
+                    sb_theme_ic_system := View{
+                        width: 15 height: 15
+                        Svg{width: 15 height: 15 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("monitor"))) draw_svg.preserve_viewbox: true}
+                    }
+                    sb_theme_ic_light := View{
+                        width: 15 height: 15 visible: false
+                        Svg{width: 15 height: 15 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("sun"))) draw_svg.preserve_viewbox: true}
+                    }
+                    sb_theme_ic_dark := View{
+                        width: 15 height: 15 visible: false
+                        Svg{width: 15 height: 15 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("moon"))) draw_svg.preserve_viewbox: true}
+                    }
+                }
+                sb_theme_label := OcLabel{text: "System"}
+            }
+            sb_theme_hit := OcHit{}
+        }
+        sb_settings := View{
+            width: Fill height: 34 flow: Overlay
+            sb_settings_row := View{
+                width: Fill height: Fill flow: Right spacing: 10 align: Align{y: 0.5}
+                padding: Inset{left: 8}
+                Svg{width: 15 height: 15 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("gear"))) draw_svg.preserve_viewbox: true}
+                sb_settings_label := OcLabel{text: "Settings"}
+            }
+            sb_settings_hit := OcHit{}
+        }
+    }
+
     // The workspace overflow menu (board 4): New chat here / Rename / Remove
     // from sidebar, and the inline rename form. The host positions it next to
     // the clicked row's "⋯" (a margin inside a full-window overlay).
@@ -792,7 +839,9 @@ script_mod! {
     // shows the accent icon on a blue-tinted chip (board 6).
     let OcRailCell = View{
         width: 40 height: 40 flow: Overlay align: Align{x: 0.5 y: 0.5}
-        rl_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: #EEF3FE border_radius: 10.0}}
+        // A26: the chip and the selected icon follow the look (light keeps
+        // board 6's #EEF3FE and #2F6FEB).
+        rl_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: #(crate::chrome::ink("accent_tint")) border_radius: 10.0}}
         rl_off_icon := View{
             width: 20 height: 20
             rl_icon := Svg{
@@ -807,6 +856,7 @@ script_mod! {
                 width: 20 height: 20 animating: false
                 draw_svg.svg: file_resource(#(crate::chrome::icon("gear_accent")))
                 draw_svg.preserve_viewbox: true
+                draw_svg.color: #(crate::chrome::ink("accent"))
             }
         }
         rl_hit := OcHit{draw_bg.border_radius: 10.0}
@@ -831,6 +881,26 @@ script_mod! {
             }
         }
         vb_hit := OcHit{}
+    }
+    // A26 — one display palette (the web's Theme select option,
+    // PreferencesDialog.tsx:55-70): the radio and the name on the left, three
+    // swatches of the palette (surface / accent / text) on the right, one hit
+    // over the row. An Overlay of two aligned rows (a Fill spacer between Fit
+    // siblings does not resolve here, #40b).
+    let OcPaletteRow = View{
+        width: Fill height: 30 flow: Overlay
+        pl_left := View{
+            width: Fill height: Fill flow: Right spacing: 12 align: Align{y: 0.5}
+            pl_radio := OcRadio{}
+            pl_title := OcRowTitle{width: Fit text: ""}
+        }
+        pl_right := View{
+            width: Fill height: Fill flow: Right spacing: 4 align: Align{x: 1.0 y: 0.5}
+            pl_sw_1 := RoundedView{width: 18 height: 18 draw_bg +: {color: #FFFFFF border_radius: 5.0 border_size: 1.0 border_color: #8080805A}}
+            pl_sw_2 := RoundedView{width: 18 height: 18 draw_bg +: {color: #2F6FEB border_radius: 5.0 border_size: 1.0 border_color: #8080805A}}
+            pl_sw_3 := RoundedView{width: 18 height: 18 draw_bg +: {color: #1C1F22 border_radius: 5.0 border_size: 1.0 border_color: #8080805A}}
+        }
+        pl_hit := OcHit{}
     }
 
     mod.widgets.OcSettingsPanel = RoundedView{
@@ -1271,6 +1341,40 @@ script_mod! {
                 // once; Save writes only the display whitelist.
                 sec_preferences := View{
                     width: Fill height: Fit flow: Down visible: false
+                    // A26 — the display palette (the web's Theme select,
+                    // PreferencesDialog.tsx:55-75, `DISPLAY_THEMES` order).
+                    // Applies at once; Save below remembers it. Titled
+                    // "Palette": General's "Theme" row is the System /
+                    // Light / Dark appearance Terminal follows.
+                    View{
+                        width: Fill height: Fit flow: Down spacing: 0 padding: Inset{top: 10 bottom: 10}
+                        pal_title := OcRowTitle{width: Fit text: "Palette"}
+                        View{
+                            width: Fill height: Fit flow: Down padding: Inset{top: 4 bottom: 4 right: 24}
+                            pal_help := OcRowHelp{text: "Terminal follows the light or dark theme; named palettes are dark."}
+                        }
+                        pal_terminal := OcPaletteRow{
+                            pl_left +: {pl_title +: {text: "Terminal"}}
+                            pl_right +: {pl_sw_1 +: {draw_bg +: {color: #FFFFFF}} pl_sw_2 +: {draw_bg +: {color: #2F6FEB}} pl_sw_3 +: {draw_bg +: {color: #1C1F22}}}
+                        }
+                        pal_codex := OcPaletteRow{
+                            pl_left +: {pl_title +: {text: "Codex"}}
+                            pl_right +: {pl_sw_1 +: {draw_bg +: {color: #x0F1218}} pl_sw_2 +: {draw_bg +: {color: #x6EBCFF}} pl_sw_3 +: {draw_bg +: {color: #xECEFF4}}}
+                        }
+                        pal_claude := OcPaletteRow{
+                            pl_left +: {pl_title +: {text: "Claude"}}
+                            pl_right +: {pl_sw_1 +: {draw_bg +: {color: #x261F1A}} pl_sw_2 +: {draw_bg +: {color: #xF28F5D}} pl_sw_3 +: {draw_bg +: {color: #xF4F1EA}}}
+                        }
+                        pal_slate := OcPaletteRow{
+                            pl_left +: {pl_title +: {text: "Slate"}}
+                            pl_right +: {pl_sw_1 +: {draw_bg +: {color: #x141923}} pl_sw_2 +: {draw_bg +: {color: #x6397FF}} pl_sw_3 +: {draw_bg +: {color: #xE6ECF2}}}
+                        }
+                        pal_solarized := OcPaletteRow{
+                            pl_left +: {pl_title +: {text: "Solarized"}}
+                            pl_right +: {pl_sw_1 +: {draw_bg +: {color: #x002B36}} pl_sw_2 +: {draw_bg +: {color: #x268BD2}} pl_sw_3 +: {draw_bg +: {color: #xEEE8D5}}}
+                        }
+                    }
+                    OcRule{}
                     View{
                         width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
                         View{
@@ -1698,6 +1802,14 @@ impl ChromeRuntime {
             if c(cx, live_id!(prefs_save)) {
                 out.push(Intent::Action(crate::screens::a9_prefs::ACTION_SAVE, 0));
             }
+            // A26 — a display palette row.
+            for action in crate::screens::a9_prefs::PALETTE_ACTIONS {
+                let id = action.trim_start_matches(crate::screens::a9_prefs::ACTION_PALETTE);
+                let row = LiveId::from_str(&format!("pal_{id}"));
+                if clicked(cx, view, &[row, live_id!(pl_hit)], actions) {
+                    out.push(Intent::Action(action, 0));
+                }
+            }
             // A9: the Connection row's Disconnect / Forget server (each asks
             // first when work would be lost; screens::a9_settings).
             if c(cx, live_id!(settings_disconnect)) {
@@ -1760,6 +1872,16 @@ impl ChromeRuntime {
         }
         if c(cx, live_id!(sb_add_hit)) {
             out.push(Intent::Action("workspace.add", 0));
+        }
+        // A26 — the footer's theme toggle and Settings (the web's order after
+        // Fleet). A hidden Button still reports MouseUp, so they count only
+        // while the sidebar is on screen (the column, or the open drawer).
+        if !self.compact || sb.drawer_open {
+            for entry in [FooterEntry::Theme, FooterEntry::Settings] {
+                if c(cx, LiveId::from_str(entry.hit())) {
+                    out.extend(footer_intents(entry, self.compact));
+                }
+            }
         }
         // The collapse toggle and the collapsed rail.
         if c(cx, live_id!(sidebar_collapse)) {
@@ -1834,6 +1956,21 @@ impl ChromeRuntime {
         // The collapsed rail keeps the Fleet entry as its icon only; the web
         // drops the label (ProductSidebar.tsx:980). Left in, it clipped to 3 px.
         show(cx, view, ids!(fleet_nav_label), !rail);
+        // A26 — the footer's theme toggle and Settings: icons only in the
+        // rail too (ProductSidebar.tsx:995/1015); the toggle's icon and label
+        // follow the appearance preference (System / Light / Dark).
+        for entry in [FooterEntry::Theme, FooterEntry::Settings] {
+            show(cx, view, &[LiveId::from_str(entry.label())], !rail);
+        }
+        {
+            let pref = crate::screens::theme::preference();
+            let on = footer_theme_icon(&pref);
+            for layer in ["sb_theme_ic_system", "sb_theme_ic_light", "sb_theme_ic_dark"] {
+                show(cx, view, &[LiveId::from_str(layer)], layer == on);
+            }
+            text(cx, view, ids!(sb_theme_label), theme_label(&pref));
+            text(cx, view, ids!(sb_settings_label), a26_copy::SETTINGS);
+        }
         show(cx, view, ids!(sidebar_collapse_slot), !compact && !rail);
         if crate::screens::sidebar::take_focus_search() {
             view.widget(cx, ids!(sb_search)).set_key_focus(cx);
@@ -1850,6 +1987,14 @@ impl ChromeRuntime {
             self.applied = key;
             let mut col = view.widget(cx, ids!(threads_column));
             script_apply_eval!(cx, col, { width: #(sidebar_w) });
+            // A26 — the footer rows (Fleet, the theme toggle, Settings): in
+            // the collapsed rail their icons sit on the rail buttons' centre
+            // line (`.collapsed .settings { justify-content: center }`).
+            let row_pad = Inset { left: footer_row_inset(rail), right: 0.0, top: 0.0, bottom: 0.0 };
+            for row in ["fleet_nav_row", "sb_theme_row", "sb_settings_row"] {
+                let mut r = view.widget(cx, &[LiveId::from_str(row)]);
+                script_apply_eval!(cx, r, { padding: #(row_pad) });
+            }
             // The desktop spacer reserves the column + its 1 px rule.
             let spacer_w = sidebar_w + 1.0;
             let mut spacer = view.widget(cx, ids!(sidebar_spacer));
@@ -2062,6 +2207,16 @@ impl ChromeRuntime {
             let prefs = crate::screens::a9_prefs::snapshot();
             set_toggle(cx, view, live_id!(tg_vim), prefs.current.vim_mode);
             text(cx, view, ids!(prefs_status), prefs.status());
+            // A26 — the display palette: the chosen row's radio is on.
+            text(cx, view, ids!(pal_title), a26_copy::PALETTE_TITLE);
+            text(cx, view, ids!(pal_help), a26_copy::PALETTE_HELP);
+            for p in crate::screens::theme::Palette::ALL {
+                let row = LiveId::from_str(&format!("pal_{}", p.id()));
+                let on = prefs.current.theme == p.id();
+                show(cx, view, &[row, live_id!(rd_on)], on);
+                show(cx, view, &[row, live_id!(rd_off)], !on);
+                text(cx, view, &[row, live_id!(pl_title)], p.label());
+            }
         }
         text(cx, view, ids!(set_about_version), &format!("Version {}", env!("CARGO_PKG_VERSION")));
         let methods = store.domains.config.supported_methods().len();
@@ -2141,6 +2296,87 @@ pub fn theme_label(pref: &str) -> &'static str {
         "dark" => "Dark",
         "light" => "Light",
         _ => "System",
+    }
+}
+
+/// A26 — every new user-visible string of the three A26 rows, in one place
+/// (A24 wraps them with `tr()` once its catalog lands).
+pub mod a26_copy {
+    /// The footer's Settings entry (ProductSidebar.tsx:1010-1015).
+    pub const SETTINGS: &str = "Settings";
+    /// Settings > Preferences: the palette block's title (the web's Theme
+    /// select — General's "Theme" row is the appearance Terminal follows).
+    pub const PALETTE_TITLE: &str = "Palette";
+    /// The note under it (PreferencesDialog.tsx:71-75, native wording).
+    pub const PALETTE_HELP: &str = "Terminal follows the light or dark theme; named palettes are dark.";
+}
+
+/// A26 — the sidebar footer's entries after + Add workspace, in the web's
+/// order (ProductSidebar.tsx:969-1016). Fleet is A4's row, routed by the
+/// shell (`fleet_nav_hit`); Theme and Settings route here.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FooterEntry {
+    Fleet,
+    Theme,
+    Settings,
+}
+
+impl FooterEntry {
+    pub const ALL: [FooterEntry; 3] = [FooterEntry::Fleet, FooterEntry::Theme, FooterEntry::Settings];
+
+    /// The row's hit target id.
+    pub fn hit(self) -> &'static str {
+        match self {
+            FooterEntry::Fleet => "fleet_nav_hit",
+            FooterEntry::Theme => "sb_theme_hit",
+            FooterEntry::Settings => "sb_settings_hit",
+        }
+    }
+
+    /// The row's label id (hidden in the collapsed rail, ProductSidebar.tsx:
+    /// 981/995/1015).
+    pub fn label(self) -> &'static str {
+        match self {
+            FooterEntry::Fleet => "fleet_nav_label",
+            FooterEntry::Theme => "sb_theme_label",
+            FooterEntry::Settings => "sb_settings_label",
+        }
+    }
+}
+
+/// A26 — what a click on a footer entry asks the host to do (`App.tsx:
+/// 2333-2343`): the theme toggle cycles the appearance (`cycleTheme`);
+/// Settings opens the Settings surface, closing the phone drawer first
+/// (`if (compact) setSidebarCollapsed(true)`). Fleet is the shell's
+/// `fleet_nav_hit` arm (it opens the Fleet pane and closes the drawer).
+pub fn footer_intents(entry: FooterEntry, compact: bool) -> Vec<Intent> {
+    match entry {
+        FooterEntry::Fleet => Vec::new(),
+        FooterEntry::Theme => vec![Intent::Action("theme.cycle", 0)],
+        FooterEntry::Settings if compact => vec![Intent::Action("drawer.close", 0), Intent::OpenSettings],
+        FooterEntry::Settings => vec![Intent::OpenSettings],
+    }
+}
+
+/// A26 — the theme entry's icon for a preference (`ThemeIcon`, ui/ThemeIcon.tsx:
+/// moon for dark, sun for light, the monitor for system): the id of the
+/// layer the footer shows.
+pub fn footer_theme_icon(pref: &str) -> &'static str {
+    match pref {
+        "dark" => "sb_theme_ic_dark",
+        "light" => "sb_theme_ic_light",
+        _ => "sb_theme_ic_system",
+    }
+}
+
+/// A26 — the left inset of a footer row: the column's 8 px, or, in the
+/// collapsed rail, the inset that centres the 15 px icon in the rail's 36 px
+/// content box (the rail buttons' own centre).
+pub fn footer_row_inset(rail: bool) -> f64 {
+    if rail {
+        (36.0 - 15.0) / 2.0
+    } else {
+        8.0
     }
 }
 

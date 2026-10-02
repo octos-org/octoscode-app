@@ -122,8 +122,19 @@ pub fn preference() -> String {
 /// The resolved palette the mounted screens use ("dark" | "light").
 /// `system` consults the injected OS-appearance reader (workflow 3); with no
 /// reader set (tests, pre-wire) it falls back to DARK — the #30e deterministic
-/// semantics, unchanged.
+/// semantics, unchanged. A26: a named display palette (Codex, Claude, Slate,
+/// Solarized) is dark by construction and overrides the appearance, as the
+/// web's `:root[data-display-theme=…] { color-scheme: dark }` does
+/// (`app/theme.css:133-137`); Terminal follows the appearance.
 pub fn resolved() -> &'static str {
+    if palette().named().is_some() {
+        return "dark";
+    }
+    appearance()
+}
+
+/// The System / Light / Dark appearance alone (what Terminal follows).
+pub fn appearance() -> &'static str {
     let pref = theme().lock().unwrap().pref;
     match pref {
         Theme::Light => "light",
@@ -134,6 +145,309 @@ pub fn resolved() -> &'static str {
             None => "dark",
         },
     }
+}
+
+// ---- A26: the five named display palettes ------------------------------------
+//
+// The web's display preference (`features/preferences/model.ts:2-8`
+// `DISPLAY_THEMES`) chooses one of five palettes: Terminal inherits the app's
+// light/dark theme, the other four are the pinned native OctosCode palettes
+// (`app/theme.css:207-258`, the `--display-*` variables), each dark. The web
+// maps every semantic colour onto those variables (`theme.css:133-205`); the
+// native screens draw with the DARK token set (`TOKENS`' twins, the dark
+// shell roles, `SHELL_INKS`' dark column), so a palette is one map from those
+// dark ROLES to its colours ([`named_hex`]) — the retint, the shell roles, the
+// shell inks and the row icons all go through it, so nothing keeps a stock
+// grey. Every palette passes the A18 contrast guard ([`CONTRAST_PAIRS`],
+// checked in every [`LOOKS`] entry): where a web value reads below WCAG on
+// the fills it is drawn on, its TEXT ink is tuned toward the palette's own
+// text colour (the smallest step that reaches 4.5:1) and the web value stays
+// for fills and glyphs — documented per field below.
+
+/// One named (dark) palette: the web's `--display-*` values, the derived
+/// fills, and the contrast-tuned text inks.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct NamedPalette {
+    /// `--display-surface`: the window, the transcript, the sidebar.
+    pub surface: &'static str,
+    /// `--display-alt`: raised fills (bubbles, chips, selected rows, menus).
+    pub alt: &'static str,
+    /// `--display-frame`: borders (`--dsw-alias-border-l2`).
+    pub frame: &'static str,
+    /// `--display-accent`: fills, toggles, focus rings, glyphs.
+    pub accent: &'static str,
+    /// `--display-highlight` (the web's warn / parameter colour; kept for
+    /// parity, the native screens draw no warn text in a palette).
+    pub highlight: &'static str,
+    /// `--display-text`: primary text.
+    pub text: &'static str,
+    /// `--display-muted` (secondary and tertiary text).
+    pub muted: &'static str,
+    /// `--display-success` (fills, the success glyph).
+    pub success: &'static str,
+    /// `--display-danger` (fills, the failure glyph).
+    pub danger: &'static str,
+    /// `--display-danger-bg`: an error box, a removed diff line.
+    pub danger_bg: &'static str,
+    /// `--display-code`: code blocks, tool groups (the raised grey).
+    pub code: &'static str,
+    /// Hairlines: `--display-frame` 50% over the surface (the web's
+    /// `--dsw-alias-border-l1`, `theme.css:144-148`).
+    pub hairline: &'static str,
+    /// A selected option / running chip: the accent 20% over the surface.
+    pub accent_tint: &'static str,
+    /// An added diff line / success chip: the success colour 16% over the
+    /// surface.
+    pub success_bg: &'static str,
+    /// Links and blue text (the accent unless tuned).
+    pub accent_text: &'static str,
+    /// Success text (the success colour unless tuned).
+    pub success_text: &'static str,
+    /// Error text (the danger colour unless tuned).
+    pub danger_text: &'static str,
+}
+
+/// `codex` (`theme.css:207-219`): every web value meets WCAG as drawn.
+pub const CODEX: NamedPalette = NamedPalette {
+    surface: "#0f1218",
+    alt: "#1a1e27",
+    frame: "#5a5e6c",
+    accent: "#6ebcff",
+    highlight: "#ffd166",
+    text: "#eceff4",
+    muted: "#9aa2af",
+    success: "#68d391",
+    danger: "#f87171",
+    danger_bg: "#401b20",
+    code: "#161a22",
+    hairline: "#343842",
+    accent_tint: "#223446",
+    success_bg: "#1d312b",
+    accent_text: "#6ebcff",
+    success_text: "#68d391",
+    danger_text: "#f87171",
+};
+
+/// `claude` (`theme.css:220-232`). Tuned: the danger text (web #eb6f6a read
+/// 4.49:1 on its own danger-bg) and the muted text (web #aea496 read 4.57:1
+/// on the accent tint), each one step toward the text colour.
+pub const CLAUDE: NamedPalette = NamedPalette {
+    surface: "#261f1a",
+    alt: "#362c24",
+    frame: "#5c4e41",
+    accent: "#f28f5d",
+    highlight: "#7ed2a6",
+    text: "#f4f1ea",
+    muted: "#afa597",
+    success: "#78cd96",
+    danger: "#eb6f6a",
+    danger_bg: "#462622",
+    code: "#2d251f",
+    hairline: "#41362e",
+    accent_tint: "#4f3527",
+    success_bg: "#333b2e",
+    accent_text: "#f28f5d",
+    success_text: "#78cd96",
+    danger_text: "#eb736e",
+};
+
+/// `slate` (`theme.css:233-245`). Tuned: the link text (web #6397ff read
+/// 4.50:1 on the accent tint), the danger text (#e85f5f, 4.56:1 on the
+/// danger-bg) and the muted text (#919caa, 4.59:1 on the accent tint) take
+/// a 1-2% step toward the text colour, for a margin over 4.5:1.
+pub const SLATE: NamedPalette = NamedPalette {
+    surface: "#141923",
+    alt: "#1c222e",
+    frame: "#303949",
+    accent: "#6397ff",
+    highlight: "#f6c75e",
+    text: "#e6ecf2",
+    muted: "#929dab",
+    success: "#5bc481",
+    danger: "#e85f5f",
+    danger_bg: "#3a1c20",
+    code: "#181f2b",
+    hairline: "#222936",
+    accent_tint: "#24324f",
+    success_bg: "#1f3432",
+    accent_text: "#6699ff",
+    success_text: "#5bc481",
+    danger_text: "#e86262",
+};
+
+/// `solarized` (`theme.css:246-258`). Solarized's accents are low-contrast by
+/// design: as TEXT the blue #268bd2 read 3.12:1, the green #859900 3.77:1
+/// and the red #dc322f 2.67:1 on the fills they are drawn on, so the text
+/// inks are lifted toward the base text (+35% / +20% / +45%) and the muted
+/// grey +8%; the web values stay for fills and glyphs (>= 3:1).
+pub const SOLARIZED: NamedPalette = NamedPalette {
+    surface: "#002b36",
+    alt: "#073642",
+    frame: "#586e75",
+    accent: "#268bd2",
+    highlight: "#b58900",
+    text: "#eee8d5",
+    muted: "#9aa7a5",
+    success: "#859900",
+    danger: "#dc322f",
+    danger_bg: "#4b2c30",
+    code: "#05323d",
+    hairline: "#2c4c56",
+    accent_tint: "#083e55",
+    success_bg: "#153d2d",
+    accent_text: "#6cacd3",
+    success_text: "#9aa92b",
+    danger_text: "#e4847a",
+};
+
+/// The display palette (`DisplayTheme`, `model.ts:9`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Palette {
+    Terminal,
+    Codex,
+    Claude,
+    Slate,
+    Solarized,
+}
+
+impl Palette {
+    /// The web's order (`DISPLAY_THEMES`).
+    pub const ALL: [Palette; 5] = [Palette::Terminal, Palette::Codex, Palette::Claude, Palette::Slate, Palette::Solarized];
+
+    /// The stored id (`model.ts:2-8`).
+    pub fn id(self) -> &'static str {
+        match self {
+            Palette::Terminal => "terminal",
+            Palette::Codex => "codex",
+            Palette::Claude => "claude",
+            Palette::Slate => "slate",
+            Palette::Solarized => "solarized",
+        }
+    }
+
+    /// The visible label (`PreferencesDialog.tsx:9-15` `themeLabels`).
+    pub fn label(self) -> &'static str {
+        match self {
+            Palette::Terminal => "Terminal",
+            Palette::Codex => "Codex",
+            Palette::Claude => "Claude",
+            Palette::Slate => "Slate",
+            Palette::Solarized => "Solarized",
+        }
+    }
+
+    /// Exactly the five ids (`isDisplayTheme`, `model.ts:26-28`).
+    pub fn parse(id: &str) -> Option<Palette> {
+        Palette::ALL.into_iter().find(|p| p.id() == id)
+    }
+
+    /// The colours of a named palette; `None` for Terminal (it follows the
+    /// app's light / dark appearance).
+    pub fn named(self) -> Option<&'static NamedPalette> {
+        match self {
+            Palette::Terminal => None,
+            Palette::Codex => Some(&CODEX),
+            Palette::Claude => Some(&CLAUDE),
+            Palette::Slate => Some(&SLATE),
+            Palette::Solarized => Some(&SOLARIZED),
+        }
+    }
+}
+
+static PALETTE: Mutex<Palette> = Mutex::new(Palette::Terminal);
+
+/// The display palette in effect (the default is Terminal, `model.ts:86`).
+pub fn palette() -> Palette {
+    *PALETTE.lock().unwrap_or_else(|p| p.into_inner())
+}
+
+/// Apply a palette (Settings > Preferences; the saved whitelist at launch).
+pub fn set_palette(p: Palette) {
+    *PALETTE.lock().unwrap_or_else(|p| p.into_inner()) = p;
+}
+
+/// What the screens are drawn in: Terminal's light or dark appearance, or a
+/// named palette.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Look {
+    Light,
+    Dark,
+    Named(Palette),
+}
+
+/// Every look the contrast guard checks: both of Terminal's, and each named
+/// palette.
+pub const LOOKS: [Look; 6] = [
+    Look::Light,
+    Look::Dark,
+    Look::Named(Palette::Codex),
+    Look::Named(Palette::Claude),
+    Look::Named(Palette::Slate),
+    Look::Named(Palette::Solarized),
+];
+
+impl Look {
+    pub fn name(self) -> &'static str {
+        match self {
+            Look::Light => "light",
+            Look::Dark => "dark",
+            Look::Named(p) => p.id(),
+        }
+    }
+
+    fn colors(self) -> Option<&'static NamedPalette> {
+        match self {
+            Look::Named(p) => p.named(),
+            _ => None,
+        }
+    }
+}
+
+/// The look in effect now.
+pub fn current_look() -> Look {
+    match palette() {
+        Palette::Terminal if appearance() == "dark" => Look::Dark,
+        Palette::Terminal => Look::Light,
+        named => Look::Named(named),
+    }
+}
+
+/// The dark ROLES a named palette recolours: every [`TOKENS`] dark twin, the
+/// dark shell roles and inks, the row icons' ink, and the board's three
+/// accent literals (blue fills, the success and failure glyphs). One table,
+/// so the retint, the roles and the inks can never disagree.
+pub fn named_roles(p: &NamedPalette) -> [(&'static str, &'static str); 18] {
+    [
+        // surfaces
+        ("#1c1f22", p.surface),
+        ("#1c1c1e", p.code),
+        ("#2c2c2e", p.alt),
+        ("#232629", p.alt),
+        ("#38383a", p.hairline),
+        // text
+        ("#f5f5f7", p.text),
+        ("#e8e8ea", p.text),
+        ("#98989d", p.muted),
+        ("#a1a1a6", p.muted),
+        ("#679efe", p.accent_text),
+        ("#86efac", p.success_text),
+        ("#ff6b6b", p.danger_text),
+        // tints
+        ("#1d2a40", p.accent_tint),
+        ("#2d1417", p.danger_bg),
+        ("#12261a", p.success_bg),
+        // the board's accents (theme-invariant in light / dark)
+        ("#2f6feb", p.accent),
+        ("#1f883d", p.success),
+        ("#cf222e", p.danger),
+    ]
+}
+
+/// A dark-role colour (`#rrggbb`, any case) as palette `p` draws it; any
+/// other colour is returned as given (lower case).
+pub fn named_hex(p: &NamedPalette, dark_hex: &str) -> String {
+    let key = dark_hex.get(0..7).unwrap_or(dark_hex).to_ascii_lowercase();
+    named_roles(p).iter().find(|(d, _)| *d == key).map(|(_, v)| (*v).to_owned()).unwrap_or(key)
 }
 
 /// #36e item 2 — the web's **+/− diff line tint** as LITERAL hexes, picked per
@@ -460,8 +774,36 @@ const TOKENS: &[(&str, &str)] = &[
 /// they keep compositing over the themed surface. Mapped output is always 6
 /// hex digits followed by the original alpha, never re-matched on a second
 /// pass (the dark palette is not in the light key set).
+///
+/// A26: a named palette rewrites the same literals one step further — the
+/// light key to its dark twin to the palette's colour ([`named_roles`]), and
+/// a dark-role literal a lowering already pinned (the user bubble's
+/// `#2c2c2e`) to the palette's colour; the palette's colours are neither
+/// light keys nor dark roles, so its output is a fixed point too.
 pub fn retint_dsl(dsl: &str) -> String {
-    if resolved() == "light" {
+    retint_dsl_look(dsl, current_look())
+}
+
+/// One opaque `#rrggbb` (lower case, with the `#`) as `look` draws it, or
+/// `None` when the look leaves it alone.
+fn retint_hex(hex: &str, look: Look) -> Option<String> {
+    let twin = TOKENS.iter().find(|(l, _)| *l == hex).map(|(_, d)| *d);
+    match look {
+        Look::Light => None,
+        Look::Dark => twin.map(str::to_owned),
+        Look::Named(p) => {
+            let colors = p.named()?;
+            let dark = twin.unwrap_or(hex);
+            let out = named_hex(colors, dark);
+            (out != hex).then_some(out)
+        }
+    }
+}
+
+/// [`retint_dsl`] for an explicit look (tests and the contrast guard read
+/// every look without flipping the process-global preference).
+pub fn retint_dsl_look(dsl: &str, look: Look) -> String {
+    if look == Look::Light {
         return dsl.to_owned();
     }
     let bytes = dsl.as_bytes();
@@ -481,9 +823,11 @@ pub fn retint_dsl(dsl: &str) -> String {
             let terminated = i + 1 + n >= bytes.len() || !bytes[i + 1 + n].is_ascii_hexdigit();
             if (n == 6 || n == 8) && terminated {
                 let hex: Vec<u8> = bytes[i..i + 1 + n].to_ascii_lowercase();
+                // The run is ASCII hex, so this cannot fail.
+                let rgb = std::str::from_utf8(&hex[..7]).unwrap_or("#000000");
                 if n == 6 {
-                    match TOKENS.iter().find(|(l, _)| l.as_bytes() == &hex[..]) {
-                        Some((_, d)) => out.extend_from_slice(d.as_bytes()),
+                    match retint_hex(rgb, look) {
+                        Some(d) => out.extend_from_slice(d.as_bytes()),
                         None => out.extend_from_slice(&hex),
                     }
                     i += 7;
@@ -492,14 +836,11 @@ pub fn retint_dsl(dsl: &str) -> String {
                 // 8-digit: rewrite OPAQUE literals RGB+alpha; translucent
                 // fills keep their bytes (they composite over the theme).
                 if &hex[7..9] == b"ff" {
-                    match TOKENS.iter().find(|(l, _)| l.as_bytes() == &hex[..7]) {
-                        Some((_, d)) => {
-                            out.extend_from_slice(d.as_bytes());
-                            out.extend_from_slice(b"ff");
-                            i += 9;
-                            continue;
-                        }
-                        None => {}
+                    if let Some(d) = retint_hex(rgb, look) {
+                        out.extend_from_slice(d.as_bytes());
+                        out.extend_from_slice(b"ff");
+                        i += 9;
+                        continue;
                     }
                 }
                 out.extend_from_slice(&hex);
@@ -573,6 +914,9 @@ pub fn init_persistence() {
     if let Some(t) = load_preference() {
         theme().lock().unwrap().pref = t;
     }
+    // A26: the saved display palette (the A9 whitelist's `theme`, Settings >
+    // Preferences > Save); a fresh profile is Terminal (`model.ts:86`).
+    set_palette(Palette::parse(&crate::screens::a9_prefs::init().theme).unwrap_or(Palette::Terminal));
     #[cfg(target_os = "macos")]
     {
         set_os_reader(os_is_dark_macos);
@@ -656,34 +1000,22 @@ pub fn os_is_dark_macos() -> bool {
 // the exact mechanism the makepad wm_theme bridge uses (`vm.eval` of
 // `mod.theme.<role> = <value>` assignments; makepad/libs/wm_theme/src/lib.rs
 // L262-301). Startup-correct by construction: init_persistence() runs before
-// the first paint. A live `theme.cycle` re-assigns the roles for every widget
-// created AFTER it and persists for the shell's next launch (disclosed).
+// the first paint. A26: a live change (`theme.cycle`, a palette) re-runs the
+// module's script_mods — this evaluator first — and re-applies the shell
+// (`a26_host::retheme`), the way the shell re-themes a module
+// (`module_host.rs` `apply_style`).
 pub fn role_assignments() -> String {
-    role_assignments_for(resolved() == "dark")
+    role_assignments_look(current_look())
 }
 
 /// [`role_assignments`] for an explicit palette (A18: the contrast guard reads
 /// both without flipping the process-global preference).
 pub fn role_assignments_for(dark: bool) -> String {
-    // LIGHT pins the shell's CURRENT literals (byte-identical light mode); DARK
-    // is the Stage B dark token set at the role level. Both modes assign — the
-    // shell DSL references the roles, so the stock values must never leak in.
-    // A18: light secondary is the web's `--dsw-alias-label-secondary` — the
-    // board's #6E6E73 read 4.46:1 on `color_bg_even` (the sidebar's segment
-    // track, Settings > Model's thinking segments).
-    if !dark {
-        r#"mod.theme.color_bg_app = #ffffff
-mod.theme.color_bg_odd = #f7f7f8
-mod.theme.color_bg_even = #f0f0f2
-mod.theme.color_text_muted = #61666b
-mod.theme.color_outset_1 = #e5e5e7
-mod.theme.color_outset_2 = #e5e5e7
-mod.theme.color_fg_app = #1d1d1f
-mod.theme.color_bg_container = #ffffff
-"#
-        .to_owned()
-    } else {
-        r#"mod.theme.color_bg_app = #1c1f22
+    role_assignments_look(if dark { Look::Dark } else { Look::Light })
+}
+
+/// The dark shell roles (the Stage B dark token set at the role level).
+const DARK_ROLES: &str = r#"mod.theme.color_bg_app = #1c1f22
 mod.theme.color_bg_odd = #1c1c1e
 mod.theme.color_bg_even = #2c2c2e
 mod.theme.color_text_muted = #98989d
@@ -696,8 +1028,39 @@ mod.theme.color_text_hover = #ffffff
 mod.theme.color_bg_highlight = #2f6feb
 mod.theme.color_bg_highlight_inline = #2c2c2e
 mod.widgets.Window.pass.clear_color = #1c1f22
+"#;
+
+/// [`role_assignments`] for any [`Look`]: a named palette is the dark set
+/// through [`named_hex`].
+pub fn role_assignments_look(look: Look) -> String {
+    // LIGHT pins the shell's CURRENT literals (byte-identical light mode); DARK
+    // is the Stage B dark token set at the role level. Both modes assign — the
+    // shell DSL references the roles, so the stock values must never leak in.
+    // A18: light secondary is the web's `--dsw-alias-label-secondary` — the
+    // board's #6E6E73 read 4.46:1 on `color_bg_even` (the sidebar's segment
+    // track, Settings > Model's thinking segments).
+    match look {
+        Look::Light => r#"mod.theme.color_bg_app = #ffffff
+mod.theme.color_bg_odd = #f7f7f8
+mod.theme.color_bg_even = #f0f0f2
+mod.theme.color_text_muted = #61666b
+mod.theme.color_outset_1 = #e5e5e7
+mod.theme.color_outset_2 = #e5e5e7
+mod.theme.color_fg_app = #1d1d1f
+mod.theme.color_bg_container = #ffffff
 "#
-        .to_owned()
+        .to_owned(),
+        Look::Dark => DARK_ROLES.to_owned(),
+        Look::Named(p) => match p.named() {
+            Some(colors) => DARK_ROLES
+                .lines()
+                .map(|l| match l.split_once(" = ") {
+                    Some((role, hex)) => format!("{role} = {}\n", named_hex(colors, hex)),
+                    None => format!("{l}\n"),
+                })
+                .collect(),
+            None => role_assignments_look(Look::Light),
+        },
     }
 }
 
@@ -706,7 +1069,8 @@ mod.widgets.Window.pass.clear_color = #1c1f22
 /// because a NEW `theme.*` role is not readable by a widget default on this
 /// host (see [`diff_tint_hexes`]). Light keeps the board's values; dark takes
 /// the web's dark link / error text (`app/theme.css:85,88`): the shared
-/// #2F6FEB read 3.62:1 and #C4141B 2.73:1 on the dark window.
+/// #2F6FEB read 3.62:1 and #C4141B 2.73:1 on the dark window. A named
+/// palette takes the dark value through [`named_hex`].
 pub const SHELL_INKS: &[(&str, &str, &str)] = &[
     // "Change", "Advanced…", "Clear search"
     ("link", "#2f6feb", "#679efe"),
@@ -714,16 +1078,69 @@ pub const SHELL_INKS: &[(&str, &str, &str)] = &[
     ("danger", "#d1242f", "#ff6b6b"),
     // "Forget server"
     ("danger_strong", "#c4141b", "#ff6b6b"),
+    // A26: the accent FILL (a selected palette's radio, the toggle track) —
+    // the board's blue in light and dark, the palette's accent in a palette.
+    ("accent", "#2f6feb", "#2f6feb"),
+    // A26: a filled glyph that ships one dark ink (the footer's Fleet
+    // sparkle, `b3_sparkle.svg` #1D1D1F): the primary text ink of the look,
+    // so it never vanishes on a dark sidebar.
+    ("glyph", "#1d1d1f", "#f5f5f7"),
+    // A26: the phone Settings rail's selected chip (board 6's blue tint) —
+    // a light chip on a dark rail read as a hole; dark takes the blue tint's
+    // dark twin, a palette its accent tint.
+    ("accent_tint", "#eef3fe", "#1d2a40"),
+    // A26: a toggle's off track — the hairline grey of the look.
+    ("track", "#e5e5ea", "#38383a"),
 ];
 
-/// The startup palette's value of a [`SHELL_INKS`] entry (`#rrggbb`).
-pub fn shell_ink(name: &str) -> &'static str {
-    let dark = resolved() == "dark";
-    SHELL_INKS
-        .iter()
-        .find(|(n, _, _)| *n == name)
-        .map(|(_, light, dark_v)| if dark { *dark_v } else { *light })
-        .unwrap_or("#ff00ff")
+/// The current look's value of a [`SHELL_INKS`] entry (`#rrggbb`).
+pub fn shell_ink(name: &str) -> String {
+    shell_ink_look(name, current_look())
+}
+
+/// [`shell_ink`] for an explicit look.
+pub fn shell_ink_look(name: &str, look: Look) -> String {
+    let Some((_, light, dark)) = SHELL_INKS.iter().find(|(n, _, _)| *n == name) else {
+        return "#ff00ff".to_owned();
+    };
+    match look {
+        Look::Light => (*light).to_owned(),
+        Look::Dark => (*dark).to_owned(),
+        Look::Named(_) => match look.colors() {
+            Some(colors) => named_hex(colors, dark),
+            None => (*light).to_owned(),
+        },
+    }
+}
+
+/// A26 — the transcript rows' icon ink in a dark look (`ui::themed_icons`):
+/// the dark secondary grey, or the palette's muted grey.
+pub fn icon_ink() -> String {
+    let dark = super::board3::ui::DARK_ICON_INK;
+    match current_look().colors() {
+        Some(colors) => format!("{}ff", named_hex(colors, dark)),
+        None => dark.to_owned(),
+    }
+}
+
+/// The roles a light look does not assign keep the host's own values — but a
+/// live switch back from dark must put them back, so they are read once,
+/// before the first assignment, and re-assigned in light.
+static STOCK_ROLES: OnceLock<String> = OnceLock::new();
+
+fn read_stock_roles(vm: &mut makepad_widgets::ScriptVm) -> String {
+    use makepad_widgets::{script_eval, ScriptMod};
+    let read = [
+        ("mod.theme.color_text", script_eval!(vm, { mod.theme.color_text })),
+        ("mod.theme.color_text_hover", script_eval!(vm, { mod.theme.color_text_hover })),
+        ("mod.theme.color_bg_highlight", script_eval!(vm, { mod.theme.color_bg_highlight })),
+        ("mod.theme.color_bg_highlight_inline", script_eval!(vm, { mod.theme.color_bg_highlight_inline })),
+        ("mod.widgets.Window.pass.clear_color", script_eval!(vm, { mod.widgets.Window.pass.clear_color })),
+    ];
+    let _ = vm.take_errors();
+    read.iter()
+        .filter_map(|(role, v)| v.as_color().map(|c| format!("{role} = #{c:08x}\n")))
+        .collect()
 }
 
 /// Assign the shell's theme roles in THIS VM (the `wm_theme::apply` pattern:
@@ -734,13 +1151,24 @@ pub fn shell_ink(name: &str) -> &'static str {
 /// the OS reader. Called from lib.rs's script_mod top (a `#(...)` splice) —
 /// BEFORE the OctoscodeView class body dereferences any `theme.*` ref — and
 /// from both capture probes' script_mod, so shell + card resolve identically.
+///
+/// A26: the seed and the persisted state are read ONCE per process — a live
+/// re-theme re-runs this evaluator, and must keep the person's new choice
+/// (the env seed would otherwise reset it).
 pub fn eval_roles(vm: &mut makepad_widgets::ScriptVm) -> bool {
-    use makepad_widgets::{ScriptMod, script_eval};
-    if let Ok(pref) = std::env::var("OCTOSCODE_THEME") {
-        set_preference(&pref);
+    use makepad_widgets::ScriptMod;
+    static SEEDED: std::sync::Once = std::sync::Once::new();
+    SEEDED.call_once(|| {
+        if let Ok(pref) = std::env::var("OCTOSCODE_THEME") {
+            set_preference(&pref);
+        }
+        init_persistence();
+    });
+    let stock = STOCK_ROLES.get_or_init(|| read_stock_roles(vm)).clone();
+    let mut code = role_assignments();
+    if current_look() == Look::Light {
+        code.push_str(&stock);
     }
-    init_persistence();
-    let code = role_assignments();
     let script_mod_id = ScriptMod {
         cargo_manifest_path: crate::design::manifest_dir().to_string(),
         module_path: "octoscode_theme".to_string(),
@@ -789,6 +1217,13 @@ pub enum Swatch {
     Role(&'static str),
     /// A shell accent ink ([`SHELL_INKS`]).
     Shell(&'static str),
+    /// A26 — a code token's colour (`highlight::Tok::color_look`: the web's
+    /// `--shiki-token-*`, a named palette's own, `theme.css:194-204`).
+    Code(crate::highlight::Tok),
+    /// A26 — the transcript rows' icon ink ([`icon_ink`]): the dark grey,
+    /// a palette's muted grey; light keeps each file's own near-black stroke
+    /// (#1D1D1F).
+    Icon,
 }
 
 /// One text ink on one fill it is drawn on.
@@ -809,7 +1244,8 @@ const fn pair(ink: Swatch, fill: Swatch, min: f64, at: &'static str) -> Contrast
 use super::board1_kit as b1;
 use super::board3::ui::tok;
 use crate::fluid as fl;
-use Swatch::{Fixed, Role, Shell, Themed};
+use crate::highlight::Tok;
+use Swatch::{Code, Fixed, Icon, Role, Shell, Themed};
 
 /// Every TEXT ink against every fill it is drawn on (see the section note).
 pub const CONTRAST_PAIRS: &[ContrastPair] = &[
@@ -863,6 +1299,27 @@ pub const CONTRAST_PAIRS: &[ContrastPair] = &[
     // the rows' icons in dark (ui::themed_icons; light keeps each file's own stroke)
     pair(Fixed(super::board3::ui::DARK_ICON_INK), Fixed("#1c1f22"), LARGE_OR_GLYPH, "a row's fold chevron / info / file glyph in dark"),
     pair(Fixed(super::board3::ui::DARK_ICON_INK), Fixed("#1c1c1e"), LARGE_OR_GLYPH, "a thinking block's chevron on its dark card"),
+    // A26: the same icons in every look (a palette tints them its muted grey).
+    pair(Icon, Themed(tok::SURFACE), LARGE_OR_GLYPH, "a row's fold chevron / info / file glyph"),
+    pair(Icon, Themed(tok::SURFACE2), LARGE_OR_GLYPH, "a thinking block's chevron on its card"),
+    // ---- A26: code (the highlighted body sits on the code block's fill).
+    pair(Code(Tok::Plain), Themed(fl::TIP), BODY_TEXT, "code: plain text"),
+    pair(Code(Tok::Keyword), Themed(fl::TIP), BODY_TEXT, "code: a keyword"),
+    pair(Code(Tok::String), Themed(fl::TIP), BODY_TEXT, "code: a string"),
+    pair(Code(Tok::Comment), Themed(fl::TIP), BODY_TEXT, "code: a comment"),
+    pair(Code(Tok::Constant), Themed(fl::TIP), BODY_TEXT, "code: a constant"),
+    pair(Code(Tok::Function), Themed(fl::TIP), BODY_TEXT, "code: a function"),
+    pair(Code(Tok::Punctuation), Themed(fl::TIP), BODY_TEXT, "code: punctuation"),
+    // ---- A26: the sidebar footer (Fleet / theme / Settings rows) and the
+    //      Preferences palette rows: shell roles on the window.
+    pair(Shell("accent"), Role("color_bg_app"), LARGE_OR_GLYPH, "a selected palette's radio, the toggle track"),
+    pair(Shell("glyph"), Role("color_bg_app"), LARGE_OR_GLYPH, "the footer's Fleet sparkle"),
+    pair(Shell("accent"), Shell("accent_tint"), LARGE_OR_GLYPH, "the phone Settings rail's selected icon on its chip"),
+    // ---- A26: error toasts (screens::toasts, board-3 notice kit on the
+    //      theme's surfaces).
+    pair(Themed(tok::RED_TEXT), Themed(tok::SURFACE), BODY_TEXT, "a toast's lead"),
+    pair(Themed(tok::MUTED), Themed(tok::SURFACE), BODY_TEXT, "a toast's cause, its count line"),
+    pair(Themed(tok::RED), Themed(tok::SURFACE), LARGE_OR_GLYPH, "a toast's error mark"),
     // ---- board-3 dialogs (light in both themes): the session pane, the
     //      composer's menus, Fleet, Routes, Inspector, Agents, History, …
     pair(Fixed(tok::TEXT), Fixed(tok::SURFACE), BODY_TEXT, "dialog text"),
@@ -917,25 +1374,41 @@ pub const EXEMPT_INKS: &[(&str, &str)] = &[
 
 /// `#rrggbb` (lower case) of a swatch in one palette.
 pub fn swatch_hex(s: Swatch, dark: bool) -> String {
+    swatch_hex_look(s, if dark { Look::Dark } else { Look::Light })
+}
+
+/// `#rrggbb` (lower case) of a swatch in one [`Look`] — Terminal's light and
+/// dark, or a named palette (A26: the guard checks every one).
+pub fn swatch_hex_look(s: Swatch, look: Look) -> String {
     fn rgb(h: &str) -> String {
         h.get(0..7).unwrap_or(h).to_ascii_lowercase()
     }
     match s {
         Swatch::Fixed(h) => rgb(h),
-        Swatch::Themed(h) if dark => {
+        Swatch::Themed(h) => {
             let key = rgb(h);
-            TOKENS.iter().find(|(l, _)| *l == key).map(|(_, d)| (*d).to_owned()).unwrap_or(key)
+            retint_hex(&key, look).unwrap_or(key)
         }
-        Swatch::Themed(h) => rgb(h),
-        Swatch::Role(name) => role_assignments_for(dark)
+        Swatch::Role(name) => role_assignments_look(look)
             .lines()
             .find_map(|l| l.strip_prefix(&format!("mod.theme.{name} = ")).map(rgb))
             .unwrap_or_else(|| format!("#role-{name}-unassigned")),
-        Swatch::Shell(name) => SHELL_INKS
-            .iter()
-            .find(|(n, _, _)| *n == name)
-            .map(|(_, l, d)| rgb(if dark { d } else { l }))
-            .unwrap_or_else(|| format!("#shell-{name}-missing")),
+        Swatch::Shell(name) => {
+            if SHELL_INKS.iter().any(|(n, _, _)| *n == name) {
+                rgb(&shell_ink_look(name, look))
+            } else {
+                format!("#shell-{name}-missing")
+            }
+        }
+        Swatch::Code(tok) => rgb(tok.color_look(look)),
+        Swatch::Icon => match look {
+            Look::Light => "#1d1d1f".to_owned(),
+            Look::Dark => rgb(super::board3::ui::DARK_ICON_INK),
+            Look::Named(_) => match look.colors() {
+                Some(colors) => named_hex(colors, super::board3::ui::DARK_ICON_INK),
+                None => rgb(super::board3::ui::DARK_ICON_INK),
+            },
+        },
     }
 }
 
@@ -958,16 +1431,16 @@ pub fn wcag_ratio(a: &str, b: &str) -> f64 {
 mod contrast_tests {
     use super::*;
 
-    fn failures(dark: bool) -> Vec<String> {
+    fn failures(look: Look) -> Vec<String> {
         CONTRAST_PAIRS
             .iter()
             .filter_map(|p| {
-                let (ink, fill) = (swatch_hex(p.ink, dark), swatch_hex(p.fill, dark));
+                let (ink, fill) = (swatch_hex_look(p.ink, look), swatch_hex_look(p.fill, look));
                 let r = wcag_ratio(&ink, &fill);
                 (r + 1e-9 < p.min).then(|| {
                     format!(
                         "{} {ink} on {fill} = {r:.2}:1 < {}:1 — {} ({:?} on {:?})",
-                        if dark { "dark" } else { "light" },
+                        look.name(),
                         p.min,
                         p.at,
                         p.ink,
@@ -979,12 +1452,82 @@ mod contrast_tests {
     }
 
     /// The guard: every declared TEXT ink meets its WCAG minimum on every
-    /// fill it is drawn on, in the light AND the dark palette.
+    /// fill it is drawn on, in the light AND the dark palette — and (A26) in
+    /// each named display palette: Codex, Claude, Slate, Solarized. No
+    /// palette is exempt.
     #[test]
-    fn every_text_ink_meets_wcag_on_every_fill_in_both_palettes() {
-        let mut bad = failures(false);
-        bad.extend(failures(true));
+    fn every_text_ink_meets_wcag_on_every_fill_in_every_look() {
+        let bad: Vec<String> = LOOKS.iter().flat_map(|l| failures(*l)).collect();
         assert!(bad.is_empty(), "contrast below WCAG:\n{}", bad.join("\n"));
+    }
+
+    /// A26 — the guard has teeth in the palettes too: the web's own Solarized
+    /// and Claude values the palettes tune fail it as text, so a revert to
+    /// them is caught.
+    #[test]
+    fn the_untuned_web_palette_inks_fail_the_rule() {
+        for (ink, fill, what) in [
+            ("#268bd2", "#073642", "Solarized's blue as link text on its alt fill (3.53:1)"),
+            ("#dc322f", "#002b36", "Solarized's red as error text on its surface (3.25:1)"),
+            ("#859900", "#073642", "Solarized's green as success text on its alt fill (4.06:1)"),
+            ("#eb6f6a", "#462622", "Claude's danger text on its danger-bg (4.49:1)"),
+        ] {
+            assert!(wcag_ratio(ink, fill) < BODY_TEXT, "{what}");
+        }
+    }
+
+    /// A26 — a named palette keeps the web's pinned surface / accent / text
+    /// (`palettes.test.ts:41-55`) and its derived fills are the mixes they
+    /// say they are (frame 50%, accent 20%, success 16% over the surface;
+    /// within one step of rounding).
+    #[test]
+    fn the_named_palettes_keep_the_web_values() {
+        for (p, surface, accent, text) in [
+            (&CODEX, "#0f1218", "#6ebcff", "#eceff4"),
+            (&CLAUDE, "#261f1a", "#f28f5d", "#f4f1ea"),
+            (&SLATE, "#141923", "#6397ff", "#e6ecf2"),
+            (&SOLARIZED, "#002b36", "#268bd2", "#eee8d5"),
+        ] {
+            assert_eq!((p.surface, p.accent, p.text), (surface, accent, text));
+            let ch = |h: &str, i: usize| i64::from_str_radix(&h[1 + 2 * i..3 + 2 * i], 16).unwrap();
+            let near = |got: &str, a: &str, t: f64| {
+                (0..3).all(|i| ((ch(a, i) as f64 * t + ch(p.surface, i) as f64 * (1.0 - t)) - ch(got, i) as f64).abs() <= 1.0)
+            };
+            assert!(near(p.hairline, p.frame, 0.5), "{} hairline", p.surface);
+            assert!(near(p.accent_tint, p.accent, 0.2), "{} accent tint", p.surface);
+            assert!(near(p.success_bg, p.success, 0.16), "{} success bg", p.surface);
+        }
+    }
+
+    /// A26 — every dark twin, dark shell role and dark shell ink has a colour
+    /// in every named palette (no stock grey leaks into a palette), and a
+    /// palette's output is a fixed point: never a light key nor a dark role,
+    /// so a second retint cannot move it.
+    #[test]
+    fn a_named_palette_maps_every_dark_role_to_a_fixed_point() {
+        for look in LOOKS {
+            let Look::Named(p) = look else { continue };
+            let colors = p.named().unwrap();
+            let roles = named_roles(colors);
+            for (_, dark) in TOKENS {
+                assert!(roles.iter().any(|(d, _)| d == dark), "{}: the twin {dark} has no palette colour", p.id());
+            }
+            for line in role_assignments_for(true).lines() {
+                let hex = line.split_once(" = ").map(|(_, h)| h).unwrap_or("");
+                assert!(
+                    hex == "#ffffff" || roles.iter().any(|(d, _)| *d == hex),
+                    "{}: the dark role {line} has no palette colour",
+                    p.id()
+                );
+            }
+            for (_, out) in roles {
+                assert!(!TOKENS.iter().any(|(l, _)| *l == out), "{}: {out} is a light key", p.id());
+                assert!(!roles.iter().any(|(d, _)| *d == out), "{}: {out} is a dark role", p.id());
+            }
+            let once = retint_dsl_look("a: #ffffffff b: #1d1d1fff c: #2c2c2eff d: #3564c6", look);
+            assert_eq!(retint_dsl_look(&once, look), once, "{}: retint is idempotent", p.id());
+            assert!(once.contains(colors.surface) && once.contains(colors.text), "{}: {once}", p.id());
+        }
     }
 
     /// The guard has teeth: the board values A18 replaced fail it (the web's
@@ -1031,18 +1574,18 @@ mod contrast_tests {
         }
     }
 
-    /// Every swatch resolves in both palettes (a role or a shell ink that a
+    /// Every swatch resolves in every look (a role or a shell ink that a
     /// palette does not assign would silently read as the stock colour).
     #[test]
-    fn every_swatch_resolves_in_both_palettes() {
+    fn every_swatch_resolves_in_every_look() {
         for p in CONTRAST_PAIRS {
-            for dark in [false, true] {
+            for look in LOOKS {
                 for s in [p.ink, p.fill] {
-                    let h = swatch_hex(s, dark);
+                    let h = swatch_hex_look(s, look);
                     assert!(
                         h.len() == 7 && u32::from_str_radix(&h[1..], 16).is_ok(),
                         "{s:?} does not resolve in {} ({h}) — {}",
-                        if dark { "dark" } else { "light" },
+                        look.name(),
                         p.at
                     );
                 }
