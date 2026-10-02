@@ -180,13 +180,24 @@ async fn the_compaction_mode_click_sends_the_recorded_request_and_selects_the_re
     assert_eq!(sent["session_id"], conv.session_id().as_str());
     assert_eq!(models::compact_mode(&conv.session_id()).as_deref(), Some("heuristic"));
 
-    // The dialog renders the confirmed half selected (ink + weight).
+    // The dialog renders the confirmed half selected (A14: the board-3
+    // segmented control — the selected segment's label in the medium face
+    // and the primary ink on its raised white segment; the other muted).
     let ui = Mutex::new(FlowUi::default());
     let ctx = Ctx::new(&store, &ui);
-    let (tree, _) = dialog::live_tree(dialog::Dialog::Context, &ctx).expect("context lowers");
-    let heur = dialog::find(&tree, "t_heur").expect("the heuristic half");
-    assert_eq!(heur.attrs.weight, Some(600), "the confirmed mode is selected");
-    assert!(dialog::find(&tree, "seg_sel").is_some(), "the selected half has its fill");
+    let dsl = dialog::lower(dialog::Dialog::Context, &ctx, 990.0, 603.0).expect("context lowers").dsl;
+    let block = |id: &str| -> String {
+        let start = dsl.find(&format!("\n{id} := ")).expect(id) + 1;
+        let end = dsl[start..].find("\n}").map(|e| start + e).unwrap_or(dsl.len());
+        dsl[start..end].to_owned()
+    };
+    // (Theme-independent: the weights, and the unselected half's transparent
+    // fill, are the same under either theme's retint.)
+    let heur = block("dlg_context_t_heur");
+    assert!(heur.contains("Inter-500.ttf"), "the confirmed mode is selected: {heur}");
+    assert!(block("dlg_context_t_llm").contains("Inter-400.ttf"), "the other half is not");
+    assert!(!block("dlg_context_seg_heur").contains("draw_bg.color: #00000000"), "the selected half has its fill");
+    assert!(block("dlg_context_seg_llm").contains("draw_bg.color: #00000000"), "the other half has none");
 }
 
 /// Context dialog open → the AUTHORITATIVE `session/status/read` (the

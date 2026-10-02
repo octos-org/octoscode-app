@@ -1428,7 +1428,7 @@ pub fn spawn(effect: Effect, rt: &tokio::runtime::Runtime, conv: Arc<Conversatio
 
 /// The web's `formatTokens` (model.ts:129-136): ≥1M → "…M", ≥1k → "…k",
 /// one decimal only when the division is fractional.
-fn format_tokens(value: u64) -> String {
+pub(crate) fn format_tokens(value: u64) -> String {
     let trim = |v: f64| {
         if v.fract() == 0.0 {
             format!("{}", v as u64)
@@ -1462,12 +1462,12 @@ fn format_interval(seconds: Option<u64>) -> String {
     format!("every {seconds}s")
 }
 
-fn cadence(loop_row: &Value) -> String {
+pub(crate) fn cadence(loop_row: &Value) -> String {
     format_interval(loop_row["interval_seconds"].as_u64())
 }
 
 /// The compact ladder for the monitor row's narrow slot: "1h"/"30m"/"30s".
-fn interval_short(seconds: Option<u64>) -> String {
+pub(crate) fn interval_short(seconds: Option<u64>) -> String {
     let Some(seconds) = seconds else {
         return "self-paced".to_owned();
     };
@@ -1482,7 +1482,7 @@ fn interval_short(seconds: Option<u64>) -> String {
 
 /// Atlas-granular elapsed ('0s'/'18m'/'1h 30m'); the web renders no elapsed
 /// formatter, so this is implemented per entry #30b2 (no cite).
-fn elapsed_atlas(seconds: u64) -> String {
+pub(crate) fn elapsed_atlas(seconds: u64) -> String {
     if seconds < 60 {
         return format!("{seconds}s");
     }
