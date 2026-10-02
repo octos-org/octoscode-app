@@ -1492,6 +1492,28 @@ impl OctoscodeView {
             self.board3_outcome(cx, outcome);
             return;
         }
+        // A8 — the header's "Copy as Markdown": one read of the canonical
+        // history per click (disabled while copying), the markdown to the
+        // clipboard on the UI thread (sync_board3), the phase on the pill.
+        if screens::copy_button::owns(action) {
+            let (store, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.conv.clone())
+            };
+            let session = store.active_session().unwrap_or_default();
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                if let Some(req) = screens::copy_button::begin(&session) {
+                    makepad_widgets::log!("[octoscode] copy as markdown: {session}");
+                    rt.spawn(async move {
+                        let phase = screens::copy_button::run(req, &conv).await;
+                        makepad_widgets::log!("[octoscode] copy as markdown -> {phase:?}");
+                        screens::copy_button::wake_after_result().await;
+                    });
+                }
+            }
+            self.sync_labels(cx);
+            return;
+        }
         // A1: sending re-follows the latest turn, like the web's
         // `jumpToLatest` (use-conversation-scroll.ts:85-96). `auto_tail` only
         // follows while the list already sits at its end, so after the person

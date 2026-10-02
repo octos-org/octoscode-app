@@ -11,6 +11,8 @@ pub mod board1_kit;
 pub mod board3;
 pub mod browser;
 pub mod connect;
+// A8: the header's "Copy as Markdown" (CopyConversationButton phases).
+pub mod copy_button;
 // A5: the dialog host — the Stage-B screens reachable from the palette and
 // the sidebar, lowered slot-relative, wired by node id.
 pub mod dialog;

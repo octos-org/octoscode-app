@@ -38,8 +38,21 @@ RESULTS = []
 
 
 def get(path, timeout=20):
-    with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
-        return r.read()
+    try:
+        with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
+            return r.read()
+    except urllib.error.HTTPError:
+        # Input routes with wait=1 can answer 404 when the frame they waited
+        # on was coalesced or replaced (a remount); the input itself landed.
+        if path.startswith(("/m?", "/t?", "/k?", "/click?")):
+            time.sleep(0.3)
+            return b"{}"
+        raise
+
+
+def key(code):
+    get(f"/k?k=down&c={code}&wait=1")
+    get(f"/k?k=up&c={code}&wait=1")
 
 
 def snap():
@@ -287,6 +300,40 @@ def main():
     click("b3_close", scroll=False)
     check("close: the pane is gone", wait(lambda: not shown("b3_sc_model_title")))
     check("strip: the state word left the foreign-holder copy", wait(lambda: text("b3_strip_state") != "Another app is using this session", 10), str(text("b3_strip_state")))
+
+    # 10b. The header's "Copy as Markdown" (desktop only; the phone header has no room).
+    if MODE == "desktop":
+        n_h = len(wire("session/hydrate"))
+        check("header: 'Copy as Markdown' is offered", text("hd_copy_label") == "Copy as Markdown", str(text("hd_copy_label")))
+        click("copy_open_hit", scroll=False)
+        check("header copy: 'Copied'", wait(lambda: text("hd_copy_label") == "Copied"), str(text("hd_copy_label")))
+        check("wire: the copy read the canonical history (session/hydrate)", len(wire("session/hydrate")) > n_h)
+        shot("07-header-copied")
+        check("header copy: the result resets after 2.5 s", wait(lambda: text("hd_copy_label") == "Copy as Markdown", 6), str(text("hd_copy_label")))
+    else:
+        check("phone header: no copy control", not shown("hd_copy_label"))
+
+    # 10c. The inspection dialog: /permissions from the composer.
+    click("i0_composer_0", scroll=False)
+    get("/t?" + urllib.parse.urlencode({"t": "/permissions", "wait": 1}))
+    time.sleep(0.3)
+    key("ReturnKey")
+    check("/permissions opens 'Remembered approvals'", wait(lambda: text("b3_title") == "Remembered approvals"), str(text("b3_title")))
+    check("inspector: the scope line names the Session", (text("b3_insp_scope") or "").startswith("Session: a8:"), str(text("b3_insp_scope")))
+    # The first read must finish first: Refresh is disabled ("Reading…") while it runs.
+    check("inspector: 'Reading…' settles to 'Refresh'", wait(lambda: text("b3_insp_refresh_label") == "Refresh"), str(text("b3_insp_refresh_label")))
+    n_sc = len(wire("approval/scopes/list"))
+    click("b3_insp_refresh", scroll=False) or click("b3_insp_refresh_glyph", scroll=False)
+    check("inspector: Refresh re-reads the snapshot", wait(lambda: len(wire("approval/scopes/list")) > n_sc), f"{n_sc} -> {len(wire('approval/scopes/list'))}")
+    wait(lambda: text("b3_insp_refresh_label") == "Refresh")
+    time.sleep(0.4)
+    click("b3_insp_copy_btn")
+    check("inspector: 'Conversation link copied.'", wait(lambda: seen("b3_insp_copied", "Conversation link copied.")))
+    link = seen("b3_insp_link_value")
+    check("inspector: the full link stays visible in a read-only field", bool(link) and link.startswith("octoscode://session?s="), str(link)[:60])
+    shot("08-inspector")
+    click("b3_close", scroll=False)
+    check("inspector closes", wait(lambda: not shown("b3_insp_scope")))
 
     # 11. New-session defaults: Settings > Sandbox, then New chat.
     opened = click("settings_open_hit", scroll=False)

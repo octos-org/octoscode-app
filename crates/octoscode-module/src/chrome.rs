@@ -611,6 +611,23 @@ script_mod! {
             hd_actions := View{
                 width: Fill height: Fill flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5}
                 padding: Inset{right: 16}
+                // A8: the web's header "Copy as Markdown"
+                // (CopyConversationButton.tsx; desktop only).
+                hd_copy := View{
+                    width: Fit height: 30 flow: Overlay visible: false
+                    RoundedView{
+                        width: Fit height: Fill flow: Right spacing: 6 align: Align{y: 0.5}
+                        padding: Inset{left: 10 right: 12}
+                        draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}
+                        Svg{
+                            width: 14 height: 14 animating: false
+                            draw_svg.svg: file_resource(#(crate::chrome::icon("copy")))
+                            draw_svg.preserve_viewbox: true
+                        }
+                        hd_copy_label := OcLabel{text: "Copy as Markdown" draw_text +: {text_style +: {font_size: 9.75}}}
+                    }
+                    copy_open_hit := OcHit{draw_bg.border_radius: 9.0}
+                }
                 hd_review := View{
                     width: Fit height: 30 flow: Overlay
                     // The pill IS the sized container (a Fill background laid
@@ -1541,6 +1558,9 @@ impl ChromeRuntime {
         if c(cx, live_id!(review_open_hit)) {
             out.push(Intent::ToggleReview);
         }
+        if c(cx, live_id!(copy_open_hit)) {
+            out.push(Intent::Action(crate::screens::copy_button::ACTION, 0));
+        }
         if c(cx, live_id!(hd_defaults_change)) {
             out.push(Intent::Action("settings.defaults.open", 0));
         }
@@ -1653,7 +1673,8 @@ impl ChromeRuntime {
         } else {
             (24.0, 800.0, (window_h - 48.0).clamp(320.0, 800.0), 16.0)
         };
-        let key = format!("{sidebar_w}|{frame_margin}|{max_w}|{max_h}|{compact}");
+        let copy_offered = crate::screens::copy_button::offered(store, compact);
+        let key = format!("{sidebar_w}|{frame_margin}|{max_w}|{max_h}|{compact}|{copy_offered}");
         if self.applied != key {
             self.applied = key;
             let mut col = view.widget(cx, ids!(threads_column));
@@ -1678,13 +1699,20 @@ impl ChromeRuntime {
             let mut search = view.widget(cx, ids!(sb_search_box));
             script_apply_eval!(cx, search, { height: #(search_h) });
             // The header actions: labels on desktop, icon-only on compact.
-            let left_pad = if compact { 104.0 } else { 220.0 };
+            // A8: + the copy pill (~150 px + 8 spacing) when it shows.
+            let left_pad = if compact { 104.0 } else if copy_offered { 380.0 } else { 220.0 };
             let mut left = view.widget(cx, ids!(hd_left));
             let pad = Inset { left: 12.0, right: left_pad, top: 0.0, bottom: 0.0 };
             script_apply_eval!(cx, left, { padding: #(pad) });
         }
         show(cx, view, ids!(hd_review_label), !compact);
         show(cx, view, ids!(hd_settings_label), !compact);
+        // A8: the copy pill's phase label, keyed by the active Session.
+        show(cx, view, ids!(hd_copy), copy_offered);
+        if copy_offered {
+            let sid = store.active_session().unwrap_or_default();
+            text(cx, view, ids!(hd_copy_label), crate::screens::copy_button::phase(&sid).label());
+        }
 
         // ---- header: the active session's title + its workspace path.
         let active = store.active_session();

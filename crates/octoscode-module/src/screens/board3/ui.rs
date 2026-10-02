@@ -526,6 +526,30 @@ impl Dsl {
         self.close();
     }
 
+    /// A8 — a READ-ONLY, selectable, wrapping text field (the web's
+    /// clipboard-denied fallback `<textarea readOnly>`,
+    /// `CopySessionLink.tsx:71-85`): the value is always visible in full and
+    /// the person can select and copy it by hand. No input event is routed.
+    pub fn readonly_text(&mut self, id: &str, text: &str, mono: bool) {
+        self.surface(
+            &format!("{id}_field"),
+            "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 10 right: 10 top: 6 bottom: 6}",
+            tok::SURFACE2,
+            8.0,
+            Some("#d9d9dcff"),
+        );
+        let face = if mono { Face::Mono } else { Face::Regular };
+        let style = text_style(face, 12.0);
+        let props = format!(
+            "width: Fill height: Fit padding: 0 margin: 0\ntext: {}\nflow: Right{{wrap: true}} is_read_only: true is_multiline: true\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {t} color_empty: {t} color_empty_hover: {t} color_empty_focus: {t}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: #00000000}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
+            lit(text),
+            t = tok::TEXT,
+        );
+        self.open(id, "TextInput", &props);
+        self.close();
+        self.close();
+    }
+
     /// A segmented control: `options` = (label, event); `selected` index.
     /// `Seg::Pill` selects with the board's solid black pill (screen 6's
     /// effort control); `Seg::Tab` with a raised white segment on the grey

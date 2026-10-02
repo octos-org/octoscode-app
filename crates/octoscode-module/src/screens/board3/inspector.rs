@@ -611,8 +611,10 @@ fn link_card(d: &mut Dsl, st: &InspState) {
             &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
         );
     } else {
-        let shown = super::inventory::fit(&st.link, 640.0, 12.0, true);
-        ui::mono_box(d, "b3_insp_link_value", &shown, Some(("b3_insp_copy", "b3_copy.svg", "b3.insp.copy")));
+        // A8 — the full link in a read-only, selectable field: the web's
+        // clipboard-denied fallback (`CopySessionLink.tsx:71-85`) made
+        // permanent, since a native clipboard write cannot report a refusal.
+        d.readonly_text("b3_insp_link_value", &st.link, true);
     }
     if st.copied {
         d.text("b3_insp_copied", "Conversation link copied.", &Txt::new(12.0, Face::Regular, tok::GREEN));

@@ -1217,6 +1217,17 @@ mod tests {
         let mut d = Dsl::new();
         super::super::thinking::build(&mut d, &Frame::DESKTOP, &store);
         assert!(crate::mount::eval_component(&mut cx, makepad_widgets::MAIN_SPLASH_VM_ID, &d.finish()).is_ok());
+        // The inspector's read-only link field (the clipboard fallback).
+        let insp = super::super::inspector::InspState {
+            link: "octoscode://session?s=%5B%22%2Fhome%2Fuser%2Focts%22%2C%22a8%22%2C%22a8%3Amain%22%5D".into(),
+            copied: true,
+            ..Default::default()
+        };
+        let mut d = Dsl::new();
+        super::super::inspector::build(&mut d, &insp, &Frame::DESKTOP, &store);
+        let dsl = d.finish();
+        assert!(dsl.contains("is_read_only: true"));
+        assert!(crate::mount::eval_component(&mut cx, makepad_widgets::MAIN_SPLASH_VM_ID, &dsl).is_ok(), "the read-only link field evaluates");
     }
 
     #[test]

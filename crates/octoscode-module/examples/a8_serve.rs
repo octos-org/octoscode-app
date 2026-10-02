@@ -311,8 +311,13 @@ async fn ws(stream: TcpStream, cfg: Cfg, world: Arc<Mutex<World>>) {
                     w.held = false;
                     Ok(json!({"mode": "internal", "recovery": "none"}))
                 }
+                // The recorded r43a hydrate shape; the main session has history.
                 "session/hydrate" => Ok(json!({
-                    "session_id": session, "cursor": {"stream": session, "seq": 1}, "messages": []
+                    "session_id": session, "cursor": {"stream": session, "seq": 2},
+                    "messages": if session == "a8:main" { json!([
+                        {"seq": 1, "role": "user", "content": "Fix the steer queue drop on reconnect"},
+                        {"seq": 2, "role": "assistant", "content": "The queue now re-drains after the socket is back."}
+                    ]) } else { json!([]) }
                 })),
                 "thread/graph/get" => Ok(json!({"session_id": session, "cursor": {"stream": session, "seq": 1}, "threads": [], "orphans": []})),
                 "approval/scopes/list" => Ok(json!({"scopes": []})),

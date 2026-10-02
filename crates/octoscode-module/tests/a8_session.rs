@@ -39,6 +39,10 @@ const METHODS: &[&str] = &[
     "session/driver/get",
     "session/driver/acquire",
     "session/driver/release",
+    "thread/graph/get",
+    "approval/scopes/list",
+    "turn/state/get",
+    "session/hydrate",
 ];
 
 /// What the server answers (the knobs a test turns).
@@ -50,6 +54,8 @@ struct Script {
     driver_refusal: Option<String>,
     /// The next N `permission/profile/set` calls fail.
     fail_sets: usize,
+    /// `session/hydrate` answers an empty history.
+    empty_history: bool,
     mode: String,
     network: String,
     approval: String,
@@ -97,7 +103,13 @@ impl FakeServer {
 fn reply(method: &str, p: &Value, script: &Mutex<Script>) -> Result<Value, Value> {
     let mut s = script.lock().unwrap();
     let session = p["session_id"].as_str().unwrap_or("a8:main").to_owned();
-    let mut features = vec!["external_driver_v1", "permission.profile.v1", "state.session_hydrate.v1"];
+    let mut features = vec![
+        "external_driver_v1",
+        "permission.profile.v1",
+        "state.session_hydrate.v1",
+        "state.thread_graph.v1",
+        "state.turn_state_get.v1",
+    ];
     if !s.no_sandbox_feature {
         features.push("session.sandbox.v1");
     }
@@ -180,6 +192,22 @@ fn reply(method: &str, p: &Value, script: &Mutex<Script>) -> Result<Value, Value
             s.held = false;
             json!({"mode": "internal", "recovery": "none"})
         }
+        // The recorded r23-conversation graph shape.
+        "thread/graph/get" => json!({
+            "cursor": {"seq": 278, "stream": session}, "orphans": [], "session_id": session,
+            "threads": [{"message_seqs": [0, 1], "root_seq": 0, "status": "unknown", "thread_id": "01920000-0000-7000-8000-00000000023b"}]
+        }),
+        "approval/scopes/list" => json!({"scopes": [
+            {"session_id": session, "scope": "workspace", "scope_match": "/home/user/octos", "decision": "approved"}
+        ]}),
+        "turn/state/get" => json!({"session_id": session, "turn_id": p["turn_id"], "state": "unknown", "committed_seqs": []}),
+        // The recorded r43a hydrate shape (messages with seq/role/content).
+        "session/hydrate" => json!({"session_id": session, "cursor": {"stream": session, "seq": 3},
+            "messages": if s.empty_history { json!([]) } else { json!([
+                {"seq": 1, "role": "user", "content": "Fix the steer queue drop on reconnect"},
+                {"seq": 2, "role": "tool", "content": "cargo test: ok"},
+                {"seq": 3, "role": "assistant", "content": "The queue now re-drains after the socket is back."}
+            ]) }}),
         _ => json!({}),
     })
 }
@@ -486,4 +514,87 @@ async fn an_unadvertised_sandbox_is_never_sent_and_a_failed_default_is_surfaced(
     // The pane shows it as its notice.
     open_pane(&conv).await;
     assert!(host::lower_open(&conv.store).unwrap().dsl.contains(sd::APPLY_FAILED));
+}
+
+#[tokio::test]
+async fn the_inspection_dialog_titles_its_kind_scopes_its_session_and_refreshes() {
+    let _g = lock();
+    let server = FakeServer::start(Script::default()).await;
+    let (conv, _ev) = connected(&server).await;
+    let session = conv.session_id();
+    // `/permissions` from the composer (the slash grammar's production entry).
+    let job = spawn_of(host::command("permissions", "", &conv).expect("an inspection command"));
+    assert_eq!(job, Job::InspectorLoad);
+    assert_eq!(host::open_dialog(), Some(Dialog::Inspector));
+    host::run(job, &conv).await.unwrap();
+    let dsl = host::lower_open(&conv.store).unwrap().dsl;
+    assert!(dsl.contains("text: \"Remembered approvals\""), "the per-kind title");
+    assert!(dsl.contains(&format!("Session: {session}")), "the scope line names the Session");
+    assert!(dsl.contains("Read-only server snapshot."), "the read-only note");
+    assert_eq!(server.params_of("approval/scopes/list").len(), 1);
+    // Refresh: Reading… while the read runs (no second tap), then a fresh read.
+    let job = spawn_of(host::perform("b3.insp.refresh", 0, &conv.store));
+    assert_eq!(job, Job::InspectorLoad);
+    let reading = host::lower_open(&conv.store).unwrap().dsl;
+    assert!(reading.contains("\"Reading…\"") && reading.contains("Reading the captured Session…"));
+    assert_eq!(host::perform("b3.insp.refresh", 0, &conv.store), Outcome::Done, "no second read while one runs");
+    host::run(job, &conv).await.unwrap();
+    assert_eq!(server.params_of("approval/scopes/list").len(), 2, "refresh re-read the server snapshot");
+    // The other two kinds keep their own titles; `/turn` adds the turn to the scope.
+    host::run(spawn_of(host::command("threads", "", &conv).unwrap()), &conv).await.unwrap();
+    assert!(host::lower_open(&conv.store).unwrap().dsl.contains("text: \"Thread graph\""));
+    let turn = "01920000-0000-7000-8000-000000000301";
+    host::run(spawn_of(host::command("turn", &format!("state {turn}"), &conv).unwrap()), &conv).await.unwrap();
+    let dsl = host::lower_open(&conv.store).unwrap().dsl;
+    assert!(dsl.contains("text: \"Turn state\""));
+    assert!(dsl.contains("· Turn: 01920000"), "the turn joins the scope line");
+    assert_eq!(server.params_of("turn/state/get")[0]["turn_id"], json!(turn));
+}
+
+#[tokio::test]
+async fn the_conversation_link_copies_and_stays_visible_read_only() {
+    let _g = lock();
+    let server = FakeServer::start(Script::default()).await;
+    let (conv, _ev) = connected(&server).await;
+    host::run(spawn_of(host::command("threads", "", &conv).unwrap()), &conv).await.unwrap();
+    let link = host::state().insp.link.clone();
+    assert!(link.starts_with("octoscode://session?s="), "{link}");
+    let dsl = host::lower_open(&conv.store).unwrap().dsl;
+    // The fallback: the FULL link in a read-only, selectable field.
+    let field = dsl.find("b3_insp_link_value := TextInput").expect("a text field");
+    assert!(dsl[field..].contains("is_read_only: true"));
+    assert!(dsl[field..].contains(&format!("{link:?}")), "the whole link, never ellipsized");
+    // Copy writes the clipboard and announces it.
+    assert_eq!(host::perform("b3.insp.copy", 0, &conv.store), Outcome::Clipboard(link));
+    assert!(host::lower_open(&conv.store).unwrap().dsl.contains("Conversation link copied."));
+}
+
+#[tokio::test]
+async fn the_header_copy_reads_canonical_history_and_reports_each_phase() {
+    use octoscode_module::screens::copy_button::{self, Phase};
+    let _g = lock();
+    copy_button::reset();
+    let server = FakeServer::start(Script::default()).await;
+    let (conv, _ev) = connected(&server).await;
+    let session = conv.session_id();
+    assert!(copy_button::offered(&conv.store, false), "a Session is open and session/hydrate is advertised");
+    assert!(!copy_button::offered(&conv.store, true), "no room on the phone header");
+    // The header pill's routed id is this module's.
+    assert!(copy_button::owns(copy_button::ACTION));
+    let req = copy_button::begin(&session).expect("idle -> copying");
+    assert_eq!(copy_button::phase(&session).label(), "Copying…");
+    assert!(copy_button::begin(&session).is_none(), "disabled while copying");
+    assert_eq!(copy_button::run(req, &conv).await, Phase::Copied);
+    assert_eq!(copy_button::phase(&session).label(), "Copied");
+    assert_eq!(server.params_of("session/hydrate")[0], json!({"session_id": session}), "the canonical history, not the rendered timeline");
+    let md = host::take_clipboard().expect("the markdown waits for the UI thread's clipboard write");
+    assert!(md.starts_with("# octos"), "the workspace leaf heads it: {md}");
+    assert!(md.contains("Fix the steer queue drop on reconnect") && md.contains("re-drains"));
+    assert!(!md.contains("cargo test: ok"), "chat text only: tool output is dropped");
+    // An empty conversation copies nothing.
+    server.script.lock().unwrap().empty_history = true;
+    let req = copy_button::begin(&session).unwrap();
+    assert_eq!(copy_button::run(req, &conv).await, Phase::Empty);
+    assert_eq!(copy_button::phase(&session).label(), "Nothing to copy");
+    assert!(host::take_clipboard().is_none(), "nothing written");
 }
