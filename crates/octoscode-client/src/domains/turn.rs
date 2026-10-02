@@ -61,6 +61,9 @@ impl NotificationHandler for TurnCompletedHandler {
             // #P4b1 [14]: the turn's plan dies with the turn that authored it
             // (clearPlanForTurn, plan.ts:31).
             self.store.domains.task.clear_plan_for_turn(&session, &turn_id);
+            // A6: the turn's pending approval/question cards die with it
+            // (`session-interaction-ledger.ts:307-321` settleTurn).
+            self.store.domains.approval.settle_turn(&turn_id);
             // A turn boundary closes the assistant entry it belongs to, so
             // later deltas start a new block instead of appending to a
             // finished one.
@@ -84,15 +87,13 @@ impl NotificationHandler for TurnErrorHandler {
             self.store.domains.turn.ended(&turn_id);
             // #P4b1 [14]: an errored authoring turn drops its plan too.
             self.store.domains.task.clear_plan_for_turn(&session, &turn_id);
+            self.store.domains.approval.settle_turn(&turn_id);
             self.store.domains.session.timeline.close_turn(&session, &turn_id);
-            // A readable system notice: a deterministic kind, the error text.
-            self.store.domains.session.timeline.append_data(
-                &session,
-                Some(turn_id),
-                EntryKind::SYSTEM_NOTICE,
-                format!("{}: {}", error.code, error.message),
-                serde_json::json!({"code": error.code, "message": error.message}),
-            );
+            // A6: a readable system notice with a DETERMINISTIC id — the web's
+            // `settleTimelineTurn` upserts `terminal:<turn>`
+            // (`timeline/model.ts:762-790`), so this frame and the same turn's
+            // `turn_terminal` envelope update ONE row.
+            terminal_notice(&self.store, &session, &turn_id, "errored", Some((error.code.as_str(), error.message.as_str())), None);
         }
     }
 }
@@ -311,8 +312,10 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
                 timeline.append_delta(&session, Some(&turn_id), EntryKind::ASSISTANT_TEXT, text);
             }
             // Reasoning is its own entry kind, never the answer text.
+            // A6: timed — the folded header's `12 s · 340 words` needs the
+            // block's first-seen and latest stream time (`model.ts:669-678`).
             PayloadV2::ReasoningDelta { text } => {
-                timeline.append_delta(&session, Some(&turn_id), EntryKind::REASONING, text);
+                timeline.append_delta_timed(&session, Some(&turn_id), EntryKind::REASONING, text, now_ms());
             }
             // Finalizes the segment its deltas wrote: our `finalize_assistant`
             // keeps the streamed text and closes the entry (falling back to
@@ -324,11 +327,11 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
                 // an attachment row, never inline in the body
                 // (`AttachmentList.tsx`).
                 for path in &meta.media {
-                    timeline.append_data(
+                    // A6: one row per (turn, file) — see `upsert_attachment`.
+                    timeline.upsert_attachment(
                         &session,
                         Some(turn_id.clone()),
-                        EntryKind::ATTACHMENT,
-                        path.clone(),
+                        path,
                         serde_json::json!({
                             "path": path,
                             "delivered": true,
@@ -390,11 +393,11 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
                 size_bytes,
                 attachment_owner,
             } => {
-                timeline.append_data(
+                // A6: one row per (turn, file) — see `upsert_attachment`.
+                timeline.upsert_attachment(
                     &session,
                     Some(turn_id.clone()),
-                    EntryKind::ATTACHMENT,
-                    path.clone(),
+                    path,
                     serde_json::json!({
                         "path": path, "mime": mime, "size_bytes": size_bytes,
                         "owner": owner_json(attachment_owner),
@@ -421,6 +424,8 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
                 // turn's plan (the web's terminalTurnId treats turn_terminal
                 // as the canonical terminal, entry-model.ts:87-99).
                 self.store.domains.task.clear_plan_for_turn(&session, &turn_id);
+                // A6: the turn's interaction cards settle with it.
+                self.store.domains.approval.settle_turn(&turn_id);
                 match outcome {
                     TurnTerminalOutcome::Completed => {
                         timeline.close_turn(&session, &turn_id);
@@ -431,24 +436,20 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
                             .map(|e| (e.code.clone(), e.message.clone()))
                             .unwrap_or_else(|| ("error".to_owned(), String::new()));
                         timeline.close_turn(&session, &turn_id);
-                        timeline.append_data(
-                            &session,
-                            Some(turn_id.clone()),
-                            EntryKind::SYSTEM_NOTICE,
-                            format!("{code}: {message}"),
-                            serde_json::json!({"code": code, "message": message}),
-                        );
+                        terminal_notice(&self.store, &session, &turn_id, name, Some((code.as_str(), message.as_str())), None);
                     }
                     TurnTerminalOutcome::Interrupted | TurnTerminalOutcome::RateLimited => {
                         // Non-clean ends still close the streamed entry, with
                         // a named notice (never a silent stop).
                         timeline.close_turn(&session, &turn_id);
-                        timeline.append_data(
+                        let err = error.as_ref().map(|e| (e.code.as_str(), e.message.as_str()));
+                        terminal_notice(
+                            &self.store,
                             &session,
-                            Some(turn_id.clone()),
-                            EntryKind::SYSTEM_NOTICE,
-                            name.to_owned(),
-                            serde_json::json!({"outcome": name, "token_usage": token_usage}),
+                            &turn_id,
+                            name,
+                            err,
+                            Some(serde_json::json!(token_usage)),
                         );
                     }
                 }
@@ -502,6 +503,66 @@ fn payload_type_name(payload: &PayloadV2) -> String {
         .unwrap_or_else(|| "unknown".to_owned())
 }
 
+/// A6 — Unix ms now (the reasoning block's first-seen / latest stream time).
+pub fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0)
+}
+
+/// A6 — the readable body of a terminal notice (the web's `turn_terminal`
+/// fold, `timeline/model.test.ts:1639-1663`): the server's message when it
+/// says something, else `Server error (<code>).`; never protocol metadata
+/// (`error.data`) — only the code and the message reach the row.
+pub fn readable_error(code: &str, message: &str) -> String {
+    let m = message.trim();
+    if !m.is_empty() {
+        return m.to_owned();
+    }
+    let c = code.trim();
+    if c.is_empty() {
+        "Unknown server error".to_owned()
+    } else {
+        format!("Server error ({c}).")
+    }
+}
+
+/// A6 — upsert a turn's terminal notice under the web's deterministic id
+/// `terminal:<turn>` (`timeline/model.ts:762-790` `settleTimelineTurn`): a
+/// `turn/error` and the same turn's `turn_terminal` envelope, or a replay of
+/// either, all update ONE row. `outcome` picks the title at render time
+/// (`Turn failed` / `Turn stopped` / `Turn rate limited`); the body is the
+/// readable error.
+pub fn terminal_notice(
+    store: &Store,
+    session: &str,
+    turn_id: &str,
+    outcome: &str,
+    error: Option<(&str, &str)>,
+    token_usage: Option<serde_json::Value>,
+) {
+    let (code, body) = match error {
+        Some((code, message)) => (code.to_owned(), readable_error(code, message)),
+        None => (String::new(), String::new()),
+    };
+    let mut data = serde_json::json!({"outcome": outcome, "message": body});
+    if !code.is_empty() {
+        data["code"] = serde_json::json!(code);
+    }
+    if let Some(u) = token_usage.filter(|u| !u.is_null()) {
+        data["token_usage"] = u;
+    }
+    let text = if body.is_empty() { outcome.to_owned() } else { format!("{outcome}: {body}") };
+    store.domains.session.timeline.upsert_notice_data(
+        session,
+        Some(turn_id.to_owned()),
+        &format!("terminal:{turn_id}"),
+        text,
+        data,
+    );
+}
+
 /// `message/reasoning_delta` — the model's streamed thinking (card #13 §3).
 ///
 /// The web renders reasoning as its own timeline row, never as answer text
@@ -519,11 +580,13 @@ impl NotificationHandler for ReasoningDeltaHandler {
             self.store.note_seen(Self::METHOD);
             let session = delta.session_id.0.clone();
             let turn_id = delta.turn_id.0.to_string();
-            self.store.domains.session.timeline.append_delta(
+            // A6: timed, like the envelope path.
+            self.store.domains.session.timeline.append_delta_timed(
                 &session,
                 Some(&turn_id),
                 EntryKind::REASONING,
                 &delta.text,
+                now_ms(),
             );
         }
     }

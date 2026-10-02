@@ -190,16 +190,20 @@ fn label(id: &str, text: &str, style: &str, color: &str, walk: &str) -> String {
 }
 
 /// A transparent hit target over its parent overlay (the shell's own
-/// `review_close` pattern, `lib.rs`): no fill, a faint hover/press tint.
+/// `review_close` pattern, `lib.rs`): no fill, a faint press tint.
 pub fn hit(id: &str, radius: f64) -> String {
     // `color_2` at (-1,-1,-1,-1) DISABLES the face gradient: at #00000000 the
     // gradient stays on (button.rs tests `color_2.x > -0.5`) and mixes toward
     // the theme's `color_2_focus` once clicked — measured as a white wash
     // over a disclosed tool row. Focus stays transparent for the same reason.
+    // A6: NO hover tint (the chrome's `OcHit` rule): a synthesized click — a
+    // phone tap, the instrument — never sends hover-out, so the tint stuck on
+    // the row just disclosed (the "shared row hover tint" left on an opened
+    // block). The press tint is the feedback.
     format!(
         "{id} := Button{{width: Fill height: Fill text: \"\" margin: 0 padding: 0 \
          label_walk: Walk{{width: 0 height: 0}} icon_walk: Walk{{width: 0 height: 0}} \
-         draw_bg.color: #00000000 draw_bg.color_hover: #0000000a draw_bg.color_down: #00000014 \
+         draw_bg.color: #00000000 draw_bg.color_hover: #00000000 draw_bg.color_down: #00000014 \
          draw_bg.color_focus: #00000000 draw_bg.color_disabled: #00000000 \
          draw_bg.color_2: vec4(-1.0, -1.0, -1.0, -1.0) draw_bg.border_size: 0.0 draw_bg.border_radius: {radius} \
          draw_bg.border_color: #00000000 draw_bg.border_color_2: vec4(-1.0, -1.0, -1.0, -1.0)}}\n"
