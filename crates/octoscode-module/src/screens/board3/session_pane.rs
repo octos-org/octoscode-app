@@ -702,6 +702,17 @@ pub async fn select_model(conv: &crate::flow::Conversation, index: usize) -> Res
             st.pane.last_seen_model = Some(row.model_id.clone());
             st.pane.external_change = false;
             drop(st);
+            // One app, one last-seen selection (`lastSeenSelectionRef`): the
+            // model menu's board must not read this pane's choice as another
+            // tab's change (case 23).
+            conv.store.domains.models.set_last_seen(
+                &session,
+                Some(octoscode_store::domains::models::Identity {
+                    model: row.model_id.clone(),
+                    provider: row.provider.clone(),
+                    route: row.route_id.clone(),
+                }),
+            );
             crate::screens::settings::mark_model_selected(&conv.store, &row.model_id);
         }
     }

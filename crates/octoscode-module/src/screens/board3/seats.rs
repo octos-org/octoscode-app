@@ -706,6 +706,10 @@ pub async fn select_model(conv: &crate::flow::Conversation, index: usize) -> Res
                 },
             );
             store.domains.models.set_last_seen(&session, Some(identity(&selected)));
+            // One app, one last-seen selection (`lastSeenSelectionRef`): the
+            // Session settings pane must not read this app's own choice as
+            // another tab's change (case 23).
+            super::host::state().pane.last_seen_model = Some(selected.model.clone());
             let _ = load_models(conv).await;
             Ok(board.latest().map(|n| n.message.clone()).unwrap_or_else(|| "Already selected".into()))
         }
