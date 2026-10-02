@@ -66,6 +66,19 @@ impl Store {
         self.connection.is_live()
     }
 
+    /// A12 — the retained outage of a connection that was live (see
+    /// [`connection::Outage`]).
+    pub fn outage(&self) -> Option<connection::Outage> {
+        self.connection.outage()
+    }
+
+    /// A12 — whether the conversation shell stays on screen: the connection
+    /// is live, or it was live and is now re-dialing (never after a
+    /// voluntary leave).
+    pub fn keeps_shell(&self) -> bool {
+        self.is_live() || self.outage().is_some()
+    }
+
     // ---- capabilities (config domain) -------------------------------------
 
     pub fn set_capabilities(&self, accepted: Vec<String>) {

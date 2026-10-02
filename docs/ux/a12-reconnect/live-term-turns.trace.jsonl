@@ -1,0 +1,53 @@
+{"at_ms": 2, "dir": "out", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 25, "dir": "in", "method": "state:Idle"}
+{"at_ms": 25, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 25, "dir": "in", "method": "state:Handshaking"}
+{"at_ms": 25, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 25, "dir": "in", "method": "state:Live"}
+{"at_ms": 25, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 25, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 26, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 1425, "dir": "out", "method": "turn/start", "session_id": "dsflash:main", "turn_id": "01a0fba4-df1f-764c-80f0-674ccf32ad6b"}
+{"at_ms": 1425, "dir": "in", "method": "turn/started", "session_id": "dsflash:main", "turn_id": "01a0fba4-df1f-764c-80f0-674ccf32ad6b"}
+{"at_ms": 2630, "dir": "in", "method": "projection/envelope turn_terminal", "turn_id": "01a0fba4-df1f-764c-80f0-674ccf32ad6b"}
+{"at_ms": 5359, "dir": "in", "method": "state:Reconnecting { attempt: 1 }"}
+{"at_ms": 5361, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 5361, "dir": "in", "method": "state:Reconnecting { attempt: 2 }"}
+{"at_ms": 5362, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 5362, "dir": "in", "method": "state:Reconnecting { attempt: 3 }"}
+{"at_ms": 5364, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 5364, "dir": "in", "method": "state:Reconnecting { attempt: 4 }"}
+{"at_ms": 5365, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 5365, "dir": "in", "method": "state:Reconnecting { attempt: 5 }"}
+{"at_ms": 13368, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 13369, "dir": "in", "method": "state:Handshaking"}
+{"at_ms": 13369, "dir": "out", "method": "session/open", "session_id": "dsflash:main", "reconnect": true}
+{"at_ms": 13384, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 13384, "dir": "in", "method": "state:Live"}
+{"at_ms": 13384, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 13384, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 13384, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 13385, "dir": "in", "method": "session/hydrate", "session_id": "dsflash:main", "messages": 2}
+{"at_ms": 14270, "dir": "out", "method": "turn/start", "session_id": "dsflash:main", "turn_id": "01a0fba5-114c-7370-bd7c-9bdd60ece763"}
+{"at_ms": 14270, "dir": "in", "method": "turn/started", "session_id": "dsflash:main", "turn_id": "01a0fba5-114c-7370-bd7c-9bdd60ece763"}
+{"at_ms": 18073, "dir": "in", "method": "projection/envelope turn_terminal", "turn_id": "01a0fba5-114c-7370-bd7c-9bdd60ece763"}
+{"at_ms": 20436, "dir": "in", "method": "state:Reconnecting { attempt: 1 }"}
+{"at_ms": 20438, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 20438, "dir": "in", "method": "state:Reconnecting { attempt: 2 }"}
+{"at_ms": 20439, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 20439, "dir": "in", "method": "state:Reconnecting { attempt: 3 }"}
+{"at_ms": 20441, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 20441, "dir": "in", "method": "state:Reconnecting { attempt: 4 }"}
+{"at_ms": 20442, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 20442, "dir": "in", "method": "state:Reconnecting { attempt: 5 }"}
+{"at_ms": 20443, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 20443, "dir": "in", "method": "state:Reconnecting { attempt: 6 }"}
+{"at_ms": 0, "dir": "out", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 0, "dir": "in", "method": "state:Idle"}
+{"at_ms": 0, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 1, "dir": "in", "method": "state:Handshaking"}
+{"at_ms": 17, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 17, "dir": "in", "method": "state:Live"}
+{"at_ms": 17, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 17, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 18, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}

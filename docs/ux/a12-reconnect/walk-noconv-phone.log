@@ -1,0 +1,15 @@
+# tools/walk/a12_reconnect_walk.py, host build 3e1b4e37
+# captures: docs/ux/a12-reconnect/phone-0-not-connected.png (+ .snap.json)
+PASS app launched (synthetic shell, no transport)
+PASS the synthetic shell is up
+PASS /undo typed — '/undo'
+PASS typed /undo + Return with no conversation: 'Not connected to Octos' — 'Not connected to Octos'
+PASS …'/undo was not run — your text stays in the composer.' — '/undo was not run — your text stays in the composer.'
+PASS …the typed command stays — '/undo'
+  shot docs/ux/a12-reconnect/phone-0-not-connected.png
+PASS a send with no conversation: 'Not sent — your text stays in the composer.' — 'Not sent — your text stays in the composer.'
+PASS …the text stays — 'hello there'
+PASS the notice banner spans the composer column — [12, 517, 336, 118] / [12, 729, 336, 93]
+PASS Dismiss >= 28 px — [68, 590, 75, 32]
+PASS Dismiss clears the notice
+== WALK a12 no-conversation phone: 11/11 passed
