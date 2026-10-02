@@ -48,6 +48,21 @@ pub static NATIVE_ZH: &[(&str, &str, &str)] = &[
         "技能由此配置档案共享，不会安装到此设备。安装可能下载可执行工具和依赖。请先审查并信任来源。",
         "screens/dialog.rs SKILLS_WARNING (the web's zh.ts key with 'in your browser')",
     ),
+    // ---- A30: the sidebar peer dock (parity row 270; board 4 regions 6/7 and
+    // README "Row 270"). The collapsed pill rewrites the web's
+    // `formatPeerDockPill` ("3 · 1 live · 1/3 landed · 1 blocked", which the
+    // web never translates) in the Fleet's words (工作中 / 已完成, FLEET_ZH);
+    // the board names the web's "Approve for this session" (peer-copy.ts:
+    // 本次会话内批准) "Approve for session"; the control chain's three
+    // fail-closed labels (`fleet_driver::row_control`) read like the Fleet's
+    // "Take control of {value0} to do this" (需要先取得 {value0} 的控制权).
+    ("{value0} working", "{value0} 个工作中", "board 4 region 7, the pill's working count"),
+    ("{value0} waiting", "{value0} 个等待中", "board 4 region 7, the pill's waiting count"),
+    ("{value0}/{value1} finished", "{value0}/{value1} 已完成", "board 4 region 7, the pill's finished of total"),
+    ("Approve for session", "本次会话内批准", "board 4 region 6, the threaded card's link (the web's 'Approve for this session')"),
+    ("This peer is no longer in the roster.", "此同侪已不在名单中。", "fleet_driver::row_control's fail-closed label"),
+    ("Take control of this session to do this", "需要先取得此会话的控制权", "fleet_driver::row_control's fail-closed label"),
+    ("That action is not available right now.", "此操作当前不可用。", "fleet_driver::row_control's fail-closed label"),
 ];
 
 fn table() -> &'static HashMap<&'static str, &'static str> {

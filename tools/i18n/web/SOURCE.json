@@ -6,7 +6,8 @@
     "features/preferences/zh.ts",
     "features/fleet/fleet-copy.ts",
     "features/reasoning/reasoning-copy.ts",
-    "features/session-config/session-config-copy.ts"
+    "features/session-config/session-config-copy.ts",
+    "features/peers/peer-copy.ts"
   ],
   "note": "Verbatim copies of the web's Chinese catalog tables (the oracle). tools/i18n/zh_catalog.py generates crates/octoscode-module/src/i18n/zh.rs from them; --refresh <apps/web/src> re-vendors them."
 }

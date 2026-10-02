@@ -176,7 +176,12 @@ pub fn zh_for(source: &str) -> Option<&'static str> {
         cat.get(s)
             .copied()
             .or_else(|| alias::web_key(s).and_then(|k| cat.get(k).copied()))
-            // A31 — native copy the web has no key for (board 4 surfaces).
+            // A30: the web's peer table (`peer-copy.ts`), which the web's
+            // loader never merges — after the merged catalog, so a merged
+            // key always wins.
+            .or_else(|| zh::PEER_ZH.iter().find(|(k, _)| *k == s).map(|(_, v)| *v))
+            // A31 — native copy the web has no key for (board 4 surfaces;
+            // A30's peer dock included).
             .or_else(|| native::zh(s))
     };
     lookup(source).or_else(|| {
