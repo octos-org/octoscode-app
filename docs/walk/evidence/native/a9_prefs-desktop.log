@@ -1,0 +1,52 @@
+== native walk a9_prefs [desktop] (tools/walk/a9_prefs_walk.py)
+-- run 1: exit 0 in 3 s
+PASS connected
+PASS Vim editing starts off (no composer note) — None
+PASS Settings opens
+PASS Preferences shows
+PASS the toggle reads the current Vim editing — on=False
+PASS Preferences controls are >= 28 px targets — []
+PASS tg_vim inside the body — [881, 213, 44, 32]
+PASS prefs_save inside the body — [362, 339, 148, 36]
+PASS prefs_status inside the body — [522, 350, 403, 16]
+PASS the toggle flips Vim editing at once — 'Vim · Insert'
+PASS …and the change is unsaved — 'Unsaved preferences.'
+SHOT <repo>/tmp/walk/native/a9_prefs-desktop/out/desktop-prefs-save-unsaved.png
+PASS Save -> 'Preferences saved.' — 'Preferences saved.'
+PASS the file holds exactly the display whitelist — {'language': 'en', 'theme': 'terminal', 'version': 1, 'vimMode': True}
+SHOT <repo>/tmp/walk/native/a9_prefs-desktop/out/desktop-prefs-save-saved.png
+== WALK a9 prefs save desktop: 13/13 passed
+-- app restart (state kept)
+-- run 2: exit 0 in 3 s
+PASS connected
+PASS a fresh launch adopts the saved Vim editing (the composer's note) — 'Vim · Insert'
+PASS Settings opens
+PASS Preferences shows
+PASS the toggle reads the current Vim editing — on=True
+PASS Preferences controls are >= 28 px targets — []
+PASS tg_vim inside the body — [881, 213, 44, 32]
+PASS prefs_save inside the body — [362, 339, 148, 36]
+PASS prefs_status inside the body — [522, 350, 403, 16]
+PASS the toggle flips Vim editing at once — None
+PASS …and the change is unsaved — 'Unsaved preferences.'
+SHOT <repo>/tmp/walk/native/a9_prefs-desktop/out/desktop-prefs-relaunch-unsaved.png
+PASS Save -> 'Preferences saved.' — 'Preferences saved.'
+PASS the file holds exactly the display whitelist — {'language': 'en', 'theme': 'terminal', 'version': 1, 'vimMode': False}
+SHOT <repo>/tmp/walk/native/a9_prefs-desktop/out/desktop-prefs-relaunch-saved.png
+== WALK a9 prefs relaunch desktop: 13/13 passed
+-- fixture log tail:
+[replay-serve] <- permission/profile/list (id=3)
+[replay-serve] <- profile/llm/list (id=4)
+[replay-serve] <- profile/skills/list (id=5)
+[replay-serve] <- profile/sub_providers/list (id=6)
+[replay-serve] <- session/status/read (id=7)
+[replay-serve] client connected
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- session/hydrate (id=2)
+[replay-serve] <- permission/profile/list (id=3)
+[replay-serve] <- profile/llm/list (id=4)
+[replay-serve] <- profile/skills/list (id=5)
+[replay-serve] <- profile/sub_providers/list (id=6)
+[replay-serve] <- session/status/read (id=7)

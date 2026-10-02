@@ -1459,6 +1459,24 @@ pub struct ConnectView {
 /// (the live validation line, set by the host without a remount), and A2's
 /// `b1_connect_pair` (→ `b1.open.pairing`, routed by `board1::collect`).
 pub fn connect_card(c: &ConnectView, m: &Metrics, left: f64) -> String {
+    connect_card_with_offer(c, m, left, None)
+}
+
+/// [`connect_card`] carrying A11's discovery offer (`screens::discovery`):
+/// under the title (and any error), the web's place for it
+/// (`ConnectionPanel.tsx:172-194`): board 1's neutral callout (the info icon
+/// of p4-04/p4-09) saying "Found Octos on <host>." with ONE outline pill
+/// "Connect to <host>" (board 1's secondary pill, p4-02/p4-09). A status,
+/// never an error. Ids: `connect_offer_box` (the callout the host hides in
+/// place once the offer is dismissed), `connect_offer_text`,
+/// `connect_offer_label` and the hit `connect_offer` (→ `b1.open.discovered`,
+/// routed by `board1::collect`).
+pub fn connect_card_with_offer(
+    c: &ConnectView,
+    m: &Metrics,
+    left: f64,
+    offer: Option<&crate::screens::discovery::Offer>,
+) -> String {
     let phone = m.density == Density::Phone;
     let (pad_x, pad_top) = if phone { (20.0, 24.0) } else { (32.0, 28.0) };
     let field = |id: &str, text: &str, placeholder: &str, password: bool| {
@@ -1553,6 +1571,40 @@ pub fn connect_card(c: &ConnectView, m: &Metrics, left: f64) -> String {
             },
         )
     };
+    // A11 — the discovery offer (board 1's neutral callout + outline pill).
+    let offer = match offer {
+        None => String::new(),
+        Some(o) => format!(
+            "connect_offer_box := RoundedView{{width: Fill height: Fit flow: Right spacing: 10 margin: Inset{{top: 14}} \
+             padding: Inset{{left: 12 right: 14 top: 12 bottom: 12}} \
+             draw_bg +: {{color: {TIP} border_radius: 6.0 border_size: 1.0 border_color: {BORDER}}}\n\
+             View{{width: 20 height: 20 align: Align{{x: 0.5 y: 0.5}}\n{icon}}}\n\
+             View{{width: Fill height: Fit flow: Down spacing: 10\n\
+             {msg}\
+             connect_offer_wrap := View{{width: Fit height: 32 flow: Overlay\n\
+             RoundedView{{width: Fit height: 32 flow: Right align: Align{{x: 0.5 y: 0.5}} \
+             padding: Inset{{left: 14 right: 14}} \
+             draw_bg +: {{color: {SURFACE} border_radius: 16.0 border_size: 1.0 border_color: {INK}}}\n\
+             {btn}}}\n\
+             {hit}}}\n}}\n}}\n",
+            icon = svg("connect_offer_icon", "b1_info.svg", 18.0, INK),
+            msg = label(
+                "connect_offer_text",
+                &o.message(),
+                &style(Face::Regular, 14.0, 20.0),
+                INK,
+                "width: Fill height: Fit flow: Right{wrap: true}",
+            ),
+            btn = label(
+                "connect_offer_label",
+                &o.action(),
+                &style(Face::Medium, 13.0, 18.0),
+                INK,
+                "width: Fit height: Fit",
+            ),
+            hit = hit("connect_offer", 16.0),
+        ),
+    };
     format!(
         "connect_center := View{{width: Fill height: Fill flow: Down align: Align{{x: 0.5 y: 0.42}} \
          padding: Inset{{left: {lp} right: {rp} top: 16 bottom: 16}}\n\
@@ -1561,6 +1613,7 @@ pub fn connect_card(c: &ConnectView, m: &Metrics, left: f64) -> String {
          draw_bg +: {{color: {SURFACE} border_radius: 6.0 border_size: 1.0 border_color: {BORDER}}}\n\
          {title}\
          {error}\
+         {offer}\
          View{{width: Fill height: 18}}\n\
          {server_cap}{server_field}\
          {server_err}\
@@ -1649,6 +1702,29 @@ mod tests {
         assert!(card.contains("Pair with a link instead"), "pairing link label");
         let entries = crate::screens::board1::entry_controls();
         assert!(entries.iter().any(|(id, a)| id == "b1_connect_pair" && a == "b1.open.pairing"));
+    }
+
+    /// A11 — the discovery offer rides the same card only while offered, in
+    /// the web's place (under the title, above the fields), with ONE button
+    /// routed by id to `b1.open.discovered`.
+    #[test]
+    fn the_connect_card_carries_the_discovery_offer_only_when_offered() {
+        let m = crate::conv_layout::Metrics::for_window(990.0, true);
+        let plain = connect_card(&ConnectView::default(), &m, 0.0);
+        assert!(!plain.contains("connect_offer"), "no offer without discovery");
+        let o = crate::screens::discovery::Offer {
+            origin: "http://127.0.0.1:8434".into(),
+            label: "127.0.0.1:8434".into(),
+            pairing_required: true,
+        };
+        let card = connect_card_with_offer(&ConnectView::default(), &m, 0.0, Some(&o));
+        assert!(card.contains("connect_offer := Button{"), "the offer's hit is a Button");
+        assert_eq!(card.matches("Found Octos on 127.0.0.1:8434.").count(), 1, "offered once");
+        assert_eq!(card.matches("Connect to 127.0.0.1:8434").count(), 1);
+        let at = |s: &str| card.find(s).unwrap_or_else(|| panic!("{s} missing"));
+        assert!(at("Connect to Octos") < at("Found Octos on") && at("Found Octos on") < at("connect_server :="));
+        let entries = crate::screens::board1::entry_controls();
+        assert!(entries.iter().any(|(id, a)| id == "connect_offer" && a == "b1.open.discovered"));
     }
     use crate::conv_layout::Metrics;
 

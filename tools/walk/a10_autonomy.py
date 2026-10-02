@@ -19,6 +19,27 @@ import time
 
 from a10_lib import Walk, checks_line, dialog_checks, run_session
 
+# A11: the walk aggregator's convention (tools/walk/native.py; read with ast).
+WALK = {
+    "name": "a10_autonomy",
+    "title": "the Loops and Monitors create forms by CLICK (cadence segments, the server's refusal line)",
+    "modes": ["desktop", "phone"],
+    "app": "self",
+    "runs": [{"argv": ["{mode}", "{out}"], "env": {"A10_PORT": "{port}", "A10_REPLAY_PORT": "{fport}"}}],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 900,
+    "rows": {
+        100: {"checks": ["loops: + New loop CLICK", "loops: Fixed interval segment CLICK",
+                         "loops: Self-paced segment CLICK", "loops: Create with an empty self-paced prompt",
+                         "loops: Maintenance segment CLICK, then Create", "wire: loop/create x1"],
+              "partial": "the maintenance creation sends one typed loop/create; self-paced and fixed are switched "
+                         "and refused-when-empty, not each created"},
+        102: {"checks": ["monitors: + New monitor CLICK", "monitors: Create CLICK -> monitor/create refused",
+                         "monitors: the corrected create succeeds", "wire: monitor/create x2"],
+              "partial": "create through a typed refusal then a success; pause / resume / delete are not walked here"},
+    },
+}
+
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a10/autonomy/{MODE}"
 

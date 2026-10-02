@@ -4,9 +4,96 @@ Turns the 234 rows of [`docs/walk-rows.csv`](../../docs/walk-rows.csv) (one per
 web Playwright case) into scripted checks on the **native** app and records a
 verdict for every row in [`docs/walk/results.csv`](results.csv).
 
-No model runs. The backend is a recording-replay server that serves the
-committed real fixtures; the app runs hidden and is driven through its own HTTP
-instrument.
+No model runs. The backend is a recording-replay server (or a scripted fixture
+server) that serves the committed real fixtures; the app runs hidden and is
+driven through its own HTTP instrument.
+
+**The official run** (A11) is one command — run.py's own checks for every
+scriptable row PLUS every native click walk, in desktop and phone:
+
+```sh
+OCTOSCODE_APP_BIN=<host-bin> python3 tools/walk/run.py --full --port <your app port> \
+    --scenario-port-base <8 free ports> --fixture-port <one per native walk>
+```
+
+It regenerates `results.csv` (one verdict per row) and `results-checks.csv`
+(one line per check, with its evidence `file:line`). `--scenario-port-base`
+moves run.py's own replay servers (default 8380.., one per scenario) into the
+port block you were given; `--fixture-port` does the same for the native
+walks' fixtures.
+
+run.py's replay servers run with `--adopt-turn-ids`: each replayed turn plays
+as the app's own `turn/start` id and prompt (a real server adopts the client's
+turn id; A7's turn controller settles — and drains its queue past — only the
+turn it dispatched). The composer area runs on the `two-turn` recording, whose
+two turns both complete (the `conversation` recording's second turn is its
+interrupted one).
+
+---
+
+## Native click walks (A11) — `tools/walk/native.py`
+
+The subagents' click walks (`tools/walk/*_walk.py`, `tools/a1/conversation_walk.py`)
+reach every control by a CLICK at its laid-out rect and assert the app's own
+effect. run.py runs them through `tools/walk/native.py` and **re-points** the
+walk rows they prove: those rows' verdicts come from the native checks, not
+from run.py's area-matched Phase-3 checks.
+
+**Picked up by convention, no registration.** Any `tools/walk/*.py` or
+`tools/*/*.py` with a top-level literal `WALK = {...}` is a native walk (read
+with `ast`, never imported; `*_walk.py` is the habit — A10's walks are
+`a10_<area>.py` and take the aggregator's ports from `A10_PORT` /
+`A10_REPLAY_PORT`). `python3 tools/walk/native.py` lists what it finds. The
+literal says how to launch it and which rows it proves:
+
+```python
+WALK = {
+    "name": "a2_board1", "modes": ["desktop", "phone"],
+    "fixture": {"argv": ["{examples}/board1_serve", "{fport}"]},          # optional
+    "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:8499"}, "ready": ["b1_connect_pair"]},
+    #  ... or "app": "self" when the walk launches (and stops) its own app
+    "runs": [{"argv": ["{mode}", "{out}"], "env": {"PORT": "{port}"}}],  # + "restart": app|fixture|both
+    "needs": ["target/debug/examples/board1_serve"],                     # built when missing
+    "rows": {87: ["p4-06_provider", "provider_saved"],                   # check-name substrings
+             227: {"checks": {"phone": ["drawer"]}, "partial": "what the walk does NOT cover"}},
+}
+```
+
+The full schema (placeholders, per-run `app_env` / `fixture_env` /
+`fixture_args`) is in `tools/walk/native.py`'s docstring. A walk prints one
+`PASS <name>` / `FAIL <name> — <detail>` line per check.
+
+**Isolation (brief §8).** Every app the aggregator launches gets a fresh state
+tree under `tmp/walk/native/<walk>-<mode>/state/` for drafts, credentials,
+preferences, notifications, recents, show-thinking, downloads, display
+preferences, the driver id and the Session pane's Advanced memory
+(`tools/walk/walk_env.py`); a "self" walk inherits the same environment (A10's
+`run_session` sets its own per-run tree). The phone is launched straight into OctosCode
+(`--test-action page:0 --test-action launch-octoscode`, 360x780).
+
+**A row's native verdict** is the AND of every mapped check in every mode a
+walk mapping it ran; a mode in which no mapped check ran, a walk that could
+not start, or a run that CRASHED (an uncaught Python traceback, even after
+some checks passed) is a failing check — a crashed walk never reads green.
+
+Iterate on one walk without re-running everything (merges into the existing
+results; every native row is recomputed from the LATEST result of EVERY walk
+in `tmp/walk/native/last.json`, so a row two walks map keeps the other's
+checks):
+
+```sh
+python3 tools/walk/run.py --native-only --walks a11_offer --modes desktop --port <port>
+```
+
+Evidence: `docs/walk/evidence/native/<walk>-<mode>.log` (the walk's output,
+machine paths scrubbed); a check's evidence cell points at its line.
+
+A targeted run (`WALK_ONLY_ROWS=…` → `results-only*.csv`) can merge the last
+native run's verdicts without walking again:
+`--native-json tmp/walk/native/last.json` (every native run leaves it). The
+official files are `results.csv` / `results-checks.csv` from `--full`;
+`results_live*.csv` is the last `--live` run (real model turns), whose other
+rows are not maintained by it.
 
 ---
 
@@ -139,9 +226,16 @@ the one the app actually requested in `session/open`, across every served frame
 |---|---|
 | `pass` | every check **mapped to this row** passed (≥1 ran) |
 | `fail` | ≥1 mapped check failed; `/g` + `/snap` evidence is recorded |
-| `not-yet-implemented` | the native capability is missing; `reason` names it (from `docs/parity-matrix.csv`) |
-| `blocked` | the 3 `real-turn` rows — need an outer-loop live model run |
-| `skipped` | the 31 web-only rows — operator-confirmation-pending |
+| `not-walked` | (A11) the capabilities the parity matrix cites for this case are all built (A), but no click-walk check covers the case yet |
+| `not-yet-implemented` | the native capability is missing; `reason` names the parity matrix's C capability citing this case — also (A11) when run.py's area-matched checks passed but a capability the matrix cites for the case is still C (generic checks cannot prove an unbuilt capability; the reason keeps them), and when every failing check of the row found its surface absent BY DESIGN (its reason starts `not built:`, e.g. Alt+P with no native peer dock) |
+| `live-only` | needs state the replay fixtures cannot produce (a real model turn, browser-only state) |
+| `blocked` | a selected row whose area failed to start |
+| `skipped` | the web-only rows — operator-confirmation-pending |
+
+The `depth` column: `specific` / `smoke` for run.py's own checks (#33a), and
+(A11) `native` — the row's case is proven by native click-walk checks — or
+`native-partial` — the native checks cover part of the case and `reason` says
+which part they do not.
 
 ### Per-check results (`docs/walk/results-checks.csv`)
 

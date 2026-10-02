@@ -1,0 +1,71 @@
+== native walk a10_autonomy [desktop] (tools/walk/a10_autonomy.py)
+-- run 1: exit 0 in 26 s
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=420 app=octosense grabs=<abs>/octosense-420
+[headless] up: pid 420  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+== 1. /loop -> + New loop: the form on the default cadence (Maintenance)
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'loo'
+CLICK palette_row_name '/loop' r=[286, 252, 48, 28]
+PASS loops: /loop palette CLICK opens the dialog
+CLICK dlg_loops_new_loop_control r=[269, 425, 73, 28] at (306,439)
+PASS loops: + New loop CLICK -> the cadence form, Maintenance selected
+PASS loop form (maintenance): dialog numeric checks — frame=520x330 centre_dx=0.0 margins L=20 R=20 labels=10 outside=0 overlaps=0 controls=3 under28=0
+SHOT 01-loop-form-maintenance-desktop
+CLICK dlg_loops_fm_seg_fixed_control r=[622, 292, 153, 28] at (698,306)
+PASS loops: Fixed interval segment CLICK -> the interval field appears prefilled 5m
+PASS loop form (fixed): dialog numeric checks — frame=520x397 centre_dx=0.0 margins L=20 R=20 labels=11 outside=0 overlaps=0 controls=3 under28=0
+SHOT 02-loop-form-fixed-desktop
+CLICK dlg_loops_fm_seg_self_paced_control r=[467, 259, 153, 28] at (544,273)
+PASS loops: Self-paced segment CLICK -> no interval field
+CLICK dlg_loops_ff_submit_control r=[675, 481, 104, 32] at (727,497)
+PASS loops: Create with an empty self-paced prompt is refused ON the form (nothing sent)
+SHOT 03-loop-form-refused-desktop
+CLICK dlg_loops_fm_seg_maintenance_control r=[312, 290, 153, 28] at (388,304)
+CLICK dlg_loops_ff_submit_control r=[675, 490, 104, 32] at (727,506)
+PASS loops: Maintenance segment CLICK, then Create -> loop/create maintenance
+PASS wire: loop/create x1 (maintenance)
+PASS loops after create: dialog numeric checks — frame=600x246 centre_dx=0.0 margins L=20 R=20 labels=7 outside=0 overlaps=0 controls=6 under28=0
+SHOT 04-loops-created-desktop
+CLICK dialog_close r=[801, 276, 28, 28] at (815,290)
+== 2. /monitor -> + New monitor: a refused create is the alert line
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'moni'
+CLICK palette_row_name '/monitor' r=[286, 252, 76, 28]
+PASS monitors: /monitor palette CLICK opens the dialog
+CLICK dlg_monitors_new_monitor_control r=[269, 435, 93, 28] at (316,449)
+PASS monitors: + New monitor CLICK -> the create form
+TYPE 'watch-build'
+TYPE '["./scripts/watch.sh", "--verbose"]'
+TYPE '('
+PASS monitor form: dialog numeric checks — frame=520x379 centre_dx=0.0 margins L=20 R=20 labels=7 outside=0 overlaps=0 controls=0 under28=0
+SHOT 05-monitor-form-desktop
+CLICK dlg_monitors_ff_submit_control r=[655, 515, 124, 32] at (717,531)
+PASS monitors: Create CLICK -> monitor/create refused by the server -> the dialog's alert line
+PASS monitors alert: dialog numeric checks — frame=600x233 centre_dx=0.0 margins L=20 R=20 labels=8 outside=0 overlaps=0 controls=2 under28=0
+SHOT 06-monitor-alert-desktop
+CLICK dlg_monitors_new_monitor_control r=[269, 446, 93, 28] at (316,460)
+PASS monitors: + New monitor again, a valid regex, Create -> created, the alert clears
+TYPE 'watch-build'
+TYPE '["./scripts/watch.sh", "--verbose"]'
+TYPE 'ERROR.*'
+CLICK dlg_monitors_ff_submit_control r=[655, 515, 124, 32] at (717,531)
+PASS monitors: the corrected create succeeds; the row appears and no alert remains
+PASS wire: monitor/create x2 (refused, then created)
+PASS monitors after create: dialog numeric checks — frame=600x266 centre_dx=0.0 margins L=20 R=20 labels=10 outside=0 overlaps=0 controls=4 under28=0
+SHOT 07-monitor-created-desktop
+CLICK dialog_close r=[801, 266, 28, 28] at (815,280)
+== 3. close suspends, reopen refreshes: /loop again re-reads the list
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'loo'
+CLICK palette_row_name '/loop' r=[286, 252, 48, 28]
+PASS loops: reopen by palette CLICK -> a fresh loop/list read, the rows shown — loop/list 2 -> 3
+CLICK dialog_close r=[801, 304, 28, 28] at (815,318)
+== 20/20 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 420 exited after /gq
+[headless] port 8421 free
