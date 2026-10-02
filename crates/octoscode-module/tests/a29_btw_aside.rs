@@ -65,6 +65,8 @@ struct Server {
     conns: Arc<Mutex<Vec<mpsc::UnboundedSender<String>>>>,
     /// Also list `session/btw` among the FEATURES (the f30d fake's shape).
     btw_feature: bool,
+    /// Withdraw `session/btw` from the methods (a server without asides).
+    no_btw: bool,
 }
 
 const CLOSE: &str = "\u{0}close";
@@ -75,6 +77,10 @@ impl Server {
     }
 
     async fn start_with(btw_feature: bool) -> Self {
+        Self::start_opts(btw_feature, false).await
+    }
+
+    async fn start_opts(btw_feature: bool, no_btw: bool) -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").await.expect("bind");
         let srv = Server {
             base_url: format!("http://{}", listener.local_addr().expect("addr")),
@@ -82,6 +88,7 @@ impl Server {
             held: Arc::new(Mutex::new(Vec::new())),
             conns: Arc::new(Mutex::new(Vec::new())),
             btw_feature,
+            no_btw,
         };
         let s = srv.clone();
         tokio::spawn(async move {
@@ -122,7 +129,13 @@ impl Server {
                             });
                             continue;
                         }
-                        let frame = json!({"jsonrpc": "2.0", "id": v["id"], "result": answer(&method, &p, s.btw_feature)});
+                        let mut result = answer(&method, &p, s.btw_feature);
+                        if s.no_btw {
+                            if let Some(list) = result["opened"]["capabilities"]["supported_methods"].as_array_mut() {
+                                list.retain(|m| m != "session/btw");
+                            }
+                        }
+                        let frame = json!({"jsonrpc": "2.0", "id": v["id"], "result": result});
                         let _ = tx.send(frame.to_string());
                     }
                 });
@@ -488,4 +501,47 @@ async fn btw_without_a_question_reports_how_to_use_it_and_sends_nothing() {
         "the web's copy (intent.ts:103): {receipts:?}"
     );
     assert_eq!(binding(&conv, "aside.state"), json!("hidden"), "no panel for a hint");
+}
+
+#[tokio::test]
+async fn an_empty_composer_submit_dismisses_the_aside_and_a_programmatic_send_does_not() {
+    let _g = lock();
+    let server = Server::start().await;
+    let conv = connected(&server).await;
+    ask(&conv, &format!("/btw {QUESTION}")).await;
+    assert_eq!(server.wait_for("session/btw", 1).await.len(), 1);
+    server.release();
+    until("answered", || binding(&conv, "aside.state") == json!("answered")).await;
+
+    // Resume chat's programmatic send (`submit_draft` with an empty draft,
+    // board3/session_pane.rs) is not the composer's submit: the aside stays.
+    conv.set_draft("");
+    conv.submit_draft().await.expect("submit");
+    assert_eq!(binding(&conv, "aside.state"), json!("answered"));
+    // The composer's own empty submit dismisses it (`App.tsx:1170-1173`).
+    conv.submit_composer().await.expect("submit");
+    assert_eq!(binding(&conv, "aside.state"), json!("hidden"));
+    assert!(server.params_of("turn/start").is_empty(), "an empty submit starts nothing");
+}
+
+#[tokio::test]
+async fn an_unadvertised_btw_reports_unavailable_and_sends_nothing() {
+    let _g = lock();
+    let server = Server::start_opts(false, true).await;
+    let conv = connected(&server).await;
+    ask(&conv, "/btw is this offered?").await;
+    tokio::time::sleep(Duration::from_millis(300)).await;
+    assert!(server.params_of("session/btw").is_empty(), "fails closed: nothing left the process (btw.ts:66)");
+    let receipt = conv
+        .store
+        .domains
+        .session
+        .timeline
+        .entries(X)
+        .into_iter()
+        .map(|e| e.text)
+        .find(|t| t.contains("/btw is unavailable"));
+    assert!(receipt.is_some(), "the web's report title (local-report.ts:114)");
+    assert_eq!(binding(&conv, "aside.state"), json!("hidden"), "no visible aside state");
+    assert!(server.params_of("turn/start").is_empty(), "the command never reaches the model");
 }

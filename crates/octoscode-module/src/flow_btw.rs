@@ -72,6 +72,12 @@ impl Conversation {
     /// the Session captured at admission — the call never re-reads which
     /// Session is on screen, so a switch while it runs changes nothing.
     pub async fn run_btw(&self, ticket: Ticket) -> Settled {
+        self.run_btw_detailed(ticket).await.0
+    }
+
+    /// [`Conversation::run_btw`] with why the call failed, when it did (the
+    /// screens table's `apply` reports it).
+    pub async fn run_btw_detailed(&self, ticket: Ticket) -> (Settled, Option<String>) {
         let params = json!({"session_id": ticket.session, "question": ticket.question});
         self.trace.record(
             self.started,
@@ -106,7 +112,7 @@ impl Conversation {
             if why.is_empty() { String::new() } else { format!(" ({why})") }
         );
         makepad_widgets::SignalToUI::set_ui_signal();
-        settled
+        (settled, (!why.is_empty()).then_some(why))
     }
 
     /// Run an admitted ticket's call on the runtime without holding the

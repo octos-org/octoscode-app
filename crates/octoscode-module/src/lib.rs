@@ -253,6 +253,14 @@ script_mod! {
                         width: Fill height: Fit visible: false
                         plan_splash := Splash { width: Fill height: Fit }
                     }
+                    // A29 — the /btw aside of the ACTIVE Session, above its
+                    // composer (web `App.tsx:2707`, inside `composer-wrap`;
+                    // screens/btw.rs). Hidden while the Session holds none.
+                    aside_row := View {
+                        width: Fill height: Fit visible: false
+                        padding: Inset{bottom: 10}
+                        aside_splash := Splash { width: Fill height: Fit }
+                    }
                     takeover_row := View {
                         width: Fill height: Fit visible: false
                         takeover_splash := Splash { width: Fill height: Fit }
@@ -2070,6 +2078,7 @@ impl OctoscodeView {
                     | screens::sessions::Effect::ResumeCancel
                     | screens::sessions::Effect::AttachmentRemove(_)
                     | screens::sessions::Effect::AsideDismiss
+                    | screens::sessions::Effect::AsideToggle
             ) {
                 return;
             }
@@ -2359,7 +2368,7 @@ impl OctoscodeView {
             }
             actions::Effect::Submit => {
                 rt.spawn(async move {
-                    if let Err(e) = conv.submit_draft().await {
+                    if let Err(e) = conv.submit_composer().await {
                         makepad_widgets::log!("[octoscode] submit dropped: {e}");
                         screens::toasts::failed(screens::toasts::Op::Send, &e.to_string());
                     }
@@ -2671,14 +2680,19 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] palette run {name} -> {id}");
                 match id {
                     "aside.ask" => {
-                        if args.trim().is_empty() {
-                            // No question yet: the composer takes the command
-                            // so the user types it (the web completes the
-                            // draft to `/btw `).
-                            ui.lock().unwrap().set_draft_inner("/btw ".to_owned());
-                        } else {
-                            ui.lock().unwrap().set_draft_inner(args.trim().to_owned());
-                            self.perform_action(cx, "aside.ask", 0);
+                        // A29 — the web's chooseCommand SUBMITS `/btw`
+                        // (`App.tsx:1591-1594`): without a question that is
+                        // the usage hint (`intent.ts:96-104`); with one, the
+                        // aside of the ACTIVE Session, captured now
+                        // (`Conversation::btw_command`, flow_btw.rs).
+                        let conv = { self.bridge.lock().unwrap().conv.clone() };
+                        if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                            let question = args.trim().to_owned();
+                            rt.spawn(async move {
+                                let admitted = conv.btw_command(&question).await;
+                                makepad_widgets::log!("[octoscode] palette /btw: {admitted:?}");
+                                SignalToUI::set_ui_signal();
+                            });
                         }
                     }
                     // A5 — a board-3 command row: submit `/name args` through
@@ -3668,6 +3682,8 @@ impl OctoscodeView {
         self.sync_surfaces(cx);
         // A7: the queued chip / recovery notice / peer row + draft recovery.
         self.sync_composer_extras(cx);
+        // A29: the active Session's /btw aside above its composer.
+        self.sync_aside(cx);
         // A12 — the connection banner (after the surfaces: an outage hides
         // the takeover the surfaces just placed).
         self.sync_link(cx);
@@ -3788,6 +3804,34 @@ impl OctoscodeView {
         self.view
             .widget(cx, ids!(composer_row))
             .set_visible(cx, extras.peer_readonly.is_none() && !takeover);
+    }
+
+    /// A29 — mount the ACTIVE Session's `/btw` aside (screens/btw.rs) above
+    /// its composer, bounded to min(50 % of the window, 480 px); hidden while
+    /// the Session holds none. The mount cache remounts only on a change.
+    fn sync_aside(&mut self, cx: &mut Cx) {
+        let store = { self.bridge.lock().unwrap().store.clone() };
+        let shell_h = self.view.area().rect(cx).size.y;
+        let h = if shell_h > 0.0 { shell_h } else { self.window_h };
+        let dsl = if store.keeps_shell() {
+            screens::btw::lower(&store, &conv_layout::current(), h)
+        } else {
+            String::new()
+        };
+        self.view.widget(cx, ids!(aside_row)).set_visible(cx, !dsl.is_empty());
+        let splash = self.view.splash(cx, ids!(aside_splash));
+        match self.mounts.mount(cx, &splash, &screens::theme::retint_dsl(&dsl)) {
+            Err(e) => makepad_widgets::log!("[octoscode] aside mount: {e}"),
+            Ok(true) => {
+                let state = store
+                    .active_session()
+                    .and_then(|s| store.domains.btw.get(&s))
+                    .map(|a| screens::sessions::aside_state_word(Some(&a)))
+                    .unwrap_or("hidden");
+                makepad_widgets::log!("[octoscode] aside panel: {state}");
+            }
+            Ok(false) => {}
+        }
     }
 
     /// A7 — the §8 facts, read structurally from the live tree: the key focus
@@ -5545,6 +5589,19 @@ impl OctoscodeView {
                         self.composer_extra_tap(which);
                     }
                 }
+                // A29 — the aside's Close and its collapse chevron
+                // (screens/btw.rs), owned by screens::sessions' `aside.*`.
+                for (id, action) in [
+                    (live_id!(btw_aside_close_hit), "aside.dismiss"),
+                    (live_id!(btw_aside_toggle_hit), "aside.toggle"),
+                ] {
+                    if self.view.button(cx, &[live_id!(aside_splash), id]).clicked(actions) {
+                        makepad_widgets::log!("[octoscode] aside control: {action}");
+                        self.perform_action(cx, action, 0);
+                        self.sync_aside(cx);
+                        self.view.redraw(cx);
+                    }
+                }
                 // A4 — the session strip opens the Session settings pane.
                 if self
                     .view
@@ -6076,7 +6133,7 @@ impl OctoscodeView {
                         match (handle, conv) {
                             (Some(handle), Some(conv)) => {
                                 handle.spawn(async move {
-                                    if let Err(e) = conv.submit_draft().await {
+                                    if let Err(e) = conv.submit_composer().await {
                                         makepad_widgets::log!("[octoscode] submit dropped: {e}");
                                         screens::toasts::failed(screens::toasts::Op::Send, &e.to_string());
                                     }

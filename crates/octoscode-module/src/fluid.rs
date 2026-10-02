@@ -166,7 +166,7 @@ pub fn icon(rel: &str) -> PathBuf {
     }
 }
 
-fn svg(id: &str, rel: &str, size: f64, color: &str) -> String {
+pub(crate) fn svg(id: &str, rel: &str, size: f64, color: &str) -> String {
     format!(
         "{id} := Svg{{width: {size} height: {size} animating: false \
          draw_svg.svg: file_resource({:?}) draw_svg.preserve_viewbox: true \
@@ -183,7 +183,7 @@ fn svg(id: &str, rel: &str, size: f64, color: &str) -> String {
 /// above any real message keeps it unlimited in practice.
 pub const FIT_WRAP_LINES: u32 = 10_000;
 
-fn label(id: &str, text: &str, style: &str, color: &str, walk: &str) -> String {
+pub(crate) fn label(id: &str, text: &str, style: &str, color: &str, walk: &str) -> String {
     let head = if id.is_empty() { String::new() } else { format!("{id} := ") };
     format!(
         "{head}Label{{{walk} padding: 0 text: {text:?}\n\
@@ -303,7 +303,7 @@ pub fn assistant_answer(tok: &str, d: &crate::markdown::Display, copied: Option<
 /// KaTeX): `inline_math` sits in the line at the body's height, `display_math`
 /// is its own centred block (`code_view::A7MathBlock`, KaTeX's
 /// `.katex-display`). Without it every `$` arrives escaped (`markdown::sanitize`).
-fn markdown_region(id: &str, body: &str, math: bool, m: &Metrics) -> String {
+pub(crate) fn markdown_region(id: &str, body: &str, math: bool, m: &Metrics) -> String {
     let s = scale(m.density);
     let line = s.body_line + 1.0;
     // MathView lays out at `font_size * 1.75` (makepad math_view.rs) and its

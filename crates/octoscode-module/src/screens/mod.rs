@@ -19,6 +19,8 @@ pub mod autonomy;
 pub mod board1;
 pub mod board1_kit;
 pub mod board3;
+// A29: the /btw aside panel of the Session that asked (parity row 6).
+pub mod btw;
 pub mod browser;
 pub mod connect;
 // A8: the header's "Copy as Markdown" (CopyConversationButton phases).
