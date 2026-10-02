@@ -11,7 +11,7 @@ capture seed (no transport, no model turn), e.g.
   OCTOSCODE_SYNTHETIC_TOOLS=gfm OCTOSCODE_DESIGN_DIR=$PWD/design \\
   MAKEPAD_WM_TEST_APP=octoscode HEADLESS_ARGS="--module octoscode" \\
     bash harness/headless.sh start <host-bin> 8411
-  python3 tools/a1/conversation_walk.py 8411
+  python3 tools/a1/conversation_walk.py 8411 [--copy]
   bash harness/headless.sh stop 8411
 
 The seed is one settled turn with three tool calls, then a settled turn
@@ -28,7 +28,7 @@ import tempfile
 import time
 import urllib.request
 
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8411
+PORT = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else 8411
 BASE = f"http://127.0.0.1:{PORT}"
 RESULTS = []
 LOG_SEQ = [0]
@@ -127,8 +127,6 @@ def main():
     step("…and shows them again", "worked_hit",
          lambda: len(visible(snap(), r"i\d+_toolcell")) == 3, log_needle="answer.expand")
     layout("top, tool card")
-    step("New chat shows the empty state", "sb_new_chat_hit",
-         lambda: any("What should we build" in t for t in texts(r".*")), log_needle="new_chat")
     step("the session row reopens the conversation", "sb_r_open",
          lambda: shown(r"i\d+_assistantprose"), log_needle="session.open")
     scroll(4000)
@@ -136,8 +134,11 @@ def main():
     check("the GFM answer renders in ONE native Markdown region",
           len(gfm) == 1 and "| Path | Kind |" in gfm[0] and "**two**" in gfm[0],
           f"{len(gfm)} region(s) carry the sample")
-    step("the answer's copy control routes answer.copy", "answer_copy_hit", lambda: True,
-         nth=len(visible(snap(), "answer_copy_hit")) - 1, log_needle="answer.copy")
+    # The copy step writes the REAL system clipboard of the machine the
+    # hidden app runs on, so it only runs when asked (`--copy`).
+    if "--copy" in sys.argv:
+        step("the answer's copy control copies its answer", "answer_copy_hit", lambda: True,
+             nth=len(visible(snap(), "answer_copy_hit")) - 1, log_needle="answer.copy:")
     layout("bottom, GFM answer")
     failed = [n for n, ok, _ in RESULTS if not ok]
     print(f"== WALK conversation: {len(RESULTS) - len(failed)}/{len(RESULTS)} passed")

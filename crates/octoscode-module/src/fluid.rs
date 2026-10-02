@@ -247,7 +247,9 @@ pub fn user_bubble(tok: &str, text: &str, m: &Metrics, dark: bool) -> String {
 /// The answer: one native `Markdown` flow region at the web's prose rhythm
 /// (15/25, 14 px between blocks, `markdown.css:8-30`), the column's width up
 /// to the 75ch measure. Fenced code wraps (the board's accepted alternative
-/// to horizontal scroll, #21g item 2).
+/// to horizontal scroll, #21g item 2). Tables follow `markdown.css:137-155`:
+/// 9/14 px cells, hairline rules, no header fill (makepad's default painted
+/// the header row in the highlight blue).
 pub fn assistant_prose(tok: &str, body: &str, m: &Metrics) -> String {
     let s = scale(m.density);
     let line = s.body_line + 1.0;
@@ -269,8 +271,10 @@ pub fn assistant_prose(tok: &str, body: &str, m: &Metrics) -> String {
          text_style_bold_italic: {bold}\n\
          text_style_fixed: {mono}\n\
          code_layout: Layout{{flow: Right{{wrap: true}} padding: Inset{{left: 14 right: 14 top: 10 bottom: 10}}}}\n\
+         table_cell_layout: Layout{{flow: Right{{wrap: true}} padding: Inset{{left: 14 right: 14 top: 9 bottom: 9}}}}\n\
          draw_block +: {{code_color: {RAISED} line_color: {INK} sep_color: {BORDER} \
-         quote_bg_color: {BORDER} quote_fg_color: {MUTED}}}\n\
+         quote_bg_color: {BORDER} quote_fg_color: {MUTED} \
+         table_header_bg_color: #00000000 table_border_color: {BORDER}}}\n\
          }}\n}}\n",
         max = m.prose_max_w,
         fs = s.body * 0.75,
@@ -630,6 +634,11 @@ pub fn worked_for(tok: &str, label_text: &str, tools: usize, open: bool, m: &Met
         n => format!("{n} tool calls"),
     };
     let st = style(Face::Regular, s.small, s.small_line);
+    // Nothing to say (no duration and no calls: a history turn without flow
+    // timing): no row at all, rather than an empty 36 px band.
+    if text.is_empty() && count.is_empty() {
+        return "View{width: Fill height: 0}\n".to_owned();
+    }
     // A turn with no measured duration (no flow timing: a history row, a
     // capture seed) shows only its count — never a dangling "· 3 tool calls".
     let mut row = if text.is_empty() {
@@ -1353,6 +1362,7 @@ mod tests {
         let dsl = worked_for("0", "", 3, true, &m);
         assert!(dsl.contains("text: \"3 tool calls\""), "{dsl}");
         assert!(!dsl.contains("text: \"·\""), "no dangling separator: {dsl}");
+        assert_eq!(worked_for("0", "", 0, true, &m), "View{width: Fill height: 0}\n", "nothing to say: no band");
         let timed = worked_for("0", "Worked for 2s ›", 3, true, &m);
         assert!(timed.contains("text: \"Worked for 2s\"") && timed.contains("text: \"·\""));
     }
