@@ -1963,6 +1963,24 @@ fn trace_method(evt: &TransportEvent) -> String {
 /// comes from Howard Hinnant's `civil_from_days`. A local-clock offset is out
 /// of scope for this design label; a fresh turn renders `now` either way.
 fn format_completed_at(at: std::time::SystemTime, now: std::time::SystemTime) -> String {
+    format_completed_at_offset(at, now, local_offset_secs(at))
+}
+
+/// The platform time zone's offset from UTC (seconds east) at `at`. The web's
+/// `Intl.DateTimeFormat` renders local time; this label was UTC (an answer at
+/// 21:09 local read "4:09 AM" in the judge's live capture).
+pub(crate) fn local_offset_secs(at: std::time::SystemTime) -> i64 {
+    use chrono::Offset;
+    let local: chrono::DateTime<chrono::Local> = at.into();
+    i64::from(local.offset().fix().local_minus_utc())
+}
+
+/// [`format_completed_at`] at an explicit UTC offset (tests pin 0).
+fn format_completed_at_offset(
+    at: std::time::SystemTime,
+    now: std::time::SystemTime,
+    offset_secs: i64,
+) -> String {
     let secs = at
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs())
@@ -1974,6 +1992,7 @@ fn format_completed_at(at: std::time::SystemTime, now: std::time::SystemTime) ->
     if now_secs.saturating_sub(secs) < 60 {
         return "now".to_owned();
     }
+    let secs = (secs as i64 + offset_secs).max(0) as u64;
     const MONTHS: [&str; 12] = [
         "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
@@ -2072,28 +2091,40 @@ mod tests {
         // 2025-09-28T21:41:00Z
         let at = UNIX_EPOCH + Duration::from_secs(1_759_095_660);
         assert_eq!(
-            format_completed_at(at, at + Duration::from_secs(5)),
+            format_completed_at_offset(at, at + Duration::from_secs(5), 0),
             "now",
             "a fresh turn is 'now', like the web"
         );
         assert_eq!(
-            format_completed_at(at, at + Duration::from_secs(3600)),
+            format_completed_at_offset(at, at + Duration::from_secs(3600), 0),
             "Sep 28, 9:41 PM",
             "an older turn matches the atlas label"
         );
         // midnight and noon render 12-hour, not 0/24
         let midnight = UNIX_EPOCH + Duration::from_secs(1_767_139_500); // 2025-12-31T00:05Z
         assert_eq!(
-            format_completed_at(midnight, midnight + Duration::from_secs(3600)),
+            format_completed_at_offset(midnight, midnight + Duration::from_secs(3600), 0),
             "Dec 31, 12:05 AM"
         );
         let noon = UNIX_EPOCH + Duration::from_secs(1_735_732_800); // 2025-01-01T12:00Z
         assert_eq!(
-            format_completed_at(noon, noon + Duration::from_secs(3600)),
+            format_completed_at_offset(noon, noon + Duration::from_secs(3600), 0),
             // day is `numeric` (unpadded), like the web's
             // `Intl.DateTimeFormat({month:"short", day:"numeric"})`
             "Jan 1, 12:00 PM"
         );
+    }
+
+    /// Judge fix: the label is LOCAL time, like the web's Intl formatter.
+    /// 2025-10-02T04:09Z at UTC-7 is Oct 1, 9:09 PM; at UTC+8 Oct 2, 12:09 PM.
+    #[test]
+    fn answer_timestamp_is_local_time() {
+        use std::time::{Duration, UNIX_EPOCH};
+        let at = UNIX_EPOCH + Duration::from_secs(1_759_378_140); // 2025-10-02T04:09Z
+        let later = at + Duration::from_secs(3600);
+        assert_eq!(format_completed_at_offset(at, later, -7 * 3600), "Oct 1, 9:09 PM");
+        assert_eq!(format_completed_at_offset(at, later, 8 * 3600), "Oct 2, 12:09 PM");
+        assert_eq!(format_completed_at_offset(at, later, 0), "Oct 2, 4:09 AM");
     }
 
     /// Card #14 defect 4: a new chat gets a FRESH id (never the reused

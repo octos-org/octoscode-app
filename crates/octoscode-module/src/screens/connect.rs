@@ -641,16 +641,20 @@ pub async fn run_onboarding(
 }
 
 /// `H:MM AM/PM` wall clock for the "Last tried" row (`setup-02`'s authored
-/// copy shows a 12-hour time; the lane runs UTC+8, stated in the report).
+/// copy shows a 12-hour time), in the platform's local time zone.
 pub fn clock_12h() -> String {
-    // A9: the DEVICE's zone (it was pinned to UTC+8, the lane's own zone: a
-    // person elsewhere read a wrong "Last tried" time).
-    use chrono::Timelike;
-    let now = chrono::Local::now();
-    clock_12h_of(now.hour(), now.minute())
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    // Local wall clock (was a hard-coded UTC+8: the lane's own zone).
+    let off = crate::flow::local_offset_secs(std::time::SystemTime::now());
+    let sod = (now as i64 + off).rem_euclid(86_400) as u64;
+    clock_12h_of((sod / 3600) as u32, ((sod % 3600) / 60) as u32)
 }
 
-/// `H:MM AM/PM` for a wall-clock hour/minute.
+/// `H:MM AM/PM` for a wall-clock hour/minute (A9: split out so the
+/// 12-hour edges are pinned without the clock).
 pub fn clock_12h_of(h24: u32, m: u32) -> String {
     let ampm = if h24 < 12 { "AM" } else { "PM" };
     let h12 = match h24 % 12 {
