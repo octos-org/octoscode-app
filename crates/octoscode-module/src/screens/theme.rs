@@ -555,7 +555,14 @@ pub fn init_persistence() {
         theme().lock().unwrap().pref = t;
     }
     #[cfg(target_os = "macos")]
-    set_os_reader(os_is_dark_macos);
+    {
+        set_os_reader(os_is_dark_macos);
+        // Warm the appearance cache off the UI thread: the first synchronous
+        // `defaults` read stalled startup (ui-hang: 1669 ms, Startup phase).
+        std::thread::spawn(|| {
+            let _ = os_is_dark_macos();
+        });
+    }
 }
 
 
