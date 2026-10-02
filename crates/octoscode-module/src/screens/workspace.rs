@@ -128,6 +128,13 @@ fn state() -> MutexGuard<'static, WsState> {
         .unwrap()
 }
 
+/// A10 — the permission seat's menu read a profile list or applied a set:
+/// the composer pill (`set.permission_mode`) follows the read-back.
+pub fn note_permission_mode(mode: Option<&str>) {
+    state().permission_mode = mode.map(str::to_owned);
+    makepad_widgets::SignalToUI::set_ui_signal();
+}
+
 /// The concrete thing the module does for a routed board-2 action.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Effect {

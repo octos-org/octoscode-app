@@ -3068,6 +3068,7 @@ impl OctoscodeView {
         self.view
             .widget(cx, &[live_id!(composer_splash), live_id!(composer_stop_icon)])
             .set_visible(cx, composer_live);
+        self.sync_seats(cx);
         // #29d — the Stage C screens (board 2.8/2.11/2.12) mount into the review
         // column's temporary slot while #28e's shell (drawer + palette overlay)
         // is pending. OCTOSCODE_SCREEN=palette|error|loading names one; unset
@@ -3867,6 +3868,35 @@ impl OctoscodeView {
     /// the LIVE labels: the composer's DSL carries no width, so a resize
     /// never remounts it (each remount replaced the TextInput; measured on a
     /// maximize: nine remounts and the typed draft gone).
+    /// A10 — the composer's two seats (web `SessionControlBar`): a missing
+    /// capability removes its seat (no dead control); the menus open above
+    /// the seats' measured rects (module-view coordinates).
+    fn sync_seats(&mut self, cx: &mut Cx) {
+        let store = { self.bridge.lock().unwrap().store.clone() };
+        let (perm, model) = (
+            screens::board3::seats::permission_seat(&store),
+            screens::board3::seats::model_seat(&store),
+        );
+        self.view
+            .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_2)])
+            .set_visible(cx, perm);
+        self.view
+            .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_model)])
+            .set_visible(cx, model);
+        let origin = self.view.area().rect(cx).pos;
+        let anchor = |r: Rect| {
+            (r.size.x > 0.0).then(|| screens::board3::seats::Anchor {
+                x: r.pos.x - origin.x,
+                y: r.pos.y - origin.y,
+                w: r.size.x,
+                h: r.size.y,
+            })
+        };
+        let p = anchor(self.view.widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_2)]).area().rect(cx));
+        let m = anchor(self.view.widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_model)]).area().rect(cx));
+        screens::board3::host::set_seat_anchors(p, m);
+    }
+
     fn apply_composer_fit(&mut self, cx: &mut Cx) {
         let fit = fluid::composer_row_fit(&conv_layout::current());
         let (approval_max, model_max) = (fit.approval_max, fit.model_max);
@@ -4851,22 +4881,20 @@ impl Widget for OctoscodeView {
                         self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
                     }
                 }
-                // #P4a1 — the approval pill: cycle the permission mode and
-                // reflect the server's read-back (the web's
-                // permission/profile/set, permissions-section.tsx:27-28;
-                // #42a owns the protocol side).
+                // A10 — the composer's two seats (web `SessionControlBar`):
+                // the approval pill (permission seat) opens the permission
+                // menu — a dangerous preset goes through its confirmation,
+                // never a blind cycle — and the model label (model seat)
+                // opens the model menu.
                 if self.view.button(cx, ids!(approval_pill_hit)).clicked(actions) {
-                    let conv = {
-                        let b = self.bridge.lock().unwrap();
-                        b.conv.clone()
-                    };
-                    if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
-                        screens::workspace::spawn(
-                            screens::workspace::Effect::CyclePermissionMode,
-                            rt,
-                            conv,
-                        );
-                    }
+                    makepad_widgets::log!("[octoscode] permission seat clicked");
+                    let out = screens::board3::host::open(screens::board3::host::Dialog::Permission);
+                    self.board3_outcome(cx, out);
+                }
+                if self.view.button(cx, ids!(model_seat_hit)).clicked(actions) {
+                    makepad_widgets::log!("[octoscode] model seat clicked");
+                    let out = screens::board3::host::open(screens::board3::host::Dialog::ModelMenu);
+                    self.board3_outcome(cx, out);
                 }
                 // `+` (attach) and the mic are not wired to a protocol method
                 // yet; they are present as hit targets so the component's own

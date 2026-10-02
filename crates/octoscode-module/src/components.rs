@@ -227,9 +227,10 @@ pub fn slots(kind: ItemKind) -> &'static [Binding] {
             // reaches it only on a real external change (lib.rs
             // composer_synced). The placeholder stays authored.
             Binding { copy: "composer_idle_input_placeholder", binding: "composer.placeholder" },
-            // The model pill (`v4-flash ▾`) and the approval pill are the
-            // component's own copy — static until `composer.model` is declared.
-            Binding { copy: "t04_text", binding: "" },
+            // A10 — the model seat names the selected configured model (the
+            // web `ModelControl` trigger); the approval pill below carries
+            // the permission read-back.
+            Binding { copy: "t04_text", binding: "composer.model" },
             // #P4a1 — the approval pill carries the live permission mode
             // (read-back from permission/profile/set); the static art text
             // stays until the server has answered at least once.
@@ -501,6 +502,8 @@ pub fn item_copies(
             // ---- composer ---------------------------------------------------
             "composer.draft" => text(&get("composer.draft")?),
             "composer.placeholder" => text(&get("composer.placeholder")?),
+            // A10 — the model seat's label (the selected configured model).
+            "composer.model" => text(&get("composer.model")?),
             other => return Err(format!("{} has no arm for binding {other:?}", kind.id())),
         };
         out.push((b.copy.to_owned(), value));
@@ -813,9 +816,15 @@ fn lower_fluid(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Opti
                     } else {
                         approval
                     },
-                    // The authored model label (`t04_text`, static until a
-                    // `composer.model` binding is declared).
-                    model: "v4-flash".to_owned(),
+                    // A10 — the model seat's label (`composer.model`).
+                    model: {
+                        let m = get("t04_text");
+                        if m.is_empty() {
+                            crate::screens::board3::seats::MODEL_SELECT.to_owned()
+                        } else {
+                            m
+                        }
+                    },
                 },
                 &m,
             )

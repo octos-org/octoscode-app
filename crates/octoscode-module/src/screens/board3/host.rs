@@ -45,6 +45,11 @@ pub enum Dialog {
     /// A10 — Research provider lanes (`/research`, web `ResearchDialog.tsx`;
     /// no board).
     Research,
+    /// A10 — the permission seat's menu (web `PermissionMenu` +
+    /// `PermissionRiskDialog`; no board).
+    Permission,
+    /// A10 — the model seat's menu (web `ModelMenu`; no board).
+    ModelMenu,
 }
 
 impl Dialog {
@@ -61,6 +66,8 @@ impl Dialog {
             "vim" => Dialog::Vim,
             "agents" | "agent" => Dialog::Agents,
             "research" | "lanes" => Dialog::Research,
+            "permission_menu" => Dialog::Permission,
+            "model_menu" => Dialog::ModelMenu,
             _ => return None,
         })
     }
@@ -85,6 +92,8 @@ pub struct State {
     pub agents: super::agents::AgentsState,
     /// A10 — the Research lanes dialog's draft + generation guard.
     pub research: super::research::ResearchState,
+    /// A10 — the composer seats' menus.
+    pub seats: super::seats::SeatsState,
     /// Text a finished job wants on the clipboard (the host writes it on the
     /// UI thread, where `cx` lives).
     pub pending_clipboard: Option<String>,
@@ -106,6 +115,7 @@ impl Default for State {
             vim: Default::default(),
             agents: Default::default(),
             research: Default::default(),
+            seats: Default::default(),
             pending_clipboard: None,
         }
     }
@@ -223,6 +233,8 @@ pub fn lower_open(store: &Store) -> Option<Lowered> {
         Dialog::Vim => super::vim::build_help(&mut d, &st.vim, &st.frame),
         Dialog::Agents => super::agents::build(&mut d, &st.agents, &st.frame, store),
         Dialog::Research => super::research::build(&mut d, &st.research, &st.frame, store),
+        Dialog::Permission => super::seats::build_permission(&mut d, &st.seats, &st.frame, store),
+        Dialog::ModelMenu => super::seats::build_models(&mut d, &st.seats, &st.frame, store),
         Dialog::Images => {
             let session = store.domains.session.active().unwrap_or_default();
             let drafts = crate::screens::media::drafts_for_session(&session);
@@ -286,6 +298,14 @@ pub enum Job {
     ResearchSave(u64, super::research::Draft),
     /// A10 — `profile/sub_providers/remove` the confirmed key (generation).
     ResearchRemove(u64, String),
+    /// A10 — `permission/profile/list {session_id}` (the permission seat).
+    PermissionLoad,
+    /// A10 — `permission/profile/set` (mode, network).
+    PermissionSet(&'static str, &'static str),
+    /// A10 — `profile/llm/list {session_id, profile_id}` (the model seat).
+    ModelsLoad,
+    /// A10 — `profile/llm/select` the listed model at this index.
+    ModelSelect(usize),
 }
 
 /// What a routed action asks of the host.
@@ -363,7 +383,24 @@ pub fn open(dialog: Dialog) -> Outcome {
             Outcome::Spawn(Job::AgentsLoad)
         }
         Dialog::Research => super::research::on_open(&mut st.research),
+        Dialog::Permission => super::seats::on_open_permission(&mut st.seats),
+        Dialog::ModelMenu => super::seats::on_open_models(&mut st.seats),
     }
+}
+
+/// Close `dialog` if it is the open one (a finished job's own close).
+pub fn close_if(dialog: Dialog) {
+    if open_dialog() == Some(dialog) {
+        close();
+    }
+}
+
+/// Where the composer's seats sit in the module view (the menus open above
+/// them).
+pub fn set_seat_anchors(permission: Option<super::seats::Anchor>, model: Option<super::seats::Anchor>) {
+    let mut st = state();
+    st.seats.perm_anchor = permission;
+    st.seats.model_anchor = model;
 }
 
 pub fn close() {
@@ -461,6 +498,9 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
     }
     if action.starts_with("b3.research.") {
         return super::research::perform(&mut st.research, action, index, store);
+    }
+    if action.starts_with("b3.perm.") || action.starts_with("b3.model.") {
+        return super::seats::perform(&mut st.seats, action, index, store);
     }
     Outcome::Unrouted
 }
@@ -644,6 +684,16 @@ pub fn job_unavailable(job: &Job) {
             st.research.mutating = false;
             st.research.error = Some(msg);
         }
+        Job::PermissionLoad | Job::PermissionSet(..) => {
+            st.seats.perm_loading = false;
+            st.seats.perm_busy = false;
+            st.seats.perm_error = Some(msg);
+        }
+        Job::ModelsLoad | Job::ModelSelect(_) => {
+            st.seats.models_loading = false;
+            st.seats.models_busy = false;
+            st.seats.models_error = Some(msg);
+        }
         Job::FileFetch(id, _) => {
             drop(st);
             let mut f = super::rows::file_state();
@@ -714,6 +764,10 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         Job::ResearchRemove(generation, key) => {
             super::research::mutate(conv, generation, super::research::Confirm::Remove(key)).await
         }
+        Job::PermissionLoad => super::seats::load_permission(conv).await,
+        Job::PermissionSet(mode, network) => super::seats::set_permission(conv, mode, network).await,
+        Job::ModelsLoad => super::seats::load_models(conv).await,
+        Job::ModelSelect(index) => super::seats::select_model(conv, index).await,
     }
 }
 
@@ -721,7 +775,9 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
 /// a running turn is known Profile work (the Research lock).
 pub fn note_turn_busy(busy: bool) {
     super::agents::note_turn_busy(busy);
-    super::research::note_turn_busy(&mut state().research, busy);
+    let mut st = state();
+    super::research::note_turn_busy(&mut st.research, busy);
+    super::seats::note_turn_busy(&mut st.seats, busy);
 }
 
 /// Files the platform picker (or a drop) handed over while the images

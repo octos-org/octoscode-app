@@ -212,6 +212,9 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         "turn.activity" => json!(ui.turn_activity()),
         "composer.draft" => json!(ui.draft()),
         "composer.placeholder" => json!(COMPOSER_PLACEHOLDER),
+        // A10 — the model seat (web `ModelControl`): the selected model's
+        // name; the select prompt before any is reported.
+        "composer.model" => json!(crate::screens::board3::seats::model_seat_label(store)),
 
         // ---- conversation-04: TOOL CELLS -----------------------------------
         "tools" => json!(tools_json(&ui)),

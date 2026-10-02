@@ -18,6 +18,7 @@ use octoscode_store::Store;
 // 406x776 artboard).
 pub mod agents;
 pub mod research;
+pub mod seats;
 pub mod checkpoints;
 pub mod fleetview;
 pub mod host;
