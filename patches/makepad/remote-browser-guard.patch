@@ -1,17 +1,47 @@
-makepad remote bridge: refuse browser requests and drop the wildcard CORS header (decision D10c).
+makepad remote bridge: a per-launch token, browser requests refused, no wildcard CORS (decision D10c).
 
 The bridge (`--remote` / MAKEPAD_REMOTE) injects real input, serves screen grabs and returns every TextInput's raw
-buffer. It answered every request with `Access-Control-Allow-Origin: *` and checked nothing, so any web page open on
-the machine could read /snap and fire /click on a running app. This patch:
-- refuses (403) any request carrying `Origin`, `Referer` or `Sec-Fetch-*` (every browser request carries one; curl,
-  urllib and the harness send none);
-- refuses a `Host` that names a domain other than localhost (DNS rebinding; IP literals stay allowed for fleet boxes);
+buffer. It answered every request with `Access-Control-Allow-Origin: *` and checked nothing, so any web page (and any
+local process or, on a phone, any other app) could read /snap and fire /click on a running app. This patch:
+- requires a per-launch secret on EVERY request, header `X-Makepad-Token`, compared in constant time (403
+  {"err":"token"} otherwise). The token is MAKEPAD_REMOTE_TOKEN when given (at run time, or baked in at build time on
+  phones, like the port), else `mprt_` + 32 bytes from /dev/urandom as hex (the prefix lets repo_hermetic find a leaked one); it is written to `<tmp>/makepad-remote/port-<PORT>.token`
+  (dir 0700, file 0600) for the harness, and never printed or logged (the listening line names only the file);
+- refuses (403 {"err":"browser"}) any request carrying `Origin`, `Referer` or `Sec-Fetch-*` (every browser request
+  carries one; curl, urllib and the harness send none), and a `Host` naming a domain other than localhost (DNS
+  rebinding; IP literals stay allowed for fleet boxes);
 - stops sending `Access-Control-Allow-Origin: *`.
 Applied to every tree by scripts/apply-makepad-patches.sh; tests/makepad_bridge_guard.rs checks its shape.
+Clients: tools/walk/bridgeauth.py (urllib) and harness/bcurl (curl) send the token for a loopback port.
 
 --- a/platform/src/remote.rs
 +++ b/platform/src/remote.rs
-@@ -1636,6 +1636,10 @@
+@@ -529,6 +529,9 @@
+             .join("makepad-remote")
+             .join(format!("{app}-{pid}"));
+         let _ = std::fs::create_dir_all(&dir);
++        let token = launch_token();
++        let token_file = write_token_file(bound, &token);
++        let _ = TOKEN.set(token);
+         *grab_dir().lock().unwrap() = dir.clone();
+         {
+             let mut status = status_cell().lock().unwrap();
+@@ -538,8 +541,13 @@
+         ACTIVE.store(true, Ordering::SeqCst);
+         // One line, everything an agent needs to drive and clean up this
+         // instance: port, pid, app, and where grabs land.
++        // The token itself is never printed or logged: only where it is.
++        let token_at = token_file
++            .as_ref()
++            .map(|p| p.display().to_string())
++            .unwrap_or_else(|| "(none)".to_string());
+         println!(
+-            "[makepad-remote] listening on {host}:{bound} pid={pid} app={app} grabs={}",
++            "[makepad-remote] listening on {host}:{bound} pid={pid} app={app} grabs={} token_file={token_at}",
+             dir.display()
+         );
+         let _ = std::io::stdout().flush();
+@@ -1636,6 +1644,14 @@
          };
  
          let head = String::from_utf8_lossy(&buf[..head_end]).to_string();
@@ -19,15 +49,17 @@ Applied to every tree by scripts/apply-makepad-patches.sh; tests/makepad_bridge_
 +            let _ = respond(&mut stream, 403, "application/json", b"{\"err\":\"browser\"}");
 +            return;
 +        }
++        if !TOKEN.get().is_some_and(|want| token_matches(&head, want)) {
++            let _ = respond(&mut stream, 403, "application/json", b"{\"err\":\"token\"}");
++            return;
++        }
          let mut lines = head.split("\r\n");
          let Some(request_line) = lines.next() else {
              return;
-@@ -1733,8 +1737,53 @@
- 
-     fn find_head_end(buf: &[u8]) -> Option<usize> {
+@@ -1735,6 +1751,136 @@
          buf.windows(4).position(|w| w == b"\r\n\r\n")
-+    }
-+
+     }
+ 
 +    /// The bridge injects real input and serves the screen, so no web page
 +    /// may reach it: a page could read `/snap` through a permissive CORS
 +    /// header, or fire `/click` as an `<img>` GET without reading anything.
@@ -54,8 +86,81 @@ Applied to every tree by scripts/apply-makepad-patches.sh; tests/makepad_bridge_
 +            None => host.rsplit_once(':').map(|(h, _)| h).unwrap_or(host),
 +        };
 +        name.eq_ignore_ascii_case("localhost") || name.parse::<std::net::IpAddr>().is_ok()
-     }
- 
++    }
++
++    /// D10c: the per-launch secret every request carries as `X-Makepad-Token`.
++    static TOKEN: std::sync::OnceLock<String> = std::sync::OnceLock::new();
++
++    /// `MAKEPAD_REMOTE_TOKEN` when given (at run time, or baked in at build
++    /// time on phones, like the port); otherwise `mprt_` + 32 random bytes as hex.
++    fn launch_token() -> String {
++        #[cfg(any(target_env = "ohos", target_os = "android"))]
++        if let Some(v) = option_env!("MAKEPAD_REMOTE_TOKEN") {
++            if !v.trim().is_empty() {
++                return v.trim().to_string();
++            }
++        }
++        if let Ok(v) = std::env::var("MAKEPAD_REMOTE_TOKEN") {
++            if !v.trim().is_empty() {
++                return v.trim().to_string();
++            }
++        }
++        let mut bytes = [0u8; 32];
++        let urandom = std::fs::File::open("/dev/urandom").and_then(|mut f| f.read_exact(&mut bytes));
++        if urandom.is_err() {
++            // No /dev/urandom: RandomState is seeded from the OS generator.
++            use std::hash::{BuildHasher, Hasher};
++            let state = std::collections::hash_map::RandomState::new();
++            for (i, chunk) in bytes.chunks_mut(8).enumerate() {
++                let mut h = state.build_hasher();
++                h.write_usize(i);
++                h.write_u32(std::process::id());
++                chunk.copy_from_slice(&h.finish().to_le_bytes());
++            }
++        }
++        // The `mprt_` prefix lets a repository scan find a leaked token.
++        let hex: String = bytes.iter().map(|b| format!("{b:02x}")).collect();
++        format!("mprt_{hex}")
++    }
++
++    /// `<tmp>/makepad-remote/port-<PORT>.token`, directory 0700 and file 0600,
++    /// for the harness on the same machine and user to read.
++    fn write_token_file(port: u16, token: &str) -> Option<std::path::PathBuf> {
++        let dir = std::env::temp_dir().join("makepad-remote");
++        std::fs::create_dir_all(&dir).ok()?;
++        #[cfg(unix)]
++        {
++            use std::os::unix::fs::PermissionsExt;
++            let _ = std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o700));
++        }
++        let path = dir.join(format!("port-{port}.token"));
++        let _ = std::fs::remove_file(&path);
++        let mut opts = std::fs::OpenOptions::new();
++        opts.write(true).create_new(true);
++        #[cfg(unix)]
++        {
++            use std::os::unix::fs::OpenOptionsExt;
++            opts.mode(0o600);
++        }
++        let mut file = opts.open(&path).ok()?;
++        file.write_all(token.as_bytes()).ok()?;
++        Some(path)
++    }
++
++    fn token_matches(head: &str, want: &str) -> bool {
++        head.split("\r\n").skip(1).any(|line| {
++            let Some((name, value)) = line.split_once(':') else {
++                return false;
++            };
++            name.trim().eq_ignore_ascii_case("x-makepad-token") && same_bytes(value.trim().as_bytes(), want.as_bytes())
++        })
++    }
++
++    /// Constant time in the bytes compared.
++    fn same_bytes(a: &[u8], b: &[u8]) -> bool {
++        a.len() == b.len() && a.iter().zip(b).fold(0u8, |acc, (x, y)| acc | (x ^ y)) == 0
++    }
++
 +    #[cfg(test)]
 +    mod browser_guard_tests {
 +        use super::refused_head;
@@ -71,12 +176,24 @@ Applied to every tree by scripts/apply-makepad-patches.sh; tests/makepad_bridge_
 +            assert!(refused_head("GET /click HTTP/1.1\r\nHost: 127.0.0.1:8400\r\nReferer: https://site.example/"));
 +            assert!(refused_head("GET /snap HTTP/1.1\r\nHost: rebound.site.example:8400"));
 +        }
++
++        #[test]
++        fn only_the_launch_token_opens_the_bridge() {
++            use super::token_matches;
++            let head = |t: &str| format!("GET /s HTTP/1.1\r\nHost: 127.0.0.1:8400\r\nX-Makepad-Token: {t}");
++            assert!(token_matches(&head("abc123"), "abc123"));
++            assert!(token_matches("GET /s HTTP/1.1\r\nx-makepad-token:  abc123 ", "abc123"));
++            assert!(!token_matches(&head("abc124"), "abc123"));
++            assert!(!token_matches(&head("abc12"), "abc123"));
++            assert!(!token_matches("GET /s HTTP/1.1\r\nHost: 127.0.0.1:8400", "abc123"));
++            assert!(!token_matches("GET /s?X-Makepad-Token: abc123 HTTP/1.1", "abc123"));
++        }
 +    }
 +
      fn respond(
          stream: &mut TcpStream,
          status: u16,
-@@ -1744,6 +1793,7 @@
+@@ -1744,6 +1890,7 @@
          let reason = match status {
              200 => "OK",
              400 => "Bad Request",
@@ -84,7 +201,7 @@ Applied to every tree by scripts/apply-makepad-patches.sh; tests/makepad_bridge_
              404 => "Not Found",
              408 => "Request Timeout",
              431 => "Request Header Fields Too Large",
-@@ -1753,7 +1803,7 @@
+@@ -1753,7 +1900,7 @@
          let mut out = Vec::with_capacity(body.len() + 256);
          out.extend_from_slice(
              format!(

@@ -32,6 +32,7 @@ import tempfile
 import time
 import urllib.error
 import urllib.request
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, "tools", "walk"))

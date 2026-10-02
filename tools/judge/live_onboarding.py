@@ -12,6 +12,8 @@ scrubbed by the app (trace::register_secret). After the run this script scans ev
 the app's isolated state, the harness logs) for the key and its first/last 8 characters and prints COUNTS only.
 """
 import json, os, pathlib, subprocess, sys, time, urllib.parse, urllib.request
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../walk"))  # noqa: E402
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 BIN, PORT, SERVE, OUT = sys.argv[1], int(sys.argv[2]), sys.argv[3], pathlib.Path(sys.argv[4])
 MODE = sys.argv[5] if len(sys.argv) > 5 else "desktop"

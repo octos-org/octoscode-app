@@ -48,6 +48,7 @@ import sys
 import time
 import urllib.parse
 import urllib.request
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT / "tools" / "walk"))
