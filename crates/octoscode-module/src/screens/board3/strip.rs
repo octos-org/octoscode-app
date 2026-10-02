@@ -116,7 +116,7 @@ pub fn state_word_held(store: &Store, active_turn: Option<&str>, handover: Optio
     if store.domains.approval.actionable_count(&session) > 0 {
         return "Waiting for your approval".into();
     }
-    if store.domains.approval.question().map(|q| q.session_id == session).unwrap_or(false) {
+    if store.domains.approval.question_for(&session).is_some() {
         return "Waiting for your answer".into();
     }
     if crate::chrome::held_by_other(store).is_some() {

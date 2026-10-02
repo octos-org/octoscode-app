@@ -123,18 +123,35 @@ pub fn routes(action: &str) -> bool {
 
 /// The takeover the ACTIVE session shows, if any. Approvals win
 /// (`App.tsx:2759`); a question needs the advertised method and feature
-/// (`session-interaction-ledger.ts:254-262`) and a parseable payload.
+/// (`session-interaction-ledger.ts:254-262`) and a parseable payload. A20
+/// (parity row 250): only interactions whose recorded origin IS the Session
+/// on screen — another Session's approval or question never takes it over,
+/// and each Session keeps its own question (one global slot let a second
+/// Session's question replace the first's).
 pub fn takeover(store: &Store) -> Option<Takeover> {
     let session = store.active_session()?;
     if let Some((p, _)) = store.domains.approval.showing(&session) {
         return Some(Takeover::Approval(p.id));
     }
-    let q = store.domains.approval.question()?;
-    if q.session_id != session || !question_supported(store) {
+    let q = store.domains.approval.question_for(&session)?;
+    if !question_supported(store) {
         return None;
     }
     takeover::parse_questions(&q.questions).filter(|qs| !qs.is_empty())?;
     Some(Takeover::Question(q.question_id))
+}
+
+/// A20 — the active Session's question (the takeover's, the keys', the
+/// submit's: one source).
+fn active_question(store: &Store) -> Option<octoscode_store::domains::approval::PendingQuestion> {
+    let session = store.active_session()?;
+    store.domains.approval.question_for(&session)
+}
+
+/// A20 — whether the connection can carry a response now (the web's
+/// `authority.ready`: connected, not recovering).
+fn ready(store: &Store) -> bool {
+    store.is_live() && store.outage().is_none()
 }
 
 /// `supportsMethod(USER_QUESTION_RESPOND) && supportsFeature(USER_QUESTION_V1)`.
@@ -182,7 +199,7 @@ pub fn lower_takeover(store: &Store, m: &Metrics) -> Option<Lowered> {
             takeover::approval_card(&mut d, &p, &a, &ui, &look);
         }
         Takeover::Question(_) => {
-            let q = store.domains.approval.question()?;
+            let q = store.domains.approval.question_for(&session)?;
             let qs = takeover::parse_questions(&q.questions)?;
             let mut s = state();
             s.question.bind(&q, qs.len());
@@ -363,14 +380,29 @@ pub fn perform(action: &str, index: usize, store: &Store, ui: &Arc<Mutex<FlowUi>
         "cv.noop" => Outcome::Done,
         // ---- the approval card
         "cv.approval.once" | "cv.approval.session" | "cv.approval.deny" => {
-            let Some((p, _)) = store.domains.approval.showing(&session) else { return Outcome::Done };
+            let Some((p, detail)) = store.domains.approval.showing(&session) else { return Outcome::Done };
             let mut st = state();
             if st.approval.busy.is_some() {
                 return Outcome::Done; // `busy` disables every decision
             }
+            st.view.focus_inside = true;
+            // A20 — the `resolve` preflight (`session-interaction-ledger.ts:
+            // 400-414`): the record's own owner must be the Session this
+            // client drives, over a ready connection, on the generation that
+            // observed it — else the card says so and NOTHING is sent.
+            let owner = detail.owner();
+            if let Err(stale) = store.domains.approval.authorize(
+                octoscode_store::domains::approval::InteractionKind::Approval,
+                &owner,
+                &p.id,
+                Some(session.as_str()),
+                ready(store),
+            ) {
+                st.approval.error = Some((p.id, stale.to_owned()));
+                return Outcome::Done;
+            }
             st.approval.busy = Some(p.id.clone());
             st.approval.error = None;
-            st.view.focus_inside = true;
             let (decision, scope) = match action {
                 "cv.approval.once" => ("approve", "request"),
                 "cv.approval.session" => ("approve", "session"),
@@ -378,7 +410,9 @@ pub fn perform(action: &str, index: usize, store: &Store, ui: &Arc<Mutex<FlowUi>
             };
             Outcome::Spawn(Job::Approve {
                 approval_id: p.id,
-                session_id: session,
+                // The record's exact owning SessionKey (`:439`), never
+                // whichever Session happens to be selected later.
+                session_id: owner,
                 decision: decision.into(),
                 scope: scope.into(),
             })
@@ -389,7 +423,7 @@ pub fn perform(action: &str, index: usize, store: &Store, ui: &Arc<Mutex<FlowUi>
         },
         // ---- the question card
         "cv.q.opt" => {
-            let Some(q) = store.domains.approval.question() else { return Outcome::Done };
+            let Some(q) = active_question(store) else { return Outcome::Done };
             let Some(qs) = takeover::parse_questions(&q.questions) else { return Outcome::Done };
             let (qi, oi) = (index / 100, index % 100);
             let (Some(question), mut st) = (qs.get(qi), state()) else { return Outcome::Done };
@@ -464,19 +498,33 @@ pub fn perform(action: &str, index: usize, store: &Store, ui: &Arc<Mutex<FlowUi>
 /// The question's submit (`UserQuestionPanel.tsx:53-57`): only a complete,
 /// idle draft goes out; Enter anywhere in the card lands here too.
 pub fn submit_question(store: &Store) -> Outcome {
-    let Some(q) = store.domains.approval.question() else { return Outcome::Done };
+    let Some(q) = active_question(store) else { return Outcome::Done };
     let Some(qs) = takeover::parse_questions(&q.questions) else { return Outcome::Done };
     let mut st = state();
     st.question.bind(&q, qs.len());
     if st.question.busy || !takeover::answers_complete(&st.question.answers) {
         return Outcome::Done;
     }
+    st.view.focus_inside = true;
+    // A20 — the same preflight as an approval (`:400-414`): a stale record
+    // keeps every selection and the typed text, says why, sends nothing.
+    let owner = q.owner();
+    if let Err(stale) = store.domains.approval.authorize(
+        octoscode_store::domains::approval::InteractionKind::Question,
+        &owner,
+        &q.question_id,
+        store.active_session().as_deref(),
+        ready(store),
+    ) {
+        st.question.error = Some(stale.to_owned());
+        return Outcome::Done;
+    }
     st.question.busy = true;
     st.question.error = None;
-    st.view.focus_inside = true;
     Outcome::Spawn(Job::Answer {
         question_id: q.question_id.clone(),
-        session_id: q.session_id.clone(),
+        // The record's exact owning SessionKey (`:455`).
+        session_id: owner,
         answers: takeover::to_wire_answers(&st.question.answers).to_string(),
     })
 }
@@ -528,6 +576,26 @@ fn readable(e: &octoscode_client::ClientError) -> String {
 pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, String> {
     match job {
         Job::Approve { approval_id, session_id, decision, scope } => {
+            use octoscode_store::domains::approval::InteractionKind;
+            // A20 — the preflight again, at the moment of sending (the web's
+            // `resolve`, `:400-414`): the conversation must still drive the
+            // record's owner, ready, on the record's generation.
+            let driving = conv.session_id();
+            let generation = match conv.store.domains.approval.authorize(
+                InteractionKind::Approval,
+                &session_id,
+                &approval_id,
+                Some(driving.as_str()).filter(|d| conv.store.active_session().as_deref() == Some(*d)),
+                ready(&conv.store),
+            ) {
+                Ok(g) => g,
+                Err(stale) => {
+                    let mut st = state();
+                    st.approval.busy = None;
+                    st.approval.error = Some((approval_id, stale.to_owned()));
+                    return Err(stale.to_owned());
+                }
+            };
             // ApprovalPanel.tsx:100-125 -> session-interaction-ledger.ts:432-447:
             // the generation-checked owning session, the scope, no note.
             let r = conv
@@ -552,6 +620,13 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
                 Ok(_) => Ok(()),
                 Err(e) => Err(readable(&e)),
             };
+            // A20 — `isCurrent()` (`:417-427`): a reply for a record that a
+            // restore re-armed, a newer request superseded or a session switch
+            // retired settles nothing and reports nothing.
+            if !conv.store.domains.approval.is_current(InteractionKind::Approval, &session_id, &approval_id, generation) {
+                state().approval.busy = None;
+                return Ok(format!("{decision}/{scope}: the record changed meanwhile — nothing settled"));
+            }
             let mut st = state();
             st.approval.busy = None;
             match outcome {
@@ -569,6 +644,23 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
             }
         }
         Job::Answer { question_id, session_id, answers } => {
+            use octoscode_store::domains::approval::InteractionKind;
+            let driving = conv.session_id();
+            let generation = match conv.store.domains.approval.authorize(
+                InteractionKind::Question,
+                &session_id,
+                &question_id,
+                Some(driving.as_str()).filter(|d| conv.store.active_session().as_deref() == Some(*d)),
+                ready(&conv.store),
+            ) {
+                Ok(g) => g,
+                Err(stale) => {
+                    let mut st = state();
+                    st.question.busy = false;
+                    st.question.error = Some(stale.to_owned());
+                    return Err(stale.to_owned());
+                }
+            };
             let answers: serde_json::Value = serde_json::from_str(&answers).unwrap_or(json!([]));
             let r = conv
                 .client()
@@ -587,6 +679,10 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
                 Ok(_) => Ok(()),
                 Err(e) => Err(readable(&e)),
             };
+            if !conv.store.domains.approval.is_current(InteractionKind::Question, &session_id, &question_id, generation) {
+                state().question.busy = false;
+                return Ok("the question changed meanwhile — nothing settled".into());
+            }
             let mut st = state();
             st.question.busy = false;
             match outcome {
@@ -663,7 +759,7 @@ pub fn key(store: &Store, key: &str, shift: bool, ctrl: bool, alt: bool, logo: b
             if text_focus {
                 return KeyOutcome::Pass;
             }
-            let Some(q) = store.domains.approval.question() else { return KeyOutcome::Pass };
+            let Some(q) = active_question(store) else { return KeyOutcome::Pass };
             let Some(qs) = takeover::parse_questions(&q.questions) else { return KeyOutcome::Pass };
             let mut st = state();
             st.question.bind(&q, qs.len());
@@ -734,6 +830,7 @@ mod tests {
             title: "Pick".into(),
             body: String::new(),
             questions: json!([{"header": "H", "question": "Pick", "options": [{"label": "A", "description": ""}]}]),
+            ..Default::default()
         });
         assert_eq!(takeover(&s), Some(Takeover::Question("q1".into())));
         s.domains.approval.request("a1", None);
@@ -780,6 +877,7 @@ mod tests {
                 {"header": "Extras", "question": "Any?", "multi_select": true, "allow_free_text": false,
                  "options": [{"label": "Tests", "description": ""}, {"label": "Docs", "description": ""}]}
             ]),
+            ..Default::default()
         });
         let ui = Arc::new(Mutex::new(FlowUi::default()));
         assert_eq!(submit_question(&s), Outcome::Done, "incomplete: nothing goes out");
@@ -843,6 +941,7 @@ mod tests {
             kind: Some("command".into()),
             risk: Some("medium".into()),
             command: Some("git push origin feat/steer-queue-with-a-long-branch-name-that-wraps".into()),
+            ..Default::default()
         };
         let q = PendingQuestion {
             question_id: "q1".into(),
@@ -856,6 +955,7 @@ mod tests {
                 {"header": "Extras", "question": "Any?", "multi_select": true, "allow_free_text": false,
                  "options": [{"label": "Tests", "description": "add"}, {"label": "Docs", "description": ""}]}
             ]),
+            ..Default::default()
         };
         let qs = takeover::parse_questions(&q.questions).unwrap();
         for phone in [false, true] {

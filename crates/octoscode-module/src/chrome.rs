@@ -2416,6 +2416,7 @@ pub fn seed_board2(store: &octoscode_store::Store, variant: &str) {
         title: "Which branch?".into(),
         body: String::new(),
         questions: serde_json::Value::Null,
+        ..Default::default()
     });
     let tl = &store.domains.session.timeline;
     tl.append("b2:s3", Some("b2:t3".into()), EntryKind::ASSISTANT_TEXT, "Reviewed.".into());

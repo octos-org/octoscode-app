@@ -5877,9 +5877,9 @@ impl OctoscodeView {
                 // handler lands pushed cards — or the flow's own flag
                 // (module-driven transports). The FlowUi flag alone missed
                 // server-pushed cards (the first live drive's dead Y).
-                let approval_pending =
-                    crate::screens::keys::oldest_pending_id(&store).is_some()
-                        || ui.lock().unwrap().approval_pending();
+                // A20: THIS Session's showing approval only (the FlowUi flag
+                // could be raised by another Session's request).
+                let approval_pending = crate::screens::keys::oldest_pending_id(&store).is_some();
                 // #P4f2 row 7: the SHOWING approval's diff preview id, from the
                 // same FIFO row the decision keys answer, so `D` and Y/S/N can
                 // never act on different cards.
@@ -5996,27 +5996,25 @@ impl OctoscodeView {
                     KeyAction::ApprovalApproveRequest
                     | KeyAction::ApprovalApproveSession
                     | KeyAction::ApprovalDenyRequest => {
-                        if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
-                            let approval_id = crate::screens::keys::oldest_pending_id(&store);
-                            if let Some(approval_id) = approval_id {
-                                let body = crate::screens::keys::respond_body(
-                                    &action,
-                                    &conv.session_id(),
-                                    &approval_id,
-                                );
-                                if let Some(body) = body {
-                                    let client = conv.client().clone();
-                                    rt.spawn(async move {
-                                        if let Err(e) =
-                                            client.request("approval/respond", body).await
-                                        {
-                                            ::log::warn!("octoscode: approval/respond: {e}");
-                                        }
-                                    });
-                                }
-                            } else {
-                                ::log::warn!("octoscode: keyboard decision: no pending approval");
+                        // A20 (parity row 250): the keyboard decides through
+                        // the card's OWN production path (`cv.approval.*` ->
+                        // surfaces::perform -> the ledger's preflight), so it
+                        // answers only the approval of the Session on screen,
+                        // to its recorded owner, on its generation — never
+                        // the oldest approval of ANY Session with this
+                        // Session's id (what a bare `y` typed in Session Y
+                        // did to Session X's approval).
+                        let _ = conv;
+                        match crate::screens::keys::oldest_pending_id(&store) {
+                            Some(_) => {
+                                let cv = match action {
+                                    KeyAction::ApprovalApproveRequest => "cv.approval.once",
+                                    KeyAction::ApprovalApproveSession => "cv.approval.session",
+                                    _ => "cv.approval.deny",
+                                };
+                                self.perform_action(cx, cv, 0);
                             }
+                            None => ::log::warn!("octoscode: keyboard decision: no approval of this Session"),
                         }
                     }
                     // #P4f2 row 7 — `ApprovalPanel.tsx:45`: D opens the diff
