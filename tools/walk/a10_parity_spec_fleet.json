@@ -1,0 +1,110 @@
+[
+ {
+  "feature": "product-controls",
+  "capability_prefix": "control seat: drive an already-accepted external-master peer",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/fleet_console.rs:332 seat_panel (mounted only when control is ready — peer/control + peer/dispatch + external_driver_v1 advertised AND a complete driver walk, crates/octoscode-module/src/screens/fleet_driver.rs:100 — AND this app holds the seat AND a target exists: the held acquire's pending_work[0] + the master's live turn, fleet_driver.rs:683 seat_target) -> fleet_driver.rs:710 seat_control (ONE peer/control per command; fleet_driver.rs:691 seat_command approval_respond/question_respond/steer/interrupt; bounded refusal labels :289); placed under Fleet > Advanced (SessionControlBar's seats; no approved board: A5 card style); test crates/octoscode-module/tests/a10_fleet.rs::the_session_controller_discloses_releases_reacquires_and_dispatches (seat command = ONE frame on synthetic-pending-op; faithful fixture crates/octoscode-client/tests/fixtures/a10-fleet-driver-synthetic.jsonl (SYNTHETIC: no live server advertises external_driver_v1; built by tools/fixtures/a10_fleet_fixture.py from the r6/r23/c24 recordings + the web's protocol)); walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet step 10 (seat Steer CLICK -> peer/control target_operation_id=synthetic-pending-op, receipt facts Worker/Duplicate; docs/ux/a10/fleet/{desktop,phone}/07-seat-*.png)"
+ },
+ {
+  "feature": "product-controls",
+  "capability_prefix": "driver disclosure: a read-only external-recovery disclosure seat",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/fleet_console.rs:297 disclosure_seat (External/Internal controller; Recovery, Driver, Epoch, Revision, Lease of the walked disclosure, the HELD binding preferred) + :369 controller_console (the console re-gated on peer/control + peer/dispatch via control_ready) + :152 perform (Release seat = session/driver/release next=external then the re-walk, crates/octoscode-module/src/screens/board3/host.rs:722; Acquire seat after a release = ONE CAS acquire, crates/octoscode-module/src/screens/fleet_driver.rs:175; console Dispatch = held seat only, fleet_driver.rs:345 start_with implicit_acquire=false); test crates/octoscode-module/tests/a10_fleet.rs::the_session_controller_discloses_releases_reacquires_and_dispatches; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet step 8 (Advanced CLICK, disclosure CLICK -> facts, Release seat -> re-walk -> Acquire seat on revision 44; docs/ux/a10/fleet/{desktop,phone}/06-advanced-*.png)"
+ },
+ {
+  "feature": "fleet",
+  "capability_prefix": "Status-word projection",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/fleetview.rs:128 row_status from the peer session's OWN frames (folded by crates/octoscode-module/src/screens/peers.rs:169 fold_frame in the flow hook, crates/octoscode-module/src/flow.rs:1541, into octoscode-store domains/peer.rs:520 observe_session_event): Requested / Starting / Still starting… (>15 s) / Working / Waiting for your approval|answer / Finished / Stopped / Failed / Outcome unknown, glyph + word chip fleetview.rs:816; tests crates/octoscode-module/tests/a10_fleet.rs::peer_frames_fold_into_the_row_and_each_action_sends_one_control_frame + ::a_question_blocked_row_is_answered_with_one_question_respond (recorded turn/started, approval/requested, user_question/requested, approval/decided, turn/error re-pointed at the adopted session) + fleetview.rs unit the_status_words_follow_the_rows_own_events; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet steps 1,3,4,6,6b,7 (Requested, Waiting for your approval, Working, Failed, Waiting for your answer, Stopped read from /snap)"
+ },
+ {
+  "feature": "fleet",
+  "capability_prefix": "Grouping and ordering",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/fleetview.rs:312 group (goal-id groups in first-seen order, the flat Peers group last, rank-stable within a rank; terminal rows under each group's Finished (n), closed by default, b3.fleet.finished#group); test crates/octoscode-module/tests/a10_fleet.rs::opening_reads_the_lanes_and_walks_the_inventory_without_a_default_lane (Goal goal_01 in the lowered pane) + fleetview.rs unit groups_follow_goal_order_with_peers_last_and_rank_stable; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet step 1 (Goal goal_01 then Peers), step 7 (Finished (2) disclosure CLICK shows the stopped + failed rows; docs/ux/a10/fleet/{desktop,phone}/05-finished-*.png)"
+ },
+ {
+  "feature": "fleet",
+  "capability_prefix": "Union of inventory acceptance facts with the live peer roster",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/fleetview.rs:215 rows (the session/driver/get walk — crates/octoscode-client/src/domains/external_driver.rs:642 walk_inventory via crates/octoscode-module/src/screens/fleet_driver.rs:236 load_inventory — first, then the roster rows it did not claim, keyed by the adopted session id; labels crates/octoscode-module/src/screens/peers.rs:435 row_label 'Peer N · model', never the slug); the per-session slice reads the same rows (crates/octoscode-module/src/screens/fleet.rs peer_rows); tests crates/octoscode-module/tests/a10_fleet.rs::opening_reads_the_lanes_and_walks_the_inventory_without_a_default_lane ('Peer 1 · glm-4.6', no slug in the pane) + crates/octoscode-module/tests/f30c_replay.rs::the_bindings_cover_the_cards_and_the_lowered_cards_carry_the_live_values + fleetview.rs unit the_union_keys_by_adopted_session_and_labels_never_show_a_slug; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet steps 1,3,6 ('Peer 1 · glm-4.6', 'Peer 2 · gpt-5.4', 'Peer 4 · gpt-5.4'; no slug on screen)"
+ },
+ {
+  "feature": "fleet",
+  "capability_prefix": "Peer control actions from a row",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/fleetview.rs:696 perform (b3.fleet.approve/deny/stop/steer/answer#row; availability fleetview.rs:346 gates by phase) -> fleetview.rs:675 run_row -> crates/octoscode-module/src/screens/fleet_driver.rs:602 row_control (ONE peer/control with the held fence, the row's accepted operation id and ADOPTED turn; fleet_driver.rs:561 row_command approval_respond / steer / interrupt / question_respond); tests crates/octoscode-module/tests/a10_fleet.rs::peer_frames_fold_into_the_row_and_each_action_sends_one_control_frame (exact frames) + crates/octoscode-module/tests/a4_board3.rs::fleet_start_seats_prepares_dispatches_once_and_steers_its_working_peer + crates/octoscode-module/tests/fp4d4_control.rs::peer_control_fails_closed_before_the_wire; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet steps 4,5,6b,7 (Approve -> approval_respond -> Working + 'Sent'; Steer -> steer; Answer -> question_respond; Stop -> interrupt -> Stopped)"
+ },
+ {
+  "feature": "fleet",
+  "capability_prefix": "Start control flow",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/fleetview.rs:696 perform b3.fleet.start (start_admitted fleetview.rs:528: control ready + an advertised lane + a brief; a NEW operation id per Start, external_driver.rs:267 new_operation_id) -> fleetview.rs:577 run_start -> crates/octoscode-module/src/screens/fleet_driver.rs:345 start_with (acquire CAS on the walked revision when no seat is held -> peer/prepare -> EXACTLY ONE peer/dispatch, crates/octoscode-client/src/domains/external_driver.rs:1002); a typed refusal keeps the brief with the bounded label fleet_driver.rs:276; uncertain -> Retry (same id) / Dismiss; tests crates/octoscode-module/tests/fp4a4_start.rs::the_gate_is_fail_closed_and_the_chain_sends_exactly_one_dispatch + ::a_refused_dispatch_keeps_the_brief_for_retry + crates/octoscode-module/tests/a10_fleet.rs::start_acquires_with_cas_then_dispatches_exactly_once_and_adopts_the_row + ::refusals_keep_the_brief_and_retry_reuses_the_operation_id; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet steps 3 + 6 (acquire expected_revision=42 -> prepare -> ONE dispatch; the lane-review refusal keeps the brief; 3 Starts = 3 distinct operation ids in the replay log; docs/ux/a10/fleet/{desktop,phone}/03-waiting-*.png, 04-refused-*.png)"
+ },
+ {
+  "feature": "fleet",
+  "capability_prefix": "Announcements + live region",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/fleetview.rs:361 announce (a peer that starts waiting for approval/answer, a finished/stopped/failed peer; silent when nothing changed; keyed by the row) run on each lowering, crates/octoscode-module/src/screens/board3/host.rs:221, into the pane's live-region line b3_fleet_announce; tests crates/octoscode-module/tests/a10_fleet.rs::peer_frames_fold_into_the_row_and_each_action_sends_one_control_frame (the stop announced) + fleetview.rs unit availability_and_announcements_are_the_design_table; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet step 3 ('Peer 2 · gpt-5.4 is waiting for your approval' on screen)"
+ },
+ {
+  "feature": "control",
+  "capability_prefix": "Fleet Start = acquire (CAS) -> await proof -> dispatch once",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/fleet_driver.rs:345 start_with: no held seat -> fleet_driver.rs:175 acquire_seat (session/driver/acquire {session_id, driver_id, expected_revision = the COMPLETE walk's revision, lease_seconds 120}, the stable per-install driver id fleet_driver.rs:52; no complete walk = no CAS basis = no frame) -> the acquire receipt's fence (proof) -> peer/prepare -> EXACTLY ONE peer/dispatch carrying the Start's own operation id (crates/octoscode-client/src/domains/external_driver.rs:776 acquire, :1002 dispatch, receipts fenced :958); tests crates/octoscode-module/tests/fp4a4_start.rs::the_gate_is_fail_closed_and_the_chain_sends_exactly_one_dispatch (the old {session_id, slug} acquire + camelCase dispatch + model 'inherit' locked in by this card were not the web's wire: rewritten) + crates/octoscode-module/tests/a10_fleet.rs::start_acquires_with_cas_then_dispatches_exactly_once_and_adopts_the_row; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet step 3 (replay log: acquire expected_revision=42 -> prepare -> ONE dispatch)"
+ },
+ {
+  "feature": "control",
+  "capability_prefix": "Peer control commands (approve/deny/answer a peer row)",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/fleet_driver.rs:561 row_command (approve / approve-for-session / deny = approval_respond with the row's REAL approval id; answer = question_respond with the row's REAL question id + the free-text answer; fail closed on a missing id or a mismatched attention kind) -> fleet_driver.rs:602 row_control -> crates/octoscode-client/src/domains/external_driver.rs:1203 control (deny_unknown_fields receipt :1160; state refused -> peer_control_refused); the answer card crates/octoscode-module/src/screens/board3/fleetview.rs:939 row_card (PeerDock.tsx:371-440); tests crates/octoscode-module/tests/a10_fleet.rs::peer_frames_fold_into_the_row_and_each_action_sends_one_control_frame + ::a_question_blocked_row_is_answered_with_one_question_respond + fleet_driver.rs unit row_commands_bind_the_rows_real_ids_and_fail_closed; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet steps 4 (Approve) + 6b (Answer -> command=question_respond; docs/ux/a10/fleet/{desktop,phone}/04b-answer-*.png)"
+ },
+ {
+  "feature": "control",
+  "capability_prefix": "Dispatch a new native peer (requested lane, kickoff text)",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/fleet_driver.rs:345 start_with builds the dispatch with the REQUESTED lane (never a default; a lane outside the advertised keys is refused driver_model_unavailable with zero frames) and the kickoff prompt crates/octoscode-module/src/screens/peers.rs:43 (brief + the durable brief path) -> crates/octoscode-client/src/domains/external_driver.rs:884 dispatch_params (snake_case {session_id, driver_id, epoch, control_token, operation_id, model, dispatch{kind:new_brief, brief, title}, kickoff_input}); the adopted session attaches in the background; tests crates/octoscode-module/tests/fp4a4_start.rs::the_gate_is_fail_closed_and_the_chain_sends_exactly_one_dispatch (model = the lane, kickoff text) + crates/octoscode-module/tests/a10_fleet.rs::start_acquires_with_cas_then_dispatches_exactly_once_and_adopts_the_row; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet steps 3 + 6 (model=lane-primary on the wire; the adopted 'Peer 2 · gpt-5.4' row)"
+ },
+ {
+  "feature": "control",
+  "capability_prefix": "Lane picker sourced ONLY from advertised lanes",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/fleetview.rs:535 load_lanes (profile/sub_providers/list only when advertised + a confirmed profile, fleetview.rs:516 lane_source_admitted) -> the picker lists the advertised keys verbatim (fleetview.rs:422 model_options: the key suffix only for duplicate display names), no implicit default (chosen_lane None until a tap), a withdrawn lane is dropped; tests crates/octoscode-module/tests/a10_fleet.rs::opening_reads_the_lanes_and_walks_the_inventory_without_a_default_lane + ::an_unadvertised_lane_source_is_never_read + fleetview.rs unit the_picker_reads_only_advertised_keys_without_a_default; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet step 2 (the Model picker CLICK shows exactly lane-primary / lane-review; docs/ux/a10/fleet/{desktop,phone}/02-picker-*.png)"
+ },
+ {
+  "feature": "control",
+  "capability_prefix": "Peer controller staging (no implicit lane/brief/title default)",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/fleetview.rs:528 start_admitted + crates/octoscode-module/src/screens/board3/fleet_console.rs:152 perform 'dispatch' (the ONE gate: a held seat, an ADMITTED lane, a non-blank brief; the title only the operator's own) -> crates/octoscode-module/src/screens/fleet_driver.rs:345 start_with (implicit_acquire=false for the console); tests crates/octoscode-module/tests/a10_fleet.rs::the_session_controller_discloses_releases_reacquires_and_dispatches (no lane/brief = no frame; the console Dispatch carries the operator's title) + crates/octoscode-module/tests/a4_board3.rs::fleet_start_seats_prepares_dispatches_once_and_steers_its_working_peer (no lane / blank brief = Done, no frame); walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet step 1 (Start disabled with no lane and no brief: a click sends nothing)"
+ },
+ {
+  "feature": "control",
+  "capability_prefix": "PeerControlPanel + PeerControllerPanel roster UI",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/fleet_console.rs:369 controller_console (PeerControllerPanel: bound driver @ epoch, Model lane / Brief / Title, Dispatch, Release seat / Acquire seat, the 'Session peers' roster fleet_console.rs:94 console_rows with per-row approve/deny/steer/interrupt via crates/octoscode-module/src/screens/fleet_driver.rs:657 console_row_control) + fleet_console.rs:332 seat_panel (PeerControlPanel); no approved board: built in the A5 card style; test crates/octoscode-module/tests/a10_fleet.rs::the_session_controller_discloses_releases_reacquires_and_dispatches; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet steps 8 + 10 (the roster, Release/Acquire seat, the seat's Steer; docs/ux/a10/fleet/{desktop,phone}/06-advanced-*.png, 07-seat-*.png)"
+ },
+ {
+  "feature": "peers",
+  "capability_prefix": "Peer lifecycle manager (prepare/stage/open/close, authority-fenced)",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/peers.rs:190 note_transport_event (the drain hook, crates/octoscode-module/src/lib.rs:1446): peers.rs:258 observe_staged (the CONFIRMED master scope only; topic peer-<slug>; one row + one kickoff UUID, peers.rs:278 stage) -> crates/octoscode-module/src/screens/fleet_driver.rs:488 open_staged (control ready -> the dispatch path; else peers.rs:336 open_peer: background session/open, the active session untouched, then ONE kickoff turn/start) ; peers.rs:310 observe_closed tombstones (octoscode-store domains/peer.rs:496 close_row); prepare = the Start's peer/prepare (fleet_driver.rs:345); tests crates/octoscode-module/tests/a10_fleet.rs::a_staged_peer_opens_in_the_background_and_closes_for_good (peer/staged + peer/closed through the real transport decode) + ::start_acquires_with_cas_then_dispatches_exactly_once_and_adopts_the_row + store unit staging_dedupes_replay_and_tombstones_block_reuse; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet step 3 (prepare + the adopted session's background open on the Start CLICK; staged/closed are server-initiated)"
+ },
+ {
+  "feature": "peers",
+  "capability_prefix": "Blackboard gather/synthesis (profile-wide, read-only)",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/fleetview.rs:629 run_gather (the web's /gather, gather.ts:78-145: ONE peer/gather read {session_id, profile_id}, crates/octoscode-module/src/screens/peers.rs:389 compose_gather_prompt with the 64 KiB cap, then the synthesis as ONE ordinary turn/start; empty/failed copy from the web catalog) behind the Fleet header's 'Peer gather' (fleetview.rs:696 perform b3.fleet.gather, gated on the advertised method); tests crates/octoscode-module/tests/a10_fleet.rs::gather_reads_the_blackboard_once_and_queues_one_synthesis_turn (the RECORDED r6 gather) + peers.rs unit the_gather_prompt_caps_at_64k_with_equal_budgets; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet step 9 (Peer gather CLICK -> peer/gather x1 -> turn/start -> 'Peer synthesis queued')"
+ },
+ {
+  "feature": "peers",
+  "capability_prefix": "Peer activity axis (idle/live/blocked/done) + attention requests",
+  "bucket": "A",
+  "evidence": "A10: octoscode-store domains/peer.rs:520 observe_session_event (turn started -> live, approval/question requested -> blocked with the request id/kind/detail, resolved/decided -> back, terminal -> done with the outcome; acks never move the axis) fed by crates/octoscode-module/src/screens/peers.rs:76 session_event / :169 fold_frame (the tracked peer session's frames never reach the master's timeline); the counts peers.rs:540 summarize / :554 fleet_landed; tests crates/octoscode-module/tests/a10_fleet.rs::peer_frames_fold_into_the_row_and_each_action_sends_one_control_frame + ::a_question_blocked_row_is_answered_with_one_question_respond + crates/octoscode-module/tests/fp4d4_control.rs::a_folded_axis_event_is_visible_in_the_roster_counts + store unit the_activity_axis_follows_the_peer_sessions_own_frames; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet steps 3, 4, 6b (blocked on approval -> live after Approve; blocked on a question)"
+ },
+ {
+  "feature": "peers",
+  "capability_prefix": "Peer row view (label/elapsed/tokens/answer request)",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/peers.rs:435 row_label, :443 format_elapsed (shown at minute granularity), :455 format_tokens, :485 row_actions, :505 answer_request -> crates/octoscode-module/src/screens/board3/fleetview.rs:939 row_card (label · status chip · title · elapsed · tokens · session; the answer card for a question-blocked row); tests peers.rs unit identities_prompts_and_formats_are_the_webs + row_actions_follow_the_activity_and_need_an_operation_id + crates/octoscode-module/tests/a10_fleet.rs::a_question_blocked_row_is_answered_with_one_question_respond + crates/octoscode-module/tests/f32c_polish.rs::fleet_rows_carry_the_elapsed_tokens_meta_line_and_done_is_grey; walk tools/walk/a10_fleet.py desktop 48/48 + phone 360x780 48/48 against replay_serve --scenario fleet steps 1, 3, 6b ('18m · — · workspace' meta, the question card; docs/ux/a10/fleet/{desktop,phone}/04b-answer-*.png)"
+ }
+]
