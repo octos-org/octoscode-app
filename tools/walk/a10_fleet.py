@@ -280,9 +280,24 @@ def walk(W: Walk) -> None:
     ops = [re.search(r"operation_id=(\S+)", l).group(1) for l in replay_lines(W, "peer/dispatch") if "operation_id=" in l and "->" in l]
     W.check("fleet: three Starts = three DISTINCT operation ids on the wire", len(ops) == 3 and len(set(ops)) == 3, f"{ops}")
 
-    W.note("== 7. Stop -> ONE interrupt -> the row finishes under its group's Finished (n)")
+    W.note("== 6b. the peer asks a question: the row is an answer card; Answer -> ONE question_respond")
     r3 = 3
-    W.wait(lambda: "Working" in status_of(W, r3), 8)
+    asking = W.wait(lambda: "Waiting for your answer" in status_of(W, r3), 12)
+    W.check("fleet: the adopted session's question folds into 'Waiting for your answer' with the question on the card",
+            asking and seek(W, f"b3_fleet_row_{r3}_question")
+            and W.text(f"b3_fleet_row_{r3}_question") == "Which color would you like to pick?",
+            f"status={status_of(W, r3)!r} question={W.text(f'b3_fleet_row_{r3}_question')!r}")
+    type_into(W, f"b3_fleet_row_{r3}_steer", "Blue", f"b3_fleet_row_{r3}_title")
+    seek(W, f"b3_fleet_row_{r3}_answer")
+    numeric(W, "answer")
+    W.shot(f"04b-answer-{MODE}")
+    W.check("fleet: Answer CLICK -> ONE peer/control(question_respond) on the row's operation + adopted turn; 'Sent'",
+            click_logged(W, f"b3_fleet_row_{r3}_answer", "b3.fleet.answer",
+                         lambda: any("command=question_respond" in l for l in replay_lines(W, "-> peer/control")), 10)
+            and seek(W, f"b3_fleet_row_{r3}_note") and W.text(f"b3_fleet_row_{r3}_note") == "Sent",
+            "; ".join(replay_lines(W, "-> peer/control")[-1:]))
+
+    W.note("== 7. Stop -> ONE interrupt -> the row finishes under its group's Finished (n)")
     stopped = click_logged(W, f"b3_fleet_row_{r3}_stop", "b3.fleet.stop",
                            lambda: any("command=interrupt" in l for l in replay_lines(W, "-> peer/control")), 10)
     time.sleep(1.5)  # the pushed turn/error folds into the row
@@ -352,7 +367,7 @@ def walk(W: Walk) -> None:
                       ("session/driver/release", 1), ("peer/gather", 1)]:
         got = len(replay_lines(W, f"<- {method} "))
         W.check(f"wire: {method} x{n}", got == n, f"replay log: {got}")
-    W.check("wire: peer/control x4 (approve, steer, stop, seat steer)", len(replay_lines(W, "<- peer/control ")) == 4,
+    W.check("wire: peer/control x5 (approve, steer, answer, stop, seat steer)", len(replay_lines(W, "<- peer/control ")) == 5,
             f"replay log: {len(replay_lines(W, '<- peer/control '))}")
 
 

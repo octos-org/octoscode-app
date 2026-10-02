@@ -21,8 +21,8 @@ one from:
   `replyError(-32602, "driver operation refused: peer/dispatch",
   {kind})`), and the mock's two lanes (`PEER_CONTROL_LANES`);
 * the RECORDED notification shapes (`turn/started` from c24, `approval/
-  requested` + `approval/decided` from r23), re-pointed at the adopted peer
-  session `dsflash:main#peer-<slug>`.
+  requested` + `approval/decided` + `user_question/requested` from r23),
+  re-pointed at the adopted peer session `dsflash:main#peer-<slug>`.
 
 Fields the replay echoes from the request (the operation id, the requested
 lane, the acquiring driver id, the control target) are written with the
@@ -80,6 +80,8 @@ def main():
     })
     decided = dict(recorded("r23-conversation-a6ea8505.jsonl", "approval/decided"))
     decided.update({"session_id": PEER, "turn_id": ADOPTED_TURN, "approval_id": APPROVAL})
+    question = dict(recorded("r23-conversation-a6ea8505.jsonl", "user_question/requested"))
+    question.update({"session_id": PEER, "turn_id": ADOPTED_TURN})
     binding = {
         "driver_id": DRIVER, "epoch": 7, "revision": 42,
         "lease_expires_at_ms": 1770000000000, "workspace_root": "<WORKSPACE>",
@@ -147,6 +149,7 @@ def main():
             "accepted_at_ms": 1770000000000, "payload_digest": "synthetic-payload-digest", "duplicate": False,
         }),
         ("in", "approval/decided", decided),
+        ("in", "user_question/requested", question),
         ("in", "turn/error", {"session_id": PEER, "turn_id": ADOPTED_TURN, "code": "interrupted", "message": "Turn interrupted"}),
     ]
     out = FIX / "a10-fleet-driver-synthetic.jsonl"

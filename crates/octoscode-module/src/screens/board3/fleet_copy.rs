@@ -94,6 +94,12 @@ pub const GATHER_ZH: &[(&str, &str)] = &[
     ),
     ("Gathering…", "正在汇总…"),
     ("Peer synthesis queued", "协作结果汇总已入队"),
+    // The answer card (`PeerDock.tsx:371-440`): the web's "needs your
+    // answer" / "Answer" keys (no zh value in its catalog), the field's
+    // placeholder the pane's own.
+    ("needs your answer", "需要你的回答"),
+    ("Answer", "回答"),
+    ("Type your answer", "输入你的回答"),
 ];
 
 /// The UI language: `zh` or `en`.

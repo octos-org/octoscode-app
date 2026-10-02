@@ -180,6 +180,22 @@ pub struct FleetRow {
     pub turn_changed: bool,
     pub control: Option<RowControl>,
     pub error: Option<String>,
+    /// A question-blocked row's pending question (question ?? header), for
+    /// the answer card (`PeerDock.tsx:371-401`).
+    pub question: Option<String>,
+}
+
+/// The pending question's text: `question ?? header` (`PeerDock.tsx:377-381`).
+fn question_of(r: &PeerRow) -> Option<String> {
+    if r.activity != Activity::Blocked || r.request_kind != Some(RequestKind::Question) {
+        return None;
+    }
+    match &r.request_detail {
+        Some(octoscode_store::domains::peer::RequestDetail::Question(q)) => {
+            Some(q.question.clone().or_else(|| q.header.clone()).unwrap_or_default())
+        }
+        _ => Some(String::new()),
+    }
 }
 
 /// `fleetRowTitle` (fleet-model.ts:260-268): the brief's first line, 60
@@ -231,6 +247,7 @@ pub fn rows(store: &Store, now_ms: u64) -> Vec<FleetRow> {
                 turn_changed: r.is_some_and(|r| r.turn_changed_since_ack),
                 control: r.and_then(|r| r.control.clone()),
                 error: r.and_then(|r| r.error.clone()),
+                question: r.and_then(question_of),
             },
             Some(op.model.clone()).filter(|m| !m.is_empty()).or_else(|| r.and_then(|r| r.model.clone())),
         ));
@@ -259,6 +276,7 @@ pub fn rows(store: &Store, now_ms: u64) -> Vec<FleetRow> {
                 turn_changed: r.turn_changed_since_ack,
                 control: r.control.clone(),
                 error: r.error.clone(),
+                question: question_of(r),
             },
             r.model.clone(),
         ));
@@ -660,7 +678,7 @@ pub async fn run_row(conv: &crate::flow::Conversation, key: String, identity: St
     match &res {
         Ok(ack) => {
             st.fleet.row_note.insert(key.clone(), ack.clone());
-            if action == RowAction::Steer {
+            if matches!(action, RowAction::Steer | RowAction::Answer) {
                 st.fleet.steer.remove(&key);
                 st.fleet.steer_snap.remove(&key);
             }
@@ -745,7 +763,7 @@ pub fn perform(st: &mut FleetState, action: &str, index: usize, store: &Store) -
             st.advanced_open = !st.advanced_open;
             HostOutcome::Done
         }
-        "b3.fleet.approve" | "b3.fleet.deny" | "b3.fleet.stop" | "b3.fleet.steer" => {
+        "b3.fleet.approve" | "b3.fleet.deny" | "b3.fleet.stop" | "b3.fleet.steer" | "b3.fleet.answer" => {
             let Some(row) = st.drawn.get(index).cloned() else { return HostOutcome::Done };
             let steer = st.steer.get(&row.key).cloned().unwrap_or_default();
             let avail = availability(row.status, &steer);
@@ -753,6 +771,8 @@ pub fn perform(st: &mut FleetState, action: &str, index: usize, store: &Store) -
                 "b3.fleet.approve" => (RowAction::Approve, avail.approve),
                 "b3.fleet.deny" => (RowAction::Deny, avail.deny),
                 "b3.fleet.stop" => (RowAction::Stop, avail.stop),
+                // Answer needs the operator's free text (`PeerDock.tsx:193`).
+                "b3.fleet.answer" => (RowAction::Answer, row.status == Status::WaitingAnswer && !steer.trim().is_empty()),
                 _ => (RowAction::Steer, avail.steer),
             };
             // A disabled affordance never sends (aria-disabled + no frame).
@@ -760,7 +780,7 @@ pub fn perform(st: &mut FleetState, action: &str, index: usize, store: &Store) -
                 return HostOutcome::Done;
             };
             st.row_note.remove(&row.key);
-            if act == RowAction::Steer {
+            if matches!(act, RowAction::Steer | RowAction::Answer) {
                 super::host::request_blur();
             }
             HostOutcome::Spawn(Job::FleetRow { key: row.key.clone(), identity, action: act, text: steer })
@@ -999,14 +1019,26 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
         d.text(&format!("{id}_stop_reason"), &t("Only while the peer is running"), &Txt::new(11.5, Face::Regular, tok::FAINT));
     }
     d.close();
+    // A question-blocked row is an answer card (`PeerDock.tsx:371-401`): the
+    // question, then the draft answers it (free text) instead of steering.
+    let answering = r.status == Status::WaitingAnswer;
+    if answering {
+        let q = r.question.clone().filter(|q| !q.trim().is_empty()).unwrap_or_else(|| t("needs your answer"));
+        d.text(&format!("{id}_question"), &q, &Txt::new(12.5, Face::Medium, tok::TEXT).w(W::Fill).wrap());
+    }
     let srow = d.anon();
     d.view(&srow, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
     let snap = st.steer_snap.get(&r.key).cloned().unwrap_or_default();
-    d.input(&format!("{id}_steer"), &format!("fleet.steer#{i}"), &snap, &t("Enter steering text"), false, 34.0);
+    let placeholder = if answering { t("Type your answer") } else { t("Enter steering text") };
+    d.input(&format!("{id}_steer"), &format!("fleet.steer#{i}"), &snap, &placeholder, false, 34.0);
     let working = r.status == Status::Working;
-    d.button(&format!("{id}_steer_btn"), &t("Steer"), &format!("b3.fleet.steer#{i}"), if working { Btn::Outline } else { Btn::OutlineOff }, W::Fit, 34.0);
+    if answering {
+        d.button(&format!("{id}_answer"), &t("Answer"), &format!("b3.fleet.answer#{i}"), Btn::Primary, W::Fit, 34.0);
+    } else {
+        d.button(&format!("{id}_steer_btn"), &t("Steer"), &format!("b3.fleet.steer#{i}"), if working { Btn::Outline } else { Btn::OutlineOff }, W::Fit, 34.0);
+    }
     d.close();
-    if !working {
+    if !working && !answering {
         d.text(&format!("{id}_steer_reason"), &t("Only while working"), &Txt::new(11.5, Face::Regular, tok::FAINT));
     }
     d.close();
@@ -1212,6 +1244,7 @@ mod tests {
             turn_changed: false,
             control: None,
             error: None,
+            question: None,
         };
         let rows = vec![
             mk(None, Status::Working),
@@ -1251,6 +1284,7 @@ mod tests {
             turn_changed: false,
             control: None,
             error: None,
+            question: None,
         };
         let now = vec![row("1", Status::WaitingApproval)];
         assert_eq!(announce(&[], &now).as_deref(), Some("Peer 1 is waiting for your approval"));

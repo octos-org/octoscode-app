@@ -320,7 +320,7 @@ fn a10_sequenced() -> BTreeMap<String, Vec<(Value, String)>> {
 /// `peer-control-*` workspaces; the binding's revision moves on acquire /
 /// release, dispatches join the walked inventory, and a dispatched peer's
 /// background attach gets its session's frames (turn/started; the FIRST
-/// peer then asks for an approval). `lane-review` is listed but answers
+/// peer then asks for an approval, the SECOND a question). `lane-review` is listed but answers
 /// `driver_model_unavailable` (the fixture's typed refusal frame: a lane
 /// whose credentials the server lacks), so the refusal path is clickable.
 struct FleetSim {
@@ -329,6 +329,7 @@ struct FleetSim {
     lanes: Value,
     started: Value,
     requested: Value,
+    question: Value,
     decided: Value,
     turn_error: Value,
     refusal: Value,
@@ -372,6 +373,7 @@ impl FleetSim {
             lanes: body("profile/sub_providers/list"),
             started: body("turn/started"),
             requested: body("approval/requested"),
+            question: body("user_question/requested"),
             decided: body("approval/decided"),
             turn_error: body("turn/error"),
             refusal: body("err:peer/dispatch"),
@@ -642,6 +644,16 @@ impl FleetSim {
             r["approval_id"] = Value::String(id.clone());
             self.approvals.insert(peer.to_owned(), id);
             out.push((1500, "approval/requested".to_owned(), r));
+        }
+        // The SECOND asks a question (r23's recorded question): the row's
+        // answer card. A question_respond is acknowledged by its receipt; the
+        // row stays blocked until the turn moves (the web's semantics).
+        if first == Some(2) {
+            let mut q = self.question.clone();
+            q["session_id"] = Value::String(peer.to_owned());
+            q["turn_id"] = op["acceptance"]["adopted_turn_id"].clone();
+            q["question_id"] = Value::String(format!("01a0eb8f-7b23-7030-9f26-{:012x}", self.dispatched));
+            out.push((1500, "user_question/requested".to_owned(), q));
         }
         out
     }

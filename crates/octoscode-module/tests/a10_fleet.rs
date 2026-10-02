@@ -84,6 +84,9 @@ struct Knobs {
     unknown_dispatch: bool,
     /// Advertise the lane source.
     no_lanes_method: bool,
+    /// The adopted peer asks a QUESTION (r23's recorded one) instead of an
+    /// approval after its attach.
+    question: bool,
 }
 
 struct Server {
@@ -125,7 +128,11 @@ impl Server {
                             // The background attach: the adopted session's
                             // own recorded frames follow.
                             pushes.push(("turn/started".into(), body("turn/started")));
-                            pushes.push(("approval/requested".into(), body("approval/requested")));
+                            if kn.lock().unwrap().question {
+                                pushes.push(("user_question/requested".into(), body("user_question/requested")));
+                            } else {
+                                pushes.push(("approval/requested".into(), body("approval/requested")));
+                            }
                         }
                         Ok(json!({ "opened": opened }))
                     }
@@ -584,4 +591,55 @@ async fn gather_reads_the_blackboard_once_and_queues_one_synthesis_turn() {
     let st = host::state();
     assert!(!st.fleet.gathering);
     assert_eq!(st.fleet.announcement.as_deref(), Some(fleetview::GATHER_QUEUED));
+}
+
+
+/// A question-blocked row is an ANSWER card (`PeerDock.tsx:371-440`): the
+/// recorded question (r23) folds from the adopted session's own frame into
+/// "Waiting for your answer"; Answer needs the operator's text (none → no
+/// frame) and sends EXACTLY ONE `peer/control` `question_respond` with the
+/// row's REAL question id and the free-text answer (`buildRowControlCommand`
+/// answer, `peer-row-command.ts`), on the row's accepted operation + adopted
+/// turn; the draft clears and the row says Sent.
+#[tokio::test]
+async fn a_question_blocked_row_is_answered_with_one_question_respond() {
+    let _s = serial();
+    fresh();
+    let server = Server::start().await;
+    server.knobs.lock().unwrap().question = true;
+    let conv = connect(&server).await;
+    open_fleet(&conv).await;
+    host::input_changed("fleet.brief", "Review the reconnect diff");
+    host::perform("b3.fleet.lane", 0, &conv.store);
+    let job = spawn_of(host::perform("b3.fleet.start", 0, &conv.store));
+    host::run(job, &conv).await.expect("start");
+    let asking = || {
+        fleetview::rows(&conv.store, peers::now_ms())
+            .iter()
+            .any(|r| r.key == PEER && r.status == Status::WaitingAnswer)
+    };
+    assert!(wait_until(asking).await, "user_question/requested folded");
+    host::lower_open(&conv.store).expect("lowers");
+    let idx = host::state().fleet.drawn.iter().position(|r| r.key == PEER).expect("drawn");
+    let dsl = host::lower_open(&conv.store).unwrap().dsl;
+    assert!(dsl.contains("Which color would you like to pick?"), "the recorded question");
+    assert!(dsl.contains(&format!("b3.fleet.answer#{idx}")) && !dsl.contains(&format!("b3.fleet.approve#{idx}")));
+    // No text → no frame.
+    assert_eq!(host::perform("b3.fleet.answer", idx, &conv.store), Outcome::Done);
+    assert!(server.sent("peer/control").is_empty());
+    host::input_changed(&format!("fleet.steer#{idx}"), "Blue");
+    let job = spawn_of(host::perform("b3.fleet.answer", idx, &conv.store));
+    host::run(job, &conv).await.expect("answer");
+    let c = server.sent("peer/control");
+    assert_eq!(c.len(), 1, "ONE frame");
+    let row = conv.store.domains.peer.row(PEER).unwrap();
+    assert_eq!(
+        c[0]["command"],
+        json!({"kind": "question_respond", "question_id": "01a0eb8f-7b23-7030-9f26-a284864217a0", "answers": [{"free_text": "Blue"}]})
+    );
+    assert_eq!(c[0]["target_operation_id"], json!(row.operation_id.clone().unwrap()));
+    assert_eq!(c[0]["expected_turn_id"], json!(ADOPTED_TURN));
+    let st = host::state();
+    assert_eq!(st.fleet.row_note.get(PEER).map(String::as_str), Some("Sent"));
+    assert!(st.fleet.steer.get(PEER).is_none(), "the sent answer clears the draft");
 }
