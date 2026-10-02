@@ -2837,9 +2837,17 @@ impl OctoscodeView {
             self.window_w = win_w;
             SignalToUI::set_ui_signal();
         }
-        if pane_w <= 0.0 {
-            return;
-        }
+        // On the first-run screen the conversation pane is hidden (no rect):
+        // estimate it from the module so the Connect card still gets the
+        // right density and sidebar offset (measured: on the 412 px phone it
+        // kept the desktop's 261 px offset and squeezed to 119 px).
+        let pane_w = if pane_w > 0.0 {
+            pane_w
+        } else if win_w >= conv_layout::PHONE_BREAKPOINT {
+            (win_w - conv_layout::SIDEBAR_W).max(1.0)
+        } else {
+            win_w
+        };
         let changed = conv_layout::set_geometry(win_w, pane_w);
         let m = conv_layout::current();
         if !changed && !dock_changed && self.applied_metrics == Some(m) {
