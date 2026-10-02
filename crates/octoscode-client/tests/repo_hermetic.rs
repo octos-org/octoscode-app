@@ -125,3 +125,49 @@ fn no_machine_paths_or_secrets_anywhere_tracked() {
     );
     assert!(checked > 500, "tracked-file scan suspiciously small: {checked}");
 }
+
+/// The dev instrument's `/snap` reports a TextInput's raw buffer as `val`, the
+/// masked ones included (a typed token or provider key reads in clear). No
+/// tracked snap may carry a value in a secret-like field, so a capture taken
+/// after a secret was typed fails here instead of reaching the public repo.
+#[test]
+fn no_tracked_snap_carries_a_secret_field_value() {
+    fn secret_like(id: &str) -> bool {
+        let id = id.to_ascii_lowercase();
+        if id.contains("api_key_env") || id.contains("key_env") {
+            return false; // the NAME of an env var, not its value
+        }
+        ["token", "apikey", "api_key", "credential", "secret", "password", "passwd"]
+            .iter()
+            .any(|s| id.contains(s))
+    }
+    fn walk(v: &serde_json::Value, rel: &str, bad: &mut Vec<String>) {
+        match v {
+            serde_json::Value::Object(m) => {
+                let id = m.get("i").and_then(|x| x.as_str()).unwrap_or("");
+                if secret_like(id) {
+                    let val = m.get("val").and_then(|x| x.as_str()).unwrap_or("").trim();
+                    if !val.is_empty() {
+                        bad.push(format!("{rel}: `{id}` carries a typed value ({} chars)", val.chars().count()));
+                    }
+                }
+                for x in m.values() {
+                    walk(x, rel, bad);
+                }
+            }
+            serde_json::Value::Array(a) => a.iter().for_each(|x| walk(x, rel, bad)),
+            _ => {}
+        }
+    }
+    let mut bad = Vec::new();
+    for path in tracked_files() {
+        if !path.to_string_lossy().ends_with(".snap.json") {
+            continue;
+        }
+        let rel = path.strip_prefix(repo_root()).unwrap().to_string_lossy().to_string();
+        let Ok(text) = fs::read_to_string(&path) else { continue };
+        let Ok(v) = serde_json::from_str::<serde_json::Value>(&text) else { continue };
+        walk(&v, &rel, &mut bad);
+    }
+    assert!(bad.is_empty(), "secret-like snap fields with typed values:\n{}", bad.join("\n"));
+}

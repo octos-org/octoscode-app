@@ -12,6 +12,8 @@ Generic checks (the human judge still looks at every PNG):
   small    - a Button / hit narrower or shorter than 28 px (touch / pointer target)
 """
 import json, os, re, subprocess, sys, time, urllib.parse, urllib.request
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "walk"))
+from snapsafe import scrub as _scrub  # noqa: E402
 
 PORT, MODE, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
 PHASE = sys.argv[4] if len(sys.argv) > 4 else "live"   # live | commands | first-run
@@ -155,7 +157,7 @@ def capture(name):
     subprocess.run(["sips", "-Z", "1400", png, "--out", png], capture_output=True)
     tree = snap()
     with open(os.path.join(OUT, stem + ".snap.json"), "w") as f:
-        json.dump(tree, f)
+        json.dump(_scrub(tree), f)
     found = checks(tree)
     with open(os.path.join(OUT, "checks.tsv"), "a") as f:
         f.write(f"{stem}\t{MODE}\t{len(found)}\t{' '.join(found[:12])}\n")

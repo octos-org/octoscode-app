@@ -17,6 +17,9 @@ import subprocess
 import time
 import urllib.parse
 import urllib.request
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from snapsafe import scrub as _scrub  # noqa: E402
 
 TOL = 1.5
 
@@ -252,7 +255,7 @@ class Walk:
             except Exception as e:  # keep the full capture
                 self.note(f"crop skipped: {e}")
         subprocess.run(["sips", "-Z", "1400", str(png)], capture_output=True)
-        (self.out / f"{name}.snap.json").write_text(json.dumps(sn))
+        (self.out / f"{name}.snap.json").write_text(json.dumps(_scrub(sn)))
         self.note(f"SHOT {name}")
         return png
 

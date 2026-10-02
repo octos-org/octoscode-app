@@ -50,6 +50,9 @@ import sys
 import time
 import urllib.parse
 import urllib.request
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from snapsafe import scrub as _scrub  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 WALK = ROOT / "docs" / "walk"
@@ -3152,7 +3155,7 @@ def main():
                 suffix = "" if gkey is None else "-" + gkey[1]
                 try:
                     sj = EVIDENCE / f"area-{area}{suffix}.snap.json"
-                    sj.write_text(json.dumps(app.snap()))
+                    sj.write_text(json.dumps(_scrub(app.snap())))
                     # A11: a grab can answer {"err": "grab frame could not be
                     # submitted …; retry"} — two evidence PNGs were that JSON.
                     for _ in range(4):
