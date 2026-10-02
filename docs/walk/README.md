@@ -12,11 +12,22 @@ driven through its own HTTP instrument.
 scriptable row PLUS every native click walk, in desktop and phone:
 
 ```sh
-OCTOSCODE_APP_BIN=<host-bin> python3 tools/walk/run.py --full --port <your app port>
+OCTOSCODE_APP_BIN=<host-bin> python3 tools/walk/run.py --full --port <your app port> \
+    --scenario-port-base <8 free ports> --fixture-port <one per native walk>
 ```
 
 It regenerates `results.csv` (one verdict per row) and `results-checks.csv`
-(one line per check, with its evidence `file:line`).
+(one line per check, with its evidence `file:line`). `--scenario-port-base`
+moves run.py's own replay servers (default 8380.., one per scenario) into the
+port block you were given; `--fixture-port` does the same for the native
+walks' fixtures.
+
+run.py's replay servers run with `--adopt-turn-ids`: each replayed turn plays
+as the app's own `turn/start` id and prompt (a real server adopts the client's
+turn id; A7's turn controller settles — and drains its queue past — only the
+turn it dispatched). The composer area runs on the `two-turn` recording, whose
+two turns both complete (the `conversation` recording's second turn is its
+interrupted one).
 
 ---
 

@@ -69,7 +69,8 @@ WALK = {
               "key S -> approval/respond", "turn 3: the question takes the composer over",
               "CLICK option 'Green'", "CLICK Other + type", "Return (inside the Other field)",
               "CLICK Submit answer"],
-        208: {"checks": ["Esc closes the review back to the card (no turn/interrupt)"],
+        # Escape is the row's own key: a phone has none (its × is row 85's).
+        208: {"checks": {"desktop": ["Esc closes the review back to the card (no turn/interrupt)"]},
               "partial": "the review here loads; the web's FAILED review is not staged"},
         215: {"checks": ["CLICK thinking header -> expands", "CLICK again -> folded",
                          "CLICK the tool row -> its output discloses", "CLICK Expand all", "CLICK Collapse all"],
