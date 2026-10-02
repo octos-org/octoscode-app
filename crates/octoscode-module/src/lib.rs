@@ -1377,18 +1377,21 @@ impl OctoscodeView {
         // A19 — the one-time migration's marker, read before any connect can
         // rewrite A1's last-server (screens::remembered).
         screens::remembered::note_process_start();
+        // A21 — the pre-connection bootstrap (screens::bootstrap, the web's
+        // connection-bootstrap.ts): the former per-origin device memory
+        // purged, the Connect card's initial values, and whether anything
+        // starts on its own (only a remembered connection's restore).
+        let boot = screens::bootstrap::boot();
         // A1 — the Connect card remembers the last server and ITS token
-        // (credentials.rs; "Stored for this server only"). Prefilled, never
-        // auto-sent: the person still presses Connect.
+        // (credentials.rs; "Stored for this server only"). Prefilled; sent on
+        // its own only by the restore below. A21: with nothing remembered,
+        // the default endpoint (OCTOS_BASE_URL, else the built-in one).
         {
-            let (server, token) = credentials::prefill();
             let b = self.bridge.lock().unwrap();
             let mut ui = b.screens.lock().unwrap();
-            if let Some(server) = server {
-                ui.endpoint_error = screens::connect::endpoint_error(&server);
-                ui.server = server;
-            }
-            if let Some(token) = token {
+            ui.endpoint_error = screens::connect::endpoint_error(&boot.server);
+            ui.server = boot.server.clone();
+            if let Some(token) = boot.token.clone() {
                 ui.token = token;
                 self.connect_token_pending = true;
             }
@@ -1468,7 +1471,11 @@ impl OctoscodeView {
         // server, probed ONCE off the UI thread when no credential is at hand;
         // a pairing-capable answer is offered on the Connect card
         // (screens/discovery.rs). Not in the capture seeds above (no card).
-        let _ = screens::discovery::start_once();
+        // A21 — never while a restore runs (the web probes only when the tab
+        // is not restoring, `ConnectionGate.tsx:247-252`).
+        if !matches!(boot.auto, screens::bootstrap::AutoStart::Restore { .. }) {
+            let _ = screens::discovery::start_once();
+        }
         // Card #28e item 6 (board 4 frame 4): the first-run frame needs NO
         // connection, so `is_live()` stays false and the window shows only the
         // centered 480 px card. `OCTOSCODE_NO_CONNECT`/`OCTOSCODE_FIRST_RUN`
@@ -1479,20 +1486,18 @@ impl OctoscodeView {
             ::log::info!("[octoscode] first-run: no transport (board 4 frame 4)");
             return;
         }
-        let base =
-            std::env::var("OCTOS_BASE_URL").unwrap_or_else(|_| "http://127.0.0.1:50082".to_string());
         // A20 — a saved conversation link handed over at launch (the web's
-        // `?s=` address): offered on its panel once the launch settled.
-        screens::saved_link::take_launch_link(&base);
-        let bearer = std::env::var("OCTOS_BEARER").unwrap_or_default();
-        // A19 — the web's launch: a fresh connection carries NO profile id
-        // (`connection-bootstrap.ts:21`) and `launch/resolve` decides; a
-        // remembered open is restored; OCTOS_PROFILE_ID is a dev/test
-        // override only (screens::launch::Start).
-        let start = screens::launch::plan(&base);
-        // The workspace cwd the web passes to `session/open` (`session-defaults.ts:5-7`).
-        let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
-
+        // `?s=` address): offered on its panel once the launch settled. A21:
+        // for the server this launch dials, else the Connect card's (a
+        // Connect pressed later runs the same launch, then offers it).
+        let link_server = match &boot.auto {
+            screens::bootstrap::AutoStart::Restore { server, .. }
+            | screens::bootstrap::AutoStart::Harness { server, .. } => server.clone(),
+            screens::bootstrap::AutoStart::None => boot.server.clone(),
+        };
+        screens::saved_link::take_launch_link(&link_server);
+        // A21 — the runtime exists whether or not anything dials now: the
+        // Connect card's Connect (and a pairing link) run on it.
         let runtime = match tokio::runtime::Builder::new_multi_thread()
             .worker_threads(1)
             .enable_all()
@@ -1504,6 +1509,29 @@ impl OctoscodeView {
                 return;
             }
         };
+        // A21 — dial only for the web's `restore` (a remembered connection)
+        // or the TEST-ONLY harness start (OCTOS_BASE_URL + OCTOS_BEARER /
+        // OCTOS_PROFILE_ID); otherwise the Connect card waits for Connect
+        // (`autoStartKind` null — no socket at all).
+        let (base, bearer) = match boot.auto {
+            screens::bootstrap::AutoStart::Restore { server, token }
+            | screens::bootstrap::AutoStart::Harness { server, token } => (server, token),
+            screens::bootstrap::AutoStart::None => {
+                self.runtime = Some(runtime);
+                makepad_widgets::log!("[octoscode] bootstrap: no auto-start — the Connect card waits for Connect");
+                for work in screens::board1::launch_link() {
+                    self.perform_board1_work(cx, work);
+                }
+                return;
+            }
+        };
+        // A19 — the web's launch: a fresh connection carries NO profile id
+        // (`connection-bootstrap.ts:21`) and `launch/resolve` decides; a
+        // remembered open is restored; OCTOS_PROFILE_ID is a dev/test
+        // override only (screens::launch::Start).
+        let start = screens::launch::plan(&base);
+        // The workspace cwd the web passes to `session/open` (`session-defaults.ts:5-7`).
+        let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
         // A19b — the one-time migration's profile is resolved BEFORE the
         // socket, so the connection carries it (Core finds `<profile>:main`'s
         // history only through the connection's profile). Bounded: once per
@@ -2948,6 +2976,9 @@ impl OctoscodeView {
                     // next start would prefill the forgotten credential.
                     credentials::forget_token(&ui.server);
                 }
+                // A21 — and nothing restores at the next launch (the web's
+                // Forget/Disconnect clear the tab's auto-connect).
+                screens::bootstrap::note_disconnect();
                 // A11: the card's mounted field still held the forgotten token
                 // (an identical card DSL is not remounted): empty it in place,
                 // so the form really returns empty (walk 112) and a Connect
@@ -3157,6 +3188,9 @@ impl OctoscodeView {
                 // token changes (`ConnectionGate.tsx:266-307`). Compared in
                 // memory before the store below; never logged.
                 screens::remembered::on_connect_identity(&server, &token);
+                // A21 — the web's changeConnection + requestConnect: no
+                // unattended restore until this connection authenticates.
+                screens::bootstrap::adopt_identity(&server, &token);
                 // A1: "Stored for this server only" — remember the address
                 // (the web's durable endpoint) and this origin's token
                 // (credentials.rs: per origin, 0600). The token is never
@@ -3307,6 +3341,16 @@ impl OctoscodeView {
             let conv = { self.bridge.lock().unwrap().conv.clone() };
             if let Some(conv) = conv {
                 if screens::drafts::needs_bind(conv.scope().authority_epoch) {
+                    // A21 — a new connection: the previous identity's drafts
+                    // never carry over (the web's resetIdentity) and the tab
+                    // drafts follow this connection's identity.
+                    screens::drafts::on_new_connection(&conv);
+                    // A21 — and its per-connection reads run again: a Connect
+                    // after a Disconnect (another identity) is a new store
+                    // with no model list and no driver record (the model
+                    // seat read "Select a model" after a reconnect).
+                    self.chrome.models_requested = false;
+                    self.chrome.driver_probe = None;
                     if let Some(rt) = self.runtime.as_ref() {
                         let c = conv.clone();
                         rt.spawn(async move {
@@ -3421,7 +3465,13 @@ impl OctoscodeView {
                 (b.store.clone(), b.conv.clone())
             };
             let active = store.active_session();
-            if active.is_some() && active != self.chrome.driver_probe {
+            // A21 — only once the server's methods are known: the window
+            // switches to a Session as its open GOES OUT (A19b), and the
+            // methods arrive with the open's reply; latching the probe in
+            // between skipped it for good (measured: active=a8:main,
+            // 0 methods — no `session/driver/get`, no holder word).
+            let methods_known = !store.domains.config.supported_methods().is_empty();
+            if active.is_some() && active != self.chrome.driver_probe && methods_known {
                 self.chrome.driver_probe = active.clone();
                 let advertised = store
                     .domains
@@ -3690,6 +3740,17 @@ impl OctoscodeView {
         // tmp/28e-evidence/28e6-*) proved every first-run-shaped slot
         // mis-seats the measured DSL to 133x700 while the dock seats and
         // renders it — so first-run mounts through the dock.
+        // A21 — the connection authenticated (its socket is up): the tab may
+        // restore it at the next launch (`App.tsx:848-852`).
+        {
+            let b = self.bridge.lock().unwrap();
+            if let Some(conv) = b.conv.as_ref() {
+                let state = b.store.connection();
+                if b.store.is_live() || state == "Handshaking" || state == "ReplayApplying" {
+                    screens::bootstrap::note_authenticated(&conv.endpoint());
+                }
+            }
+        }
         // A12: a retained outage keeps the shell (no Connect card).
         let live = { self.bridge.lock().unwrap().store.keeps_shell() };
         if live {
