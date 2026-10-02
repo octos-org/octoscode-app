@@ -1316,6 +1316,10 @@ pub struct OctoscodeView {
     /// drain skips them (one route per click, no unhandled-noise).
     #[rust]
     dialog_events: DialogEvents,
+    /// A5 — the palette width last applied (560, or the phone frame less
+    /// its 12 px gutters); re-applied only when it changes.
+    #[rust]
+    palette_w: f64,
     /// A3: the board-2 chrome's runtime (layout seat, menu anchor, the
     /// in-app docked screen).
     #[rust]
@@ -2226,6 +2230,10 @@ impl OctoscodeView {
                     if let Ok(mut u) = ui.lock() {
                         u.set_palette_open(false);
                     }
+                    // The modal takes the focus from the composer, so a
+                    // phone's on-screen keyboard closes instead of covering
+                    // the sheet (the web's ModalSurface moves focus inside).
+                    cx.set_key_focus(Area::Empty);
                     for id in d.on_open() {
                         self.perform_action(cx, id, 0);
                     }
@@ -3328,6 +3336,14 @@ impl OctoscodeView {
             .set_visible(cx, false);
         self.view.widget(cx, ids!(palette)).set_visible(cx, palette);
         self.view.widget(cx, ids!(palette_dock)).set_visible(cx, palette);
+        // A5: the palette fits a phone frame (the web's palette spans the
+        // composer): 560 on desktop, the frame less 12 px gutters below.
+        let pw = if self.window_w > 0.0 { (self.window_w - 24.0).min(560.0) } else { 560.0 };
+        if palette && (pw - self.palette_w).abs() > 0.5 {
+            self.palette_w = pw;
+            let mut p = self.view.widget(cx, ids!(palette));
+            script_apply_eval!(cx, p, { width: #(pw) });
+        }
         self.view
             .widget(cx, ids!(dimmer))
             .set_visible(cx, palette || settings || (review && !wide));
