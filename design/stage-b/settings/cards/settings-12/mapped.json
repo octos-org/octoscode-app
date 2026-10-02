@@ -1,0 +1,468 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "07db07518fe31cb9965d94bbc53a66debdd286970189802654f2557f29bbe29b",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "stack",
+        "id": "banner",
+        "x": 4.0,
+        "y": 9.0,
+        "w": 399.0,
+        "h": 138.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294572797,
+        "radius": 0
+      },
+      {
+        "t": "svg",
+        "id": "info_i",
+        "x": 24.0,
+        "y": 40.0,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_ban1",
+        "text": "This session is open in OctoSense [remote].",
+        "x": 55.51,
+        "y": 47.59,
+        "w": 188.86,
+        "h": 33.49,
+        "size": 8.78,
+        "line_height": 10.63,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_ban2",
+        "text": "You can read along; take over to send.",
+        "x": 53.71,
+        "y": 90.48,
+        "w": 165.32,
+        "h": 32.15,
+        "size": 8.83,
+        "line_height": 10.68,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "takeover_fill",
+        "x": 311.0,
+        "y": 39.0,
+        "w": 80.0,
+        "h": 80.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4279769627,
+        "radius": 40.0
+      },
+      {
+        "t": "text",
+        "id": "takeover_label",
+        "text": "Take over",
+        "x": 323.67,
+        "y": 58.31,
+        "w": 56.96,
+        "h": 44.21,
+        "size": 10.96,
+        "line_height": 13.26,
+        "weight": 600,
+        "color": 4294967295,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "take_over",
+        "x": 312.0,
+        "y": 56.0,
+        "w": 82.0,
+        "h": 44.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "take_over_surface",
+            "x": 312.0,
+            "y": 56.0,
+            "w": 82.0,
+            "h": 44.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 0,
+            "radius": 999
+          },
+          {
+            "t": "button",
+            "id": "take_over_control",
+            "x": 312.0,
+            "y": 56.0,
+            "w": 82.0,
+            "h": 44.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "take_over_label",
+            "text": "",
+            "x": 0.0,
+            "y": 0.0,
+            "w": 8.0,
+            "h": 15.0,
+            "size": 10.0,
+            "line_height": 15.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "stack",
+        "id": "ban_div",
+        "x": 0.0,
+        "y": 132.0,
+        "w": 406.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "text",
+        "id": "t_thread1",
+        "text": "Fix steer queue drop on reconnect",
+        "x": 16.44,
+        "y": 182.95,
+        "w": 167.28,
+        "h": 36.17,
+        "size": 9.84,
+        "line_height": 11.9,
+        "weight": 600,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_thread2",
+        "text": "OctosCode",
+        "x": 16.12,
+        "y": 266.05,
+        "w": 53.03,
+        "h": 25.44,
+        "size": 9.22,
+        "line_height": 11.16,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_b1",
+        "text": "\u2022 I found the root cause in steer/queue.py.",
+        "x": 16.01,
+        "y": 315.64,
+        "w": 189.35,
+        "h": 34.83,
+        "size": 9.22,
+        "line_height": 11.15,
+        "weight": 400,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_b2",
+        "text": "\u2022 Examining steer/queue.py",
+        "x": 19.43,
+        "y": 378.63,
+        "w": 126.58,
+        "h": 30.8,
+        "size": 9.31,
+        "line_height": 11.26,
+        "weight": 400,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_b3",
+        "text": "\u2022 Reconnecting logic added to prevent drops.",
+        "x": 19.53,
+        "y": 434.92,
+        "w": 188.37,
+        "h": 30.8,
+        "size": 8.54,
+        "line_height": 10.33,
+        "weight": 400,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "chip_patch",
+        "x": 20.5,
+        "y": 510.0,
+        "w": 52.0,
+        "h": 36.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "chip_patch_t",
+            "text": "Patch",
+            "x": 27.38,
+            "y": 516.67,
+            "w": 25.57,
+            "h": 24.1,
+            "size": 7.19,
+            "line_height": 8.7,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 6.0
+      },
+      {
+        "t": "text",
+        "id": "t_add12",
+        "text": "+12",
+        "x": 133.06,
+        "y": 518.01,
+        "w": 18.22,
+        "h": 22.76,
+        "size": 8.47,
+        "line_height": 10.25,
+        "weight": 400,
+        "color": 4280256573,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_del4",
+        "text": "-4",
+        "x": 170.08,
+        "y": 518.01,
+        "w": 12.83,
+        "h": 22.76,
+        "size": 7.98,
+        "line_height": 9.66,
+        "weight": 400,
+        "color": 4291764782,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_done",
+        "text": "\u2022 Session done",
+        "x": 15.91,
+        "y": 591.73,
+        "w": 76.57,
+        "h": 32.15,
+        "size": 10.05,
+        "line_height": 12.16,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "ghost_composer",
+        "x": 17.0,
+        "y": 645.0,
+        "w": 373.0,
+        "h": 97.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294835709,
+        "radius": 27.71,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "text",
+        "id": "t_readonly",
+        "text": "Read-only while another client has control",
+        "x": 28.13,
+        "y": 680.18,
+        "w": 184.44,
+        "h": 34.83,
+        "size": 9.06,
+        "line_height": 10.96,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "banner",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "info_i",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "takeover_fill",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "ban_div",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "chip_patch",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "ghost_composer",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_ban1",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.35240325639747594
+    },
+    {
+      "id": "t_ban2",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.3449800791952552
+    },
+    {
+      "id": "takeover_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.4747463819639718
+    },
+    {
+      "id": "t_thread1",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.36248844544057196
+    },
+    {
+      "id": "t_thread2",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.4368491552521896
+    },
+    {
+      "id": "t_b1",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.3350375072177354
+    },
+    {
+      "id": "t_b2",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.34192195120047303
+    },
+    {
+      "id": "t_b3",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.34252843614481976
+    },
+    {
+      "id": "chip_patch_t",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.511344253917728
+    },
+    {
+      "id": "t_add12",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.47647668099556556
+    },
+    {
+      "id": "t_del4",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.6358010887511907
+    },
+    {
+      "id": "t_done",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.39072868964091245
+    },
+    {
+      "id": "t_readonly",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.34466016722513143
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

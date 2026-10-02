@@ -263,13 +263,13 @@ mod replay {
         octoscode_module::screens::recents::set_store(Arc::new(octoscode_module::screens::recents::MemoryStore::new()));
         board1::note_context(&board1::Context { capabilities: conv.store.capabilities(), ..Default::default() });
 
-        // Settings -> Open a workspace: the server's working directory first.
-        click("b1.open.picker", None, &conv).await;
+        // + Add workspace (A3's sidebar `workspace.add`; lib.rs answers it
+        // with `b1.open.add`): the picker reads the server's working
+        // directory, and the browser over it lists that folder with the
+        // server's hidden count (walk 220).
+        click("b1.open.add", None, &conv).await;
         assert_eq!(board1::picker().server_root.as_deref(), Some("/home/user/code"));
         assert!(board1::picker().browse_advertised);
-
-        // Browse folders: the listing with the server's hidden count (walk 220).
-        click("picker.browse", None, &conv).await;
         assert_eq!(board1::top(), Some(board1::Surface::Browser));
         {
             let b = browser::state();

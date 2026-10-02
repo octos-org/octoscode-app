@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "07db07518fe31cb9965d94bbc53a66debdd286970189802654f2557f29bbe29b",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      17.0,
+      645.0,
+      373.0,
+      97.0
+    ],
+    [
+      14.0,
+      642.0,
+      378.0,
+      103.0
+    ],
+    [
+      17.0,
+      490.0,
+      192.0,
+      79.0
+    ],
+    [
+      14.0,
+      487.0,
+      197.0,
+      85.0
+    ],
+    [
+      3.0,
+      149.0,
+      402.0,
+      620.0
+    ],
+    [
+      311.0,
+      39.0,
+      80.0,
+      80.0
+    ],
+    [
+      4.0,
+      9.0,
+      399.0,
+      138.0
+    ],
+    [
+      1.0,
+      7.0,
+      404.0,
+      765.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "banner",
+      "bounds": [
+        4.0,
+        9.0,
+        399.0,
+        138.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294572797
+    },
+    {
+      "id": "info_i",
+      "bounds": [
+        24.0,
+        40.0,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "takeover_fill",
+      "bounds": [
+        311.0,
+        39.0,
+        80.0,
+        80.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279769627,
+      "radius": 40.0
+    },
+    {
+      "id": "ban_div",
+      "bounds": [
+        0.0,
+        132.0,
+        406.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "chip_patch",
+      "bounds": [
+        20.5,
+        510.0,
+        52.0,
+        36.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 6.0
+    },
+    {
+      "id": "ghost_composer",
+      "bounds": [
+        17.0,
+        645.0,
+        373.0,
+        97.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 27.71
+    }
+  ]
+}

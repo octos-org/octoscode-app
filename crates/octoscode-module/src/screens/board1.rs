@@ -276,7 +276,8 @@ pub const OPENERS: &[(&str, &str)] = &[
     ("b1.open.pairing", "open Pair with Octos (p4-01) — the Connect screen's link"),
     ("b1.open.connection", "open Connection (p4-05) — Settings → General"),
     ("b1.open.provider", "open Edit provider (p4-06) — Settings → Model"),
-    ("b1.open.picker", "open the new-session workspace picker — Settings → General"),
+    ("b1.open.picker", "open the new-session workspace picker (the web's view \"choose\")"),
+    ("b1.open.add", "+ Add workspace: the folder browser over the picker (the web's view \"add\"/\"browse\"; the picker alone when browsing is not advertised)"),
     ("b1.backdrop", "a click on the dialog's backdrop closes it (ModalSurface closeOnBackdrop)"),
 ];
 
@@ -340,6 +341,17 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
             }
             push_surface(Surface::Picker);
             out.push(Work::PickerLoad);
+        }
+        "b1.open.add" => {
+            // The web's + Add workspace opens the picker at its "add" view,
+            // whose Browse… is the folder browser and whose back returns to
+            // "choose" (NewSessionWorkspacePicker.tsx:128-138). Natively: the
+            // browser over the picker, so its back chevron lands on the
+            // picker; fail closed to the picker alone (row 166).
+            out.extend(route("b1.open.picker", None));
+            if host().picker.browse_advertised {
+                out.extend(route_picker("picker.browse"));
+            }
         }
         "b1.backdrop" => {
             // Never mid-exchange or mid-save: the web's ModalSurface keeps the
@@ -822,34 +834,21 @@ pub fn with_connect_entry(dsl: &str) -> String {
     }
 }
 
-/// The Settings drawer's board-1 rows (one Splash in the drawer): Connection,
-/// the workspace picker and the provider editor.
-pub fn settings_entries() -> Ui {
-    let mut v = Ui::default();
-    let row = |label: &str, id: &str, action_label: &str| {
-        format!(
-            "View {{ width: Fill height: 32 flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8 padding: Inset{{left: 4}}\n{}{}}}\n",
-            Text::new("", label).px(13.0).fill().one_line().dsl(),
-            kit::link(id, action_label, kit::BLUE, 13.0, 500)
-        )
-    };
-    v.push("View { width: Fill height: Fit flow: Down spacing: 2\n");
-    v.push(row("Model provider", "b1_set_provider", "Edit provider\u{2026}"));
-    v.button("b1_set_provider", "b1.open.provider");
-    v.push(row("Workspace", "b1_set_workspace", "Open a workspace\u{2026}"));
-    v.button("b1_set_workspace", "b1.open.picker");
-    v.push(row("This device", "b1_set_connection", "Connection\u{2026}"));
-    v.button("b1_set_connection", "b1.open.connection");
-    v.push("}\n");
-    v
-}
-
-/// The settings rows' controls (routed whether or not a surface is open).
+/// The Settings dialog's board-1 entries. The rows themselves are A3's
+/// Settings panel (`chrome.rs` `OcSettingsPanel`): "Model providers · Edit"
+/// in the Model section (the web's `ModelManagementSection.tsx` row "Edit"
+/// opens the provider editor) and "This device · Details" in the Connection
+/// section. Their hits are plain buttons, routed here by id.
 pub fn settings_controls() -> Vec<(String, String)> {
-    settings_entries().buttons
+    vec![
+        ("b1_set_provider".to_owned(), "b1.open.provider".to_owned()),
+        ("b1_set_connection".to_owned(), "b1.open.connection".to_owned()),
+    ]
 }
 
-/// Every always-mounted entry control: (widget id, opener action id).
+/// Every always-mounted entry control: (widget id, opener action id). The
+/// sidebar's "+ Add workspace" is A3's (`sb_add_hit` -> `workspace.add`),
+/// which lib.rs answers with `b1.open.add`.
 pub fn entry_controls() -> Vec<(String, String)> {
     let mut v = vec![("b1_connect_pair".to_owned(), "b1.open.pairing".to_owned())];
     v.extend(settings_controls());
@@ -1086,8 +1085,26 @@ mod tests {
             let ui = wrap(picker_view(&pk, &l), &l);
             evaluates_with_every_control(&mut cx, &format!("picker @{w}"), &ui);
         }
-        let s = settings_entries();
-        evaluates_with_every_control(&mut cx, "settings rows", &s);
+    }
+
+    #[test]
+    fn add_workspace_opens_the_browser_over_the_picker_and_fails_closed() {
+        // The only lib test that walks the live host state (the screens'
+        // own unit tests use local values), so no serialisation is needed.
+        close_all();
+        note_context(&Context { capabilities: vec![browser::BROWSE_FEATURE.into()], ..Default::default() });
+        let w = route("b1.open.add", None);
+        assert!(matches!(w.as_slice(), [Work::PickerLoad, Work::BrowserList { resolve_ancestor: true, .. }]), "{w:?}");
+        assert_eq!(top(), Some(Surface::Browser));
+        // The browser's back lands on the picker (the web's add -> choose).
+        route("browser.close", None);
+        assert_eq!(top(), Some(Surface::Picker));
+        close_all();
+        // Without the advertised feature: the picker alone, no browse request.
+        note_context(&Context::default());
+        assert_eq!(route("b1.open.add", None), vec![Work::PickerLoad]);
+        assert_eq!(top(), Some(Surface::Picker));
+        close_all();
     }
 
     #[test]

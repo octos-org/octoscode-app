@@ -3,15 +3,16 @@
 //!
 //! The app mounts board 1 as native views (`screens::board1`) in its own dock,
 //! opened from real entries: the first-run Connect card's "Pair with a link
-//! instead", and the Settings drawer's "Edit provider…", "Open a workspace…"
-//! and "Connection…" rows. lib.rs routes every click through
+//! instead", the Settings dialog's Model section ("Model providers · Edit")
+//! and Connection section ("This device · Details"), and the sidebar's
+//! "+ Add workspace". lib.rs routes every click through
 //! `board1::collect` → `perform_board1` → `board1::route`, so this file pins:
 //!   1. every control a mounted view publishes is in that view's DSL and is
 //!      routed by exactly one owner (a control with no owner is a dead tap —
 //!      the #35a/#40b failure class);
 //!   2. the entries exist where the app mounts them: the injection lands in
-//!      the REAL lowered setup-01 Connect card, and the Settings rows publish
-//!      their openers;
+//!      the REAL lowered setup-01 Connect card, the Settings rows sit in their
+//!      sections, and + Add workspace opens board 1;
 //!   3. the routing walk: from each entry, the router reaches every board-1
 //!      screen and asks for exactly the work a click must cause (the in-app
 //!      click walk — docs/ux/board1/walk-*.log — drives these same calls).
@@ -66,7 +67,6 @@ fn all_views() -> Vec<(String, board1::Ui)> {
             out.push((format!("browser refused={refused}@{w}"), browser::view(&b, &l)));
         }
     }
-    out.push(("settings rows".into(), board1::settings_entries()));
     out
 }
 
@@ -123,11 +123,45 @@ fn the_connect_screen_and_the_settings_rows_open_board_one() {
     for (id, action) in [
         ("b1_connect_pair", "b1.open.pairing"),
         ("b1_set_provider", "b1.open.provider"),
-        ("b1_set_workspace", "b1.open.picker"),
         ("b1_set_connection", "b1.open.connection"),
     ] {
         assert!(entries.iter().any(|(i, a)| i == id && a == action), "{id} -> {action} is not an entry");
     }
+    // The Settings entries sit in A3's Settings panel where the web keeps
+    // them: the provider editor's Edit in the Model section (the web's
+    // "Model providers"), the pairing record in the Connection section.
+    let chrome = include_str!("../src/chrome.rs");
+    let section = |start: &str, end: &str| {
+        let a = chrome.find(start).unwrap_or_else(|| panic!("{start} missing"));
+        let b = a + chrome[a..].find(end).unwrap_or_else(|| panic!("{end} missing"));
+        &chrome[a..b]
+    };
+    assert!(section("sec_model := View{", "sec_sandbox := View{").contains("b1_set_provider := OcHit"));
+    assert!(section("sec_connection := View{", "sec_about := View{").contains("b1_set_connection := OcHit"));
+    // The sidebar's + Add workspace (A3's `workspace.add`) opens board 1.
+    let lib = include_str!("../src/lib.rs");
+    let arm = section_of(lib, "if screens::sidebar::take_add_request() {", "}");
+    assert!(arm.contains("perform_board1(cx, \"b1.open.add\""), "{arm}");
+}
+
+fn section_of<'a>(text: &'a str, start: &str, end: &str) -> &'a str {
+    let a = text.find(start).unwrap_or_else(|| panic!("{start} missing"));
+    let b = a + start.len() + text[a + start.len()..].find(end).unwrap();
+    &text[a..b]
+}
+
+#[test]
+fn add_workspace_opens_the_browser_over_the_picker() {
+    let _s = serial();
+    board1::close_all();
+    board1::note_context(&board1::Context { capabilities: vec![browser::BROWSE_FEATURE.into()], ..Default::default() });
+    let w = board1::route("b1.open.add", None);
+    assert!(matches!(w.as_slice(), [board1::Work::PickerLoad, board1::Work::BrowserList { resolve_ancestor: true, .. }]), "{w:?}");
+    assert_eq!(board1::top(), Some(board1::Surface::Browser));
+    assert!(board1::view(990.0, 603.0).unwrap().contains("Choose workspace folder"));
+    board1::route("browser.close", None);
+    assert_eq!(board1::top(), Some(board1::Surface::Picker), "back lands on the picker (the web's add -> choose)");
+    board1::close_all();
 }
 
 #[test]
@@ -182,7 +216,7 @@ fn the_routing_walk_reaches_every_screen_from_its_entry() {
     board1::route("provider.cancel", None);
     assert!(!board1::is_open());
 
-    // Settings -> Open a workspace (the picker) -> Browse folders (p4-08).
+    // The new-session picker -> Browse folders (p4-08).
     assert_eq!(board1::route("b1.open.picker", None), vec![board1::Work::PickerLoad]);
     // Fail closed: without the advertised feature Browse does nothing.
     board1::note_context(&board1::Context::default());

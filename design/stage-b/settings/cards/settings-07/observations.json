@@ -1,0 +1,457 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "a8e51d19b8e648a5a1bd6e81da24b1ee548779ac737bc107db90b358d4c187e5",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 1.1109202667945417,
+  "text": [
+    {
+      "id": "b_title",
+      "expected_text": "Settings",
+      "requested_bounds": [
+        74.08,
+        43.22,
+        62.65,
+        42.43
+      ],
+      "status": "observed",
+      "ocr_text": "Settings",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        75.47435897435898,
+        46.697345132743365,
+        57.907051282051285,
+        34.336283185840706
+      ],
+      "ink_color": [
+        15,
+        18,
+        22
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        74.07806398258526,
+        43.22282242583303,
+        62.651565233866386,
+        42.430680022222816
+      ]
+    },
+    {
+      "id": "b_sec",
+      "expected_text": "General",
+      "requested_bounds": [
+        72.85,
+        147.89,
+        49.5,
+        30.52
+      ],
+      "status": "observed",
+      "ocr_text": "General",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        74.82371794871796,
+        148.33274336283188,
+        44.243589743589745,
+        23.348672566371683
+      ],
+      "ink_color": [
+        13,
+        14,
+        16
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.84726295387084,
+        147.89110726212488,
+        49.49778209588466,
+        30.521673007061935
+      ]
+    },
+    {
+      "id": "b_stop",
+      "expected_text": "Stop server\u2026",
+      "requested_bounds": [
+        73.2,
+        635.3,
+        84.87,
+        46.88
+      ],
+      "status": "observed",
+      "ocr_text": "Stop server...",
+      "confidence": 1,
+      "text_similarity": 0.8461538461538461,
+      "ink_bounds": [
+        75.47435897435898,
+        637.2814159292036,
+        79.37820512820514,
+        32.96283185840708
+      ],
+      "ink_color": [
+        164,
+        41,
+        39
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        73.2410701724851,
+        635.3456473904629,
+        84.87221810756586,
+        46.88369141703367
+      ]
+    },
+    {
+      "id": "b_stop_help",
+      "expected_text": "Shuts down Octos on this computer",
+      "requested_bounds": [
+        74.17,
+        685.51,
+        208.21,
+        32.9
+      ],
+      "status": "observed",
+      "ocr_text": "Shuts down Octos on this computer",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        75.47435897435898,
+        685.3522123893806,
+        204.30128205128207,
+        28.842477876106194
+      ],
+      "ink_color": [
+        100,
+        106,
+        112
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        74.17307848461537,
+        685.512367820212,
+        208.20512820512823,
+        32.90459363957595
+      ]
+    },
+    {
+      "id": "m_title",
+      "expected_text": "Stop the Octos server?",
+      "requested_bounds": [
+        110.61,
+        227.59,
+        187.38,
+        46.61
+      ],
+      "status": "observed",
+      "ocr_text": "Stop the Octos server?",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        113.21153846153847,
+        232.11327433628318,
+        181.52884615384616,
+        38.4566371681416
+      ],
+      "ink_color": [
+        5,
+        6,
+        6
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        110.60897302051282,
+        227.59010610499752,
+        187.3846153846154,
+        46.61484098939928
+      ]
+    },
+    {
+      "id": "m_body1",
+      "expected_text": "All sessions on this computer stop.",
+      "requested_bounds": [
+        97.37,
+        313.43,
+        222.99,
+        42.87
+      ],
+      "status": "observed",
+      "ocr_text": "All sessions on this computer stop.",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        98.24679487179488,
+        317.26725663716815,
+        218.61538461538464,
+        31.589380530973454
+      ],
+      "ink_color": [
+        30,
+        31,
+        31
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        97.37068659975277,
+        313.43040964770535,
+        222.9872761261769,
+        42.86750639790783
+      ]
+    },
+    {
+      "id": "m_body2",
+      "expected_text": "Running turns are interrupted.",
+      "requested_bounds": [
+        101.5,
+        367.43,
+        199.1,
+        35.65
+      ],
+      "status": "observed",
+      "ocr_text": "Running turns are interrupted.",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        109.30769230769232,
+        368.0849557522124,
+        188.68589743589746,
+        31.589380530973454
+      ],
+      "ink_color": [
+        10,
+        10,
+        10
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        101.50000165913461,
+        367.43462895241464,
+        199.09615384615387,
+        35.64664310954063
+      ]
+    },
+    {
+      "id": "cancel_btn_label",
+      "expected_text": "Cancel",
+      "requested_bounds": [
+        121.0,
+        490.4,
+        47.0,
+        33.7
+      ],
+      "status": "observed",
+      "ocr_text": "Cancel",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        119.0673076923077,
+        487.57522123893807,
+        50.75,
+        39.830088495575225
+      ],
+      "ink_color": [
+        253,
+        253,
+        253
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        120.9532514678786,
+        490.40494103537014,
+        46.978111780606774,
+        33.74842206328159
+      ]
+    },
+    {
+      "id": "cancel_btn_label",
+      "expected_text": "",
+      "requested_bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "status": "observed",
+      "ocr_text": "Cancel",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        119.0673076923077,
+        487.57522123893807,
+        50.75,
+        39.830088495575225
+      ],
+      "ink_color": [
+        253,
+        253,
+        253
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        120.9532514678786,
+        490.40494103537014,
+        46.978111780606774,
+        33.74842206328159
+      ]
+    },
+    {
+      "id": "stop_btn_label",
+      "expected_text": "Stop server",
+      "requested_bounds": [
+        237.3,
+        489.9,
+        78.0,
+        45.9
+      ],
+      "status": "observed",
+      "ocr_text": "Stop server",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        235.5320512820513,
+        486.20176991150447,
+        81.3301282051282,
+        53.564601769911505
+      ],
+      "ink_color": [
+        215,
+        22,
+        26
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        237.31010455413895,
+        489.8990245129227,
+        77.96995390378511,
+        45.88409919873557
+      ]
+    },
+    {
+      "id": "stop_confirm_label",
+      "expected_text": "",
+      "requested_bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4291152076
+    },
+    {
+      "id": "dim",
+      "bounds": [
+        0.0,
+        0.0,
+        406.0,
+        776.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4291152076
+    },
+    {
+      "id": "modal",
+      "bounds": [
+        28.0,
+        176.0,
+        350.0,
+        372.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.0
+    },
+    {
+      "id": "cancel_btn",
+      "bounds": [
+        89.0,
+        467.0,
+        111.0,
+        78.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "cancel_btn_surface",
+      "bounds": [
+        89.0,
+        467.0,
+        111.0,
+        78.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 39.0
+    },
+    {
+      "id": "cancel_btn_control",
+      "bounds": [
+        89.0,
+        467.0,
+        111.0,
+        78.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "stop_btn_fill",
+      "bounds": [
+        220.0,
+        464.0,
+        115.0,
+        83.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4292352026,
+      "radius": 41.5
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        30.00000018888889,
+        235.58303875834318,
+        33.99999999999999,
+        23.95759717314486
+      ],
+      "confidence": 1,
+      "text": "<>"
+    },
+    {
+      "bounds": [
+        572.0000001,
+        297.47349835799474,
+        12.000000000000027,
+        9.982332155476977
+      ],
+      "confidence": 1,
+      "text": "V"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

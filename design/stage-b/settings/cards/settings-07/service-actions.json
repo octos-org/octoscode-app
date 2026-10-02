@@ -1,0 +1,26 @@
+{
+  "frame_id": 7,
+  "controls": {
+    "cancel_btn": {
+      "event": "server.stop.cancel",
+      "source_bounds": [
+        58,
+        480,
+        128,
+        46
+      ],
+      "enabled": true
+    },
+    "stop_confirm": {
+      "event": "server.stop.confirm",
+      "source_bounds": [
+        220,
+        480,
+        128,
+        46
+      ],
+      "enabled": true
+    }
+  },
+  "source": "authored from the approved stage-a board-2 atlas (operator 2026-10-01) + Apple Vision OCR"
+}
