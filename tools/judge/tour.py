@@ -233,7 +233,7 @@ def tour_live():
     # settings sections
     if click("settings_open_hit"):
         capture("settings-general")
-        for sec in ("Permissions", "Model", "Sandbox", "Connection", "About"):
+        for sec in ("Permissions", "Model", "Sandbox", "Connection", "Preferences", "About"):
             if click_text(sec):
                 capture(f"settings-{sec.lower()}")
         close_overlays()
@@ -248,9 +248,42 @@ def tour_live():
         close_overlays()
 
 
+def dismiss(trigger):
+    # Menus and popovers have no close control: Escape on desktop, the trigger
+    # again (a toggle) on the phone, where Escape would leave the app.
+    if MODE != "phone":
+        key("escape")
+    elif find(trigger):
+        click(trigger)
+    close_overlays()
+
+
+def tour_controls():
+    """The connected shell's own controls (header, composer seats, sidebar menus), each opened by a click."""
+    for wid, name in (("b3_strip_tap", "session-pane"), ("hd_defaults_change", "new-chat-defaults"),
+                      ("copy_open_hit", "copy-markdown"), ("model_seat_hit", "model-menu"),
+                      ("approval_pill_hit", "permission-menu"), ("plus_hit", "plus-menu"),
+                      ("sb_g_more", "workspace-menu"), ("sb_sort", "sort-menu")):
+        try:
+            if click(wid):
+                capture(name)
+                dismiss(wid)
+        except SystemExit:
+            raise
+        except Exception as e:
+            print(f"{name}: ERROR {e}")
+    if click("hd_tab_traj_hit"):
+        capture("trajectory")
+        click("hd_tab_chat_hit")
+    if MODE != "phone" and click("sidebar_collapse"):
+        capture("sidebar-collapsed")
+        click("sidebar_toggle_hit") or click("sidebar_collapse")
+
+
 def tour_commands():
     """Every implemented command that opens a surface, against a CONNECTED app (a replay server):
     with no transport (synthetic seeds) the actions are dropped, so commands can only be judged here."""
+    tour_controls()
     if click("i0_composer_0"):
         clear_composer()
         type_text("/")
@@ -273,6 +306,8 @@ def tour_commands():
             except Exception:
                 print("app gone - stopping the tour")
                 break
+    if click("sb_new_chat_hit"):
+        capture("new-chat")
 
 
 def tour_first_run():

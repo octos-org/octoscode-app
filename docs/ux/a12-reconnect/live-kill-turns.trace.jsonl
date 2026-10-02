@@ -1,0 +1,55 @@
+{"at_ms": 1, "dir": "out", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 24, "dir": "in", "method": "state:Idle"}
+{"at_ms": 24, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 24, "dir": "in", "method": "state:Handshaking"}
+{"at_ms": 24, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 24, "dir": "in", "method": "state:Live"}
+{"at_ms": 24, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 24, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 24, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 1677, "dir": "out", "method": "turn/start", "session_id": "dsflash:main", "turn_id": "01a0fbba-ca1d-72a8-817a-56444c1d9f76"}
+{"at_ms": 1678, "dir": "in", "method": "turn/started", "session_id": "dsflash:main", "turn_id": "01a0fbba-ca1d-72a8-817a-56444c1d9f76"}
+{"at_ms": 3569, "dir": "in", "method": "projection/envelope turn_terminal", "turn_id": "01a0fbba-ca1d-72a8-817a-56444c1d9f76"}
+{"at_ms": 6239, "dir": "in", "method": "state:Reconnecting { attempt: 1 }"}
+{"at_ms": 6240, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 6240, "dir": "in", "method": "state:Reconnecting { attempt: 2 }"}
+{"at_ms": 6241, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 6241, "dir": "in", "method": "state:Reconnecting { attempt: 3 }"}
+{"at_ms": 6243, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 6243, "dir": "in", "method": "state:Reconnecting { attempt: 4 }"}
+{"at_ms": 6244, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 6244, "dir": "in", "method": "state:Reconnecting { attempt: 5 }"}
+{"at_ms": 14246, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 14247, "dir": "in", "method": "state:Handshaking"}
+{"at_ms": 14247, "dir": "out", "method": "session/open", "session_id": "dsflash:main", "reconnect": true}
+{"at_ms": 14265, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 14265, "dir": "in", "method": "state:Live"}
+{"at_ms": 14265, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 14265, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 14265, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 14266, "dir": "in", "method": "session/hydrate", "session_id": "dsflash:main", "messages": 2}
+{"at_ms": 16630, "dir": "out", "method": "turn/start", "session_id": "dsflash:main", "turn_id": "01a0fbbb-0487-74f0-b2e2-e6badc4a1a1f"}
+{"at_ms": 16631, "dir": "in", "method": "turn/started", "session_id": "dsflash:main", "turn_id": "01a0fbbb-0487-74f0-b2e2-e6badc4a1a1f"}
+{"at_ms": 20373, "dir": "in", "method": "projection/envelope turn_terminal", "turn_id": "01a0fbbb-0487-74f0-b2e2-e6badc4a1a1f"}
+{"at_ms": 22575, "dir": "in", "method": "state:Reconnecting { attempt: 1 }"}
+{"at_ms": 22577, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 22577, "dir": "in", "method": "state:Reconnecting { attempt: 2 }"}
+{"at_ms": 22578, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 22578, "dir": "in", "method": "state:Reconnecting { attempt: 3 }"}
+{"at_ms": 22579, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 22579, "dir": "in", "method": "state:Reconnecting { attempt: 4 }"}
+{"at_ms": 22580, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 22580, "dir": "in", "method": "state:Reconnecting { attempt: 5 }"}
+{"at_ms": 22582, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 22582, "dir": "in", "method": "state:Reconnecting { attempt: 6 }"}
+{"at_ms": 22583, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 22583, "dir": "in", "method": "state:Reconnecting { attempt: 7 }"}
+{"at_ms": 0, "dir": "out", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 0, "dir": "in", "method": "state:Idle"}
+{"at_ms": 0, "dir": "in", "method": "state:Dialing"}
+{"at_ms": 0, "dir": "in", "method": "state:Handshaking"}
+{"at_ms": 17, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
+{"at_ms": 17, "dir": "in", "method": "state:Live"}
+{"at_ms": 17, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 17, "dir": "out", "method": "session/hydrate", "session_id": "dsflash:main"}
+{"at_ms": 17, "dir": "in", "method": "session/open", "session_id": "dsflash:main"}
