@@ -46,6 +46,9 @@ pub struct ViewState {
     /// The takeover held the keyboard (one of its inputs had focus, or a
     /// takeover key acted) while it showed.
     pub focus_inside: bool,
+    /// The timeline's last drawn viewport height and whether it was at the
+    /// tail then (a dock that grows keeps a following list pinned).
+    pub list_h: (f64, bool),
 }
 
 impl ViewState {

@@ -3738,7 +3738,18 @@ impl OctoscodeView {
             let open = b.ui.lock().map(|u| u.settings_open()).unwrap_or(false);
             open
         };
-        let consumed = if screens::settings::snapshot().stop_pending {
+        let review_open = {
+            let b = self.bridge.lock().unwrap();
+            let open = b.ui.lock().map(|u| u.review_open()).unwrap_or(false);
+            open
+        };
+        let consumed = if review_open {
+            // A6: the diff review (opened from an approval card's Review
+            // diff) closes first — Escape must never interrupt the turn
+            // that is waiting on that approval.
+            self.perform_action(cx, "review.toggle", 0);
+            true
+        } else if screens::settings::snapshot().stop_pending {
             self.perform_action(cx, "server.stop.cancel", 0);
             true
         } else if screens::sidebar::menu_for().is_some() || screens::sidebar::renaming().is_some() {
@@ -4266,7 +4277,8 @@ impl Widget for OctoscodeView {
                             ),
                             other => {
                                 let store = { bridge.lock().unwrap().store.clone() };
-                                (screens::board3::rows::lower(other, &store), "board3-row")
+                                // A6: mounted without the NAV hook (routed by the item taps below).
+                                (screens::surfaces::host::quiet(&screens::board3::rows::lower(other, &store)), "board3-row")
                             }
                         };
                         let splash = item.splash(cx, ids!(item_splash));

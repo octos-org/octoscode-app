@@ -23,6 +23,23 @@ fn dump(slot: &str, dsl: &str) {
     }
 }
 
+/// The DSL as mounted: the surfaces route every tap through the widgets'
+/// `clicked()` actions (`cv_taps`, harvested by `taps::wired_taps` from the
+/// lowered text first), so the buttons' `on_click: || { NAV(…) }` script hook
+/// is dropped — it only reached the connect screen's router (a no-op for
+/// `cv.*`) and, deferred past a remount its own click caused, the VM ran it on
+/// a freed tree (`[E] … pop_stack_value on empty stack`).
+pub(crate) fn quiet(dsl: &str) -> String {
+    let mut out = String::with_capacity(dsl.len());
+    for line in dsl.lines() {
+        if !line.trim_start().starts_with("on_click: || { NAV(") {
+            out.push_str(line);
+            out.push('\n');
+        }
+    }
+    out
+}
+
 impl crate::OctoscodeView {
     /// Mount the surfaces for this sync: the header tabs, the Trajectory
     /// pane (or the transcript + composer), the takeover (or the composer),
@@ -64,9 +81,9 @@ impl crate::OctoscodeView {
         self.view.widget(cx, ids!(composer_dock)).set_visible(cx, !traj);
         let traj_dsl = sf::lower_trajectory(&store, m.pane_w, phone).map(|l| l.dsl).unwrap_or_default();
         let splash = self.view.splash(cx, ids!(traj_splash));
-        match self.mounts.mount(cx, &splash, &traj_dsl) {
+        match self.mounts.mount(cx, &splash, &quiet(&traj_dsl)) {
             Err(e) => makepad_widgets::log!("[octoscode] trajectory mount: {e}"),
-            Ok(true) => dump("trajectory", &traj_dsl),
+            Ok(true) => dump("trajectory", &quiet(&traj_dsl)),
             Ok(false) => {}
         }
         publish(live_id!(traj_splash), &traj_dsl, &mut taps_out);
@@ -82,10 +99,10 @@ impl crate::OctoscodeView {
         self.view.widget(cx, ids!(composer_row)).set_visible(cx, !showing);
         let lowered = lowered.unwrap_or_default();
         let splash = self.view.splash(cx, ids!(takeover_splash));
-        match self.mounts.mount(cx, &splash, &lowered.dsl) {
+        match self.mounts.mount(cx, &splash, &quiet(&lowered.dsl)) {
             Err(e) => makepad_widgets::log!("[octoscode] takeover mount: {e}"),
             Ok(true) if showing => {
-                dump("takeover", &lowered.dsl);
+                dump("takeover", &quiet(&lowered.dsl));
                 makepad_widgets::log!(
                     "[octoscode] takeover mounted {:?}: {} tap(s), {} input(s)",
                     sf::takeover(&store),
@@ -128,9 +145,9 @@ impl crate::OctoscodeView {
         let plan = sf::lower_plan(&store, &m).unwrap_or_default();
         self.view.widget(cx, ids!(plan_row)).set_visible(cx, !plan.is_empty());
         let splash = self.view.splash(cx, ids!(plan_splash));
-        match self.mounts.mount(cx, &splash, &plan) {
+        match self.mounts.mount(cx, &splash, &quiet(&plan)) {
             Err(e) => makepad_widgets::log!("[octoscode] plan mount: {e}"),
-            Ok(true) => dump("plan", &plan),
+            Ok(true) => dump("plan", &quiet(&plan)),
             Ok(false) => {}
         }
         publish(live_id!(plan_splash), &plan, &mut taps_out);
@@ -139,9 +156,9 @@ impl crate::OctoscodeView {
         let detail = sf::lower_detail(&store).map(|l| l.dsl).unwrap_or_default();
         self.view.widget(cx, ids!(surfaces_dock)).set_visible(cx, !detail.is_empty());
         let splash = self.view.splash(cx, ids!(surfaces_splash));
-        match self.mounts.mount(cx, &splash, &detail) {
+        match self.mounts.mount(cx, &splash, &quiet(&detail)) {
             Err(e) => makepad_widgets::log!("[octoscode] task detail mount: {e}"),
-            Ok(true) => dump("detail", &detail),
+            Ok(true) => dump("detail", &quiet(&detail)),
             Ok(false) => {}
         }
         publish(live_id!(surfaces_splash), &detail, &mut taps_out);
@@ -347,6 +364,28 @@ impl crate::OctoscodeView {
     /// After the timeline drew: reveal a row the person just opened
     /// ([`sf::view::reveal_delta`]), so its grown body is in view.
     pub(crate) fn surfaces_after_draw(&mut self, cx: &mut Cx) {
+        // The list's viewport changed height under it (the plan card or a
+        // takeover appeared in the composer dock): a list that was following
+        // the tail keeps the newest row in view (`use-conversation-scroll.ts`:
+        // following stays pinned to the bottom).
+        let mut repinned = false;
+        {
+            let list_ref = self.view.portal_list(cx, ids!(timeline_list));
+            let borrowed = list_ref.borrow_mut();
+            if let Some(mut list) = borrowed {
+                let h = list.area().rect(cx).size.y;
+                let at_end = list.is_at_end();
+                let (prev_h, prev_end) = std::mem::replace(&mut sf::state().view.list_h, (h, at_end));
+                if prev_h > 0.0 && (h - prev_h).abs() > 0.5 && prev_end && !at_end {
+                    list.set_tail_range(true);
+                    sf::state().view.list_h = (h, true);
+                    repinned = true;
+                }
+            }
+        }
+        if repinned {
+            self.view.redraw(cx);
+        }
         let pending = sf::state().view.reveal.clone();
         let Some((key, tries)) = pending else { return };
         let Some(item_id) = key.strip_prefix("item:").and_then(|n| n.parse::<usize>().ok()) else {

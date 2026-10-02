@@ -282,9 +282,9 @@ fn screens_replies() -> BTreeMap<String, (Value, String)> {
 /// | # | recorded turn (r23) | exercises |
 /// |---|---|---|
 /// | 1 | `…23b` 17×23 | reasoning (folded thinking rows) + the answer |
-/// | 2 | `…23c` echo | a real tool call (a tool row to expand) |
-/// | 3 | `…240` color | `user_question/requested` — held until `user_question/respond` |
-/// | 4 | `…241` sudo  | `approval/requested` (r5's TYPED command approval in its place) — held until `approval/respond` |
+/// | 2 | `…23c` echo | a real tool call (a tool row to expand) + two delivered files (`file_attached`: a PDF to download, a PNG to preview; `GET /api/files` answered on this port) |
+/// | 3 | `…240` color | three `user_question/requested` in a row (the recorded single-select, a multi-select variant, one more) — each held until `user_question/respond` or `turn/interrupt` |
+/// | 4 | `…241` sudo  | four `approval/requested` in a row (r5's TYPED command approval, and one typed DIFF approval whose `diff/preview/get` is answered) — each held until `approval/respond` |
 /// | 5 | `…243` plan  | `plan/updated` + a fixture progress update — held until `turn/interrupt` |
 /// | 6 | `…242` sudo  | `approval/auto_resolved` (fixture, r23's shape): the policy decides, no card |
 ///
@@ -335,8 +335,16 @@ mod surfaces {
                 // The app answers; the decision is synthesized from ITS reply.
                 "approval/decided" => continue,
                 "approval/requested" if n == 5 => {
-                    // Turn 6: a recorded scope policy resolves it (no card).
+                    // Turn 6: a scope policy resolves it (no card), with the
+                    // decision this turn's recording carries (its
+                    // `approval/decided`), so the answer that follows agrees.
                     let b = &f.body;
+                    let decision = frames
+                        .iter()
+                        .find(|x| x.method == "approval/decided" && x.body["approval_id"] == b["approval_id"])
+                        .and_then(|x| x.body["decision"].as_str())
+                        .unwrap_or("approve")
+                        .to_owned();
                     out.push((
                         Frame {
                             dir: "in".into(),
@@ -344,7 +352,7 @@ mod surfaces {
                             body: json!({
                                 "session_id": b["session_id"], "approval_id": b["approval_id"],
                                 "turn_id": b["turn_id"], "tool_name": b["tool_name"],
-                                "scope": "session", "scope_match": "exact", "decision": "approve"
+                                "scope": "session", "scope_match": "exact", "decision": decision
                             }),
                         },
                         None,
@@ -352,7 +360,10 @@ mod surfaces {
                     continue;
                 }
                 "approval/requested" => {
-                    // r5's typed command approval, re-pointed at this turn.
+                    // r5's typed command approval, re-pointed at this turn —
+                    // four requests in a row, one per decision the walk
+                    // makes: Deny; a typed DIFF approval (Review diff, then
+                    // Approve for session); Approve once; the `S` key.
                     let mut a = r5
                         .iter()
                         .find(|x| x.dir == "in" && x.method == "approval/requested")
@@ -360,11 +371,52 @@ mod surfaces {
                         .expect("r5 records an approval");
                     super::rewrite_session(&mut a.body, &r5_session, f.body["session_id"].as_str().unwrap_or(""));
                     a.body["turn_id"] = f.body["turn_id"].clone();
-                    out.push((a, Some(Hold::Approval)));
+                    let base = a.body["approval_id"].as_str().unwrap_or_default().to_owned();
+                    let with_id = |suffix: &str| {
+                        let mut x = a.clone();
+                        x.body["approval_id"] = json!(format!("{}{suffix}", &base[..base.len() - 2]));
+                        x
+                    };
+                    out.push((with_id("aa"), Some(Hold::Approval)));
+                    let mut diff = with_id("ab");
+                    diff.body["approval_kind"] = json!("diff");
+                    diff.body["tool_name"] = json!("apply_patch");
+                    diff.body["title"] = json!("Apply a patch to src/main.rs");
+                    diff.body["body"] = json!("Adds the --version flag and documents it in --help.");
+                    diff.body["risk"] = json!("medium");
+                    diff.body["typed_details"] = json!({"kind": "diff", "diff": {
+                        "preview_id": DIFF_PREVIEW, "operation": "apply_patch", "file_count": 1,
+                        "additions": 4, "deletions": 1, "summary": "src/main.rs: +4 -1"
+                    }});
+                    out.push((diff, Some(Hold::Approval)));
+                    out.push((with_id("ac"), Some(Hold::Approval)));
+                    out.push((with_id("ad"), Some(Hold::Approval)));
                     continue;
                 }
                 "user_question/requested" => {
+                    // Three questions in a row, each held until answered:
+                    // the recorded single-select (Enter submits), a
+                    // multi-select variant (arrow keys + Space, the submit
+                    // button), and a third one the walk stops the turn on.
                     out.push((f.clone(), Some(Hold::Question)));
+                    let qid = f.body["question_id"].as_str().unwrap_or_default().to_owned();
+                    let with_id = |suffix: &str| {
+                        let mut x = f.clone();
+                        x.body["question_id"] = json!(format!("{}{suffix}", &qid[..qid.len() - 2]));
+                        x
+                    };
+                    let mut multi = with_id("a1");
+                    multi.body["title"] = json!("Which accents should the theme use?");
+                    multi.body["body"] = json!("Pick any that apply; the first one leads.");
+                    multi.body["questions"][0]["header"] = json!("Accents");
+                    multi.body["questions"][0]["question"] = json!("Which accents should the theme use?");
+                    multi.body["questions"][0]["multi_select"] = json!(true);
+                    out.push((multi, Some(Hold::Question)));
+                    let mut dark = with_id("a2");
+                    dark.body["title"] = json!("Which color for the dark theme?");
+                    dark.body["questions"][0]["header"] = json!("Dark theme");
+                    dark.body["questions"][0]["question"] = json!("Which color for the dark theme?");
+                    out.push((dark, Some(Hold::Question)));
                     continue;
                 }
                 // Turn 2: the tool's delivered file (a fixture `file_attached`
@@ -372,16 +424,21 @@ mod surfaces {
                 // so the transcript shows a Download row the walk can click.
                 "projection/envelope" if n == 1 && f.body["payload"]["type"] == "tool_end" => {
                     out.push((f.clone(), None));
-                    let mut file = f.clone();
-                    file.body["payload"] = json!({"type": "file_attached", "data": {
-                        "path": "/home/user/src/octos/out/r23-report.pdf",
-                        "mime": "application/pdf",
-                        "size_bytes": 2048,
-                        "attachment_owner": {"tool_call_id": f.body["payload"]["data"]["tool_call_id"]}
-                    }});
-                    file.body["seq"] = json!(f.body["seq"].as_u64().unwrap_or(0) + 1);
-                    out.push((file, None));
-                    shift += 1;
+                    // A report (download) and a chart image (preview).
+                    let files = [
+                        ("/home/user/src/octos/out/r23-report.pdf", "application/pdf", 2048u64),
+                        ("/home/user/src/octos/out/coverage.png", "image/png", fixture_png().len() as u64),
+                    ];
+                    for (path, mime, size) in files {
+                        shift += 1;
+                        let mut file = f.clone();
+                        file.body["payload"] = json!({"type": "file_attached", "data": {
+                            "path": path, "mime": mime, "size_bytes": size,
+                            "attachment_owner": {"tool_call_id": f.body["payload"]["data"]["tool_call_id"]}
+                        }});
+                        file.body["seq"] = json!(f.body["seq"].as_u64().unwrap_or(0) + shift);
+                        out.push((file, None));
+                    }
                     continue;
                 }
                 "plan/updated" => {
@@ -407,10 +464,34 @@ mod surfaces {
         out
     }
 
+    /// The diff approval's preview (r30a's recorded `diff/preview/get` id).
+    pub const DIFF_PREVIEW: &str = "01920000-0000-7000-8000-0000000000f1";
+
     /// The scenario's request replies (`None` = the default `{}`).
     pub fn reply(method: &str, params: &Value, session: &str) -> Option<Value> {
         let task_id = params["task_id"].as_str().unwrap_or_default();
         Some(match method {
+            // `DiffPreviewGetResult` (octos-core): the patch the diff
+            // approval asks about (no successful reply is recorded).
+            "diff/preview/get" => json!({
+                "status": "ready", "source": "pending_store",
+                "preview": {
+                    "session_id": session, "preview_id": params["preview_id"],
+                    "title": "Add a --version flag",
+                    "files": [{"path": "src/main.rs", "status": "modified", "hunks": [{
+                        "header": "@@ -10,6 +10,9 @@ fn main() {",
+                        "lines": [
+                            {"kind": "context", "content": "    let args = Args::parse();", "old_line": 10, "new_line": 10},
+                            {"kind": "removed", "content": "    run(args);", "old_line": 11},
+                            {"kind": "added", "content": "    if args.version {", "new_line": 11},
+                            {"kind": "added", "content": "        println!(\"octos {}\", env!(\"CARGO_PKG_VERSION\"));", "new_line": 12},
+                            {"kind": "added", "content": "        return;", "new_line": 13},
+                            {"kind": "added", "content": "    }", "new_line": 14},
+                            {"kind": "context", "content": "}", "old_line": 12, "new_line": 15}
+                        ]
+                    }]}]
+                }
+            }),
             "task/list" => {
                 let c24b = fixture("c24b-subagent-a6ea8505.jsonl");
                 let mut v = c24b
@@ -435,7 +516,9 @@ mod surfaces {
                 v
             }
             "task/output/read" => {
-                let lines = [
+                // Two pages by UTF-8 byte cursor: the first read, then the
+                // rest from `cursor.offset` (complete).
+                let first = [
                     "Compiling octos-cli v0.24.1",
                     "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
                     "Running unittests src/lib.rs",
@@ -443,12 +526,20 @@ mod surfaces {
                     "test steer_queue::drains_after_reconnect ... ok",
                     "test steer_queue::keeps_order ... ok",
                 ];
-                let text = format!("{}\n", lines.join("\n"));
+                let rest = [
+                    "test steer_queue::replays_in_seq_order ... ok",
+                    "test result: ok. 12 passed; 0 failed; 0 ignored",
+                ];
+                let page_1 = format!("{}\n", first.join("\n"));
+                let page_2 = format!("{}\n", rest.join("\n"));
+                let total = (page_1.len() + page_2.len()) as u64;
+                let at = params.pointer("/cursor/offset").and_then(|o| o.as_u64()).unwrap_or(0);
+                let (text, complete) = if at == 0 { (page_1, false) } else { (page_2, true) };
                 let len = text.len() as u64;
                 json!({
                     "session_id": session, "task_id": task_id, "source": "runtime_projection",
-                    "cursor": {"offset": 0}, "next_cursor": {"offset": len}, "text": text,
-                    "bytes_read": len, "total_bytes": len + 2048, "truncated": true, "complete": false,
+                    "cursor": {"offset": at}, "next_cursor": {"offset": at + len}, "text": text,
+                    "bytes_read": len, "total_bytes": total.max(at + len), "truncated": !complete, "complete": complete,
                     "live_tail_supported": true, "is_snapshot_projection": false,
                     "task_status": "running", "runtime_state": "executing_tool", "lifecycle_state": "running"
                 })
@@ -471,14 +562,76 @@ mod surfaces {
         })
     }
 
-    /// r4's live supervision frames (`task/updated` + `task/output/delta`),
-    /// delivered after open so the Trajectory merges them live.
+    /// The delivered chart image: a 240x135 RGB PNG built at runtime
+    /// (stored deflate + CRC-32 + Adler-32, no dependencies) — five blue bars
+    /// on a light grid.
+    pub fn fixture_png() -> Vec<u8> {
+        let (w, h) = (240u32, 135u32);
+        let heights = [60u32, 95, 75, 115, 88];
+        let mut raw = Vec::with_capacity(((w * 3 + 1) * h) as usize);
+        for y in 0..h {
+            raw.push(0); // filter: none
+            for x in 0..w {
+                let bar = (x / 48) as usize;
+                let in_bar = (8..40).contains(&(x % 48));
+                let px = if in_bar && h - y <= heights[bar] {
+                    [0x2f, 0x6f, 0xeb]
+                } else if y % 27 == 0 {
+                    [0xe5, 0xe5, 0xea]
+                } else {
+                    [0xfa, 0xfa, 0xfb]
+                };
+                raw.extend_from_slice(&px);
+            }
+        }
+        let mut z = vec![0x78, 0x01];
+        let blocks: Vec<&[u8]> = raw.chunks(65_535).collect();
+        for (i, block) in blocks.iter().enumerate() {
+            z.push(u8::from(i + 1 == blocks.len()));
+            let len = block.len() as u16;
+            z.extend_from_slice(&len.to_le_bytes());
+            z.extend_from_slice(&(!len).to_le_bytes());
+            z.extend_from_slice(block);
+        }
+        let (mut a, mut b) = (1u32, 0u32);
+        for &x in &raw {
+            a = (a + x as u32) % 65_521;
+            b = (b + a) % 65_521;
+        }
+        z.extend_from_slice(&((b << 16) | a).to_be_bytes());
+        fn crc32(bytes: &[u8]) -> u32 {
+            let mut c = 0xffff_ffffu32;
+            for &x in bytes {
+                c ^= x as u32;
+                for _ in 0..8 {
+                    c = if c & 1 != 0 { 0xedb8_8320 ^ (c >> 1) } else { c >> 1 };
+                }
+            }
+            !c
+        }
+        let mut png = b"\x89PNG\r\n\x1a\n".to_vec();
+        let mut chunk = |kind: &[u8], data: &[u8]| {
+            png.extend_from_slice(&(data.len() as u32).to_be_bytes());
+            let mut body = kind.to_vec();
+            body.extend_from_slice(data);
+            png.extend_from_slice(&body);
+            png.extend_from_slice(&crc32(&body).to_be_bytes());
+        };
+        let mut ihdr = Vec::new();
+        ihdr.extend_from_slice(&w.to_be_bytes());
+        ihdr.extend_from_slice(&h.to_be_bytes());
+        ihdr.extend_from_slice(&[8, 2, 0, 0, 0]); // 8-bit RGB
+        chunk(b"IHDR", &ihdr);
+        chunk(b"IDAT", &z);
+        chunk(b"IEND", &[]);
+        png
+    }
+
+    /// r4's live `task/updated` frames (running, then completed), delivered
+    /// after the first `task/list` so the Trajectory merges them live.
     pub fn live_task_frames() -> Vec<Frame> {
         let r4 = fixture("r4-task-a6ea8505.jsonl");
-        r4.into_iter()
-            .filter(|f| f.dir == "in" && (f.method == "task/updated" || f.method == "task/output/delta"))
-            .take(2)
-            .collect()
+        r4.into_iter().filter(|f| f.dir == "in" && f.method == "task/updated").collect()
     }
 }
 
@@ -578,14 +731,19 @@ async fn main() {
                     let mut buf = vec![0u8; 8192];
                     let k = stream.read(&mut buf).await.unwrap_or(0);
                     let req = String::from_utf8_lossy(&buf[..k]).to_string();
-                    println!("[replay-serve] surfaces: {}", req.lines().next().unwrap_or(""));
-                    let body = b"%PDF-1.7\n% r23-report (fixture)\n%%EOF\n";
+                    let line = req.lines().next().unwrap_or("").to_owned();
+                    println!("[replay-serve] surfaces: {line}");
+                    let (ctype, body): (&str, Vec<u8>) = if line.contains(".png") {
+                        ("image/png", surfaces::fixture_png())
+                    } else {
+                        ("application/pdf", b"%PDF-1.7\n% r23-report (fixture)\n%%EOF\n".to_vec())
+                    };
                     let resp = format!(
-                        "HTTP/1.1 200 OK\r\nContent-Type: application/pdf\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                        "HTTP/1.1 200 OK\r\nContent-Type: {ctype}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
                         body.len()
                     );
                     let _ = stream.write_all(resp.as_bytes()).await;
-                    let _ = stream.write_all(body).await;
+                    let _ = stream.write_all(&body).await;
                     return;
                 }
             }
@@ -595,6 +753,8 @@ async fn main() {
             let (tx, mut rx) = ws.split();
             let tx = std::sync::Arc::new(tokio::sync::Mutex::new(tx));
             let mut played = 0usize;
+            // A6 `surfaces`: r4's live task frames go out once.
+            let mut live_sent = false;
             // The session id the app opens; every served frame is rewritten to it.
             let mut active_session = recorded.clone();
             // A6 `surfaces`: the rest of a turn held at an interaction, and
@@ -690,6 +850,26 @@ async fn main() {
                             Some(body) => {
                                 println!("[replay-serve] -> {m} (surfaces reply)");
                                 send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": body})).await;
+                                // r4's live task frames merge into the list
+                                // the app just folded (`applyTaskUpdated`,
+                                // model.ts:104-137): once per connection,
+                                // after the first authoritative task/list,
+                                // re-pointed from r4's own session.
+                                if m == "task/list" && !live_sent {
+                                    live_sent = true;
+                                    let tx2 = tx.clone();
+                                    let to = active_session.clone();
+                                    let from = recorded_session(&fixture("r4-task-a6ea8505.jsonl"));
+                                    tokio::spawn(async move {
+                                        for (i, mut f) in surfaces::live_task_frames().into_iter().enumerate() {
+                                            let pause = if i == 0 { 400 } else { 1_500 };
+                                            tokio::time::sleep(std::time::Duration::from_millis(pause)).await;
+                                            rewrite_session(&mut f.body, &from, &to);
+                                            println!("[replay-serve] surfaces -> {} (live)", f.method);
+                                            send(&tx2, serde_json::json!({"jsonrpc": "2.0", "method": f.method, "params": f.body})).await;
+                                        }
+                                    });
+                                }
                                 true
                             }
                             None => false,
@@ -721,20 +901,6 @@ async fn main() {
                         let mut notifs = standalone.clone();
                         let from = recorded.clone();
                         let to = active_session.clone();
-                        // A6 `surfaces`: r4's live task frames merge into the
-                        // Trajectory (re-pointed from r4's own session).
-                        let r4_session = if label == "surfaces" {
-                            let r4 = fixture("r4-task-a6ea8505.jsonl");
-                            recorded_session(&r4)
-                        } else {
-                            String::new()
-                        };
-                        if label == "surfaces" {
-                            for mut f in surfaces::live_task_frames() {
-                                rewrite_session(&mut f.body, &r4_session, &from);
-                                notifs.push(f);
-                            }
-                        }
                         tokio::spawn(async move {
                             for mut f in notifs {
                                 rewrite_session(&mut f.body, &from, &to);
