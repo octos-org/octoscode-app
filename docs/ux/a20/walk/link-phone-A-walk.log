@@ -1,0 +1,26 @@
+PASS the panel 'Open saved conversation' is offered — 'Open saved conversation'
+PASS panel: the workspace the link names — '/home/user/a20-link-ws'
+PASS panel: the server in use — 'http://127.0.0.1:8485'
+PASS panel: the conversation details start closed (the web's <details>)
+PASS panel: layout frame=328x377 centre_dx=0.0 margins L=16 R=16 labels=7 outside=0 overlaps=0 controls=2 under28=0 — {"ok": true, "frame": [16, 275, 328, 377], "centre_dx": 0.0, "margins": [16, 16], "labels": 7, "outside": [], "overlaps": [], "controls": 2, "under28": []}
+SHOT phone-11-link-panel
+CLICK b3_link_details r=[32, 498, 154, 30] at (109,513)
+PASS CLICK Conversation details
+PASS details: the Session and the Profile — 'a20:api:xray' 'a20'
+PASS details panel: layout frame=328x479 centre_dx=0.0 margins L=16 R=16 labels=11 outside=0 overlaps=0 controls=2 under28=0 — {"ok": true, "frame": [16, 224, 328, 479], "centre_dx": 0.0, "margins": [16, 16], "labels": 11, "outside": [], "overlaps": [], "controls": 2, "under28": []}
+SHOT phone-11b-link-details
+CLICK b3_link_open r=[180, 654, 148, 34] at (254,671)
+PASS CLICK Open conversation
+PASS refused on the panel, with both workspaces — "Not opened: the server resolves the saved link's workspace to a different folder." 'Saved link: \n/home/user/a20-link-ws' 'On the server: \n/home/user/a20-real-ws'
+PASS wire: the precondition read the server's attestation (session/list {cwd: <link>})
+PASS wire: NO session/open for the linked Session — []
+PASS wire: NO session/hydrate for the linked Session — []
+PASS the link stays on the panel (Open conversation offered again)
+PASS refused panel: layout frame=328x631 centre_dx=0.0 margins L=16 R=16 labels=14 outside=0 overlaps=0 controls=2 under28=0 — {"ok": true, "frame": [16, 148, 328, 631], "centre_dx": 0.0, "margins": [16, 16], "labels": 14, "outside": [], "overlaps": [], "controls": 2, "under28": []}
+SHOT phone-12-link-refused
+CLICK b3_link_dismiss r=[63, 730, 109, 34] at (118,747)
+PASS CLICK Dismiss link
+PASS dismissed: the panel closes, the conversation shows
+PASS wire: still nothing opened for the link
+SHOT phone-13-link-dismissed
+== 18/18 checks passed

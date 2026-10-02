@@ -1,0 +1,7 @@
+PASS C: an invalid link says so — 'This conversation link is invalid'
+SHOT desktop-15-link-invalid
+CLICK b3_link_dismiss r=[680, 395, 109, 34] at (734,412)
+PASS C: CLICK Dismiss link
+PASS C: dismissed, normal entry
+PASS C: wire: nothing opened for it
+== 4/4 checks passed

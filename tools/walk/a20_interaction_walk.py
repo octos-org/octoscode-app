@@ -17,9 +17,11 @@ fixture's request log. Captures (<out>/<mode>-NN-*.png) feed the UX gate.
   cargo build -p octoscode-module --example a20_serve
   OCTOSCODE_APP_BIN=<host-bin> python3 tools/walk/a20_interaction_walk.py desktop|phone [port] [fport] [out]
 """
+import json
 import sys
 import time
 
+from a10_lib import checks_line, dialog_checks
 from a20_lib import run
 
 WALK = {
@@ -56,6 +58,30 @@ def header_is(w, title, secs=8):
     return w.wait(lambda: w.has_text(title), secs)
 
 
+def card_layout(w, name, frame_id, prefix):
+    """The takeover card's numeric UX checks (a10_lib.dialog_checks): every
+    label inside the card, no overlapping labels, controls >= 28 px, and the
+    card inside the module view with >= 12 px gutters."""
+    sn = w.snap()
+    c = dialog_checks(sn, frame_id, prefix, module=w.module_rect(sn))
+    mod, fr = w.module_rect(sn), c.get("frame")
+    gutters = bool(mod and fr) and fr[0] - mod[0] >= 12 and (mod[0] + mod[2]) - (fr[0] + fr[2]) >= 12
+    w.check(f"{name}: layout {checks_line(c)} gutters>=12={gutters}", bool(c.get("ok")) and gutters, json.dumps(c)[:240])
+
+
+def waiting_dot_layout(w, title):
+    """The Waiting dot sits ON its row: centred on the title's line (±3 px),
+    left of the title, inside the sidebar."""
+    sn = w.snap()
+    row = next((s for s in sn if s.get("i") == "sb_r_title" and w.shown(s) and (s.get("t") or "").startswith(title[:12])), None)
+    if row is None:
+        return w.check(f"layout: the '{title[:12]}…' row is shown", False)
+    cy = row["r"][1] + row["r"][3] / 2
+    dots = [s["r"] for s in sn if s.get("i") == "sb_st_wait" and w.shown(s) and abs(s["r"][1] + s["r"][3] / 2 - cy) < 14]
+    ok = bool(dots) and abs(dots[0][1] + dots[0][3] / 2 - cy) <= 3 and dots[0][0] + dots[0][2] <= row["r"][0]
+    w.check("layout: X's Waiting dot is centred on X's row, left of its title", ok, f"dot={dots[:1]} title={row['r']}")
+
+
 def walk(w):
     shot = lambda n: w.shot(f"{MODE}-{n}")
     w.sidebar_open()
@@ -70,6 +96,7 @@ def walk(w):
     w.check("wire: X's turn/start", w.wait(lambda: len(w.wire("turn/start", XID)) == 1, 8))
     card = w.wait(lambda: bool(w.visible("cv_ap_card")) and COMMAND in (w.text("cv_ap_cmd") or ""), 12)
     w.check("X: the approval takes X's composer over", card, repr(w.text("cv_ap_cmd")))
+    card_layout(w, "X's approval card", "cv_ap_card", ("cv_ap_",))
     shot("01-x-approval")
 
     # ---- Session Y on screen ------------------------------------------------
@@ -94,6 +121,7 @@ def walk(w):
     w.sidebar_open()
     w.check("X's row waits (its own approval)", w.wait(lambda: w.row_status(X), 6))
     w.check("Y's row does not wait on X's approval", not w.row_status(Y))
+    waiting_dot_layout(w, X)
     shot("03-sidebar-x-waits")
     if MODE == "phone":
         w.click("sidebar_toggle_hit")
@@ -104,6 +132,7 @@ def walk(w):
     w.check("wire: Y's turn/start", w.wait(lambda: len(w.wire("turn/start", YID)) == 1, 8))
     w.check("Y: its own question takes Y's composer over",
             w.wait(lambda: bool(w.visible("cv_q_card")) and w.text("cv_q_title") == "Which color would you like to pick?", 12))
+    card_layout(w, "Y's question card", "cv_q_card", ("cv_q_",))
     shot("04-y-question")
 
     # ---- back on X ----------------------------------------------------------
@@ -112,6 +141,7 @@ def walk(w):
             w.wait(lambda: any(p.get("include") == ["pending_approvals"] for p in w.wire("session/hydrate", XID)), 8))
     again = w.wait(lambda: bool(w.visible("cv_ap_card")) and COMMAND in (w.text("cv_ap_cmd") or "") and not w.visible("cv_q_card"), 12)
     w.check("X: its approval again, never Y's question", again)
+    card_layout(w, "X's restored approval card", "cv_ap_card", ("cv_ap_",))
     shot("05-x-approval-again")
     w.check("CLICK Approve once", w.click("cv_ap_once"))
     w.check("wire: exactly one approval/respond, to X with X's ids",
