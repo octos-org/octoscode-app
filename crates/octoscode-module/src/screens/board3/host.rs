@@ -17,13 +17,13 @@ use octoscode_store::Store;
 
 use super::ui::{Dsl, Frame};
 
-/// The board-3 dialogs (screens 1-7, 10-12; 8 and 9 are transcript-resident).
+/// The board-3 dialogs (screens 1, 4-7, 10-12; 8 and 9 are transcript-resident;
+/// screens 2-3 — Add workspace / create folder — are board 1's picker and
+/// folder browser, `screens::board1`, opened by the sidebar's + Add workspace).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Dialog {
     /// Screen 1 — Runtime inventory (`/tools`, `/mcp`).
     Inventory,
-    /// Screens 2-3 — Add workspace / Browse server folders.
-    Workspace,
     /// Screen 5 — the inspector (`/threads`, `/turn`, `/permissions`).
     Inspector,
     /// Screen 6 — Thinking effort (`/thinking`).
@@ -46,7 +46,6 @@ impl Dialog {
     pub fn from_id(id: &str) -> Option<Dialog> {
         Some(match id {
             "inventory" | "tools" => Dialog::Inventory,
-            "workspace" => Dialog::Workspace,
             "inspector" | "threads" => Dialog::Inspector,
             "thinking" => Dialog::Thinking,
             "resume" => Dialog::Resume,
@@ -66,7 +65,6 @@ pub struct State {
     pub open: Option<Dialog>,
     pub frame: Frame,
     pub inv: super::inventory::InvState,
-    pub ws: super::wscreate::WsState,
     pub insp: super::inspector::InspState,
     pub resume: super::resume::ResumeState,
     pub ck: super::checkpoints::CkState,
@@ -87,7 +85,6 @@ impl Default for State {
             open: None,
             frame: Frame::DESKTOP,
             inv: Default::default(),
-            ws: Default::default(),
             insp: Default::default(),
             resume: Default::default(),
             ck: Default::default(),
@@ -205,7 +202,6 @@ pub fn lower_open(store: &Store) -> Option<Lowered> {
     match open {
         Dialog::Fleet => super::fleetview::build(&mut d, &st.fleet, &st.frame, store),
         Dialog::Inventory => super::inventory::build(&mut d, &st.inv, &st.frame, store),
-        Dialog::Workspace => super::wscreate::build(&mut d, &st.ws, &st.frame, store),
         Dialog::Inspector => super::inspector::build(&mut d, &st.insp, &st.frame, store),
         Dialog::Thinking => super::thinking::build(&mut d, &st.frame, store),
         Dialog::Resume => super::resume::build(&mut d, &st.resume, &st.frame, store),
@@ -243,12 +239,6 @@ pub enum Job {
     SwitchLoad,
     /// `session/open` fresh.
     SwitchOpen(String),
-    /// `onboarding/workspace_list {path}`.
-    WsList(Option<String>),
-    /// `onboarding/workspace_create {parent, name}`.
-    WsCreate(String, String),
-    /// a fresh session at a cwd.
-    WsStart(String),
     /// `POST /api/upload` per selected image.
     ImagesUpload,
     /// `profile/sub_providers/list` (the Start form's models).
@@ -295,13 +285,6 @@ pub fn open(dialog: Dialog) -> Outcome {
         Dialog::Inventory => {
             st.inv.on_open();
             Outcome::Spawn(Job::InventoryLoad)
-        }
-        Dialog::Workspace => {
-            st.ws.view = super::wscreate::View::Pick;
-            st.ws.error = None;
-            st.ws.busy = false;
-            st.ws.path_snap = st.ws.path.clone();
-            Outcome::Done
         }
         Dialog::Inspector => {
             st.insp.loading = true;
@@ -406,9 +389,6 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
     if action.starts_with("b3.inv.") {
         return super::inventory::perform(&mut st.inv, action, index);
     }
-    if action.starts_with("b3.ws.") {
-        return super::wscreate::perform(&mut st.ws, action, index, store);
-    }
     if action.starts_with("b3.insp.") {
         return super::inspector::perform(&mut st.insp, action);
     }
@@ -436,7 +416,6 @@ pub fn input_changed(key: &str, text: &str) {
     let mut st = state();
     match key.split('.').next().unwrap_or("") {
         "inv" => super::inventory::input_changed(&mut st.inv, key, text),
-        "ws" => super::wscreate::input_changed(&mut st.ws, key, text),
         "resume" => super::resume::input_changed(&mut st.resume, key, text),
         "fleet" => super::fleetview::input_changed(&mut st.fleet, key, text),
         _ => {}
@@ -448,7 +427,6 @@ pub fn input_returned(key: &str, store: &Store) -> Outcome {
     let out = {
         let mut st = state();
         match key.split('.').next().unwrap_or("") {
-            "ws" => super::wscreate::input_returned(&mut st.ws, key, store),
             "resume" if key == "resume.confirm" => super::resume::perform(&mut st.resume, "b3.resume.confirm", 0),
             _ => Outcome::Done,
         }
@@ -582,10 +560,6 @@ pub fn job_unavailable(job: &Job) {
             st.switch.opening = None;
             st.switch.error = Some(msg);
         }
-        Job::WsList(_) | Job::WsCreate(..) | Job::WsStart(_) => {
-            st.ws.busy = false;
-            st.ws.error = Some(msg);
-        }
         Job::ImagesUpload => st.img.error = Some(msg),
         Job::FleetLanes => st.fleet.lanes_loading = false,
         Job::FleetStart(..) | Job::FleetSteer(..) => {
@@ -643,9 +617,6 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         Job::CopyMarkdown => super::checkpoints::copy_markdown(conv).await,
         Job::SwitchLoad => super::switcher::load(conv).await,
         Job::SwitchOpen(id) => super::switcher::open(conv, id).await,
-        Job::WsList(path) => super::wscreate::list(conv, path).await,
-        Job::WsCreate(parent, name) => super::wscreate::create_folder(conv, parent, name).await,
-        Job::WsStart(cwd) => super::wscreate::start(conv, cwd).await,
         Job::ImagesUpload => super::images::upload(conv).await,
         Job::FleetLanes => super::fleetview::load_lanes(conv).await,
         Job::FleetStart(model, brief) => super::fleetview::start(conv, model, brief).await,
@@ -679,10 +650,11 @@ mod tests {
 
     #[test]
     fn every_dialog_id_round_trips_and_routes_are_b3_only() {
-        for id in ["inventory", "workspace", "inspector", "thinking", "resume", "images", "history", "switcher"] {
+        for id in ["inventory", "inspector", "thinking", "resume", "images", "history", "switcher", "fleet", "vim"] {
             assert!(Dialog::from_id(id).is_some(), "{id}");
         }
         assert!(routes("b3.close"));
+        assert!(Dialog::from_id("workspace").is_none(), "screens 2-3 are board 1's picker");
         assert!(!routes("thinking.effort.low"), "D3b's card ids stay with board3::owns");
     }
 

@@ -12,8 +12,7 @@
 //! Covered: runtime inventory (both modes + the live filter), the inspector
 //! (`/threads`: typed `thread/graph/get` at current head + scopes), resume
 //! (scoped `session/list`, exact-title gate, `session/open` with no replay
-//! cursor), the switcher (fresh open), the workspace picker + browser
-//! (`onboarding/workspace_list|create`, `session/open {cwd}`), Fleet
+//! cursor), the switcher (fresh open), Fleet
 //! (`profile/sub_providers/list`, prepare -> driver seat -> one dispatch,
 //! steer), the strip's `session/status/read`, the reasoning effort on
 //! `turn/start`, image uploads (`POST /api/upload` -> `turn/start` media),
@@ -427,46 +426,6 @@ async fn the_switcher_opens_another_session_fresh_and_the_current_row_only_close
 }
 
 #[tokio::test]
-async fn add_workspace_browses_creates_a_folder_and_starts_a_session_there() {
-    let _g = lock();
-    let server = FakeServer::start().await;
-    let (conv, _ev) = connected(&server).await;
-
-    host::open(host::Dialog::Workspace);
-    // Fail closed without the advertised feature: no listing request.
-    assert_eq!(host::perform("b3.ws.browse", 0, &conv.store), Outcome::Done);
-    assert!(server.params_of("onboarding/workspace_list").is_empty());
-    conv.store.set_capabilities(vec!["onboarding.workspace_browse.v1".into()]);
-    let job = spawn_of(host::perform("b3.ws.browse", 0, &conv.store));
-    host::run(job, &conv).await.expect("listing");
-    assert_eq!(server.params_of("onboarding/workspace_list")[0], json!({"path": null}));
-    assert_eq!(host::state().ws.listing.as_ref().unwrap().hidden_skipped, 2);
-    // The web's pre-validation refuses before the wire.
-    host::input_changed("ws.folder", "a/b");
-    assert_eq!(host::perform("b3.ws.create", 0, &conv.store), Outcome::Done);
-    assert!(host::state().ws.folder_error.is_some());
-    assert!(server.params_of("onboarding/workspace_create").is_empty());
-    host::input_changed("ws.folder", "notes");
-    let job = spawn_of(host::perform("b3.ws.create", 0, &conv.store));
-    assert_eq!(job, Job::WsCreate("/home/user/src".into(), "notes".into()));
-    host::run(job, &conv).await.expect("create");
-    assert_eq!(server.params_of("onboarding/workspace_create")[0], json!({"parent": "/home/user/src", "name": "notes"}));
-    assert_eq!(
-        server.params_of("onboarding/workspace_list").last().unwrap(),
-        &json!({"path": "/home/user/src/notes"}),
-        "the browser moves into the new folder"
-    );
-    // "Use this folder" fills the path; Start opens a NEW session there.
-    host::perform("b3.ws.use_current", 0, &conv.store);
-    let job = spawn_of(host::perform("b3.ws.start", 0, &conv.store));
-    assert_eq!(job, Job::WsStart("/home/user/src/notes".into()));
-    host::run(job, &conv).await.expect("start");
-    let open = server.params_of("session/open").last().cloned().unwrap();
-    assert_eq!(open["cwd"], json!("/home/user/src/notes"));
-    assert_ne!(open["session_id"], json!("a4:main"), "a fresh session id");
-}
-
-#[tokio::test]
 async fn fleet_start_prepares_seats_dispatches_once_and_steers_its_working_peer() {
     let _g = lock();
     let server = FakeServer::start().await;
@@ -618,40 +577,4 @@ async fn warnings_and_delivered_files_become_their_own_transcript_rows() {
     assert!(f.contains("report.pdf") && f.contains("Download"), "{f}");
     assert!(!f.contains("/home/user/src/octos/out/report.pdf\"\n"), "never the raw path as body text");
     assert_eq!(rows::primary_action(file).as_deref().map(|a| a.starts_with("b3.file.download#")), Some(true));
-}
-
-#[tokio::test]
-async fn the_picker_starts_at_the_server_wd_and_a_remembered_workspace_and_the_browser_drills_in_and_up() {
-    use octoscode_module::screens::recents;
-    let _g = lock();
-    let server = FakeServer::start().await;
-    let (conv, _ev) = connected(&server).await;
-
-    // The server's working directory is the picker's first entry.
-    host::open(host::Dialog::Workspace);
-    let job = spawn_of(host::perform("b3.ws.wd", 0, &conv.store));
-    assert_eq!(job, Job::WsStart("/home/user/src/octos".into()));
-    host::run(job, &conv).await.expect("start at the server wd");
-    assert_eq!(server.params_of("session/open").last().unwrap()["cwd"], json!("/home/user/src/octos"));
-    // ...remembered only after that open succeeded: the next picker lists it
-    // first, and its row starts there again.
-    let remembered = recents::load_recent_workspaces(&*recents::store(), &recents::endpoint());
-    assert_eq!(remembered.first().map(|r| r.path.as_str()), Some("/home/user/src/octos"));
-    host::open(host::Dialog::Workspace);
-    let job = spawn_of(host::perform("b3.ws.recent", 0, &conv.store));
-    assert_eq!(job, Job::WsStart("/home/user/src/octos".into()));
-
-    // The browser drills into a folder and back up to the parent.
-    conv.store.set_capabilities(vec!["onboarding.workspace_browse.v1".into()]);
-    let job = spawn_of(host::perform("b3.ws.browse", 0, &conv.store));
-    host::run(job, &conv).await.expect("listing");
-    let job = spawn_of(host::perform("b3.ws.enter", 0, &conv.store));
-    assert_eq!(job, Job::WsList(Some("/home/user/src/octos".into())));
-    host::run(job, &conv).await.expect("drill in");
-    assert_eq!(
-        server.params_of("onboarding/workspace_list").last().unwrap(),
-        &json!({"path": "/home/user/src/octos"})
-    );
-    let job = spawn_of(host::perform("b3.ws.up", 0, &conv.store));
-    assert_eq!(job, Job::WsList(Some("/home/user".into())));
 }

@@ -1014,6 +1014,21 @@ script_mod! {
             }
         }
 
+        // #A2 — board 1's dock (pairing p4-01..05, the provider editor
+        // p4-06/07, the workspace picker and the folder browser p4-08/09).
+        // Last in this Overlay so it paints above everything; visible only
+        // while a board-1 surface is open (`screens::board1::is_open`), so it
+        // never shadows the chrome's clicks otherwise. Its content is the
+        // native view `screens::board1::view` builds (a centred dialog on a
+        // desktop window, a full-width sheet on a phone).
+        board1_dock := View {
+            width: Fill height: Fill
+            visible: false
+            board1_splash := Splash {
+                width: Fill height: Fill
+            }
+        }
+
         // A4 — the native board-3 dialogs (inventory, workspace create,
         // fleet, inspector, thinking effort, resume, images, history,
         // session switcher). LAST in the Overlay so the open dialog and its
@@ -1239,15 +1254,6 @@ fn seed_synthetic_live(store: &Arc<Store>) {
         p.origin_session_id = Some(first.clone());
         store.domains.peer.upsert(p);
     }
-}
-
-/// #D1t: the two board-1 transport effects, so ONE `rt.spawn` arm can carry
-/// either screen's typed effect across the await point (the two enums are
-/// unrelated types, so the `match` needs a common carrier).
-#[derive(Debug)]
-enum D1Effect {
-    Provider(screens::provider::Effect),
-    Browser(screens::browser::Effect),
 }
 
 #[derive(Script, ScriptHook, Widget)]
@@ -1524,6 +1530,12 @@ impl OctoscodeView {
         });
 
         self.runtime = Some(runtime);
+        // #A2: a pairing link handed over at launch (`OCTOS_PAIRING_LINK`,
+        // the native analog of the web's `?octos=&pair=` address) is read
+        // once and exchanged at once — no form, no token box (walk 108).
+        for work in screens::board1::launch_link() {
+            self.perform_board1_work(cx, work);
+        }
     }
 
     /// Run one binding action with the item index that emitted it (card #21 §3).
@@ -1537,6 +1549,14 @@ impl OctoscodeView {
     /// the host's, not the module's, so the write must happen here rather than
     /// inside a resolver. #35d.
     fn perform_action(&mut self, cx: &mut Cx, action: &str, index: usize) {
+        // #A2: board 1's ids (pairing, the provider editor, the picker, the
+        // folder browser and their openers) have one owner, ahead of every
+        // other table and of the connection guard — pairing runs BEFORE a
+        // connection exists.
+        if screens::board1::owns(action) {
+            self.perform_board1(cx, action, None);
+            return;
+        }
         // A4 — the native board-3 surfaces own every `b3.*` id (one owner):
         // UI-local first (no connection needed to switch a tab or close),
         // then the job/clipboard the action asked for.
@@ -2060,44 +2080,6 @@ impl OctoscodeView {
             });
             return;
         }
-        // #D1t: board 1's provider editor and workspace browser. Both cards
-        // already mounted (`lib.rs:2459-2460` `lower_mounted`) but until this
-        // dispatch existed their transport effects had NO executor, so
-        // `prov.test` / `provider.save` / `browser.use` / `browser.create` were
-        // reachable only from a test and RULES 3 scored them missing. The
-        // pairing card is deliberately NOT here: it has no typed method (see
-        // .peer/report-D1t.md §pairing).
-        if screens::provider::is_action(action) || screens::browser::is_action(action) {
-            // Apply to the LIVE state first; the transport effect (or None) is
-            // what actually talks to the server. `perform_action` carries no
-            // `value` (lib.rs:1513), so the input ids resolve with `None` here —
-            // the live card's own fields are already in each module's state.
-            let is_provider = screens::provider::is_action(action);
-            let effect = if is_provider {
-                screens::provider::perform(action, None)
-                    .map(D1Effect::Provider)
-            } else {
-                screens::browser::perform(action, None).map(D1Effect::Browser)
-            };
-            let Some(effect) = effect else { return };
-            // `action` is a method-lifetime `&str`, so the spawned task needs its
-            // OWN copy (E0521) — it is only the log line's subject.
-            let action = action.to_string();
-            rt.spawn(async move {
-                let out = match effect {
-                    D1Effect::Provider(e) => {
-                        screens::provider::perform_transport(&conv, e).await
-                    }
-                    D1Effect::Browser(e) => screens::browser::perform_transport(&conv, e).await,
-                };
-                if let Err(e) = out {
-                    ::log::warn!("octoscode: screens: {action:?}: {e}");
-                }
-                // Repaint: the transport arm writes the card's own state.
-                SignalToUI::set_ui_signal();
-            });
-            return;
-        }
         match effect {
             actions::Effect::Refresh => {
                 rt.spawn(async move {
@@ -2200,6 +2182,106 @@ impl OctoscodeView {
                 crate::screens::palette::Effect::CopyReport(_) => {}
                 crate::screens::palette::Effect::Retry => {}
             },
+        }
+    }
+
+    /// #A2: run one board-1 event (a click, an input's live text, a Return, a
+    /// QR answer) through its owner, then perform the work it asks for.
+    fn perform_board1(&mut self, cx: &mut Cx, action: &str, value: Option<&str>) {
+        if value.is_none() {
+            makepad_widgets::log!("[octoscode] board1 action: {action}");
+        }
+        for work in screens::board1::route(action, value) {
+            self.perform_board1_work(cx, work);
+        }
+    }
+
+    /// #A2: one board-1 [`screens::board1::Work`]. The UI-integration halves
+    /// (hand a token to the connect path, prefill the form, the platform
+    /// scanner, Forget) happen here; the protocol halves run on the runtime.
+    fn perform_board1_work(&mut self, cx: &mut Cx, work: screens::board1::Work) {
+        use screens::board1::Work;
+        match work {
+            Work::Connect { server, token } => {
+                // The production connect path (the Connect screen's own):
+                // fill the form's draft, then `connect`. The failure fields
+                // are cleared first so a failure seen afterwards is THIS
+                // attempt's (board1::note_context reads them).
+                let screens_ui = self.bridge.lock().unwrap().screens.clone();
+                if let Ok(mut ui) = screens_ui.lock() {
+                    ui.server = server;
+                    ui.token = token;
+                    ui.failure = None;
+                    ui.raw_error = None;
+                    ui.endpoint_error = None;
+                }
+                self.connect_key = None;
+                self.perform_screen_action("connect", None);
+            }
+            Work::LeaveToForm { server } => {
+                if let Some(server) = server {
+                    let screens_ui = self.bridge.lock().unwrap().screens.clone();
+                    let mut ui = screens_ui.lock().unwrap_or_else(|e| e.into_inner());
+                    ui.endpoint_error = screens::connect::endpoint_error(&server);
+                    ui.server = server;
+                }
+                self.connect_key = None;
+            }
+            Work::Scan => cx.show_qr_scanner(),
+            Work::Forget => {
+                // Walk 112: the credential goes and the connect form returns
+                // empty — the same Offline the drawer's Disconnect sets.
+                let (store, screens_ui) = {
+                    let b = self.bridge.lock().unwrap();
+                    (b.store.clone(), b.screens.clone())
+                };
+                if let Ok(mut ui) = screens_ui.lock() {
+                    ui.token.clear();
+                }
+                store.set_connection("Offline".to_owned(), false);
+                self.connect_key = None;
+                ::log::info!("octoscode: board1 forget — the paired credential is gone");
+            }
+            other => {
+                let conv = self.bridge.lock().unwrap().conv.clone();
+                match self.runtime.as_ref() {
+                    Some(rt) => screens::board1::spawn(other, rt, conv),
+                    None => makepad_widgets::log!("[octoscode] board1 {other:?}: no runtime"),
+                }
+            }
+        }
+    }
+
+    /// #A2: mount board 1's dock (and its Settings rows) at the module's
+    /// own size; feed it the connection state; run the work an async task
+    /// left. Called from `sync_chrome`, so a resize re-lays it out too.
+    fn sync_board1(&mut self, cx: &mut Cx) {
+        let ctx = {
+            let b = self.bridge.lock().unwrap();
+            let ui = b.screens.lock().unwrap();
+            screens::board1::Context {
+                live: b.store.is_live(),
+                server: ui.server.clone(),
+                connect_failed: ui.failure.is_some() || ui.raw_error.is_some(),
+                capabilities: b.store.capabilities(),
+                methods: b.store.domains.config.supported_methods(),
+            }
+        };
+        screens::board1::note_context(&ctx);
+        for work in screens::board1::take_pending() {
+            self.perform_board1_work(cx, work);
+        }
+        let size = self.view.area().rect(cx).size;
+        let open = screens::board1::is_open();
+        self.view.widget(cx, ids!(board1_dock)).set_visible(cx, open);
+        if let Some(dsl) = screens::board1::view(size.x, size.y) {
+            let splash = self.view.splash(cx, ids!(board1_splash));
+            if let Err(e) = self.mounts.mount(cx, &splash, &dsl) {
+                makepad_widgets::log!("[octoscode] board1 mount: {e}");
+            }
+        }
+        if screens::board1::take_ime_reset() {
+            cx.hide_text_ime();
         }
     }
 
@@ -2653,22 +2735,24 @@ impl OctoscodeView {
                 self.chrome.attention = Some(now);
             }
         }
-        // A3: `+ Add workspace` docks the folder browser IN-APP (the web's
-        // "Add workspace" opens the workspace picker, ProductSidebar.tsx:578).
-        // A4: the web opens the workspace PICKER here (`App.tsx:2318-2320`,
-        // `setWorkspacePicker({open: true, view: "add"})`) — board-3 screen 2,
-        // whose "Browse…" is the folder browser (screen 3).
+        // A3: `+ Add workspace` opens the workspace picker (the web's
+        // "Add workspace", ProductSidebar.tsx:578 -> App.tsx onAddWorkspace ->
+        // NewSessionWorkspacePicker view "add"). #A2: board 1's native folder
+        // browser over its picker (`screens::board1` "b1.open.add").
         if screens::sidebar::take_add_request() {
-            // The modal picker replaces the phone drawer (a no-op on desktop).
+            makepad_widgets::log!("[octoscode] dock: folder browser (workspace.add)");
+            // The web collapses the compact drawer first (App.tsx:2318-2321).
             screens::sidebar::set_drawer_open(false);
-            let _ = screens::board3::host::open(screens::board3::host::Dialog::Workspace);
-            makepad_widgets::log!("[octoscode] board3 open: workspace picker (workspace.add)");
+            self.perform_board1(cx, "b1.open.add", None);
         }
         if let Some(which) = self.docked_screen() {
             // #28e6: connect is NOT mounted here — on first run it mounts
             // into THIS dock via the !live path (below); the other two setup
             // screens have no home yet. The handler keeps the #29d screens.
             let screen_splash = self.view.splash(cx, ids!(screen_splash));
+            // #A2: the board-1 surface an env name opened (performed below,
+            // once the ladder's borrows are released).
+            let mut board1_env: Vec<screens::board1::Work> = Vec::new();
             let store = { self.bridge.lock().unwrap().store.clone() };
             // #M1: `models::lower` needs a `Ctx` (store + the flow's UI state).
             // The bridge carries both, and the bridge lock must be released
@@ -2757,18 +2841,14 @@ impl OctoscodeView {
                     );
                 }
                 Ok(dsl)
-            } else if let Some(set) = phase4_screen(&which) {
-                // #D1: the nine phase4 cards (pairing p4-01..05, the provider
-                // editor p4-06/07, the workspace browser p4-08/09). They live
-                // under design/stage-b/phase4, not stage-b/setup, so they miss
-                // the theme/palette lookup above and need their own arm. WHICH
-                // card of the set mounts is the set's own live state, so the
-                // name only has to say who owns it.
-                match set {
-                    Phase4Set::Pairing => screens::pairing::lower_mounted(),
-                    Phase4Set::Provider => screens::provider::lower_mounted(),
-                    Phase4Set::Browser => screens::browser::lower_mounted(),
-                }
+            } else if phase4_screen(&which).is_some() || which == "picker" {
+                // #A2: board 1 (p4-01..09, and the picker that opens the
+                // browser) mounts in its OWN dock as native views
+                // (`screens::board1`), not here: the env name only OPENS that
+                // surface in that state, once — the real entries are clicks.
+                // This dock stays empty (and hidden, see sync_chrome).
+                board1_env = screens::board1::open_from_env(&which);
+                Ok(String::new())
             } else if screens::sidebar::card_for(&which).is_some() {
                 // #D2a: board 2's sidebar half (screens 1-5). Without this arm
                 // the five phase4n2 cards were reachable from NO mount path, so
@@ -2794,6 +2874,9 @@ impl OctoscodeView {
             };
             if let Err(e) = r {
                 makepad_widgets::log!("[octoscode] screen mount: {e}");
+            }
+            for work in board1_env {
+                self.perform_board1_work(cx, work);
             }
         }
         // #M2 — MOUNT the fleet card (autonomy-06). This is the call the card is
@@ -2871,6 +2954,9 @@ impl OctoscodeView {
                     let b = self.bridge.lock().unwrap();
                     let ui = b.screens.lock().unwrap();
                     screens::connect::lower_screen(screens::connect::Screen::Connect, &ui)
+                        // #A2: the Connect screen's way into pairing (p4-01),
+                        // "Pair with a link instead" under the token hint.
+                        .map(|dsl| screens::board1::with_connect_entry(&dsl))
                 };
                 match lowered {
                     Ok(dsl) => {
@@ -3461,6 +3547,8 @@ impl OctoscodeView {
             let blocked = fleet.get(i).map(|t| t.contains("Blocked")).unwrap_or(false);
             self.view.widget(cx, &[*dot]).set_visible(cx, blocked);
         }
+        // #A2: board 1's dock (visibility + mount at the module's size).
+        self.sync_board1(cx);
     }
 
 }
@@ -3793,6 +3881,13 @@ impl Widget for OctoscodeView {
             Event::WindowLostFocus(_) => self.chrome.unfocused = true,
             Event::WindowGotFocus(_) => self.chrome.unfocused = false,
             Event::Actions(actions) => {
+                // #A2: board 1's events — the dock's controls and inputs, the
+                // always-mounted entries (the Connect screen's pairing link,
+                // the Settings rows) and the platform's QR answer.
+                let board1_events = screens::board1::collect(cx, &self.view, actions);
+                for (action, value) in board1_events {
+                    self.perform_board1(cx, &action, value.as_deref());
+                }
                 // Card #21c item 5: the ONE composer is the mounted #16
                 // component. Its own input is a real `TextInput` (id
                 // `i0_composer_0` inside the mounted tree); its `changed` action
@@ -4159,6 +4254,17 @@ impl Widget for OctoscodeView {
                 makepad_widgets::log!("[octoscode] board3 images dropped: {}", paths.len());
                 screens::board3::host::files_chosen(&paths);
                 self.sync_labels(cx);
+            }
+            // #A2: while a board-1 dialog is open its fields own the
+            // keyboard — Return must not submit the composer's draft and "/"
+            // must not open the palette. Escape steps back (the web's
+            // ModalSurface `onEscape`).
+            Event::KeyDown(e) if screens::board1::is_open() => {
+                if e.key_code == KeyCode::Escape {
+                    let back = screens::board1::escape_action();
+                    self.perform_board1(cx, back, None);
+                    self.sync_labels(cx);
+                }
             }
             Event::KeyDown(e) if e.key_code == KeyCode::Escape
                 && screens::board3::host::is_open() =>

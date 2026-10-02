@@ -977,6 +977,30 @@ script_mod! {
                         }
                         OcRowHelp{text: "Shows the model's reasoning while it works"}
                     }
+                    // #A2 (board 1 screens 6-7): the web's "Model providers"
+                    // (ModelManagementSection.tsx:1263): its Edit opens the
+                    // provider editor (screens::board1 `b1.open.provider`).
+                    OcRule{}
+                    View{
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        View{
+                            width: Fill height: 34 flow: Overlay
+                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Model providers"}}
+                            View{
+                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                View{
+                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                    OcLabel{text: "Edit" draw_text +: {text_style +: {font_size: 9.75}}}
+                                    b1_set_provider := OcHit{draw_bg.border_radius: 9.0}
+                                }
+                            }
+                        }
+                        View{
+                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                            OcRowHelp{text: "The provider route and its API key"}
+                        }
+                    }
                 }
 
                 // ----- Sandbox (board 9): the new-chat sandbox defaults.
@@ -1062,6 +1086,30 @@ script_mod! {
                         View{
                             width: Fill height: Fit flow: Down padding: Inset{right: 124}
                             OcRowHelp{text: "Leave this server; it stays remembered"}
+                        }
+                    }
+                    // #A2 (board 1 screen 5): how this device signs in — the
+                    // pairing record and Forget (screens::board1
+                    // `b1.open.connection`).
+                    OcRule{}
+                    View{
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        View{
+                            width: Fill height: 34 flow: Overlay
+                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "This device"}}
+                            View{
+                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                View{
+                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                    OcLabel{text: "Details" draw_text +: {text_style +: {font_size: 9.75}}}
+                                    b1_set_connection := OcHit{draw_bg.border_radius: 9.0}
+                                }
+                            }
+                        }
+                        View{
+                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                            OcRowHelp{text: "Pairing and the saved access token"}
                         }
                     }
                 }

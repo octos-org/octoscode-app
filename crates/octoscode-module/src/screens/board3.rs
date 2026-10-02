@@ -29,7 +29,6 @@ pub mod switcher;
 pub mod thinking;
 pub mod ui;
 pub mod vim;
-pub mod wscreate;
 
 const CARDS: &str = "stage-b/phase4-new3/cards";
 
