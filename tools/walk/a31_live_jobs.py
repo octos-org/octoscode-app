@@ -11,8 +11,9 @@ Session.").
 
     OCTOSCODE_APP_BIN=<host octosense> python3 tools/walk/a31_live_jobs.py <app-port> <serve-port> <outdir> [desktop|phone]
 
-The serve's data is a COPY of ~/home/oa.noindex/live-gate/data under the
-worktree's tmp/ (deleted afterwards); a random token lives in a mode-600 file
+The serve's data is a COPY of the live-gate dsflash data ($A31_LIVE_DATA, by
+default the integrator's live-gate/data; the octos binary is $A31_OCTOS, by
+default p0-build's pinned build) under the worktree's tmp/ (deleted afterwards); a random token lives in a mode-600 file
 and reaches the serve as OCTOS_AUTH_TOKEN and the app as OCTOS_BEARER only —
 never printed, logged or saved; every written file is scanned for it (whole,
 first 8, last 8) before the script returns.
@@ -34,8 +35,9 @@ from a10_lib import Walk, dialog_checks, checks_line, scrub  # noqa: E402
 ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 APP_PORT, SERVE_PORT, OUT = int(sys.argv[1]), int(sys.argv[2]), pathlib.Path(sys.argv[3])
 MODE = sys.argv[4] if len(sys.argv) > 4 else "desktop"
-OCTOS = pathlib.Path.home() / "home/oa.noindex/p0-build/tmp/octos-target/release/octos"
-SRC_DATA = pathlib.Path.home() / "home/oa.noindex/live-gate/data"
+_NOINDEX = pathlib.Path.home() / "home" / "oa.noindex"
+OCTOS = pathlib.Path(os.environ.get("A31_OCTOS") or _NOINDEX / "p0-build/tmp/octos-target/release/octos")
+SRC_DATA = pathlib.Path(os.environ.get("A31_LIVE_DATA") or _NOINDEX / "live-gate/data")
 P = "dlg_skills_"
 
 
