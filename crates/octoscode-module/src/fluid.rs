@@ -630,9 +630,17 @@ pub fn worked_for(tok: &str, label_text: &str, tools: usize, open: bool, m: &Met
         n => format!("{n} tool calls"),
     };
     let st = style(Face::Regular, s.small, s.small_line);
-    let mut row = label(&format!("i{tok}_workedfor_label"), &text, &st, MUTED, "width: Fit height: Fit");
+    // A turn with no measured duration (no flow timing: a history row, a
+    // capture seed) shows only its count — never a dangling "· 3 tool calls".
+    let mut row = if text.is_empty() {
+        String::new()
+    } else {
+        label(&format!("i{tok}_workedfor_label"), &text, &st, MUTED, "width: Fit height: Fit")
+    };
     if !count.is_empty() {
-        row.push_str(&label(&format!("i{tok}_workedfor_dot"), "·", &st, MUTED, "width: Fit height: Fit"));
+        if !text.is_empty() {
+            row.push_str(&label(&format!("i{tok}_workedfor_dot"), "·", &st, MUTED, "width: Fit height: Fit"));
+        }
         row.push_str(&label(&format!("i{tok}_workedfor_count"), &count, &st, MUTED, "width: Fit height: Fit"));
         row.push_str(&svg(
             &format!("i{tok}_workedfor_chev"),
@@ -1335,6 +1343,18 @@ mod tests {
                 assert!(!head.contains("visible"), "an Svg cannot take `visible`: {head}");
             }
         }
+    }
+
+    /// Measured on the Chinese capture seed: a settled turn with no
+    /// duration drew "· 3 tool calls" — a dot with nothing before it.
+    #[test]
+    fn a_worked_row_without_a_duration_shows_only_its_count() {
+        let m = desk();
+        let dsl = worked_for("0", "", 3, true, &m);
+        assert!(dsl.contains("text: \"3 tool calls\""), "{dsl}");
+        assert!(!dsl.contains("text: \"·\""), "no dangling separator: {dsl}");
+        let timed = worked_for("0", "Worked for 2s ›", 3, true, &m);
+        assert!(timed.contains("text: \"Worked for 2s\"") && timed.contains("text: \"·\""));
     }
 
     #[test]
