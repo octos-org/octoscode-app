@@ -133,9 +133,21 @@ pub fn session_event(n: &UiNotification) -> Option<(String, PeerSessionEvent)> {
                 },
             )
         }
-        UiNotification::ApprovalDecided(e) => (e.session_id.0.clone(), PeerSessionEvent::AttentionResolved),
-        UiNotification::ApprovalAutoResolved(e) => (e.session_id.0.clone(), PeerSessionEvent::AttentionResolved),
-        UiNotification::ApprovalCancelled(e) => (e.session_id.0.clone(), PeerSessionEvent::AttentionResolved),
+        // A30: each resolution names the approval it settles, so a late or
+        // duplicate one never clears a NEWER pending request (the store's
+        // `AttentionResolvedFor`).
+        UiNotification::ApprovalDecided(e) => (
+            e.session_id.0.clone(),
+            PeerSessionEvent::AttentionResolvedFor { request_id: e.approval_id.0.to_string() },
+        ),
+        UiNotification::ApprovalAutoResolved(e) => (
+            e.session_id.0.clone(),
+            PeerSessionEvent::AttentionResolvedFor { request_id: e.approval_id.0.to_string() },
+        ),
+        UiNotification::ApprovalCancelled(e) => (
+            e.session_id.0.clone(),
+            PeerSessionEvent::AttentionResolvedFor { request_id: e.approval_id.0.to_string() },
+        ),
         UiNotification::ProgressUpdated(e) => {
             let meta = serde_json::to_value(&e.metadata).ok()?;
             if meta.get("kind").and_then(Value::as_str) != Some("token_cost_update") {

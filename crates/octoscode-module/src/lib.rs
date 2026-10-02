@@ -42,6 +42,9 @@ pub mod a12_host;
 // A26 — the live re-theme (footer theme toggle, display palettes), the
 // sidebar footer entries and the error toasts (impl OctoscodeView).
 pub mod a26_host;
+// A30 — the sidebar peer dock's host half: mount, taps, ⌥P/⌥Y/⌥N, its clock
+// (impl OctoscodeView, like a9_host).
+pub mod a30_host;
 pub mod bindings;
 pub mod cards;
 // A7: the highlighted code block body widget.
@@ -253,6 +256,14 @@ script_mod! {
                         width: Fill height: Fit visible: false
                         plan_splash := Splash { width: Fill height: Fit }
                     }
+                    // A29 — the /btw aside of the ACTIVE Session, above its
+                    // composer (web `App.tsx:2707`, inside `composer-wrap`;
+                    // screens/btw.rs). Hidden while the Session holds none.
+                    aside_row := View {
+                        width: Fill height: Fit visible: false
+                        padding: Inset{bottom: 10}
+                        aside_splash := Splash { width: Fill height: Fit }
+                    }
                     takeover_row := View {
                         width: Fill height: Fit visible: false
                         takeover_splash := Splash { width: Fill height: Fit }
@@ -354,6 +365,13 @@ script_mod! {
                 // New chat, Search chats, By workspace | All + Recent, and
                 // the tree (`thread_list`): chrome.rs `OcSidebarBody`.
                 oc_sidebar_body := mod.widgets.OcSidebarBody {}
+                // A30: the peer dock (web ProductSidebar.tsx:959-967) —
+                // between the session tree and the footer; mounted by
+                // a30_host.rs `sync_peer_dock`, hidden with no peers.
+                peer_dock_row := View {
+                    width: Fill height: Fit visible: false
+                    peer_dock_splash := Splash { width: Fill height: Fit }
+                }
                 // A5 (judge, board 2): the old GOALS / LOOPS / FLEET sections
                 // (card #28e) are gone — they are not in the approved board-2
                 // sidebar and squeezed its tree. Goals, loops and monitors
@@ -1341,6 +1359,17 @@ pub struct OctoscodeView {
     /// A3: the window's inner height (the settings frame's max height).
     #[rust]
     window_h: f64,
+    /// A29 — the transcript's at-end state at its last two draws (a growing
+    /// list alternates a growth draw and its tail correction).
+    #[rust]
+    tail_seen: [bool; 2],
+    /// A29 — while the aside panel shows over a transcript that was following
+    /// its newest row, the transcript keeps following it (the web's
+    /// ResizeObserver, `use-conversation-scroll.ts:158-171`): the person's
+    /// scroll travel when the hold was armed. A scroll or a press in the
+    /// transcript releases it, and so does the panel going away.
+    #[rust]
+    tail_hold: Option<f64>,
     /// A9 — the open A9 surface's taps and text inputs (`a9_splash`).
     #[rust]
     a9_taps: Vec<(LiveId, String)>,
@@ -1364,6 +1393,16 @@ pub struct OctoscodeView {
     toast_timer: Timer,
     #[rust]
     toast_key: String,
+    /// A30 — the peer dock's taps (`peer_dock_splash`), its elapsed clock,
+    /// and the scroll a new waiting card asks for after the next layout.
+    #[rust]
+    peer_dock_taps: Vec<(LiveId, String)>,
+    #[rust]
+    peer_dock_timer: Timer,
+    #[rust]
+    peer_dock_ticking: bool,
+    #[rust]
+    peer_dock_scroll: Option<f64>,
 }
 
 impl OctoscodeView {
@@ -1693,6 +1732,13 @@ impl OctoscodeView {
         // A26 — the error toasts' × (`toast.dismiss#<id>`).
         if screens::toasts::routes(action) {
             self.perform_toast(cx, action, index);
+            return;
+        }
+        // A30 — the sidebar peer dock's ids (`pd.*`: fold, focus, and the
+        // threaded approval's Approve once / Deny / Stop / Approve for
+        // session, each bound to the slot it was drawn for).
+        if screens::peer_dock::routes(action) {
+            self.perform_peer_dock(cx, action, index);
             return;
         }
         // A12 — the connection banner's ids (Retry now / Disconnect /
@@ -2098,6 +2144,7 @@ impl OctoscodeView {
                     | screens::sessions::Effect::ResumeCancel
                     | screens::sessions::Effect::AttachmentRemove(_)
                     | screens::sessions::Effect::AsideDismiss
+                    | screens::sessions::Effect::AsideToggle
             ) {
                 return;
             }
@@ -2387,7 +2434,7 @@ impl OctoscodeView {
             }
             actions::Effect::Submit => {
                 rt.spawn(async move {
-                    if let Err(e) = conv.submit_draft().await {
+                    if let Err(e) = conv.submit_composer().await {
                         makepad_widgets::log!("[octoscode] submit dropped: {e}");
                         screens::toasts::failed(screens::toasts::Op::Send, &e.to_string());
                     }
@@ -2701,14 +2748,19 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] palette run {name} -> {id}");
                 match id {
                     "aside.ask" => {
-                        if args.trim().is_empty() {
-                            // No question yet: the composer takes the command
-                            // so the user types it (the web completes the
-                            // draft to `/btw `).
-                            ui.lock().unwrap().set_draft_inner("/btw ".to_owned());
-                        } else {
-                            ui.lock().unwrap().set_draft_inner(args.trim().to_owned());
-                            self.perform_action(cx, "aside.ask", 0);
+                        // A29 — the web's chooseCommand SUBMITS `/btw`
+                        // (`App.tsx:1591-1594`): without a question that is
+                        // the usage hint (`intent.ts:96-104`); with one, the
+                        // aside of the ACTIVE Session, captured now
+                        // (`Conversation::btw_command`, flow_btw.rs).
+                        let conv = { self.bridge.lock().unwrap().conv.clone() };
+                        if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                            let question = args.trim().to_owned();
+                            rt.spawn(async move {
+                                let admitted = conv.btw_command(&question).await;
+                                makepad_widgets::log!("[octoscode] palette /btw: {admitted:?}");
+                                SignalToUI::set_ui_signal();
+                            });
                         }
                     }
                     // A5 — a board-3 command row: submit `/name args` through
@@ -2960,6 +3012,14 @@ impl OctoscodeView {
                 self.connect_key = None;
             }
             Work::Scan => cx.show_qr_scanner(),
+            // A23 — the provider editor opened from the providers dialog
+            // closed: the dialog returns (re-read) with the editor's line.
+            Work::ReturnToProviders { notice } => {
+                let outcome = screens::board3::host::reopen_routes(notice);
+                self.board3_outcome(cx, outcome);
+            }
+            // A23 — the GLM-5.3-Flash guidance's "Official guide".
+            Work::OpenUrl(url) => cx.open_url(&url, OpenUrlInPlace::No),
             Work::Forget => {
                 // Walk 112: the credential goes and the connect form returns
                 // empty — the same Offline the drawer's Disconnect sets.
@@ -3034,8 +3094,25 @@ impl OctoscodeView {
         self.view.widget(cx, ids!(board1_dock)).set_visible(cx, open);
         if let Some(dsl) = screens::board1::view(size.x, size.y) {
             let splash = self.view.splash(cx, ids!(board1_splash));
-            if let Err(e) = self.mounts.mount(cx, &splash, &dsl) {
-                makepad_widgets::log!("[octoscode] board1 mount: {e}");
+            // A23 — a state change remounts the surface; keep its body's
+            // scroll when it is the SAME surface (board 3's rule): read the
+            // offset from the body's first child before the remount.
+            let keep_scroll = {
+                let sv = self.view.widget(cx, &[live_id!(board1_splash), LiveId::from_str(screens::board1::SCROLL_ID)]);
+                let top = sv.area().rect(cx).pos.y;
+                let mut first = None;
+                sv.children(&mut |_, child| {
+                    if first.is_none() {
+                        first = Some(child.area().rect(cx).pos.y);
+                    }
+                });
+                first.map(|y| (top - y).max(0.0)).unwrap_or(0.0)
+            };
+            let same_surface = screens::board1::note_mounted();
+            match self.mounts.mount(cx, &splash, &dsl) {
+                Err(e) => makepad_widgets::log!("[octoscode] board1 mount: {e}"),
+                Ok(true) if same_surface && keep_scroll > 0.0 => screens::board1::set_pending_scroll(keep_scroll),
+                Ok(_) => {}
             }
         }
         if screens::board1::take_ime_reset() {
@@ -3720,6 +3797,8 @@ impl OctoscodeView {
         self.sync_surfaces(cx);
         // A7: the queued chip / recovery notice / peer row + draft recovery.
         self.sync_composer_extras(cx);
+        // A29: the active Session's /btw aside above its composer.
+        self.sync_aside(cx);
         // A12 — the connection banner (after the surfaces: an outage hides
         // the takeover the surfaces just placed).
         self.sync_link(cx);
@@ -3772,6 +3851,8 @@ impl OctoscodeView {
         // store; the mount cache remounts only when its DSL changed.
         self.a9_guarded(cx, a9_host::Guard::Dialog);
         self.sync_chrome(cx);
+        // A30 — the sidebar peer dock, once the chrome settled the seat.
+        self.sync_peer_dock(cx);
         // A26 — the error toasts, once every dock's visibility is settled.
         self.sync_toasts(cx);
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
@@ -3851,6 +3932,52 @@ impl OctoscodeView {
         self.view
             .widget(cx, ids!(composer_row))
             .set_visible(cx, extras.peer_readonly.is_none() && !takeover);
+    }
+
+    /// A29 — mount the ACTIVE Session's `/btw` aside (screens/btw.rs) above
+    /// its composer, bounded to min(50 % of the window, 480 px); hidden while
+    /// the Session holds none. The mount cache remounts only on a change.
+    fn sync_aside(&mut self, cx: &mut Cx) {
+        let store = { self.bridge.lock().unwrap().store.clone() };
+        let shell_h = self.view.area().rect(cx).size.y;
+        let h = if shell_h > 0.0 { shell_h } else { self.window_h };
+        let dsl = if store.keeps_shell() {
+            screens::btw::lower(&store, &conv_layout::current(), h)
+        } else {
+            String::new()
+        };
+        // Whether the transcript follows its newest row BEFORE the dock
+        // changes height (either of the last two draws: a growing list
+        // alternates a growth draw and its tail correction).
+        let list = self.view.portal_list(cx, ids!(timeline_list));
+        let at_end = list.is_at_end() || self.tail_seen.iter().any(|b| *b);
+        self.view.widget(cx, ids!(aside_row)).set_visible(cx, !dsl.is_empty());
+        if dsl.is_empty() {
+            self.tail_hold = None;
+        }
+        let splash = self.view.splash(cx, ids!(aside_splash));
+        match self.mounts.mount(cx, &splash, &screens::theme::retint_dsl(&dsl)) {
+            Err(e) => makepad_widgets::log!("[octoscode] aside mount: {e}"),
+            Ok(true) => {
+                // The dock grew or shrank: a transcript that was following
+                // its newest row keeps following it while the panel shows
+                // (measured: mounting the panel left the main turn's live
+                // rows under the dock).
+                if !dsl.is_empty() && (at_end || self.tail_hold.is_some()) {
+                    if self.tail_hold.is_none() {
+                        self.tail_hold = Some(list.user_scroll_travel());
+                    }
+                    self.follow_latest(cx);
+                }
+                let state = store
+                    .active_session()
+                    .and_then(|s| store.domains.btw.get(&s))
+                    .map(|a| screens::sessions::aside_state_word(Some(&a)))
+                    .unwrap_or("hidden");
+                makepad_widgets::log!("[octoscode] aside panel: {state}");
+            }
+            Ok(false) => {}
+        }
     }
 
     /// A7 — the §8 facts, read structurally from the live tree: the key focus
@@ -4962,6 +5089,8 @@ impl OctoscodeView {
         let mut cache = std::mem::take(&mut self.cache);
         let mut mounts = std::mem::take(&mut self.mounts);
         let bridge = self.bridge.clone();
+        let mut tail_seen = self.tail_seen;
+        let hold = self.tail_hold.is_some();
 
         while let Some(step) = self.view.draw_walk(cx, scope, walk).step() {
             if let Some(mut list) = step.as_portal_list().borrow_mut() {
@@ -4974,6 +5103,14 @@ impl OctoscodeView {
                     let store = { bridge.lock().unwrap().store.clone() };
                     chrome::draw_sidebar_list(cx, &mut list, &store, None);
                 } else if uid == timeline_uid {
+                    // A29 — the aside's tail hold: the shorter viewport's
+                    // scroll-bar reset (makepad portal_list.rs:2327) must not
+                    // drop a following transcript's newest rows under the
+                    // panel.
+                    tail_seen = [tail_seen[1], list.is_at_end()];
+                    if hold {
+                        list.set_tail_range(true);
+                    }
                     // The CENTER column: one component per timeline entry, in
                     // display order (`screen::timeline_rows`).
                     let (live, rows) = {
@@ -4989,6 +5126,13 @@ impl OctoscodeView {
                     };
                     let _ = live;
                     list.set_item_range(cx, 0, rows.len());
+                    // A29 — held: lay out from the newest row (the tail
+                    // adjustment needs the last row drawn, which a shorter
+                    // viewport no longer reaches) and fill upward, as a
+                    // submit does.
+                    if hold && !rows.is_empty() {
+                        list.set_first_id_and_scroll(rows.len() - 1, 0.0);
+                    }
                     while let Some(id) = list.next_visible_item(cx) {
                         let Some(trow) = rows.get(id) else { continue };
                         let item = list.item(cx, id, id!(TimelineItemTpl));
@@ -5195,6 +5339,7 @@ impl OctoscodeView {
         }
         self.cache = cache;
         self.mounts = mounts;
+        self.tail_seen = tail_seen;
         // A6: a row the person just opened is revealed (its grown body in
         // view, its header kept) — the list never re-measures it otherwise.
         self.surfaces_after_draw(cx);
@@ -5213,6 +5358,15 @@ impl OctoscodeView {
                 .set_scroll_pos(cx, dvec2(0.0, y));
             self.view.redraw(cx);
         }
+        // A23 — the board-1 editor's body likewise.
+        if let Some(y) = screens::board1::take_pending_scroll() {
+            self.view
+                .view(cx, &[live_id!(board1_splash), LiveId::from_str(screens::board1::SCROLL_ID)])
+                .set_scroll_pos(cx, dvec2(0.0, y));
+            self.view.redraw(cx);
+        }
+        // A30 — a new waiting card in a capped peer dock, once laid out.
+        self.peer_dock_after_draw(cx);
         DrawStep::done()
     }
 
@@ -5242,6 +5396,23 @@ impl OctoscodeView {
             });
         }
         self.view.handle_event(cx, event, scope);
+        // A29 — a scroll in the transcript, or a press inside it, ends the
+        // aside's tail hold (the person is reading back or opening a row).
+        if let Some(at) = self.tail_hold {
+            let list = self.view.portal_list(cx, ids!(timeline_list));
+            let rect = list.area().rect(cx);
+            let pressed = match event {
+                Event::MouseDown(e) => rect.contains(e.abs),
+                Event::TouchUpdate(e) => e
+                    .touches
+                    .iter()
+                    .any(|t| t.state == makepad_widgets::makepad_platform::event::finger::TouchState::Start && rect.contains(t.abs)),
+                _ => false,
+            };
+            if pressed || list.user_scroll_travel() != at {
+                self.tail_hold = None;
+            }
+        }
         if !self.started {
             self.started = true;
             self.start(cx);
@@ -5299,6 +5470,8 @@ impl OctoscodeView {
             }
             // A26: a toast is due to leave.
             Event::Timer(_) if self.toast_timer_fired(cx, event) => {}
+            // A30: the peer dock's elapsed clock.
+            Event::Timer(_) if self.peer_dock_timer_fired(cx, event) => {}
             Event::Actions(actions) => {
                 // A25: the OS's notification answers (makepad posts them as
                 // actions): the permission, a failed post, and a click — the
@@ -5520,6 +5693,8 @@ impl OctoscodeView {
                 self.a9_actions(cx, actions);
                 // A26 — the error toasts' ×.
                 self.toast_actions(cx, actions);
+                // A30 — the sidebar peer dock's taps.
+                self.peer_dock_actions(cx, actions);
                 // A12 — the connection banner's Retry now / Disconnect.
                 self.link_actions(cx, actions);
                 // A6 — the conversation surfaces' taps, inputs and the
@@ -5606,6 +5781,19 @@ impl OctoscodeView {
                 ] {
                     if self.view.button(cx, &[live_id!(queue_splash), id]).clicked(actions) {
                         self.composer_extra_tap(which);
+                    }
+                }
+                // A29 — the aside's Close and its collapse chevron
+                // (screens/btw.rs), owned by screens::sessions' `aside.*`.
+                for (id, action) in [
+                    (live_id!(btw_aside_close_hit), "aside.dismiss"),
+                    (live_id!(btw_aside_toggle_hit), "aside.toggle"),
+                ] {
+                    if self.view.button(cx, &[live_id!(aside_splash), id]).clicked(actions) {
+                        makepad_widgets::log!("[octoscode] aside control: {action}");
+                        self.perform_action(cx, action, 0);
+                        self.sync_aside(cx);
+                        self.view.redraw(cx);
                     }
                 }
                 // A4 — the session strip opens the Session settings pane.
@@ -5708,9 +5896,20 @@ impl OctoscodeView {
                     let out = screens::board3::host::open(screens::board3::host::Dialog::ModelMenu);
                     self.board3_outcome(cx, out);
                 }
-                // `+` (attach) and the mic are not wired to a protocol method
-                // yet; they are present as hit targets so the component's own
-                // chrome stays clickable and the ids exist for a later card.
+                // The composer's `+` opens Turn images (board 3 screen 10) for
+                // this Session through the same command arm `/images` takes
+                // (board3::host::command), never touching the draft; offline
+                // it is refused like the palette row. The mic is not wired to
+                // a protocol method yet; it stays a hit target.
+                if self.view.button(cx, ids!(plus_hit)).clicked(actions) {
+                    makepad_widgets::log!("[octoscode] composer plus clicked: turn images");
+                    if !self.refuse_palette_offline(cx, "/images") {
+                        let conv = { self.bridge.lock().unwrap().conv.clone() };
+                        if let Some(out) = conv.and_then(|conv| screens::board3::host::command("images", "", &conv)) {
+                            self.board3_outcome(cx, out);
+                        }
+                    }
+                }
                 // Card #21 §3 — the per-item controls. A row click is routed
                 // WITH its item id (the same `items_with_actions` contract the
                 // makepad examples use).
@@ -5992,6 +6191,9 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] task detail closed (Escape)");
                 self.perform_action(cx, "cv.detail.close", 0);
             }
+            // A30 — ⌥Y / ⌥N on the sidebar peer dock's focused row (its
+            // drawn approval); suppressed in a text field or a dialog.
+            Event::KeyDown(e) if self.peer_dock_key(cx, e) => {}
             // A6 — the takeover's keys: Y/S/N/D on the approval card, Enter /
             // arrows / Space on the question card (a consumed key stops here).
             Event::KeyDown(e) if self.surfaces_key(cx, e) => {}
@@ -6025,9 +6227,10 @@ impl OctoscodeView {
                             self.sync_labels(cx);
                             return;
                         }
-                        // No native peer dock to fold: the chord is inert.
+                        // A30 — `App.tsx:1110-1117`: Alt+P folds the
+                        // sidebar peer dock (a30_host.rs).
                         screens::keys::ParityShortcut::TogglePeerDock => {
-                            makepad_widgets::log!("[octoscode] shortcut Alt+P: no peer dock");
+                            self.toggle_peer_dock(cx);
                             return;
                         }
                         screens::keys::ParityShortcut::ShowApproval => {}
@@ -6139,7 +6342,7 @@ impl OctoscodeView {
                         match (handle, conv) {
                             (Some(handle), Some(conv)) => {
                                 handle.spawn(async move {
-                                    if let Err(e) = conv.submit_draft().await {
+                                    if let Err(e) = conv.submit_composer().await {
                                         makepad_widgets::log!("[octoscode] submit dropped: {e}");
                                         screens::toasts::failed(screens::toasts::Op::Send, &e.to_string());
                                     }
@@ -6309,6 +6512,8 @@ impl AppModule for OctoscodeModule {
         chrome::script_mod(vm);
         // A7: `A7CodeLines` (the highlighted code body) before any row names it.
         code_view::script_mod(vm);
+        // A28: the diff review's code-run templates (`B3DiffCode`, `B3DiffNum`).
+        screens::board3::diff_review::script_mod(vm);
         script_mod(vm);
         // Card #21b: the design/kit vocabulary every lowered #16 component names
         // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the

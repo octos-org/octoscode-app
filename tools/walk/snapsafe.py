@@ -2,7 +2,9 @@
 included. Every saver of snap JSON calls `scrub()`; crates/octoscode-client/tests/repo_hermetic.rs
 (no_tracked_snap_carries_a_secret_field_value) fails any tracked snap that still carries a secret-like field's value."""
 
-SECRET_PARTS = ("token", "apikey", "api_key", "credential", "secret", "password", "passwd")
+# "prov_key": the board-1 provider editor's API key field (`b1_prov_key`), whose
+# id names neither "api_key" nor "apikey" (A23).
+SECRET_PARTS = ("token", "apikey", "api_key", "prov_key", "credential", "secret", "password", "passwd")
 
 
 def secret_like(wid: str) -> bool:

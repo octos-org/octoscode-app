@@ -1,0 +1,7 @@
+[I] apps/octoscode/module/src/lib.rs:3860:17 - [octoscode] aside panel: hidden
+[I] apps/octoscode/module/src/flow_btw.rs:154:17 - [octoscode] aside asked in dsflash:main (#1): answering
+[I] apps/octoscode/module/src/flow.rs:2412:17 - [octoscode] command /btw: Accepted(Ticket { session: "dsflash:main", request_id: 1, question: "In two sentences: why would a message queue drain fully before it resends after a reconnect?", epoch: 2 })
+[I] apps/octoscode/module/src/lib.rs:3860:17 - [octoscode] aside panel: answering
+[I] apps/octoscode/module/src/lib.rs:3860:17 - [octoscode] aside panel: hidden
+[I] apps/octoscode/module/src/flow_btw.rs:108:9 - [octoscode] aside dsflash:main #1 -> Answered
+[I] apps/octoscode/module/src/lib.rs:3860:17 - [octoscode] aside panel: answered

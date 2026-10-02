@@ -21,6 +21,10 @@
 //!   (`lazy-btw-controller.ts:110`), and fails closed when the server does not
 //!   advertise `session/btw` (`btw.ts:66`) — the call itself is
 //!   `packages/client/src/btw.ts:77` (`{session_id, question}`).
+//! * btw 6 (A29) — ONE aside per Session, owned by the Session that asked:
+//!   the `aside.*` ids and bindings act on the ACTIVE Session's record in the
+//!   store's `btw` domain; the call carries the Session captured at
+//!   admission (`flow_btw.rs`), never the one on screen when it is sent.
 use std::sync::{Arc, Mutex, OnceLock};
 
 use serde_json::{json, Value};
@@ -58,13 +62,10 @@ pub struct SessUi {
     pub resume_staged: Option<(usize, String)>,
     /// The attachment draft (autonomy-09's slots; the card draws two).
     pub attachments: Vec<Attachment>,
-    /// The aside's question (fed from the composer draft on `aside.ask`).
-    pub aside_question: String,
-    /// The aside's answer once it arrives.
-    pub aside_answer: String,
-    /// hidden | asking | answered | unavailable (`lazy-btw-controller.ts:85`
-    /// admission states; `unavailable` = the not-advertised fail-closed).
-    pub aside_state: &'static str,
+    /// A29: the retired board-3 aside card's PREVIEW (question, answer) —
+    /// the probe/test seam `seed_aside` feeds `lower_screen("aside")`. The
+    /// live aside is per Session in the store (`domains::btw`), never here.
+    pub aside_preview: Option<(String, String)>,
 }
 
 impl SessUi {
@@ -110,6 +111,11 @@ pub fn seed_attachments_live(items: Vec<(String, usize, String)>) {
 /// web's `BtwProtocolError("Invalid or wrong-Session aside result")` —
 /// never a blank or foreign answer rendered as if it were the reply.
 pub fn parse_aside_result(value: &Value, asked_session: &str) -> Result<String, String> {
+    parse_aside_reply(value, asked_session).map(|(answer, _)| answer)
+}
+
+/// [`parse_aside_result`] with the reply's optional `model` (A29).
+pub fn parse_aside_reply(value: &Value, asked_session: &str) -> Result<(String, Option<String>), String> {
     const INVALID: &str = "Invalid or wrong-Session aside result";
     let Some(obj) = value.as_object() else {
         return Err(INVALID.to_owned());
@@ -124,24 +130,53 @@ pub fn parse_aside_result(value: &Value, asked_session: &str) -> Result<String, 
         return Err(INVALID.to_owned());
     }
     // btw.ts:43-45 — model is optional, but a present one must be non-blank.
+    let mut model_name = None;
     if let Some(model) = obj.get("model") {
         if !model.is_null() {
             match model.as_str() {
-                Some(m) if !m.trim().is_empty() => {}
+                Some(m) if !m.trim().is_empty() => model_name = Some(m.to_owned()),
                 _ => return Err(INVALID.to_owned()),
             }
         }
     }
-    Ok(answer.to_owned())
+    Ok((answer.to_owned(), model_name))
 }
 
-/// Probe/test seam: seed the aside as ANSWERED (question + answer on the
-/// panel — the capture proves the live slots).
+/// Probe/test seam: seed the retired board-3 aside card's preview
+/// (question + answer on `lower_screen("aside")`). A29: the live aside is
+/// per Session (`store.domains.btw`); this never touches it.
 pub fn seed_aside(question: &str, answer: &str) {
     let mut s = state().lock().unwrap();
-    s.aside_question = question.to_owned();
-    s.aside_answer = answer.to_owned();
-    s.aside_state = "answered";
+    s.aside_preview = Some((question.to_owned(), answer.to_owned()));
+}
+
+/// A29 — the binding value of a Session's aside state: `hidden` (no aside)
+/// | `answering` | `answered` | `failed` | `stale`.
+pub fn aside_state_word(aside: Option<&octoscode_store::domains::btw::Aside>) -> &'static str {
+    use octoscode_store::domains::btw::{AsideState, Failure};
+    match aside.map(|a| &a.state) {
+        None => "hidden",
+        Some(AsideState::Answering) => "answering",
+        Some(AsideState::Answered { .. }) => "answered",
+        Some(AsideState::Failed(Failure::Failed)) => "failed",
+        Some(AsideState::Failed(Failure::Stale)) => "stale",
+    }
+}
+
+/// A29 — the active Session's aside (the bindings' source).
+fn active_aside(store: &Arc<crate::Store>) -> Option<octoscode_store::domains::btw::Aside> {
+    let session = store.active_session()?;
+    store.domains.btw.get(&session)
+}
+
+/// A29 — the admission gate from the store alone (`aside.ask` resolves on
+/// the UI thread, without the conversation): advertised as a method, the
+/// connection live and not recovering.
+fn btw_gate(store: &Arc<crate::Store>) -> octoscode_store::domains::btw::Gate {
+    octoscode_store::domains::btw::Gate {
+        advertised: btw_advertised(store),
+        connected: store.is_live() && store.outage().is_none(),
+    }
 }
 
 /// One resume row as the card's slot sees it (`store.sessions()` order —
@@ -208,10 +243,12 @@ pub const BINDINGS: &[(&str, &str)] = &[
     ("resume.pending", "bool: a confirm dialog is staged"),
     ("att.count", "text: '<n> of 4 images • 20 MB max' (attachment-drafts.ts:6)"),
     ("att.sizes", "list: each draft attachment's size label"),
-    ("aside.header", "text: the aside panel's 'Aside · /btw' header (registry.ts:186)"),
-    ("aside.question", "text: the asked question (fed from the composer draft)"),
-    ("aside.answer", "text: the answer once it arrives (BtwAsidePanel.tsx:22)"),
-    ("aside.state", "text: hidden | asking | answered | unavailable (lazy-btw-controller.ts:85, btw.ts:66)"),
+    ("aside.header", "text: the aside panel's 'Aside — /btw' header (BtwAsidePanel.tsx:24)"),
+    ("aside.question", "text: the ACTIVE Session's aside question"),
+    ("aside.answer", "text: the ACTIVE Session's answer once it arrives (BtwAsidePanel.tsx:38-40)"),
+    ("aside.state", "text: the ACTIVE Session's hidden | answering | answered | failed | stale (lazy-btw-controller.ts:24-31)"),
+    ("aside.error", "text: the failed / stale copy (lazy-btw-controller.ts:52-54), empty otherwise"),
+    ("aside.collapsed", "bool: the ACTIVE Session's aside is folded to one row (board 4 region 5b)"),
 ];
 
 /// The board-3 action ids the autonomy cards emit. ONLY in this table
@@ -221,8 +258,9 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("resume.confirm", "session/open + hydrate the staged row (resume-binding.ts:227)"),
     ("resume.cancel", "hide the confirm dialog without opening"),
     ("attachment.remove", "drop the clicked draft attachment (index; UI-local, attachment-drafts.ts:16)"),
-    ("aside.ask", "session/btw with the composer draft as the question (btw.ts:77; advertised-gated, btw.ts:66)"),
-    ("aside.dismiss", "hide the aside; a late answer stays hidden (lazy-btw-controller.ts:110)"),
+    ("aside.ask", "session/btw with the composer draft as the question, for the ACTIVE Session captured now (btw.ts:77; advertised-gated, btw.ts:66)"),
+    ("aside.dismiss", "close the ACTIVE Session's aside; a late answer stays hidden (lazy-btw-controller.ts:110)"),
+    ("aside.toggle", "fold / unfold the ACTIVE Session's aside (board 4 region 5b, the panel's chevron)"),
 ];
 
 /// Whether `id` is one of this module's action ids.
@@ -230,11 +268,12 @@ pub fn is_action(id: &str) -> bool {
     ACTIONS.iter().any(|(a, _)| *a == id)
 }
 
-/// The fail-closed gate for `session/btw` (btw.ts:66): the store carries the
-/// server's accepted list; no recorded fixture advertises the method, so every
-/// real-traffic run fails closed until a server does.
+/// The fail-closed gate for `session/btw` (btw.ts:66 `supportsMethod`):
+/// A29 — a METHOD, read from the open reply's `supported_methods` (where
+/// octos lists it; every recorded open does) as well as the feature list.
+/// The old features-only read failed every real server closed.
 fn btw_advertised(store: &Arc<crate::Store>) -> bool {
-    store.capabilities().iter().any(|c| c == "session/btw")
+    crate::screens::dialog::advertises(store, "session/btw")
 }
 
 // ---- bindings ----------------------------------------------------------------
@@ -270,10 +309,18 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             .map(|a| format!("{:.1} MB", a.bytes as f64 / (1024.0 * 1024.0)))
             .collect::<Vec<_>>()),
 
-        "aside.header" => json!("Aside · /btw"),
-        "aside.question" => json!(s.aside_question),
-        "aside.answer" => json!(s.aside_answer),
-        "aside.state" => json!(s.aside_state),
+        "aside.header" => json!(crate::i18n::tr("Aside — /btw")),
+        "aside.question" => json!(active_aside(store).map(|a| a.question).unwrap_or_default()),
+        "aside.answer" => json!(match active_aside(store).map(|a| a.state) {
+            Some(octoscode_store::domains::btw::AsideState::Answered { answer, .. }) => answer,
+            _ => String::new(),
+        }),
+        "aside.state" => json!(aside_state_word(active_aside(store).as_ref())),
+        "aside.error" => json!(match active_aside(store).map(|a| a.state) {
+            Some(octoscode_store::domains::btw::AsideState::Failed(f)) => crate::screens::btw::failure_copy(f).to_owned(),
+            _ => String::new(),
+        }),
+        "aside.collapsed" => json!(active_aside(store).is_some_and(|a| a.collapsed)),
         _ => return None,
     })
 }
@@ -295,10 +342,13 @@ pub enum Effect {
     ResumeCancel,
     /// Drop a draft attachment (UI-local).
     AttachmentRemove(usize),
-    /// `session/btw` — the gate already passed in resolve. Carries the question.
-    AsideAsk(String),
-    /// Hide the aside (UI-local; a late answer stays hidden).
+    /// `session/btw` — admitted in resolve: the ticket carries the asking
+    /// Session (captured at admission) and the question.
+    AsideAsk(octoscode_store::domains::btw::Ticket),
+    /// Close the active Session's aside (UI-local; a late answer stays hidden).
     AsideDismiss,
+    /// Fold / unfold the active Session's aside (UI-local).
+    AsideToggle,
     /// A declared id with no resolvable target — logged by name, never fatal.
     Unhandled(String),
 }
@@ -350,25 +400,33 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
         }
         "aside.ask" => {
             // The question is the composer draft (the card's own affordance);
-            // admission is synchronous and typed (lazy-btw-controller.ts:85).
+            // admission is synchronous and typed (lazy-btw-controller.ts:85),
+            // and the ticket captures the ACTIVE Session NOW — the call never
+            // re-reads it (A29: ask in X, switch, the call still carries X).
+            use octoscode_store::domains::btw::Admission;
             let question = ctx.ui.lock().unwrap().draft();
-            if question.trim().is_empty() {
-                return Effect::Unhandled("aside.ask[empty]".to_owned());
+            let session = ctx.store.active_session().unwrap_or_default();
+            match ctx.store.domains.btw.ask(&session, &question, btw_gate(ctx.store)) {
+                Admission::Accepted(ticket) => Effect::AsideAsk(ticket),
+                Admission::Empty => Effect::Unhandled("aside.ask[empty]".to_owned()),
+                Admission::Unavailable => Effect::Unhandled("aside.ask[not-advertised]".to_owned()),
+                Admission::Busy => Effect::Unhandled("aside.ask[busy]".to_owned()),
+                Admission::Stale => Effect::Unhandled("aside.ask[stale]".to_owned()),
             }
-            if !btw_advertised(ctx.store) {
-                s.aside_state = "unavailable";
-                return Effect::Unhandled("aside.ask[not-advertised]".to_owned());
-            }
-            s.aside_question = question.clone();
-            s.aside_state = "asking";
-            Effect::AsideAsk(question)
         }
         "aside.dismiss" => {
-            // A late answer stays hidden: the panel state goes away entirely
-            // (lazy-btw-controller.ts:110).
-            s.aside_state = "hidden";
-            s.aside_answer = String::new();
+            // A late answer stays hidden: the Session's aside goes away
+            // entirely (lazy-btw-controller.ts:110).
+            let session = ctx.store.active_session().unwrap_or_default();
+            ctx.store.domains.btw.dismiss(&session);
             Effect::AsideDismiss
+        }
+        "aside.toggle" => {
+            let session = ctx.store.active_session().unwrap_or_default();
+            match ctx.store.domains.btw.toggle_collapsed(&session) {
+                Some(_) => Effect::AsideToggle,
+                None => Effect::Unhandled("aside.toggle[no aside]".to_owned()),
+            }
         }
         other => Effect::Unhandled(other.to_owned()),
     }
@@ -418,47 +476,21 @@ pub async fn apply(effect: Effect, conv: &Conversation) -> Result<(), String> {
                 .map(|_| ())
                 .map_err(|e| e.to_string())
         }
-        Effect::AsideAsk(question) => {
-            let client = conv.client();
-            let asked = conv.session_id();
-            let result = client
-                .request(
-                    "session/btw",
-                    json!({
-                        "session_id": asked,
-                        "question": question,
-                    }),
-                )
-                .await
-                .map_err(|e| e.to_string());
-            let answer = match result {
-                Ok(v) => match parse_aside_result(&v, &asked) {
-                    Ok(answer) => answer,
-                    Err(e) => {
-                        // A reply that is not THIS Session's, or is blank, is a
-                        // protocol error — never a shown answer (btw.ts:81-87).
-                        state().lock().unwrap().aside_state = "unavailable";
-                        return Err(e);
-                    }
-                },
-                Err(e) => {
-                    // Typed admission failure: the draft was never consumed
-                    // (lazy-btw-controller.ts:85) — the panel says unavailable.
-                    state().lock().unwrap().aside_state = "unavailable";
-                    return Err(e);
-                }
-            };
-            {
-                let mut s = state().lock().unwrap();
-                s.aside_answer = answer;
-                s.aside_state = "answered";
+        Effect::AsideAsk(ticket) => {
+            // A29 — the asking Session's call and settle (flow_btw.rs): a
+            // reply that is not THIS Session's, or is blank, is a protocol
+            // error — the aside fails, never a shown answer (btw.ts:81-87).
+            match conv.run_btw_detailed(ticket).await {
+                (octoscode_store::domains::btw::Settled::Failed(_), Some(e)) => Err(e),
+                (octoscode_store::domains::btw::Settled::Failed(f), None) => Err(format!("aside {f:?}")),
+                _ => Ok(()),
             }
-            Ok(())
         }
         Effect::ResumeStage(_)
         | Effect::ResumeCancel
         | Effect::AttachmentRemove(_)
-        | Effect::AsideDismiss => Ok(()),
+        | Effect::AsideDismiss
+        | Effect::AsideToggle => Ok(()),
         Effect::Unhandled(id) => {
             ::log::warn!("octoscode: unhandled screen action {id:?}");
             Ok(())
@@ -559,10 +591,10 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
             let mut swaps: Vec<(String, String)> = Vec::new();
             // The question swaps via the t_q1 node surgery below (one wrapping
             // label — the design's second line is a stale leftover, #30d2 3).
-            if !s.aside_answer.is_empty() {
+            if let Some((_, answer)) = s.aside_preview.as_ref().filter(|(_, a)| !a.is_empty()) {
                 swaps.push((
                     r#"text: "It's a metric that increments when messages are dropped from the steer queue due to a reconnect or protocol error. It helps track message loss.""#.to_owned(),
-                    format!(r#"text: "{}""#, escape_splash(&s.aside_answer)),
+                    format!(r#"text: "{}""#, escape_splash(answer)),
                 ));
             }
             swaps
@@ -642,8 +674,8 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
         ASIDE_CARD => {
             // The bubble is ONE wrapping label (the #16 user-bubble shape);
             // the design's second line is a stale leftover (#30d2 defect 3).
-            if !s.aside_question.is_empty() {
-                dsl = set_node_text(&dsl, "t_q1", &s.aside_question);
+            if let Some((question, _)) = s.aside_preview.as_ref().filter(|(q, _)| !q.is_empty()) {
+                dsl = set_node_text(&dsl, "t_q1", question);
                 dsl = fit_node_height(&dsl, "t_q1");
             }
             dsl = cut_node(&dsl, "t_q2");

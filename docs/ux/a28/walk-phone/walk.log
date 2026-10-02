@@ -1,0 +1,57 @@
+== A28 diff review (phone, en)
+CLICK composer r=[28, 743, 304, 29]
+KEY End
+TYPE 'retry the steer queue'
+KEY Return
+PASS turn: a prompt CLICK + Return -> turn/start (the approvals turn)
+PASS approval: the command approval takes the composer over
+CLICK cv_ap_deny r=[28, 749, 304, 40] at (180,769)
+PASS approval: Deny -> the typed DIFF approval with 'Review diff' — 'Apply a patch to st…'
+CLICK cv_ap_diff r=[28, 753, 304, 36] at (180,771)
+PASS words: 'Review diff' CLICK opens the review on ONE diff/preview/get — title='Retry the steer queue with backoff'
+SHOT words-phone
+PASS words: phone = a full-screen sheet over the module — dialog=[0, 74, 360, 776] module=[0, 74, 360, 776]
+PASS words: phone hides the preview id — ''
+PASS words: dialog numeric checks (no clipped label, no overlap, controls >= 28 px) — frame=360x776 centre_dx=0.0 margins L=16 R=12 labels=120 outside=0 overlaps=0 controls=2 under28=0
+PASS words: every line is whole (its runs join to the fixture text)
+PASS words: keyword / function / constant runs on context, removed and added lines — l0=[('pl', '    '), ('kw', 'fn'), ('pl', ' '), ('fn', 'redeliver'), ('pu', '(&'), ('kw', 'mut')]
+PASS conf: no grammar -> plain runs only, word marks on 500 / 250 — classes=['tx'] l0=['500'] l1=['250']
+PASS words: the equal 1:1 blocks carry the web's word marks — _h0_l2=['Duration::from_millis', '500']; _h0_l3=['self.backoff.next', 'attempt']; _h0_l5=['send']; _h0_l6=['send_with_retry', ', &self.backoff']; _h0_l0=['500']; _h0_l1=['250']
+PASS words: the unequal block (+48, +49), context lines and the < 25 % pair carry no mark — []
+PASS words: each mark lies in its row on its words' columns (x, width) — marks drawn=4 
+PASS words: the marks are drawn in the success / error fills — added=(187, 234, 203) want (187, 234, 203); removed=(250, 193, 193) want (250, 193, 193)
+PASS words: a keyword run is drawn in the keyword colour (#b4235a family) — fn ink=(180, 35, 90)
+PASS phone: the Rust hunk is wider than the sheet (its rows scroll sideways, never wrap) — scroll=[12, 280, 336, 306] runs=10 drawn=5 one_row=True
+PASS phone: a sideways scroll moves the hunk's lines together — first run x 112 -> None; last run drawn=True
+SHOT words-scrolled-phone
+CLICK b3_close r=[316, 133, 28, 28] at (330,147)
+PASS words: the close CLICK returns to the approval card
+== the header Review control re-opens the announced preview
+CLICK review_open_hit r=[264, 85, 36, 30] at (282,100)
+PASS header: Review CLICK re-opens the same preview (one more read)
+PASS header: the re-opened review carries the same marks — ['self.backoff.next', 'attempt']
+CLICK b3_close r=[316, 133, 28, 28] at (330,147)
+== the large preview: past the bound, nothing is decorated
+CLICK cv_ap_session r=[28, 647, 304, 46] at (180,670)
+PASS approval: Approve for session -> the large diff approval — 'Apply a patch to C…'
+CLICK cv_ap_diff r=[28, 753, 304, 36] at (180,771)
+PASS large: 'Review diff' CLICK opens the large preview — title='Bump octos to 0.24.1'
+SHOT large-phone
+PASS large: phone = a full-screen sheet over the module — dialog=[0, 74, 360, 776] module=[0, 74, 360, 776]
+PASS large: phone hides the preview id — ''
+PASS large: dialog numeric checks (no clipped label, no overlap, controls >= 28 px) — frame=360x776 centre_dx=0.0 margins L=12 R=12 labels=21 outside=0 overlaps=0 controls=2 under28=0
+PASS large: the note 'Large preview shown as plain text. All lines are included.' — 'Large preview shown as plain text. All lines are included.'
+PASS large: no run and no word mark anywhere (all or nothing) — runs=0 marks=0
+SHOT large-end-phone
+PASS large: every line is included (all 520 Cargo.lock lines, the last one scrolled into view) — lines=520 want=520 blocks=9
+PASS large: the removed line keeps its tint and red text (no syntax colour) — block=b3_diff_file_0_h0_b1 ink=(197, 15, 15)
+CLICK b3_close r=[316, 133, 28, 28] at (330,147)
+== the heaviest preview still decorated (394 lines, just under the bound)
+CLICK cv_ap_once r=[28, 591, 304, 46] at (180,614)
+PASS approval: Approve once -> the dense diff approval — 'Apply a patch to b…'
+CLICK cv_ap_diff r=[28, 753, 304, 36] at (180,771)
+PASS dense: 394 decorated lines open as runs and marks within 4 s of the CLICK — 0.89 s, lines with runs=394, lines with marks=196
+SHOT dense-phone
+CLICK b3_close r=[316, 133, 28, 28] at (330,147)
+CLICK cv_ap_session r=[28, 647, 304, 46] at (180,670)
+== 31/31 checks passed

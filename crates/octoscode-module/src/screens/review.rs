@@ -15,10 +15,11 @@
 //!   (`DiffReviewDialog.tsx:25`; the +N/−N totals are counted over the
 //!   preview's lines, `DiffReviewDialog.tsx:32-42`, header `+{a}`/`−{d}` at
 //!   `:79-80`);
-//! * word-level marks — `diffKind` collapses the wire's line kinds to
+//! * LINE marks — `diffKind` collapses the wire's line kinds to
 //!   added/removed/context (`diff-presentation.ts:17-23`); the card carries
-//!   the marks as its `mk_*` gutter slots (decoration limits
-//!   `diff-presentation.ts:26-40` are a renderer concern, never a truncation);
+//!   the +/− marks as its `mk_*` gutter slots. The WORD-level marks, the
+//!   syntax colours and their bound live in the diff review dialog (A28:
+//!   `board3::diff_words`, `board3::diff_review`);
 //! * native review start — `review/start` gated on the method AND the
 //!   `review.start.v1` feature (`native-review.ts:18-24`); every withholding
 //!   cause is one typed literal (`native-review.ts:33-55`); the dialog
@@ -67,9 +68,9 @@ pub const BINDINGS: &[(&str, &str)] = &[
     ("review.num5", "sixth line's gutter number"),
     ("review.num6", "seventh line's gutter number"),
     ("review.num7", "eighth line's gutter number"),
-    ("review.mark2", "third line's word-level mark (+/-)"),
-    ("review.mark3", "fourth line's word-level mark (+/-)"),
-    ("review.mark4", "fifth line's word-level mark (+/-)"),
+    ("review.mark2", "third line's mark (+/-)"),
+    ("review.mark3", "fourth line's mark (+/-)"),
+    ("review.mark4", "fifth line's mark (+/-)"),
     ("review.mark5", "sixth line's mark (+/-)"),
     ("review.mark6", "seventh line's mark (+/-)"),
     ("review.status", "code-review run status or typed blocked reason"),

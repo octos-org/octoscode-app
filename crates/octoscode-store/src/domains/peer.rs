@@ -331,6 +331,9 @@ pub enum PeerSessionEvent {
     TurnStarted { turn_id: Option<String> },
     AttentionRequested { request_id: Option<String>, kind: Option<RequestKind>, detail: Option<RequestDetail> },
     AttentionResolved,
+    /// A30 — the resolution of ONE named request (`approval/decided`,
+    /// `approval/auto_resolved`, `approval/cancelled` carry the approval id).
+    AttentionResolvedFor { request_id: String },
     TurnTerminal { outcome: Outcome, error: Option<String> },
     ControlAck { interrupt: bool },
     Usage { output_tokens: u64 },
@@ -538,6 +541,13 @@ impl Peers {
             }
             PeerSessionEvent::ControlAck { interrupt } => {
                 let row = &mut i.rows[pos];
+                // A30 (outer/LESSONS.md: a terminal is final): the receipt's
+                // continuation runs on the control task, the peer's own
+                // frames on the drain task — a turn that already ended keeps
+                // its outcome and never gets a stale "Sent" / "Stop requested".
+                if row.activity == Activity::Done {
+                    return false;
+                }
                 row.acknowledgment = Some(if *interrupt { Ack::StopRequested } else { Ack::Sent });
                 row.turn_changed_since_ack = false;
             }
@@ -554,7 +564,18 @@ impl Peers {
                 row.acknowledgment = None;
                 row.activity = Activity::Blocked;
             }
-            PeerSessionEvent::AttentionResolved => {
+            PeerSessionEvent::AttentionResolved | PeerSessionEvent::AttentionResolvedFor { .. } => {
+                // A30: a NAMED resolution settles only the request it names.
+                // A late or duplicate `approval/decided` for an earlier
+                // request (or one of two concurrent requests) must never
+                // clear the request that is pending now — the dock would
+                // lose the card while the peer still waits on it.
+                if let PeerSessionEvent::AttentionResolvedFor { request_id } = event {
+                    let pending = i.rows[pos].request_id.as_deref();
+                    if pending.is_some_and(|p| p != request_id) {
+                        return false;
+                    }
+                }
                 let restored = i.pre_block.remove(identity);
                 let row = &mut i.rows[pos];
                 if restored.is_some() || row.activity == Activity::Blocked {
@@ -691,12 +712,19 @@ mod roster_tests {
             (r.activity, r.outcome, r.output_tokens, r.finished_at_ms),
             (Activity::Done, Some(Outcome::Stopped), 1200, Some(9))
         );
+        // A30: a receipt applied AFTER the terminal is ignored — in wire
+        // order the terminal clears the ack, so the late one must not
+        // resurrect it (the same end state in either order).
+        assert!(!p.observe_session_event("m#peer-a", &PeerSessionEvent::ControlAck { interrupt: true }, 9));
+        assert_eq!(p.row("m#peer-a").unwrap().acknowledgment, None);
         // A replacement turn clears the outcome and flags a stale ack.
-        ev(PeerSessionEvent::ControlAck { interrupt: true });
         ev(PeerSessionEvent::TurnStarted { turn_id: Some("turn-2".into()) });
+        assert!(p.row("m#peer-a").unwrap().outcome.is_none(), "a fresh turn: the outcome no longer stands");
+        ev(PeerSessionEvent::ControlAck { interrupt: false });
+        ev(PeerSessionEvent::TurnStarted { turn_id: Some("turn-3".into()) });
         let r = p.row("m#peer-a").unwrap();
         assert!(r.turn_changed_since_ack && r.acknowledgment.is_none() && r.outcome.is_none());
-        assert_eq!(r.turn_id, "turn-2");
+        assert_eq!(r.turn_id, "turn-3");
         // A closed row owns no further events.
         p.close_row("m#peer-a");
         assert!(!p.observe_session_event("m#peer-a", &PeerSessionEvent::AttentionResolved, 10));

@@ -333,8 +333,6 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Peer control", "同侪控制"),
     ("Sending {value0}\u{2026}", "正在发送：{value0}\u{2026}"),
     ("Acquiring\u{2026}", "正在获取\u{2026}"),
-    ("streaming", "正在输出"),
-    ("needs you", "需要你处理"),
     ("reaped", "已回收"),
     ("staged", "已准备"),
     (
@@ -560,8 +558,6 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Cancelling\u{2026}", "正在取消\u{2026}"),
     ("Reading artifacts\u{2026}", "正在读取产物\u{2026}"),
     ("Live task output has a cursor gap. Load more output to resynchronize.", "实时任务输出出现游标缺口。请加载更多输出以重新同步。"),
-    ("Approve once", "批准一次"),
-    ("Approve for session", "本会话内批准"),
     ("Octos needs a decision", "Octos 需要你做决定"),
     ("Submit answer", "提交回答"),
     ("Stop turn", "停止轮次"),
@@ -744,6 +740,58 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("A background response needs your input. Return to OctosCode to review it.", "后台回复需要你的输入。请返回 OctosCode 查看。"),
     ("A background response needs attention. Return to OctosCode to review it.", "后台回复需要处理。请返回 OctosCode 查看。"),
     ("A background response finished. Return to OctosCode to review it.", "后台回复已完成。请返回 OctosCode 查看。"),
+    // ---- A30 (merged from main): the sidebar peer dock (row 270; board 4 regions 6/7); each row's English source in a comment.
+    // board 4 region 7, the pill's working count
+    ("{value0} working", "{value0} 个工作中"),
+    // board 4 region 7, the pill's waiting count
+    ("{value0} waiting", "{value0} 个等待中"),
+    // board 4 region 7, the pill's finished of total
+    ("{value0}/{value1} finished", "{value0}/{value1} 已完成"),
+    // board 4 region 6, the threaded card's link (the web's 'Approve for this session')
+    ("Approve for session", "本次会话内批准"),
+    // fleet_driver::row_control's fail-closed label
+    ("This peer is no longer in the roster.", "此同侪已不在名单中。"),
+    // fleet_driver::row_control's fail-closed label
+    ("Take control of this session to do this", "需要先取得此会话的控制权"),
+    // fleet_driver::row_control's fail-closed label
+    ("That action is not available right now.", "此操作当前不可用。"),
+    // ---- A28 (merged from main): the diff review (row 23; board 4 frames 1/1b/2); each row's English source in a comment.
+    // DiffReviewDialog.tsx:107-109 plainNotice (the web renders it without t()); board 4 frame 1b
+    ("Large preview shown as plain text. All lines are included.", "大型预览以纯文本显示，已包含所有行。"),
+    // A10: the header Review entry before any preview id
+    ("No diff preview yet", "尚无差异预览"),
+    // A10: the no-preview state's body
+    (
+        "A preview appears here once this Session proposes file changes, such as an approval that edits files.",
+        "此会话提出文件更改（例如需要批准的文件编辑）后，预览会显示在这里。",
+    ),
+    // A10: a server without diff/preview/get
+    ("This server does not provide diff previews.", "此服务器不提供差异预览。"),
+    // A10: the no-preview state's way to the Code review dialog (/review)
+    ("Code review…", "代码审查…"),
+    // ---- A29 (merged from main): the /btw aside (row 6; board 4 regions 4/5); each row's English source in a comment.
+    // lazy-btw-controller.ts:52 FAILED
+    ("The aside could not be answered. Try again.", "无法回答此旁问。请重试。"),
+    // FAILED's red lead (board 4 region 5c's notice shape)
+    ("The aside could not be answered.", "无法回答此旁问。"),
+    // FAILED's muted cause
+    ("Try again.", "请重试。"),
+    // lazy-btw-controller.ts:53-54 STALE
+    (
+        "The Session connection changed before the aside completed. Ask again when it is ready.",
+        "旁问完成前，会话连接已变更。请在连接就绪后重新提问。",
+    ),
+    // board 4 region 5c, the red lead
+    ("The Session connection changed before the aside completed.", "旁问完成前，会话连接已变更。"),
+    // board 4 region 5c, the muted cause
+    ("Ask again when it is ready.", "请在连接就绪后重新提问。"),
+    // board 4 region 5b, the collapsed row's state word
+    ("Answered", "已回答"),
+    // intent.ts:103, the /btw usage reason
+    (
+        "Use /btw <question> for a temporary side answer. Nothing was sent to the model.",
+        "使用 /btw <问题> 获取临时旁问回答。未向模型发送任何内容。",
+    ),
 ];
 
 /// The web catalog's vocabulary: each English term (matched as a word,

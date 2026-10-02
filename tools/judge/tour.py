@@ -23,19 +23,20 @@ FIRST_RUN = PHASE == "first-run"
 BASE = f"http://127.0.0.1:{PORT}"
 os.makedirs(OUT, exist_ok=True)
 N = [0]
+BASE_SIG = [None]  # the screen before the action a capture shows
 
 
 def get(path, timeout=15):
-    # An input route with wait=1 answers 404 when its frame was coalesced: the
-    # input WAS delivered (A11), so it is never re-sent (a retry would click
-    # twice). A read that 404s (the UI thread missed its 5 s window on a loaded
+    # An input route is never re-sent (a retry would click twice). A read that 404s (the UI thread missed its 5 s window on a loaded
     # machine) is retried once after a pause, which tells a stall from a dead app.
     if path.startswith(("/click", "/t?", "/k?", "/m?")):
         try:
             with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
                 return r.read()
         except urllib.error.HTTPError as e:
-            if e.code == 404:
+            # Only the frame-wait timeout counts as queued (bridgeauth); the
+            # capture's no-change flag then shows a click that did nothing.
+            if bridgeauth.input_was_queued(path, e):
                 return b""
             raise
     # Under a saturated machine (eight agents building) a frame can miss the
@@ -75,6 +76,19 @@ def nodes(tree=None):
     return out
 
 
+def signature(tree=None):
+    return frozenset((n.get("i"), (n.get("t") or "").strip()) for n, _ in nodes(tree)
+                     if n["r"][2] > 0 and n["r"][3] > 0 and n.get("v", 1) != 0)
+
+
+def mark_before():
+    """Remember the screen before an action; the next capture must differ."""
+    try:
+        BASE_SIG[0] = signature()
+    except Exception:  # noqa: BLE001
+        BASE_SIG[0] = None
+
+
 def find(wid):
     for n, _ in nodes():
         if n.get("i") == wid and n["r"][2] > 0 and n["r"][3] > 0:
@@ -91,22 +105,25 @@ def find_text(text):
 
 def click_rect(r):
     x, y, w, h = r
-    get(f"/click?x={x + w / 2}&y={y + h / 2}&wait=1")
+    mark_before()
+    try:
+        get(f"/click?x={x + w / 2}&y={y + h / 2}&wait=1")
+    except Exception as e:  # recorded as a flag; the tour goes on
+        with open(os.path.join(OUT, "checks.tsv"), "a") as f:
+            f.write(f"click\t{MODE}\tinput-error\t{type(e).__name__}: {e}\n")
+        return False
     time.sleep(0.6)
+    return True
 
 
 def click(wid):
     n = find(wid)
-    if n:
-        click_rect(n["r"])
-    return bool(n)
+    return bool(n) and click_rect(n["r"])
 
 
 def click_text(text):
     n = find_text(text)
-    if n:
-        click_rect(n["r"])
-    return bool(n)
+    return bool(n) and click_rect(n["r"])
 
 
 def key(c, **mods):
@@ -131,6 +148,10 @@ def checks(tree):
     win = window()
     found = []
     ns = nodes(tree)
+    # Scroll viewports: a control cut at one's top or bottom edge is scrolled
+    # partly out of view (its visible sliver is small), not a small target.
+    scrolls = [n["r"] for n, _ in ns if n["r"][2] > 0 and n["r"][3] > 0 and n.get("v", 1) != 0
+               and ("scroll" in (n.get("i") or "").lower() or n.get("ty") in ("PortalList", "ScrollYView", "ScrollXYView"))]
     for n, parent in ns:
         r, t = n["r"], (n.get("t") or "").strip()
         if r[2] <= 0 or r[3] <= 0:
@@ -140,7 +161,8 @@ def checks(tree):
         if t and n.get("ty") == "Label":
             if r[0] < win[0] - 1 or r[1] < win[1] - 1 or r[0] + r[2] > win[2] + 1 or r[1] + r[3] > win[3] + 1:
                 found.append(f"outside:{n.get('i')}")
-        if n.get("ty") == "Button" and (r[2] < 27.5 or r[3] < 27.5) and n.get("v", 1) != 0:
+        if n.get("ty") == "Button" and (r[2] < 27.5 or r[3] < 27.5) and n.get("v", 1) != 0 \
+                and not cut_by_scroll(r, scrolls):
             found.append(f"small:{n.get('i')}:{round(r[2])}x{round(r[3])}")
     by_parent = {}
     win_area = win[2] * win[3]
@@ -163,6 +185,15 @@ def checks(tree):
     return found
 
 
+def cut_by_scroll(r, scrolls):
+    for s in scrolls:
+        inside_x = r[0] >= s[0] - 1 and r[0] + r[2] <= s[0] + s[2] + 1
+        at_edge = abs((r[1] + r[3]) - (s[1] + s[3])) <= 1 or abs(r[1] - s[1]) <= 1
+        if inside_x and at_edge:
+            return True
+    return False
+
+
 def capture(name):
     N[0] += 1
     stem = f"{N[0]:02d}-{name}"
@@ -181,6 +212,12 @@ def capture(name):
     with open(os.path.join(OUT, stem + ".snap.json"), "w") as f:
         json.dump(_scrub(tree), f)
     found = checks(tree)
+    # Every capture follows a click or command meant to change the screen: a
+    # capture identical to the screen just BEFORE that action (visible ids and
+    # texts) means the control did nothing - a dead control is flagged.
+    if BASE_SIG[0] is not None and signature(tree) == BASE_SIG[0]:
+        found.append("no-change")
+    BASE_SIG[0] = None
     with open(os.path.join(OUT, "checks.tsv"), "a") as f:
         f.write(f"{stem}\t{MODE}\t{len(found)}\t{' '.join(found[:12])}\n")
     print(f"{stem}: {len(found)} flags {' '.join(found[:6])}")
@@ -236,6 +273,7 @@ def run_command(cmd):
     if not click("i0_composer_0"):
         return False
     clear_composer()
+    mark_before()
     type_text("/" + cmd)
     key("return")
     time.sleep(1.2)

@@ -32,6 +32,9 @@ log = { workspace = true }
 url = "2"
 # #A2 board 1: p4-05's "Paired  Today, 9:41 PM" in the device's own zone.
 chrono = "0.4"
+# A28: the diff review's word pattern (`[\p{L}\p{N}\p{M}_$]+`, diff-presentation.ts:125)
+# needs Unicode general categories; already in both lockfiles (1.13.1).
+regex = "1"
 # A21: the tab drafts' identity is a digest of (origin, token) — the file
 # never holds the token itself (already in Cargo.lock via the transport).
 sha2 = "0.10"

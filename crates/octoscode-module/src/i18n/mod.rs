@@ -179,7 +179,15 @@ pub fn zh_for(source: &str) -> Option<&'static str> {
 /// the same control ([`alias`]), with typographic quotes folded.
 pub fn web_zh(source: &str) -> Option<&'static str> {
     let cat = catalog();
-    let lookup = |s: &str| cat.get(s).copied().or_else(|| alias::web_key(s).and_then(|k| cat.get(k).copied()));
+    let lookup = |s: &str| {
+        cat.get(s)
+            .copied()
+            .or_else(|| alias::web_key(s).and_then(|k| cat.get(k).copied()))
+            // A30: the web's peer table (`peer-copy.ts`), which the web's
+            // loader never merges — after the merged catalog, so a merged
+            // key always wins.
+            .or_else(|| zh::PEER_ZH.iter().find(|(k, _)| *k == s).map(|(_, v)| *v))
+    };
     lookup(source).or_else(|| fold_quotes(source).and_then(|plain| lookup(&plain)))
 }
 

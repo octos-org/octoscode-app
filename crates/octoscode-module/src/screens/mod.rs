@@ -19,6 +19,8 @@ pub mod autonomy;
 pub mod board1;
 pub mod board1_kit;
 pub mod board3;
+// A29: the /btw aside panel of the Session that asked (parity row 6).
+pub mod btw;
 // A21: the pre-connection bootstrap (default endpoint, the auto-start
 // decision) and the native connection envelope (the web's tab/durable split).
 pub mod bootstrap;
@@ -54,12 +56,17 @@ pub mod remembered;
 // profile/local/create -> profile/llm/test -> profile/llm/upsert -> open).
 pub mod onboarding;
 pub mod media;
+// A23: the model-provider controller + projection the providers dialog and
+// the provider editor share (web model-settings.ts + model-management-projection.ts).
+pub mod model_settings;
 pub mod models;
 // #D1: the five native-pairing cards (p4-01..p4-05) — one owner per action id.
 pub mod pairing;
 // #D1: the two provider-editor cards (p4-06/07) — draft kept, error redacted.
 pub mod provider;
 pub mod palette;
+// A30: the peer dock in the sidebar (parity row 270, board 4 regions 6/7).
+pub mod peer_dock;
 pub mod peers;
 // P4h1 rows 304-307: the recent-workspaces cache (the web's
 // `features/workspace/workspace-recents.ts`), with its own storage seam.

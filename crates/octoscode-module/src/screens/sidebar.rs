@@ -323,6 +323,10 @@ pub enum Row {
         status: Status,
         selected: bool,
         matched: Option<(usize, usize)>,
+        /// A29 — the Session holds a `/btw` aside and is NOT the one on
+        /// screen (the operator's 2026-10-02 decision: a small marker on its
+        /// row while you are on another Session).
+        aside: Option<octoscode_store::domains::btw::Mark>,
     },
     /// A grey empty-state line.
     Note(String),
@@ -465,6 +469,9 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
         status: status_of(it),
         selected: active.as_deref() == Some(it.id.as_str()),
         matched,
+        aside: (active.as_deref() != Some(it.id.as_str()))
+            .then(|| store.domains.btw.mark(&it.id))
+            .flatten(),
     };
     fn ordered_by(sort: Sort, mut v: Vec<&Item>) -> Vec<&Item> {
         v.sort_by(|a, b| match (a.updated_ms, b.updated_ms) {

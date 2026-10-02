@@ -450,6 +450,18 @@ script_mod! {
                         }
                         sb_r_post := OcLabel{text: ""}
                     }
+                    // A29 — a Session holding a /btw aside while another is
+                    // on screen: a small "/btw" chip (blue dot answering,
+                    // red dot failed / stale), the operator's 2026-10-02 ask.
+                    sb_r_aside := RoundedView{
+                        width: Fit height: 18 visible: false
+                        flow: Right spacing: 4 align: Align{y: 0.5}
+                        padding: Inset{left: 6 right: 7}
+                        draw_bg +: {color: theme.color_bg_even border_radius: 9.0}
+                        sb_r_aside_run := RoundedView{width: 6 height: 6 visible: false draw_bg +: {color: #2F6FEB border_radius: 3.0}}
+                        sb_r_aside_fail := RoundedView{width: 6 height: 6 visible: false draw_bg +: {color: #D93025 border_radius: 3.0}}
+                        sb_r_aside_label := OcMuted{text: "" draw_text +: {text_style +: {font_size: 8.25}}}
+                    }
                     sb_r_time := OcMuted{text: "" draw_text +: {text_style +: {font_size: 9.0}}}
                 }
                 sb_r_open := OcHit{}
@@ -2579,8 +2591,17 @@ pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode
                 item.widget(cx, ids!(sb_g_more_on)).set_visible(cx, *menu_open);
                 item.draw_all_unscoped(cx);
             }
-            Row::Session { title, time, status, selected, matched, .. } => {
+            Row::Session { title, time, status, selected, matched, aside, .. } => {
                 let item = list.item(cx, id, id!(SbRowTpl));
+                // A29 — the aside marker (`screens::sidebar` sets it only on
+                // a Session that is not on screen).
+                {
+                    use octoscode_store::domains::btw::Mark;
+                    item.widget(cx, ids!(sb_r_aside)).set_visible(cx, aside.is_some());
+                    item.widget(cx, ids!(sb_r_aside_run)).set_visible(cx, *aside == Some(Mark::Answering));
+                    item.widget(cx, ids!(sb_r_aside_fail)).set_visible(cx, *aside == Some(Mark::Failed));
+                    item.label(cx, ids!(sb_r_aside_label)).set_text(cx, crate::screens::btw::MARK_LABEL);
+                }
                 item.widget(cx, ids!(sb_r_sel)).set_visible(cx, *selected);
                 item.widget(cx, ids!(sb_r_focus)).set_visible(cx, focus_row == Some(id));
                 for (wid, st) in [

@@ -28,11 +28,29 @@
 //! | `session` | `r3-session-a6ea8505` | the context-compaction lifecycle |
 //! | `fleet` | `a10-fleet-driver-synthetic` (SYNTHETIC) | the external-driver chain: walk, acquire, prepare, dispatch, peer frames, peer/control |
 //! | `onboarding` | `live-gate-a6ea8505` handshake + `r29a-onboarding-a6ea8505` replies | A17: the solo onboarding panel (see [`onboarding`]) |
+//! | `btw` | `live-gate-a6ea8505` handshake + turns, `r43a` hydrate shape | A29: the `/btw` aside per Session (see [`btw`]) |
 //! | `skill-jobs` | r1's handshake + SYNTHETIC jobs (`replay_scenarios/skill_jobs.rs`) | A31: the Skills dialog's Background jobs — `skill.action_jobs.v1` advertised (withdraw it with `--drop-feature skill.action_jobs.v1 --drop-method skill/action/job/list`), `skill/action/job/list` per Session, `skill/action/job/updated` around it; `--jobs-trigger <file>` sends a live transition when the file appears |
+//!
+//! `--diff-words` (A28, `surfaces`): the approvals turn's diff approvals
+//! announce the SYNTHETIC previews of `a28-diff-words-synthetic.jsonl` — word
+//! marks + syntax colours (`…0f1`), then a preview past the decoration bound
+//! (`…0f2`), then the heaviest preview still decorated (`…0f3`, 394 lines) —
+//! and `diff/preview/get` answers each by its id.
 //!
 //! `--stale-window` (A18, any scenario): every `session/hydrate` answers with
 //! the A15 live smoke's first-launch hydrate (`a18-stale-window-a6ea8505`): no
 //! durable rows, an earlier run's retained turn terminals (a reset store).
+//!
+//! A23 (`a10`, the providers simulator): `profile/llm/upsert` replaces an
+//! existing identity in place (an edit) or adds one (`set_primary` makes it
+//! the primary); the dummy key `sk-test-rejected` gets r29a's recorded 401
+//! from `profile/llm/test`; `--providers-extra` adds the web unit tests' two
+//! configured rows (an edit-blocked `strong: false` row and a row with
+//! inference overrides); `--providers-empty` starts with no configured
+//! provider; `--fail-config-file <path>` refuses the profile-config reads
+//! while <path> exists, and `--slow profile/llm/list@profile=<ms>` holds them
+//! (from 5 s into the connection: the app's start-up reads the configuration
+//! too). The provider methods' log lines mask the key.
 //!
 //! `--history-delay-ms N` / `--history-unknown` (A19b, `history`): the
 //! recorded Session's history read (`session/hydrate {include: [messages]}`)
@@ -134,6 +152,12 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         // catalog names it by its first prompt (see `history_reply`). Run the
         // app with OCTOS_PROFILE_ID=dsflash (the recorded profile).
         "history" => ("history", "r43a-recovery-a6ea8505.jsonl"),
+        // A29: the /btw aside walk. live-gate's handshake (its recorded open
+        // advertises `session/btw` in `supported_methods`) and its turns
+        // (`--adopt-turn-ids --delay-ms`: a main turn keeps working while the
+        // aside answers); three Sessions of one `octos` workspace; the
+        // aside's replies come from the `btw` module.
+        "btw" => ("btw", "live-gate-a6ea8505.jsonl"),
         // A31: the Skills dialog's Background jobs (see `skill_jobs`): r1's
         // handshake and the `screens` replies, the jobs synthetic.
         "skill-jobs" => ("skill-jobs", "r1-autonomy-a6ea8505.jsonl"),
@@ -272,6 +296,99 @@ fn history_reply(method: &str, p: &Value, home: &str, hydrate: &Value) -> Option
             }))
         }
         _ => None,
+    }
+}
+
+/// A29 — the `btw` scenario: the `/btw` aside per Session.
+///
+/// No recording carries a `session/btw` frame (#30d recon), so the reply is
+/// SYNTHETIC in octos-core's shape (`SessionBtwResult {session_id, answer,
+/// model}`, `ui_protocol.rs:3106`; the web client's `parseSessionBtwResult`
+/// admits exactly that, `btw.ts:34-52`): the asking Session's id echoed back,
+/// a Markdown answer, the model. It arrives `--btw-delay-ms` (default 4000)
+/// after the request, so a walk can switch Sessions while it answers.
+/// `--btw-drop <n>[,<n>…]` closes the socket ~1.2 s after the n-th aside
+/// (counted across connections; the app re-dials: the stale state) and
+/// `--btw-fail <n>[,…]` answers the n-th with a JSON-RPC error (the failed
+/// state). The catalog names three Sessions of the `/home/user/src/octos`
+/// workspace; the main one has a short history in the recorded hydrate's
+/// shape (`r43a-recovery`), the others none.
+mod btw {
+    use serde_json::{json, Value};
+
+    pub const WORKSPACE: &str = "/home/user/src/octos";
+    pub const SESSIONS: &[(&str, &str, &str)] = &[
+        ("main", "Fix steer queue drop on reconnect", "2026-10-02T09:12:00Z"),
+        ("hydrate", "Why is hydrate slow?", "2026-10-02T08:40:00Z"),
+        ("fork", "Add session fork", "2026-10-01T16:05:00Z"),
+    ];
+
+    /// The aside's answer (Markdown), by question.
+    pub fn answer(question: &str, session: &str) -> String {
+        let q = question.to_lowercase();
+        if q.contains("redeliver") {
+            "Draining first keeps the order stable: `redeliver` resends from a snapshot, so a message that \
+             arrives mid-resend waits for the next pass."
+                .to_owned()
+        } else if q.contains("hydrate") {
+            "Hydrate reads the whole canonical history before the first row draws. The slow part is the \
+             projection replay, not the transport."
+                .to_owned()
+        } else if q.contains("测试") || q.contains("为什么") {
+            "因为重连会先排空队列，再按快照重发，所以顺序保持稳定。".to_owned()
+        } else {
+            format!("Aside for `{session}`: {question}")
+        }
+    }
+
+    /// The catalog (`session/list`), in the catalog reply's shape.
+    pub fn list(profile: &str, cwd: Option<&str>) -> Value {
+        let rows: Vec<Value> = SESSIONS
+            .iter()
+            .map(|(suffix, title, when)| {
+                json!({
+                    "id": format!("{profile}:{suffix}"), "title": title, "message_count": 4,
+                    "updated_at": when, "active_turn": false
+                })
+            })
+            .collect();
+        match cwd {
+            Some(cwd) => json!({"sessions": rows, "workspace_root": cwd, "profile_id": profile}),
+            None => json!({"sessions": rows}),
+        }
+    }
+
+    /// `session/hydrate` for `session`: the recorded reply's shape with this
+    /// Session's own (short) history.
+    pub fn hydrate(template: &Value, recorded: &str, session: &str) -> Value {
+        let mut body = template.clone();
+        super::rewrite_session(&mut body, recorded, session);
+        if let Some(obj) = body.as_object_mut() {
+            obj.insert("session_id".to_owned(), Value::String(session.to_owned()));
+            let messages = if session.ends_with(":main") {
+                json!([
+                    {"content": "Make redeliver survive a reconnect.", "message_id": format!("{session}:0:1"),
+                     "persisted_at": "2026-10-02T09:10:00Z", "role": "user", "seq": 0},
+                    {"content": "I traced `redeliver`: it drains the queue from a snapshot before it resends. I'll make the drain resumable, so a reconnect picks up where the last pass stopped.",
+                     "message_id": format!("{session}:1:1"), "persisted_at": "2026-10-02T09:11:30Z",
+                     "role": "assistant", "seq": 1}
+                ])
+            } else {
+                json!([])
+            };
+            obj.insert("messages".to_owned(), messages);
+            obj.remove("pending_approvals");
+            obj.remove("pending_questions");
+        }
+        body
+    }
+
+    /// `--btw-drop` / `--btw-fail`: the 1-based request numbers.
+    pub fn nths(args: &[String], flag: &str) -> Vec<usize> {
+        args.windows(2)
+            .filter(|w| w[0] == flag)
+            .flat_map(|w| w[1].split(',').filter_map(|n| n.trim().parse().ok()).collect::<Vec<usize>>())
+            .collect()
     }
 }
 
@@ -437,6 +554,54 @@ struct SeatSim {
     /// `a10-routes-faithful.jsonl`: the fetch_models and passing test replies.
     fetched: Value,
     tested: Value,
+    /// A23 — r29a's recorded `profile/llm/test` 401 (line 10), answered for
+    /// the dummy key [`A23_REJECTED_KEY`].
+    rejected: Value,
+}
+
+/// A23 — the dummy key the provider simulator refuses with the recorded 401.
+const A23_REJECTED_KEY: &str = "sk-test-rejected";
+
+/// A23 — `--providers-extra`: two more configured fallbacks with the WEB
+/// unit tests' values (`model-management-projection.test.ts:11` — a row
+/// carrying `strong: false`, which the closed write schema cannot preserve;
+/// `:53` — a row with configured inference overrides, `top_p: null`
+/// included). No recording carries either.
+fn a23_extra_rows() -> Vec<Value> {
+    vec![
+        serde_json::json!({"family_id": "moonshot", "model_id": "kimi-k2", "model": "kimi-k2", "provider": "moonshot",
+            "route": {"route_id": "moonshot", "label": "Official API", "api_type": "openai", "api_key_env": "MOONSHOT_API_KEY"},
+            "route_id": "moonshot", "has_api_key": true, "selected": false, "available": true, "strong": false}),
+        serde_json::json!({"family_id": "zai", "model_id": "glm-5.3-flash", "model": "glm-5.3-flash", "provider": "zai",
+            "route": {"route_id": "zai", "label": "Official API", "api_type": "openai", "api_key_env": "ZAI_API_KEY"},
+            "route_id": "zai", "has_api_key": true, "selected": false, "available": true,
+            "temperature": 0, "top_p": null, "context_window": 131072, "reasoning_effort": "max",
+            "model_hints": {"fixed_temperature": false, "reasoning_style": "effort_low_high_max"}}),
+    ]
+}
+
+/// A23 — the recorder's trace redacts every field whose NAME contains
+/// `api_key` (`octoscode-client/src/trace.rs`), so r2's configured rows read
+/// `"has_api_key": "<redacted>"` (a boolean on the wire — the web's parser
+/// rejects anything else) and `"api_key_env": "<redacted>"` (an env NAME,
+/// never a value). r2's configuration is DeepSeek's alone: restore the
+/// boolean, and the env name as the catalog's own for DeepSeek.
+fn restore_redacted_flags(v: &mut Value) {
+    match v {
+        Value::Object(m) => {
+            for (k, x) in m.iter_mut() {
+                if k == "has_api_key" && x.is_string() {
+                    *x = Value::Bool(true);
+                } else if k == "api_key_env" && x == "<redacted>" {
+                    *x = Value::from("DEEPSEEK_API_KEY");
+                } else {
+                    restore_redacted_flags(x);
+                }
+            }
+        }
+        Value::Array(a) => a.iter_mut().for_each(restore_redacted_flags),
+        _ => {}
+    }
 }
 
 impl SeatSim {
@@ -468,15 +633,21 @@ impl SeatSim {
             .find(|f| f.dir == "in" && f.body["payload"]["type"] == "turn_terminal" && f.body["payload"]["data"]["outcome"] == "interrupted")
             .map(|f| f.body)
             .unwrap_or_default();
-        let config = r2
+        let mut config = r2
             .iter()
             .filter(|f| f.dir == "in" && f.method == "profile/llm/list")
             .map(|f| f.body.clone())
             .find(|b| b["fallbacks"].as_array().is_some_and(|a| !a.is_empty()))
             .unwrap_or_default();
+        restore_redacted_flags(&mut config);
         let routes = fixture("a10-routes-faithful.jsonl");
         let reply = |m: &str| routes.iter().find(|f| f.dir == "in" && f.method == m).map(|f| f.body.clone()).unwrap_or_default();
         let (fetched, tested) = (reply("profile/llm/fetch_models"), reply("profile/llm/test"));
+        let rejected = fixture("r29a-onboarding-a6ea8505.jsonl")
+            .into_iter()
+            .find(|f| f.dir == "in" && f.method == "profile/llm/test")
+            .map(|f| f.body)
+            .unwrap_or_default();
         SeatSim {
             current: list["current"].clone(),
             profiles: list["profiles"].clone(),
@@ -488,7 +659,63 @@ impl SeatSim {
             config,
             fetched,
             tested,
+            rejected,
         }
+    }
+
+    /// A23 — `--providers-extra`: the web unit tests' two rows join the
+    /// configured fallbacks.
+    fn with_extra_rows(mut self) -> Self {
+        if let Some(f) = self.config["fallbacks"].as_array_mut() {
+            f.extend(a23_extra_rows());
+        }
+        self
+    }
+
+    /// A23 — `profile/llm/upsert` the way Core applies it: an existing
+    /// identity (family, model, route) is REPLACED in place (an edit), a new
+    /// one joins the fallbacks; `set_primary` (or an empty configuration)
+    /// makes it the primary and the previous primary a fallback.
+    fn upsert(&mut self, params: &Value) -> Value {
+        let sel = &params["selection"];
+        let same = |m: &Value| {
+            m["family_id"] == sel["family_id"] && m["model_id"] == sel["model_id"] && m["route"]["route_id"] == sel["route"]["route_id"]
+        };
+        let mut row = serde_json::json!({
+            "family_id": sel["family_id"], "model_id": sel["model_id"], "model": sel["model_id"],
+            "provider": sel["family_id"], "route": sel["route"], "route_id": sel["route"]["route_id"],
+            "has_api_key": true, "available": true, "selected": false,
+        });
+        for k in ["temperature", "top_p", "context_window", "reasoning_effort", "model_hints"] {
+            if let Some(v) = sel.get(k) {
+                row[k] = v.clone();
+            }
+        }
+        let empty = self.config["primary"].is_null() && self.config["fallbacks"].as_array().is_none_or(|a| a.is_empty());
+        let primary = params["set_primary"] == Value::Bool(true) || empty || same(&self.config["primary"]);
+        if same(&self.config["primary"]) {
+            self.config["primary"] = Value::Null;
+        }
+        if let Some(f) = self.config["fallbacks"].as_array_mut() {
+            f.retain(|m| !same(m));
+        }
+        if primary {
+            let old = std::mem::replace(&mut self.config["primary"], Value::Null);
+            if !old.is_null() {
+                let mut old = old;
+                old["selected"] = Value::Bool(false);
+                if let Some(f) = self.config["fallbacks"].as_array_mut() {
+                    f.insert(0, old);
+                }
+            }
+            row["selected"] = Value::Bool(true);
+            self.config["primary"] = row;
+        } else if let Some(f) = self.config["fallbacks"].as_array_mut() {
+            f.push(row);
+        }
+        let mut r = self.config.clone();
+        r["applied"] = Value::Bool(true);
+        r
     }
 
     /// The reply (or the JSON-RPC error) for one seat method.
@@ -518,21 +745,14 @@ impl SeatSim {
                 r["family_id"] = params["selection"]["family_id"].clone();
                 Ok(r)
             }
-            "profile/llm/test" => Ok(self.tested.clone()),
-            "profile/llm/upsert" => {
-                let sel = &params["selection"];
-                let row = serde_json::json!({
-                    "family_id": sel["family_id"], "model_id": sel["model_id"], "model": sel["model_id"],
-                    "provider": sel["family_id"], "route": sel["route"], "route_id": sel["route"]["route_id"],
-                    "has_api_key": true, "available": true, "selected": false,
-                });
-                if let Some(f) = self.config["fallbacks"].as_array_mut() {
-                    f.push(row);
-                }
-                let mut r = self.config.clone();
-                r["applied"] = Value::Bool(true);
+            // A23: the dummy key A23_REJECTED_KEY gets r29a's recorded 401.
+            "profile/llm/test" if params["api_key"] == A23_REJECTED_KEY => {
+                let mut r = self.rejected.clone();
+                r["profile_id"] = params["profile_id"].clone();
                 Ok(r)
             }
+            "profile/llm/test" => Ok(self.tested.clone()),
+            "profile/llm/upsert" => Ok(self.upsert(params)),
             "profile/llm/delete" => {
                 let hit = |m: &Value| {
                     m["family_id"] == params["family_id"] && m["model_id"] == params["model_id"]
@@ -627,6 +847,15 @@ struct FleetSim {
     /// renew finds the lease taken by another app (`driver_fence_stale`);
     /// the file is removed so a later acquire holds again.
     revoke_file: Option<String>,
+    /// A30 (`--peer-dock`): the sidebar peer dock's walk — no prior walked
+    /// operation, three advertised lanes (glm-4.6 / gpt-5.4 /
+    /// deepseek-v4-flash), and per dispatch: the FIRST peer works then asks
+    /// for an approval, the SECOND asks for one (`cargo test -p octos-cli`)
+    /// and asks AGAIN after a Deny or an Approve-for-session, the THIRD
+    /// finishes; every approval names its target (`typed_details.command`).
+    peer_dock: bool,
+    /// A30: how many approvals each peer session has asked for.
+    asked: BTreeMap<String, u64>,
 }
 
 /// One reply + the notifications that follow it (`(delay ms, method, params)`).
@@ -674,6 +903,8 @@ impl FleetSim {
             workspace: workspace.to_owned(),
             external: true,
             revoke_file: None,
+            peer_dock: false,
+            asked: BTreeMap::new(),
         };
         let ws = sim.workspace.clone();
         for v in [&mut sim.get, &mut sim.binding] {
@@ -906,6 +1137,13 @@ impl FleetSim {
                             d["approval_id"] = Value::String(approval);
                             d["decision"] = p["command"]["decision"].clone();
                             pushes.push((200, "approval/decided".to_owned(), d));
+                            // A30: after a Deny or an Approve-for-session the
+                            // second peer asks again (a NEW approval id), so
+                            // each dock action has its own pending request.
+                            let again = p["command"]["decision"] == "deny" || p["command"]["approval_scope"] == "session";
+                            if self.peer_dock && again && self.dispatch_index(&session) == Some(2) {
+                                pushes.push((1500, "approval/requested".to_owned(), self.ask(&session, &turn)));
+                            }
                         }
                     }
                     Some("interrupt") => {
@@ -931,11 +1169,102 @@ impl FleetSim {
         }
     }
 
+    /// A30 (`--peer-dock`): only this run's dispatches are walked, and the
+    /// board's three models are each their own advertised lane (a Start
+    /// resolves its model from these).
+    fn enable_peer_dock(&mut self) {
+        self.peer_dock = true;
+        self.ops.clear();
+        let primary = self.lanes["sub_providers"][0].clone();
+        let lane = |key: &str, provider: &str, model: &str, desc: &str| {
+            let mut l = primary.clone();
+            l["key"] = key.into();
+            l["provider"] = provider.into();
+            l["model"] = model.into();
+            l["description"] = desc.into();
+            l
+        };
+        self.lanes["sub_providers"] = serde_json::json!([
+            lane("lane-glm", "zhipu", "glm-4.6", "Long-context lane"),
+            lane("lane-primary", "openai", "gpt-5.4", "Primary dispatch lane"),
+            lane("lane-deepseek", "deepseek", "deepseek-v4-flash", "Fast review lane"),
+        ]);
+    }
+
+    /// A30: the 1-based dispatch order of a peer session (this run's).
+    fn dispatch_index(&self, peer: &str) -> Option<usize> {
+        self.ops
+            .iter()
+            .filter(|o| o["acceptance"]["model_lane"].is_string())
+            .position(|o| o["acceptance"]["adopted_session_id"] == peer)
+            .map(|i| i + 1)
+    }
+
+    /// A30: the next approval a peer asks for — a fresh id, its target named
+    /// in `typed_details.command.command_line` (what the dock's card shows).
+    fn ask(&mut self, peer: &str, turn: &Value) -> Value {
+        const TARGETS: [&str; 5] = [
+            "cargo test -p octos-cli",
+            "cargo clippy --workspace",
+            "rm -rf target/debug/incremental",
+            "cargo publish --dry-run",
+            "make release",
+        ];
+        let n = {
+            let e = self.asked.entry(peer.to_owned()).or_insert(0);
+            *e += 1;
+            *e
+        };
+        let k = self.dispatch_index(peer).unwrap_or(9) as u64;
+        let id = format!("01a0eb92-9444-7101-aa6f-{:012x}", (k << 16) | n);
+        let target = if k == 1 { "cargo build -p octos-core" } else { TARGETS[((n - 1) as usize) % TARGETS.len()] };
+        let mut r = self.requested.clone();
+        r["session_id"] = Value::String(peer.to_owned());
+        r["turn_id"] = turn.clone();
+        r["approval_id"] = Value::String(id.clone());
+        r["typed_details"] = serde_json::json!({"kind": "command", "command": {"command_line": target}});
+        self.approvals.insert(peer.to_owned(), id);
+        r
+    }
+
+    /// A30: a token-cost progress frame (the dock's "↓ tokens").
+    fn tokens(peer: &str, turn: &Value, output_tokens: u64) -> Value {
+        serde_json::json!({
+            "session_id": peer, "turn_id": turn,
+            "metadata": {"kind": "token_cost_update", "token_cost": {"output_tokens": output_tokens}}
+        })
+    }
+
     /// A dispatched peer's background attach: its own frames follow.
     fn attached(&mut self, peer: &str) -> Vec<(u64, String, Value)> {
         let Some(op) = self.ops.iter().find(|o| o["acceptance"]["adopted_session_id"] == peer) else {
             return Vec::new();
         };
+        if self.peer_dock {
+            let turn = op["acceptance"]["adopted_turn_id"].clone();
+            let mut started = self.started.clone();
+            started["session_id"] = Value::String(peer.to_owned());
+            started["turn_id"] = turn.clone();
+            let mut out = vec![(300, "turn/started".to_owned(), started)];
+            match self.dispatch_index(peer) {
+                Some(1) => {
+                    out.push((600, "progress/updated".to_owned(), Self::tokens(peer, &turn, 12_400)));
+                    if !self.approvals.contains_key(peer) {
+                        out.push((900, "approval/requested".to_owned(), self.ask(peer, &turn)));
+                    }
+                }
+                Some(2) => {
+                    if !self.approvals.contains_key(peer) {
+                        out.push((900, "approval/requested".to_owned(), self.ask(peer, &turn)));
+                    }
+                }
+                _ => {
+                    out.push((600, "progress/updated".to_owned(), Self::tokens(peer, &turn, 31_000)));
+                    out.push((1200, "turn/completed".to_owned(), serde_json::json!({"session_id": peer, "turn_id": turn})));
+                }
+            }
+            return out;
+        }
         let turn = op["acceptance"]["adopted_turn_id"].clone();
         let first = self.ops.iter().filter(|o| o["acceptance"]["model_lane"].is_string()).position(|o| o["acceptance"]["adopted_session_id"] == peer);
         let mut started = self.started.clone();
@@ -1040,6 +1369,35 @@ mod surfaces {
     use super::{fixture, recorded_session, Frame};
     use serde_json::{json, Value};
 
+    /// A28 — `--diff-words`: the diff approvals announce the SYNTHETIC
+    /// previews of `a28-diff-words-synthetic.jsonl` (built by
+    /// tools/fixtures/a28_diff_words_fixture.py): the second approval is the
+    /// word-mark / syntax preview (`…0f1`), the third a large preview past
+    /// the decoration bound (`…0f2`), the fourth 394 decorated lines
+    /// (`…0f3`); `diff/preview/get` answers each by its id. Off by default,
+    /// so the A6 / A10 walks keep their preview.
+    pub static DIFF_WORDS: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+    fn diff_words() -> bool {
+        DIFF_WORDS.load(std::sync::atomic::Ordering::Relaxed)
+    }
+
+    /// The A28 fixture's `diff/preview/get` reply for `preview_id` (the
+    /// opened Session's id in place of the placeholder).
+    pub fn a28_preview(preview_id: &str, session: &str) -> Option<Value> {
+        let mut body = fixture("a28-diff-words-synthetic.jsonl")
+            .into_iter()
+            .find(|f| f.method == "res:diff/preview/get" && f.body["preview"]["preview_id"] == preview_id)?
+            .body;
+        body["preview"]["session_id"] = json!(session);
+        Some(body)
+    }
+
+    /// A28 — the large preview's id (the third approval's).
+    pub const A28_LARGE_PREVIEW: &str = "01920000-0000-7000-8000-0000000000f2";
+    /// A28 — the dense preview's id (the fourth approval's: 394 decorated lines).
+    pub const A28_DENSE_PREVIEW: &str = "01920000-0000-7000-8000-0000000000f3";
+
     pub const TURNS: &[&str] = &[
         "01920000-0000-7000-8000-00000000023b",
         "01920000-0000-7000-8000-00000000023c",
@@ -1130,9 +1488,44 @@ mod surfaces {
                         "preview_id": DIFF_PREVIEW, "operation": "apply_patch", "file_count": 1,
                         "additions": 4, "deletions": 1, "summary": "src/main.rs: +4 -1"
                     }});
+                    if diff_words() {
+                        // A28: the word-mark / syntax preview (board 4 frame 1).
+                        diff.body["title"] = json!("Apply a patch to steer_queue.rs, octos.conf and steer.md");
+                        diff.body["body"] = json!("Retries the steer queue with backoff.");
+                        diff.body["typed_details"]["diff"] = json!({
+                            "preview_id": DIFF_PREVIEW, "operation": "apply_patch", "file_count": 3,
+                            "additions": 6, "deletions": 4, "summary": "3 files: +6 -4"
+                        });
+                    }
                     out.push((diff, Some(Hold::Approval)));
-                    out.push((with_id("ac"), Some(Hold::Approval)));
-                    out.push((with_id("ad"), Some(Hold::Approval)));
+                    let mut third = with_id("ac");
+                    if diff_words() {
+                        // A28: a preview past the decoration bound (board 4 frame 1b).
+                        third.body["approval_kind"] = json!("diff");
+                        third.body["tool_name"] = json!("apply_patch");
+                        third.body["title"] = json!("Apply a patch to Cargo.lock and Cargo.toml");
+                        third.body["body"] = json!("Bumps octos to 0.24.1.");
+                        third.body["risk"] = json!("medium");
+                        third.body["typed_details"] = json!({"kind": "diff", "diff": {
+                            "preview_id": A28_LARGE_PREVIEW, "operation": "apply_patch", "file_count": 2,
+                            "additions": 2, "deletions": 2, "summary": "2 files: +2 -2"
+                        }});
+                    }
+                    out.push((third, Some(Hold::Approval)));
+                    let mut fourth = with_id("ad");
+                    if diff_words() {
+                        // A28: the heaviest preview still decorated (394 lines).
+                        fourth.body["approval_kind"] = json!("diff");
+                        fourth.body["tool_name"] = json!("apply_patch");
+                        fourth.body["title"] = json!("Apply a patch to backoff.rs");
+                        fourth.body["body"] = json!("Caps every backoff step.");
+                        fourth.body["risk"] = json!("medium");
+                        fourth.body["typed_details"] = json!({"kind": "diff", "diff": {
+                            "preview_id": A28_DENSE_PREVIEW, "operation": "apply_patch", "file_count": 1,
+                            "additions": 98, "deletions": 98, "summary": "backoff.rs: +98 -98"
+                        }});
+                    }
+                    out.push((fourth, Some(Hold::Approval)));
                     continue;
                 }
                 "user_question/requested" => {
@@ -1213,6 +1606,10 @@ mod surfaces {
     pub fn reply(method: &str, params: &Value, session: &str) -> Option<Value> {
         let task_id = params["task_id"].as_str().unwrap_or_default();
         Some(match method {
+            // A28: the synthetic word-mark / large previews, by id.
+            "diff/preview/get" if diff_words() => {
+                return a28_preview(params["preview_id"].as_str().unwrap_or_default(), session);
+            }
             // `DiffPreviewGetResult` (octos-core): the patch the diff
             // approval asks about (no successful reply is recorded).
             "diff/preview/get" => json!({
@@ -1584,7 +1981,22 @@ async fn main() {
         BTreeMap::new()
     };
     let sequenced = if label == "a10" { a10_sequenced() } else { BTreeMap::new() };
-    let seat_sim = (label == "a10").then(SeatSim::load);
+    // A23: `--providers-extra` adds the web unit tests' configured rows.
+    let providers_extra = args.iter().any(|a| a == "--providers-extra");
+    // A23: `--providers-empty` — a Profile with no configured provider yet.
+    let providers_empty = args.iter().any(|a| a == "--providers-empty");
+    let seat_sim = (label == "a10").then(|| {
+        let mut sim = SeatSim::load();
+        if providers_empty {
+            sim.config["primary"] = Value::Null;
+            sim.config["fallbacks"] = serde_json::json!([]);
+        }
+        if providers_extra {
+            sim.with_extra_rows()
+        } else {
+            sim
+        }
+    });
     // A10: `--slow <method>=<ms>` (repeatable) delays that method's faithful reply.
     let slow: BTreeMap<String, u64> = args
         .windows(2)
@@ -1634,6 +2046,8 @@ async fn main() {
         }
     }
     let fleet_cold = args.iter().any(|a| a == "--fleet-cold");
+    // A30 — `--peer-dock` (fleet scenario): the sidebar peer dock's walk.
+    let peer_dock = args.iter().any(|a| a == "--peer-dock");
     // A31 — whether the open still advertises the job feature (after any
     // `--drop-feature`), and the walk's live-transition trigger file.
     let jobs_seeded = open_result["capabilities"]["supported_features"]
@@ -1659,8 +2073,30 @@ async fn main() {
         .and_then(|v| v.parse().ok())
         .unwrap_or(0);
     let history_unknown = args.iter().any(|a| a == "--history-unknown");
+    // A29 — the `btw` scenario's aside replies (see [`btw`]).
+    let btw_delay_ms: u64 = args
+        .iter()
+        .position(|a| a == "--btw-delay-ms")
+        .and_then(|i| args.get(i + 1))
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(4000);
+    let btw_drop = btw::nths(&args, "--btw-drop");
+    let btw_fail = btw::nths(&args, "--btw-fail");
+    let btw_seen = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    // The recorded hydrate's shape (r43a) for the `btw` Sessions' histories.
+    let btw_hydrate_template = fixture("r43a-recovery-a6ea8505.jsonl")
+        .into_iter()
+        .find(|f| f.dir == "in" && f.method == "session/hydrate")
+        .map(|f| (f.body, String::from("dsflash:main")))
+        .unwrap_or((Value::Null, String::new()));
     // A16: `--fail-scoped-list N` — the first N session-scoped
     // `profile/llm/list` reads (per connection) answer an error.
+    // A23: `--fail-config-file <path>` — while <path> exists, every
+    // profile-config `profile/llm/list` read (no session_id) answers an
+    // error: the providers dialog's UNREAD state; the walk creates the file
+    // right before it opens the dialog (the Models dialog it passes through
+    // reads the configuration too) and removes it before "Try again".
+    let fail_config_file = args.iter().position(|a| a == "--fail-config-file").and_then(|i| args.get(i + 1)).cloned();
     let fail_scoped_list: u64 = args
         .iter()
         .position(|a| a == "--fail-scoped-list")
@@ -1673,6 +2109,12 @@ async fn main() {
         .and_then(|i| args.get(i + 1))
         .and_then(|v| v.parse().ok())
         .unwrap_or(0);
+    // A28 — `--diff-words` (`surfaces`): the diff approvals announce the
+    // synthetic word-mark and large previews (see `surfaces::DIFF_WORDS`).
+    if args.iter().any(|a| a == "--diff-words") {
+        surfaces::DIFF_WORDS.store(true, std::sync::atomic::Ordering::Relaxed);
+        println!("[replay-serve] surfaces: --diff-words (a28-diff-words-synthetic.jsonl previews)");
+    }
     let recorded = recorded_session(&frames);
     let recorded_turns: Vec<String> = by_turn
         .iter()
@@ -1752,6 +2194,7 @@ async fn main() {
         let sequenced = sequenced.clone();
         let slow = slow.clone();
         let revoke_file = revoke_file.clone();
+        let fail_config_file = fail_config_file.clone();
         let stale_window = stale_window.clone();
         let mut seat_sim = seat_sim.clone();
         let fleet_frames = if label == "fleet" { frames.clone() } else { Vec::new() };
@@ -1760,6 +2203,9 @@ async fn main() {
         let onb_world = onb_world.clone();
         let refuse = refuse.clone();
         let refuse_seen = refuse_seen.clone();
+        // A29 — the `btw` scenario's per-run controls.
+        let (btw_drop, btw_fail, btw_seen) = (btw_drop.clone(), btw_fail.clone(), btw_seen.clone());
+        let btw_hydrate_template = btw_hydrate_template.clone();
         // A31 — the walk's live-transition trigger (per connection).
         let jobs_trigger = jobs_trigger.clone();
         // A15: the recorded canonical hydrate (the `history` scenario).
@@ -1785,12 +2231,20 @@ async fn main() {
                     sim.revision = 0;
                 }
                 sim.revoke_file = revoke_file.clone();
+                if peer_dock {
+                    sim.enable_peer_dock();
+                }
                 sim
             });
             // A10: how many sequenced replies each method has consumed.
             let mut seq_pos: BTreeMap<String, usize> = BTreeMap::new();
             // A16: the injected session-scoped list failures still to answer.
             let mut fail_scoped_list = fail_scoped_list;
+            // A23: `--slow profile/llm/list@profile` starts 5 s into the
+            // connection: the app's own start-up reads the configuration too
+            // (the new-chat defaults), the providers dialog opens later.
+            let connected_at = std::time::Instant::now();
+            let after_startup = move || connected_at.elapsed() > std::time::Duration::from_secs(5);
             // A6 `surfaces`: the web's delivered-file download
             // (`GET /api/files?path=…&session=…`, `media.ts:147-165`) is plain
             // HTTP on the same port; answer it with a small PDF body.
@@ -1934,7 +2388,12 @@ async fn main() {
                     tokio::spawn(async move {
                         for (delay, m, params) in frames {
                             tokio::time::sleep(std::time::Duration::from_millis(delay)).await;
-                            println!("[replay-serve] => {m} (fleet)");
+                            // A30: the pushed frame's session and approval id.
+                            let ids: Vec<String> = ["session_id", "approval_id", "decision"]
+                                .iter()
+                                .filter_map(|k| params.get(*k).and_then(|x| x.as_str()).map(|x| format!("{k}={x}")))
+                                .collect();
+                            println!("[replay-serve] => {m} (fleet) {}", ids.join(" "));
                             let frame = serde_json::json!({"jsonrpc": "2.0", "method": m, "params": params});
                             let _ = tx.lock().await.send(Message::Text(frame.to_string().into())).await;
                         }
@@ -1959,6 +2418,17 @@ async fn main() {
                         continue;
                     }
                 }
+                // A30 (`--peer-dock`): the master's history is an empty, valid
+                // hydrate (the `history` scenario's New-chat shape), so the
+                // dock's captures show a plain conversation, not the fleet
+                // fixture's unrecorded hydrate.
+                if method == "session/hydrate" && fleet.as_ref().is_some_and(|sim| sim.peer_dock) {
+                    let s = v["params"]["session_id"].as_str().unwrap_or("").to_owned();
+                    println!("[replay-serve] -> session/hydrate (peer dock: an empty history)");
+                    let reply = serde_json::json!({"session_id": s, "cursor": {"stream": s, "seq": 1}, "messages": []});
+                    send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": reply})).await;
+                    continue;
+                }
                 if let Some(sim) = fleet.as_mut().filter(|_| FleetSim::handles(&method)) {
                     let (reply, mut pushes) = sim.reply(&method, &v["params"], &active_session);
                     let frame = match reply {
@@ -1971,6 +2441,15 @@ async fn main() {
                                 .iter()
                                 .filter_map(|k| p.get(*k).filter(|x| !x.is_null()).map(|x| format!("{k}={}", x.to_string().trim_matches('"'))))
                                 .chain(p["command"]["kind"].as_str().map(|k| format!("command={k}")))
+                                // A30: the decision's ids (the dock walk's wire proof).
+                                .chain(["approval_id", "decision", "approval_scope"].iter().filter_map(|k| {
+                                    p["command"].get(*k).and_then(Value::as_str).map(|x| format!("{k}={x}"))
+                                }))
+                                // A30: a dispatch's adopted session + turn (the
+                                // dock walk maps each peer to its own ids).
+                                .chain(["adopted_session_id", "adopted_turn_id"].iter().filter_map(|k| {
+                                    r.get(*k).and_then(Value::as_str).map(|x| format!("{k}={x}"))
+                                }))
                                 .collect();
                             println!("[replay-serve] -> {method} (fleet sim) {}", ids.join(" "));
                             serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r})
@@ -2176,8 +2655,11 @@ async fn main() {
                             // `<WORKSPACE>` placeholder). A17 — and the
                             // onboarding one (the onboarded Session opens in
                             // the launch's folder).
-                            if activity || history || label == "onboarding" {
-                                if let Some(cwd) = v["params"]["cwd"].as_str() {
+                            if activity || history || label == "onboarding" || label == "btw" {
+                                // A29 — `btw` opens in the `octos` workspace
+                                // unless the app asked for one.
+                                let default_root = (label == "btw").then_some(btw::WORKSPACE);
+                                if let Some(cwd) = v["params"]["cwd"].as_str().or(default_root) {
                                     obj.insert("workspace_root".to_owned(), Value::String(cwd.to_owned()));
                                 }
                                 // …under the Profile it asked for (the
@@ -2324,6 +2806,65 @@ async fn main() {
                             send(&tx, frame).await;
                         }
                     }
+                    // A29 — the `btw` scenario (see [`btw`]).
+                    "session/list" if label == "btw" => {
+                        let profile = active_session.split(':').next().unwrap_or("dsflash").to_owned();
+                        let reply = btw::list(&profile, v["params"]["cwd"].as_str());
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": reply})).await;
+                    }
+                    "session/hydrate" if label == "btw" => {
+                        let session = v["params"]["session_id"].as_str().unwrap_or(&active_session).to_owned();
+                        let (template, from) = &btw_hydrate_template;
+                        let reply = btw::hydrate(template, from, &session);
+                        println!("[replay-serve] -> session/hydrate (btw) {session}");
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": reply})).await;
+                    }
+                    // A29 — a reconnect re-checks the last turn (`turn/state/get`,
+                    // the A7 recovery): every turn this fixture streamed ended
+                    // with its recorded terminal, so it reports `completed`
+                    // for the asked turn (the server's `TurnStateGetResult`
+                    // shape the controller reads: session_id, turn_id, state).
+                    "turn/state/get" if label == "btw" => {
+                        let p = &v["params"];
+                        println!("[replay-serve] -> turn/state/get (btw) {} completed", p["turn_id"]);
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {
+                            "session_id": p["session_id"], "turn_id": p["turn_id"], "state": "completed"
+                        }})).await;
+                    }
+                    "session/btw" if label == "btw" => {
+                        let n = btw_seen.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1;
+                        let session = v["params"]["session_id"].as_str().unwrap_or("").to_owned();
+                        let question = v["params"]["question"].as_str().unwrap_or("").to_owned();
+                        println!("[replay-serve] session/btw #{n} asked: session_id={session} question={question:?}");
+                        let tx2 = tx.clone();
+                        if btw_drop.contains(&n) {
+                            tokio::spawn(async move {
+                                tokio::time::sleep(std::time::Duration::from_millis(1200)).await;
+                                println!("[replay-serve] -> session/btw #{n}: the connection drops (--btw-drop)");
+                                let _ = tx2.lock().await.close().await;
+                            });
+                        } else {
+                            let frame = if btw_fail.contains(&n) {
+                                serde_json::json!({"jsonrpc": "2.0", "id": id, "error": {
+                                    "code": -32603,
+                                    "message": format!("the replay fixture failed session/btw #{n} (--btw-fail)")
+                                }})
+                            } else {
+                                serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {
+                                    "session_id": session,
+                                    "answer": btw::answer(&question, &session),
+                                    "model": "deepseek-v4-flash"
+                                }})
+                            };
+                            let ms = btw_delay_ms;
+                            tokio::spawn(async move {
+                                tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                                println!("[replay-serve] -> session/btw #{n} answered after {ms} ms (btw: synthetic SessionBtwResult) session_id={}",
+                                    frame["result"]["session_id"].as_str().unwrap_or("error"));
+                                let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                            });
+                        }
+                    }
                     "session/list" => {
                         let session = v["params"]["session_id"]
                             .as_str()
@@ -2349,7 +2890,8 @@ async fn main() {
                             Ok(r) => serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r}),
                             Err(e) => serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e}),
                         };
-                        println!("[replay-serve] -> {m} (seat simulator) {}", v["params"]);
+                        // A23: the provider methods carry an API key: logged masked.
+                        println!("[replay-serve] -> {m} (seat simulator) {}", onboarding::masked(&v["params"]));
                         match slow.get(m).copied() {
                             Some(ms) => {
                                 let tx2 = tx.clone();
@@ -2412,10 +2954,31 @@ async fn main() {
                                 "error": {"code": -32000, "message": "profile store unavailable"}})).await;
                             continue;
                         }
+                        // A23: `--fail-config-file <path>` refuses the
+                        // profile-config reads while <path> exists (the
+                        // providers dialog's unread state, then Try again).
+                        if !scoped && fail_config_file.as_deref().is_some_and(|f| std::path::Path::new(f).exists()) {
+                            println!("[replay-serve] -> profile/llm/list (profile config: injected ERROR)");
+                            send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id,
+                                "error": {"code": -32000, "message": "profile store unavailable"}})).await;
+                            continue;
+                        }
                         let m = if scoped { "profile/llm/list" } else { "profile/llm/list@profile" };
                         let r = sim.answer(m, &v["params"], &active_session).unwrap_or_default();
                         println!("[replay-serve] -> profile/llm/list (seat simulator, {})", if scoped { "session-scoped" } else { "profile config" });
-                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r})).await;
+                        let frame = serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r});
+                        // A23: `--slow profile/llm/list@profile=<ms>` holds the
+                        // profile-config read (the dialog's loading state).
+                        match slow.get(m).copied().filter(|_| !scoped && after_startup()) {
+                            Some(ms) => {
+                                let tx2 = tx.clone();
+                                tokio::spawn(async move {
+                                    tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                                    let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                });
+                            }
+                            None => send(&tx, frame).await,
+                        }
                     }
                     // #P4a1 — echo the requested mode as the read-back.
                     "permission/profile/set" => {
