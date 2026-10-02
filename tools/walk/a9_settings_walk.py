@@ -33,8 +33,11 @@ WALK = {
     "name": "a9_settings",
     "title": "Settings General (server row, workspace, profile) + Connection (Disconnect, Forget server + confirm)",
     "modes": ["desktop", "phone"],
-    "fixture": {"argv": ["{examples}/replay_serve", "{fport}", "--scenario", "activity"]},
-    "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_PROFILE_ID": "a9walk"},
+    # The walk asserts the server it was run against (127.0.0.1:8429) and a
+    # known workspace (the session opened in OCTOS_WORKSPACE_CWD): A9's recipe.
+    "fixture": {"argv": ["{examples}/replay_serve", "{fport}", "--scenario", "activity"], "fport": 8429},
+    "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_PROFILE_ID": "a9walk",
+                    "OCTOS_WORKSPACE_CWD": "/home/user/src/octos"},
             "ready": ["i0_composer_0"]},
     "runs": [{"argv": ["{port}", "{mode}", "{fixture_log}", "{out}"]}],
     "needs": ["target/debug/examples/replay_serve"],
