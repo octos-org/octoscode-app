@@ -234,7 +234,7 @@ def main():
     if open_dialog("go", "/goal", "goal"):
         tap("dlg_goal_pause_btn_control", 'Transition("paused")', "goal: Pause by CLICK")
         tap("dlg_goal_stop_btn_control", 'Transition("complete")', "goal: Stop by CLICK")
-        tap("dlg_goal_clear_goal_hit", "ClearGoal", "goal: Clear goal by CLICK")
+        tap("dlg_goal_clear_goal_control", "ClearGoal", "goal: Clear goal by CLICK")
         tap("dlg_goal_pause_btn_control", "dialog form opened: goal.set", "goal: Set goal opens the goal form", wait=1.0)
         app.click("dlg_goal_gf_objective")
         app.type("Ship the native dialogs")
