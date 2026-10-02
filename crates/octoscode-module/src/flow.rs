@@ -721,7 +721,47 @@ pub struct Conversation {
     /// it (a restore the server refuses falls back to a fresh launch, the
     /// web's `restoreRejected`, `use-octos-session.ts:2988-3000`).
     open_watch: Mutex<Option<tokio::sync::oneshot::Sender<Result<String, String>>>>,
+    /// A19b — each opened Session's history read until it settles: the web
+    /// never shows a Session before its `session/hydrate` answered
+    /// (`candidate-session.ts:166-183`: open, hydrate, release; a failed
+    /// hydrate fails closed), so an empty transcript is only ever drawn for
+    /// a Session whose history is known to be empty. Absent = settled.
+    history: Mutex<HashMap<String, HistoryRead>>,
+    /// A19b — the Session ids this connection minted (`new_chat`): nothing
+    /// is persisted for them yet, so Core's "unknown session" means "no
+    /// history", never a read to retry.
+    fresh_ids: Mutex<std::collections::HashSet<String>>,
 }
+
+/// A19b — what the conversation shows for a Session before its history is
+/// on screen ([`Conversation::history`]).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum History {
+    /// The open's `session/hydrate` (or its one retry) is in flight: the web's
+    /// "Loading conversation…" (`App.tsx:2564`), never the empty welcome.
+    Loading,
+    /// The history could not be read, after the retry: the reason, shown
+    /// (the web's "Session recovery required" + detail, `App.tsx:2736-2751`).
+    Failed(String),
+    /// Settled: the history (possibly none) is in the store.
+    Ready,
+}
+
+/// One Session's unsettled history read.
+#[derive(Debug, Clone)]
+struct HistoryRead {
+    started: Instant,
+    /// The one retry with the Session's folder was spent.
+    retried: bool,
+    failed: Option<String>,
+}
+
+/// A19b — how long a history read may stay unanswered before the window says
+/// so (a visible failure instead of an endless "Loading conversation…").
+pub const HISTORY_WAIT: std::time::Duration = std::time::Duration::from_secs(20);
+
+/// Core's `UNKNOWN_SESSION` (octos-core `ui_protocol.rs:802-811`).
+const UNKNOWN_SESSION_CODE: i64 = -32100;
 
 /// A4 — the HTTP origin for the media endpoints (`media.ts:14-35`): `ws` ->
 /// `http`, `wss` -> `https`, no query, and a socket path
@@ -905,9 +945,220 @@ impl Conversation {
                 catalog_edge: Mutex::new(None),
                 remember_opens: Mutex::new(false),
                 open_watch: Mutex::new(None),
+                history: Mutex::new(HashMap::new()),
+                fresh_ids: Mutex::new(std::collections::HashSet::new()),
             },
             evt_rx,
         ))
+    }
+
+    /// A19b — what the conversation of `session` shows before its history is
+    /// on screen: still loading, failed (with the reason), or settled.
+    pub fn history(&self, session: &str) -> History {
+        match self.history.lock().unwrap().get(session) {
+            None => History::Ready,
+            Some(HistoryRead { failed: Some(reason), .. }) => History::Failed(reason.clone()),
+            Some(h) if h.started.elapsed() > HISTORY_WAIT => {
+                History::Failed("the server did not answer in time".to_owned())
+            }
+            Some(_) => History::Loading,
+        }
+    }
+
+    /// A19b — `session`'s history is not on screen yet and a read of it is
+    /// coming: "Loading conversation…" until it settles. Marked from the
+    /// moment an open switches the window to the Session (the switch is
+    /// immediate, before Core answers — an unmarked Session would draw the
+    /// empty welcome for that round trip), and again by each history read.
+    /// A Session this client just minted has no history: its welcome shows
+    /// at once, never a loading flash. The retry flag survives a re-ask.
+    fn history_pending(&self, session: &str) {
+        if self.fresh_ids.lock().unwrap().contains(session) {
+            return;
+        }
+        {
+            let mut h = self.history.lock().unwrap();
+            let e = h.entry(session.to_owned()).or_insert_with(|| HistoryRead {
+                started: Instant::now(),
+                retried: false,
+                failed: None,
+            });
+            e.started = Instant::now();
+            e.failed = None;
+        }
+        // A wake when the wait runs out, so an unanswered read turns into its
+        // visible failure without another event.
+        if let Ok(handle) = tokio::runtime::Handle::try_current() {
+            handle.spawn(async {
+                tokio::time::sleep(HISTORY_WAIT + std::time::Duration::from_millis(200)).await;
+                makepad_widgets::SignalToUI::set_ui_signal();
+            });
+        }
+    }
+
+    /// A19b — a refused `session/open`: the Session it was opening shows the
+    /// reason ("Session recovery required") instead of loading on. The error
+    /// names its Session when Core gives one (`data.session_id`), else it is
+    /// the open this client sent last (one socket answers in order; a later
+    /// open's own read clears a misattributed failure when it is asked).
+    fn on_open_error(&self, error: &octos_core::ui_protocol::RpcError) {
+        let session = error
+            .data
+            .as_ref()
+            .and_then(|d| d.get("session_id"))
+            .and_then(|s| s.as_str())
+            .map(str::to_owned)
+            .unwrap_or_else(|| self.session_id());
+        let mut h = self.history.lock().unwrap();
+        if let Some(e) = h.get_mut(&session) {
+            if e.failed.is_none() {
+                makepad_widgets::log!("[octoscode] history of {session}: the open was refused: {}", error.message);
+                e.failed = Some(error.message.clone());
+            }
+        }
+    }
+
+    fn history_failed(&self, session: &str, reason: String) {
+        makepad_widgets::log!("[octoscode] history of {session} could not be read: {reason}");
+        let mut h = self.history.lock().unwrap();
+        let e = h.entry(session.to_owned()).or_insert_with(|| HistoryRead {
+            started: Instant::now(),
+            retried: true,
+            failed: None,
+        });
+        e.failed = Some(reason);
+    }
+
+    /// A19b — a `session/hydrate` the server refused. The error names its
+    /// Session (`data.session_id`, octos-core `ui_protocol.rs:802-811`); one
+    /// refusal answers the OLDEST history read in flight (one socket answers
+    /// in order, A15) — a refusal with none in flight answered a generic read
+    /// (the parked interactions'), not the history's. "unknown session" for
+    /// an EXISTING Session is retried once with its folder; anything else, or
+    /// a second refusal, is shown.
+    fn on_hydrate_error(&self, error: &octos_core::ui_protocol::RpcError) {
+        let data = error.data.as_ref();
+        let unknown = error.code == UNKNOWN_SESSION_CODE
+            || data.and_then(|d| d.get("kind")).and_then(|k| k.as_str()) == Some("unknown_session");
+        let session = data
+            .and_then(|d| d.get("session_id"))
+            .and_then(|s| s.as_str())
+            .map(str::to_owned)
+            .or_else(|| error.message.strip_prefix("unknown session: ").map(|s| s.trim().to_owned()))
+            .or_else(|| self.store.active_session().filter(|s| self.history.lock().unwrap().contains_key(s)));
+        let Some(session) = session else { return };
+        let gen = {
+            let mut map = self.hydrate_gen.lock().unwrap();
+            map.get_mut(&session).and_then(|q| q.pop_front())
+        };
+        let Some(gen) = gen else { return };
+        if gen != self.generation() {
+            // A retired generation's read: the current open asks its own.
+            return;
+        }
+        if unknown && self.fresh_ids.lock().unwrap().contains(&session) {
+            // A Session this client just created: nothing persisted yet.
+            self.history.lock().unwrap().remove(&session);
+            return;
+        }
+        let retry = {
+            let mut h = self.history.lock().unwrap();
+            let e = h.entry(session.clone()).or_insert_with(|| HistoryRead {
+                started: Instant::now(),
+                retried: false,
+                failed: None,
+            });
+            if unknown && !e.retried {
+                e.retried = true;
+                e.started = Instant::now();
+                true
+            } else {
+                false
+            }
+        };
+        if retry {
+            self.spawn_history_retry(session);
+        } else {
+            self.history_failed(&session, error.message.clone());
+        }
+    }
+
+    /// A19b — the one retry: find the folder the Session was recorded in (the
+    /// web's per-workspace catalog, `screens::launch::find_session_home`) and
+    /// open it there, which asks its history again. Core keys a Session's
+    /// runtime by its store root (octos-cli `runtime/cache.rs:379-384`), so an
+    /// open WITH the right folder reaches the project store a folder-less
+    /// open missed. Nothing shows meanwhile but "Loading conversation…".
+    fn spawn_history_retry(&self, session: String) {
+        let (Some(me), Ok(handle)) =
+            (self.weak_self.lock().unwrap().upgrade(), tokio::runtime::Handle::try_current())
+        else {
+            self.history_failed(&session, format!("unknown session: {session}"));
+            return;
+        };
+        handle.spawn(async move {
+            let profile = octos_core::SessionKey(session.clone())
+                .profile_id()
+                .map(str::to_owned)
+                .unwrap_or_else(|| me.profile());
+            let reported: Vec<String> = me.store.domains.session.workspace_root(&session).into_iter().collect();
+            let home = crate::screens::launch::find_session_home(&me, &profile, Some(&session), &reported)
+                .await
+                .filter(|h| h.session_id == session);
+            // The person may have moved on meanwhile: never re-open behind them.
+            if me.store.active_session().as_deref() != Some(session.as_str()) {
+                me.history.lock().unwrap().remove(&session);
+                return;
+            }
+            let Some(home) = home else {
+                me.history_failed(
+                    &session,
+                    format!("unknown session: {session} — no known workspace holds it"),
+                );
+                makepad_widgets::SignalToUI::set_ui_signal();
+                return;
+            };
+            // Core resolves a Session id without its profile (`<profile>:main`)
+            // from the CONNECTION's profile header (octos-core types.rs
+            // `SessionKey::profile_id`; octos-cli `resolve_sessions_for_lookup`):
+            // measured live, the same open answers "unknown session" without
+            // it and the whole history with it. A socket that does not carry
+            // the Session's profile is re-dialed carrying it; the A12 re-dial
+            // re-opens the Session in its folder and asks its history again.
+            if me.link.header_profile() != profile {
+                makepad_widgets::log!(
+                    "[octoscode] history retry: {session} lives in {} — re-dialing as {profile}",
+                    home.root
+                );
+                me.store.domains.session.set_workspace_root(&session, &home.root);
+                if !me.link.carry_profile(&profile) {
+                    me.history_failed(&session, format!("unknown session: {session}"));
+                }
+                makepad_widgets::SignalToUI::set_ui_signal();
+                return;
+            }
+            makepad_widgets::log!("[octoscode] history retry: {session} lives in {} — reopening there", home.root);
+            let outcome = me.watch_next_open();
+            if let Err(e) = me.open_session(&session, Some(home.root.clone())).await {
+                me.history_failed(&session, e);
+            } else if let Ok(Ok(Err(e))) = tokio::time::timeout(HISTORY_WAIT, outcome).await {
+                me.history_failed(&session, e);
+            }
+            makepad_widgets::SignalToUI::set_ui_signal();
+        });
+    }
+
+    /// A19b — the folder a Session row is resumed in: the web opens a catalog
+    /// row with its workspace (`App.tsx:1778-1783`, `cwd: target.workspaceRoot`),
+    /// never folder-less — here the folder the Session last opened in, else
+    /// the workspace the catalog listed it under (`catalog_params`).
+    pub fn resume_cwd(&self, session: &str) -> Option<String> {
+        self.store
+            .domains
+            .session
+            .workspace_root(session)
+            .filter(|r| !r.trim().is_empty())
+            .or_else(|| self.catalog_params().cwd)
     }
 
     /// A19 — remember every accepted open for this server
@@ -1044,6 +1295,9 @@ impl Conversation {
                 // `HydrateSession`: include messages), on the trace too.
                 self.frames
                     .out("session/hydrate", &serde_json::json!({"session_id": session, "include": ["messages"]}));
+                // A19b — the Session's history is loading until this read
+                // settles (the retry flag survives a re-ask).
+                self.history_pending(session);
                 true
             }
             Err(e) => {
@@ -1206,6 +1460,10 @@ impl Conversation {
         // (the #39a row-2 gate behavior) can neither drop it nor dangle the
         // active id. The session/open RpcResult arm re-notes idempotently.
         self.store.note_session_opened(&session_id.0, None);
+        // A19b — the window switches NOW, before Core answers: the Session
+        // shows "Loading conversation…" until its history settles, never the
+        // empty welcome for the open's round trip.
+        self.history_pending(&session_id.0);
         self.store.set_active(Some(session_id.0.clone()));
         if let Err(e) = self.refresh_sessions().await {
             ::log::warn!("octoscode: session/list after open: {e}");
@@ -1526,6 +1784,8 @@ impl Conversation {
         }
         let id = Self::fresh_session_id_for(&self.profile());
         ::log::info!("octoscode: new chat -> {id}");
+        // A19b — minted here: an unknown-session read of it means "empty".
+        self.fresh_ids.lock().unwrap().insert(id.clone());
         // A8 — the new-session defaults apply at CREATION only
         // (`session-defaults.ts:4-9`): the sandbox rides this open; the
         // permission mode + network go out once the open for THIS id lands.
@@ -1922,7 +2182,8 @@ impl Conversation {
             after: None,
             client_commands: None,
         };
-        self.frames.out("session/open", &serde_json::json!({"session_id": session, "reconnect": true}));
+        self.frames
+            .out("session/open", &serde_json::json!({"session_id": session, "reconnect": true, "cwd": params.cwd}));
         match self.cmd_tx.try_send(OutboundCommand::OpenSession(params)) {
             Ok(()) => {
                 ::log::info!("octoscode: reconnect — re-opened {session} (generation {})", self.generation());
@@ -2385,6 +2646,11 @@ impl Conversation {
                         }
                         // A19 — a restore that lands elsewhere is refused.
                         self.settle_open_watch(Err(format!("the server opened {actual} instead of {req}")));
+                        // A19b — and the Session says why, instead of loading on.
+                        self.history_failed(
+                            &r.opened.session_id.0,
+                            "The server opened a different workspace from this conversation's.".to_owned(),
+                        );
                         return FlowEvent::Other("session/open-workspace-mismatch".to_owned());
                     }
                 }
@@ -2482,6 +2748,9 @@ impl Conversation {
                 // web's coding gate requires it, `coding-capabilities.ts:14-16`).
                 if caps.supported_methods.iter().any(|m| m == "session/hydrate") {
                     self.request_hydrate(&r.opened.session_id.0);
+                } else {
+                    // A19b — no history read is coming: nothing to wait for.
+                    self.history.lock().unwrap().remove(&r.opened.session_id.0);
                 }
                 // A15 — and the catalog re-lists for the opened Session's
                 // workspace, now that it is known (the web's `refreshKey`
@@ -2490,7 +2759,13 @@ impl Conversation {
                 // A19 — the committed open is what the next launch restores
                 // (the web: `App.tsx:974-992` session id, active profile and
                 // workspace root into the saved connection).
-                if *self.remember_opens.lock().unwrap() {
+                // A19b — only an open that CARRIED its folder: a folder-less
+                // open's reported root is Core's derived Tier-3 workspace,
+                // which "must not be fed back ... as a Tier-1/Tier-2 hint"
+                // (octos-cli `ui_protocol_transport.rs` SessionWorkspaceBinding)
+                // — restored as a cwd it would read another store.
+                let explicit = requested.as_deref().is_some_and(|c| !c.trim().is_empty());
+                if *self.remember_opens.lock().unwrap() && explicit {
                     let profile = r
                         .opened
                         .active_profile_id
@@ -2630,6 +2905,11 @@ impl Conversation {
                                 "octoscode: session/hydrate returned session {} for requested {session_id} — hydrate commit rejected",
                                 h.session_id.0
                             );
+                            // A19b — failed closed: said, not an empty transcript.
+                            self.history_failed(
+                                session_id,
+                                format!("session/hydrate returned session {}", h.session_id.0),
+                            );
                             FlowEvent::Other("session/hydrate-mismatch".to_owned())
                         } else {
                             if let Some(seqs) = &h.projection_thread_sequences {
@@ -2653,6 +2933,8 @@ impl Conversation {
                             // matching snapshot commits anything.
                             let added = self.fold_history(session_id, &h);
                             self.store.domains.config.mark_recovered(&session_id);
+                            // A19b — the history is in: settled.
+                            self.history.lock().unwrap().remove(session_id.as_str());
                             ::log::info!(
                                 "octoscode: session/hydrate folded for {session_id} (+{added} rows)"
                             );
@@ -2661,6 +2943,7 @@ impl Conversation {
                     }
                     Err(e) => {
                         ::log::warn!("octoscode: session/hydrate decode: {e}");
+                        self.history_failed(session_id, format!("session/hydrate returned an invalid result: {e}"));
                         FlowEvent::Other("session/hydrate-decode-error".to_owned())
                     }
                 }
@@ -2678,6 +2961,13 @@ impl Conversation {
                 // back to a fresh launch).
                 if method == "session/open" {
                     self.settle_open_watch(Err(error.message.clone()));
+                    // A19b — the Session it was opening says why.
+                    self.on_open_error(error);
+                }
+                // A19b — a refused history read: retried once with the
+                // Session's folder, else shown.
+                if method == "session/hydrate" {
+                    self.on_hydrate_error(error);
                 }
                 FlowEvent::Other(format!("rpc-error {method}"))
             }

@@ -1,0 +1,24 @@
+PASS never the empty welcome over the Session, sampled from the first frame until its history showed — 1 frames: 0 welcome, 0 loading
+PASS the first launch after the upgrade lands in a Session
+PASS wire: the per-workspace catalog read found the Session's folder (session/list {cwd, profile_id}) — [{"cwd": "<scratch>/live/upgrade", "profile_id": "dsflash"}, {"cwd": "<scratch>/live/upgrade/data", "profile_id": "dsflash"}, {"cwd": "<scratch>/live/upgrade/inst", "profile_id": "dsflash"}, {"cwd": "<scratch>/live/upgrade/ws", "profile_id": "dsflash"}, {}, {}]
+PASS wire: the FIRST open is the Session, carrying that folder — [{"cwd": "<scratch>/live/upgrade/ws", "profile_id": "dsflash", "sandbox": null, "session_id": "dsflash:main"}]
+PASS wire: no launch/resolve, nothing created
+PASS wire: no history read refused — []
+PASS the migration's profile was resolved before the socket (the connection carries it) — [octoscode] migration: the previous build's profile is dsflash
+app log: [octoscode] migration: the previous build's profile is dsflash | [octoscode] migration: reopening dsflash:main in <scratch>/live/upgrade/ws (111 messages)
+PASS no loading or failure state left on screen
+SHOT 01-first-launch-desktop
+redacted 01-first-launch-desktop: ['hd_path']
+SHOT 02-history-top-desktop
+redacted 02-history-top-desktop: ['hd_path']
+PASS the full history by scrolling: all 9 distinct prompts of the Session — missing []
+scroll-read 121 distinct transcript texts
+TYPE 'In one short sentence: say hello after the upgrade.'
+CLICK send_hit r=[978, 621, 32, 32] at (994,637)
+PASS wire: one turn/start for the next prompt
+PASS the answer streams (response progress)
+PASS the turn reaches its end (stream_end)
+PASS the composer is idle again
+SHOT 03-next-prompt-desktop
+redacted 03-next-prompt-desktop: ['hd_path']
+== 13/13 checks passed

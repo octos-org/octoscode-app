@@ -1,4 +1,4 @@
-PASS the onboarding panel opens at the first launch — 'Create your local coding profile'
+PASS the onboarding panel opens at the first launch — ''
 PASS the provider catalog loads (the form's Provider select)
 PASS no Connect form behind the panel
 PASS no Session yet (no composer)

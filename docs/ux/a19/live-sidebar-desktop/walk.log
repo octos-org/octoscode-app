@@ -1,0 +1,25 @@
+PASS the fresh launch is live
+PASS wire: a fresh launch (launch/resolve, no profile id)
+CLICK sb_add_hit r=[71, 598, 260, 34] at (201,615)
+PASS + Add workspace opens the folder browser
+PASS the browser lists 'ws'
+CLICK b1_br_row_2 r=[308, 361, 482, 44] at (549,383)
+PASS picking it fills the path box
+CLICK b1_br_use r=[307, 514, 484, 44] at (549,536)
+PASS Use this folder closes the browser
+PASS the sidebar lists the Session (the folder's catalog)
+CLICK the 'In one short paragraph' row
+PASS never the empty welcome over it, sampled from the click until its history showed — 1 frames: 0 welcome, 0 loading
+PASS wire: the open carries the Session's folder — [{"cwd": "<scratch>/live/upgrade/ws", "profile_id": "dsflash", "sandbox": null, "session_id": "dsflash:main"}]
+PASS wire: Core refused the history on the connection without its profile ('unknown session') — [{"code": -32100, "message": "unknown session: dsflash:main", "method": "session/hydrate"}]
+PASS wire: the retry re-dialed and re-opened it in its folder — [{"cwd": "<scratch>/live/upgrade/ws", "reconnect": true, "session_id": "dsflash:main"}]
+PASS wire: then its history read answered
+PASS the app re-dialed carrying the Session's profile — [octoscode] history retry: dsflash:main lives in <scratch>/live/upgrade/ws — re-dialing as dsflash
+PASS no loading or failure state left on screen
+SHOT 01-sidebar-history-desktop
+redacted 01-sidebar-history-desktop: ['hd_path']
+SHOT 02-sidebar-history-top-desktop
+redacted 02-sidebar-history-top-desktop: ['hd_path']
+PASS the full history by scrolling: all 10 distinct prompts of the Session — missing []
+scroll-read 124 distinct transcript texts
+== 15/15 checks passed

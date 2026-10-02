@@ -1449,7 +1449,6 @@ impl OctoscodeView {
         // remembered open is restored; OCTOS_PROFILE_ID is a dev/test
         // override only (screens::launch::Start).
         let start = screens::launch::plan(&base);
-        let profile = start.profile();
         // The workspace cwd the web passes to `session/open` (`session-defaults.ts:5-7`).
         let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
 
@@ -1464,6 +1463,24 @@ impl OctoscodeView {
                 return;
             }
         };
+        // A19b — the one-time migration's profile is resolved BEFORE the
+        // socket, so the connection carries it (Core finds `<profile>:main`'s
+        // history only through the connection's profile). Bounded: once per
+        // server, after an upgrade; unresolved, the migration resolves later.
+        let start = if start == screens::launch::Start::Migrate {
+            runtime
+                .block_on(async {
+                    tokio::time::timeout(
+                        std::time::Duration::from_secs(5),
+                        screens::launch::resolve_migration(&base, start.clone()),
+                    )
+                    .await
+                })
+                .unwrap_or(start)
+        } else {
+            start
+        };
+        let profile = start.profile();
 
         let connected = {
             let _guard = runtime.enter();
@@ -2315,7 +2332,10 @@ impl OctoscodeView {
                     );
                     return;
                 }
-                let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
+                // A19b — a listed Session opens WITH its workspace, as the web
+                // opens a catalog row (`App.tsx:1778-1783`): a folder-less open
+                // reads another store, and its history would not show.
+                let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok().or_else(|| conv.resume_cwd(&session));
                 // A9 — a session switch is in flight until the open settles
                 // (the web's `transitioning`: Activity warns and refuses).
                 screens::activity::note_switch_started();
@@ -2964,6 +2984,9 @@ impl OctoscodeView {
                 // #32h discovery (solo login + admin profile ranking) is gone
                 // from this path — the web has none; it survives only as the
                 // one-time migration (screens::launch::startup).
+                // A19b — the migration's profile is resolved before the socket,
+                // so the connection carries it (as the previous build's did).
+                let start = screens::launch::resolve_migration(&server, start).await;
                 let profile = start.profile();
                 match Conversation::connect(&server, &token, &profile, cwd.clone(), Some(waker.clone())) {
                     Ok((conv, evt_rx)) => {
@@ -4596,13 +4619,21 @@ impl OctoscodeView {
             self.window_h = self.view.area().rect(cx).size.y;
         }
         {
-            let store = { self.bridge.lock().unwrap().store.clone() };
+            let (store, history_unsettled) = {
+                let b = self.bridge.lock().unwrap();
+                let unsettled = match (b.store.active_session(), b.conv.as_ref()) {
+                    (Some(s), Some(conv)) => conv.history(&s) != flow::History::Ready,
+                    _ => false,
+                };
+                (b.store.clone(), unsettled)
+            };
             let (w, h) = (self.window_w, self.window_h);
             let mut chrome = std::mem::take(&mut self.chrome);
             chrome.origin = {
                 let r = self.view.area().rect(cx);
                 (r.pos.x, r.pos.y)
             };
+            chrome.history_unsettled = history_unsettled;
             chrome.sync(cx, &self.view, &store, live, settings, w, h);
             self.chrome = chrome;
         }
@@ -4740,9 +4771,15 @@ impl OctoscodeView {
         // A1: the empty conversation — the mark, the question and the hint,
         // centered over the empty transcript (Timeline.tsx:111-134).
         {
-            let (empty, workspace) = {
+            let (empty, workspace, history) = {
                 let b = self.bridge.lock().unwrap();
                 let rows_empty = screen::timeline_rows(&b.store, false).is_empty();
+                // A19b — a Session whose history is still loading, or could
+                // not be read, never shows the empty welcome over it.
+                let history = match (b.store.active_session(), b.conv.as_ref()) {
+                    (Some(s), Some(conv)) => conv.history(&s),
+                    _ => flow::History::Ready,
+                };
                 let ws = b.store.active_session().and_then(|s| {
                     b.store
                         .domains
@@ -4754,11 +4791,15 @@ impl OctoscodeView {
                                 .map(|n| n.to_string_lossy().to_string())
                         })
                 });
-                (rows_empty, ws)
+                (rows_empty, ws, history)
             };
             self.view.widget(cx, ids!(empty_state)).set_visible(cx, empty);
             if empty {
-                let dsl = screens::theme::retint_dsl(&fluid::empty_state(workspace.as_deref(), &metrics));
+                let dsl = screens::theme::retint_dsl(&match &history {
+                    flow::History::Loading => fluid::history_state(None, &metrics),
+                    flow::History::Failed(reason) => fluid::history_state(Some(reason), &metrics),
+                    flow::History::Ready => fluid::empty_state(workspace.as_deref(), &metrics),
+                });
                 let splash = self.view.splash(cx, ids!(empty_splash));
                 if let Err(e) = self.mounts.mount(cx, &splash, &dsl) {
                     makepad_widgets::log!("[octoscode] empty-state mount: {e}");

@@ -339,8 +339,14 @@ pub enum Start {
     /// `launch/resolve` (`use-octos-session.ts:2978-3001`).
     Restore(super::remembered::Remembered),
     /// The one-time migration from the previous build
-    /// (`super::remembered` module doc).
+    /// (`super::remembered` module doc), its profile not resolved yet.
     Migrate,
+    /// A19b — the migration with the previous build's profile resolved
+    /// BEFORE the socket ([`resolve_migration`]), so the connection carries it
+    /// as the previous build's did: Core resolves a Session id that does not
+    /// embed its profile (`<profile>:main`) from the connection's profile
+    /// header, and without it answers that Session's history "unknown".
+    MigrateAs(String),
     /// Nothing known: NO profile id (`connection-bootstrap.ts:21`), so
     /// `launch/resolve`'s answer decides.
     Fresh,
@@ -350,7 +356,7 @@ impl Start {
     /// The profile id the connection carries (`""` = none).
     pub fn profile(&self) -> String {
         match self {
-            Start::Explicit(p) | Start::Created(p) => p.clone(),
+            Start::Explicit(p) | Start::Created(p) | Start::MigrateAs(p) => p.clone(),
             Start::Restore(r) => r.profile_id.clone(),
             Start::Migrate | Start::Fresh => String::new(),
         }
@@ -381,6 +387,26 @@ pub fn plan(server: &str) -> Start {
         return Start::Migrate;
     }
     Start::Fresh
+}
+
+/// A19b — resolve the migration's profile BEFORE the connection is made (the
+/// previous build discovered it before its socket too): `Migrate` becomes
+/// `MigrateAs(profile)`, or `Fresh` when the server has no profile to
+/// migrate. Every other plan is returned unchanged.
+pub async fn resolve_migration(server: &str, start: Start) -> Start {
+    if start != Start::Migrate {
+        return start;
+    }
+    match crate::flow::Conversation::discover_solo_profile(server).await {
+        Some(profile) => {
+            makepad_widgets::log!("[octoscode] migration: the previous build's profile is {profile}");
+            Start::MigrateAs(profile)
+        }
+        None => {
+            makepad_widgets::log!("[octoscode] migration: no previous profile on this server — a fresh launch");
+            Start::Fresh
+        }
+    }
 }
 
 /// The profile a re-dial to `server` carries (the retry path): the plan's,
@@ -504,38 +530,164 @@ pub async fn startup(conv: &std::sync::Arc<crate::flow::Conversation>, start: St
             }
         }
         Start::Migrate => migrate(conv, cwd).await,
+        Start::MigrateAs(profile) => migrate_as(conv, profile, cwd).await,
         Start::Fresh => fresh(conv, cwd).await,
     }
 }
 
-/// The one-time migration: the previous build connected with the profile the
+/// A19b — where a Session lives: its id, the workspace whose project store
+/// holds it, and how many messages that store reports.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SessionHome {
+    pub session_id: String,
+    pub root: String,
+    pub messages: usize,
+}
+
+/// A19b — find a Session of `profile` and the folder its history is recorded
+/// in, the web's way: the per-workspace catalog read `session/list {cwd,
+/// profile_id}` (A15; web `workspace-session-catalog.ts:193-208`), trusting
+/// only a listing the server ATTESTS (`workspace_root` present and
+/// `profile_id` echoed, octos-core `SessionListResult`), over the workspaces
+/// this client knows for the server: `extra` (the launch folder, a reported
+/// root), the recents remembered for this server (the web's catalog source,
+/// `App.tsx:661-666` + `:757`), the server's own working directory (the
+/// picker's first entry, row 163) and that directory's folders (the
+/// browser's first level, row 164).
+///
+/// `want` = a Session id: that Session wherever it is recorded. `None`: the
+/// profile's legacy main Session (`<profile>:main`, what the previous build
+/// reopened) when it has history, else its most recently updated Session
+/// with history. Read-only; `None` when the server offers no scoped catalog.
+pub async fn find_session_home(
+    conv: &crate::flow::Conversation,
+    profile: &str,
+    want: Option<&str>,
+    extra: &[String],
+) -> Option<SessionHome> {
+    let config = &conv.store.domains.config;
+    let offered = config.supported_methods().iter().any(|m| m == "session/list")
+        && config.supported_features().iter().any(|f| f == "session.workspace_cwd.v1");
+    if !offered || profile.trim().is_empty() {
+        return None;
+    }
+    let mut candidates: Vec<String> = extra.iter().filter(|c| !c.trim().is_empty()).cloned().collect();
+    candidates.extend(
+        super::recents::load_recent_workspaces(&*super::recents::store(), &super::recents::endpoint())
+            .into_iter()
+            .map(|r| r.path),
+    );
+    if config.supported_methods().iter().any(|m| m == "onboarding/workspace_list") {
+        if let Ok(v) = conv.client().request("onboarding/workspace_list", json!({"path": null})).await {
+            if let Some(root) = v.get("canonical_path").and_then(|p| p.as_str()) {
+                candidates.push(root.to_owned());
+            }
+            let folders = v.get("entries").and_then(|e| e.as_array()).cloned().unwrap_or_default();
+            candidates.extend(
+                folders
+                    .iter()
+                    .filter_map(|e| e.get("path").and_then(|p| p.as_str()).map(str::to_owned))
+                    .take(MAX_HOME_FOLDERS),
+            );
+        }
+    }
+    let mut seen = std::collections::HashSet::new();
+    candidates.retain(|c| seen.insert(c.trim_end_matches('/').to_owned()));
+    let legacy_main = format!("{profile}:main");
+    // (updated_at, home) of the most recent Session with history.
+    let mut recent: Option<(String, SessionHome)> = None;
+    let mut main_home: Option<SessionHome> = None;
+    for cwd in candidates {
+        let Ok(v) = conv.client().request("session/list", json!({"cwd": cwd, "profile_id": profile})).await else {
+            continue;
+        };
+        // Only a listing the server attests as this profile's project store.
+        let Some(root) = v.get("workspace_root").and_then(|r| r.as_str()).filter(|r| !r.trim().is_empty()) else {
+            continue;
+        };
+        if v.get("profile_id").and_then(|p| p.as_str()) != Some(profile) {
+            continue;
+        }
+        for row in v.get("sessions").and_then(|s| s.as_array()).into_iter().flatten() {
+            let Some(id) = row.get("id").and_then(|i| i.as_str()) else { continue };
+            let messages = row.get("message_count").and_then(|m| m.as_u64()).unwrap_or(0) as usize;
+            let home = SessionHome { session_id: id.to_owned(), root: root.to_owned(), messages };
+            if want == Some(id) {
+                return Some(home);
+            }
+            if want.is_some() || messages == 0 {
+                continue;
+            }
+            if id == legacy_main && main_home.is_none() {
+                main_home = Some(home.clone());
+            }
+            let updated = row.get("updated_at").and_then(|u| u.as_str()).unwrap_or("").to_owned();
+            if recent.as_ref().map_or(true, |(u, _)| updated > *u) {
+                recent = Some((updated, home));
+            }
+        }
+    }
+    if want.is_some() {
+        return None;
+    }
+    main_home.or(recent.map(|(_, h)| h))
+}
+
+/// The server working directory's folders probed for a Session's store.
+const MAX_HOME_FOLDERS: usize = 40;
+
+/// The one-time migration. The previous build connected with the profile the
 /// solo login ranks first (`Conversation::discover_solo_profile`, commit
-/// 04c49631) and reopened `<profile>:main` at the startup workspace. Reopen
-/// exactly that — nothing is created — and the accepted open is remembered,
-/// so every later launch restores it. No such profile (a fresh server, or no
-/// solo login) means there is nothing to migrate: a fresh launch.
+/// 04c49631) and reopened `<profile>:main`. A19b — the Session it showed is
+/// reopened IN the folder its history is recorded in, found the web's way
+/// ([`find_session_home`]), so the very first launch after the upgrade shows
+/// the whole history: the web never opens an existing Session folder-less
+/// (`App.tsx:1778-1783`, `cwd: target.workspaceRoot`), and Core reads a
+/// folder-less open from another store (octos-cli `runtime/cache.rs:379-384`
+/// keys a Session's runtime by its store root). Nothing is created; the
+/// accepted open is remembered, so every later launch restores it.
+/// No profile to migrate (a fresh server, no solo login): a fresh launch. A
+/// profile with no Session holding history: the web's launch, carrying that
+/// profile (nothing to restore, the same profile kept). The caller resolves
+/// the profile before the socket when it can (`MigrateAs`, the connection
+/// then carries it); an unresolved `Migrate` resolves it here.
 async fn migrate(conv: &std::sync::Arc<crate::flow::Conversation>, cwd: Option<String>) -> Started {
     let Some(profile) = crate::flow::Conversation::discover_solo_profile(&conv.http_base()).await else {
         makepad_widgets::log!("[octoscode] migration: no previous profile on this server — a fresh launch");
         return fresh(conv, cwd).await;
     };
-    makepad_widgets::log!("[octoscode] migration: reopening the previous build's {profile}:main");
-    conv.adopt_profile(profile);
+    migrate_as(conv, profile, cwd).await
+}
+
+/// The migration for a resolved `profile` (see [`migrate`]).
+async fn migrate_as(conv: &std::sync::Arc<crate::flow::Conversation>, profile: String, cwd: Option<String>) -> Started {
+    conv.adopt_profile(profile.clone());
+    match read_capabilities(conv).await {
+        Ok(n) => makepad_widgets::log!("[octoscode] connect: {n} methods advertised"),
+        Err(e) => return Started::Failed(e),
+    }
+    let extra: Vec<String> = cwd.iter().cloned().collect();
+    let Some(home) = find_session_home(conv, &profile, None, &extra).await else {
+        makepad_widgets::log!(
+            "[octoscode] migration: no {profile} Session with history in the known workspaces — the launch, carrying {profile}"
+        );
+        return launch_in_folder(conv, cwd).await;
+    };
+    makepad_widgets::log!(
+        "[octoscode] migration: reopening {} in {} ({} messages)",
+        home.session_id,
+        home.root,
+        home.messages
+    );
     let outcome = conv.watch_next_open();
-    if let Err(e) = conv.open_workspace(cwd.clone()).await {
+    if let Err(e) = conv.open_session(&home.session_id, Some(home.root.clone())).await {
         return Started::Failed(e);
     }
     match tokio::time::timeout(OPEN_WAIT, outcome).await {
-        // Exactly the previous build's landing (a folder-less open). Its
-        // reply's workspace is what is remembered, so every later launch
-        // restores the Session IN that workspace (measured live: Core may
-        // answer `session/hydrate` "unknown session" right after a
-        // folder-less open; the next launch's restore hydrates the history).
         Ok(Ok(Ok(id))) => Started::Migrated(id),
         Ok(Ok(Err(reason))) => {
-            makepad_widgets::log!("[octoscode] migration refused ({reason}): a fresh launch");
-            conv.adopt_profile(String::new());
-            fresh(conv, cwd).await
+            makepad_widgets::log!("[octoscode] migration refused ({reason}): the launch, carrying {profile}");
+            launch_in_folder(conv, cwd).await
         }
         _ => Started::Failed("the migration's open was not answered yet".into()),
     }
@@ -547,13 +699,22 @@ async fn fresh(conv: &std::sync::Arc<crate::flow::Conversation>, cwd: Option<Str
         Ok(n) => makepad_widgets::log!("[octoscode] connect: {n} methods advertised"),
         Err(e) => return Started::Failed(e),
     }
+    launch_in_folder(conv, cwd).await
+}
+
+/// The launch decision for the startup folder (capabilities already read).
+async fn launch_in_folder(conv: &std::sync::Arc<crate::flow::Conversation>, cwd: Option<String>) -> Started {
     let folder = match cwd {
         Some(c) => Some(c),
         None => server_working_directory(conv).await,
     };
     match folder {
         Some(f) => {
-            makepad_widgets::log!("[octoscode] launch at connect: {f} (no profile id)");
+            let profile = conv.profile();
+            makepad_widgets::log!(
+                "[octoscode] launch at connect: {f} ({})",
+                if profile.is_empty() { "no profile id".to_owned() } else { format!("profile {profile}") }
+            );
             Started::Launched(create(conv, f).await)
         }
         None => {

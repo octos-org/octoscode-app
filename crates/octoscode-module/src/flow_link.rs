@@ -73,7 +73,9 @@ struct State {
 
 /// The link. Cheap to share (`Arc`).
 pub struct Link {
-    cfg: TransportConfig,
+    /// A19b — the config every (re)spawned transport dials with; its profile
+    /// header can change ([`Link::carry_profile`]).
+    cfg: Mutex<TransportConfig>,
     waker: Option<Arc<dyn Fn() + Send + Sync>>,
     handle: tokio::runtime::Handle,
     /// The stable event channel's sender; taken when the link closes or
@@ -100,7 +102,7 @@ impl Link {
         let (gen_tx, _) = watch::channel(0u64);
         let (epoch_tx, _) = watch::channel(0u64);
         let link = Arc::new(Self {
-            cfg,
+            cfg: Mutex::new(cfg),
             waker,
             handle: tokio::runtime::Handle::current(),
             events: Mutex::new(Some(events)),
@@ -120,7 +122,7 @@ impl Link {
     fn spawn_transport(self: &Arc<Self>) {
         let (t_tx, t_rx) = {
             let _guard = self.handle.enter();
-            ws::spawn(self.cfg.clone())
+            ws::spawn(self.cfg.lock().unwrap().clone())
         };
         let mut st = self.state.lock().unwrap();
         if let Some(old) = st.pump.take() {
@@ -149,6 +151,30 @@ impl Link {
         ::log::info!("octoscode: link — starting a fresh transport ({} so far)", self.respawns());
         self.spawn_transport();
         true
+    }
+
+    /// A19b — the profile the socket names in its `X-Profile-Id` header.
+    pub fn header_profile(&self) -> String {
+        self.cfg.lock().unwrap().profile_id.0.clone()
+    }
+
+    /// A19b — make the connection carry `profile` (its `X-Profile-Id`): Core
+    /// resolves a Session id that does not embed its profile (`<profile>:main`
+    /// — octos-core `SessionKey::profile_id` reads only `profile:channel:chat`)
+    /// from the connection's routed profile, so without it a `session/hydrate`
+    /// answers "unknown session". The header is fixed at the upgrade, so the
+    /// transport is replaced (the A12 re-dial re-opens the active Session on
+    /// the new socket). False when it already carries it, or after a
+    /// voluntary disconnect.
+    pub fn carry_profile(self: &Arc<Self>, profile: &str) -> bool {
+        {
+            let mut cfg = self.cfg.lock().unwrap();
+            if cfg.profile_id.0 == profile {
+                return false;
+            }
+            cfg.profile_id = octos_app_transport::ProfileId::new(profile.to_owned());
+        }
+        self.respawn()
     }
 
     /// Close the link for good (a voluntary disconnect): no transport is

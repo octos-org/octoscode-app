@@ -1429,6 +1429,57 @@ pub fn empty_state(workspace: Option<&str>, m: &Metrics) -> String {
     )
 }
 
+/// A19b — the conversation of a Session whose history is not on screen yet:
+/// `None` while it loads (the web's "Loading conversation…", `App.tsx:2564`,
+/// and its "Restoring session state", `App.tsx:2741`), `Some(reason)` when it
+/// could not be read (the web's "Session recovery required" with the
+/// server's detail, `App.tsx:2742-2750`). Drawn in the empty welcome's place
+/// (`empty_state`), so a Session that has history never shows the welcome.
+pub fn history_state(failed: Option<&str>, m: &Metrics) -> String {
+    let (title_px, title_line) = match m.density {
+        Density::Desktop => (22.0, 30.0),
+        Density::Phone => (20.0, 27.0),
+    };
+    let (title, hint, ink) = match failed {
+        None => ("Loading conversation…".to_owned(), "Restoring session state".to_owned(), INK),
+        Some(reason) => (
+            "Session recovery required".to_owned(),
+            format!(
+                "The conversation history could not be loaded: {}. Reopen it from the sidebar to try again.",
+                reason.trim().trim_end_matches('.')
+            ),
+            "#cf222eff",
+        ),
+    };
+    format!(
+        "history_col := View{{width: Fill height: Fit flow: Down align: Align{{x: 0.5}} \
+         padding: Inset{{left: 24 right: 24}}\n\
+         View{{width: Fill height: Fit align: Align{{x: 0.5}}\n\
+         RoundedView{{width: 48 height: 48 flow: Overlay align: Align{{x: 0.5 y: 0.5}} \
+         draw_bg +: {{color: {RAISED} border_radius: 7.0}}\n\
+         {mark}}}\n}}\n\
+         View{{width: Fill height: Fit align: Align{{x: 0.5}} padding: Inset{{top: 18}}\n\
+         {title}}}\n\
+         View{{width: Fill height: Fit align: Align{{x: 0.5}} padding: Inset{{top: 8}}\n\
+         {hint}}}\n}}\n",
+        mark = svg("history_mark", "chat_terminal.svg", 26.0, MUTED),
+        title = label(
+            "history_title",
+            &title,
+            &style(Face::SemiBold, title_px, title_line),
+            ink,
+            "width: Fill height: Fit max_width: 520 align: Align{x: 0.5} flow: Right{wrap: true}",
+        ),
+        hint = label(
+            "history_hint",
+            &hint,
+            &style(Face::Regular, 14.0, 22.0),
+            MUTED,
+            "width: Fill height: Fit max_width: 480 align: Align{x: 0.5} flow: Right{wrap: true}",
+        ),
+    )
+}
+
 /// What the first-run Connect card draws (A1). Built from
 /// `screens::connect::ConnectUi`; the field TEXTS are only the initial
 /// values — the inputs own their text afterwards (typing never remounts).
