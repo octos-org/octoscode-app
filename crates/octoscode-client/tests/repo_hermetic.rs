@@ -115,6 +115,10 @@ fn no_machine_paths_or_secrets_anywhere_tracked() {
                 if w.starts_with("sk-") && w.len() >= 20 {
                     violations.push(format!("{rel}:{}: key-shaped token", i + 1));
                 }
+                // D10c: the makepad bridge's per-launch token, `mprt_` + 64 hex.
+                if w.len() >= 69 && w.starts_with("mprt_") && w[5..69].bytes().all(|b| b.is_ascii_hexdigit()) {
+                    violations.push(format!("{rel}:{}: makepad bridge token", i + 1));
+                }
             }
         }
     }

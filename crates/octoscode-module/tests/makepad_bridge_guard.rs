@@ -34,6 +34,21 @@ fn the_guard_patch_touches_only_the_bridge_and_drops_the_wildcard_cors() {
     for needle in ["\"origin\"", "\"referer\"", "starts_with(\"sec-fetch-\")", "name == \"host\" && !host_is_local"] {
         assert!(text.contains(needle), "the guard checks {needle}");
     }
+    // A per-launch token on every request: compared in constant time, written
+    // 0600 for the harness, never printed (the listening line names the file).
+    for needle in [
+        "x-makepad-token",
+        "fn same_bytes(a: &[u8], b: &[u8]) -> bool",
+        "TOKEN.get().is_some_and(|want| token_matches(&head, want))",
+        "opts.mode(0o600)",
+        "Permissions::from_mode(0o700)",
+        "format!(\"mprt_{hex}\")",
+        "token_file={token_at}",
+        "/dev/urandom",
+    ] {
+        assert!(text.contains(needle), "the token path carries {needle}");
+    }
+    assert!(!text.lines().any(|l| l.starts_with('+') && l.contains("println!") && l.contains("{token}")));
     // The wildcard CORS header is removed, never re-added.
     assert!(text.lines().any(|l| l.starts_with('-') && l.contains("Access-Control-Allow-Origin: *")));
     assert!(!text.lines().any(|l| l.starts_with('+') && l.contains("Access-Control-Allow-Origin")));

@@ -14,6 +14,8 @@ Generic checks (the human judge still looks at every PNG):
 import json, os, re, subprocess, sys, time, urllib.parse, urllib.request
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "walk"))
 from snapsafe import scrub as _scrub  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../walk"))  # noqa: E402
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 PORT, MODE, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
 PHASE = sys.argv[4] if len(sys.argv) > 4 else "live"   # live | commands | first-run
@@ -235,9 +237,11 @@ def tour_live():
     # settings sections
     if click("settings_open_hit"):
         capture("settings-general")
-        for sec in ("Permissions", "Model", "Sandbox", "Connection", "Preferences", "About"):
-            if click_text(sec):
-                capture(f"settings-{sec.lower()}")
+        # By id: the desktop nav row (set_nav_<id>) or, on phone, the icon-only
+        # rail (set_rail_<id>) — the rail has no text to click.
+        for sec in ("permissions", "model", "sandbox", "connection", "preferences", "about"):
+            if click(f"set_nav_{sec}") or click(f"set_rail_{sec}"):
+                capture(f"settings-{sec}")
         close_overlays()
     if click("review_open_hit"):
         capture("review")

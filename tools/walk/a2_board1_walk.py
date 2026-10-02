@@ -31,6 +31,7 @@ OCTOSENSE_WINDOW_SIZE=360x780 (the shell's phone page with the 360x780 frame);
 the walk taps the OctosCode icon itself. Writes <outdir>/<state>.png,
 <state>.snap.json, checks.json and walk.log (the routed board-1 lines)."""
 import json, os, sys, time, urllib.parse, urllib.request
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 # A11: the walk aggregator's convention (tools/walk/native.py) — a literal,
 # read with `ast`, never imported. The aggregator starts board1_serve and the
