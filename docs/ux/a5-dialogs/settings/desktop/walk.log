@@ -1,0 +1,39 @@
+CLICK settings_open_hit '' r=[935, 87, 92, 30] at (981,102)
+    log: [octoscode] chrome: OpenSettings
+    log: [octoscode] settings action: settings.panel.open
+PASS Settings opens from the header — log=True
+CLICK nv_hit[2] (Model section) at (243,305)
+    log: [octoscode] chrome: Action("settings.section.model", 0)
+    log: [octoscode] settings action: settings.section.model
+PASS Settings nav -> Model
+PASS All models › Open is shown (server advertises profile/llm/list) — r=[813, 357, 112, 32]
+PASS All models › Open hit target >= 28 px — [813, 357, 112, 32]
+SHOT settings-model
+CLICK set_models_manage '' r=[813, 357, 112, 32] at (869,373)
+    log: [octoscode] chrome: Action("dialog.open.models", 0)
+    log: [octoscode] dialog action: dialog.open.models
+    log: [octoscode] dialog action: dialog.refresh.profile
+    log: [octoscode] dialog load dialog.refresh.profile: no connection
+    log: [octoscode] dialog models mounted: frame 364x570 scale 1.000, 3 tap(s)
+PASS All models › Open opens the Models dialog — ['[octoscode] chrome: Action("dialog.open.models", 0)', '[octoscode] dialog action: dialog.open.models', '[octoscode] dialog action: dialog.refresh.profile']
+PASS …over Settings (Settings stays open under it)
+SHOT settings-models
+CLICK dialog_close '' r=[691, 111, 28, 28] at (705,125)
+    log: [octoscode] dialog tap: dialog.close
+    log: [octoscode] dialog action: dialog.close
+    log: [octoscode] nav tap: dialog.close
+PASS The dialog's close returns to Settings > Model
+CLICK set_models_manage '' r=[813, 357, 112, 32] at (869,373)
+    log: [octoscode] chrome: Action("dialog.open.models", 0)
+    log: [octoscode] dialog action: dialog.open.models
+    log: [octoscode] dialog action: dialog.refresh.profile
+    log: [octoscode] dialog load dialog.refresh.profile: no connection
+KEY escape
+    log: [octoscode] key Escape -> dialog close
+    log: [octoscode] dialog action: dialog.close
+PASS Escape closes the dialog first (Settings stays)
+KEY escape
+    log: [octoscode] settings action: settings.panel.close
+    log: [octoscode] chrome: Escape closed the top surface
+PASS A second Escape closes Settings
+== SETTINGS WALK desktop: all passed

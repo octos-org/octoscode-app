@@ -1,0 +1,194 @@
+CLICK OctosCode icon on the phone home at (153,363)
+    log: [octoscode] composer remounted
+CLICK i0_composer_0 'Ask Octos anything' r=[28, 765, 304, 29] at (180,780)
+TYPE '/'
+    log: [octoscode] draft synced: 1 chars
+SHOT palette
+TYPE 'mo'
+    log: [octoscode] draft synced: 3 chars
+SHOT palette-mo
+TYPE '/'
+    log: [octoscode] key Backspace -> Ignore
+    log: [octoscode] draft synced: 2 chars
+    log: [octoscode] key Backspace -> Ignore
+    log: [octoscode] draft synced: 1 chars
+    log: [octoscode] key Backspace -> Ignore
+    log: [octoscode] draft synced: 0 chars
+    log: [octoscode] draft synced: 1 chars
+TYPE 'mo'
+    log: [octoscode] draft synced: 3 chars
+CLICK palette_row_name '/model' r=[30, 260, 63, 28] at (62,274)
+    log: [octoscode] palette row 0 clicked
+    log: [octoscode] palette run /model -> dialog.open.models
+    log: [octoscode] dialog action: dialog.open.models
+    log: [octoscode] dialog action: dialog.refresh.profile
+    log: [octoscode] dialog load dialog.refresh.profile: no connection
+    log: [octoscode] dialog models mounted: frame 360x780 scale 0.989, 3 tap(s)
+SHOT models
+CLICK dialog_close '' r=[320, 92, 28, 28] at (334,106)
+    log: [octoscode] dialog tap: dialog.close
+    log: [octoscode] dialog action: dialog.close
+    log: [octoscode] nav tap: dialog.close
+CLICK i0_composer_0 'Ask Octos anything' r=[28, 765, 304, 29] at (180,780)
+TYPE '/'
+    log: [octoscode] draft synced: 1 chars
+TYPE 'comp'
+    log: [octoscode] draft synced: 5 chars
+CLICK palette_row_name '/compact' r=[30, 260, 82, 28] at (71,274)
+    log: [octoscode] palette row 0 clicked
+    log: [octoscode] palette run /compact -> dialog.open.context
+    log: [octoscode] dialog action: dialog.open.context
+    log: [octoscode] dialog action: dialog.refresh.context
+    log: [octoscode] dialog load dialog.refresh.context: no connection
+    log: [octoscode] dialog context mounted: frame 360x780 scale 0.998, 4 tap(s)
+SHOT context
+CLICK dlg_context_btn_compact_control '' r=[12, 496, 327, 58] at (176,525)
+    log: [octoscode] dialog tap: dialog.ask.context.compact_now
+    log: [octoscode] dialog action: dialog.ask.context.compact_now
+    log: [octoscode] dialog confirm asked: context.compact_now (true)
+    log: [octoscode] dialog context mounted: frame 360x780 scale 0.947, 3 tap(s)
+SHOT context-confirm
+CLICK dlg_context_cf_cancel_control '' r=[19, 211, 155, 44] at (96,233)
+    log: [octoscode] dialog tap: dialog.cancel
+    log: [octoscode] dialog action: dialog.cancel
+    log: [octoscode] dialog confirm cancelled
+    log: [octoscode] dialog context mounted: frame 360x780 scale 0.998, 4 tap(s)
+CLICK dialog_close '' r=[320, 94, 28, 28] at (334,108)
+    log: [octoscode] dialog tap: dialog.close
+    log: [octoscode] dialog action: dialog.close
+    log: [octoscode] nav tap: dialog.close
+CLICK i0_composer_0 'Ask Octos anything' r=[28, 765, 304, 29] at (180,780)
+TYPE '/'
+    log: [octoscode] draft synced: 1 chars
+TYPE 'sk'
+    log: [octoscode] draft synced: 3 chars
+CLICK palette_row_name '/skills' r=[30, 260, 54, 28] at (57,274)
+    log: [octoscode] palette row 0 clicked
+    log: [octoscode] palette run /skills -> dialog.open.skills
+    log: [octoscode] dialog action: dialog.open.skills
+    log: [octoscode] dialog action: dialog.refresh.profile
+    log: [octoscode] dialog load dialog.refresh.profile: no connection
+    log: [octoscode] dialog skills mounted: frame 360x780 scale 0.861, 6 tap(s)
+SHOT skills
+CLICK dlg_skills_t_remove0_hit '' r=[260, 248, 51, 44] at (286,270)
+    log: [octoscode] dialog tap: dialog.ask.skills.remove_0
+    log: [octoscode] dialog action: dialog.ask.skills.remove_0
+    log: [octoscode] dialog confirm asked: skills.remove_0 (true)
+    log: [octoscode] dialog skills mounted: frame 360x780 scale 0.947, 3 tap(s)
+SHOT skills-confirm
+CLICK dlg_skills_cf_cancel_control '' r=[19, 241, 155, 44] at (96,263)
+    log: [octoscode] dialog tap: dialog.cancel
+    log: [octoscode] dialog action: dialog.cancel
+    log: [octoscode] dialog confirm cancelled
+    log: [octoscode] dialog skills mounted: frame 360x780 scale 0.861, 6 tap(s)
+CLICK dialog_close '' r=[326, 91, 28, 28] at (340,105)
+    log: [octoscode] dialog tap: dialog.close
+    log: [octoscode] dialog action: dialog.close
+    log: [octoscode] nav tap: dialog.close
+CLICK i0_composer_0 'Ask Octos anything' r=[28, 765, 304, 29] at (180,780)
+TYPE '/'
+    log: [octoscode] draft synced: 1 chars
+TYPE 'go'
+    log: [octoscode] draft synced: 3 chars
+CLICK palette_row_name '/goal' r=[30, 260, 46, 28] at (53,274)
+    log: [octoscode] palette row 0 clicked
+    log: [octoscode] palette run /goal -> dialog.open.goal
+    log: [octoscode] dialog action: dialog.open.goal
+    log: [octoscode] dialog goal mounted: frame 360x780 scale 0.870, 4 tap(s)
+SHOT goal
+CLICK dialog_close '' r=[308, 114, 28, 28] at (322,128)
+    log: [octoscode] dialog tap: dialog.close
+    log: [octoscode] dialog action: dialog.close
+    log: [octoscode] nav tap: dialog.close
+CLICK i0_composer_0 'Ask Octos anything' r=[28, 765, 304, 29] at (180,780)
+TYPE '/'
+    log: [octoscode] draft synced: 1 chars
+TYPE 'lo'
+    log: [octoscode] draft synced: 3 chars
+CLICK palette_row_name '/loop' r=[30, 260, 48, 28] at (54,274)
+    log: [octoscode] palette row 0 clicked
+    log: [octoscode] palette run /loop -> dialog.open.loops
+    log: [octoscode] dialog action: dialog.open.loops
+    log: [octoscode] dialog loops mounted: frame 360x780 scale 0.845, 10 tap(s)
+SHOT loops
+CLICK dlg_loops_new_loop_control '' r=[218, 91, 101, 44] at (268,113)
+    log: [octoscode] dialog tap: dialog.form.loop.create
+    log: [octoscode] dialog action: dialog.form.loop.create
+    log: [octoscode] dialog form opened: loop.create (true)
+    log: [octoscode] dialog loops mounted: frame 360x780 scale 0.947, 3 tap(s)
+SHOT loops-form
+CLICK dlg_loops_ff_cancel_control '' r=[19, 299, 155, 44] at (96,321)
+    log: [octoscode] dialog tap: dialog.form_cancel
+    log: [octoscode] dialog action: dialog.form_cancel
+    log: [octoscode] dialog form cancelled
+    log: [octoscode] dialog loops mounted: frame 360x780 scale 0.845, 10 tap(s)
+CLICK dialog_close '' r=[326, 94, 28, 28] at (340,108)
+    log: [octoscode] dialog tap: dialog.close
+    log: [octoscode] dialog action: dialog.close
+    log: [octoscode] nav tap: dialog.close
+CLICK i0_composer_0 'Ask Octos anything' r=[28, 765, 304, 29] at (180,780)
+TYPE '/'
+    log: [octoscode] draft synced: 1 chars
+TYPE 'mon'
+    log: [octoscode] draft synced: 4 chars
+CLICK palette_row_name '/monitor' r=[30, 260, 76, 28] at (68,274)
+    log: [octoscode] palette row 0 clicked
+    log: [octoscode] palette run /monitor -> dialog.open.monitors
+    log: [octoscode] dialog action: dialog.open.monitors
+    log: [octoscode] dialog monitors mounted: frame 360x780 scale 0.861, 5 tap(s)
+SHOT monitors
+CLICK dialog_close '' r=[326, 90, 28, 28] at (340,104)
+    log: [octoscode] dialog tap: dialog.close
+    log: [octoscode] dialog action: dialog.close
+    log: [octoscode] nav tap: dialog.close
+CLICK i0_composer_0 'Ask Octos anything' r=[28, 765, 304, 29] at (180,780)
+TYPE '/'
+    log: [octoscode] draft synced: 1 chars
+TYPE 'pe'
+    log: [octoscode] draft synced: 3 chars
+CLICK palette_row_name '/peer' r=[30, 260, 50, 28] at (55,274)
+    log: [octoscode] palette row 0 clicked
+    log: [octoscode] palette run /peer -> dialog.open.fleet
+    log: [octoscode] dialog action: dialog.open.fleet
+    log: [octoscode] dialog action: dialog.refresh.fleet
+    log: [octoscode] dialog load dialog.refresh.fleet: no connection
+    log: [octoscode] dialog fleet mounted: frame 360x780 scale 0.851, 4 tap(s)
+SHOT fleet
+CLICK dialog_close '' r=[326, 94, 28, 28] at (340,108)
+    log: [octoscode] dialog tap: dialog.close
+    log: [octoscode] dialog action: dialog.close
+    log: [octoscode] nav tap: dialog.close
+CLICK i0_composer_0 'Ask Octos anything' r=[28, 765, 304, 29] at (180,780)
+TYPE '/'
+    log: [octoscode] draft synced: 1 chars
+TYPE 'ps'
+    log: [octoscode] draft synced: 3 chars
+CLICK palette_row_name '/ps' r=[30, 260, 33, 28] at (46,274)
+    log: [octoscode] palette row 0 clicked
+    log: [octoscode] palette run /ps -> dialog.open.tasks
+    log: [octoscode] dialog action: dialog.open.tasks
+    log: [octoscode] dialog action: dialog.refresh.fleet
+    log: [octoscode] dialog load dialog.refresh.fleet: no connection
+    log: [octoscode] dialog tasks mounted: frame 360x780 scale 0.874, 2 tap(s)
+SHOT tasks
+CLICK dialog_close '' r=[325, 111, 28, 28] at (339,125)
+    log: [octoscode] dialog tap: dialog.close
+    log: [octoscode] dialog action: dialog.close
+    log: [octoscode] nav tap: dialog.close
+CLICK i0_composer_0 'Ask Octos anything' r=[28, 765, 304, 29] at (180,780)
+TYPE '/'
+    log: [octoscode] draft synced: 1 chars
+TYPE 'rev'
+    log: [octoscode] draft synced: 4 chars
+CLICK palette_row_name '/review' r=[30, 260, 66, 28] at (63,274)
+    log: [octoscode] palette row 0 clicked
+    log: [octoscode] palette run /review -> dialog.open.review
+    log: [octoscode] dialog action: dialog.open.review
+    log: [octoscode] dialog review mounted: frame 360x780 scale 0.885, 2 tap(s)
+SHOT review
+CLICK dialog_close '' r=[325, 98, 28, 28] at (339,112)
+    log: [octoscode] dialog tap: dialog.close
+    log: [octoscode] dialog action: dialog.close
+    log: [octoscode] nav tap: dialog.close
+CLICK i0_composer_0 'Ask Octos anything' r=[28, 765, 304, 29] at (180,780)
+== done
