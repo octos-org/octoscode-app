@@ -2963,6 +2963,14 @@ impl OctoscodeView {
                 self.connect_key = None;
             }
             Work::Scan => cx.show_qr_scanner(),
+            // A23 — the provider editor opened from the providers dialog
+            // closed: the dialog returns (re-read) with the editor's line.
+            Work::ReturnToProviders { notice } => {
+                let outcome = screens::board3::host::reopen_routes(notice);
+                self.board3_outcome(cx, outcome);
+            }
+            // A23 — the GLM-5.3-Flash guidance's "Official guide".
+            Work::OpenUrl(url) => cx.open_url(&url, OpenUrlInPlace::No),
             Work::Forget => {
                 // Walk 112: the credential goes and the connect form returns
                 // empty — the same Offline the drawer's Disconnect sets.
@@ -3037,8 +3045,25 @@ impl OctoscodeView {
         self.view.widget(cx, ids!(board1_dock)).set_visible(cx, open);
         if let Some(dsl) = screens::board1::view(size.x, size.y) {
             let splash = self.view.splash(cx, ids!(board1_splash));
-            if let Err(e) = self.mounts.mount(cx, &splash, &dsl) {
-                makepad_widgets::log!("[octoscode] board1 mount: {e}");
+            // A23 — a state change remounts the surface; keep its body's
+            // scroll when it is the SAME surface (board 3's rule): read the
+            // offset from the body's first child before the remount.
+            let keep_scroll = {
+                let sv = self.view.widget(cx, &[live_id!(board1_splash), LiveId::from_str(screens::board1::SCROLL_ID)]);
+                let top = sv.area().rect(cx).pos.y;
+                let mut first = None;
+                sv.children(&mut |_, child| {
+                    if first.is_none() {
+                        first = Some(child.area().rect(cx).pos.y);
+                    }
+                });
+                first.map(|y| (top - y).max(0.0)).unwrap_or(0.0)
+            };
+            let same_surface = screens::board1::note_mounted();
+            match self.mounts.mount(cx, &splash, &dsl) {
+                Err(e) => makepad_widgets::log!("[octoscode] board1 mount: {e}"),
+                Ok(true) if same_surface && keep_scroll > 0.0 => screens::board1::set_pending_scroll(keep_scroll),
+                Ok(_) => {}
             }
         }
         if screens::board1::take_ime_reset() {
@@ -5227,6 +5252,13 @@ impl OctoscodeView {
                 .set_scroll_pos(cx, dvec2(0.0, y));
             self.view.redraw(cx);
         }
+        // A23 — the board-1 editor's body likewise.
+        if let Some(y) = screens::board1::take_pending_scroll() {
+            self.view
+                .view(cx, &[live_id!(board1_splash), LiveId::from_str(screens::board1::SCROLL_ID)])
+                .set_scroll_pos(cx, dvec2(0.0, y));
+            self.view.redraw(cx);
+        }
         DrawStep::done()
     }
 
@@ -5722,9 +5754,20 @@ impl OctoscodeView {
                     let out = screens::board3::host::open(screens::board3::host::Dialog::ModelMenu);
                     self.board3_outcome(cx, out);
                 }
-                // `+` (attach) and the mic are not wired to a protocol method
-                // yet; they are present as hit targets so the component's own
-                // chrome stays clickable and the ids exist for a later card.
+                // The composer's `+` opens Turn images (board 3 screen 10) for
+                // this Session through the same command arm `/images` takes
+                // (board3::host::command), never touching the draft; offline
+                // it is refused like the palette row. The mic is not wired to
+                // a protocol method yet; it stays a hit target.
+                if self.view.button(cx, ids!(plus_hit)).clicked(actions) {
+                    makepad_widgets::log!("[octoscode] composer plus clicked: turn images");
+                    if !self.refuse_palette_offline(cx, "/images") {
+                        let conv = { self.bridge.lock().unwrap().conv.clone() };
+                        if let Some(out) = conv.and_then(|conv| screens::board3::host::command("images", "", &conv)) {
+                            self.board3_outcome(cx, out);
+                        }
+                    }
+                }
                 // Card #21 §3 — the per-item controls. A row click is routed
                 // WITH its item id (the same `items_with_actions` contract the
                 // makepad examples use).

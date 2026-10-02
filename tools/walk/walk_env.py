@@ -25,7 +25,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
+import bridgeauth  # noqa: E402  (D10c: the bridge token on every request; input_was_queued)
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 HEADLESS = ROOT / "harness" / "headless.sh"
@@ -180,9 +180,11 @@ class App:
                 with urllib.request.urlopen(self.base + path, timeout=timeout) as r:
                     return r.read()
             except urllib.error.HTTPError as e:
-                # Input routes with wait=1 answer 404 when their frame is
-                # coalesced; the input itself was delivered.
-                if path.startswith(("/click", "/t?", "/k?", "/m?")):
+                # Only the bridge's frame-wait timeout on an input route means
+                # "queued, applied, no frame yet"; the step's effect assertion
+                # then decides (a dead control still fails there). Any other
+                # error is real (bridgeauth.input_was_queued).
+                if bridgeauth.input_was_queued(path, e):
                     return b""
                 last = e
             except Exception as e:  # noqa: BLE001

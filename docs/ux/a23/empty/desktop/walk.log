@@ -1,0 +1,20 @@
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'mo'
+CLICK palette_row_name '/model' r=[286, 252, 63, 28]
+PASS models: /model palette CLICK opens the Models dialog
+CLICK dlg_models_manage_providers_control r=[675, 401, 144, 32] at (747,417)
+PASS providers: 'Manage providers' CLICK opens the providers dialog
+PASS empty: a configuration READ as empty is the empty state with Add provider
+PASS empty: dialog numeric checks — frame=640x291 centre_dx=0.0 margins L=20 R=20 labels=6 outside=0 overlaps=0 controls=2 under28=0
+SHOT 01-empty-desktop
+PASS 01-empty-desktop: the capture carries no typed key (whole, first 8, last 8)
+CLICK b3_routes_add_provider r=[728, 307, 111, 32] at (784,323)
+PASS empty: 'Add provider' CLICK -> the first catalog model becomes the primary '(default)' — claude-3-5-haiku-20241022 (default)
+PASS empty add: board-1 card numeric checks — card=[319, 102, 460, 550] margins=[265, 265] pads=[28, 28] widgets=19 outside=[] under28=[] overlaps=[]
+SHOT 02-empty-add-desktop
+PASS 02-empty-add-desktop: the capture carries no typed key (whole, first 8, last 8)
+SCROLL b1_prov_back into b1_prov_scroll — failed
+CLICK b1_prov_back r=[347, 120, 28, 32] at (361,136)
+PASS empty: the back chevron CLICK returns to the providers
+== 9/9 checks passed

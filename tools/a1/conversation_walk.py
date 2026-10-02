@@ -29,7 +29,7 @@ import time
 import urllib.error
 import urllib.request
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../walk"))  # noqa: E402
-import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
+import bridgeauth  # noqa: E402  (D10c: the bridge token on every request; input_was_queued)
 
 # A11: the walk aggregator's convention (tools/walk/native.py; never imported).
 # Desktop only: the seeded sidebar row is a drawer on the phone.
@@ -66,8 +66,12 @@ def get(path, timeout=20):
         try:
             with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
                 return r.read().decode()
-        except urllib.error.HTTPError:
-            return ""
+        except urllib.error.HTTPError as e:
+            # Only the frame-wait timeout counts as queued; every step below
+            # asserts its effect, so a dead control still fails.
+            if bridgeauth.input_was_queued(path, e):
+                return ""
+            raise
     for attempt in (0, 1):
         try:
             with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
