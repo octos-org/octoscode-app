@@ -1,0 +1,176 @@
+makepad text layouter: an ellipsis starts where the kept text ends (decision D10d). RED: the tests only, the fix follows.
+
+The judge's "below 9" item 1: a single-line wrapping Label (`max_lines: 1`, `text_overflow: Ellipsis`) could end in
+two dots ("Fix steer queue drop..") instead of "…". These makepad unit tests reproduce it in the layouter:
+- ellipsis_after_a_soft_wrap_space_starts_where_the_text_ends: the A29 title at a bound that keeps
+  "Fix steer queue drop " but not the "o" after it;
+- ellipsis_row_geometry_holds_at_every_bound: a sweep of bounds (wrap and no wrap, one and two rows);
+- a_truncated_aligned_row_is_placed_inside_its_bound: centred / right-aligned truncated rows.
+Applied to every tree by scripts/apply-makepad-patches.sh; tests/a32_makepad_ellipsis.rs checks its shape.
+
+--- a/draw/src/text/layouter.rs
++++ b/draw/src/text/layouter.rs
+@@ -2088,4 +2088,163 @@
+         assert!(capped.is_truncated, "a discarded third line is a truncation");
+         assert!(ends_with_ellipsis(&capped));
+     }
++
++    /// The pen position after `glyph`: where the next glyph is placed.
++    fn pen_after(glyph: &super::LaidoutGlyph) -> f32 {
++        glyph.origin_in_lpxs.x + glyph.advance_in_lpxs()
++    }
++
++    /// An ellipsized row's own geometry: the ellipsis starts exactly where the
++    /// last kept glyph ends (never over it), the row's width is where the
++    /// ellipsis ends, and that fits the bound it was truncated for.
++    fn assert_ellipsis_row_geometry(laidout: &LaidoutText, max_width: f32, what: &str) {
++        let row = laidout.rows.last().expect("layout always yields a row");
++        let first_ellipsis = row
++            .glyphs
++            .iter()
++            .position(|glyph| glyph.cluster >= row.text.len())
++            .unwrap_or_else(|| panic!("{what}: a truncated row ends in an ellipsis"));
++        let ellipsis_x = row.glyphs[first_ellipsis].origin_in_lpxs.x;
++        if let Some(kept) = first_ellipsis.checked_sub(1).map(|index| &row.glyphs[index]) {
++            assert!(
++                (ellipsis_x - pen_after(kept)).abs() < 0.01,
++                "{what}: the ellipsis starts at {ellipsis_x} but the last kept glyph ends at {}: \
++                 drawn {} over it",
++                pen_after(kept),
++                pen_after(kept) - ellipsis_x
++            );
++        }
++        let end = pen_after(row.glyphs.last().unwrap());
++        assert!(
++            (row.width_in_lpxs - end).abs() < 0.01,
++            "{what}: the row is {} wide but its ellipsis ends at {end}",
++            row.width_in_lpxs
++        );
++        assert!(
++            row.width_in_lpxs <= max_width + 0.01,
++            "{what}: the row ({}) must fit the bound ({max_width})",
++            row.width_in_lpxs
++        );
++    }
++
++    /// A soft-wrapped row keeps the space it broke at as its last glyph (for
++    /// caret positions) while its width leaves that space out. Truncating
++    /// such a row subtracted the space's advance a second time, so the
++    /// ellipsis was placed one space advance to the left, over the last glyph
++    /// it kept: in a list row "Fix steer queue drop…" read
++    /// "Fix steer queue drop.." (the first dot inside the "p").
++    #[test]
++    fn ellipsis_after_a_soft_wrap_space_starts_where_the_text_ends() {
++        let mut layouter = real_font_layouter();
++        let text = "Fix steer queue drop on reconnect";
++        // A bound that keeps "Fix steer queue drop " (its space included) but
++        // not the "o" after it: the last allowed row breaks at that space.
++        let width_of = |layouter: &mut Layouter, prefix: &str| {
++            wrapped_layout(layouter, LATIN_FAMILY, prefix, 10_000.0, None, false).rows[0]
++                .width_in_lpxs
++        };
++        let to_space = width_of(&mut layouter, "Fix steer queue drop ");
++        let to_o = width_of(&mut layouter, "Fix steer queue drop o");
++        assert!(to_o > to_space + 1.0, "{to_space} {to_o}");
++        let max_width = (to_space + to_o) / 2.0;
++        let capped = wrapped_layout(&mut layouter, LATIN_FAMILY, text, max_width, Some(1), true);
++        assert_eq!(capped.rows.len(), 1);
++        assert!(capped.is_truncated);
++        assert!(
++            capped.rows[0].text.ends_with("drop "),
++            "the row broke at the space: {:?}",
++            &capped.rows[0].text[..]
++        );
++        assert_ellipsis_row_geometry(&capped, max_width, "Fix steer queue drop…");
++    }
++
++    /// The same geometry at every bound across a title: one row and the last
++    /// of two rows on a wrapping flow (the Label default), and one row on a
++    /// non-wrapping flow.
++    #[test]
++    fn ellipsis_row_geometry_holds_at_every_bound() {
++        let mut layouter = real_font_layouter();
++        let text = "Fix steer queue drop on reconnect and keep every queued steer in order";
++        let mut truncated = 0;
++        let mut broke_at_a_space = 0;
++        for (wrap, max_rows) in [(true, Some(1)), (true, Some(2)), (false, Some(1)), (false, None)] {
++            let mut max_width = 30.0f32;
++            while max_width < 320.0 {
++                let laidout = layouter.get_or_layout(BorrowedLayoutParams {
++                    text,
++                    style: super::Style {
++                        font_family_id: LATIN_FAMILY.into(),
++                        font_size_in_pts: 12.0,
++                        color: None,
++                    },
++                    options: LayoutOptions {
++                        max_width_in_lpxs: Some(max_width),
++                        wrap,
++                        max_rows,
++                        ellipsis: true,
++                        ..LayoutOptions::default()
++                    },
++                });
++                if laidout.is_truncated {
++                    truncated += 1;
++                    if laidout.rows.last().unwrap().text.ends_with(' ') {
++                        broke_at_a_space += 1;
++                    }
++                    assert_ellipsis_row_geometry(
++                        &laidout,
++                        max_width,
++                        &format!("wrap={wrap} max_rows={max_rows:?} bound={max_width}"),
++                    );
++                }
++                max_width += 0.5;
++            }
++        }
++        assert!(truncated > 500, "the sweep truncates ({truncated})");
++        assert!(
++            broke_at_a_space > 20,
++            "the sweep covers rows that broke at a space ({broke_at_a_space})"
++        );
++    }
++
++    /// A centred or right-aligned row is placed from its width when it is
++    /// finished. Truncation changes that width, so the row must be placed
++    /// again: an overflowing non-wrapping row was left at a negative origin,
++    /// its first glyphs outside the bound (clipped by the label).
++    #[test]
++    fn a_truncated_aligned_row_is_placed_inside_its_bound() {
++        let mut layouter = real_font_layouter();
++        let text = "Fix steer queue drop on reconnect";
++        let max_width = 120.0;
++        for wrap in [false, true] {
++            for align in [0.0f32, 0.5, 1.0] {
++                let laidout = layouter.get_or_layout(BorrowedLayoutParams {
++                    text,
++                    style: super::Style {
++                        font_family_id: LATIN_FAMILY.into(),
++                        font_size_in_pts: 12.0,
++                        color: None,
++                    },
++                    options: LayoutOptions {
++                        max_width_in_lpxs: Some(max_width),
++                        wrap,
++                        max_rows: Some(1),
++                        ellipsis: true,
++                        align,
++                        ..LayoutOptions::default()
++                    },
++                });
++                assert!(laidout.is_truncated);
++                let row = &laidout.rows[0];
++                let want = align * (max_width - row.width_in_lpxs);
++                assert!(
++                    (row.origin_in_lpxs.x - want).abs() < 0.01,
++                    "wrap={wrap} align={align}: the row starts at {} but a {} wide row sits at {want}",
++                    row.origin_in_lpxs.x,
++                    row.width_in_lpxs
++                );
++                assert!(row.origin_in_lpxs.x >= -0.01);
++                assert!(row.origin_in_lpxs.x + row.width_in_lpxs <= max_width + 0.01);
++            }
++        }
++    }
+ }
