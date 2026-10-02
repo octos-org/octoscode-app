@@ -1,0 +1,2 @@
+PASS stored state: the key is in no file of the run (4 entries checked)
+PASS the app's own log file never carries the key

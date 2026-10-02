@@ -1,0 +1,7 @@
+loading: frame=328x251 centre_dx=0.0 margins L=16 R=16 labels=4 outside=0 overlaps=0 controls=1 under28=0; gutters L16 R16 T265 B260; b3_close 28x28
+catalog failed: frame=328x301 centre_dx=0.0 margins L=16 R=16 labels=5 outside=0 overlaps=0 controls=1 under28=0; gutters L16 R16 T239 B236; b3_onb_disconnect 102x36; b3_onb_retry 66x36; b3_close 28x28
+form: frame=328x724 centre_dx=0.0 margins L=16 R=16 labels=12 outside=0 overlaps=0 controls=5 under28=0; gutters L16 R16 T28 B24; b3_onb_disconnect 102x36; b3_close 28x28
+provider picker: frame=328x734 centre_dx=0.0 margins L=16 R=16 labels=14 outside=0 overlaps=0 controls=12 under28=0; gutters L16 R16 T23 B19; b3_onb_disconnect 102x36; b3_close 28x28
+route list: frame=328x429 centre_dx=0.0 margins L=16 R=16 labels=9 outside=0 overlaps=0 controls=5 under28=0; gutters L16 R16 T176 B171; b3_onb_disconnect 102x36; b3_close 28x28
+testing: frame=328x732 centre_dx=0.0 margins L=16 R=16 labels=14 outside=0 overlaps=0 controls=1 under28=0; gutters L16 R16 T24 B20; b3_close 28x28
+failed: frame=328x729 centre_dx=0.0 margins L=16 R=16 labels=11 outside=0 overlaps=0 controls=3 under28=0; gutters L16 R16 T26 B21; b3_onb_submit 176x36; b3_onb_disconnect 102x36; b3_close 28x28
