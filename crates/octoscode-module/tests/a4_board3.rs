@@ -619,3 +619,39 @@ async fn warnings_and_delivered_files_become_their_own_transcript_rows() {
     assert!(!f.contains("/home/user/src/octos/out/report.pdf\"\n"), "never the raw path as body text");
     assert_eq!(rows::primary_action(file).as_deref().map(|a| a.starts_with("b3.file.download#")), Some(true));
 }
+
+#[tokio::test]
+async fn the_picker_starts_at_the_server_wd_and_a_remembered_workspace_and_the_browser_drills_in_and_up() {
+    use octoscode_module::screens::recents;
+    let _g = lock();
+    let server = FakeServer::start().await;
+    let (conv, _ev) = connected(&server).await;
+
+    // The server's working directory is the picker's first entry.
+    host::open(host::Dialog::Workspace);
+    let job = spawn_of(host::perform("b3.ws.wd", 0, &conv.store));
+    assert_eq!(job, Job::WsStart("/home/user/src/octos".into()));
+    host::run(job, &conv).await.expect("start at the server wd");
+    assert_eq!(server.params_of("session/open").last().unwrap()["cwd"], json!("/home/user/src/octos"));
+    // ...remembered only after that open succeeded: the next picker lists it
+    // first, and its row starts there again.
+    let remembered = recents::load_recent_workspaces(&*recents::store(), &recents::endpoint());
+    assert_eq!(remembered.first().map(|r| r.path.as_str()), Some("/home/user/src/octos"));
+    host::open(host::Dialog::Workspace);
+    let job = spawn_of(host::perform("b3.ws.recent", 0, &conv.store));
+    assert_eq!(job, Job::WsStart("/home/user/src/octos".into()));
+
+    // The browser drills into a folder and back up to the parent.
+    conv.store.set_capabilities(vec!["onboarding.workspace_browse.v1".into()]);
+    let job = spawn_of(host::perform("b3.ws.browse", 0, &conv.store));
+    host::run(job, &conv).await.expect("listing");
+    let job = spawn_of(host::perform("b3.ws.enter", 0, &conv.store));
+    assert_eq!(job, Job::WsList(Some("/home/user/src/octos".into())));
+    host::run(job, &conv).await.expect("drill in");
+    assert_eq!(
+        server.params_of("onboarding/workspace_list").last().unwrap(),
+        &json!({"path": "/home/user/src/octos"})
+    );
+    let job = spawn_of(host::perform("b3.ws.up", 0, &conv.store));
+    assert_eq!(job, Job::WsList(Some("/home/user".into())));
+}
