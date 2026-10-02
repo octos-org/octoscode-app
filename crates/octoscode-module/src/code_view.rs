@@ -93,6 +93,13 @@ pub struct A7CodeLines {
     /// is padded to it, since a single laid-out run is only its glyph box.
     #[live(20.0)]
     line_height: f64,
+    /// A13 — `false` lays every line out WHOLE, one row per source line,
+    /// and the widget sizes to its longest line: the block scrolls sideways
+    /// in a `ScrollXView` (the web's `pre { white-space: pre; overflow-x:
+    /// auto }`, `markdown.css`) instead of breaking a token across rows
+    /// (judge, 360 px: "Args::\nparse()"). `true` keeps A7's wrapping rows.
+    #[live(true)]
+    wrap: bool,
     /// The lexed lines, keyed by (text, lang, dark).
     #[rust]
     lines: Vec<Vec<(Vec4f, String)>>,
@@ -197,9 +204,16 @@ impl Widget for A7CodeLines {
         // centred in it — so a long line that wraps keeps the same pitch.
         let run_walk = Walk { width: Size::fit(), height: Size::Fixed(self.line_height), ..Walk::default() };
         let centred = Align { x: 0.0, y: 0.5 };
-        let row = Layout { flow: Flow::right_wrap(), ..Layout::default() };
+        // A13: a whole-line row is `Fit` wide with a non-wrapping flow (the
+        // text layer wraps a run only inside a wrapping flow, `DrawText::
+        // draw_walk`), so the widget's width is its longest line.
+        let (row, row_walk) = if self.wrap {
+            (Layout { flow: Flow::right_wrap(), ..Layout::default() }, Walk::fill_fit())
+        } else {
+            (Layout { flow: Flow::right(), ..Layout::default() }, Walk::fit())
+        };
         for line in &self.lines {
-            cx.begin_turtle(Walk::fill_fit(), row);
+            cx.begin_turtle(row_walk, row);
             if line.is_empty() {
                 self.draw_text.color = plain;
                 self.draw_text.draw_walk(cx, run_walk, centred, " ");

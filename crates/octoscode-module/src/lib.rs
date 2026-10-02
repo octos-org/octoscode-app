@@ -4364,15 +4364,16 @@ impl OctoscodeView {
     }
 
     fn apply_composer_fit(&mut self, cx: &mut Cx) {
-        let fit = fluid::composer_row_fit(&conv_layout::current());
-        let (approval_max, model_max) = (fit.approval_max, fit.model_max);
         let mut approval = self
             .view
             .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_2_0)]);
-        script_apply_eval!(cx, approval, { max_width: #(approval_max) });
         let mut model = self
             .view
             .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_4)]);
+        // A13: the room splits by what the two live labels need.
+        let fit = fluid::composer_row_fit_for(&conv_layout::current(), &approval.text(), &model.text());
+        let (approval_max, model_max) = (fit.approval_max, fit.model_max);
+        script_apply_eval!(cx, approval, { max_width: #(approval_max) });
         script_apply_eval!(cx, model, { max_width: #(model_max) });
     }
 
