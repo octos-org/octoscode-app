@@ -69,12 +69,15 @@ pub const COMMANDS: &[Command] = &[
     Command { name: "/monitor", description: "Manage session monitors", methods_any: &["monitor/create", "monitor/list"], requires_all: &["coding.autonomy.v1", "coding.monitor_runtime.v1"], aliases: &["monitors"], effect: Some("dialog.open.monitors") },
     // A5: the composer's approval pill, from the keyboard
     // (`permission/profile/set`, the pill's own production path).
-    Command { name: "/mode", description: "Change permissions", methods_any: &["approval.typed.v1"], requires_all: &[], aliases: &["permissions"], effect: Some("permission.cycle") },
+    // A5: no "permissions" alias — the web's /permissions (approval scopes)
+    // is A4's inspector, reached by its own row below.
+    Command { name: "/mode", description: "Change permissions", methods_any: &["approval.typed.v1"], requires_all: &[], aliases: &[], effect: Some("permission.cycle") },
     // A5: `/compact` is the web's alias of `/context` (`registry.ts:331`):
     // it opens the Context dialog, where Compact now runs.
     Command { name: "/compact", description: "Context and compaction", methods_any: &["context.lifecycle.v1", "session/compact"], requires_all: &[], aliases: &["context", "ctx", "compress"], effect: Some("dialog.open.context") },
     Command { name: "/btw", description: "Ask a side question", methods_any: &["session/btw"], requires_all: &[], aliases: &["aside"], effect: Some("aside.ask") },
-    Command { name: "/resume", description: "Resume a session", methods_any: &["state.session_hydrate.v1"], requires_all: &[], aliases: &[], effect: Some("session.refresh") },
+    // A5: the row runs the typed command (`compose:`): A4's resume surface.
+    Command { name: "/resume", description: "Resume a session", methods_any: &["state.session_hydrate.v1"], requires_all: &[], aliases: &[], effect: Some("compose:/resume") },
     // ---- A5: the dialog commands beyond the atlas slice (web order).
     Command { name: "/review", description: "Run native code review", methods_any: &["review/start"], requires_all: &["review.start.v1"], aliases: &["code-review"], effect: Some("dialog.open.review") },
     Command { name: "/peer", description: "Inspect and steer peers", methods_any: &["peer/prepare", "peer/gather"], requires_all: &[], aliases: &["peers", "fleet"], effect: Some("dialog.open.fleet") },
@@ -86,6 +89,20 @@ pub const COMMANDS: &[Command] = &[
     Command { name: "/skills", description: "Manage installed skills", methods_any: &["profile/skills/list"], requires_all: &[], aliases: &["skill"], effect: Some("dialog.open.skills") },
     Command { name: "/goal", description: "Inspect and manage the goal", methods_any: &["session/goal/get", "session/goal/set", "session/goal/clear"], requires_all: &["coding.autonomy.v1", "coding.goal_runtime.v1"], aliases: &["agents", "agent"], effect: Some("dialog.open.goal") },
     Command { name: "/loop", description: "Inspect and manage loops", methods_any: &["loop/create", "loop/list"], requires_all: &["coding.autonomy.v1", "coding.loop_runtime.v1"], aliases: &["loops"], effect: Some("dialog.open.loops") },
+    // ---- A5: the board-3 surfaces (A4) — every command that opens a screen
+    // is a palette row. `compose:/name` submits the command through the SAME
+    // command layer typing uses (flow.rs -> board3::host::command), so a row
+    // and the typed command can never diverge. Gates: the web's requirements
+    // (`registry.ts`).
+    Command { name: "/rewind", description: "Rewind to an earlier turn", methods_any: &["session/rollback"], requires_all: &["session/hydrate"], aliases: &["backtrack"], effect: Some("compose:/rewind") },
+    Command { name: "/threads", description: "Inspect the thread graph", methods_any: &["thread/graph/get"], requires_all: &["state.thread_graph.v1"], aliases: &["thread"], effect: Some("compose:/threads") },
+    Command { name: "/turn", description: "Inspect the active turn", methods_any: &["turn/state/get"], requires_all: &["state.turn_state_get.v1"], aliases: &[], effect: Some("compose:/turn") },
+    Command { name: "/permissions", description: "Remembered decisions", methods_any: &["approval/scopes/list"], requires_all: &[], aliases: &["permission"], effect: Some("compose:/permissions") },
+    Command { name: "/thinking", description: "Set thinking effort", methods_any: &["turn/start"], requires_all: &[], aliases: &["think"], effect: Some("compose:/thinking") },
+    Command { name: "/images", description: "Attach images", methods_any: &["turn/start"], requires_all: &[], aliases: &[], effect: Some("compose:/images") },
+    Command { name: "/sessions", description: "Browse sessions", methods_any: &["session/list"], requires_all: &[], aliases: &["ss"], effect: Some("compose:/sessions") },
+    Command { name: "/tools", description: "Inspect tool availability", methods_any: &["tool/status/list"], requires_all: &[], aliases: &["tool-settings"], effect: Some("compose:/tools") },
+    Command { name: "/mcp", description: "Inspect MCP connections", methods_any: &["mcp/status/list"], requires_all: &[], aliases: &[], effect: Some("compose:/mcp") },
 ];
 
 /// A5 — the web's `commandSuggestions(draft)` (`registry.ts:722`): only for a

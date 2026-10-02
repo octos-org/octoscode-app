@@ -234,6 +234,93 @@ pub fn set_skills_query(q: Option<String>) {
 /// The Skills search input's widget id (after the dialog's `dlg_skills_` prefix).
 pub const SKILLS_QUERY_INPUT: &str = "dlg_skills_skills_query";
 
+/// A create form inside an autonomy dialog — the web's AutonomyPanel forms
+/// (goal objective + optional budget, `AutonomyPanel.tsx:194-219`; the loop
+/// prompt + interval, `LoopCreationControls.tsx:18`). Its fields are real
+/// inputs; Create composes the entry text the autonomy table already parses
+/// ("objective | budget", "prompt | 15m") and runs `action`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Form {
+    pub dialog: Dialog,
+    /// The autonomy action Create runs (`goal.set`, `loop.create`).
+    pub action: String,
+    pub title: String,
+    /// `(field id, placeholder, value)`; the value survives a re-lowering.
+    pub fields: Vec<(String, String, String)>,
+    pub help: String,
+    pub submit_label: String,
+    /// Why the last Create did not run (the web's `required` / interval
+    /// refusals), drawn above the buttons.
+    pub error: Option<String>,
+}
+
+static FORM: Mutex<Option<Form>> = Mutex::new(None);
+
+pub fn pending_form() -> Option<Form> {
+    FORM.lock().unwrap().clone()
+}
+
+pub fn set_form(f: Option<Form>) {
+    *FORM.lock().unwrap() = f;
+}
+
+/// The form `action` opens, seeded from `seed` ("prompt | 15m" fills both
+/// loop fields; any text seeds the goal objective).
+pub fn form_for(action: &str, seed: &str) -> Option<Form> {
+    let (first, second) = match seed.split_once('|') {
+        Some((a, b)) => (a.trim().to_owned(), b.trim().to_owned()),
+        None => (seed.trim().to_owned(), String::new()),
+    };
+    match action {
+        "goal.set" => Some(Form {
+            dialog: Dialog::Goal,
+            action: action.to_owned(),
+            title: "Set goal".to_owned(),
+            fields: vec![
+                ("gf_objective".to_owned(), "Objective".to_owned(), first),
+                ("gf_budget".to_owned(), "Token budget (optional)".to_owned(), second),
+            ],
+            help: "A blank budget is left out; the server applies its default.".to_owned(),
+            submit_label: "Set goal".to_owned(),
+            error: None,
+        }),
+        "loop.create" => Some(Form {
+            dialog: Dialog::Loops,
+            action: action.to_owned(),
+            title: "New loop".to_owned(),
+            fields: vec![
+                ("lf_prompt".to_owned(), "What the loop runs".to_owned(), first),
+                ("lf_interval".to_owned(), "Interval, e.g. 15m".to_owned(), second),
+            ],
+            help: "A fixed interval runs every 60s to 24h; leave it empty for a self-paced loop."
+                .to_owned(),
+            submit_label: "Create loop".to_owned(),
+            error: None,
+        }),
+        _ => None,
+    }
+}
+
+/// The entry text a form's values compose: the first field, then " | " and
+/// the second when it is not blank.
+pub fn form_value(values: &[String]) -> String {
+    let first = values.first().map(|v| v.trim()).unwrap_or("");
+    if first.is_empty() {
+        // The first field is the required one: no entry text at all, so the
+        // table refuses it as empty (never "| 15m" read as the prompt).
+        return String::new();
+    }
+    match values.get(1).map(|v| v.trim()).filter(|v| !v.is_empty()) {
+        Some(second) => format!("{first} | {second}"),
+        None => first.to_owned(),
+    }
+}
+
+/// The widget id of form field `field` in dialog `d` (after the prefix).
+pub fn form_input_id(d: Dialog, field: &str) -> String {
+    format!("dlg_{}_{field}", d.id())
+}
+
 /// The pending confirmation, if any.
 pub fn pending_confirm() -> Option<Confirm> {
     CONFIRM.lock().unwrap().clone()
@@ -339,13 +426,15 @@ pub fn notice_for_refusal(id: &str) -> Option<&'static str> {
         return Some("This server does not advertise that control.");
     }
     Some(match id {
-        "loop.create[empty]" => {
-            "Type the loop’s prompt in the composer first (add “ | 5m” for a fixed interval), then choose + New loop."
-        }
+        "loop.create[empty]" => "Type what the loop runs first.",
         i if i.starts_with("loop.create[interval") => {
-            "Use a whole-number interval from 60s to 24h, such as “ | 5m”."
+            "Use a whole-number interval from 60s to 24h, such as 15m."
         }
         "loop.create[prompt-too-long]" => "The loop prompt is limited to 8 KB.",
+        "goal.set[empty]" => "Type the goal's objective first.",
+        i if i.starts_with("goal.set[budget") => {
+            "The token budget is a whole number of tokens, such as 100000."
+        }
         _ => return None,
     })
 }
@@ -355,6 +444,10 @@ pub const ACTION_CLOSE: &str = "dialog.close";
 pub const ACTION_ASK: &str = "dialog.ask.";
 pub const ACTION_CONFIRM: &str = "dialog.confirm";
 pub const ACTION_CANCEL: &str = "dialog.cancel";
+/// `dialog.form.<action>`: open `<action>`'s create form.
+pub const ACTION_FORM: &str = "dialog.form.";
+pub const ACTION_FORM_SUBMIT: &str = "dialog.form_submit";
+pub const ACTION_FORM_CANCEL: &str = "dialog.form_cancel";
 pub const ACTION_REFRESH_PROFILE: &str = "dialog.refresh.profile";
 pub const ACTION_REFRESH_CONTEXT: &str = "dialog.refresh.context";
 pub const ACTION_REFRESH_FLEET: &str = "dialog.refresh.fleet";
@@ -388,6 +481,12 @@ pub enum Effect {
     Confirm,
     /// Drop the pending confirmation (back to the dialog's own card).
     Cancel,
+    /// Open this action's create form.
+    OpenForm(String),
+    /// Run the open form's action with its fields' text.
+    SubmitForm,
+    /// Close the form (back to the dialog's own card).
+    CancelForm,
     Unhandled(String),
 }
 
@@ -401,9 +500,14 @@ pub fn resolve(id: &str) -> Effect {
     if let Some(a) = id.strip_prefix(ACTION_ASK).filter(|a| !a.is_empty()) {
         return Effect::Ask(a.to_owned());
     }
+    if let Some(a) = id.strip_prefix(ACTION_FORM).filter(|a| !a.is_empty()) {
+        return Effect::OpenForm(a.to_owned());
+    }
     match id {
         ACTION_CONFIRM => Effect::Confirm,
         ACTION_CANCEL => Effect::Cancel,
+        ACTION_FORM_SUBMIT => Effect::SubmitForm,
+        ACTION_FORM_CANCEL => Effect::CancelForm,
         ACTION_REFRESH_PROFILE => Effect::RefreshProfile,
         ACTION_REFRESH_CONTEXT => Effect::RefreshContext,
         ACTION_REFRESH_FLEET => Effect::RefreshFleet,
@@ -419,12 +523,14 @@ pub fn apply(effect: &Effect) -> Option<Dialog> {
         Effect::Open(d) => {
             clear_notice();
             set_confirm(None);
+            set_form(None);
             open(*d);
             Some(*d)
         }
         Effect::Close => {
             clear_notice();
             set_confirm(None);
+            set_form(None);
             close();
             None
         }
@@ -1182,14 +1288,21 @@ fn live_goal(tree: &mut UiNode, st: &AutonomyState) {
             tree,
             &[
                 "goal_badge", "t_budget", "t_budget_val", "bar_track", "bar_fill", "t_elapsed",
-                "t_elapsed_val", "pause_btn", "stop_btn", "clear_goal",
+                "t_elapsed_val", "stop_btn", "clear_goal",
             ],
         );
-        // The card ends under the empty line.
-        if let (Some((_, cy, _, _)), Some((_, ty, _, th))) =
-            (rect_of(tree, "goal_card"), rect_of(tree, "t_goal"))
+        // The authored Pause pill becomes "Set goal", under the empty line.
+        set_text(tree, "pause_btn_label", "Set goal");
+        if let (Some((_, ty, _, th)), Some((_, py, _, _))) = (rect_of(tree, "t_goal"), rect_of(tree, "pause_btn")) {
+            if let Some(b) = find_mut(tree, "pause_btn") {
+                shift(b, 0.0, ty + th + 18.0 - py);
+            }
+        }
+        // The card ends under the pill.
+        if let (Some((_, cy, _, _)), Some((_, by, _, bh))) =
+            (rect_of(tree, "goal_card"), rect_of(tree, "pause_btn"))
         {
-            set_h(tree, "goal_card", ty + th + 28.0 - cy);
+            set_h(tree, "goal_card", by + bh + 22.0 - cy);
         }
         return;
     };
@@ -1530,6 +1643,10 @@ pub fn controls(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState) -> Vec<Control> {
                 .as_ref()
                 .and_then(|g| g["status"].as_str().map(str::to_owned))
                 .unwrap_or_default();
+            if st.goal.is_none() {
+                // No goal: the pill is "Set goal" (the web's goal form).
+                return vec![ctl("pause_btn_control", format!("{ACTION_FORM}goal.set"))];
+            }
             let pause = if status == "active" { "goal.pause" } else { "goal.resume" };
             vec![
                 ctl("pause_btn_control", pause),
@@ -1538,7 +1655,7 @@ pub fn controls(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState) -> Vec<Control> {
             ]
         }
         Dialog::Loops => {
-            let mut v = vec![ctl("new_loop_control", "loop.create")];
+            let mut v = vec![ctl("new_loop_control", format!("{ACTION_FORM}loop.create"))];
             for (i, l) in st.loops.iter().take(3).enumerate() {
                 let paused = l["status"].as_str() == Some("paused");
                 let r = i + 1;
@@ -1931,6 +2048,116 @@ fn live(d: Dialog, tree: &mut UiNode, ctx: &Ctx<'_>, st: &AutonomyState) {
 }
 
 /// Lower dialog `d` for a host area of `avail_w × avail_h`.
+/// The form card's two controls.
+fn form_controls() -> Vec<Control> {
+    vec![ctl("ff_cancel_control", ACTION_FORM_CANCEL), ctl("ff_submit_control", ACTION_FORM_SUBMIT)]
+}
+
+/// The form card: the title, one bordered real input per field (the Skills
+/// card's search box face), the help line, the refusal line, and Cancel /
+/// the primary submit pill — built like [`confirm_tree`] from the cards'
+/// own faces. Card coordinates; `normalize` adds the margins.
+fn form_tree(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState, f: &Form) -> Result<UiNode, String> {
+    const W: f64 = 340.0;
+    const FIELD_H: f64 = 48.0;
+    let skills = card_tree(Dialog::Skills, ctx, st)?;
+    let (Some(field_face), Some(input_face)) = (find(&skills, "search_box").cloned(), find(&skills, "t_search").cloned())
+    else {
+        return Err(format!("{}: the form's field faces are missing", d.card()));
+    };
+    let mut c = Confirm {
+        dialog: d,
+        action: f.action.clone(),
+        title: f.title.clone(),
+        detail: String::new(),
+        body: String::new(),
+        confirm_label: f.submit_label.clone(),
+    };
+    c.body = f.help.clone();
+    // The confirm card gives the title, the help (as its body) and the pills;
+    // the fields go between the title and the help.
+    let mut tree = confirm_tree(d, ctx, st, &c)?;
+    let title_bottom = rect_of(&tree, "cf_title").map(|(_, y, _, h)| y + h).unwrap_or(28.0);
+    let mut y = title_bottom + 14.0;
+    let mut nodes = Vec::new();
+    for (id, placeholder, value) in &f.fields {
+        let mut b = field_face.clone();
+        b.children.clear();
+        b.attrs.id = Some(format!("{id}_box"));
+        b.attrs.x = Some(0.0);
+        b.attrs.y = Some(y);
+        b.attrs.w = Some(W as f32);
+        b.attrs.h = Some(FIELD_H as f32);
+        b.attrs.tapto = None;
+        nodes.push(b);
+        let mut i = input_face.clone();
+        i.children.clear();
+        i.kind = NodeKind::Input;
+        let a = &mut i.attrs;
+        a.id = Some(id.clone());
+        a.placeholder = Some(placeholder.clone());
+        a.text = Some(value.clone());
+        a.color = Some(0xff1d_1d1f);
+        a.x = Some(14.0);
+        a.y = Some(y + (FIELD_H - 26.0) / 2.0);
+        a.w = Some((W - 28.0) as f32);
+        a.h = Some(26.0);
+        a.variant = None;
+        a.tapto = None;
+        nodes.push(i);
+        y += FIELD_H + 10.0;
+    }
+    let fields_h = y - (title_bottom + 14.0);
+    // Everything under the title moves down by the fields' height.
+    for n in tree.children.iter_mut() {
+        if n.attrs.id.as_deref() != Some("cf_title") {
+            shift(n, 0.0, fields_h);
+        }
+    }
+    let mut extra = 0.0;
+    if let Some(err) = &f.error {
+        // The refusal, above the pills (the web's role="alert" line).
+        let pills_y = rect_of(&tree, "cf_cancel").map(|(_, y, _, _)| y).unwrap_or(y);
+        for id in ["cf_cancel", "cf_confirm"] {
+            if let Some(n) = find_mut(&mut tree, id) {
+                shift(n, 0.0, 30.0);
+            }
+        }
+        let mut e = input_face.clone();
+        e.children.clear();
+        e.kind = NodeKind::Text;
+        let a = &mut e.attrs;
+        a.id = Some("ff_error".to_owned());
+        a.text = Some(err.clone());
+        a.placeholder = None;
+        a.x = Some(0.0);
+        a.y = Some(pills_y - 6.0);
+        a.w = Some(W as f32);
+        a.h = Some(20.0);
+        a.size = Some(13.5);
+        a.weight = Some(400);
+        a.color = Some(0xffcf_222e);
+        a.variant = None;
+        a.tapto = None;
+        nodes.push(e);
+        extra = 30.0;
+    }
+    tree.children.extend(nodes);
+    // The confirm card's ids become the form's.
+    walk_mut(&mut tree, &mut |n| {
+        if let Some(id) = n.attrs.id.as_mut() {
+            if let Some(rest) = id.strip_prefix("cf_confirm") {
+                *id = format!("ff_submit{rest}");
+            } else if let Some(rest) = id.strip_prefix("cf_cancel") {
+                *id = format!("ff_cancel{rest}");
+            }
+        }
+    });
+    let h = tree.attrs.h.unwrap_or(0.0) as f64 + fields_h + extra;
+    tree.attrs.h = Some(h as f32);
+    Ok(tree)
+}
+
 /// The confirm card's two controls.
 fn confirm_controls() -> Vec<Control> {
     vec![ctl("cf_cancel_control", ACTION_CANCEL), ctl("cf_confirm_control", ACTION_CONFIRM)]
@@ -2044,9 +2271,11 @@ fn confirm_tree(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState, c: &Confirm) -> Re
 pub fn lower(d: Dialog, ctx: &Ctx<'_>, avail_w: f64, avail_h: f64) -> Result<Mounted, String> {
     let st = autonomy_view(ctx);
     let confirm = pending_confirm().filter(|c| c.dialog == d);
-    let (mut tree, ctrls) = match &confirm {
-        Some(c) => (confirm_tree(d, ctx, &st, c)?, confirm_controls()),
-        None => {
+    let form = pending_form().filter(|f| f.dialog == d);
+    let (mut tree, ctrls) = match (&confirm, &form) {
+        (Some(c), _) => (confirm_tree(d, ctx, &st, c)?, confirm_controls()),
+        (None, Some(f)) => (form_tree(d, ctx, &st, f)?, form_controls()),
+        (None, None) => {
             let mut tree = card_tree(d, ctx, &st)?;
             live(d, &mut tree, ctx, &st);
             squeeze(&mut tree);
@@ -2058,7 +2287,11 @@ pub fn lower(d: Dialog, ctx: &Ctx<'_>, avail_w: f64, avail_h: f64) -> Result<Mou
     let frames = frame_ids(&tree);
     let slot = close_slot(&tree, cw, &frames);
     clear_close(&mut tree, slot, &frames);
-    let notice = if confirm.is_some() { None } else { notice_tone(d).or_else(|| family_error(d, ctx)) };
+    let notice = if confirm.is_some() || form.is_some() {
+        None
+    } else {
+        notice_tone(d).or_else(|| family_error(d, ctx))
+    };
     let (cw, ch) = match notice {
         Some((text, alert)) => append_notice(&mut tree, &text, alert, (cw, ch)),
         None => (cw, ch),
@@ -2215,6 +2448,9 @@ pub const RECORDED_FEATURES: &[&str] = &[
     "harness.task_artifacts.v1", "user_question.v1", "plan.todos.v1", "permission.profile.v1",
 ];
 pub const RECORDED_METHODS: &[&str] = &[
+    // A5: the board-3 commands' gates (r1's open reply advertises them).
+    "session/rollback", "thread/graph/get", "turn/state/get", "approval/scopes/list",
+    "tool/status/list", "mcp/status/list",
     "session/open", "turn/start", "turn/interrupt", "approval/respond", "session/btw",
     "permission/profile/list", "permission/profile/set", "diff/preview/get", "task/list",
     "task/cancel", "task/output/read", "session/hydrate", "session/goal/get", "session/goal/set",
@@ -2458,7 +2694,7 @@ mod tests {
             (
                 Dialog::Loops,
                 &[
-                    "loop.create", "loop.pause#0", "loop.fire_now#0", "loop.delete#0", "loop.pause#1",
+                    "dialog.form.loop.create", "loop.pause#0", "loop.fire_now#0", "loop.delete#0", "loop.pause#1",
                     "loop.fire_now#1", "loop.delete#1", "loop.resume#2", "loop.delete#2",
                 ],
             ),
@@ -2548,6 +2784,64 @@ mod tests {
             let (rx, _, _, _) = rect_of(&tree, &format!("t_remove{i}")).unwrap();
             assert!(x + w <= rx - 9.9, "the line ends before Remove");
         }
+    }
+
+    /// The autonomy create forms (the web's goal form and
+    /// LoopCreationControls): + New loop / Set goal open a card of REAL
+    /// inputs whose Create composes the entry text the autonomy table
+    /// parses; a refusal is drawn on the form; Cancel / close drop it.
+    #[test]
+    fn the_create_forms_are_real_inputs_inside_their_dialogs() {
+        use crate::screens::autonomy as au;
+        let _s = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        set_form(None);
+        let f = form_for("loop.create", "Run CI smoke | 15m").expect("loop form");
+        assert_eq!(f.dialog, Dialog::Loops);
+        assert_eq!(f.fields[0].2, "Run CI smoke");
+        assert_eq!(f.fields[1].2, "15m");
+        let v = |a: &str, b: &str| form_value(&[a.to_owned(), b.to_owned()]);
+        assert_eq!(v("Run CI smoke", "15m"), "Run CI smoke | 15m");
+        assert_eq!(v("Run CI smoke", " "), "Run CI smoke");
+        assert_eq!(v("", "15m"), "", "the first field is required");
+        assert_eq!(
+            au::resolve("loop.create", 0, Some(&v("Run CI smoke", "15m")), &ctx),
+            au::Effect::LoopCreate { prompt: "Run CI smoke".into(), interval_seconds: Some(900) }
+        );
+        assert_eq!(resolve("dialog.form.loop.create"), Effect::OpenForm("loop.create".into()));
+        assert_eq!(resolve(ACTION_FORM_SUBMIT), Effect::SubmitForm);
+        assert_eq!(resolve(ACTION_FORM_CANCEL), Effect::CancelForm);
+        open(Dialog::Loops);
+        set_form(Some(f.clone()));
+        let m = lower(Dialog::Loops, &ctx, 990.0, 603.0).expect("form lowers");
+        assert!(m.missing.is_empty(), "{:?}", m.missing);
+        assert!(m.dsl.contains("dlg_loops_lf_prompt := DesignInput"));
+        assert!(m.dsl.contains("dlg_loops_lf_interval := DesignInput"));
+        assert!(m.dsl.contains("empty_text: \"Interval, e.g. 15m\""));
+        assert!(m.dsl.contains("text: \"Run CI smoke\""));
+        let got = events(&m);
+        assert!(got.contains(&ACTION_FORM_SUBMIT.to_owned()), "{got:?}");
+        assert!(got.contains(&ACTION_FORM_CANCEL.to_owned()), "{got:?}");
+        assert!(!got.iter().any(|e| e.starts_with("loop.")), "the form replaces the list");
+        let mut refused = f.clone();
+        refused.error = Some("Type what the loop runs first.".into());
+        set_form(Some(refused));
+        assert!(lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap().dsl.contains("Type what the loop runs first."));
+        assert!(lower(Dialog::Loops, &ctx, 360.0, 776.0).unwrap().frame.0 <= 360.5, "the phone sheet");
+        apply(&Effect::Close);
+        assert!(pending_form().is_none(), "close drops the form");
+        // No goal: the Goal dialog's pill is Set goal, opening the goal form.
+        au::reset_state();
+        let goal = lower(Dialog::Goal, &ctx, 990.0, 603.0).unwrap();
+        assert!(events(&goal).contains(&"dialog.form.goal.set".to_owned()), "{:?}", events(&goal));
+        assert!(goal.dsl.contains("\"Set goal\""));
+        let g = form_for("goal.set", "").unwrap();
+        assert_eq!(g.fields.len(), 2);
+        assert_eq!(
+            au::resolve("goal.set", 0, Some(&v("Ship it", "2000")), &ctx),
+            au::Effect::SetGoal { objective: "Ship it".into(), token_budget: Some(2000) }
+        );
     }
 
     /// The registry search box is a real input only when the server
@@ -2709,7 +3003,7 @@ mod tests {
         open(Dialog::Loops);
         set_notice(notice_for_refusal("loop.create[empty]").unwrap());
         let m = lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap();
-        assert!(m.dsl.contains("then choose + New loop."), "the notice renders");
+        assert!(m.dsl.contains("Type what the loop runs first."), "the notice renders");
         let plain = {
             clear_notice();
             lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap()

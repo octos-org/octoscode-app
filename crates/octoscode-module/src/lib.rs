@@ -2205,6 +2205,33 @@ impl OctoscodeView {
                 self.view.redraw(cx);
                 return;
             }
+            // A5 — the autonomy create forms (Set goal, New loop): open seeded
+            // from a non-command composer draft, submit, cancel.
+            screens::dialog::Effect::OpenForm(form_action) => {
+                let draft = {
+                    let ui = self.bridge.lock().unwrap().ui.clone();
+                    let d = ui.lock().unwrap().draft();
+                    d
+                };
+                let seed = if draft.trim_start().starts_with('/') { String::new() } else { draft };
+                let f = screens::dialog::form_for(form_action, &seed);
+                makepad_widgets::log!("[octoscode] dialog form opened: {form_action} ({})", f.is_some());
+                screens::dialog::set_form(f);
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
+            screens::dialog::Effect::SubmitForm => {
+                self.submit_dialog_form(cx);
+                return;
+            }
+            screens::dialog::Effect::CancelForm => {
+                screens::dialog::set_form(None);
+                makepad_widgets::log!("[octoscode] dialog form cancelled");
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
             _ => {}
         }
         let conv = { self.bridge.lock().unwrap().conv.clone() };
@@ -2262,7 +2289,7 @@ impl OctoscodeView {
         // with arguments is REPORTED, never run and never sent.
         if !args.trim().is_empty() {
             if let screens::palette::Effect::Run(Some(id), name) = &effect {
-                if !matches!(*id, "aside.ask" | "dialog.open.review") {
+                if !matches!(*id, "aside.ask" | "dialog.open.review") && !id.starts_with("compose:") {
                     let session = store.active_session().unwrap_or_default();
                     store.domains.session.timeline.append(
                         &session,
@@ -2296,6 +2323,18 @@ impl OctoscodeView {
                             self.perform_action(cx, "aside.ask", 0);
                         }
                     }
+                    // A5 — a board-3 command row: submit `/name args` through
+                    // the command layer (exactly the typed path).
+                    c if c.starts_with("compose:") => {
+                        let cmd = c.trim_start_matches("compose:");
+                        let text = if args.trim().is_empty() {
+                            cmd.to_owned()
+                        } else {
+                            format!("{cmd} {}", args.trim())
+                        };
+                        ui.lock().unwrap().set_draft_inner(text);
+                        self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
+                    }
                     "permission.cycle" => {
                         let conv = { self.bridge.lock().unwrap().conv.clone() };
                         if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
@@ -2313,6 +2352,52 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] palette run refused: {why}");
             }
             _ => {}
+        }
+        self.sync_labels(cx);
+        self.view.redraw(cx);
+    }
+
+    /// A5 — the open create form's Create: read its inputs, compose the
+    /// entry text, run the autonomy action through its table; a refusal
+    /// stays on the form with its reason (the typed values kept).
+    fn submit_dialog_form(&mut self, cx: &mut Cx) {
+        let Some(mut form) = screens::dialog::pending_form() else {
+            return;
+        };
+        let values: Vec<String> = form
+            .fields
+            .iter()
+            .map(|(id, _, _)| {
+                let wid = LiveId::from_str(&screens::dialog::form_input_id(form.dialog, id));
+                self.view.text_input(cx, &[wid]).text()
+            })
+            .collect();
+        for (field, v) in form.fields.iter_mut().zip(&values) {
+            field.2 = v.clone();
+        }
+        let value = screens::dialog::form_value(&values);
+        let (store, ui, conv) = {
+            let b = self.bridge.lock().unwrap();
+            (b.store.clone(), b.ui.clone(), b.conv.clone())
+        };
+        let effect = {
+            let ctx = bindings::Ctx::new(&store, &ui);
+            screens::autonomy::resolve(&form.action, 0, Some(&value), &ctx)
+        };
+        if let screens::autonomy::Effect::Unhandled(why) = &effect {
+            makepad_widgets::log!("[octoscode] dialog form refused: {why}");
+            form.error = Some(
+                screens::dialog::notice_for_refusal(why)
+                    .map(str::to_owned)
+                    .unwrap_or_else(|| format!("{} did not run ({why}).", form.submit_label)),
+            );
+            screens::dialog::set_form(Some(form));
+        } else {
+            makepad_widgets::log!("[octoscode] dialog form submitted: {} {value:?}", form.action);
+            screens::dialog::set_form(None);
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                screens::autonomy::spawn(effect, rt, conv);
+            }
         }
         self.sync_labels(cx);
         self.view.redraw(cx);
@@ -4572,6 +4657,16 @@ impl Widget for OctoscodeView {
                 {
                     self.search_skills(cx, q);
                 }
+                // A5 — Enter in a create form's field submits it.
+                if let Some(form) = screens::dialog::pending_form() {
+                    let returned = form.fields.iter().any(|(id, _, _)| {
+                        let wid = LiveId::from_str(&screens::dialog::form_input_id(form.dialog, id));
+                        self.view.text_input(cx, &[wid]).returned(actions).is_some()
+                    });
+                    if returned {
+                        self.submit_dialog_form(cx);
+                    }
+                }
                 // A5 — a palette row runs its command on click; the search
                 // field filters like the slash draft does.
                 if let Some(q) = self
@@ -5036,9 +5131,10 @@ impl Widget for OctoscodeView {
                             None => {
                                 ui.lock().unwrap().set_palette_open(false);
                                 let draft = ui.lock().unwrap().draft();
-                                if crate::screens::palette::looks_like_slash_command(&draft)
-                                    && draft.trim().contains(char::is_whitespace)
-                                {
+                                // A5: a slash draft no row matches still goes
+                                // to the command layer (it runs a board-3
+                                // command or reports an unknown one).
+                                if crate::screens::palette::looks_like_slash_command(&draft) {
                                     self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
                                 } else {
                                     makepad_widgets::log!(
