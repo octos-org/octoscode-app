@@ -2123,6 +2123,14 @@ async fn main() {
                             if activity || history || label == "onboarding" {
                                 if let Some(cwd) = v["params"]["cwd"].as_str() {
                                     obj.insert("workspace_root".to_owned(), Value::String(cwd.to_owned()));
+                                } else if activity {
+                                    // A22 row 228: a folder-less open still names
+                                    // the root Core derived for it (octos
+                                    // a6ea8505 reports `workspace_root` on every
+                                    // open), so the catalog can be read
+                                    // `{cwd, profile_id}` — the only listing a
+                                    // client may project.
+                                    obj.insert("workspace_root".to_owned(), Value::String("/home/user/octos".to_owned()));
                                 }
                                 // …under the Profile it asked for (the
                                 // recording's own id would leak otherwise).

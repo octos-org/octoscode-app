@@ -1,0 +1,43 @@
+PASS app up against the recorded history
+PASS startup: the Session's history is on screen without a click
+PASS startup: tool rows are the replayed cards, named — ['peer_list', 'peer_handoff']
+PASS startup: no tool output drawn as a 'System' notice
+PASS strip: the model is the status read's — 'deepseek-v4-flash'
+PASS layout: i1_toolcell_title inside the conversation column — [50, 417, 89, 17] in [12, 348]
+PASS layout: i23_assistantprose inside the conversation column — [16, 459, 328, 178] in [12, 348]
+PASS layout: tool rows >= 28 px tall — [40, 41]
+PASS wire: the startup open hydrated once — opens 1, hydrates 1
+  shot tmp/a22-regress/a15/phone-01-startup-history.png
+PASS sidebar: the row is titled by the catalog — 'Recording fixture. Reply with exactly: ok'
+PASS layout: the row title stays inside its row — [38, 308, 226, 17] in [10, 300, 292, 32]
+PASS CLICK New chat
+PASS new chat: an empty Session
+PASS wire: the new Session's open hydrated too — dsflash:api:01a0fdd4-8d9f-7680-af5a-ae9e38c97552
+PASS defaults line: what a New chat gets (nothing stored: the server's defaults) — 'New chat defaults · Server defaults · …'
+PASS layout: the defaults line inside its strip — [16, 142, 256, 16] in [0, 127, 360, 47]
+PASS seat: the new Session's permissions are the server's — 'Write'
+  shot tmp/a22-regress/a15/phone-02-new-chat-defaults.png
+PASS round 1: CLICK the history row
+PASS round 1: the history shows again
+PASS round 1: the same rows, no copies — 4 vs 4
+PASS round 1: CLICK the New chat row
+PASS round 1: the new Session is empty
+PASS round 2: CLICK the history row
+PASS round 2: the history shows again
+PASS round 2: the same rows, no copies — 4 vs 4
+PASS round 2: CLICK the New chat row
+PASS round 2: the new Session is empty
+PASS wire: one hydrate per open (history Session) — opens 3, hydrates 3
+PASS wire: one hydrate per open (new Session) — opens 3, hydrates 3
+PASS CLICK Settings
+PASS CLICK Permissions: the section shows
+PASS readback: the server's selection and approval policy — 'Server: Write · Network allowed · asks on request'
+PASS layout: the readback inside the Settings panel — [81, 394, 255, 36] in [0, 74, 360, 776]
+PASS layout: each preset row is a >= 28 px target — [84, 84, 64]
+PASS layout: the preset help is not clipped (inside the panel) — [[111, 179, 225, 36], [111, 263, 225, 36]]
+  shot tmp/a22-regress/a15/phone-03-permissions-readback.png
+PASS restart: app up again
+PASS restart: the history is on screen without a click
+  shot tmp/a22-regress/a15/phone-04-restart-history.png
+== WALK a15 history phone: 37/37 passed
+   state dir (trace, replay log): <tmp>

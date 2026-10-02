@@ -1,0 +1,57 @@
+== native walk a9_activity [desktop] (tools/walk/a9_activity_walk.py)
+-- run 1: exit 0 in 22 s
+PASS palette /activity opens Activity
+PASS the catalog reads arrive (3 rows) — 3 rows
+PASS one task/list per confirmed session, nothing opened — ['[replay-serve] -> task/list a9walk:api:review', '[replay-serve] -> task/list a9walk:main', '[replay-serve] -> task/list a9walk:api:fork', '[replay-serve] -> task/list a9walk:api:bump', '[replay-serve] -> task/list a9walk:api:hydrate']
+PASS status filters carry the counts — ['All 3', 'Running 1', 'Failed 1', 'Done 1']
+PASS the failed reads fail closed into the status line — '2 Session task snapshots unavailable'
+PASS footer names the refresh
+PASS rows: running, failed, done — ['c24b-probe', 'Rebuild after the octos-core bump', 'c24b-probe completed']
+PASS Inspect on the current session, Open session elsewhere — ['Inspect', 'Open session', 'Open session']
+PASS open: the dialog is shown — [99, 92, 900, 570]
+PASS open: the dialog lies inside the module — dialog [99, 92, 900, 570] module [54, 76, 990, 603]
+PASS open: desktop width is min(900, w - 32) — 900
+PASS open: hit targets >= 28 px — []
+PASS open: rows share one left edge — {111}
+PASS open: row texts inside their rows, clear of the pill — []
+PASS open: nothing spills past the card — []
+SHOT <repo>/tmp/a22-regress/scratch/a9_activity-desktop/out/desktop-activity.png
+PASS search 'fork' leaves the fork row — [2]
+PASS typing never remounts the dialog
+PASS Failed + 'fork' shows the named empty state — 'No failed task matches “fork”.'
+SHOT <repo>/tmp/a22-regress/scratch/a9_activity-desktop/out/desktop-activity-empty.png
+PASS All + cleared search shows every row — 3
+PASS Inspect opens the Tasks view and closes Activity
+PASS …which closes back to the conversation
+PASS Open session closes Activity and opens the owning session
+PASS a switch in flight shows the warning — 'Finish the workspace transition before opening another session.'
+PASS …and its Open session pills route nothing — []
+PASS blocked: the dialog is shown — [99, 92, 900, 570]
+PASS blocked: the dialog lies inside the module — dialog [99, 92, 900, 570] module [54, 76, 990, 603]
+PASS blocked: desktop width is min(900, w - 32) — 900
+PASS blocked: hit targets >= 28 px — []
+PASS blocked: rows share one left edge — {111}
+PASS blocked: row texts inside their rows, clear of the pill — []
+PASS blocked: nothing spills past the card — []
+SHOT <repo>/tmp/a22-regress/scratch/a9_activity-desktop/out/desktop-activity-blocked.png
+PASS × closes Activity
+PASS the backdrop closes Activity
+PASS Activity reopens
+PASS Escape closes Activity
+== WALK a9 activity desktop: 35/35 passed
+-- fixture log tail:
+[replay-serve] -> task/list a9walk:api:fork
+[replay-serve] <- task/list (id=37)
+[replay-serve] -> task/list a9walk:api:bump
+[replay-serve] <- task/list (id=38)
+[replay-serve] -> task/list a9walk:api:hydrate
+[replay-serve] <- task/list (id=39)
+[replay-serve] -> task/list a9walk:api:review
+[replay-serve] <- task/list (id=40)
+[replay-serve] -> task/list a9walk:main
+[replay-serve] <- task/list (id=41)
+[replay-serve] -> task/list a9walk:api:fork
+[replay-serve] <- task/list (id=42)
+[replay-serve] -> task/list a9walk:api:bump
+[replay-serve] <- task/list (id=43)
+[replay-serve] -> task/list a9walk:api:hydrate
