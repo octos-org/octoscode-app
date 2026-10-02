@@ -282,8 +282,12 @@ impl Cache {
             let ctx = crate::bindings::Ctx::new(&b.store, &b.ui);
             components::item_copies(kind, &ctx, index, turn)?
         };
+        // A24 — the interface language is part of the key: the lowering
+        // puts its own labels through `tr()` (a code block's Copy, a tool
+        // row's status), so a switch must not serve the other language's DSL.
         let key = format!(
-            "{}:{}:{}:{}",
+            "{}:{}:{}:{}:{}",
+            crate::i18n::language().code(),
             kind.id(),
             index,
             turn.unwrap_or(""),
@@ -540,5 +544,25 @@ mod tests {
             assert!(cache.lower(&b, ItemKind::ToolCell, i, None).is_ok());
         }
         assert_eq!(cache.len(), after_first, "a redraw is a cache hit");
+    }
+
+    /// A24 — a language switch re-lowers a cached row (its own labels go
+    /// through `tr()`), and switching back is a hit again.
+    #[test]
+    fn a_language_switch_misses_the_cache() {
+        use crate::i18n::{set_language, Lang};
+        let store = store_with(1);
+        let b = bridge(store);
+        b.lock().unwrap().ui.lock().unwrap().note_tool_started_for_test("c0", "tool0");
+        let mut cache = Cache::default();
+        set_language(Lang::En);
+        assert!(cache.lower(&b, ItemKind::ToolCell, 0, None).is_ok());
+        assert_eq!(cache.len(), 1);
+        set_language(Lang::Zh);
+        assert!(cache.lower(&b, ItemKind::ToolCell, 0, None).is_ok());
+        assert_eq!(cache.len(), 2, "the Chinese lowering is its own entry");
+        set_language(Lang::En);
+        assert!(cache.lower(&b, ItemKind::ToolCell, 0, None).is_ok());
+        assert_eq!(cache.len(), 2, "back in English: a hit");
     }
 }
