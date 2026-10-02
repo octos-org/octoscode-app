@@ -105,11 +105,11 @@ def shot(name, s=None):
     with open(p, "wb") as f:
         f.write(get("/g?raw=1", timeout=30))
     subprocess.run(["sips", "-Z", "1400", p, "--out", p], capture_output=True)
-    # The geometry the checks read, beside the capture (no field values).
-    keep = [{k: w.get(k) for k in ("i", "r", "t", "v")} for w in (s if s is not None else snap())
-            if str(w.get("i", "")).startswith(("history_", "empty_", "hd_title", "i0_composer_0"))]
+    # The geometry the checks read, beside the capture: the whole /snap
+    # without field values, the home directory rewritten.
+    keep = [{k: v for k, v in w.items() if k != "val"} for w in (s if s is not None else snap())]
     with open(p[:-4] + ".snap.json", "w") as f:
-        json.dump(keep, f, indent=1)
+        f.write(json.dumps(keep).replace(os.path.expanduser("~"), "/home/user"))
     print(f"  shot {os.path.relpath(p, ROOT)}", flush=True)
 
 
