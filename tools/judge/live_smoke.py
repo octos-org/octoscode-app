@@ -8,7 +8,7 @@ a queued prompt, Stop mid-stream, and an app restart that reopens the session wi
 
 The token is read from $LIVE_DIR/token and reaches the app only through its environment (OCTOS_BEARER); it is never
 printed, logged or saved. No /snap JSON is written to disk (the instrument reports masked fields' raw values); only
-PNG captures and <outdir>/checks.txt. About five model turns.
+PNG captures, <outdir>/checks.txt and the app's protocol trace <outdir>/trace.jsonl. About six model turns.
 """
 import json, os, subprocess, sys, time, urllib.parse, urllib.request
 
@@ -126,6 +126,7 @@ def env():
         "OCTOS_WORKSPACE_CWD": os.path.join(LIVE, "ws"),
         "OCTOSCODE_DESIGN_DIR": os.path.join(ROOT, "design"), "MAKEPAD_WM_TEST_APP": "octoscode",
         "HEADLESS_STATE": os.path.join(OUT, "hs"),
+        "OCTOSCODE_TRACE_FILE": os.path.join(OUT, "trace.jsonl"),
         "HEADLESS_ARGS": "--module octoscode" + (" --test-action page:0 --test-action launch-octoscode" if MODE == "phone" else ""),
     })
     if MODE == "phone":
@@ -157,6 +158,33 @@ def running():
 
 def prose():
     return " ".join(t for i, t in texts() if "assistantprose" in i or i.endswith("_prose"))
+
+
+CHROME_PREFIXES = ("hd_", "sb_", "sg_", "b3_strip", "i0_composer", "composer_", "empty_", "set_")
+
+
+def transcript_scrolled(steps=30):
+    """A15: every transcript text from the bottom to the top of the
+    conversation (the list lays out only the rows in view), then back to the
+    bottom so the view follows the next turn again. Chrome texts (header,
+    sidebar, strip, composer) are left out."""
+    conv = find("i0_composer_0")
+    x = (conv["r"][0] + conv["r"][2] / 2) if conv else 600
+    y = max(150, (conv["r"][1] - 220) if conv else 300)
+    seen, quiet, last = set(), 0, None
+    for _ in range(steps):
+        now = {t for i, t in texts() if t and not i.startswith(CHROME_PREFIXES) and i not in ("-", "1")}
+        seen |= now
+        quiet = quiet + 1 if now == last else 0
+        if quiet >= 2:
+            break
+        last = now
+        get(f"/m?k=scroll&x={x}&y={y}&dy=-350&wait=1")
+        time.sleep(0.3)
+    for _ in range(steps + 10):
+        get(f"/m?k=scroll&x={x}&y={y}&dy=600&wait=1")
+    time.sleep(1.0)
+    return " ".join(seen)
 
 
 def send(prompt):
@@ -257,6 +285,24 @@ def main():
             hist = wait(has_history, 20)
             capture("restart-reopened")
     check("restart: the session's earlier turns are shown after reopening", hist)
+    if hist:
+        # A15: read the TRANSCRIPT, not the header / sidebar title (octos
+        # titles the Session by its first prompt, which names judge.txt), and
+        # walk the virtualized list from the bottom up: /snap only lays out
+        # the rows in view. The stopped turn: octos persists nothing for an
+        # interrupted turn (no user row; only its turn_terminal record is
+        # retained), so its "Turn stopped" notice is the stop's evidence when
+        # the prompt itself cannot come back.
+        seen = transcript_scrolled()
+        back = [k for k in ("judge.txt", "main.rs", "done") if k in seen]
+        stop_back = "lighthouse" in seen or "Turn stopped" in seen
+        check("restart: every earlier turn is back (file, CJK, queue, stop)", len(back) == 3 and stop_back,
+              f"found {back}, stop {'yes' if stop_back else 'no'}")
+    capture("restart-history")
+    s, d = turn("Reply with one short sentence: what is 2 + 3?", 90)
+    check("restart: the next prompt streams and completes", s and d)
+    check("restart: the new answer renders", "5" in prose())
+    capture("restart-next-turn")
     stop_app()
     passed = sum(1 for _, ok, _ in RESULTS if ok)
     print(f"== {passed}/{len(RESULTS)} live checks passed ({MODE})")

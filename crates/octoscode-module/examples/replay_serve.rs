@@ -110,6 +110,12 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         // `session.workspace_cwd.v1`); the onboarding requests are answered
         // by the `onboarding` simulator in r29a's recorded reply shapes.
         "onboarding" => ("onboarding", "live-gate-a6ea8505.jsonl"),
+        // A15: history on open — r43a's RECORDED canonical hydrate (six
+        // turns, their tool envelopes) answers every `session/hydrate` of the
+        // recorded Session; any other Session (a New chat) has none; the
+        // catalog names it by its first prompt (see `history_reply`). Run the
+        // app with OCTOS_PROFILE_ID=dsflash (the recorded profile).
+        "history" => ("history", "r43a-recovery-a6ea8505.jsonl"),
         other => {
             eprintln!("[replay-serve] unknown scenario '{other}' — using `conversation`");
             ("conversation", "live-gate-a6ea8505.jsonl")
@@ -189,6 +195,62 @@ fn rewrite_session(value: &mut Value, from: &str, to: &str) {
             }
         }
         _ => {}
+    }
+}
+
+/// A15 — the `history` scenario's answers: the recorded canonical hydrate for
+/// the recorded (`home`) Session, an empty one for any other (a New chat:
+/// octos has nothing persisted for it), and the catalog row octos lists for
+/// the home Session — titled by its first prompt (the session file's
+/// `title`, cut at 50 chars), its last prompt, its row count — attesting the
+/// scope when the request names `{cwd, profile_id}` (`SessionListResult`).
+/// As octos a6ea8505 does: the legacy unscoped listing does not see a
+/// workspace's `<cwd>/.octos/<profile>` store (empty), and a status read
+/// that names no profile for a key that embeds none falls back to `_main`
+/// and is refused (`raw_profile_id`, `profile_unresolved_error`).
+fn history_reply(method: &str, p: &Value, home: &str, hydrate: &Value) -> Option<Result<Value, Value>> {
+    match method {
+        "session/hydrate" => {
+            let s = p["session_id"].as_str().unwrap_or(home);
+            Some(Ok(if s == home {
+                hydrate.clone()
+            } else {
+                serde_json::json!({"session_id": s, "cursor": {"stream": s, "seq": 1}, "messages": []})
+            }))
+        }
+        "session/status/read"
+            if p.get("profile_id").and_then(|v| v.as_str()).is_none_or(str::is_empty)
+                && p["session_id"].as_str().is_some_and(|s| s.split(':').count() < 3) =>
+        {
+            Some(Err(serde_json::json!({
+                "code": -32602,
+                "message": "profile '_main' is not configured for this AppUI session",
+                "data": {"kind": "profile_unresolved", "profile_id": "_main", "recoverable": true}
+            })))
+        }
+        "session/list" => {
+            let msgs = hydrate["messages"].as_array().cloned().unwrap_or_default();
+            let users: Vec<String> = msgs
+                .iter()
+                .filter(|m| m["role"] == "user")
+                .filter_map(|m| m["content"].as_str().map(str::to_owned))
+                .collect();
+            let row = serde_json::json!({
+                "id": home,
+                "title": users.first().map(|t| t.chars().take(50).collect::<String>()),
+                "last_prompt": users.last(),
+                "message_count": msgs.len(),
+                "updated_at": "2026-10-01T15:48:13Z",
+                "active_turn": false
+            });
+            Some(Ok(match (p["cwd"].as_str(), p["profile_id"].as_str()) {
+                (Some(cwd), Some(profile)) => {
+                    serde_json::json!({"sessions": [row], "workspace_root": cwd, "profile_id": profile})
+                }
+                _ => serde_json::json!({"sessions": []}),
+            }))
+        }
+        _ => None,
     }
 }
 
@@ -1487,8 +1549,13 @@ async fn main() {
         .cloned()
         .unwrap_or_default();
     let (label, file) = scenario_fixture(&scenario);
-    let replies =
-        if label == "screens" || label == "a10" || label == "fleet" { screens_replies() } else { BTreeMap::new() };
+    // A15: `history` answers the seats' and the strip's reads (the profile's
+    // models, the permission list, the status stamp) from the same recordings.
+    let replies = if label == "screens" || label == "a10" || label == "fleet" || label == "history" {
+        screens_replies()
+    } else {
+        BTreeMap::new()
+    };
     let sequenced = if label == "a10" { a10_sequenced() } else { BTreeMap::new() };
     let seat_sim = (label == "a10").then(SeatSim::load);
     // A10: `--slow <method>=<ms>` (repeatable) delays that method's faithful reply.
@@ -1567,10 +1634,11 @@ async fn main() {
         fail_once: args.windows(2).filter(|w| w[0] == "--fail-once").map(|w| w[1].clone()).collect(),
         ..Default::default()
     }));
-    let standalone = if label == "fleet" || label == "onboarding" {
+    let standalone = if label == "fleet" || label == "history" || label == "onboarding" {
         // The fleet fixture's inbound frames are replies + peer-session
-        // frames, never standalone notifications; the onboarding walk opens
-        // a quiet session (no recorded turn noise around the panel).
+        // frames, never standalone notifications. A15 `history`: the
+        // transcript comes from the hydrate alone. A17 `onboarding`: a quiet
+        // session (no recorded turn noise around the panel).
         Vec::new()
     } else if label == "screens" || label == "a10" {
         let all = standalone_notifications(&frames);
@@ -1613,6 +1681,17 @@ async fn main() {
         let activity = label == "activity";
         let onb_catalog = onb_catalog.clone();
         let onb_world = onb_world.clone();
+        // A15: the recorded canonical hydrate (the `history` scenario).
+        let history = label == "history";
+        let recorded_hydrate = if history {
+            frames
+                .iter()
+                .find(|f| f.dir == "in" && f.method == "session/hydrate")
+                .map(|f| f.body.clone())
+                .unwrap_or(Value::Null)
+        } else {
+            Value::Null
+        };
         tokio::spawn(async move {
             // A10 fleet: the per-connection external-driver simulator.
             let workspace = open_result["workspace_root"].as_str().unwrap_or("workspace").to_owned();
@@ -1690,6 +1769,19 @@ async fn main() {
                 // A helper to send one JSON-RPC reply/notification.
                 async fn send(tx: &std::sync::Arc<tokio::sync::Mutex<futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>, Message>>>, v: Value) {
                     let _ = tx.lock().await.send(Message::Text(v.to_string().into())).await;
+                }
+
+                // A15 `history`: the recorded history and its catalog row.
+                if history {
+                    if let Some(reply) = history_reply(&method, &v["params"], &recorded, &recorded_hydrate) {
+                        println!("[replay-serve] -> {method} (history) {}", v["params"]["session_id"]);
+                        let frame = match reply {
+                            Ok(r) => serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r}),
+                            Err(e) => serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e}),
+                        };
+                        send(&tx, frame).await;
+                        continue;
+                    }
                 }
 
                 // A10 fleet: send `(delay, method, params)` notifications
@@ -1943,9 +2035,11 @@ async fn main() {
                             obj.insert("session_id".to_owned(), Value::String(requested));
                             // A9 — the activity scenario opens in the requested
                             // cwd, as a server does (its recording had none).
-                            // A17 — so does the onboarding one (the onboarded
-                            // Session opens in the launch's folder).
-                            if activity || label == "onboarding" {
+                            // A15: so does `history` (r43a's root is a
+                            // `<WORKSPACE>` placeholder). A17 — and the
+                            // onboarding one (the onboarded Session opens in
+                            // the launch's folder).
+                            if activity || history || label == "onboarding" {
                                 if let Some(cwd) = v["params"]["cwd"].as_str() {
                                     obj.insert("workspace_root".to_owned(), Value::String(cwd.to_owned()));
                                 }

@@ -41,7 +41,6 @@
 ## session:list-sidebar
 - only full sessions of the requested profile are projected — web: src-web/apps/web/src/features/session/workspace-session-catalog.ts:66 — launch-profile fallback exists but profile-scoped projection filtering is untested
 - background Session visible state (state/queuedCount/unread/waiting) — web: src-web/apps/web/src/features/session/background-session-status.ts:9 — no background-record status chips natively (single foreground view; per-turn activity only since #32i)
-- capability negotiation drives the sidebar (session/list + workspace-scoped listing) — web: src-web/apps/web/src/features/session/active-session-runtime.ts:41 — gap: screens::sessions::lower has 0 call sites in lib.rs; fp4g2_list_sidebar.rs imports screens::sessions directly (test-only caller, RULES 3)
 - sidebar renders one row per Session (click to select, x to delete) — web: src-web/apps/web/src/features/session/workspace-session-catalog.ts:141 — gap: lib.rs renders its own threadrow DSL (4 sites) but only fp4g2_list_sidebar.rs covers it and that imports screens::sessions directly (test-only caller, RULES 3)
 
 ## session:store-hydrate
