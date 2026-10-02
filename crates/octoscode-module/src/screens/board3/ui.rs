@@ -25,6 +25,8 @@
 //! carries its row as the `#<row>` suffix `taps::split_row` decodes (#FX1).
 use std::fmt::Write as _;
 
+use crate::i18n::tr;
+
 /// Colours (`#rrggbbaa`, the form the lowered cards use).
 ///
 /// A18 — the TEXT inks meet WCAG 4.5:1 on every fill they are drawn on (the
@@ -288,7 +290,7 @@ pub fn failure(d: &mut Dsl, id: &str, lead: &str, cause: &str) {
     let cause = clean_cause(cause);
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 2");
-    d.text(id, lead, &Txt::new(13.0, Face::Medium, tok::RED_TEXT).w(W::Fill).wrap());
+    d.text(id, tr(lead), &Txt::new(13.0, Face::Medium, tok::RED_TEXT).w(W::Fill).wrap());
     if !cause.is_empty() && cause != lead {
         d.text(&format!("{id}_detail"), &cause, &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     }
@@ -614,6 +616,9 @@ impl Dsl {
         } else {
             height / 2.0
         };
+        // A24: the kit's buttons take a product-copy key: shown in the
+        // current language (measured in it too).
+        let label = tr(label);
         // A Fit pill gets an explicit width (see `text_w`).
         let width = match width {
             W::Fit => W::Px(text_w(label, 13.0, Face::Medium) + 32.0),
@@ -662,6 +667,8 @@ impl Dsl {
         px: f64,
         color: &'static str,
     ) {
+        // A24: a link's label is a product-copy key (current language).
+        let label = tr(label);
         // Explicit box (see `text_w`): the tap target must not measure 0.
         let w = text_w(label, px, Face::Regular) + 4.0;
         // >= 28 px high: the brief's minimum hit size.
@@ -868,7 +875,7 @@ impl Dsl {
             self.view(&inner, "width: Fill height: Fill flow: Right align: Align{x: 0.5 y: 0.5}");
             self.text(
                 &format!("{seg}_label"),
-                label,
+                tr(label),
                 &Txt::new(13.0, if on { Face::Medium } else { Face::Regular }, fg),
             );
             self.close();
@@ -893,7 +900,7 @@ fn input_props(text: &str, placeholder: &str, mono: bool, multiline: bool) -> St
     format!(
         "{walk} padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: {}\n{flow} is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {off} color_empty: {f} color_empty_hover: {f} color_empty_focus: {f}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
         lit(text),
-        lit(placeholder),
+        lit(tr(placeholder)),
         t = tok::TEXT,
         f = tok::FAINT,
         off = tok::DISABLED_INK,
@@ -1085,7 +1092,7 @@ pub fn shell_close(d: &mut Dsl) {
 pub fn header(d: &mut Dsl, title_text: &str, close_event: &str) {
     let row = d.anon();
     d.view(&row, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5}");
-    d.text("b3_title", title_text, &title().w(W::Fill));
+    d.text("b3_title", tr(title_text), &title().w(W::Fill));
     close_glyph(d, close_event);
     d.close();
 }
@@ -1133,12 +1140,12 @@ pub fn card_open(d: &mut Dsl, id: &str, spacing: f64) {
 
 /// A section heading inside a card (13px medium, the board's "Thread graph").
 pub fn section_title(d: &mut Dsl, id: &str, text: &str) {
-    d.text(id, text, &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    d.text(id, tr(text), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
 }
 
 /// A small grey field label above a control ("Workspace path").
 pub fn field_label(d: &mut Dsl, id: &str, text: &str) {
-    d.text(id, text, &Txt::new(12.0, Face::Medium, tok::MUTED).w(W::Fill));
+    d.text(id, tr(text), &Txt::new(12.0, Face::Medium, tok::MUTED).w(W::Fill));
 }
 
 /// The amber caution banner (screen 7): warning glyph, a bold line, a body.
@@ -1153,9 +1160,9 @@ pub fn banner(d: &mut Dsl, id: &str, head: &str, body: &str) {
     d.icon(&format!("{id}_icon"), "b3_warning.svg", 16.0, tok::AMBER);
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 3");
-    d.text(&format!("{id}_head"), head, &Txt::new(12.5, Face::Medium, tok::TEXT).w(W::Fill).wrap());
+    d.text(&format!("{id}_head"), tr(head), &Txt::new(12.5, Face::Medium, tok::TEXT).w(W::Fill).wrap());
     if !body.is_empty() {
-        d.text(&format!("{id}_body"), body, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        d.text(&format!("{id}_body"), tr(body), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     }
     d.close();
     d.close();

@@ -1342,7 +1342,9 @@ fn seat_status_row(text: &str, error: bool, m: &Metrics) -> String {
         edge = if error { "#f4c7c9ff" } else { BORDER },
         l = label(
             "seat_status_label",
-            text,
+            // A24: the seat words (seat.rs) in the current language; a
+            // server's own refusal text is not a catalog key and stays.
+            tr(text),
             &style(Face::Regular, s.small, s.small_line),
             if error { "#cf222eff" } else { MUTED },
             "width: Fill height: Fit",
