@@ -705,6 +705,29 @@ impl Dsl {
         self.close();
     }
 
+    /// A17 — a MASKED input (`<input type="password">`, the onboarding API
+    /// key): the field draws dots, and the typed text is never embedded in
+    /// the DSL — the host puts the live value back after a remount
+    /// (`onboarding::post_mount_texts`), so a secret never rides a mount.
+    pub fn input_secret(&mut self, id: &str, key: &str, placeholder: &str, height: f64) {
+        self.inputs.push((id.to_owned(), key.to_owned()));
+        self.surface(
+            &format!("{id}_field"),
+            &format!(
+                "width: Fill height: {} flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 10 right: 10 top: 0 bottom: 0}}",
+                fmt_num(height)
+            ),
+            tok::SURFACE,
+            8.0,
+            Some("#d9d9dcff"),
+        );
+        let props = input_props("", placeholder, false, false)
+            .replace("is_read_only: false", "is_read_only: false is_password: true");
+        self.open(id, "TextInput", &props);
+        self.close();
+        self.close();
+    }
+
     /// A14 — [`Dsl::input`] with a leading line icon (the registry search's
     /// magnifier): the glyph and the text share the field's centre line
     /// (both centred by the field's `align y: 0.5`; a judge capture had the

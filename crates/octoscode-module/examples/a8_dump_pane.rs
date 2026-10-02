@@ -24,6 +24,7 @@ fn main() {
             sandbox: Some("workspace-write".into()),
             network: Some("allowed".into()),
             read_paths: None,
+            ..Default::default()
         });
         st.models = session_pane::parse_models(&serde_json::json!({"llm": {
             "primary": {"model_id": "deepseek-v4-flash", "family_id": "deepseek", "route_id": "deepseek", "route": {"route_id": "deepseek", "label": "Official API"}, "selected": true, "available": true},

@@ -3955,6 +3955,13 @@ impl OctoscodeView {
                 if same_dialog && keep_scroll.y > 0.0 {
                     screens::board3::host::set_pending_scroll(keep_scroll.y);
                 }
+                // A17 — the onboarding API key lives only in its masked
+                // input (never in the DSL): put it back after the remount.
+                for (id, text) in screens::board3::host::post_mount_texts() {
+                    self.view
+                        .text_input(cx, &[live_id!(board3_splash), LiveId::from_str(&id)])
+                        .set_text(cx, &text);
+                }
                 makepad_widgets::log!(
                     "[octoscode] board3 mounted {:?}: {} tap(s), {} input(s)",
                     screens::board3::host::open_dialog(),

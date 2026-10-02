@@ -236,6 +236,42 @@ fn is_secret_key(key: &str) -> bool {
         || ["_key", "_secret", "_password"].iter().any(|suf| lower.ends_with(suf))
 }
 
+/// Secrets the app knows it is handling right now (a provider key typed into
+/// onboarding). Field names catch `api_key` params; this catches the same
+/// value echoed inside free text, e.g. a provider's "Your api key ****abcd is
+/// invalid" coming back in a result frame.
+static KNOWN_SECRETS: Mutex<Vec<String>> = Mutex::new(Vec::new());
+
+/// Register a secret value: every traced string has it, and its first and last
+/// 8 characters (the parts providers echo), replaced by `<redacted>`. Values
+/// shorter than 8 characters are ignored (they cannot be told from text).
+pub fn register_secret(secret: &str) {
+    let s = secret.trim();
+    if s.chars().count() < 8 {
+        return;
+    }
+    let mut known = KNOWN_SECRETS.lock().unwrap_or_else(|p| p.into_inner());
+    if !known.iter().any(|k| k == s) {
+        known.push(s.to_owned());
+    }
+}
+
+fn scrub_known(text: &str) -> String {
+    let known = KNOWN_SECRETS.lock().unwrap_or_else(|p| p.into_inner());
+    let mut out = text.to_owned();
+    for secret in known.iter() {
+        let chars: Vec<char> = secret.chars().collect();
+        let head: String = chars[..8].iter().collect();
+        let tail: String = chars[chars.len() - 8..].iter().collect();
+        for part in [secret.as_str(), head.as_str(), tail.as_str()] {
+            if out.contains(part) {
+                out = out.replace(part, "<redacted>");
+            }
+        }
+    }
+    out
+}
+
 /// Remove credential-looking fields (recursively) from a frame before it is
 /// written. Belt-and-braces: no frame should carry a secret, and a fixture
 /// must never leak one.
@@ -253,6 +289,7 @@ pub fn redact(value: Value) -> Value {
             Value::Object(out)
         }
         Value::Array(items) => Value::Array(items.into_iter().map(redact).collect()),
+        Value::String(text) => Value::String(scrub_known(&text)),
         other => other,
     }
 }
@@ -363,6 +400,34 @@ mod tests {
         // No nested `envelope`, no `kind`.
         assert!(w.get("envelope").is_none());
         assert!(w.get("kind").is_none());
+    }
+
+    /// A known provider key never reaches the trace FILE: not as an `api_key`
+    /// param (create / test / save), not nested in a secret object, and not
+    /// echoed (whole, or its first / last 8 characters) in a result or error.
+    #[test]
+    fn a_registered_provider_key_never_reaches_the_trace_file() {
+        const SENTINEL: &str = "SENTINEL-provider-key-0123456789TRACE";
+        register_secret(SENTINEL);
+        let path = std::env::temp_dir().join(format!("octoscode-trace-sentinel-{}", std::process::id()));
+        let _ = std::fs::remove_file(&path);
+        let t = FrameTrace::open(path.to_str().unwrap());
+        let sel = json!({"family_id": "deepseek", "model_id": "deepseek-v4-flash", "route": {"api_key_env": "DEEPSEEK_API_KEY"}});
+        t.out("profile/local/create", &json!({"profile_id": "coding", "api_key": SENTINEL}));
+        t.out("profile/llm/test", &json!({"profile_id": "coding", "selection": sel, "api_key": SENTINEL}));
+        t.out("profile/llm/upsert", &json!({"profile_id": "coding", "selection": sel, "api_key": {"value": SENTINEL}}));
+        t.result("profile/llm/test", Some("7"), &json!({
+            "applied": false,
+            "error": format!("401: Authentication Fails, Your api key: {SENTINEL} is invalid"),
+            "message": format!("key starting {} rejected; ending {}", &SENTINEL[..8], &SENTINEL[SENTINEL.len() - 8..]),
+        }));
+        let text = std::fs::read_to_string(&path).unwrap();
+        let _ = std::fs::remove_file(&path);
+        assert_eq!(text.lines().count(), 4);
+        assert!(!text.contains(SENTINEL), "the whole key reached the trace");
+        assert!(!text.contains(&SENTINEL[..8]), "the key's first 8 characters reached the trace");
+        assert!(!text.contains(&SENTINEL[SENTINEL.len() - 8..]), "the key's last 8 characters reached the trace");
+        assert!(text.contains("DEEPSEEK_API_KEY") || text.contains("<redacted>"));
     }
 
     #[test]

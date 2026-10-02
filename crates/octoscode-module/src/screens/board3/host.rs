@@ -404,6 +404,13 @@ pub enum Job {
     LaunchChoose(String),
     /// A8 — the launch panel's "Create the local profile" (no_profile).
     LaunchCreateProfile,
+    /// A17 — the onboarding panel's `prepare` (`profile/llm/catalog`; the
+    /// failure card's Retry).
+    OnboardingPrepare,
+    /// A17 — the onboarding submission (create once, test, save, open). It
+    /// carries no form data: the key is read from the panel when it runs, so
+    /// it never reaches a log line.
+    OnboardingSubmit,
 }
 
 /// What a routed action asks of the host.
@@ -670,6 +677,11 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
         drop(st);
         return crate::screens::launch::perform(action, index);
     }
+    // A17 — the onboarding panel (the `no_profile` launch's).
+    if action.starts_with("b3.onb.") {
+        drop(st);
+        return crate::screens::onboarding::perform(action, index);
+    }
     Outcome::Unrouted
 }
 
@@ -685,6 +697,8 @@ pub fn input_changed(key: &str, text: &str) {
         "routes" => super::routes::input_changed(&mut st.routes, key, text),
         // A7 — the history dialog's fork name.
         "ck" => super::checkpoints::input_changed(&mut st.ck, key, text),
+        // A17 — the onboarding form (its own state; the key never leaves it).
+        "onb" => crate::screens::onboarding::input_changed(key, text),
         _ => {}
     }
 }
@@ -695,6 +709,9 @@ pub fn input_returned(key: &str, store: &Store) -> Outcome {
         let mut st = state();
         match key.split('.').next().unwrap_or("") {
             "resume" if key == "resume.confirm" => super::resume::perform(&mut st.resume, "b3.resume.confirm", 0),
+            // A17 — Return in an onboarding field submits the form (when its
+            // submit button is enabled).
+            "onb" => crate::screens::onboarding::input_returned(key),
             _ => Outcome::Done,
         }
     };
@@ -716,8 +733,22 @@ pub fn live_visibility(store: &Store) -> Vec<(String, bool)> {
         Some(Dialog::Research) => super::research::visibility(&st.research),
         Some(Dialog::Routes) => super::routes::visibility(&st.routes),
         Some(Dialog::History) => super::checkpoints::visibility(&st.ck),
+        // A17 — the onboarding submit's enabled / disabled variants.
+        Some(Dialog::Launch) if crate::screens::launch::is_no_profile(&crate::screens::launch::snapshot()) => {
+            crate::screens::onboarding::visibility()
+        }
         _ => Vec::new(),
     }
+}
+
+/// A17 — texts the host sets on the open dialog's inputs after a remount (the
+/// onboarding API key, which never rides the DSL): `(widget id, text)`.
+pub fn post_mount_texts() -> Vec<(String, String)> {
+    let open = state().open;
+    if open == Some(Dialog::Launch) && crate::screens::launch::is_no_profile(&crate::screens::launch::snapshot()) {
+        return crate::screens::onboarding::post_mount_texts();
+    }
+    Vec::new()
 }
 
 fn receipt(conv: &crate::flow::Conversation, text: String) {
@@ -924,6 +955,7 @@ pub fn job_unavailable(job: &Job) {
             st.diff.error = Some(msg);
         }
         Job::LaunchChoose(_) | Job::LaunchCreateProfile => crate::screens::launch::cancel(),
+        Job::OnboardingPrepare | Job::OnboardingSubmit => crate::screens::onboarding::job_unavailable(job),
         Job::FileFetch(id, _) => {
             drop(st);
             let mut f = super::rows::file_state();
@@ -1035,6 +1067,22 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
             crate::screens::launch::Launched::Opened(id) => Ok(format!("launched {id}")),
             other => Err(format!("{other:?}")),
         },
+        // A17 — the onboarding panel's two requests, on THIS connection (its
+        // authority epoch is the panel's "same client" fence).
+        Job::OnboardingPrepare => {
+            crate::screens::onboarding::prepare(conv.client(), &conv.store, conv.scope().authority_epoch).await
+        }
+        Job::OnboardingSubmit => {
+            use crate::screens::onboarding::{submit, Submitted};
+            let configured = |profile: String| crate::screens::launch::open_onboarded(conv, profile);
+            match submit(conv.client(), conv.scope().authority_epoch, configured).await {
+                Submitted::Configured(profile) => Ok(format!("onboarded: {profile} tested, saved and opened")),
+                // Already redacted (`redact_secret`): never the typed key.
+                Submitted::Failed(e) => Err(e),
+                Submitted::Superseded => Ok("superseded: nothing published".into()),
+                Submitted::Refused => Ok("refused: the panel cannot submit now".into()),
+            }
+        }
     }
 }
 

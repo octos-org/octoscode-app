@@ -1,0 +1,16 @@
+== 1. the strip CLICK opens Session settings: the model read fails
+CLICK b3_strip_tap r=[12, 663, 336, 62] at (180,694)
+PASS pane: strip CLICK -> 'Session settings' with the Model card
+PASS pane: the failed read is an error — 'Couldn't load the models.' + the server's cause — "Couldn't load the models." / 'profile store unavailable'
+PASS pane: unread is never 'no models' (no empty line, no rows)
+PASS pane: 'Try again' is offered (>= 28 px) — [46, 326, 92, 32]
+PASS unread list: pane numeric checks — frame=328x741 centre_dx=0.0 margins L=16 R=16 labels=24 outside=0 overlaps=0 controls=7 under28=0
+SHOT 01-pane-unread-phone
+== 2. Try again CLICK re-reads: the list
+CLICK b3_sc_models_retry r=[46, 326, 92, 32] at (92,342)
+PASS pane: 'Try again' CLICK -> the models are listed, the error gone
+SHOT 02-pane-retried-phone
+PASS wire: the pane's session-scoped read failed once, the retry was answered — failed=1 served=1
+CLICK b3_close r=[300, 111, 28, 28] at (314,125)
+PASS pane: closed
+== 8/8 checks passed
