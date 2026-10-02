@@ -63,6 +63,22 @@ pub static NATIVE_ZH: &[(&str, &str, &str)] = &[
     ("This peer is no longer in the roster.", "此同侪已不在名单中。", "fleet_driver::row_control's fail-closed label"),
     ("Take control of this session to do this", "需要先取得此会话的控制权", "fleet_driver::row_control's fail-closed label"),
     ("That action is not available right now.", "此操作当前不可用。", "fleet_driver::row_control's fail-closed label"),
+    // ---- A28: the diff review (parity row 23; board 4 frames 1 / 1b / 2,
+    // README "Row 23"; screens/board3/diff_review.rs). Terms as the web's
+    // zh: diff 差异, preview 预览, review 审查, plain text 纯文本.
+    (
+        "Large preview shown as plain text. All lines are included.",
+        "大型预览以纯文本显示，已包含所有行。",
+        "DiffReviewDialog.tsx:107-109 plainNotice (the web renders it without t()); board 4 frame 1b",
+    ),
+    ("No diff preview yet", "尚无差异预览", "A10: the header Review entry before any preview id"),
+    (
+        "A preview appears here once this Session proposes file changes, such as an approval that edits files.",
+        "此会话提出文件更改（例如需要批准的文件编辑）后，预览会显示在这里。",
+        "A10: the no-preview state's body",
+    ),
+    ("This server does not provide diff previews.", "此服务器不提供差异预览。", "A10: a server without diff/preview/get"),
+    ("Code review…", "代码审查…", "A10: the no-preview state's way to the Code review dialog (/review)"),
 ];
 
 fn table() -> &'static HashMap<&'static str, &'static str> {

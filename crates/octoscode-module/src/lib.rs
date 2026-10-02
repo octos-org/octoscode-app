@@ -6391,6 +6391,8 @@ impl AppModule for OctoscodeModule {
         chrome::script_mod(vm);
         // A7: `A7CodeLines` (the highlighted code body) before any row names it.
         code_view::script_mod(vm);
+        // A28: the diff review's code-run templates (`B3DiffCode`, `B3DiffNum`).
+        screens::board3::diff_review::script_mod(vm);
         script_mod(vm);
         // Card #21b: the design/kit vocabulary every lowered #16 component names
         // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the

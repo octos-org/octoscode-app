@@ -30,6 +30,12 @@
 //! | `onboarding` | `live-gate-a6ea8505` handshake + `r29a-onboarding-a6ea8505` replies | A17: the solo onboarding panel (see [`onboarding`]) |
 //! | `skill-jobs` | r1's handshake + SYNTHETIC jobs (`replay_scenarios/skill_jobs.rs`) | A31: the Skills dialog's Background jobs — `skill.action_jobs.v1` advertised (withdraw it with `--drop-feature skill.action_jobs.v1 --drop-method skill/action/job/list`), `skill/action/job/list` per Session, `skill/action/job/updated` around it; `--jobs-trigger <file>` sends a live transition when the file appears |
 //!
+//! `--diff-words` (A28, `surfaces`): the approvals turn's diff approvals
+//! announce the SYNTHETIC previews of `a28-diff-words-synthetic.jsonl` — word
+//! marks + syntax colours (`…0f1`), then a preview past the decoration bound
+//! (`…0f2`), then the heaviest preview still decorated (`…0f3`, 394 lines) —
+//! and `diff/preview/get` answers each by its id.
+//!
 //! `--stale-window` (A18, any scenario): every `session/hydrate` answers with
 //! the A15 live smoke's first-launch hydrate (`a18-stale-window-a6ea8505`): no
 //! durable rows, an earlier run's retained turn terminals (a reset store).
@@ -1263,6 +1269,35 @@ mod surfaces {
     use super::{fixture, recorded_session, Frame};
     use serde_json::{json, Value};
 
+    /// A28 — `--diff-words`: the diff approvals announce the SYNTHETIC
+    /// previews of `a28-diff-words-synthetic.jsonl` (built by
+    /// tools/fixtures/a28_diff_words_fixture.py): the second approval is the
+    /// word-mark / syntax preview (`…0f1`), the third a large preview past
+    /// the decoration bound (`…0f2`), the fourth 394 decorated lines
+    /// (`…0f3`); `diff/preview/get` answers each by its id. Off by default,
+    /// so the A6 / A10 walks keep their preview.
+    pub static DIFF_WORDS: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+    fn diff_words() -> bool {
+        DIFF_WORDS.load(std::sync::atomic::Ordering::Relaxed)
+    }
+
+    /// The A28 fixture's `diff/preview/get` reply for `preview_id` (the
+    /// opened Session's id in place of the placeholder).
+    pub fn a28_preview(preview_id: &str, session: &str) -> Option<Value> {
+        let mut body = fixture("a28-diff-words-synthetic.jsonl")
+            .into_iter()
+            .find(|f| f.method == "res:diff/preview/get" && f.body["preview"]["preview_id"] == preview_id)?
+            .body;
+        body["preview"]["session_id"] = json!(session);
+        Some(body)
+    }
+
+    /// A28 — the large preview's id (the third approval's).
+    pub const A28_LARGE_PREVIEW: &str = "01920000-0000-7000-8000-0000000000f2";
+    /// A28 — the dense preview's id (the fourth approval's: 394 decorated lines).
+    pub const A28_DENSE_PREVIEW: &str = "01920000-0000-7000-8000-0000000000f3";
+
     pub const TURNS: &[&str] = &[
         "01920000-0000-7000-8000-00000000023b",
         "01920000-0000-7000-8000-00000000023c",
@@ -1353,9 +1388,44 @@ mod surfaces {
                         "preview_id": DIFF_PREVIEW, "operation": "apply_patch", "file_count": 1,
                         "additions": 4, "deletions": 1, "summary": "src/main.rs: +4 -1"
                     }});
+                    if diff_words() {
+                        // A28: the word-mark / syntax preview (board 4 frame 1).
+                        diff.body["title"] = json!("Apply a patch to steer_queue.rs, octos.conf and steer.md");
+                        diff.body["body"] = json!("Retries the steer queue with backoff.");
+                        diff.body["typed_details"]["diff"] = json!({
+                            "preview_id": DIFF_PREVIEW, "operation": "apply_patch", "file_count": 3,
+                            "additions": 6, "deletions": 4, "summary": "3 files: +6 -4"
+                        });
+                    }
                     out.push((diff, Some(Hold::Approval)));
-                    out.push((with_id("ac"), Some(Hold::Approval)));
-                    out.push((with_id("ad"), Some(Hold::Approval)));
+                    let mut third = with_id("ac");
+                    if diff_words() {
+                        // A28: a preview past the decoration bound (board 4 frame 1b).
+                        third.body["approval_kind"] = json!("diff");
+                        third.body["tool_name"] = json!("apply_patch");
+                        third.body["title"] = json!("Apply a patch to Cargo.lock and Cargo.toml");
+                        third.body["body"] = json!("Bumps octos to 0.24.1.");
+                        third.body["risk"] = json!("medium");
+                        third.body["typed_details"] = json!({"kind": "diff", "diff": {
+                            "preview_id": A28_LARGE_PREVIEW, "operation": "apply_patch", "file_count": 2,
+                            "additions": 2, "deletions": 2, "summary": "2 files: +2 -2"
+                        }});
+                    }
+                    out.push((third, Some(Hold::Approval)));
+                    let mut fourth = with_id("ad");
+                    if diff_words() {
+                        // A28: the heaviest preview still decorated (394 lines).
+                        fourth.body["approval_kind"] = json!("diff");
+                        fourth.body["tool_name"] = json!("apply_patch");
+                        fourth.body["title"] = json!("Apply a patch to backoff.rs");
+                        fourth.body["body"] = json!("Caps every backoff step.");
+                        fourth.body["risk"] = json!("medium");
+                        fourth.body["typed_details"] = json!({"kind": "diff", "diff": {
+                            "preview_id": A28_DENSE_PREVIEW, "operation": "apply_patch", "file_count": 1,
+                            "additions": 98, "deletions": 98, "summary": "backoff.rs: +98 -98"
+                        }});
+                    }
+                    out.push((fourth, Some(Hold::Approval)));
                     continue;
                 }
                 "user_question/requested" => {
@@ -1436,6 +1506,10 @@ mod surfaces {
     pub fn reply(method: &str, params: &Value, session: &str) -> Option<Value> {
         let task_id = params["task_id"].as_str().unwrap_or_default();
         Some(match method {
+            // A28: the synthetic word-mark / large previews, by id.
+            "diff/preview/get" if diff_words() => {
+                return a28_preview(params["preview_id"].as_str().unwrap_or_default(), session);
+            }
             // `DiffPreviewGetResult` (octos-core): the patch the diff
             // approval asks about (no successful reply is recorded).
             "diff/preview/get" => json!({
@@ -1919,6 +1993,12 @@ async fn main() {
         .and_then(|i| args.get(i + 1))
         .and_then(|v| v.parse().ok())
         .unwrap_or(0);
+    // A28 — `--diff-words` (`surfaces`): the diff approvals announce the
+    // synthetic word-mark and large previews (see `surfaces::DIFF_WORDS`).
+    if args.iter().any(|a| a == "--diff-words") {
+        surfaces::DIFF_WORDS.store(true, std::sync::atomic::Ordering::Relaxed);
+        println!("[replay-serve] surfaces: --diff-words (a28-diff-words-synthetic.jsonl previews)");
+    }
     let recorded = recorded_session(&frames);
     let recorded_turns: Vec<String> = by_turn
         .iter()

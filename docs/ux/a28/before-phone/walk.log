@@ -1,0 +1,47 @@
+== A28 diff review (phone, en)
+CLICK composer r=[28, 743, 304, 29]
+KEY End
+TYPE 'retry the steer queue'
+KEY Return
+PASS turn: a prompt CLICK + Return -> turn/start (the approvals turn)
+PASS approval: the command approval takes the composer over
+CLICK cv_ap_deny r=[28, 749, 304, 40] at (180,769)
+FAIL approval: Deny -> the typed DIFF approval with 'Review diff' — 'Apply a patch to st…'
+CLICK cv_ap_diff r=[28, 753, 304, 36] at (180,771)
+FAIL words: 'Review diff' CLICK opens the review on ONE diff/preview/get — title='Retry the steer que…'
+SHOT words-phone
+FAIL words: phone = a full-screen sheet over the module — dialog=[16, 136, 328, 655] module=[0, 74, 360, 776]
+FAIL words: phone hides the preview id — '01920000-0000-…'
+PASS words: dialog numeric checks (no clipped label, no overlap, controls >= 28 px) — frame=328x655 centre_dx=0.0 margins L=16 R=16 labels=71 outside=0 overlaps=0 controls=2 under28=0
+FAIL words: every line is whole (its runs join to the fixture text) — b3_diff_file_0_h0_l0: '' != '    fn redeliver(&mut self, conn: &Conn) -> Result<()> {'; b3_diff_file_0_h0_l1: '' != '        let pending = self.drain_pending();'; b3_diff_file_0_h0_l2: '' != '        let delay = Duration::from_millis(500);'
+FAIL words: keyword / function / constant runs on context, removed and added lines — l0=[]
+FAIL conf: no grammar -> plain runs only, word marks on 500 / 250 — classes=[] l0=[] l1=[]
+FAIL words: the equal 1:1 blocks carry the web's word marks — _h0_l2=[]; _h0_l3=[]; _h0_l5=[]; _h0_l6=[]; _h0_l0=[]; _h0_l1=[]
+PASS words: the unequal block (+48, +49), context lines and the < 25 % pair carry no mark — []
+FAIL words: each mark lies in its row on its words' columns (x, width) — marks=0 
+FAIL words: the marks are drawn in the success / error fills — added=None want (187, 234, 203); removed=None want (250, 193, 193)
+FAIL words: a keyword run is drawn in the keyword colour (#b4235a family) — fn ink=None
+FAIL phone: the Rust hunk is wider than the sheet (its rows scroll sideways, never wrap) — scroll=[32, 305, 286, 218] row=[32, 458, 286, 17]
+CLICK b3_close r=[300, 156, 28, 28] at (314,170)
+PASS words: the close CLICK returns to the approval card
+== the header Review control re-opens the announced preview
+CLICK review_open_hit r=[264, 85, 36, 30] at (282,100)
+FAIL header: Review CLICK re-opens the same preview (one more read)
+FAIL header: the re-opened review carries the same marks — []
+CLICK b3_close r=[300, 156, 28, 28] at (314,170)
+== the large preview: past the bound, nothing is decorated
+CLICK cv_ap_session r=[28, 647, 304, 46] at (180,670)
+FAIL approval: Approve for session -> the large diff approval — 'Apply a patch to C…'
+CLICK cv_ap_diff r=[28, 753, 304, 36] at (180,771)
+FAIL large: 'Review diff' CLICK opens the large preview — title='Bump octos to 0.2…'
+SHOT large-phone
+FAIL large: phone = a full-screen sheet over the module — dialog=[16, 102, 328, 723] module=[0, 74, 360, 776]
+FAIL large: phone hides the preview id — '01920000-0000-…'
+PASS large: dialog numeric checks (no clipped label, no overlap, controls >= 28 px) — frame=328x723 centre_dx=0.0 margins L=16 R=16 labels=100 outside=0 overlaps=0 controls=2 under28=0
+FAIL large: the note 'Large preview shown as plain text. All lines are included.' — ''
+PASS large: no run and no word mark anywhere (all or nothing) — runs=0 marks=0
+FAIL large: every line is included (522 lines, the last one scrolled into view) — lines=0 want=520 blocks=0
+FAIL large: the removed line keeps its tint and red text (no syntax colour) — block=None ink=None
+CLICK b3_close r=[300, 122, 28, 28] at (314,136)
+CLICK cv_ap_once r=[28, 591, 304, 46] at (180,614)
+== 7/28 checks passed
