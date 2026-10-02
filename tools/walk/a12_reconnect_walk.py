@@ -54,6 +54,27 @@ import time
 import urllib.parse
 import urllib.request
 
+# A11: the walk aggregator's convention (tools/walk/native.py; read with ast,
+# never imported). The replay variant (the default): the walk owns its server
+# on the aggregator's fixture port and its app on the aggregator's port.
+WALK = {
+    "name": "a12_reconnect",
+    "title": "an outage keeps the shell: banner, refused sends, Retry now, recovery, give-up to the Connect card",
+    "modes": ["desktop", "phone"],
+    "app": "self",
+    "runs": [{"argv": ["{port}", "{mode}", "{out}"], "env": {"A12_HOSTBIN": "{bin}", "A12_SERVE_PORT": "{fport}"}}],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 900,
+    "rows": {
+        169: {"checks": ["recovered: the SAME Session re-opened", "recovered: and re-hydrated",
+                         "recovered: the header names the same conversation", "recovered: the unsent draft survived",
+                         "recovered: no Connect card at any point"],
+              "partial": "the server dies and returns: the same Session re-opens and re-hydrates with the draft "
+                         "kept (replay); the single turn/start and the undoubled transcript are walked only "
+                         "against a live server (A12_SERVER=live)"},
+    },
+}
+
 WS = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8422
 MODE = sys.argv[2] if len(sys.argv) > 2 else "desktop"
