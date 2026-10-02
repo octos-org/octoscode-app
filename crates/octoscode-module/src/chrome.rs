@@ -2119,6 +2119,9 @@ impl ChromeRuntime {
             .unwrap_or_default();
         text(cx, view, ids!(hd_title), &title);
         text(cx, view, ids!(hd_path), &root);
+        // An empty path line still takes its height and lifts a lone title
+        // above the tabs' centre line; without a path the title centres.
+        show(cx, view, ids!(hd_path), !root.is_empty());
         // Board 10: the defaults strip shows above an EMPTY conversation —
         // a New chat's (A19b: not a Session whose history is still loading,
         // or could not be read: that one is not empty, its rows are coming).

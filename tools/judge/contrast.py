@@ -42,6 +42,8 @@ import sys
 import time
 import urllib.request
 from collections import Counter
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../walk"))  # noqa: E402
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "walk"))

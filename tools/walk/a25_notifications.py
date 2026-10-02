@@ -37,6 +37,7 @@ import urllib.parse
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import a10_lib  # noqa: E402
 from a10_lib import inside, overlap  # noqa: E402
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 # A11: the walk aggregator's convention (tools/walk/native.py; never imported).
 WALK = {
