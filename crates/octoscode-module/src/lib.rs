@@ -2155,6 +2155,13 @@ impl OctoscodeView {
         makepad_widgets::log!("[octoscode] dialog action: {action}");
         match &effect {
             screens::dialog::Effect::Open(_) | screens::dialog::Effect::Close => {
+                // A10 — closing an autonomy dialog suspends its families (the
+                // web store's effect lease): an in-flight read answers into a
+                // superseded revision and never publishes.
+                if effect == screens::dialog::Effect::Close {
+                    let store = { self.bridge.lock().unwrap().store.clone() };
+                    screens::autonomy::suspend(&store);
+                }
                 let opened = screens::dialog::apply(&effect);
                 if let Some(d) = opened {
                     let ui = { self.bridge.lock().unwrap().ui.clone() };
@@ -2230,6 +2237,20 @@ impl OctoscodeView {
             screens::dialog::Effect::CancelForm => {
                 screens::dialog::set_form(None);
                 makepad_widgets::log!("[octoscode] dialog form cancelled");
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
+            // A10 — the loop form's cadence: keep what was typed, rebuild the
+            // fields for the chosen mode.
+            screens::dialog::Effect::FormMode(mode) => {
+                if let Some(form) = screens::dialog::pending_form() {
+                    let values = self.dialog_form_values(cx, &form);
+                    let prompt = values.first().cloned().unwrap_or_default();
+                    let interval = values.get(1).cloned().unwrap_or_default();
+                    screens::dialog::set_form(Some(screens::dialog::loop_form(mode, &prompt, &interval)));
+                    makepad_widgets::log!("[octoscode] dialog form mode: {mode}");
+                }
                 self.sync_labels(cx);
                 self.view.redraw(cx);
                 return;
@@ -2366,14 +2387,7 @@ impl OctoscodeView {
         let Some(mut form) = screens::dialog::pending_form() else {
             return;
         };
-        let values: Vec<String> = form
-            .fields
-            .iter()
-            .map(|(id, _, _)| {
-                let wid = LiveId::from_str(&screens::dialog::form_input_id(form.dialog, id));
-                self.view.text_input(cx, &[wid]).text()
-            })
-            .collect();
+        let values = self.dialog_form_values(cx, &form);
         for (field, v) in form.fields.iter_mut().zip(&values) {
             field.2 = v.clone();
         }
@@ -2384,7 +2398,15 @@ impl OctoscodeView {
         };
         let effect = {
             let ctx = bindings::Ctx::new(&store, &ui);
-            screens::autonomy::resolve(&form.action, 0, Some(&value), &ctx)
+            // A10: the loop (cadence) and monitor forms build their effect
+            // from the fields directly; the gate still runs first.
+            match screens::dialog::form_effect(&form, &values) {
+                Some(_) if !screens::autonomy::action_advertised(&form.action, &store) => {
+                    screens::autonomy::Effect::Unhandled(format!("{}[not-advertised]", form.action))
+                }
+                Some(e) => e,
+                None => screens::autonomy::resolve(&form.action, 0, Some(&value), &ctx),
+            }
         };
         if let screens::autonomy::Effect::Unhandled(why) = &effect {
             makepad_widgets::log!("[octoscode] dialog form refused: {why}");
@@ -2403,6 +2425,18 @@ impl OctoscodeView {
         }
         self.sync_labels(cx);
         self.view.redraw(cx);
+    }
+
+    /// A10 — the open form's fields' current text (read from the mounted
+    /// inputs), in field order.
+    fn dialog_form_values(&mut self, cx: &mut Cx, form: &screens::dialog::Form) -> Vec<String> {
+        form.fields
+            .iter()
+            .map(|(id, _, _)| {
+                let wid = LiveId::from_str(&screens::dialog::form_input_id(form.dialog, id));
+                self.view.text_input(cx, &[wid]).text()
+            })
+            .collect()
     }
 
     /// A5 — search the skill registry for `q` (the Skills dialog's box):

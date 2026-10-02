@@ -513,6 +513,15 @@ async fn main() {
                         let (mut body, from) = list[(*k).min(list.len() - 1)].clone();
                         *k += 1;
                         rewrite_session(&mut body, &from, &active_session);
+                        // A faithful refusal (`{"__error__": {code, message,
+                        // data}}`) answers as a JSON-RPC error.
+                        if let Some(err) = body.get("__error__").cloned() {
+                            println!("[replay-serve] -> {m} (faithful ERROR #{k})");
+                            send(&tx, serde_json::json!({
+                                "jsonrpc": "2.0", "id": id, "error": err
+                            })).await;
+                            continue;
+                        }
                         println!("[replay-serve] -> {m} (faithful reply #{k})");
                         send(&tx, serde_json::json!({
                             "jsonrpc": "2.0", "id": id, "result": body

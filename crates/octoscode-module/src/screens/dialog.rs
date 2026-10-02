@@ -252,6 +252,64 @@ pub struct Form {
     /// Why the last Create did not run (the web's `required` / interval
     /// refusals), drawn above the buttons.
     pub error: Option<String>,
+    /// A10 — the loop form's cadence (`maintenance` | `self_paced` |
+    /// `fixed`, `LoopCreationControls.tsx` "Loop cadence"); `None` for a
+    /// form without a mode selector.
+    pub mode: Option<String>,
+    /// A10 — a second, smaller line under the help (the web's static note:
+    /// "Creating a loop schedules server-owned work…").
+    pub note: String,
+    /// A10 — each field's label above its box (the web's `<label>` text:
+    /// "Prompt", "Interval", "Name", "Command", …); empty = placeholders only.
+    pub labels: Vec<String>,
+}
+
+/// A10 — the loop cadences, in the web's order, with their labels.
+pub const LOOP_MODES: &[(&str, &str)] =
+    &[("maintenance", "Maintenance"), ("self_paced", "Self-paced"), ("fixed", "Fixed interval")];
+
+/// A10 — the loop form for `mode` (`LoopCreationControls.tsx:81-149`): the
+/// prompt (optional in maintenance, placeholder per mode), the interval only
+/// for a fixed loop (the web's draft default `5m`), the mode's hint as the
+/// help line, the static note.
+pub fn loop_form(mode: &str, prompt: &str, interval: &str) -> Form {
+    let (placeholder, hint) = match mode {
+        "self_paced" => (
+            "Run the checks and summarize drift",
+            "The server decides the next run from the loop's result.",
+        ),
+        "fixed" => (
+            "Run the checks and summarize drift",
+            "Use the native interval syntax, with a whole number and unit: 60s, 5m, 2h, or 1d.",
+        ),
+        _ => (
+            "Use the server's maintenance prompt",
+            "Native /loop default. Leave the prompt empty to use the server's maintenance prompt and cadence.",
+        ),
+    };
+    let mut fields = vec![("lf_prompt".to_owned(), placeholder.to_owned(), prompt.to_owned())];
+    if mode == "fixed" {
+        let interval = if interval.trim().is_empty() { "5m" } else { interval };
+        fields.push(("lf_interval".to_owned(), "5m".to_owned(), interval.to_owned()));
+    }
+    Form {
+        dialog: Dialog::Loops,
+        action: "loop.create".to_owned(),
+        title: "New loop".to_owned(),
+        fields,
+        help: hint.to_owned(),
+        submit_label: "Create loop".to_owned(),
+        error: None,
+        mode: Some(mode.to_owned()),
+        note: "Creating a loop schedules server-owned work. It does not run in this app, and closing this \
+               panel does not stop it."
+            .to_owned(),
+        labels: match mode {
+            "maintenance" => vec!["Prompt (optional)".to_owned()],
+            "fixed" => vec!["Prompt".to_owned(), "Interval".to_owned()],
+            _ => vec!["Prompt".to_owned()],
+        },
+    }
 }
 
 static FORM: Mutex<Option<Form>> = Mutex::new(None);
@@ -283,20 +341,51 @@ pub fn form_for(action: &str, seed: &str) -> Option<Form> {
             help: "A blank budget is left out; the server applies its default.".to_owned(),
             submit_label: "Set goal".to_owned(),
             error: None,
+            mode: None,
+            note: String::new(),
+            labels: vec!["Objective".to_owned(), "Token budget (optional)".to_owned()],
         }),
-        "loop.create" => Some(Form {
-            dialog: Dialog::Loops,
+        // A10: the web's default cadence is Maintenance; a seeded "prompt |
+        // 15m" opens as a fixed loop with both values.
+        "loop.create" => Some(if second.is_empty() {
+            loop_form("maintenance", &first, "")
+        } else {
+            loop_form("fixed", &first, &second)
+        }),
+        // A10 — the Monitors section's create form (`AutonomyPanel.tsx:431-482`).
+        "monitor.create" => Some(Form {
+            dialog: Dialog::Monitors,
             action: action.to_owned(),
-            title: "New loop".to_owned(),
+            title: "New monitor".to_owned(),
+            // The web's placeholders (`AutonomyPanel.tsx:436-452`).
             fields: vec![
-                ("lf_prompt".to_owned(), "What the loop runs".to_owned(), first),
-                ("lf_interval".to_owned(), "Interval, e.g. 15m".to_owned(), second),
+                ("mf_name".to_owned(), "watch-build".to_owned(), first),
+                ("mf_argv".to_owned(), "[\"./scripts/watch.sh\", \"--verbose\"]".to_owned(), second),
+                ("mf_filter".to_owned(), "ERROR.*".to_owned(), String::new()),
             ],
-            help: "A fixed interval runs every 60s to 24h; leave it empty for a self-paced loop."
+            help: "The command is a JSON array of arguments; it is not run through a shell. \
+                   The monitor polls it on the server."
                 .to_owned(),
-            submit_label: "Create loop".to_owned(),
+            submit_label: "Create monitor".to_owned(),
             error: None,
+            mode: None,
+            note: String::new(),
+            labels: vec!["Name".to_owned(), "Command".to_owned(), "Filter regex (optional)".to_owned()],
         }),
+        _ => None,
+    }
+}
+
+/// A10 — the effect a form's Create runs, from its fields' text: the loop
+/// form through the web's mode-aware validation, the monitor form through
+/// `parseArgvJsonInput`; other forms compose the entry text the autonomy
+/// table parses (`None` here: the caller keeps that path).
+pub fn form_effect(f: &Form, values: &[String]) -> Option<crate::screens::autonomy::Effect> {
+    use crate::screens::autonomy as au;
+    let v = |i: usize| values.get(i).map(String::as_str).unwrap_or("");
+    match (f.action.as_str(), f.mode.as_deref()) {
+        ("loop.create", Some(mode)) => Some(au::loop_form_effect(mode, v(0), v(1))),
+        ("monitor.create", _) => Some(au::monitor_form_effect(v(0), v(1), v(2))),
         _ => None,
     }
 }
@@ -426,11 +515,18 @@ pub fn notice_for_refusal(id: &str) -> Option<&'static str> {
         return Some("This server does not advertise that control.");
     }
     Some(match id {
-        "loop.create[empty]" => "Type what the loop runs first.",
+        // A10: the web's own refusals (`loop-creation.ts:68-107`).
+        "loop.create[mode]" => "Choose Maintenance, Self-paced, or Fixed interval.",
+        "loop.create[empty]" => "A prompt is required for self-paced and fixed-interval loops.",
         i if i.starts_with("loop.create[interval") => {
-            "Use a whole-number interval from 60s to 24h, such as 15m."
+            "Use a whole-number native interval such as 60s, 5m, or 2h (60 seconds to 24 hours)."
         }
-        "loop.create[prompt-too-long]" => "The loop prompt is limited to 8 KB.",
+        "loop.create[prompt-too-long]" => "Loop prompt must fit within the server's 8192-byte limit.",
+        // A10: `AutonomyPanel.tsx:455-459` (the argv alert) and the required name.
+        "monitor.create[no-name]" => "Type the monitor's name first.",
+        i if i.starts_with("monitor.create[argv") => {
+            "Probe command must be a JSON array of arguments, e.g. [\"./scripts/watch.sh\", \"--verbose\"]."
+        }
         "goal.set[empty]" => "Type the goal's objective first.",
         i if i.starts_with("goal.set[budget") => {
             "The token budget is a whole number of tokens, such as 100000."
@@ -487,8 +583,13 @@ pub enum Effect {
     SubmitForm,
     /// Close the form (back to the dialog's own card).
     CancelForm,
+    /// A10 — the loop form's cadence selector (`dialog.form_mode.<mode>`).
+    FormMode(String),
     Unhandled(String),
 }
+
+/// A10 — `dialog.form_mode.<mode>`: pick the loop form's cadence.
+pub const ACTION_FORM_MODE: &str = "dialog.form_mode.";
 
 pub fn resolve(id: &str) -> Effect {
     if id == ACTION_CLOSE {
@@ -499,6 +600,9 @@ pub fn resolve(id: &str) -> Effect {
     }
     if let Some(a) = id.strip_prefix(ACTION_ASK).filter(|a| !a.is_empty()) {
         return Effect::Ask(a.to_owned());
+    }
+    if let Some(m) = id.strip_prefix(ACTION_FORM_MODE).filter(|m| LOOP_MODES.iter().any(|(k, _)| k == m)) {
+        return Effect::FormMode(m.to_owned());
     }
     if let Some(a) = id.strip_prefix(ACTION_FORM).filter(|a| !a.is_empty()) {
         return Effect::OpenForm(a.to_owned());
@@ -576,7 +680,14 @@ fn append_notice(tree: &mut UiNode, text: &str, alert: bool, card: (f64, f64)) -
             right = right.min(x + cw - 12.0);
         }
     });
-    let line_h = 40.0;
+    // A10: the server's words, as the web shows them (whitespace collapsed,
+    // no transport wrapper), in as many lines as they need — a 40 px box
+    // cut a multi-line refusal mid-sentence.
+    let text = display_error(text);
+    let text = text.as_str();
+    let per_line = ((right - tx).max(80.0) / (0.5 * 13.5)).floor().max(1.0);
+    let lines = (text.chars().count() as f64 / per_line).ceil().max(1.0);
+    let line_h = (lines * 13.5 * 1.45).ceil().max(20.0);
     let y0 = ty + th + 10.0;
     let delta = line_h + 6.0;
     // Containers that span the insertion line grow; everything below moves.
@@ -610,6 +721,20 @@ fn append_notice(tree: &mut UiNode, text: &str, alert: bool, card: (f64, f64)) -
     });
     tree.children.push(node);
     grown
+}
+
+/// A10 — an error as the web shows it: the server's message
+/// (`OctosUiProtocolError.message`, rendered in a `<p>`, so whitespace runs
+/// collapse), without the native client's `"{method}: rpc error {code}
+/// (...)"` transport wrapper. Other text is only whitespace-collapsed.
+pub fn display_error(raw: &str) -> String {
+    let inner = raw
+        .split_once(": rpc error ")
+        .and_then(|(_, rest)| rest.split_once(" ("))
+        .filter(|(code, _)| code.trim_start_matches('-').chars().all(|c| c.is_ascii_digit()))
+        .and_then(|(_, msg)| msg.strip_suffix(')'))
+        .unwrap_or(raw);
+    inner.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
 /// Whether the server advertises `name`: a METHOD (`a/b`) is read from the
@@ -1469,6 +1594,45 @@ fn row_icons(tree: &mut UiNode, card: &str, row: &str, icons: &[&str], lead: Opt
     }
 }
 
+/// A10 — the Monitors section's create affordance: the Loops card's own
+/// "+ New loop" link face (autonomy-04 `new_loop`), relabelled "+ New
+/// monitor" and seated at the right end of the title row (the board drew no
+/// create control; the web gates its form on `monitor/create`,
+/// `AutonomyPanel.tsx:431`).
+fn new_monitor_button(tree: &mut UiNode, ctx: &Ctx<'_>, st: &AutonomyState) {
+    if !crate::screens::autonomy::gated(ctx.store, "monitors", "monitor/create") {
+        return;
+    }
+    let Ok(loops) = card_tree(Dialog::Loops, ctx, st) else { return };
+    let Some(mut b) = find(&loops, "new_loop").cloned() else { return };
+    let Some((_, ty, _, th)) = rect_of(tree, "t_title") else { return };
+    let right = rect_of(tree, "mon_1")
+        .or_else(|| rect_of(tree, "monitors_footer"))
+        .map(|(x, _, w, _)| x + w)
+        .unwrap_or(390.0);
+    let (bx, by, bw, bh) = rect(&b);
+    let label = "+ New monitor";
+    let w = bw + 26.0;
+    shift(&mut b, right - w - bx, ty + th / 2.0 - bh / 2.0 - by);
+    walk_mut(&mut b, &mut |n| {
+        if let Some(id) = n.attrs.id.as_mut() {
+            *id = id.replacen("new_loop", "new_monitor", 1);
+        }
+        let x = n.attrs.x.unwrap_or(0.0);
+        if (n.attrs.w.unwrap_or(0.0) as f64 - bw).abs() < 1.0 {
+            n.attrs.w = Some(w as f32);
+        } else {
+            // The label box grows by the same amount, staying centred.
+            n.attrs.x = Some(x);
+            n.attrs.w = Some(n.attrs.w.unwrap_or(0.0) + 26.0);
+        }
+        if n.attrs.text.is_some() {
+            n.attrs.text = Some(label.to_owned());
+        }
+    });
+    tree.children.push(b);
+}
+
 /// autonomy-05 — a row's status line carries the pause reason
 /// ("paused (user)"); its box runs to the interval column instead of the
 /// atlas word's measured width ("fired 3×" clipped the live "paused (").
@@ -1773,7 +1937,9 @@ pub fn controls(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState) -> Vec<Control> {
             v
         }
         Dialog::Monitors => {
-            let mut v = Vec::new();
+            // A10: "+ New monitor" opens the create form (drawn only when
+            // monitor/create is advertised).
+            let mut v = vec![ctl("new_monitor_control", format!("{ACTION_FORM}monitor.create"))];
             for (i, m) in st.monitors.iter().take(3).enumerate() {
                 let paused = m["status"].as_str() == Some("paused");
                 let r = i + 1;
@@ -2146,15 +2312,96 @@ fn live(d: Dialog, tree: &mut UiNode, ctx: &Ctx<'_>, st: &AutonomyState) {
         Dialog::Loops => live_loops(tree, st),
         Dialog::Review => live_review(tree, ctx),
         Dialog::Fleet | Dialog::Tasks => live_fleet_tasks(tree),
-        Dialog::Monitors => live_monitors(tree, st),
+        Dialog::Monitors => {
+            live_monitors(tree, st);
+            new_monitor_button(tree, ctx, st);
+        }
     }
     centre_button_labels(tree);
 }
 
 /// Lower dialog `d` for a host area of `avail_w × avail_h`.
-/// The form card's two controls.
-fn form_controls() -> Vec<Control> {
-    vec![ctl("ff_cancel_control", ACTION_FORM_CANCEL), ctl("ff_submit_control", ACTION_FORM_SUBMIT)]
+/// The form card's two controls (+ the cadence segments of a loop form).
+fn form_controls(f: Option<&Form>) -> Vec<Control> {
+    let mut v = vec![ctl("ff_cancel_control", ACTION_FORM_CANCEL), ctl("ff_submit_control", ACTION_FORM_SUBMIT)];
+    if f.and_then(|f| f.mode.as_ref()).is_some() {
+        for (m, _) in LOOP_MODES {
+            v.push(ctl(format!("fm_seg_{m}_control"), format!("{ACTION_FORM_MODE}{m}")));
+        }
+    }
+    v
+}
+
+/// A kit pill (`X` + `X_surface` / `X_control` / `X_label`) cloned from the
+/// Context card's `btn_compact` face at `(x, y, w, h)`: `primary` = the
+/// filled black pill with white text, else the outlined one.
+fn kit_pill(face: &UiNode, id: &str, label: &str, x: f64, y: f64, w: f64, h: f64, primary: bool, size: f32) -> UiNode {
+    let mut b = face.clone();
+    b.attrs.id = Some(id.to_owned());
+    b.attrs.x = Some(x);
+    b.attrs.y = Some(y);
+    b.attrs.w = Some(w as f32);
+    b.attrs.h = Some(h as f32);
+    for ch in &mut b.children {
+        let old = ch.attrs.id.clone().unwrap_or_default();
+        let suffix = old.strip_prefix("btn_compact").unwrap_or("").to_owned();
+        let a = &mut ch.attrs;
+        a.id = Some(format!("{id}{suffix}"));
+        a.x = Some(x);
+        a.w = Some(w as f32);
+        a.tapto = None;
+        match suffix.as_str() {
+            "_surface" | "_control" => {
+                a.y = Some(y);
+                a.h = Some(h as f32);
+                if primary && suffix == "_surface" {
+                    a.bg = Some(0xff1d_1d1f);
+                    a.border = None;
+                }
+            }
+            "_label" => {
+                let lh = (size as f64 * 1.45).ceil();
+                a.h = Some(lh as f32);
+                a.y = Some(y + (h - lh) / 2.0);
+                a.size = Some(size);
+                a.line_height = None;
+                a.text = Some(label.to_owned());
+                a.alignx = Some(0.5);
+                a.weight = Some(if primary { 600 } else { 500 });
+                a.color = Some(if primary { 0xffff_ffff } else { 0xff1d_1d1f });
+            }
+            _ => {}
+        }
+    }
+    b
+}
+
+/// A wrapped text line of `text` at `size` px in a `w` box (the confirm
+/// card's estimate: 0.5 em per character, 1.4 line height).
+fn wrapped_text(face: &UiNode, id: &str, text: &str, y: f64, w: f64, size: f32, color: u32) -> (UiNode, f64) {
+    let mut n = face.clone();
+    n.children.clear();
+    n.kind = NodeKind::Text;
+    let per_line = (w / (0.5 * size as f64)).floor().max(1.0);
+    let lines = (text.chars().count() as f64 / per_line).ceil().max(1.0);
+    let h = (lines * size as f64 * 1.4).ceil();
+    let a = &mut n.attrs;
+    a.id = Some(id.to_owned());
+    a.text = Some(text.to_owned());
+    a.placeholder = None;
+    a.x = Some(0.0);
+    a.y = Some(y);
+    a.w = Some(w as f32);
+    a.h = Some(h as f32);
+    a.size = Some(size);
+    a.line_height = None;
+    a.weight = Some(400);
+    a.color = Some(color);
+    a.alignx = Some(0.0);
+    a.variant = None;
+    a.fillw = None;
+    a.tapto = None;
+    (n, h)
 }
 
 /// The form card: the title, one bordered real input per field (the Skills
@@ -2184,7 +2431,30 @@ fn form_tree(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState, f: &Form) -> Result<U
     let title_bottom = rect_of(&tree, "cf_title").map(|(_, y, _, h)| y + h).unwrap_or(28.0);
     let mut y = title_bottom + 14.0;
     let mut nodes = Vec::new();
-    for (id, placeholder, value) in &f.fields {
+    // A10 — the loop form's "Loop cadence" selector (`LoopCreationControls.tsx
+    // :81-93`): three kit pills, the chosen one filled.
+    if let Some(mode) = f.mode.as_deref() {
+        let ctx_card = card_tree(Dialog::Context, ctx, st)?;
+        let Some(pill) = find(&ctx_card, "btn_compact").cloned() else {
+            return Err(format!("{}: the form's pill face is missing", d.card()));
+        };
+        const GAP: f64 = 8.0;
+        const SEG_H: f64 = 36.0;
+        let w = (W - 2.0 * GAP) / 3.0;
+        for (k, (m, label)) in LOOP_MODES.iter().enumerate() {
+            let x = k as f64 * (w + GAP);
+            nodes.push(kit_pill(&pill, &format!("fm_seg_{m}"), label, x, y, w, SEG_H, *m == mode, 13.5));
+        }
+        y += SEG_H + 12.0;
+    }
+    for (k, (id, placeholder, value)) in f.fields.iter().enumerate() {
+        // A10: the field's label above its box (the web's `<label>` text).
+        if let Some(label) = f.labels.get(k).filter(|l| !l.is_empty()) {
+            let (mut l, h) = wrapped_text(&input_face, &format!("{id}_label"), label, y, W, 12.5, 0xff6e_6e73);
+            l.attrs.weight = Some(500);
+            nodes.push(l);
+            y += h + 4.0;
+        }
         let mut b = field_face.clone();
         b.children.clear();
         b.attrs.id = Some(format!("{id}_box"));
@@ -2203,9 +2473,13 @@ fn form_tree(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState, f: &Form) -> Result<U
         a.text = Some(value.clone());
         a.color = Some(0xff1d_1d1f);
         a.x = Some(14.0);
-        a.y = Some(y + (FIELD_H - 26.0) / 2.0);
+        // A10: the input spans its box's full height (the text centres in
+        // it). A 26 px input centred in the box grew to the phone's 44 px
+        // touch minimum from its own top, so the text sat on the box's
+        // bottom edge (measured: input [32,207,296,44] in box [19,196,322,45]).
+        a.y = Some(y);
         a.w = Some((W - 28.0) as f32);
-        a.h = Some(26.0);
+        a.h = Some(FIELD_H as f32);
         a.variant = None;
         a.tapto = None;
         nodes.push(i);
@@ -2219,32 +2493,25 @@ fn form_tree(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState, f: &Form) -> Result<U
         }
     }
     let mut extra = 0.0;
+    // A10 — the static note under the help, then the refusal (wrapped: the
+    // web's interval refusal runs ~85 characters), both above the pills.
+    let mut lines: Vec<(&str, String, f32, u32)> = Vec::new();
+    if !f.note.is_empty() {
+        lines.push(("ff_note", f.note.clone(), 12.5, 0xff8e_8e93));
+    }
     if let Some(err) = &f.error {
-        // The refusal, above the pills (the web's role="alert" line).
+        lines.push(("ff_error", err.clone(), 13.5, 0xffcf_222e));
+    }
+    for (id, text, size, color) in lines {
         let pills_y = rect_of(&tree, "cf_cancel").map(|(_, y, _, _)| y).unwrap_or(y);
-        for id in ["cf_cancel", "cf_confirm"] {
-            if let Some(n) = find_mut(&mut tree, id) {
-                shift(n, 0.0, 30.0);
+        let (node, h) = wrapped_text(&input_face, id, &text, pills_y - 8.0, W, size, color);
+        for pid in ["cf_cancel", "cf_confirm"] {
+            if let Some(n) = find_mut(&mut tree, pid) {
+                shift(n, 0.0, h + 8.0);
             }
         }
-        let mut e = input_face.clone();
-        e.children.clear();
-        e.kind = NodeKind::Text;
-        let a = &mut e.attrs;
-        a.id = Some("ff_error".to_owned());
-        a.text = Some(err.clone());
-        a.placeholder = None;
-        a.x = Some(0.0);
-        a.y = Some(pills_y - 6.0);
-        a.w = Some(W as f32);
-        a.h = Some(20.0);
-        a.size = Some(13.5);
-        a.weight = Some(400);
-        a.color = Some(0xffcf_222e);
-        a.variant = None;
-        a.tapto = None;
-        nodes.push(e);
-        extra = 30.0;
+        nodes.push(node);
+        extra += h + 8.0;
     }
     tree.children.extend(nodes);
     // The confirm card's ids become the form's.
@@ -2378,7 +2645,7 @@ pub fn lower(d: Dialog, ctx: &Ctx<'_>, avail_w: f64, avail_h: f64) -> Result<Mou
     let form = pending_form().filter(|f| f.dialog == d);
     let (mut tree, ctrls) = match (&confirm, &form) {
         (Some(c), _) => (confirm_tree(d, ctx, &st, c)?, confirm_controls()),
-        (None, Some(f)) => (form_tree(d, ctx, &st, f)?, form_controls()),
+        (None, Some(f)) => (form_tree(d, ctx, &st, f)?, form_controls(Some(f))),
         (None, None) => {
             let mut tree = card_tree(d, ctx, &st)?;
             live(d, &mut tree, ctx, &st);
@@ -2565,6 +2832,9 @@ pub const RECORDED_METHODS: &[&str] = &[
     "peer/gather", "profile/skills/list", "profile/skills/registry/search",
     "profile/skills/install", "profile/skills/remove", "session/compact",
     "session/compact/mode/set",
+    // A10: the agent controls r1's open reply advertises (the Agents panel).
+    "agent/list", "agent/status/read", "agent/output/read", "agent/artifact/list",
+    "agent/artifact/read", "agent/interrupt", "agent/close",
 ];
 
 /// The reference-board fixture (the Stage-A setup/autonomy atlas prompts'
@@ -2922,16 +3192,44 @@ mod tests {
         assert!(m.missing.is_empty(), "{:?}", m.missing);
         assert!(m.dsl.contains("dlg_loops_lf_prompt := DesignInput"));
         assert!(m.dsl.contains("dlg_loops_lf_interval := DesignInput"));
-        assert!(m.dsl.contains("empty_text: \"Interval, e.g. 15m\""));
+        assert!(m.dsl.contains("empty_text: \"5m\"") && m.dsl.contains("text: \"Interval\""), "the web placeholder + label");
         assert!(m.dsl.contains("text: \"Run CI smoke\""));
         let got = events(&m);
         assert!(got.contains(&ACTION_FORM_SUBMIT.to_owned()), "{got:?}");
         assert!(got.contains(&ACTION_FORM_CANCEL.to_owned()), "{got:?}");
+        // A10: the three cadence segments route the mode switch.
+        for (mode, _) in LOOP_MODES {
+            assert!(got.contains(&format!("{ACTION_FORM_MODE}{mode}")), "{mode}: {got:?}");
+        }
         assert!(!got.iter().any(|e| e.starts_with("loop.")), "the form replaces the list");
         let mut refused = f.clone();
-        refused.error = Some("Type what the loop runs first.".into());
+        refused.error = Some(notice_for_refusal("loop.create[interval=\"90s0\"]").unwrap().to_owned());
         set_form(Some(refused));
-        assert!(lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap().dsl.contains("Type what the loop runs first."));
+        let dsl = lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap().dsl;
+        assert!(dsl.contains("Use a whole-number native interval such as 60s, 5m, or 2h (60 seconds to 24 hours)."));
+        // The seedless form is the web's default cadence (Maintenance): one
+        // optional prompt, no interval field.
+        let m0 = form_for("loop.create", "").unwrap();
+        assert_eq!(m0.mode.as_deref(), Some("maintenance"));
+        assert_eq!(m0.fields.len(), 1);
+        assert_eq!(
+            form_effect(&m0, &[String::new()]),
+            Some(au::Effect::LoopCreateMaintenance { prompt: String::new() })
+        );
+        let sp = loop_form("self_paced", "", "");
+        assert_eq!(
+            form_effect(&sp, &[" ".into()]),
+            Some(au::Effect::Unhandled("loop.create[empty]".into())),
+            "a self-paced loop needs a prompt"
+        );
+        let fx = loop_form("fixed", "check", "");
+        assert_eq!(fx.fields[1].2, "5m", "the web's draft interval");
+        assert_eq!(
+            form_effect(&fx, &["check".into(), "1.5h".into()]),
+            Some(au::Effect::Unhandled("loop.create[interval=\"1.5h\"]".into()))
+        );
+        assert_eq!(resolve("dialog.form_mode.fixed"), Effect::FormMode("fixed".into()));
+        assert_eq!(resolve("dialog.form_mode.weekly"), Effect::Unhandled("dialog.form_mode.weekly".into()));
         assert!(lower(Dialog::Loops, &ctx, 360.0, 776.0).unwrap().frame.0 <= 360.5, "the phone sheet");
         apply(&Effect::Close);
         assert!(pending_form().is_none(), "close drops the form");
@@ -3162,7 +3460,7 @@ mod tests {
         open(Dialog::Loops);
         set_notice(notice_for_refusal("loop.create[empty]").unwrap());
         let m = lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap();
-        assert!(m.dsl.contains("Type what the loop runs first."), "the notice renders");
+        assert!(m.dsl.contains("A prompt is required for self-paced and fixed-interval loops."), "the notice renders");
         let plain = {
             clear_notice();
             lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap()

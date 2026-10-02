@@ -759,6 +759,11 @@ pub enum Effect {
     /// fixed-interval one when the entry names an interval
     /// (`loop-creation.ts` `parseLoopCreationInterval`).
     LoopCreate { prompt: String, interval_seconds: Option<u64> },
+    /// A10 — `loop/create` in the native `/loop` default mode
+    /// (`LoopCreationControls.tsx` "Maintenance"): the prompt may be empty
+    /// (the server's maintenance prompt and cadence), sent as `prompt: ""`,
+    /// `mode: "maintenance"` (`loop-creation.integration.test.ts:96-98`).
+    LoopCreateMaintenance { prompt: String },
     LoopPause(String),
     LoopResume(String),
     LoopDelete(String),
@@ -781,7 +786,20 @@ pub fn resolve(action: &str, index: usize, value: Option<&str>, ctx: &Ctx<'_>) -
     // (the web renders these sections only when advertised —
     // AutonomyPanel.test.tsx "renders the goal section only when goal methods
     // are advertised").
-    let method_ok = match action {
+    if !action_advertised(action, ctx.store) {
+        return Effect::Unhandled(format!("{action}[not-advertised]"));
+    }
+    resolve_advertised(action, index, value)
+}
+
+/// The per-action gate [`resolve`] applies (each control needs its method
+/// AND its `coding.*` feature). A10: the form submits reuse it.
+pub fn action_advertised(action: &str, store: &Store) -> bool {
+    struct S<'a> {
+        store: &'a Store,
+    }
+    let ctx = S { store };
+    match action {
         "goal.refresh" | "goal.set" | "goal.clear" | "goal.pause" | "goal.resume" | "goal.stop" => {
             gated(ctx.store, "goal", "session/goal/get")
                 && gated(ctx.store, "goal", "session/goal/set")
@@ -792,13 +810,18 @@ pub fn resolve(action: &str, index: usize, value: Option<&str>, ctx: &Ctx<'_>) -
         // `capabilities.loopCreate` (AutonomyPanel.tsx LoopCreationControls
         // `enabled`): the create method AND the loop runtime feature.
         "loop.create" => gated(ctx.store, "loops", "loop/create"),
-        "monitors.refresh" | "monitor.pause" | "monitor.resume" | "monitor.delete"
-        | "monitor.create" => gated(ctx.store, "monitors", "monitor/list"),
+        "monitors.refresh" | "monitor.pause" | "monitor.resume" | "monitor.delete" => {
+            gated(ctx.store, "monitors", "monitor/list")
+        }
+        // A10: `capabilities.monitorCreate` — the CREATE method (the web's
+        // form renders only when monitor/create is advertised).
+        "monitor.create" => gated(ctx.store, "monitors", "monitor/create"),
         _ => false,
-    };
-    if !method_ok {
-        return Effect::Unhandled(format!("{action}[not-advertised]"));
     }
+}
+
+/// [`resolve`] past its gate. Pure.
+fn resolve_advertised(action: &str, index: usize, value: Option<&str>) -> Effect {
     match action {
         "goal.refresh" => Effect::RefreshGoal,
         "goal.set" => {
@@ -925,6 +948,7 @@ pub fn family_of(effect: &Effect) -> Option<&'static str> {
         }
         Effect::RefreshLists
         | Effect::LoopCreate { .. }
+        | Effect::LoopCreateMaintenance { .. }
         | Effect::LoopPause(_)
         | Effect::LoopResume(_)
         | Effect::LoopDelete(_)
@@ -951,10 +975,78 @@ pub async fn apply(effect: Effect, conv: &Conversation) -> Result<(), String> {
     let family = family_of(&effect);
     let epoch = conv.store.domains.autonomy.epoch();
     let out = apply_inner(effect, conv).await;
-    if let (Some(family), Err(message)) = (family, &out) {
-        record_family_error(conv, family, epoch, message);
+    match (family, &out) {
+        (Some(family), Err(message)) => record_family_error(conv, family, epoch, message),
+        // A10: a successful op clears its family's alert (the web's
+        // `#runGuarded` sets the error slot to null on an applied result) —
+        // only while the op stays authorized, like the record.
+        (Some(family), Ok(())) if conv.store.domains.autonomy.epoch_admits(epoch) => {
+            conv.store.domains.autonomy.clear_error(family);
+        }
+        _ => {}
     }
     out
+}
+
+/// A10 — the dialogs' close is the web store's `suspend()` (`use-autonomy.ts`
+/// effect lease, `store.ts:119-128`): every family's in-flight read is
+/// superseded (its revision moves), so a refresh that answers after the
+/// dialog closed never publishes, and a reopen starts its own refresh. The
+/// notification fold stays subscribed (it is the transport's, bound before
+/// any refresh), so nothing the server reports while closed is lost.
+pub fn suspend(store: &Store) {
+    for family in [FAMILY_GOAL, FAMILY_LOOPS, FAMILY_MONITORS, FAMILY_AGENTS] {
+        store.domains.autonomy.supersede_family(family);
+    }
+}
+
+/// A10 — the loop creation form (`LoopCreationControls.tsx` +
+/// `buildLoopCreationInput`, `loop-creation.ts:68-107`): the mode
+/// (`maintenance` | `self_paced` | `fixed`), the prompt and, for a fixed
+/// loop, the interval. Validation in the web's order; a refusal is
+/// `Unhandled` with the reason [`crate::screens::dialog::notice_for_refusal`]
+/// words.
+pub fn loop_form_effect(mode: &str, prompt: &str, interval: &str) -> Effect {
+    if !matches!(mode, "maintenance" | "self_paced" | "fixed") {
+        return Effect::Unhandled("loop.create[mode]".to_owned());
+    }
+    let prompt = prompt.trim();
+    if prompt.len() > LOOP_PROMPT_MAX_BYTES {
+        return Effect::Unhandled("loop.create[prompt-too-long]".to_owned());
+    }
+    if mode != "maintenance" && prompt.is_empty() {
+        return Effect::Unhandled("loop.create[empty]".to_owned());
+    }
+    match mode {
+        "maintenance" => Effect::LoopCreateMaintenance { prompt: prompt.to_owned() },
+        "self_paced" => Effect::LoopCreate { prompt: prompt.to_owned(), interval_seconds: None },
+        _ => match parse_loop_interval(interval) {
+            Some(seconds) => Effect::LoopCreate { prompt: prompt.to_owned(), interval_seconds: Some(seconds) },
+            None => Effect::Unhandled(format!("loop.create[interval={:?}]", interval.trim())),
+        },
+    }
+}
+
+/// A10 — the monitor creation form (`AutonomyPanel.tsx:431-482`,
+/// `parseArgvJsonInput` `model.ts:215-232`): a required name, the probe
+/// command as a JSON array of NON-EMPTY strings (no shell splitting, entries
+/// not trimmed), the optional filter regex sent untrimmed when not empty.
+pub fn monitor_form_effect(name: &str, argv: &str, filter: &str) -> Effect {
+    let name = name.trim();
+    if name.is_empty() {
+        return Effect::Unhandled("monitor.create[no-name]".to_owned());
+    }
+    let parsed = serde_json::from_str::<Vec<String>>(argv.trim())
+        .ok()
+        .filter(|v| !v.is_empty() && v.iter().all(|a| !a.is_empty()));
+    let Some(argv) = parsed else {
+        return Effect::Unhandled("monitor.create[argv]".to_owned());
+    };
+    Effect::MonitorCreate {
+        name: name.to_owned(),
+        argv,
+        filter_regex: (!filter.is_empty()).then(|| filter.to_owned()),
+    }
 }
 
 async fn apply_inner(effect: Effect, conv: &Conversation) -> Result<(), String> {
@@ -1099,6 +1191,20 @@ async fn apply_inner(effect: Effect, conv: &Conversation) -> Result<(), String> 
             fold_loop_reply(&result, false);
             Ok(())
         }
+        Effect::LoopCreateMaintenance { prompt } => {
+            let params = json!({
+                "prompt": prompt,
+                "session_id": conv.session_id(),
+                "mode": "maintenance",
+            });
+            let result = client
+                .request("loop/create", params)
+                .await
+                .map_err(|e| e.to_string())?;
+            record(conv, "loop/create", result["loop"]["loop_id"].as_str());
+            fold_loop_reply(&result, false);
+            Ok(())
+        }
         Effect::LoopPause(id) => control(conv, "loop/pause", "loop_id", &id).await,
         Effect::LoopResume(id) => control(conv, "loop/resume", "loop_id", &id).await,
         Effect::LoopDelete(id) => control(conv, "loop/delete", "loop_id", &id).await,
@@ -1111,19 +1217,16 @@ async fn apply_inner(effect: Effect, conv: &Conversation) -> Result<(), String> 
             argv,
             filter_regex,
         } => {
-            // The recorded create body (c24b-subagent-a6ea8505.jsonl): poll
-            // mode + argv array + optional filter_regex.
+            // A10 — the web's wire (`buildMonitorCreateParams`,
+            // packages/client/src/autonomy.ts:1032-1089): `{session_id,
+            // name, argv, filter_regex?, mode: "poll"}` — no interval (the
+            // form never sets one) and no explicit nulls (the earlier body
+            // copied the c24b recording's tooling fields).
             let mut params = json!({
+                "session_id": conv.session_id(),
                 "name": name,
                 "argv": argv,
                 "mode": "poll",
-                "interval_seconds": 1,
-                "batch_ms": Value::Null,
-                "goal_id": Value::Null,
-                "max_events_per_hour": Value::Null,
-                "persistent": Value::Null,
-                "timeout_secs": Value::Null,
-                "session_id": conv.session_id(),
             });
             if let Some(filter) = filter_regex {
                 params["filter_regex"] = json!(filter);
@@ -1133,6 +1236,8 @@ async fn apply_inner(effect: Effect, conv: &Conversation) -> Result<(), String> 
                 .await
                 .map_err(|e| e.to_string())?;
             record(conv, "monitor/create", result["monitor"]["monitor_id"].as_str());
+            // The web upserts the created record (`store.ts:669-697`).
+            fold_monitor_reply(&result, false);
             Ok(())
         }
         Effect::Unhandled(id) => {

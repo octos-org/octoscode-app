@@ -1,16 +1,68 @@
 [
- {"feature": "autonomy", "capability_prefix": "Agent roster: list agents by id", "bucket": "A",
-  "evidence": "A10: crates/octoscode-module/src/screens/board3/agents.rs:309 load (agent/list {session_id}, no profile_id; exact envelope echo; sessionControlsTarget filter) -> octoscode-store domains/autonomy.rs:241 set_agents / :268 agents (server order); panel build agents.rs:634; opened by the /agents palette row (palette.rs /agents -> compose:/agents -> board3/host.rs command 'agents'); test crates/octoscode-module/tests/a10_agents.rs::the_roster_loads_the_recorded_agent_list_without_a_profile_scope (recorded c24b agent/list + r1 open); walk tools/walk/a10_agents.py step 1 desktop+phone 24/24 (docs/ux/a10/agents/{desktop,phone}/01-roster-*.png, replay log agent/list x1)"},
- {"feature": "autonomy", "capability_prefix": "Agent: read status detail", "bucket": "A",
-  "evidence": "A10: agents.rs:352 read_status (agent/status/read {agent_id, session_id}; echoed agent must match) into the store's single detail viewer (domains/autonomy.rs:560 begin_agent_detail / :581 finish_agent_detail: newest ticket + epoch + agents revision); tests a10_agents.rs::the_detail_and_output_viewers_fold_the_replies, ::a_superseded_detail_read_never_repaints (late A status dropped after B; a read captured before an applied close cannot repaint); walk step 2 'Read status' CLICK -> 'Status — <id>' card (desktop+phone)"},
- {"feature": "autonomy", "capability_prefix": "Agent: read output with load-more", "bucket": "A",
-  "evidence": "A10: agents.rs:374 read_output (agent/output/read, no limit; load-more sends the viewer's next_cursor for the same agent only) -> domains/autonomy.rs:599 begin_agent_output / :621 finish_agent_output (newest ticket, echoed agent, append on load-more with an echoed cursor); test a10_agents.rs::the_detail_and_output_viewers_fold_the_replies (cursor {offset:61} on the second read, text appended, Load more gone); faithful a10-agents-faithful.jsonl (no recording carries has_more=true); walk step 4 Read output + Load more CLICKs (replay agent/output/read x2)"},
- {"feature": "autonomy", "capability_prefix": "Agent: list artifacts", "bucket": "A",
-  "evidence": "A10: agents.rs:413 list_artifacts (agent/artifact/list) into the shared detail viewer (replaces the status card); test a10_agents.rs::the_detail_and_output_viewers_fold_the_replies; walk step 3 'List artifacts' CLICK -> 'Artifacts — <id>' card with 'Result — text · ready' (desktop+phone)"},
- {"feature": "autonomy", "capability_prefix": "Agent: read artifact by id or path", "bucket": "A",
-  "evidence": "A10: agents.rs:436 read_artifact (exactly one selector, artifact_id OR path; the echoed artifact must be the requested one; content shown as inert text, null -> 'No readable content available.'); test a10_agents.rs::the_detail_and_output_viewers_fold_the_replies (by id from the artifacts row, then by path from the by-ID form: the other selector absent) + ::a_superseded_detail_read_never_repaints; walk step 3 'Read artifact' CLICK -> 'Artifact — <id> / artifact-1' with '<script>' rendered as text"},
- {"feature": "autonomy", "capability_prefix": "Agent: interrupt / close controls", "bucket": "A",
-  "evidence": "A10: agents.rs:477 control (agent/interrupt | agent/close; receipt ok + status = the requested transition + consistent booleans) with the double-submit guard domains/autonomy.rs:656 begin_agent_control / :670 finish_agent_control (row status + activity 'Agent <id> <status>', agents revision bump); disabled while pending/terminal; test a10_agents.rs::interrupt_and_close_apply_the_receipt_and_guard_double_submission (recorded c24b interrupt receipt, faithful close receipt; exactly one frame); walk steps 5-6 (row Interrupt agent CLICK; by-ID Close agent CLICK)"},
- {"feature": "autonomy", "capability_prefix": "Spawn parallel agents as an idle-only ordinary turn", "bucket": "A",
-  "evidence": "A10: agents.rs:152 compose_spawn ('Spawn N agent(s) to accomplish in parallel: <task>', 1..u32::MAX) + agents.rs:509 spawn (admission: live session, idle, turn/start + agent/list advertised) -> conv.start_turn_with_media (an ordinary turn/start, never an agent RPC); the button is gated live (agents.rs:186 visibility); test a10_agents.rs::the_spawn_is_an_idle_only_ordinary_turn (busy -> refused, nothing sent; idle -> one turn/start with the composed text, task cleared, count kept); walk step 7 'Request parallel agents' CLICK (replay turn/start x1)"}
+ {
+  "feature": "autonomy",
+  "capability_prefix": "Agent roster: list agents by id",
+  "bucket": "A",
+  "evidence": "A10: crates/octoscode-module/src/screens/board3/agents.rs:309 load (agent/list {session_id}, no profile_id; exact envelope echo; sessionControlsTarget filter) -> octoscode-store domains/autonomy.rs:241 set_agents / :268 agents (server order); panel build agents.rs:634; opened by the /agents palette row (palette.rs /agents -> compose:/agents -> board3/host.rs command 'agents'); test crates/octoscode-module/tests/a10_agents.rs::the_roster_loads_the_recorded_agent_list_without_a_profile_scope (recorded c24b agent/list + r1 open); walk tools/walk/a10_agents.py step 1 desktop+phone 24/24 (docs/ux/a10/agents/{desktop,phone}/01-roster-*.png, replay log agent/list x1)"
+ },
+ {
+  "feature": "autonomy",
+  "capability_prefix": "Agent: read status detail",
+  "bucket": "A",
+  "evidence": "A10: agents.rs:352 read_status (agent/status/read {agent_id, session_id}; echoed agent must match) into the store's single detail viewer (domains/autonomy.rs:560 begin_agent_detail / :581 finish_agent_detail: newest ticket + epoch + agents revision); tests a10_agents.rs::the_detail_and_output_viewers_fold_the_replies, ::a_superseded_detail_read_never_repaints (late A status dropped after B; a read captured before an applied close cannot repaint); walk step 2 'Read status' CLICK -> 'Status — <id>' card (desktop+phone)"
+ },
+ {
+  "feature": "autonomy",
+  "capability_prefix": "Agent: read output with load-more",
+  "bucket": "A",
+  "evidence": "A10: agents.rs:374 read_output (agent/output/read, no limit; load-more sends the viewer's next_cursor for the same agent only) -> domains/autonomy.rs:599 begin_agent_output / :621 finish_agent_output (newest ticket, echoed agent, append on load-more with an echoed cursor); test a10_agents.rs::the_detail_and_output_viewers_fold_the_replies (cursor {offset:61} on the second read, text appended, Load more gone); faithful a10-agents-faithful.jsonl (no recording carries has_more=true); walk step 4 Read output + Load more CLICKs (replay agent/output/read x2)"
+ },
+ {
+  "feature": "autonomy",
+  "capability_prefix": "Agent: list artifacts",
+  "bucket": "A",
+  "evidence": "A10: agents.rs:413 list_artifacts (agent/artifact/list) into the shared detail viewer (replaces the status card); test a10_agents.rs::the_detail_and_output_viewers_fold_the_replies; walk step 3 'List artifacts' CLICK -> 'Artifacts — <id>' card with 'Result — text · ready' (desktop+phone)"
+ },
+ {
+  "feature": "autonomy",
+  "capability_prefix": "Agent: read artifact by id or path",
+  "bucket": "A",
+  "evidence": "A10: agents.rs:436 read_artifact (exactly one selector, artifact_id OR path; the echoed artifact must be the requested one; content shown as inert text, null -> 'No readable content available.'); test a10_agents.rs::the_detail_and_output_viewers_fold_the_replies (by id from the artifacts row, then by path from the by-ID form: the other selector absent) + ::a_superseded_detail_read_never_repaints; walk step 3 'Read artifact' CLICK -> 'Artifact — <id> / artifact-1' with '<script>' rendered as text"
+ },
+ {
+  "feature": "autonomy",
+  "capability_prefix": "Agent: interrupt / close controls",
+  "bucket": "A",
+  "evidence": "A10: agents.rs:477 control (agent/interrupt | agent/close; receipt ok + status = the requested transition + consistent booleans) with the double-submit guard domains/autonomy.rs:656 begin_agent_control / :670 finish_agent_control (row status + activity 'Agent <id> <status>', agents revision bump); disabled while pending/terminal; test a10_agents.rs::interrupt_and_close_apply_the_receipt_and_guard_double_submission (recorded c24b interrupt receipt, faithful close receipt; exactly one frame); walk steps 5-6 (row Interrupt agent CLICK; by-ID Close agent CLICK)"
+ },
+ {
+  "feature": "autonomy",
+  "capability_prefix": "Spawn parallel agents as an idle-only ordinary turn",
+  "bucket": "A",
+  "evidence": "A10: agents.rs:152 compose_spawn ('Spawn N agent(s) to accomplish in parallel: <task>', 1..u32::MAX) + agents.rs:509 spawn (admission: live session, idle, turn/start + agent/list advertised) -> conv.start_turn_with_media (an ordinary turn/start, never an agent RPC); the button is gated live (agents.rs:186 visibility); test a10_agents.rs::the_spawn_is_an_idle_only_ordinary_turn (busy -> refused, nothing sent; idle -> one turn/start with the composed text, task cleared, count kept); walk step 7 'Request parallel agents' CLICK (replay turn/start x1)"
+ },
+ {
+  "feature": "autonomy",
+  "capability_prefix": "Loop creation: maintenance / self-paced / fixed-interval",
+  "bucket": "A",
+  "evidence": "A10: the Loops dialog form with the web cadence selector (Maintenance default / Self-paced / Fixed interval, LoopCreationControls.tsx:81-149): dialog.rs:275 loop_form (per-mode fields, placeholders, hints, note) + :383 form_effect -> autonomy.rs:1009 loop_form_effect (the web order: mode, 8192-byte prompt, prompt required unless maintenance, native interval grammar 60s..24h) -> autonomy.rs:1194 LoopCreateMaintenance {prompt:\"\", mode:\"maintenance\"} / LoopCreate self_paced|fixed_interval; mode switch lib.rs:2246 keeps typed values; test crates/octoscode-module/tests/a10_autonomy.rs::the_loop_form_sends_each_cadence_with_the_webs_body (exact wire bodies, refusals send nothing; faithful maintenance reply a10-autonomy-faithful.jsonl); walk tools/walk/a10_autonomy.py steps 1 desktop+phone 19/19 (segment CLICKs, refusal on the form, Create -> loop/create x1, the server maintenance row)"
+ },
+ {
+  "feature": "autonomy",
+  "capability_prefix": "Monitor creation: name + argv JSON array",
+  "bucket": "A",
+  "evidence": "A10: the Monitors dialog + New monitor control (dialog.rs:1602 new_monitor_button, gated on monitor/create) -> the create form (Name / Command / Filter regex (optional), the web placeholders) -> autonomy.rs:1034 monitor_form_effect (parseArgvJsonInput: a JSON array of non-empty strings, no shell split; regex sent untrimmed when non-empty) -> autonomy.rs:1215 the web body {session_id, name, argv, filter_regex?, mode:\"poll\"} (no interval, no nulls) + the reply folded; test a10_autonomy.rs::the_monitor_form_creates_and_a_refusal_is_the_dialogs_alert (+ f30b_autonomy.rs::monitor_create_parses_and_matches_the_recorded_body updated to the web key set); walk a10_autonomy.py step 2 (+ New monitor CLICK, typed fields, Create -> created row; replay monitor/create x2)"
+ },
+ {
+  "feature": "autonomy",
+  "capability_prefix": "Notification subscription bound before refresh",
+  "bucket": "A",
+  "evidence": "A10: the native binding is the transport notification fold (bound at connect, before any dialog refresh; autonomy.rs note_transport_event) plus the dialog close = the web store suspend: lib.rs:2163 calls autonomy.rs:997 suspend (every family revision moves) so a refresh still in flight when the dialog closes never publishes, and only a reopen refresh applies (irreversible: a superseded revision never becomes current again); test a10_autonomy.rs::a_closed_dialogs_late_reply_never_publishes_and_a_stale_error_is_dropped (300 ms delayed loop/list answered after suspend -> nothing published; reopen applies); walk a10_autonomy.py closes and reopens the autonomy dialogs by CLICK"
+ },
+ {
+  "feature": "autonomy",
+  "capability_prefix": "Error surfacing under role=alert",
+  "bucket": "A",
+  "evidence": "A10: autonomy.rs:974 apply records the family error only while the epoch admits it and CLEARS it on a successful op (the web #runGuarded null-on-success); dialog.rs:2295 family_error -> :652 append_notice renders it as the dialog alert line (red) with the server message as the web shows it (dialog.rs:730 display_error: transport wrapper dropped, whitespace collapsed; wrapped, never clipped); test a10_autonomy.rs::the_monitor_form_creates_and_a_refusal_is_the_dialogs_alert (server monitor_invalid_spec refusal -> alert; corrected create -> alert cleared) + ::a_closed_dialogs_late_reply_never_publishes_and_a_stale_error_is_dropped (a failure answering after the identity moved is not recorded); walk a10_autonomy.py step 2 (docs/ux/a10/autonomy/*/06-monitor-alert-*.png)"
+ }
 ]
