@@ -526,7 +526,24 @@ async fn migrate(conv: &std::sync::Arc<crate::flow::Conversation>, cwd: Option<S
         return Started::Failed(e);
     }
     match tokio::time::timeout(OPEN_WAIT, outcome).await {
-        Ok(Ok(Ok(id))) => Started::Migrated(id),
+        Ok(Ok(Ok(id))) => {
+            // A folder-less open is the previous build's landing, but Core
+            // only finds the Session for `session/hydrate` once it is opened
+            // IN its workspace (measured live: "unknown session" after the
+            // folder-less open, the history after one with the reported
+            // root): reopen it there once — what every later restore does —
+            // so the first launch after the upgrade shows its history too.
+            if cwd.is_none() {
+                let root = conv.store.domains.session.workspace_root(&id).filter(|r| !r.trim().is_empty());
+                if let Some(root) = root {
+                    let again = conv.watch_next_open();
+                    if conv.open_session(&id, Some(root)).await.is_ok() {
+                        let _ = tokio::time::timeout(OPEN_WAIT, again).await;
+                    }
+                }
+            }
+            Started::Migrated(id)
+        }
         Ok(Ok(Err(reason))) => {
             makepad_widgets::log!("[octoscode] migration refused ({reason}): a fresh launch");
             conv.adopt_profile(String::new());

@@ -574,9 +574,12 @@ async fn the_one_time_migration_reopens_the_previous_builds_landing() {
     assert_eq!(r, Started::Migrated("dsflash:main".into()));
     assert_eq!(server.http(), vec!["POST /api/auth/solo".to_owned(), "GET /api/admin/profiles".to_owned()]);
     let opens = server.params_of("session/open");
-    assert_eq!(opens.len(), 1);
+    assert_eq!(opens.len(), 2, "the landing, then once more in its workspace");
     assert_eq!((opens[0]["session_id"].clone(), opens[0]["profile_id"].clone()), (json!("dsflash:main"), json!("dsflash")));
     assert!(opens[0]["cwd"].is_null(), "the previous build's open: no folder");
+    // Core hydrates a Session only when it is opened in its workspace (live:
+    // "unknown session" after the folder-less open): the reported root.
+    assert_eq!((opens[1]["session_id"].clone(), opens[1]["cwd"].clone()), (json!("dsflash:main"), json!(SERVER_CWD)));
     assert!(server.params_of("launch/resolve").is_empty());
     assert_nothing_created(&server);
     until("the open is remembered", || remembered::load(&server.base_url).is_some()).await;

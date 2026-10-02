@@ -235,6 +235,16 @@ def phase_fresh(w: a10_lib.Walk, tr: str, _prompt: str) -> None:
         w.check(f"wire after filling: still no {m}", not frames(rows, "out", m))
 
 
+def in_timeline(w: a10_lib.Walk, needle: str) -> bool:
+    """The prompt as a user bubble IN the conversation (`i<n>_userbubble_<k>`),
+    not the header's or the sidebar's Session title."""
+    return any(
+        "_userbubble_" in str(x.get("i", "")) and needle in (x.get("t") or "")
+        for x in w.snap()
+        if w.shown(x)
+    )
+
+
 def wait_live(w: a10_lib.Walk, secs: float = 40) -> bool:
     return w.wait(lambda: w.composer() is not None and not w.visible("b3_dialog"), secs)
 
@@ -288,7 +298,7 @@ def phase_restore(w: a10_lib.Walk, tr: str, prompt: str) -> None:
             scrub(json.dumps(opens[:1])))
     w.check("wire: nothing created", not frames(rows, "out", "profile/local/create"))
     if prompt:
-        w.check("its history is on screen (the earlier prompt)", w.wait(lambda: w.has_text(prompt[:40]), 20))
+        w.check("its history is in the conversation (the earlier prompt's bubble)", w.wait(lambda: in_timeline(w, prompt[:40]), 20))
     shot(w, f"01-restored-{w.mode}")
 
 
@@ -303,7 +313,7 @@ def phase_restore_turn(w: a10_lib.Walk, tr: str, prompt: str) -> None:
     shot(w, f"02-restored-answer-{w.mode}")
 
 
-def phase_migrate(w: a10_lib.Walk, tr: str, _prompt: str) -> None:
+def phase_migrate(w: a10_lib.Walk, tr: str, prompt: str) -> None:
     w.check("the first connect after the upgrade lands in a Session", wait_live(w))
     rows = trace(tr)
     opens = frames(rows, "out", "session/open")
@@ -312,6 +322,9 @@ def phase_migrate(w: a10_lib.Walk, tr: str, _prompt: str) -> None:
             len(opens) >= 1 and str(opens[0].get("session_id", "")).endswith(":main")
             and opens[0].get("session_id") == f"{opens[0].get('profile_id')}:main", scrub(json.dumps(opens[:1])))
     w.check("wire: nothing created", not frames(rows, "out", "profile/local/create"))
+    if prompt:
+        # The Session's existing history (a turn an earlier run left in it).
+        w.check("its history is in the conversation (the earlier prompt's bubble)", w.wait(lambda: in_timeline(w, prompt[:40]), 20))
     shot(w, f"01-migrated-{w.mode}")
 
 
