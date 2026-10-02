@@ -615,6 +615,51 @@ pub async fn perform(
 mod tests {
     use super::*;
 
+    /// A7 — the store's roster as `peer/staged` folds it (`observe_staged`).
+    fn roster() -> Store {
+        let store = Store::new();
+        for slug in ["review", "audit"] {
+            store.domains.peer.observe_staged(Peer {
+                topic: Some(format!("peer-{slug}")),
+                profile_id: Some("dev".into()),
+                origin_session_id: Some("dev:main".into()),
+                ..Peer::named(slug)
+            });
+        }
+        store
+    }
+
+    // peer-readonly.test.ts:14 "names the peer whose native session id is in
+    // the roster"
+    #[test]
+    fn the_read_only_row_names_the_peer_whose_session_is_in_the_roster() {
+        let store = roster();
+        assert_eq!(readonly_slug(&store, "dev:local:tui#peer-audit").as_deref(), Some("audit"));
+        assert_eq!(readonly_slug(&store, "dev:local:tui#peer-review").as_deref(), Some("review"));
+    }
+
+    // :19 "returns null for an ordinary session id, an empty roster, or no
+    // focus" + a closed peer no longer counts
+    #[test]
+    fn no_row_for_an_ordinary_session_an_empty_roster_or_no_focus() {
+        let store = roster();
+        assert_eq!(readonly_slug(&store, "dev:local:tui#ordinary"), None);
+        assert_eq!(readonly_slug(&Store::new(), "dev:local:tui#peer-review"), None);
+        assert_eq!(readonly_slug(&store, ""), None);
+        store.domains.peer.mark_closed("audit");
+        assert_eq!(readonly_slug(&store, "dev:local:tui#peer-audit"), None, "a closed peer is not open");
+    }
+
+    // :27 "never matches a merely peer-prefixed identity outside the exact
+    // roster"
+    #[test]
+    fn a_peer_prefixed_identity_outside_the_roster_never_matches() {
+        let store = roster();
+        assert_eq!(readonly_slug(&store, "dev:local:tui#peer-review-evil"), None);
+        assert_eq!(peer_identity_for_topic("dev", "review"), None, "a topic must be peer-<slug>");
+        assert_eq!(peer_identity_for_topic("a:b", "peer-x"), None, "a profile carries no ':'");
+    }
+
     fn entry(name: &str, state: PeerRowState) -> PeerRosterEntry {
         PeerRosterEntry {
             peer: Peer::named(name),
