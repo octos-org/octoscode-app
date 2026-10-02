@@ -286,9 +286,16 @@ def main():
 
     # 5. Fold and unfold (region 5b).
     w.check("CLICK the chevron", w.click("btw_aside_toggle_hit"))
-    w.check("folded: one row (› Aside — /btw · question · Answered · Close)",
-            w.wait(lambda: not w.visible("btw_aside_body") and w.text("btw_aside_state") == "Answered", 4),
-            repr(w.text("btw_aside_state")))
+    if w.mode == "phone":
+        # A 336 px card: "Answered" yields its room to the question.
+        w.check("folded: one row (› Aside — /btw · question · Close; the question keeps >= 60 px)",
+                w.wait(lambda: not w.visible("btw_aside_body") and not w.visible("btw_aside_state")
+                       and (w.rect("btw_aside_question") or [0, 0, 0, 0])[2] >= 60, 4),
+                f"question={w.rect('btw_aside_question')}")
+    else:
+        w.check("folded: one row (› Aside — /btw · question · Answered · Close)",
+                w.wait(lambda: not w.visible("btw_aside_body") and w.text("btw_aside_state") == "Answered", 4),
+                repr(w.text("btw_aside_state")))
     fr = w.rect("btw_aside")
     w.check("folded: the row is one line tall (<= 52 px)", bool(fr) and fr[3] <= 52, f"{fr}")
     panel_checks(w, "folded")

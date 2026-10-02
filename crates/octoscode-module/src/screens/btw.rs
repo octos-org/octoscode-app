@@ -147,13 +147,28 @@ pub fn panel(v: &PanelView, m: &Metrics, window_h: f64) -> String {
     let title = label("btw_aside_title", tr("Aside — /btw"), &title_style, INK, "width: Fit height: Fit");
     if v.aside.collapsed {
         // Region 5b: › Aside — /btw · the question (one line) · state · Close.
+        // A phone's 336 px card keeps the question readable: "Answered" (the
+        // quiet state) yields its room there; Answering… and Failed stay.
         let (word, word_color) = state_word(&v.aside.state);
+        let phone = m.density == crate::conv_layout::Density::Phone;
+        let gap = if phone { 8.0 } else { 10.0 };
+        let word = if phone && matches!(v.aside.state, AsideState::Answered { .. }) {
+            String::new()
+        } else {
+            label(
+                "btw_aside_state",
+                word,
+                &style(Face::Regular, s.small, s.small_line),
+                word_color,
+                "width: Fit height: Fit",
+            )
+        };
         return format!(
             "btw_aside := RoundedView{{width: Fill height: Fit flow: Right align: Align{{y: 0.5}} spacing: 8 \
              padding: Inset{{left: 8 right: 10 top: 6 bottom: 6}}\n\
              draw_bg +: {{color: {SURFACE} border_radius: 12.0 border_size: 1.0 border_color: {BORDER}}}\n\
              btw_aside_toggle := View{{width: Fill height: {HEAD_H} flow: Overlay\n\
-             View{{width: Fill height: Fill flow: Right align: Align{{y: 0.5}} spacing: 10 padding: Inset{{left: 4 right: 4}}\n\
+             View{{width: Fill height: Fill flow: Right align: Align{{y: 0.5}} spacing: {gap} padding: Inset{{left: 4 right: 4}}\n\
              {chev}{title}{question}{word}}}\n\
              {toggle}}}\n\
              {close}}}\n",
@@ -164,13 +179,6 @@ pub fn panel(v: &PanelView, m: &Metrics, window_h: f64) -> String {
                 &style(Face::Regular, s.small, s.small_line),
                 MUTED,
                 "width: Fill height: Fit max_lines: 1 text_overflow: TextOverflow.Ellipsis",
-            ),
-            word = label(
-                "btw_aside_state",
-                word,
-                &style(Face::Regular, s.small, s.small_line),
-                word_color,
-                "width: Fit height: Fit",
             ),
             toggle = hit("btw_aside_toggle_hit", 8.0),
             close = close_pill(m),
