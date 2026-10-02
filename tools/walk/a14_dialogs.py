@@ -20,9 +20,12 @@ measured from /snap:
   the header's far right).
 
 usage: OCTOSCODE_APP_BIN=<host octosense> [A10_PORT=8427 A10_REPLAY_PORT=8439] \
-       a14_dialogs.py <desktop|phone> <outdir> [--before]
+       a14_dialogs.py <desktop|phone> <outdir> [--before] [--seeded]
 `--before` measures an older build: the A14-only checks are reported, not
-gated.
+gated. `--seeded` opens the dialogs on the A5 reference-board fixture instead
+(OCTOSCODE_SYNTHETIC_LIVE=1 OCTOSCODE_DIALOG_SEED=1, no server): populated
+states — a running task WITH output (the caret after its last line), three
+peers, installed + registry skills, a goal with a budget, three providers.
 """
 import json
 import sys
@@ -33,6 +36,7 @@ from a10_lib import Walk, checks_line, dialog_checks, run_session
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a14/after-{MODE}"
 BEFORE = "--before" in sys.argv
+SEEDED = "--seeded" in sys.argv
 VP = "dialog_scroll"
 W: Walk = None  # set by walk()
 ROWS: list[dict] = []
@@ -219,9 +223,12 @@ def walk(w: Walk) -> None:
         W.check(f"{dialog}: the {row} palette row CLICK opens the dialog", ok)
         if not ok:
             continue
-        judge(dialog, "open", f"dlg_{dialog}_")
+        judge(dialog, "seeded" if SEEDED else "open", f"dlg_{dialog}_")
         if dialog == "tasks":
             tasks_checks()
+        if SEEDED:
+            close_dialog()
+            continue
         if dialog == "skills":
             skills_checks()
             # Review installation -> the confirm card.
@@ -247,9 +254,13 @@ def walk(w: Walk) -> None:
                 W.click("dlg_monitors_ff_cancel_control")
                 time.sleep(0.8)
         close_dialog()
-    fleet_pane()
+    if not SEEDED:
+        fleet_pane()
     (W.out / "rows.json").write_text(json.dumps(ROWS, indent=1))
 
 
 if __name__ == "__main__":
+    if SEEDED:
+        sys.exit(run_session(walk, mode=MODE, outdir=OUT, replay_port=None,
+                             env={"OCTOSCODE_SYNTHETIC_LIVE": "1", "OCTOSCODE_DIALOG_SEED": "1"}))
     sys.exit(run_session(walk, mode=MODE, outdir=OUT, scenario="screens"))

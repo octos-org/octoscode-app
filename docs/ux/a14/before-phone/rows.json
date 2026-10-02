@@ -1,0 +1,380 @@
+[
+ {
+  "dialog": "tasks",
+  "state": "open",
+  "mode": "phone",
+  "png": "tasks-open-phone.png",
+  "frame": [
+   0,
+   74,
+   360,
+   776
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   32,
+   31
+  ],
+  "labels": 8,
+  "outside": [],
+  "overlaps": [],
+  "controls": 2,
+  "under28": [],
+  "title_h": null,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 48,
+  "ok": true
+ },
+ {
+  "dialog": "skills",
+  "state": "open",
+  "mode": "phone",
+  "png": "skills-open-phone.png",
+  "frame": [
+   0,
+   74,
+   360,
+   776
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   34,
+   17
+  ],
+  "labels": 8,
+  "outside": [],
+  "overlaps": [],
+  "controls": 2,
+  "under28": [],
+  "title_h": 24,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": null,
+  "ok": true
+ },
+ {
+  "dialog": "skills",
+  "state": "confirm",
+  "mode": "phone",
+  "png": "skills-confirm-phone.png",
+  "frame": [
+   0,
+   74,
+   360,
+   776
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   19,
+   19
+  ],
+  "labels": 5,
+  "outside": [],
+  "overlaps": [],
+  "controls": 3,
+  "under28": [],
+  "title_h": 27,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": null,
+  "ok": true
+ },
+ {
+  "dialog": "goal",
+  "state": "open",
+  "mode": "phone",
+  "png": "goal-open-phone.png",
+  "frame": [
+   0,
+   74,
+   360,
+   776
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   34,
+   33
+  ],
+  "labels": 10,
+  "outside": [],
+  "overlaps": [],
+  "controls": 4,
+  "under28": [],
+  "title_h": null,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 48,
+  "ok": true
+ },
+ {
+  "dialog": "loops",
+  "state": "open",
+  "mode": "phone",
+  "png": "loops-open-phone.png",
+  "frame": [
+   0,
+   74,
+   360,
+   776
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   27,
+   30
+  ],
+  "labels": 4,
+  "outside": [],
+  "overlaps": [],
+  "controls": 5,
+  "under28": [],
+  "title_h": 24,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": null,
+  "ok": true
+ },
+ {
+  "dialog": "loops",
+  "state": "form",
+  "mode": "phone",
+  "png": "loops-form-phone.png",
+  "frame": [
+   0,
+   74,
+   360,
+   776
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   19,
+   19
+  ],
+  "labels": 9,
+  "outside": [],
+  "overlaps": [],
+  "controls": 6,
+  "under28": [],
+  "title_h": 24,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": null,
+  "ok": true
+ },
+ {
+  "dialog": "monitors",
+  "state": "open",
+  "mode": "phone",
+  "png": "monitors-open-phone.png",
+  "frame": [
+   0,
+   74,
+   360,
+   776
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   23,
+   33
+  ],
+  "labels": 6,
+  "outside": [],
+  "overlaps": [],
+  "controls": 4,
+  "under28": [],
+  "title_h": 22,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": null,
+  "ok": true
+ },
+ {
+  "dialog": "monitors",
+  "state": "form",
+  "mode": "phone",
+  "png": "monitors-form-phone.png",
+  "frame": [
+   0,
+   74,
+   360,
+   776
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   19,
+   19
+  ],
+  "labels": 7,
+  "outside": [],
+  "overlaps": [],
+  "controls": 3,
+  "under28": [],
+  "title_h": 25,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": null,
+  "ok": true
+ },
+ {
+  "dialog": "models",
+  "state": "open",
+  "mode": "phone",
+  "png": "models-open-phone.png",
+  "frame": [
+   0,
+   74,
+   360,
+   776
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   26,
+   20
+  ],
+  "labels": 7,
+  "outside": [],
+  "overlaps": [],
+  "controls": 4,
+  "under28": [],
+  "title_h": 25,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 44,
+  "ok": true
+ },
+ {
+  "dialog": "review",
+  "state": "open",
+  "mode": "phone",
+  "png": "review-open-phone.png",
+  "frame": [
+   0,
+   74,
+   360,
+   776
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   18,
+   17
+  ],
+  "labels": 7,
+  "outside": [],
+  "overlaps": [],
+  "controls": 2,
+  "under28": [],
+  "title_h": 20,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": null,
+  "ok": true
+ },
+ {
+  "dialog": "context",
+  "state": "open",
+  "mode": "phone",
+  "png": "context-open-phone.png",
+  "frame": [
+   0,
+   74,
+   360,
+   776
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   20,
+   20
+  ],
+  "labels": 13,
+  "outside": [],
+  "overlaps": [],
+  "controls": 4,
+  "under28": [],
+  "title_h": 27,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": 55,
+  "ok": true
+ },
+ {
+  "dialog": "fleet",
+  "state": "open",
+  "mode": "phone",
+  "png": "fleet-open-phone.png",
+  "frame": [
+   0,
+   74,
+   360,
+   776
+  ],
+  "centre_dx": 0.0,
+  "margins": [
+   30,
+   36
+  ],
+  "labels": 2,
+  "outside": [],
+  "overlaps": [],
+  "controls": 1,
+  "under28": [],
+  "title_h": 29,
+  "close": [
+   28,
+   28
+  ],
+  "min_hit": 28,
+  "max_pill_h": null,
+  "ok": true
+ },
+ {
+  "dialog": "fleet-pane",
+  "state": "empty",
+  "mode": "phone",
+  "png": "fleet-pane-empty-phone.png",
+  "line": [
+   157,
+   100,
+   73,
+   15
+  ],
+  "col": [
+   16,
+   90,
+   328,
+   97
+  ]
+ }
+]

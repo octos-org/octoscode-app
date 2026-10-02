@@ -1,0 +1,300 @@
+== 1. /loop -> + New loop: the form on the default cadence (Maintenance)
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'loo'
+CLICK palette_row_name '/loop' r=[286, 252, 48, 28]
+PASS loops: /loop palette CLICK opens the dialog
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:3300:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4103:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3398:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4103:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3726:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:3300:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 1 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 4 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5353:25 - [octoscode] palette row 0 clicked
+    log: [I] apps/octoscode/module/src/lib.rs:2571:17 - [octoscode] palette run /loop -> dialog.open.loops
+    log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.open.loops
+    log: [I] apps/octoscode/module/src/screens/autonomy.rs:1420:23 - [octoscode] autonomy action done: RefreshLists
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog loops mounted: frame 600x570 scale 1.000, 5 tap(s)
+CLICK dlg_loops_new_loop_control r=[269, 425, 73, 28] at (306,439)
+    log: [I] apps/octoscode/module/src/lib.rs:5283:25 - [octoscode] dialog tap: dialog.form.loop.create
+    log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.form.loop.create
+    log: [I] apps/octoscode/module/src/lib.rs:2455:17 - [octoscode] dialog form opened: loop.create (true)
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog loops mounted: frame 520x570 scale 1.000, 6 tap(s)
+PASS loops: + New loop CLICK -> the cadence form, Maintenance selected
+PASS loop form (maintenance): dialog numeric checks — frame=520x330 centre_dx=0.0 margins L=20 R=20 labels=10 outside=0 overlaps=0 controls=3 under28=0
+SHOT 01-loop-form-maintenance-desktop
+CLICK dlg_loops_fm_seg_fixed_control r=[622, 292, 153, 28] at (698,306)
+    log: [I] apps/octoscode/module/src/lib.rs:5283:25 - [octoscode] dialog tap: dialog.form_mode.fixed
+    log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.form_mode.fixed
+    log: [I] apps/octoscode/module/src/lib.rs:2480:21 - [octoscode] dialog form mode: fixed
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog loops mounted: frame 520x570 scale 1.000, 6 tap(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6067:17 - [octoscode] nav tap: dialog.form_mode.fixed
+PASS loops: Fixed interval segment CLICK -> the interval field appears prefilled 5m
+PASS loop form (fixed): dialog numeric checks — frame=520x397 centre_dx=0.0 margins L=20 R=20 labels=11 outside=0 overlaps=0 controls=3 under28=0
+SHOT 02-loop-form-fixed-desktop
+CLICK dlg_loops_fm_seg_self_paced_control r=[467, 259, 153, 28] at (544,273)
+    log: [I] apps/octoscode/module/src/lib.rs:5283:25 - [octoscode] dialog tap: dialog.form_mode.self_paced
+    log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.form_mode.self_paced
+    log: [I] apps/octoscode/module/src/lib.rs:2480:21 - [octoscode] dialog form mode: self_paced
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog loops mounted: frame 520x570 scale 1.000, 6 tap(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6067:17 - [octoscode] nav tap: dialog.form_mode.self_paced
+PASS loops: Self-paced segment CLICK -> no interval field
+CLICK dlg_loops_ff_submit_control r=[675, 481, 104, 32] at (727,497)
+    log: [I] apps/octoscode/module/src/lib.rs:5283:25 - [octoscode] dialog tap: dialog.form_submit
+    log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.form_submit
+    log: [I] apps/octoscode/module/src/lib.rs:2647:13 - [octoscode] dialog form refused: loop.create[empty]
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog loops mounted: frame 520x570 scale 1.000, 6 tap(s)
+PASS loops: Create with an empty self-paced prompt is refused ON the form (nothing sent)
+SHOT 03-loop-form-refused-desktop
+CLICK dlg_loops_fm_seg_maintenance_control r=[312, 290, 153, 28] at (388,304)
+    log: [I] apps/octoscode/module/src/lib.rs:5283:25 - [octoscode] dialog tap: dialog.form_mode.maintenance
+    log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.form_mode.maintenance
+    log: [I] apps/octoscode/module/src/lib.rs:2480:21 - [octoscode] dialog form mode: maintenance
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog loops mounted: frame 520x570 scale 1.000, 6 tap(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6067:17 - [octoscode] nav tap: dialog.form_mode.maintenance
+CLICK dlg_loops_ff_submit_control r=[675, 490, 104, 32] at (727,506)
+    log: [I] apps/octoscode/module/src/lib.rs:5283:25 - [octoscode] dialog tap: dialog.form_submit
+    log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.form_submit
+    log: [I] apps/octoscode/module/src/lib.rs:2655:13 - [octoscode] dialog form submitted: loop.create ""
+    log: [I] apps/octoscode/module/src/screens/autonomy.rs:1420:23 - [octoscode] autonomy action done: LoopCreateMaintenance { prompt: "" }
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog loops mounted: frame 600x570 scale 1.000, 5 tap(s)
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog loops mounted: frame 600x570 scale 1.000, 8 tap(s)
+PASS loops: Maintenance segment CLICK, then Create -> loop/create maintenance
+PASS wire: loop/create x1 (maintenance)
+PASS loops after create: dialog numeric checks — frame=600x246 centre_dx=0.0 margins L=20 R=20 labels=7 outside=0 overlaps=0 controls=6 under28=0
+SHOT 04-loops-created-desktop
+CLICK dialog_close r=[801, 276, 28, 28] at (815,290)
+== 2. /monitor -> + New monitor: a refused create is the alert line
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'moni'
+CLICK palette_row_name '/monitor' r=[286, 252, 76, 28]
+PASS monitors: /monitor palette CLICK opens the dialog
+    log: [I] apps/octoscode/module/src/lib.rs:5283:25 - [octoscode] dialog tap: dialog.close
+    log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.close
+    log: [I] apps/octoscode/module/src/lib.rs:6067:17 - [octoscode] nav tap: dialog.close
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5857:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 1 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5183:21 - [octoscode] draft synced: 5 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5353:25 - [octoscode] palette row 0 clicked
+    log: [I] apps/octoscode/module/src/lib.rs:2571:17 - [octoscode] palette run /monitor -> dialog.open.monitors
+    log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.open.monitors
+    log: [I] apps/octoscode/module/src/screens/autonomy.rs:1420:23 - [octoscode] autonomy action done: RefreshLists
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog monitors mounted: frame 600x570 scale 1.000, 4 tap(s)
+CLICK dlg_monitors_new_monitor_control r=[269, 435, 93, 28] at (316,449)
+    log: [I] apps/octoscode/module/src/lib.rs:5283:25 - [octoscode] dialog tap: dialog.form.monitor.create
+    log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.form.monitor.create
+    log: [I] apps/octoscode/module/src/lib.rs:2455:17 - [octoscode] dialog form opened: monitor.create (true)
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog monitors mounted: frame 520x570 scale 1.000, 3 tap(s)
+PASS monitors: + New monitor CLICK -> the create form
+TYPE 'watch-build'
+TYPE '["./scripts/watch.sh", "--verbose"]'
+TYPE '('
+PASS monitor form: dialog numeric checks — frame=520x379 centre_dx=0.0 margins L=20 R=20 labels=7 outside=0 overlaps=0 controls=0 under28=0
+SHOT 05-monitor-form-desktop
+CLICK dlg_monitors_ff_submit_control r=[655, 515, 124, 32] at (717,531)
+    log: [I] apps/octoscode/module/src/lib.rs:5283:25 - [octoscode] dialog tap: dialog.form_submit
+    log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.form_submit
+    log: [I] apps/octoscode/module/src/lib.rs:2655:13 - [octoscode] dialog form submitted: monitor.create "watch-build | [\"./scripts/watch.sh\", \"--verbose\"]"
+    log: [I] apps/octoscode/module/src/screens/autonomy.rs:1421:23 - [octoscode] autonomy action MonitorCreate { name: "watch-build", argv: ["./scripts/watch.sh", "--verbose"], filter_regex: Some("(") }: monitor/create: rpc error -32602 (filter_regex does not compile: regex parse error:
+    (
+    ^
+error: unclosed group)
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog monitors mounted: frame 600x570 scale 1.000, 4 tap(s)
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog monitors mounted: frame 600x570 scale 1.000, 4 tap(s)
+PASS monitors: Create CLICK -> monitor/create refused by the server -> the dialog's alert line
+PASS monitors alert: dialog numeric checks — frame=600x233 centre_dx=0.0 margins L=20 R=20 labels=8 outside=0 overlaps=0 controls=2 under28=0
+SHOT 06-monitor-alert-desktop
+CLICK dlg_monitors_new_monitor_control r=[269, 446, 93, 28] at (316,460)
+    log: [I] apps/octoscode/module/src/lib.rs:5283:25 - [octoscode] dialog tap: dialog.form.monitor.create
+    log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.form.monitor.create
+    log: [I] apps/octoscode/module/src/lib.rs:2455:17 - [octoscode] dialog form opened: monitor.create (true)
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog monitors mounted: frame 520x570 scale 1.000, 3 tap(s)
+PASS monitors: + New monitor again, a valid regex, Create -> created, the alert clears
+TYPE 'watch-build'
+TYPE '["./scripts/watch.sh", "--verbose"]'
+TYPE 'ERROR.*'
+CLICK dlg_monitors_ff_submit_control r=[655, 515, 124, 32] at (717,531)
+    log: [I] apps/octoscode/module/src/lib.rs:5283:25 - [octoscode] dialog tap: dialog.form_submit
+    log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.form_submit
+    log: [I] apps/octoscode/module/src/lib.rs:2655:13 - [octoscode] dialog form submitted: monitor.create "watch-build | [\"./scripts/watch.sh\", \"--verbose\"]"
+    log: [I] apps/octoscode/module/src/screens/autonomy.rs:1420:23 - [octoscode] autonomy action done: MonitorCreate { name: "watch-build", argv: ["./scripts/watch.sh", "--verbose"], filter_regex: Some("ERROR.*") }
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog monitors mounted: frame 600x570 scale 1.000, 4 tap(s)
+    log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog monitors mounted: frame 600x570 scale 1.000, 6 tap(s)
+PASS monitors: the corrected create succeeds; the row appears and no alert remains
+PASS wire: monitor/create x2 (refused, then created)
+PASS monitors after create: dialog numeric checks — frame=600x266 centre_dx=0.0 margins L=20 R=20 labels=10 outside=0 overlaps=0 controls=4 under28=0
+SHOT 07-monitor-created-desktop
+CLICK dialog_close r=[801, 266, 28, 28] at (815,280)
+== 3. close suspends, reopen refreshes: /loop again re-reads the list
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'loo'
+CLICK palette_row_name '/loop' r=[286, 252, 48, 28]
+PASS loops: reopen by palette CLICK -> a fresh loop/list read, the rows shown — loop/list 2 -> 3
+CLICK dialog_close r=[801, 304, 28, 28] at (815,318)
+== 20/20 checks passed
