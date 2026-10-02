@@ -164,16 +164,16 @@ pub fn precondition(reference: &SavedReference, known: Option<&str>, attested: O
     if let Some(known) = known.filter(|k| !k.trim().is_empty()) {
         if validate_candidate_workspace(link, Some(known), true).is_err() {
             return Err(Refusal {
-                lead: "This conversation belongs to a different workspace than the saved link.".into(),
-                detail: format!("Saved link: {link}\nThis conversation: {known}\nNothing was opened."),
+                lead: "Not opened: this conversation belongs to a different workspace than the saved link.".into(),
+                detail: format!("Saved link: {link}\nThis conversation: {known}"),
             });
         }
     }
     if let Some(attested) = attested.filter(|a| !a.trim().is_empty()) {
         if validate_candidate_workspace(link, Some(attested), true).is_err() {
             return Err(Refusal {
-                lead: "The server resolves the saved link's workspace to a different folder.".into(),
-                detail: format!("Saved link: {link}\nOn the server: {attested}\nNothing was opened."),
+                lead: "Not opened: the server resolves the saved link's workspace to a different folder.".into(),
+                detail: format!("Saved link: {link}\nOn the server: {attested}"),
             });
         }
     }
@@ -193,6 +193,9 @@ pub struct LinkState {
     pub server: String,
     pub opening: bool,
     pub error: Option<Refusal>,
+    /// "Conversation details" disclosed (the web's `<details>`, closed by
+    /// default, `SavedSessionLinkPanel.tsx:47-59`).
+    pub details_open: bool,
 }
 
 static STATE: Mutex<LinkState> = Mutex::new(LinkState {
@@ -201,6 +204,7 @@ static STATE: Mutex<LinkState> = Mutex::new(LinkState {
     server: String::new(),
     opening: false,
     error: None,
+    details_open: false,
 });
 
 fn lock() -> std::sync::MutexGuard<'static, LinkState> {
@@ -225,6 +229,7 @@ pub fn set_link(link: &str, server: &str) {
         server: crate::credentials::origin(server).unwrap_or_else(|| server.to_owned()),
         opening: false,
         error: None,
+        details_open: false,
     };
 }
 
@@ -277,6 +282,11 @@ pub fn perform(action: &str) -> Outcome {
             reset();
             makepad_widgets::log!("[octoscode] saved link dismissed");
             Outcome::Close
+        }
+        "b3.link.details" => {
+            let mut st = lock();
+            st.details_open = !st.details_open;
+            Outcome::Done
         }
         "b3.link.open" => {
             let mut st = lock();
@@ -410,42 +420,52 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
         &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     d.gap(W::Fill, 12.0);
-    ui::body_open(d, frame, width, 190.0);
+    // The widths a path line has (the renderer breaks only at spaces, so a
+    // long path is broken by characters, the web's `overflow-wrap`).
+    let pad = ui::dialog_pad(frame, width);
+    let card_chars = mono_chars(width - 2.0 * pad - 28.0 - 10.0, 12.5);
+    let alert_chars = mono_chars(width - 2.0 * pad - 24.0 - 26.0 - 10.0, 12.0);
+    // `role="alert"` — the refusal stays in view above the body (the body is
+    // height-capped and scrolls; an alert scrolled out of sight is unread).
+    if let Some(e) = &st.error {
+        alert(d, e, alert_chars);
+        d.gap(W::Fill, 10.0);
+    }
+    ui::body_open(d, frame, width, if st.error.is_some() { 300.0 } else { 190.0 });
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 10");
     ui::card_open(d, "b3_link_dest", 8.0);
-    row(d, "server", "Server", &st.server, false);
-    row(d, "workspace", "Workspace", &reference.workspace_root, true);
+    row(d, "server", "Server", &st.server, false, card_chars);
+    row(d, "workspace", "Workspace", &reference.workspace_root, true, card_chars);
     d.close();
-    ui::card_open(d, "b3_link_details", 8.0);
-    ui::section_title(d, "b3_link_details_title", "Conversation details");
-    row(d, "profile", "Profile", &reference.profile_id, true);
-    row(d, "session", "Session", &reference.session_id, true);
+    // "Conversation details" — the web's `<details>` disclosure (closed by
+    // default): the Profile and the Session.
+    let label = "Conversation details";
+    d.view(
+        "b3_link_details_box",
+        &format!(
+            "width: {} height: 30 flow: Overlay align: Align{{x: 0.0 y: 0.5}}",
+            (ui::text_w(label, 13.0, Face::Medium) + 26.0).ceil()
+        ),
+    );
+    let r = d.anon();
+    d.view(&r, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 6");
+    d.icon("b3_link_details_chev", if st.details_open { "chevron_down.svg" } else { "chevron_right.svg" }, 14.0, tok::MUTED);
+    d.text("b3_link_details_label", label, &Txt::new(13.0, Face::Medium, tok::TEXT));
     d.close();
+    d.tap("b3_link_details", "b3.link.details");
+    d.close();
+    if st.details_open {
+        ui::card_open(d, "b3_link_details_card", 8.0);
+        row(d, "profile", "Profile", &reference.profile_id, true, card_chars);
+        row(d, "session", "Session", &reference.session_id, true, card_chars);
+        d.close();
+    }
     d.text(
         "b3_link_note",
         "If the conversation no longer exists, the server may open an empty session. Opening the link does not send a message.",
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
-    if let Some(e) = &st.error {
-        // `role="alert"`: the refusal, red, with the two workspaces under it.
-        d.surface(
-            "b3_link_alert",
-            "width: Fill height: Fit flow: Right spacing: 10 padding: Inset{left: 12 right: 12 top: 10 bottom: 10}",
-            tok::RED_BG,
-            10.0,
-            Some(tok::RED),
-        );
-        d.icon("b3_link_alert_icon", "b3_warning.svg", 16.0, tok::RED);
-        let c = d.anon();
-        d.view(&c, "width: Fill height: Fit flow: Down spacing: 4");
-        d.text("b3_link_error", &e.lead, &Txt::new(12.5, Face::Medium, tok::RED_TEXT).w(W::Fill).wrap());
-        for (i, line) in e.detail.lines().enumerate() {
-            d.text(&format!("b3_link_error_{i}"), line, &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
-        }
-        d.close();
-        d.close();
-    }
     d.close();
     ui::body_close(d);
     d.gap(W::Fill, 14.0);
@@ -465,13 +485,46 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     ui::shell_close(d);
 }
 
-/// One `<dt>/<dd>` pair: the muted term over its value.
-fn row(d: &mut Dsl, id: &str, term: &str, value: &str, mono: bool) {
+/// The refusal: the red alert (`SavedSessionLinkPanel.tsx:64-68`) with the
+/// two workspaces under its lead, each path broken to the alert's width.
+fn alert(d: &mut Dsl, e: &Refusal, chars: usize) {
+    d.surface(
+        "b3_link_alert",
+        "width: Fill height: Fit flow: Right spacing: 10 padding: Inset{left: 12 right: 12 top: 10 bottom: 10}",
+        tok::RED_BG,
+        10.0,
+        Some("#f2c4c4ff"),
+    );
+    d.icon("b3_link_alert_icon", "a20_alert.svg", 16.0, tok::RED);
+    let c = d.anon();
+    d.view(&c, "width: Fill height: Fit flow: Down spacing: 4");
+    d.text("b3_link_error", &e.lead, &Txt::new(12.5, Face::Medium, tok::RED_TEXT).w(W::Fill).wrap());
+    for (i, line) in e.detail.lines().enumerate() {
+        let line = crate::screens::surfaces::takeover::hard_wrap(line, chars);
+        d.text(&format!("b3_link_error_{i}"), &line, &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
+    }
+    d.close();
+    d.close();
+}
+
+/// How many monospace characters fit `width` px at `px` (the approval card's
+/// rule, `takeover.rs`: 0.6 em per glyph).
+fn mono_chars(width: f64, px: f64) -> usize {
+    ((width / (px * 0.6)).floor() as usize).max(12)
+}
+
+/// One `<dt>/<dd>` pair: the muted term over its value (a monospace value is
+/// broken by characters to its line width).
+fn row(d: &mut Dsl, id: &str, term: &str, value: &str, mono: bool, chars: usize) {
     let c = d.anon();
     d.view(&c, "width: Fill height: Fit flow: Down spacing: 2");
     d.text(&format!("b3_link_{id}_term"), term, &Txt::new(11.5, Face::Medium, tok::MUTED).w(W::Fill));
-    let face = if mono { Face::Mono } else { Face::Regular };
-    d.text(&format!("b3_link_{id}"), value, &Txt::new(12.5, face, tok::TEXT).w(W::Fill).wrap());
+    let (face, value) = if mono {
+        (Face::Mono, crate::screens::surfaces::takeover::hard_wrap(value, chars))
+    } else {
+        (Face::Regular, value.to_owned())
+    };
+    d.text(&format!("b3_link_{id}"), &value, &Txt::new(12.5, face, tok::TEXT).w(W::Fill).wrap());
     d.close();
 }
 
@@ -544,11 +597,16 @@ mod tests {
         build(&mut d, &Frame::DESKTOP);
         let dsl = d.finish();
         assert_eq!(dsl.matches('{').count(), dsl.matches('}').count());
-        for t in ["Open saved conversation", "/home/user/link-ws", "a20:api:xray", "http://127.0.0.1:8485", "Open conversation", "Dismiss link"] {
+        for t in ["Open saved conversation", "/home/user/link-ws", "http://127.0.0.1:8485", "Conversation details", "Open conversation", "Dismiss link"] {
             assert!(dsl.contains(t), "{t}");
         }
+        assert!(!dsl.contains("a20:api:xray"), "the details start closed (the web's <details>)");
         let taps = crate::screens::taps::wired_taps(&dsl);
-        assert!(taps.iter().any(|(_, e)| e == "b3.link.open") && taps.iter().any(|(_, e)| e == "b3.link.dismiss"));
+        assert!(["b3.link.open", "b3.link.dismiss", "b3.link.details"].iter().all(|e| taps.iter().any(|(_, t)| t == e)));
+        assert_eq!(perform("b3.link.details"), Outcome::Done);
+        let mut d = Dsl::new();
+        build(&mut d, &Frame::DESKTOP);
+        assert!(d.finish().contains("a20:api:xray"), "disclosed: the Profile and the Session");
         assert_eq!(perform("b3.link.open"), Outcome::Spawn(super::super::board3::host::Job::SavedLinkOpen));
         assert_eq!(perform("b3.link.open"), Outcome::Done, "one opening at a time");
         {

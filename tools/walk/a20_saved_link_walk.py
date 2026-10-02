@@ -61,15 +61,22 @@ def refused(w):
     w.check("the panel 'Open saved conversation' is offered",
             w.wait(lambda: w.text("b3_title") == "Open saved conversation", 20), repr(w.text("b3_title")))
     w.check("panel: the workspace the link names", w.text("b3_link_workspace") == LINK_WS, repr(w.text("b3_link_workspace")))
-    w.check("panel: the Session and the Profile", w.text("b3_link_session") == XID and w.text("b3_link_profile") == "a20")
     w.check("panel: the server in use", f"127.0.0.1:{FPORT}" in (w.text("b3_link_server") or ""), repr(w.text("b3_link_server")))
+    w.check("panel: the conversation details start closed (the web's <details>)", not w.visible("b3_link_session"))
     panel_checks(w, "panel")
     shot("11-link-panel")
+    w.check("CLICK Conversation details", w.click("b3_link_details"))
+    w.check("details: the Session and the Profile",
+            w.wait(lambda: w.text("b3_link_session") == XID and w.text("b3_link_profile") == "a20", 5),
+            f"{w.text('b3_link_session')!r} {w.text('b3_link_profile')!r}")
+    panel_checks(w, "details panel")
+    shot("11b-link-details")
     opens, reads = len(w.wire("session/open", XID)), len(w.wire("session/hydrate", XID))
     w.check("CLICK Open conversation", w.click("b3_link_open"))
     w.check("refused on the panel, with both workspaces",
-            w.wait(lambda: (w.text("b3_link_error") or "").startswith("The server resolves the saved link"), 10)
-            and LINK_WS in (w.text("b3_link_error_0") or "") and REAL_WS in (w.text("b3_link_error_1") or ""),
+            w.wait(lambda: (w.text("b3_link_error") or "").startswith("Not opened: the server resolves the saved link"), 10)
+            and LINK_WS in (w.text("b3_link_error_0") or "").replace("\n", "")
+            and REAL_WS in (w.text("b3_link_error_1") or "").replace("\n", ""),
             f"{w.text('b3_link_error')!r} {w.text('b3_link_error_0')!r} {w.text('b3_link_error_1')!r}")
     w.check("wire: the precondition read the server's attestation (session/list {cwd: <link>})",
             any(p.get("cwd") == LINK_WS for p in w.wire("session/list")))
