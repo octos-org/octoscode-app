@@ -859,6 +859,19 @@ pub const HISTORY_WAIT: std::time::Duration = std::time::Duration::from_secs(20)
 /// Core's `UNKNOWN_SESSION` (octos-core `ui_protocol.rs:802-811`).
 const UNKNOWN_SESSION_CODE: i64 = -32100;
 
+/// A22 row 203 — the Session a notification belongs to for candidate
+/// staging (the web's scope filter, `scope.ts:7-52`: the Session's id, no
+/// topic — a topic frame belongs to that topic's record).
+fn candidate_scope(payload: &UiNotification) -> Option<String> {
+    let scoped = match payload {
+        UiNotification::EnvelopeV2(frame) => frame.topic.as_deref().is_none_or(|t| t.trim().is_empty())
+            .then(|| frame.session_id.0.clone()),
+        UiNotification::ReplayLossy(e) => Some(e.session_id.0.clone()),
+        other => crate::screens::peers::notification_session(other),
+    };
+    scoped.filter(|s| !s.is_empty())
+}
+
 /// A22 — the live turn of `session`, from per-Session state only: the
 /// window's live turn when it is this Session's, else this Session's turn
 /// controller's active turn (dispatched or adopted) with no terminal, else a
@@ -1114,13 +1127,7 @@ impl Conversation {
     /// buffered. A candidate whose history read outlived [`HISTORY_WAIT`]
     /// (the window already says so) or whose buffer overflowed fails closed.
     fn stage_for_candidate(&self, evt: &TransportEvent, payload: &UiNotification) -> bool {
-        let scoped = match payload {
-            UiNotification::EnvelopeV2(frame) => frame.topic.as_deref().is_none_or(|t| t.trim().is_empty())
-                .then(|| frame.session_id.0.clone()),
-            UiNotification::ReplayLossy(e) => Some(e.session_id.0.clone()),
-            other => crate::screens::peers::notification_session(other),
-        };
-        let Some(session) = scoped.filter(|s| !s.is_empty()) else { return false };
+        let Some(session) = candidate_scope(payload) else { return false };
         let failed = {
             let mut c = self.candidate.lock().unwrap();
             let Some(cand) = c.as_mut().filter(|c| c.session == session) else { return false };
@@ -1156,6 +1163,17 @@ impl Conversation {
             self.history_failed(&session, "The candidate session emitted too many events while opening.".to_owned());
         }
         true
+    }
+
+    /// A22 row 203 — a candidate that failed closed STAYS closed until its
+    /// Session is opened again (every open moves the generation): the web
+    /// disposes it and no record takes its events (`candidate-session.ts:
+    /// 155-161`); natively the window shows the failure, and live events
+    /// drawn under it would be a partial transcript with no history.
+    fn closed_candidate(&self, payload: &UiNotification) -> bool {
+        let Some(session) = candidate_scope(payload) else { return false };
+        let generation = self.generation();
+        self.overflowed.lock().unwrap().as_ref().is_some_and(|(s, g)| *s == session && *g == generation)
     }
 
     /// The candidate's history committed: drain its buffer in wire order
@@ -3267,6 +3285,11 @@ impl Conversation {
                 // (`peerSessionEventFor`, session-peer-coordinator.ts:139).
                 if crate::screens::peers::fold_frame(&self.store, payload) {
                     return FlowEvent::Other(format!("peer-session {}", payload.method()));
+                }
+                // A22 row 203 — a candidate that failed closed takes none of
+                // its Session's events until that Session is opened again.
+                if self.closed_candidate(payload) {
+                    return FlowEvent::Other(format!("failed-candidate {}", payload.method()));
                 }
                 // A22 row 203 — a candidate's own events wait for its
                 // history (released in order by the hydrate arm below).
