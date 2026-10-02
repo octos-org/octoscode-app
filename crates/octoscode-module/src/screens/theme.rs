@@ -581,28 +581,45 @@ pub fn clear_os_reader() {
 /// non-zero on light). Verified by the f31d tests through the injected seam;
 /// the live `defaults` call itself is unverified-on-platform until the app
 /// captures exercise system mode (disclosed in docs/upstream/ PR text too).
+///
+/// CACHED: `resolved()` runs on the UI thread from draw and lowering paths, and
+/// spawning `defaults` there stalled frames (ui-hang reports 254-1889 ms with
+/// `Command::output` on top, and a > 5 s instrument timeout in the integration
+/// walk). Only the first call reads synchronously; afterwards the cached value
+/// is returned at once and refreshed on a background thread at most every
+/// `OS_DARK_TTL`, so an OS appearance flip shows within a few seconds.
 #[cfg(target_os = "macos")]
 pub fn os_is_dark_macos() -> bool {
-    // A5: `resolved()` runs on every lowering (every docked card and dialog
-    // re-lowers on each UI signal), and each call spawned `defaults` — the
-    // app log's ui-hang samples showed `Command::output` in widget-draw at
-    // ~270 ms. The answer is cached for 2 s, so an OS appearance switch still
-    // lands within two seconds.
-    static CACHE: std::sync::Mutex<Option<(std::time::Instant, bool)>> =
-        std::sync::Mutex::new(None);
-    let mut cache = CACHE.lock().unwrap_or_else(|e| e.into_inner());
-    if let Some((at, dark)) = *cache {
-        if at.elapsed() < std::time::Duration::from_secs(2) {
-            return dark;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::time::{Duration, Instant};
+    const OS_DARK_TTL: Duration = Duration::from_secs(3);
+    static CACHE: Mutex<Option<(bool, Instant)>> = Mutex::new(None);
+    static REFRESHING: AtomicBool = AtomicBool::new(false);
+    fn read_defaults() -> bool {
+        std::process::Command::new("defaults")
+            .args(["read", "-g", "AppleInterfaceStyle"])
+            .output()
+            .map(|o| String::from_utf8_lossy(&o.stdout).trim().eq("Dark"))
+            .unwrap_or(false)
+    }
+    let cached = *CACHE.lock().unwrap();
+    match cached {
+        Some((dark, at)) => {
+            if at.elapsed() > OS_DARK_TTL && !REFRESHING.swap(true, Ordering::SeqCst) {
+                std::thread::spawn(|| {
+                    let dark = read_defaults();
+                    *CACHE.lock().unwrap() = Some((dark, Instant::now()));
+                    REFRESHING.store(false, Ordering::SeqCst);
+                });
+            }
+            dark
+        }
+        None => {
+            let dark = read_defaults();
+            *CACHE.lock().unwrap() = Some((dark, Instant::now()));
+            dark
         }
     }
-    let dark = std::process::Command::new("defaults")
-        .args(["read", "-g", "AppleInterfaceStyle"])
-        .output()
-        .map(|o| String::from_utf8_lossy(&o.stdout).trim().eq("Dark"))
-        .unwrap_or(false);
-    *cache = Some((std::time::Instant::now(), dark));
-    dark
 }
 
 // ---- #31d workflow 1b: the native shell containers ------------------------------

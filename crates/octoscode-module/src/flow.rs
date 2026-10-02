@@ -196,6 +196,10 @@ pub struct FlowUi {
     expanded: Vec<String>,
     /// `answer.expand` state (the "worked for" disclosure).
     answer_expanded: bool,
+    /// A1 — the settled turns whose tool group the person FOLDED under its
+    /// "Worked for" header (UI-local, per turn; absent = shown, the web's
+    /// always-visible tool headers).
+    folded_turns: Vec<String>,
     /// Card #28e: UI-local chrome toggles for board 4. All UI-local — the
     /// store/protocol never sees them (the `tools[].expanded` precedent).
     review_open: bool,
@@ -369,6 +373,28 @@ impl FlowUi {
         self.answer_expanded
     }
 
+    /// A1 — is `turn`'s tool group folded under its "Worked for" header?
+    pub fn is_turn_folded(&self, turn: &str) -> bool {
+        self.folded_turns.iter().any(|t| t == turn)
+    }
+
+    /// A1 — flip `turn`'s tool-group fold (the worked-for row's click);
+    /// returns true when the group is now folded.
+    pub fn toggle_turn_fold(&mut self, turn: &str) -> bool {
+        if let Some(at) = self.folded_turns.iter().position(|t| t == turn) {
+            self.folded_turns.remove(at);
+            false
+        } else {
+            self.folded_turns.push(turn.to_owned());
+            true
+        }
+    }
+
+    /// A1 — every folded turn (the row model skips their tool rows).
+    pub fn folded_turns(&self) -> Vec<String> {
+        self.folded_turns.clone()
+    }
+
     /// Card #28e — UI-local chrome state (board 4). All three are toggles the
     /// view reads on every redraw; none reaches the protocol.
     pub fn review_open(&self) -> bool {
@@ -509,6 +535,32 @@ pub struct Conversation {
     /// bumped BEFORE the open is sent, so the reply arm reads the new value.
     open_seq: Mutex<u64>,
     started: Instant,
+    /// A4 — the HTTP side of the same server (the web's `mediaCommands`:
+    /// `/api/upload`, `/api/files`, `packages/client/src/media.ts:14-35`) and
+    /// the credential the socket carries. Never logged.
+    http_base: String,
+    bearer: String,
+}
+
+/// A4 — the HTTP origin for the media endpoints (`media.ts:14-35`): `ws` ->
+/// `http`, `wss` -> `https`, no query, and a socket path
+/// (`…/api/ui-protocol/ws`) or `/` reduced to the origin prefix; no trailing
+/// slash.
+pub fn http_base_of(base: &str) -> String {
+    let Ok(mut u) = Url::parse(base) else { return base.trim_end_matches('/').to_owned() };
+    let scheme = match u.scheme() {
+        "ws" => "http",
+        "wss" => "https",
+        other => other,
+    }
+    .to_owned();
+    let _ = u.set_scheme(&scheme);
+    u.set_query(None);
+    u.set_fragment(None);
+    let path = u.path().trim_end_matches('/').to_owned();
+    let path = path.strip_suffix("/api/ui-protocol/ws").unwrap_or(&path).to_owned();
+    u.set_path(&path);
+    u.to_string().trim_end_matches('/').to_owned()
 }
 
 impl Conversation {
@@ -655,9 +707,63 @@ impl Conversation {
                 pending_open_cwd: Mutex::new(None),
                 open_seq: Mutex::new(0),
                 started: Instant::now(),
+                http_base: http_base_of(base),
+                bearer: bearer.to_owned(),
             },
             evt_rx,
         ))
+    }
+
+    /// A4 — `POST <base>/api/upload` (multipart, field `file`, one file per
+    /// request; `packages/client/src/media.ts:114-146`): returns the single
+    /// upload handle the server answers with. Headers as the web sends them:
+    /// `X-Profile-Id`, plus `Authorization: Bearer` when a token exists.
+    pub async fn upload_file(&self, name: &str, mime: &str, bytes: Vec<u8>) -> Result<String, String> {
+        let part = reqwest::multipart::Part::bytes(bytes)
+            .file_name(name.to_owned())
+            .mime_str(mime)
+            .map_err(|e| format!("upload: {e}"))?;
+        let form = reqwest::multipart::Form::new().part("file", part);
+        let mut req = reqwest::Client::new()
+            .post(format!("{}/api/upload", self.http_base))
+            .header("X-Profile-Id", self.profile())
+            .multipart(form);
+        if !self.bearer.is_empty() {
+            req = req.header("Authorization", format!("Bearer {}", self.bearer));
+        }
+        let resp = req.send().await.map_err(|_| {
+            "Authenticated file transfer failed; check the connection and server file permissions".to_owned()
+        })?;
+        if !resp.status().is_success() {
+            return Err(format!("Upload was not confirmed ({}).", resp.status().as_u16()));
+        }
+        let v: serde_json::Value = resp.json().await.map_err(|_| "Invalid attachment receipt".to_owned())?;
+        match v.as_array().map(|a| a.as_slice()) {
+            Some([serde_json::Value::String(handle)]) => Ok(handle.clone()),
+            _ => Err("Invalid attachment receipt".to_owned()),
+        }
+    }
+
+    /// A4 — `GET <base>/api/files?path=<reference>&session=<session>` (the
+    /// web's delivered-file download, `media.ts:147-165`).
+    pub async fn download_file(&self, reference: &str) -> Result<Vec<u8>, String> {
+        if reference.trim().is_empty() {
+            return Err("Invalid file reference".into());
+        }
+        let mut req = reqwest::Client::new()
+            .get(format!("{}/api/files", self.http_base))
+            .query(&[("path", reference), ("session", &self.session_id())])
+            .header("X-Profile-Id", self.profile());
+        if !self.bearer.is_empty() {
+            req = req.header("Authorization", format!("Bearer {}", self.bearer));
+        }
+        let resp = req.send().await.map_err(|_| {
+            "Authenticated file transfer failed; check the connection and server file permissions".to_owned()
+        })?;
+        if !resp.status().is_success() {
+            return Err("This file could not be loaded.".into());
+        }
+        resp.bytes().await.map(|b| b.to_vec()).map_err(|_| "This file could not be loaded.".into())
     }
 
     pub fn profile(&self) -> String {
@@ -841,6 +947,9 @@ impl Conversation {
         if !media.is_empty() {
             params["media"] = serde_json::Value::Array(media.iter().map(|m| m.to_value()).collect());
         }
+        if let Some(effort) = crate::screens::board3::thinking::effort_param(&self.store, &self.session_id()) {
+            params["reasoning_effort"] = serde_json::Value::String(effort);
+        }
         self.trace.record(
             self.started,
             Direction::Out,
@@ -889,11 +998,17 @@ impl Conversation {
         turn_id: String,
     ) -> Result<String, ClientError> {
         let text: String = text.into();
-        let params = serde_json::json!({
+        #[allow(unused_mut)]
+        let mut params = serde_json::json!({
             "session_id": self.session_id(),
             "turn_id": turn_id,
             "input": [{"kind": "text", "text": text}],
         });
+        // A4 — the Session's thinking effort rides every new prompt, omitted
+        // for the Profile default (`use-turn-controller.ts:398-410`).
+        if let Some(effort) = crate::screens::board3::thinking::effort_param(&self.store, &self.session_id()) {
+            params["reasoning_effort"] = serde_json::Value::String(effort);
+        }
         self.trace.record(
             self.started,
             Direction::Out,
@@ -1143,6 +1258,25 @@ impl Conversation {
             ::log::info!("octoscode: local shell bang: receipt appended, draft kept");
             return Ok(String::new());
         }
+        // A4 — the board-3 surfaces answer their web commands locally
+        // (`/tools`, `/mcp`, `/threads`, `/turn`, `/permissions`,
+        // `/thinking`, `/resume`, `/images`, `/rewind`, `/undo`, `/fork`,
+        // `/sessions`, `/vimmode`; registry.ts intents). The invocation never
+        // reaches the model: open the surface, clear the draft, run its load.
+        if let Some((name, args)) = crate::screens::palette::parse_command_invocation(&text) {
+            if let Some(outcome) = crate::screens::board3::host::command(&name, &args, self) {
+                self.ui.lock().unwrap().set_draft_inner(String::new());
+                makepad_widgets::SignalToUI::set_ui_signal();
+                makepad_widgets::log!("[octoscode] command /{name}: board-3 surface ({outcome:?})");
+                if let crate::screens::board3::host::Outcome::Spawn(job) = outcome {
+                    if let Err(e) = crate::screens::board3::host::run(job, self).await {
+                        makepad_widgets::log!("[octoscode] command /{name}: {e}");
+                    }
+                    makepad_widgets::SignalToUI::set_ui_signal();
+                }
+                return Ok(String::new());
+            }
+        }
         match crate::screens::palette::match_command(&text) {
             None => {}
             // A5 — a known, runnable command is LOCAL: it runs its native
@@ -1200,6 +1334,24 @@ impl Conversation {
                     "octoscode: command /{name}: unknown — receipt appended, \
                      draft kept"
                 );
+                return Ok(String::new());
+            }
+        }
+        // A4 — the AttachmentsDialog's draft rides THIS turn when every image
+        // is uploaded; any row not yet uploaded refuses the send and keeps
+        // both the prompt and the draft (`session-composer-drafts.ts:183-188`).
+        match crate::screens::media::take_for_submit(self) {
+            Ok(Some(media)) => return self.start_turn_with_media(text, media).await,
+            Ok(None) => {}
+            Err(msg) => {
+                let session = self.session_id();
+                self.store.domains.session.timeline.append(
+                    &session,
+                    Some(crate::screens::palette::next_receipt_turn()),
+                    crate::screens::palette::REPORT_KIND,
+                    msg,
+                );
+                makepad_widgets::SignalToUI::set_ui_signal();
                 return Ok(String::new());
             }
         }
@@ -1318,6 +1470,19 @@ impl Conversation {
                         .session
                         .set_workspace_root(&r.opened.session_id.0, root);
                 }
+                // A4 — the Session's initial thinking effort is the open
+                // reply's `reasoning_effort` (session-composer-drafts.ts:40),
+                // and the show-thinking preference applies to the first opened
+                // Session (App.tsx:524-537).
+                if let Some(level) = &r.opened.reasoning_effort {
+                    if let Ok(serde_json::Value::String(e)) = serde_json::to_value(level) {
+                        self.store
+                            .domains
+                            .session
+                            .set_thinking_effort(&r.opened.session_id.0, &e);
+                    }
+                }
+                crate::screens::board3::thinking::apply_pref_once(&self.store, &r.opened.session_id.0);
                 // #34b — seed the opened session BEFORE anything folds a
                 // session/list reply: the web treats an opened session as
                 // known immediately (known-session-registry), so the reply's

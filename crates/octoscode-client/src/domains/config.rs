@@ -280,6 +280,17 @@ impl NotificationHandler for WarningHandler {
                     message: event.message.clone(),
                 },
             );
+            // A4 — the web writes every warning into the transcript as a
+            // system notice (`timeline/model.ts:432-439`: title = code or
+            // "Warning", body = message or "The server reported a
+            // warning.").
+            self.store.domains.session.timeline.append_data(
+                &event.session_id.0,
+                None,
+                octoscode_store::timeline::EntryKind::SYSTEM_NOTICE,
+                format!("{}: {}", event.code, event.message),
+                serde_json::json!({"code": event.code, "message": event.message}),
+            );
         }
     }
 }

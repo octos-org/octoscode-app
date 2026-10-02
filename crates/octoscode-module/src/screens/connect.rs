@@ -229,6 +229,13 @@ pub struct ConnectUi {
     pub created_profile: Option<String>,
     /// The onboarding error line (the panel's red message slot).
     pub onboarding_error: Option<String>,
+    /// A1 — a Connect is in flight (the web's "Connecting to your server…"
+    /// state, ConnectionPanel.tsx:313-326); cleared by the outcome.
+    pub connecting: bool,
+    /// A1 — the in-flight attempt's transport is the bridge's store now (the
+    /// swap is asynchronous): only then does a `Failed` / repeated
+    /// `Reconnecting` state belong to THIS attempt, not the previous store.
+    pub attempt_attached: bool,
 }
 
 impl Default for ConnectUi {
@@ -246,6 +253,8 @@ impl Default for ConnectUi {
             catalog_error: None,
             created_profile: None,
             onboarding_error: None,
+            connecting: false,
+            attempt_attached: false,
         }
     }
 }
@@ -255,6 +264,7 @@ impl ConnectUi {
     /// when the transport answers). `at` is the wall-clock "9:41 PM" string
     /// the card's `t_last_text` row shows.
     pub fn note_connect_error(&mut self, raw: &str, at: &str) {
+        self.connecting = false;
         self.last_tried = format!("Last tried {at} ·");
         match failure_for(raw, &self.server) {
             Some(f) => {
@@ -265,6 +275,27 @@ impl ConnectUi {
                 self.failure = None;
                 self.raw_error = Some(raw.to_owned());
             }
+        }
+    }
+
+    /// A1 — what the first-run Connect card draws ([`crate::fluid::connect_card`]).
+    /// The typed field texts are initial values only (the inputs own them).
+    pub fn view(&self) -> crate::fluid::ConnectView {
+        let (error, error_actions) = match (&self.failure, &self.raw_error) {
+            (Some(f), _) => (f.message.clone(), f.actions.join(" · ")),
+            (None, Some(raw)) => (raw.clone(), String::new()),
+            (None, None) => (String::new(), String::new()),
+        };
+        crate::fluid::ConnectView {
+            server: self.server.clone(),
+            error,
+            error_actions,
+            last_tried: if self.failure.is_some() || self.raw_error.is_some() {
+                self.last_tried.trim_end_matches('·').trim_end().to_owned()
+            } else {
+                String::new()
+            },
+            connecting: self.connecting,
         }
     }
 }
@@ -425,6 +456,12 @@ pub fn apply(ui: &mut ConnectUi, effect: Effect) -> Option<Effect> {
             None
         }
         Effect::Connect { server, token } => {
+            // A1: the plain Connect (resolved with no address) connects with
+            // the FIELDS — the typed token too. Before A1 the token field was
+            // never read, so every Connect went out with an empty bearer.
+            // `connect.use_local_solo` names its own address and stays
+            // tokenless (the solo login mints its own session).
+            let token = if server.is_empty() && token.is_empty() { ui.token.clone() } else { token };
             let server = if server.is_empty() { ui.server.clone() } else { server };
             if let Some(err) = endpoint_error(&server) {
                 ui.endpoint_error = Some(err);
@@ -628,14 +665,11 @@ pub fn copies(screen: Screen, ui: &ConnectUi) -> Vec<(String, String)> {
         Screen::Connect | Screen::ConnectFailed => {
             push("server_field_text", &ui.server);
             push("token_field_text", "");
-            push(
-                "token_dots_text",
-                if ui.token.is_empty() {
-                    ""
-                } else {
-                    "••••••••••••••••••••"
-                },
-            );
+            // A1: the token lives in the (password-masked) input itself — the
+            // host sets its text after the mount (a remembered token) and
+            // reads it back on every change. The card's separate dots label
+            // stays empty, or a prefilled token would draw its bullets twice.
+            push("token_dots_text", "");
             if screen == Screen::ConnectFailed {
                 if let Some(f) = &ui.failure {
                     push("t_error_text", &f.message);
@@ -943,6 +977,72 @@ fn replace_in_head(dsl: &str, node: &str, key: &str, value: &str) -> String {
 // mounted buttons that could never fire). Re-exported here so lib.rs:1833's
 // existing connect-side call keeps its path.
 pub use super::taps::wired_taps;
+
+/// A1 — the card's FIELD controls: `(DesignInput widget name, input.* event)`.
+///
+/// The card's `service-actions.json` declares `input.server` / `input.token`
+/// (and `input.profile` / `input.apikey` on onboarding) with their authored
+/// `source_bounds`; [`wire_events`] wires only the CLICK controls ("field
+/// controls stay unwired: they are live text"), so nothing ever read what the
+/// person typed — every Connect went out with an empty token. The host routes
+/// each listed input's `changed` text to its event (`perform_screen_action`),
+/// keyed by the lowered input whose `abs_pos` falls in the control's bounds
+/// (the [`mask_secret_inputs`] matching rule).
+pub fn input_events(dsl: &str, screen: Screen) -> Vec<(String, String)> {
+    let Ok(text) = crate::design::file(&format!(
+        "stage-b/setup/cards/{}/service-actions.json",
+        screen.card_dir()
+    )) else {
+        return Vec::new();
+    };
+    let Ok(v) = serde_json::from_str::<serde_json::Value>(text.as_ref()) else {
+        return Vec::new();
+    };
+    let mut fields: Vec<((f64, f64, f64, f64), String)> = Vec::new();
+    if let Some(controls) = v.get("controls").and_then(|c| c.as_object()) {
+        for c in controls.values() {
+            let ev = c.get("event").and_then(|e| e.as_str()).unwrap_or("");
+            if !ev.starts_with("input.") {
+                continue;
+            }
+            if let Some(b) = c.get("source_bounds").and_then(|b| b.as_array()) {
+                let b: Vec<f64> = b.iter().filter_map(|x| x.as_f64()).collect();
+                if b.len() == 4 {
+                    fields.push(((b[0], b[1], b[2], b[3]), ev.to_owned()));
+                }
+            }
+        }
+    }
+    let mut out = Vec::new();
+    let mut current: Option<String> = None;
+    for l in dsl.lines() {
+        let trimmed = l.trim_end();
+        if let Some(rest) = trimmed.strip_suffix(" {") {
+            current = rest
+                .split_once(":=")
+                .filter(|(_, k)| k.trim() == "DesignInput")
+                .map(|(name, _)| name.trim().to_owned());
+            continue;
+        }
+        let Some(name) = current.as_ref() else { continue };
+        if let Some(p) = trimmed.strip_prefix("abs_pos: vec2(") {
+            let mut it = p.trim_end_matches(')').split(',');
+            if let (Some(px), Some(py)) = (it.next(), it.next()) {
+                if let (Ok(x), Ok(y)) = (px.trim().parse::<f64>(), py.trim().parse::<f64>()) {
+                    if let Some((_, ev)) = fields.iter().find(|((bx, by, bw, bh), _)| {
+                        x >= *bx && x <= bx + bw && y >= *by && y <= by + bh
+                    }) {
+                        if !out.iter().any(|(n, _)| n == name) {
+                            out.push((name.clone(), ev.clone()));
+                        }
+                    }
+                }
+            }
+            current = None;
+        }
+    }
+    out
+}
 
 /// #32h item 5: the token / API-key fields must MASK typed input (the web:
 /// ConnectionPanel.tsx:255 `type={showToken ? "text" : "password"}`); the
