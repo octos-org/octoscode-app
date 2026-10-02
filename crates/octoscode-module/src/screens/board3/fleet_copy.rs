@@ -99,30 +99,6 @@ pub const GATHER_ZH: &[(&str, &str)] = &[
     ("Type your answer", "输入你的回答"),
 ];
 
-/// A30 — the peer dock's own copy (board 4 regions 6/7), the copy no web
-/// table has: the collapsed pill rewrites the web's `formatPeerDockPill`
-/// ("3 · 1 live · 1/3 landed · 1 blocked", never translated by the web) in
-/// the Fleet's words, the board names "Approve for this session"
-/// (`PeerDock.tsx:118`, peer-copy.ts) "Approve for session" (its zh is the
-/// web's), and the control chain's three fail-closed labels
-/// (`fleet_driver::row_control`) read in the same voice as the Fleet's
-/// "Take control of {value0} to do this".
-pub const DOCK_ZH: &[(&str, &str)] = &[
-    ("{value0} working", "{value0} 个工作中"),
-    ("{value0} waiting", "{value0} 个等待中"),
-    ("{value0}/{value1} finished", "{value0}/{value1} 已完成"),
-    ("Approve for session", "本次会话内批准"),
-    ("This peer is no longer in the roster.", "此同侪已不在名单中。"),
-    ("Take control of this session to do this", "需要先取得此会话的控制权"),
-    ("That action is not available right now.", "此操作当前不可用。"),
-];
-
-/// A30 — the Fleet's native copy (this pane's [`GATHER_ZH`] and the dock's
-/// [`DOCK_ZH`]): `i18n::zh_for`'s last fallback, after every web table.
-pub fn native_zh(source: &str) -> Option<&'static str> {
-    GATHER_ZH.iter().chain(DOCK_ZH).find(|(k, _)| *k == source).map(|(_, v)| *v)
-}
-
 /// The UI language: `zh` or `en` — A24: the ONE interface language
 /// (`crate::i18n`, the display preference's `language`), so the Fleet
 /// follows the Settings > Preferences switch live like every surface.
@@ -180,35 +156,5 @@ mod tests {
         assert_eq!(t_in("en", "Finished ({value0})", Some("2")), "Finished (2)");
         assert_eq!(t_in("zh", "not in the catalog", None), "not in the catalog");
         assert_eq!(t_in("zh", "Peer gather", None), "汇总协作结果");
-    }
-
-    /// A30 — the dock's native copy: every placeholder survives, no protocol
-    /// vocabulary, never a web key (a web key would make the entry dead), and
-    /// `tr()` reaches it (its last fallback) while English stays the source.
-    #[test]
-    fn the_dock_copy_is_reachable_through_tr_and_never_shadows_a_web_key() {
-        use crate::i18n::{catalog, text_in, tr_in, zh, Lang};
-        for (k, v) in DOCK_ZH.iter().chain(GATHER_ZH) {
-            assert!(!v.trim().is_empty(), "{k}");
-            for p in ["{value0}", "{value1}"] {
-                assert_eq!(k.contains(p), v.contains(p), "{k} keeps {p}");
-            }
-            for banned in ["seat", "epoch", "lane", "slug", "fence", "operation id", "binding"] {
-                assert!(!v.to_ascii_lowercase().contains(banned), "{k}: {v}");
-            }
-            // GATHER_ZH carries some web keys verbatim (zh.ts:910-913): the
-            // catalog answers those with the same text.
-            assert_eq!(tr_in(Lang::Zh, k), *v, "{k}");
-            assert_eq!(tr_in(Lang::En, k), *k);
-        }
-        // The dock's own copy is copy NO web table has (else it is dead).
-        for (k, _) in DOCK_ZH {
-            assert!(!catalog().contains_key(k), "{k} is a web key: the catalog wins, the entry is dead");
-            assert!(zh::PEER_ZH.iter().all(|(w, _)| w != k), "{k} is a peer-copy key");
-        }
-        assert_eq!(text_in(Lang::Zh, "{value0}/{value1} finished", &[("value0", "1"), ("value1", "3")]), "1/3 已完成");
-        // "Approve for session" is the board's wording of the web's own key.
-        let web = zh::PEER_ZH.iter().find(|(k, _)| *k == "Approve for this session").unwrap().1;
-        assert_eq!(tr_in(Lang::Zh, "Approve for session"), web);
     }
 }

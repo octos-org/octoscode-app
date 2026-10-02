@@ -25,6 +25,8 @@
 //! - Never applied to model, user or server prose: only call sites that
 //!   carry product copy call [`tr`] (the web's rule, `zh.ts:1`).
 pub mod alias;
+// A31: native copy with no web counterpart (board 4 surfaces), translated here.
+pub mod native;
 pub mod tree;
 #[rustfmt::skip]
 pub mod zh;
@@ -163,7 +165,8 @@ pub fn catalog_loaded() -> bool {
 }
 
 /// The Chinese text for an English source: the web key itself, else the
-/// web key of the same control ([`alias`]), each also tried with
+/// web key of the same control ([`alias`]), else native copy the web has
+/// no screen for ([`native`], board 4), each also tried with
 /// typographic quotes made straight (the native copy writes `can’t` where
 /// the web's key has `can't` — one string, two spellings); `None` = no web
 /// translation.
@@ -177,17 +180,16 @@ pub fn zh_for(source: &str) -> Option<&'static str> {
             // loader never merges — after the merged catalog, so a merged
             // key always wins.
             .or_else(|| zh::PEER_ZH.iter().find(|(k, _)| *k == s).map(|(_, v)| *v))
+            // A31 — native copy the web has no key for (board 4 surfaces;
+            // A30's peer dock included).
+            .or_else(|| native::zh(s))
     };
-    lookup(source)
-        .or_else(|| {
-            source
-                .contains(['\u{2018}', '\u{2019}', '\u{201c}', '\u{201d}'])
-                .then(|| source.replace(['\u{2018}', '\u{2019}'], "'").replace(['\u{201c}', '\u{201d}'], "\""))
-                .and_then(|plain| lookup(&plain))
-        })
-        // A30: last, the Fleet's native copy (`fleet_copy.rs`: the pane's
-        // gather words and the peer dock's own) — copy no web table has.
-        .or_else(|| crate::screens::board3::fleet_copy::native_zh(source))
+    lookup(source).or_else(|| {
+        source
+            .contains(['\u{2018}', '\u{2019}', '\u{201c}', '\u{201d}'])
+            .then(|| source.replace(['\u{2018}', '\u{2019}'], "'").replace(['\u{201c}', '\u{201d}'], "\""))
+            .and_then(|plain| lookup(&plain))
+    })
 }
 
 /// `t(source)` in `lang` (no interpolation).

@@ -1,0 +1,74 @@
+# A31 failing-first: the row-15 tests on main af2beb2f behind compile-only stubs that keep main's
+# behaviour (the event ignored, no feature requested, no list read, no section) — commit "a31: failing-first".
+# cargo test -p <crate> --test a31_skill_jobs  (store / client / module)
+## cargo test -p octoscode-store --test a31_skill_jobs
+test a_list_reply_merges_with_the_updates_around_it ... FAILED
+test a_newer_record_wins_and_a_duplicate_changes_nothing ... FAILED
+test a_terminal_status_never_regresses_to_an_active_one ... FAILED
+test each_profile_and_session_is_kept_apart ... FAILED
+test a_list_reply_overtaken_by_a_newer_one_is_ignored ... FAILED
+test a_scope_keeps_at_most_the_servers_retention ... FAILED
+test timestamps_compare_by_instant_not_by_text ... FAILED
+test from_wire_reads_the_server_record_and_refuses_a_foreign_scope ... FAILED
+test the_order_of_application_never_changes_the_result ... FAILED
+thread 'a_list_reply_merges_with_the_updates_around_it'  panicked at crates/octoscode-store/tests/a31_skill_jobs.rs:25:67:
+a server record
+thread 'a_newer_record_wins_and_a_duplicate_changes_nothing'  panicked at crates/octoscode-store/tests/a31_skill_jobs.rs:25:67:
+a server record
+thread 'a_terminal_status_never_regresses_to_an_active_one'  panicked at crates/octoscode-store/tests/a31_skill_jobs.rs:25:67:
+a server record
+thread 'each_profile_and_session_is_kept_apart'  panicked at crates/octoscode-store/tests/a31_skill_jobs.rs:25:67:
+a server record
+thread 'a_list_reply_overtaken_by_a_newer_one_is_ignored'  panicked at crates/octoscode-store/tests/a31_skill_jobs.rs:25:67:
+a server record
+thread 'a_scope_keeps_at_most_the_servers_retention'  panicked at crates/octoscode-store/tests/a31_skill_jobs.rs:25:67:
+a server record
+thread 'timestamps_compare_by_instant_not_by_text'  panicked at crates/octoscode-store/tests/a31_skill_jobs.rs:25:67:
+a server record
+thread 'from_wire_reads_the_server_record_and_refuses_a_foreign_scope'  panicked at crates/octoscode-store/tests/a31_skill_jobs.rs:38:43:
+thread 'the_order_of_application_never_changes_the_result'  panicked at crates/octoscode-store/tests/a31_skill_jobs.rs:25:67:
+a server record
+test result: FAILED. 0 passed; 9 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+## cargo test -p octoscode-client --test a31_skill_jobs
+test the_job_update_is_handled_not_ignored ... FAILED
+test a_malformed_job_is_tolerated_and_dropped_by_name ... ok
+test a_decoded_update_folds_into_its_scope ... FAILED
+thread 'the_job_update_is_handled_not_ignored'  panicked at crates/octoscode-client/tests/a31_skill_jobs.rs:28:5:
+thread 'a_decoded_update_folds_into_its_scope'  panicked at crates/octoscode-client/tests/a31_skill_jobs.rs:48:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+## cargo test -p octoscode-module --test a31_skill_jobs
+test every_status_maps_to_the_boards_chip_and_message ... FAILED
+test the_handshake_asks_for_the_job_feature_after_the_webs_list ... FAILED
+test an_update_applied_before_the_list_reply_survives_it ... FAILED
+test a_stale_list_reply_after_a_newer_update_never_regresses_it ... FAILED
+test opening_skills_seeds_the_section_for_its_profile_and_session ... FAILED
+test without_the_feature_only_announced_jobs_show_and_a_note_says_so ... FAILED
+test the_section_reads_in_chinese ... FAILED
+test a_job_of_another_session_or_profile_is_never_shown ... FAILED
+test a_long_list_keeps_every_active_job_and_counts_the_rest ... FAILED
+thread 'every_status_maps_to_the_boards_chip_and_message'  panicked at crates/octoscode-module/tests/a31_skill_jobs.rs:540:58:
+a server record
+thread 'the_handshake_asks_for_the_job_feature_after_the_webs_list'  panicked at crates/octoscode-module/tests/a31_skill_jobs.rs:313:5:
+assertion `left == right` failed: then the native extra: ["approval.typed.v1", "pane.snapshots.v1", "session.workspace_cwd.v1", "auxiliary.rest_to_ws.v1", "state.session_hydrate.v1", "state.thread_graph.v1", "state.turn_state_get.v1", "event.turn_steer_dropped.v1", "user_question.v1", "plan.todos.v1", "projection.envelope.v2", "harness.task_control.v1", "harness.task_artifacts.v1", "context.lifecycle.v1", "review.start.v1", "coding.autonomy.v1", "coding.agent_control.v1", "coding.goal_runtime.v1", "coding.loop_runtime.v1", "coding.monitor_runtime.v1", "external_driver_v1"]
+  left: []
+ right: ["skill.action_jobs.v1"]
+thread 'an_update_applied_before_the_list_reply_survives_it'  panicked at crates/octoscode-module/tests/a31_skill_jobs.rs:203:14:
+a skill/action/job/list request: Elapsed(())
+thread 'a_stale_list_reply_after_a_newer_update_never_regresses_it'  panicked at crates/octoscode-module/tests/a31_skill_jobs.rs:203:14:
+a skill/action/job/list request: Elapsed(())
+thread 'opening_skills_seeds_the_section_for_its_profile_and_session'  panicked at crates/octoscode-module/tests/a31_skill_jobs.rs:326:5:
+Skills reads its jobs on open: ["dialog.refresh.profile"]
+thread 'without_the_feature_only_announced_jobs_show_and_a_note_says_so'  panicked at crates/octoscode-module/tests/a31_skill_jobs.rs:219:5:
+timed out waiting for the announced job applied
+thread 'the_section_reads_in_chinese'  panicked at crates/octoscode-module/tests/a31_skill_jobs.rs:587:9:
+assertion `left == right` failed: Background jobs
+  left: "Background jobs"
+ right: "后台作业"
+thread 'a_job_of_another_session_or_profile_is_never_shown'  panicked at crates/octoscode-module/tests/a31_skill_jobs.rs:219:5:
+timed out waiting for this Session's own job applied
+thread 'a_long_list_keeps_every_active_job_and_counts_the_rest'  panicked at crates/octoscode-module/tests/a31_skill_jobs.rs:203:14:
+a skill/action/job/list request: Elapsed(())
+test result: FAILED. 0 passed; 9 failed; 0 ignored; 0 measured; 0 filtered out; finished in 25.96s
