@@ -1803,6 +1803,9 @@ impl ChromeRuntime {
         show(cx, view, ids!(oc_sidebar_body), !rail);
         show(cx, view, ids!(oc_sidebar_foot), !rail);
         show(cx, view, ids!(sidebar_header), !rail);
+        // The collapsed rail keeps the Fleet entry as its icon only; the web
+        // drops the label (ProductSidebar.tsx:980). Left in, it clipped to 3 px.
+        show(cx, view, ids!(fleet_nav_label), !rail);
         show(cx, view, ids!(sidebar_collapse_slot), !compact && !rail);
         if crate::screens::sidebar::take_focus_search() {
             view.widget(cx, ids!(sb_search)).set_key_focus(cx);

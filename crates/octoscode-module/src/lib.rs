@@ -369,7 +369,7 @@ script_mod! {
                             draw_svg.svg: file_resource(#(crate::design::icon_resource("b3_sparkle.svg")))
                             draw_svg.preserve_viewbox: true
                         }
-                        Label {
+                        fleet_nav_label := Label {
                             width: Fit height: Fit padding: 0 text: "Fleet"
                             draw_text.text_style: theme.oc_text_row
                             draw_text.text_style.font_size: 10.5
