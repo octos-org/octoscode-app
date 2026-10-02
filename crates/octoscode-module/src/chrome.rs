@@ -1896,7 +1896,12 @@ impl ChromeRuntime {
             .unwrap_or(true);
         show(cx, view, ids!(hd_defaults), live && empty);
         if live && empty {
-            text(cx, view, ids!(hd_defaults_text), &settings::defaults_line(store));
+            // A13: on a phone the one line ends at a whole segment, then "…"
+            // (the label's own ellipsis stays the safety net). The label's
+            // width: the strip's insets (16 + 8), its spacing (8), Change (72).
+            let line = settings::defaults_line(store);
+            let line = if compact { fit_segments(&line, window_w - 104.0) } else { line };
+            text(cx, view, ids!(hd_defaults_text), &line);
         }
         // Board 12: held by another client.
         let held = held_by_other(store);
@@ -2065,6 +2070,24 @@ fn segment_hit(cx: &mut Cx, view: &View, seg: LiveId, actions: &Actions) -> bool
 
 fn toggle_hit(cx: &mut Cx, view: &View, toggle: LiveId, actions: &Actions) -> bool {
     clicked(cx, view, &[toggle, live_id!(tg_hit)], actions)
+}
+
+/// A13 — an `a · b · c` line cut at a whole segment so it fits `budget` px
+/// (13 px Inter, the kit's advance estimate: it runs wide on ` · `), ending `· …`
+/// when segments were dropped. The first segment always stays.
+pub fn fit_segments(line: &str, budget: f64) -> String {
+    use crate::screens::board3::ui::{text_w, Face};
+    let parts: Vec<&str> = line.split(" · ").collect();
+    let mut out = String::new();
+    for (i, part) in parts.iter().enumerate() {
+        let next = if out.is_empty() { (*part).to_owned() } else { format!("{out} · {part}") };
+        let tail = if i + 1 < parts.len() { " · …" } else { "" };
+        if !out.is_empty() && text_w(&format!("{next}{tail}"), 13.0, Face::Regular) > budget {
+            return format!("{out} · …");
+        }
+        out = next;
+    }
+    out
 }
 
 /// The server origin the settings show (the web's `serverOrigin`): the
@@ -2403,6 +2426,21 @@ pub fn seed_board2(store: &octoscode_store::Store, variant: &str) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A13 (judge: the defaults strip wrapped to 3 lines at 360 px) — on a
+    /// phone the line ends at a whole segment with "· …" inside the label's
+    /// 256 px; a line that fits stays whole.
+    #[test]
+    fn the_defaults_line_is_cut_at_a_whole_segment() {
+        use crate::screens::board3::ui::{text_w, Face};
+        let line = "New chat defaults · Ask for approval · Workspace write · deepseek-v4-flash · Thinking: On";
+        let phone = fit_segments(line, 360.0 - 104.0);
+        assert!(phone.ends_with(" · …") && line.starts_with(phone.trim_end_matches(" · …")), "{phone}");
+        assert!(phone.starts_with("New chat defaults · Ask for approval"), "{phone}");
+        assert!(text_w(&phone, 13.0, Face::Regular) <= 256.0, "{phone}");
+        assert_eq!(fit_segments(line, 900.0), line, "a line that fits stays whole");
+        assert_eq!(fit_segments("New chat defaults", 10.0), "New chat defaults", "the first segment stays");
+    }
 
     #[test]
     fn a_notice_fires_once_per_new_settle_or_wait_and_only_in_the_background() {
