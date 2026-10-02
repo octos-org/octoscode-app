@@ -3363,6 +3363,8 @@ impl OctoscodeView {
             let active_turn = ui.lock().unwrap().active_turn();
             // A10 — the Fleet's control seat targets the master's live turn.
             screens::board3::host::set_live_turn(active_turn.clone());
+            // A10 — the Agents panel's spawn is idle-only.
+            screens::board3::agents::note_turn_busy(active_turn.is_some());
             let mode = {
                 let ctx = bindings::Ctx::new(&store, &ui);
                 screens::workspace::query(&ctx, "set.permission_mode")

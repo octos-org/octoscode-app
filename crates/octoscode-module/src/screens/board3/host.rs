@@ -40,6 +40,8 @@ pub enum Dialog {
     Fleet,
     /// Screen 12 (right) — the Vim key legend (`?` in Normal mode).
     Vim,
+    /// A10 — the Agents panel (`/agents`, web `AgentPanel.tsx`; no board).
+    Agents,
 }
 
 impl Dialog {
@@ -54,6 +56,7 @@ impl Dialog {
             "switcher" | "sessions" => Dialog::Switcher,
             "fleet" => Dialog::Fleet,
             "vim" => Dialog::Vim,
+            "agents" | "agent" => Dialog::Agents,
             _ => return None,
         })
     }
@@ -74,6 +77,8 @@ pub struct State {
     pub strip: super::strip::StripState,
     /// The composer's Vim preference + mode (screen 12).
     pub vim: super::vim::VimState,
+    /// A10 — the Agents panel's form drafts.
+    pub agents: super::agents::AgentsState,
     /// Text a finished job wants on the clipboard (the host writes it on the
     /// UI thread, where `cx` lives).
     pub pending_clipboard: Option<String>,
@@ -93,6 +98,7 @@ impl Default for State {
             fleet: Default::default(),
             strip: Default::default(),
             vim: Default::default(),
+            agents: Default::default(),
             pending_clipboard: None,
         }
     }
@@ -215,6 +221,7 @@ pub fn lower_open(store: &Store) -> Option<Lowered> {
         Dialog::History => super::checkpoints::build(&mut d, &st.ck, &st.frame, store),
         Dialog::Switcher => super::switcher::build(&mut d, &st.switch, &st.frame, store, &st.vim),
         Dialog::Vim => super::vim::build_help(&mut d, &st.vim, &st.frame),
+        Dialog::Agents => super::agents::build(&mut d, &st.agents, &st.frame, store),
         Dialog::Images => {
             let session = store.domains.session.active().unwrap_or_default();
             let drafts = crate::screens::media::drafts_for_session(&session);
@@ -270,6 +277,20 @@ pub enum Job {
     StatusRead,
     /// `GET /api/files` for a delivered file (entry id, preview?).
     FileFetch(u64, bool),
+    /// A10 — `agent/list` (the Agents panel's roster).
+    AgentsLoad,
+    /// A10 — `agent/status/read` into the detail viewer.
+    AgentStatus(String),
+    /// A10 — `agent/output/read` (agent, load more?).
+    AgentOutput(String, bool),
+    /// A10 — `agent/artifact/list` into the detail viewer.
+    AgentArtifacts(String),
+    /// A10 — `agent/artifact/read` (agent, artifact id | path).
+    AgentArtifactRead(String, Option<String>, Option<String>),
+    /// A10 — `agent/interrupt` | `agent/close`.
+    AgentControl(String, &'static str),
+    /// A10 — the spawn: an ordinary queued `turn/start` with the composed text.
+    AgentsSpawn(String),
 }
 
 /// What a routed action asks of the host.
@@ -341,6 +362,11 @@ pub fn open(dialog: Dialog) -> Outcome {
             Outcome::Spawn(Job::FleetLanes)
         }
         Dialog::Vim => Outcome::Done,
+        Dialog::Agents => {
+            st.agents.snap();
+            st.agents.spawn_error = None;
+            Outcome::Spawn(Job::AgentsLoad)
+        }
     }
 }
 
@@ -427,6 +453,9 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
     if action.starts_with("b3.fleet.") {
         return super::fleetview::perform(&mut st.fleet, action, index, store);
     }
+    if action.starts_with("b3.agents.") {
+        return super::agents::perform(&mut st.agents, action, index, store);
+    }
     Outcome::Unrouted
 }
 
@@ -437,6 +466,7 @@ pub fn input_changed(key: &str, text: &str) {
         "inv" => super::inventory::input_changed(&mut st.inv, key, text),
         "resume" => super::resume::input_changed(&mut st.resume, key, text),
         "fleet" => super::fleetview::input_changed(&mut st.fleet, key, text),
+        "agents" => super::agents::input_changed(&mut st.agents, key, text),
         _ => {}
     }
 }
@@ -464,6 +494,7 @@ pub fn live_visibility(store: &Store) -> Vec<(String, bool)> {
     match st.open {
         Some(Dialog::Inventory) => super::inventory::visibility(&st.inv, store),
         Some(Dialog::Resume) => super::resume::visibility(&st.resume),
+        Some(Dialog::Agents) => super::agents::visibility(&st.agents),
         _ => Vec::new(),
     }
 }
@@ -538,6 +569,9 @@ pub fn command(name: &str, args: &str, conv: &crate::flow::Conversation) -> Opti
         }
         "rewind" | "backtrack" => Some(open(Dialog::History)),
         "sessions" | "ss" => Some(open(Dialog::Switcher)),
+        // A10 — the web's `/agents` (alias `/agent`) autonomy intent: the
+        // Agents panel (`registry.ts:383-397`).
+        "agents" | "agent" => Some(open(Dialog::Agents)),
         // `App.tsx:1267-1269`: flip the preference (which also returns the
         // composer to Insert, `vim-edit.ts:31-33`); the field note shows it.
         "vimmode" | "vim-mode" => {
@@ -599,6 +633,13 @@ pub fn job_unavailable(job: &Job) {
             st.fleet.console.outcome = super::fleet_console::ConsoleOutcome::Unknown { dispatch: true };
         }
         Job::StatusRead => {}
+        Job::AgentsLoad => st.agents.loading = false,
+        Job::AgentsSpawn(_) => st.agents.spawn_error = Some(super::agents::SPAWN_REFUSED.into()),
+        Job::AgentStatus(_)
+        | Job::AgentOutput(..)
+        | Job::AgentArtifacts(_)
+        | Job::AgentArtifactRead(..)
+        | Job::AgentControl(..) => {}
         Job::FileFetch(id, _) => {
             drop(st);
             let mut f = super::rows::file_state();
@@ -664,6 +705,13 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         Job::FleetConsoleRow { identity, action, text } => super::fleet_console::run_row(conv, identity, action, text).await,
         Job::StatusRead => super::strip::load_status(conv).await,
         Job::FileFetch(id, preview) => super::rows::fetch(conv, id, preview).await,
+        Job::AgentsLoad => super::agents::load(conv).await,
+        Job::AgentStatus(id) => super::agents::read_status(conv, id).await,
+        Job::AgentOutput(id, more) => super::agents::read_output(conv, id, more).await,
+        Job::AgentArtifacts(id) => super::agents::list_artifacts(conv, id).await,
+        Job::AgentArtifactRead(id, aid, path) => super::agents::read_artifact(conv, id, aid, path).await,
+        Job::AgentControl(id, kind) => super::agents::control(conv, id, kind).await,
+        Job::AgentsSpawn(text) => super::agents::spawn(conv, text).await,
     }
 }
 
@@ -691,7 +739,7 @@ mod tests {
 
     #[test]
     fn every_dialog_id_round_trips_and_routes_are_b3_only() {
-        for id in ["inventory", "inspector", "thinking", "resume", "images", "history", "switcher", "fleet", "vim"] {
+        for id in ["inventory", "inspector", "thinking", "resume", "images", "history", "switcher", "fleet", "vim", "agents"] {
             assert!(Dialog::from_id(id).is_some(), "{id}");
         }
         assert!(routes("b3.close"));

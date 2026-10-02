@@ -165,9 +165,9 @@ pub fn for_command(name: &str) -> Option<Dialog> {
         "model" | "models" => Dialog::Models,
         "context" | "ctx" | "compact" | "compress" => Dialog::Context,
         "skills" | "skill" => Dialog::Skills,
-        // `agents` and `goal` share the web's `autonomy` intent; the goal is
-        // the dialog's first section (AutonomyPanel.tsx:114).
-        "goal" | "agents" | "agent" => Dialog::Goal,
+        // A10: `/agents` opens its own Agents panel (board-3 host), not the
+        // goal section.
+        "goal" => Dialog::Goal,
         "loop" | "loops" => Dialog::Loops,
         "monitor" | "monitors" => Dialog::Monitors,
         "peer" | "peers" | "fleet" => Dialog::Fleet,
@@ -3130,7 +3130,6 @@ mod tests {
             ("ctx", Dialog::Context),
             ("/skills", Dialog::Skills),
             ("/goal", Dialog::Goal),
-            ("/agents", Dialog::Goal),
             ("/loop", Dialog::Loops),
             ("/monitor", Dialog::Monitors),
             ("/peer", Dialog::Fleet),

@@ -80,6 +80,10 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         // are r1-autonomy's; every REQUEST the dialogs send is answered from
         // the recorded replies (`screens_replies`).
         "screens" => ("screens", "r1-autonomy-a6ea8505.jsonl"),
+        // A10: the `screens` replies plus, for the methods no recording
+        // carries, the faithful `a10-*-faithful.jsonl` frames served IN ORDER
+        // (a load-more's second read gets the second reply).
+        "a10" => ("a10", "r1-autonomy-a6ea8505.jsonl"),
         // #32b3: one synthetic turn whose fenced code block carries a 227-column
         // line — the long-code-line render capture (the web wraps: pre-wrap).
         "longcodeline" => ("longcodeline", "longcodeline-a6ea8505.jsonl"),
@@ -272,6 +276,35 @@ fn screens_replies() -> BTreeMap<String, (Value, String)> {
     out
 }
 
+/// A10 — every `a10-*-faithful.jsonl` fixture's inbound replies, per method,
+/// in file order (`(body, session)`; the session the frames name is the one
+/// rewritten to the opened session).
+fn a10_sequenced() -> BTreeMap<String, Vec<(Value, String)>> {
+    let mut out: BTreeMap<String, Vec<(Value, String)>> = BTreeMap::new();
+    let dir = format!("{}/../octoscode-client/tests/fixtures", env!("CARGO_MANIFEST_DIR"));
+    let mut files: Vec<String> = std::fs::read_dir(&dir)
+        .map(|rd| {
+            rd.filter_map(|e| e.ok())
+                .map(|e| e.file_name().to_string_lossy().to_string())
+                .filter(|n| n.starts_with("a10-") && n.ends_with("-faithful.jsonl"))
+                .collect()
+        })
+        .unwrap_or_default();
+    files.sort();
+    for file in files {
+        let frames = fixture(&file);
+        let session = frames
+            .iter()
+            .find(|f| f.dir == "note")
+            .and_then(|f| f.body.get("session").and_then(|s| s.as_str()).map(str::to_owned))
+            .unwrap_or_else(|| recorded_session(&frames));
+        for f in frames.iter().filter(|f| f.dir == "in") {
+            out.entry(f.method.clone()).or_default().push((f.body.clone(), session.clone()));
+        }
+    }
+    out
+}
+
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -289,7 +322,14 @@ async fn main() {
         .cloned()
         .unwrap_or_default();
     let (label, file) = scenario_fixture(&scenario);
-    let replies = if label == "screens" { screens_replies() } else { BTreeMap::new() };
+    let replies = if label == "screens" || label == "a10" { screens_replies() } else { BTreeMap::new() };
+    let sequenced = if label == "a10" { a10_sequenced() } else { BTreeMap::new() };
+    if !sequenced.is_empty() {
+        println!(
+            "[replay-serve] a10: faithful sequenced replies: {:?}",
+            sequenced.iter().map(|(m, v)| format!("{m} x{}", v.len())).collect::<Vec<_>>()
+        );
+    }
     if !replies.is_empty() {
         println!(
             "[replay-serve] screens: {} recorded replies: {:?}",
@@ -322,7 +362,7 @@ async fn main() {
     // the monitor as created, the goal as set — the same step its reads
     // answer with), so the store's autonomy domain, and with it the
     // sidebar's GOALS / LOOPS rows, hold what the dialogs show.
-    let standalone = if label == "screens" {
+    let standalone = if label == "screens" || label == "a10" {
         let all = standalone_notifications(&frames);
         ["loop/updated", "monitor/updated", "session/goal/updated"]
             .iter()
@@ -355,7 +395,10 @@ async fn main() {
         let recorded_turns = recorded_turns.clone();
         let standalone = standalone.clone();
         let replies = replies.clone();
+        let sequenced = sequenced.clone();
         tokio::spawn(async move {
+            // A10: how many sequenced replies each method has consumed.
+            let mut seq_pos: BTreeMap<String, usize> = BTreeMap::new();
             let Ok(ws) = tokio_tungstenite::accept_async(stream).await else {
                 return;
             };
@@ -461,6 +504,19 @@ async fn main() {
                                 tokio::time::sleep(std::time::Duration::from_millis(delay_ms)).await;
                             }
                         });
+                    }
+                    // A10 — a faithful sequenced reply (in order, the last
+                    // one repeating), re-pointed at the opened session.
+                    m if sequenced.contains_key(m) => {
+                        let list = &sequenced[m];
+                        let k = seq_pos.entry(m.to_owned()).or_insert(0);
+                        let (mut body, from) = list[(*k).min(list.len() - 1)].clone();
+                        *k += 1;
+                        rewrite_session(&mut body, &from, &active_session);
+                        println!("[replay-serve] -> {m} (faithful reply #{k})");
+                        send(&tx, serde_json::json!({
+                            "jsonrpc": "2.0", "id": id, "result": body
+                        })).await;
                     }
                     // A5 — the `screens` scenario: the recorded reply for
                     // this method, re-pointed at the session the app opened.

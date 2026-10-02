@@ -16,6 +16,7 @@ use octoscode_store::Store;
 // user reaches is the flow-laid-out dialog family in `board3/` (see
 // `board3/ui.rs` for why: runtime lists + a desktop window shorter than the
 // 406x776 artboard).
+pub mod agents;
 pub mod checkpoints;
 // A10: the Fleet's Advanced session controller and its zh catalog.
 pub mod fleet_console;
