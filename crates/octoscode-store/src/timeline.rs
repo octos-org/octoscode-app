@@ -180,6 +180,33 @@ impl Timeline {
         id
     }
 
+    /// A7 — one system notice per `key` (the web's `addSystemMessage(entries,
+    /// id, title, body, tone)`, `timeline/model.ts`: the id dedups): replace
+    /// the keyed notice's title/body in place, else append it. Returns its id.
+    pub fn upsert_notice(
+        &self,
+        session: &str,
+        turn_id: Option<String>,
+        key: &str,
+        title: &str,
+        body: &str,
+        tone: &str,
+    ) -> u64 {
+        let data = serde_json::json!({"key": key, "title": title, "body": body, "tone": tone});
+        {
+            let mut map = self.inner.lock().unwrap();
+            let entries = map.entry(session.to_owned()).or_default();
+            if let Some(e) = entries.iter_mut().find(|e| {
+                e.kind == EntryKind::SYSTEM_NOTICE && e.data.get("key").and_then(|k| k.as_str()) == Some(key)
+            }) {
+                e.text = body.to_owned();
+                e.data = data;
+                return e.id;
+            }
+        }
+        self.append_data(session, turn_id, EntryKind::SYSTEM_NOTICE, body.to_owned(), data)
+    }
+
     /// Fold streamed `text` into the last OPEN entry of `(session, turn_id,
     /// kind)`, appending one when there is none. This is how `message/delta`
     /// becomes **one** assistant entry instead of thousands.

@@ -95,6 +95,11 @@ pub const COMMANDS: &[Command] = &[
     // and the typed command can never diverge. Gates: the web's requirements
     // (`registry.ts`).
     Command { name: "/rewind", description: "Rewind to an earlier turn", methods_any: &["session/rollback"], requires_all: &["session/hydrate"], aliases: &["backtrack"], effect: Some("compose:/rewind") },
+    // A7 — the history dialog's other two modes (`history-binding.ts:53-67`
+    // gates: undo snapshot/list + snapshot/restore, fork session/fork +
+    // session/open, every mode session/hydrate).
+    Command { name: "/undo", description: "Undo workspace changes", methods_any: &["snapshot/list"], requires_all: &["snapshot/restore", "session/hydrate"], aliases: &["snapshots"], effect: Some("compose:/undo") },
+    Command { name: "/fork", description: "Fork the conversation", methods_any: &["session/fork"], requires_all: &["session/open", "session/hydrate"], aliases: &[], effect: Some("compose:/fork") },
     Command { name: "/threads", description: "Inspect the thread graph", methods_any: &["thread/graph/get"], requires_all: &["state.thread_graph.v1"], aliases: &["thread"], effect: Some("compose:/threads") },
     Command { name: "/turn", description: "Inspect the active turn", methods_any: &["turn/state/get"], requires_all: &["state.turn_state_get.v1"], aliases: &[], effect: Some("compose:/turn") },
     Command { name: "/permissions", description: "Remembered decisions", methods_any: &["approval/scopes/list"], requires_all: &[], aliases: &["permission"], effect: Some("compose:/permissions") },

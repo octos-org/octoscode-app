@@ -403,11 +403,14 @@ pub fn has_active_turn(thread: &Value) -> bool {
 /// conversation name the fork may use. Rejects empty/whitespace and anything
 /// with a path separator or control character.
 pub fn valid_fork_chat_id(name: &str) -> bool {
-    let name = name.trim();
-    !name.is_empty()
-        && name.len() <= 128
-        && !name.contains(['/', '\\'])
+    // A7: the web's exact rule (`packages/client/src/history.ts:54-61`):
+    // at most 50 UTF-8 bytes, no `#` `:` `/` or control character, not the
+    // reserved `default` — plus the native refusal of a blank name.
+    !name.trim().is_empty()
+        && name.len() <= 50
+        && !name.contains(['/', '\\', '#', ':'])
         && !name.chars().any(|c| c.is_control())
+        && !name.eq_ignore_ascii_case("default")
 }
 
 // ------------------------------------------------------- the three mutations

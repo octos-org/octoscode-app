@@ -399,7 +399,12 @@ fn the_palette_lists_advertised_commands_filtered_like_the_web() {
     assert_eq!(names("/ctx"), vec!["/compact"], "the alias finds /compact");
     assert_eq!(names("/tasks"), vec!["/ps"]);
     assert_eq!(names("/btw why"), Vec::<&str>::new(), "arguments: no menu");
-    assert_eq!(names("/").len(), palette::COMMANDS.len(), "every row is advertised by r1");
+    // A7: r1 records no snapshot/* and no session/fork, so the history
+    // dialog's /undo and /fork rows (registry.ts:133/:162) stay hidden there
+    // (fail closed); every other row is advertised by r1.
+    let listed = names("/");
+    let hidden: Vec<&str> = palette::COMMANDS.iter().map(|c| c.name).filter(|n| !listed.contains(n)).collect();
+    assert_eq!(hidden, vec!["/undo", "/fork"], "every other row is advertised by r1");
     // Every row runs a native effect (none is a silent no-op).
     for c in palette::COMMANDS {
         assert!(c.effect.is_some(), "{} has no effect", c.name);

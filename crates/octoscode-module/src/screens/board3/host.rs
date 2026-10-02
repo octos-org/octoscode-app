@@ -233,6 +233,10 @@ pub enum Job {
     CheckpointsLoad,
     /// `session/rollback` to the checkpoint key.
     Rewind(String),
+    /// A7 — `snapshot/list` + `snapshot/restore` of the snapshot id.
+    Undo(String),
+    /// A7 — `session/fork` with the conversation name.
+    Fork(String),
     /// `session/hydrate` -> markdown -> clipboard.
     CopyMarkdown,
     /// `session/list`.
@@ -418,6 +422,8 @@ pub fn input_changed(key: &str, text: &str) {
         "inv" => super::inventory::input_changed(&mut st.inv, key, text),
         "resume" => super::resume::input_changed(&mut st.resume, key, text),
         "fleet" => super::fleetview::input_changed(&mut st.fleet, key, text),
+        // A7 — the history dialog's fork name.
+        "ck" => super::checkpoints::input_changed(&mut st.ck, key, text),
         _ => {}
     }
 }
@@ -445,6 +451,7 @@ pub fn live_visibility(store: &Store) -> Vec<(String, bool)> {
     match st.open {
         Some(Dialog::Inventory) => super::inventory::visibility(&st.inv, store),
         Some(Dialog::Resume) => super::resume::visibility(&st.resume),
+        Some(Dialog::History) => super::checkpoints::visibility(&st.ck),
         _ => Vec::new(),
     }
 }
@@ -517,7 +524,21 @@ pub fn command(name: &str, args: &str, conv: &crate::flow::Conversation) -> Opti
             }
             Some(open(Dialog::Images))
         }
-        "rewind" | "backtrack" => Some(open(Dialog::History)),
+        "rewind" | "backtrack" => {
+            state().ck.open_mode(crate::screens::history::HistoryMode::Rewind);
+            Some(open(Dialog::History))
+        }
+        // A7 — the same history dialog in its other two modes
+        // (`HistoryDialog.tsx`: "Undo workspace changes" / "Fork
+        // conversation"; `registry.ts` `/undo` (alias `/snapshots`), `/fork`).
+        "undo" | "snapshots" => {
+            state().ck.open_mode(crate::screens::history::HistoryMode::Undo);
+            Some(open(Dialog::History))
+        }
+        "fork" => {
+            state().ck.open_mode(crate::screens::history::HistoryMode::Fork);
+            Some(open(Dialog::History))
+        }
         "sessions" | "ss" => Some(open(Dialog::Switcher)),
         // `App.tsx:1267-1269`: flip the preference (which also returns the
         // composer to Insert, `vim-edit.ts:31-33`); the field note shows it.
@@ -550,7 +571,7 @@ pub fn job_unavailable(job: &Job) {
             st.resume.opening = false;
             st.resume.error = Some("A confirmed source Session is required to browse history.".into());
         }
-        Job::CheckpointsLoad | Job::Rewind(_) | Job::CopyMarkdown => {
+        Job::CheckpointsLoad | Job::Rewind(_) | Job::CopyMarkdown | Job::Undo(_) | Job::Fork(_) => {
             st.ck.loading = false;
             st.ck.applying = false;
             st.ck.error = Some(msg);
@@ -614,6 +635,8 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         Job::ResumeOpen(id) => super::resume::open(conv, id).await,
         Job::CheckpointsLoad => super::checkpoints::load(conv).await,
         Job::Rewind(key) => super::checkpoints::rewind(conv, key).await,
+        Job::Undo(id) => super::checkpoints::undo(conv, id).await,
+        Job::Fork(name) => super::checkpoints::fork(conv, name).await,
         Job::CopyMarkdown => super::checkpoints::copy_markdown(conv).await,
         Job::SwitchLoad => super::switcher::load(conv).await,
         Job::SwitchOpen(id) => super::switcher::open(conv, id).await,
