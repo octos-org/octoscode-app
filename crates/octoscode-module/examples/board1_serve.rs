@@ -18,7 +18,8 @@
 //!   `workspace_list_permission_denied` refusal.
 //!
 //! ```sh
-//! cargo run -p octoscode-module --example board1_serve -- 8422 [--pair ok|used|expired|locked|unsupported] [--no-browse]
+//! cargo run -p octoscode-module --example board1_serve -- 8422 [--pair ok|used|expired|locked|unsupported|open] [--no-browse]
+//! # `open`: /pair/info says pairing_required false (a server without a token; A11's tokenless offer)
 //! # it prints the pairing link to paste:  PAIR-LINK http://app.invalid/?octos=http://127.0.0.1:8422&pair=3QK7ZP2M
 //! ```
 use std::collections::BTreeMap;
@@ -134,11 +135,18 @@ async fn http(mut stream: TcpStream, cfg: Cfg, claimed: Arc<Mutex<bool>>) {
     let (method, path) = (first.next().unwrap_or("").to_owned(), first.next().unwrap_or("").to_owned());
     let origin = format!("http://127.0.0.1:{}", cfg.port);
     let kind = |k: &str| (400u16, Some(serde_json::json!({"error": {"kind": k}})));
+    if path == "/pair/info" {
+        // A11: every discovery probe is one line, so a walk can count them
+        // ("one GET, once"; none for a refused origin).
+        println!("[board1-serve] {method} /pair/info ({})", if cfg.pair == "unsupported" { 404 } else { 200 });
+    }
     let (status, reply) = match (method.as_str(), path.as_str()) {
         (_, "/pair/info" | "/pair/claim") if cfg.pair == "unsupported" => (404, None),
+        // `--pair open`: a server running without a bearer token answers
+        // `pairing_required: false` (octos `pairing.rs` `pairing_required`).
         ("GET", "/pair/info") => (
             200,
-            Some(serde_json::json!({"product": "octos", "version": "2.0.3-rc.13", "pairing_required": true, "server_origin": origin})),
+            Some(serde_json::json!({"product": "octos", "version": "2.0.3-rc.13", "pairing_required": cfg.pair != "open", "server_origin": origin})),
         ),
         ("POST", "/pair/claim") => {
             let code = serde_json::from_slice::<serde_json::Value>(&body)

@@ -14,6 +14,9 @@ pub mod connect;
 // A5: the dialog host — the Stage-B screens reachable from the palette and
 // the sidebar, lowered slot-relative, wired by node id.
 pub mod dialog;
+// A11: pairing discovery — the remembered server, probed once, offered once
+// on the first-run Connect card (walk row 114).
+pub mod discovery;
 pub mod fleet;
 pub mod history;
 pub mod keys;

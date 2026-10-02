@@ -1384,6 +1384,11 @@ impl OctoscodeView {
             makepad_widgets::log!("[octoscode] synthetic live: board-4 seed (no transport)");
             return;
         }
+        // A11 — pairing discovery (the web's §Discovery): the remembered
+        // server, probed ONCE off the UI thread when no credential is at hand;
+        // a pairing-capable answer is offered on the Connect card
+        // (screens/discovery.rs). Not in the capture seeds above (no card).
+        let _ = screens::discovery::start_once();
         // Card #28e item 6 (board 4 frame 4): the first-run frame needs NO
         // connection, so `is_live()` stays false and the window shows only the
         // centered 480 px card. `OCTOSCODE_NO_CONNECT`/`OCTOSCODE_FIRST_RUN`
@@ -3967,19 +3972,24 @@ impl OctoscodeView {
             let ui = b.screens.lock().unwrap();
             (ui.view(), ui.token.clone(), ui.endpoint_error)
         };
+        // A11 — the discovery offer: the key follows the offer that APPEARED
+        // (sticky), so a dismissal hides it in place below instead of
+        // remounting the fields being typed into.
+        let offer = screens::discovery::offer();
         let key = (
             view.error.clone(),
             format!(
-                "{}|{}|{}|{:?}|{}",
+                "{}|{}|{}|{:?}|{}|{}",
                 view.error_actions,
                 view.last_tried,
                 view.connecting,
                 m.density,
-                screens::theme::resolved()
+                screens::theme::resolved(),
+                screens::discovery::appeared().unwrap_or_default()
             ),
         );
         if self.connect_key.as_ref() != Some(&key) {
-            let dsl = screens::theme::retint_dsl(&fluid::connect_card(&view, &m, left));
+            let dsl = screens::theme::retint_dsl(&fluid::connect_card_with_offer(&view, &m, left, offer.as_ref()));
             let splash = self.view.splash(cx, ids!(screen_splash));
             match self.mounts.mount(cx, &splash, &dsl) {
                 Ok(_) => {
@@ -4018,6 +4028,10 @@ impl OctoscodeView {
         self.view
             .widget(cx, &[live_id!(screen_splash), live_id!(connect_server_error)])
             .set_visible(cx, endpoint_error.is_some());
+        // A11: a used or dismissed offer leaves the card in place.
+        self.view
+            .widget(cx, &[live_id!(screen_splash), live_id!(connect_offer_box)])
+            .set_visible(cx, offer.is_some());
     }
 
     /// A1 — follow the latest turn again (the web's `jumpToLatest` on send):
@@ -4816,6 +4830,9 @@ impl Widget for OctoscodeView {
                         .text_input(cx, &[live_id!(screen_splash), *id])
                         .changed(actions)
                     {
+                        // A11: an edited Server/Access token is the web's
+                        // identity change — the discovery offer goes.
+                        screens::discovery::note_identity_edit();
                         self.perform_screen_action(ev, Some(&text));
                     }
                     if self
