@@ -170,3 +170,10 @@ The generator got these strings wrong. Build from the corrections, not from the 
 7. **One Chinese face.** Today Chinese is drawn in Noto Sans SC in the conversation and in LXGW WenKai in dialogs, the sidebar and the Fleet. Pick one for all UI text (Z6 shows both).
    - My recommendation is Noto Sans SC: it is plain and even like Inter, and A1 chose it as the bundled face. WenKai would stay the fallback for rare characters.
    - Then the three hand-written kits would switch from WenKai to `design::cjk_members`.
+
+## Operator decisions (2026-10-02)
+- Board APPROVED as is. Build copy comes from this README (the generator misspelled some English and drew wrong CJK characters).
+- Phone diff review: a full-screen sheet (as the web and this board), not the small pop-up.
+- /btw aside: keep the collapsed one-row state, the asking-session line, and a sidebar marker on a Session row that holds an aside. The answer arrives in one reply ("Answering…" then the answer).
+- CJK typeface: Noto Sans SC for all UI text; LXGW WenKai stays as the fallback for rare characters.
+- Defaults the operator did not change (the board's proposals): the dock starts folded on phone; one dock button set (Approve once, Deny, Stop, plus Approve for session); skill jobs cover the dialog's Session.
