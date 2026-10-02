@@ -2446,7 +2446,7 @@ impl OctoscodeView {
                         .text();
                     screens::dialog::set_skills_source(&repo, &branch);
                     if repo.trim().is_empty() {
-                        screens::dialog::set_notice("Type the repository or server-side path first.");
+                        screens::dialog::set_notice(i18n::tr("Type the repository or server-side path first."));
                     }
                 }
                 let store = { self.bridge.lock().unwrap().store.clone() };
@@ -2586,10 +2586,11 @@ impl OctoscodeView {
                         &session,
                         Some(screens::palette::next_receipt_turn()),
                         screens::palette::REPORT_KIND,
-                        format!(
-                            "Arguments for {name} are not supported in this native build. \
+                        i18n::tr1(
+                            "Arguments for {value0} are not supported in this native build. \
                              Open the command without arguments to use its controls. \
-                             Nothing was sent to the model."
+                             Nothing was sent to the model.",
+                            name,
                         ),
                     );
                     makepad_widgets::log!("[octoscode] palette run {name}: arguments reported");
@@ -4917,7 +4918,8 @@ impl OctoscodeView {
                         // roving selection), no longer hardcoded row 0.
                         item.widget(cx, ids!(palette_row_bg)).set_visible(cx, Some(row) == sel);
                         item.label(cx, ids!(palette_row_name)).set_text(cx, cmd.name);
-                        item.label(cx, ids!(palette_row_desc)).set_text(cx, cmd.description);
+                        // A24: the description in the current language (the name is an identifier).
+                        item.label(cx, ids!(palette_row_desc)).set_text(cx, i18n::tr(cmd.description));
                         item.draw_all_unscoped(cx);
                     }
                 } else if uid == review_files_uid {

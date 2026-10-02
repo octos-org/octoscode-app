@@ -23,6 +23,7 @@ use octoscode_store::timeline::EntryKind;
 use octoscode_store::Store;
 
 use super::ui::{tok, Dsl, Face, Txt, W};
+use crate::i18n::tr;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct StripState {
@@ -294,6 +295,11 @@ pub fn lower(
     };
     let model_missing = model == "Model not reported";
     let perm_missing = perm == "Permissions not reported";
+    // A24 — the strip in the current language: its fixed words and labels
+    // (the model's own name is server data and stays as reported).
+    let model = if model_missing { tr(&model).to_owned() } else { model };
+    let perm = tr(&perm).to_owned();
+    let state_shown = state_display(&state);
     if narrow {
         // A8 — a phone width is the web's <=760 px strip
         // (`SessionConfig.module.css:54-75`): the state word first, on its
@@ -302,7 +308,7 @@ pub fn lower(
         // 360 px.
         let col = d.anon();
         d.view(&col, "width: Fill height: Fit flow: Down");
-        cell(&mut d, "b3_strip_state", &state, false, &split(1.0));
+        cell(&mut d, "b3_strip_state", &state_shown, false, &split(1.0));
         let line = d.anon();
         d.rule(&line, "width: Fill height: 1", tok::HAIRLINE);
         let row = d.anon();
@@ -319,7 +325,7 @@ pub fn lower(
         let third = split(3.0);
         cell(&mut d, "b3_strip_model", &model, model_missing, &third);
         d.vrule(26.0);
-        cell(&mut d, "b3_strip_state", &state, false, &third);
+        cell(&mut d, "b3_strip_state", &state_shown, false, &third);
         d.vrule(26.0);
         cell(&mut d, "b3_strip_perm", &perm, perm_missing, &third);
         d.close();
@@ -344,10 +350,10 @@ pub fn lower(
         // pass), so with the note present the caption gets an explicit width.
         let caption_w = match (vim_note, st.width) {
             (Some(note), Some(w)) => W::Px((w - 4.0 - super::ui::text_w(note, 12.0, Face::Medium) - 8.0).max(60.0)),
-            (Some(_), None) => W::Px(super::ui::text_w("Model, permissions, sandbox", 12.0, Face::Regular) + 12.0),
+            (Some(_), None) => W::Px(super::ui::text_w(tr("Model, permissions, sandbox"), 12.0, Face::Regular) + 12.0),
             _ => W::Fill,
         };
-        d.text("b3_strip_caption", "Model, permissions, sandbox", &Txt::new(12.0, Face::Regular, tok::MUTED).w(caption_w));
+        d.text("b3_strip_caption", tr("Model, permissions, sandbox"), &Txt::new(12.0, Face::Regular, tok::MUTED).w(caption_w));
         if let Some(note) = vim_note {
             d.text("b3_strip_vim", note, &Txt::new(12.0, Face::Medium, tok::TEXT));
         }
@@ -356,13 +362,22 @@ pub fn lower(
     // The transitional states read in blue under it (the board's
     // "Reconnecting" / "Resuming chat…" / "Handing back control…").
     if matches!(state.as_str(), "Reconnecting" | "Resuming chat…" | "Handing back control…") {
-        d.text("b3_strip_transition", &state, &Txt::new(12.5, Face::Regular, tok::BLUE_TEXT));
+        d.text("b3_strip_transition", &state_shown, &Txt::new(12.5, Face::Regular, tok::BLUE_TEXT));
     }
     d.close();
     // A18 — the strip and its caption sit on the composer's surface, which
     // follows the theme (the byte passthrough in light): unmapped, a dark
     // composer area showed a white strip and its caption at 3.26:1.
     crate::screens::theme::retint_dsl(&d.finish())
+}
+
+/// A24 — the state word as shown: the web's key for it in the current
+/// language ("Peers running ({value0})" carries its count).
+fn state_display(state: &str) -> String {
+    if let Some(n) = state.strip_prefix("Peers running (").and_then(|r| r.strip_suffix(')')) {
+        return crate::i18n::tr1("Peers running ({value0})", n);
+    }
+    tr(state).to_owned()
 }
 
 #[cfg(test)]

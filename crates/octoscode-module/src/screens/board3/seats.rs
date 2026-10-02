@@ -22,6 +22,7 @@ use serde_json::{json, Value};
 
 use super::host::{Job, Outcome};
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::tr;
 
 // ------------------------------------------------------------------ copy
 
@@ -66,6 +67,12 @@ impl PermOption {
     /// `permissionName`: "{modeLabel} · {networkLabel}".
     pub fn name(&self) -> String {
         format!("{} · {}", self.mode_label, self.network_label)
+    }
+
+    /// A24 — [`Self::name`] in the current language (what the seat and the
+    /// menu show; `name` stays the web's English for logic and tests).
+    pub fn display_name(&self) -> String {
+        format!("{} · {}", tr(self.mode_label), tr(self.network_label))
     }
 }
 
@@ -214,12 +221,12 @@ pub fn model_seat_label(store: &Store) -> String {
         .into_iter()
         .find(|m| m.selected)
         .map(|m| if m.title.is_empty() { m.model } else { m.title })
-        .unwrap_or_else(|| MODEL_SELECT.to_owned())
+        .unwrap_or_else(|| tr(MODEL_SELECT).to_owned())
 }
 
 /// The permission seat's label (`PermissionControl` trigger).
 pub fn permission_seat_label(store: &Store) -> Option<String> {
-    permission_options(store).into_iter().next().map(|o| o.name())
+    permission_options(store).into_iter().next().map(|o| o.display_name())
 }
 
 /// A10 — the composer's Stop control (web `TurnStopButton`): what the round
@@ -782,14 +789,14 @@ fn menu_width(frame: &Frame, natural: f64) -> f64 {
 fn menu_title(d: &mut Dsl, text: &str) {
     let row = d.anon();
     d.view(&row, "width: Fill height: Fit padding: Inset{left: 8 right: 8 top: 4 bottom: 2}");
-    d.text("b3_title", text, &Txt::new(12.0, Face::Medium, tok::FAINT).w(W::Fill));
+    d.text("b3_title", tr(text), &Txt::new(12.0, Face::Medium, tok::FAINT).w(W::Fill));
     d.close();
 }
 
 fn status_line(d: &mut Dsl, id: &str, text: &str) {
     let row = d.anon();
     d.view(&row, "width: Fill height: Fit padding: Inset{left: 10 right: 10 top: 10 bottom: 10}");
-    d.text(id, text, &Txt::new(13.0, Face::Regular, tok::FAINT).w(W::Fill).wrap());
+    d.text(id, tr(text), &Txt::new(13.0, Face::Regular, tok::FAINT).w(W::Fill).wrap());
     d.close();
 }
 
@@ -804,7 +811,7 @@ fn error_line(d: &mut Dsl, id: &str, message: &str, retry: &str) {
     d.text(&format!("{id}_text"), message, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     let b = d.anon();
     d.view(&b, "width: Fit height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5} padding: Inset{left: 4 right: 4}");
-    d.text(&format!("{id}_retry_label"), "Retry", &Txt::new(12.0, Face::Semibold, tok::RED_TEXT));
+    d.text(&format!("{id}_retry_label"), tr("Retry"), &Txt::new(12.0, Face::Semibold, tok::RED_TEXT));
     d.tap(&format!("{id}_retry"), retry);
     d.close();
     d.close();
@@ -864,7 +871,7 @@ pub fn build_permission(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Sto
     let options = permission_options(store);
     let natural = options
         .iter()
-        .map(|o| ui::text_w(&o.name(), 14.0, Face::Medium) + 18.0 + 18.0 + 16.0 + 16.0 + 8.0 + 24.0)
+        .map(|o| ui::text_w(&o.display_name(), 14.0, Face::Medium) + 18.0 + 18.0 + 16.0 + 16.0 + 8.0 + 24.0)
         .fold(260.0_f64, f64::max);
     let width = menu_width(frame, natural);
     let copy_w = width - 8.0 - 16.0 - 18.0 - 18.0 - 16.0;
@@ -888,7 +895,7 @@ pub fn build_permission(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Sto
             d,
             &format!("b3_perm_opt_{i}"),
             Some(icon),
-            &o.name(),
+            &o.display_name(),
             None,
             selected.as_deref() == Some(o.id.as_str()),
             enabled,
@@ -913,10 +920,10 @@ fn build_risk(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store, o: &Pe
     let head = d.anon();
     d.view(&head, "width: Fill height: 30 flow: Right spacing: 10 align: Align{x: 0.0 y: 0.5}");
     d.icon("b3_risk_icon", "b3_shield_danger.svg", 20.0, tok::RED);
-    d.text("b3_title", RISK_TITLE, &Txt::new(18.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    d.text("b3_title", tr(RISK_TITLE), &Txt::new(18.0, Face::Semibold, tok::TEXT).w(W::Fill));
     d.close();
     d.gap(W::Fill, 10.0);
-    d.text("b3_risk_description", RISK_DESCRIPTION, &Txt::new(14.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    d.text("b3_risk_description", tr(RISK_DESCRIPTION), &Txt::new(14.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     d.gap(W::Fill, 16.0);
     d.surface(
         "b3_risk_summary",
@@ -928,8 +935,8 @@ fn build_risk(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store, o: &Pe
     for (id, k, v) in [("b3_risk_access", RISK_ACCESS, o.mode_label), ("b3_risk_network", RISK_NETWORK, o.network_label)] {
         let row = d.anon();
         d.view(&row, "width: Fill height: Fit flow: Right spacing: 8");
-        d.text(&format!("{id}_k"), k, &Txt::new(13.0, Face::Regular, tok::FAINT).w(W::Px(118.0)));
-        d.text(&format!("{id}_v"), v, &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill));
+        d.text(&format!("{id}_k"), tr(k), &Txt::new(13.0, Face::Regular, tok::FAINT).w(W::Px(118.0)));
+        d.text(&format!("{id}_v"), tr(v), &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill));
         d.close();
     }
     d.close();
@@ -939,7 +946,7 @@ fn build_risk(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store, o: &Pe
     let ack = d.anon();
     d.view(&ack, "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 0.0 y: 0.0} padding: Inset{top: 7 bottom: 7}");
     d.icon("b3_risk_ack_icon", if st.acknowledged { "b3_box_on.svg" } else { "b3_box_off.svg" }, 18.0, tok::RED);
-    d.text("b3_risk_ack_label", RISK_ACK, &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    d.text("b3_risk_ack_label", tr(RISK_ACK), &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     d.close();
     if !locked {
         d.tap("b3_risk_ack", "b3.perm.ack");
@@ -947,13 +954,13 @@ fn build_risk(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store, o: &Pe
     d.close();
     if !st.acknowledged {
         d.gap(W::Fill, 8.0);
-        d.text("b3_risk_hint", RISK_HINT, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        d.text("b3_risk_hint", tr(RISK_HINT), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     }
     d.gap(W::Fill, 20.0);
     let row = d.anon();
     d.view(&row, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5}");
-    d.button("b3_risk_cancel", "Cancel", "b3.perm.cancel", Btn::Outline, W::Fit, 36.0);
-    danger_button(d, "b3_risk_confirm", RISK_CONFIRM, "b3.perm.confirm", st.acknowledged && !locked);
+    d.button("b3_risk_cancel", tr("Cancel"), "b3.perm.cancel", Btn::Outline, W::Fit, 36.0);
+    danger_button(d, "b3_risk_confirm", tr(RISK_CONFIRM), "b3.perm.confirm", st.acknowledged && !locked);
     d.close();
     ui::shell_close(d);
 }
@@ -990,7 +997,7 @@ pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) 
         .map(|m| {
             let name = ui::text_w(if m.title.is_empty() { &m.model } else { &m.title }, 14.0, Face::Medium);
             let desc = if !m.available {
-                ui::text_w(MODEL_UNAVAILABLE_REASON, 12.0, Face::Regular)
+                ui::text_w(tr(MODEL_UNAVAILABLE_REASON), 12.0, Face::Regular)
             } else if !m.title.is_empty() && m.title != m.model {
                 ui::text_w(&m.model, 12.0, Face::Regular)
             } else {
@@ -1028,7 +1035,7 @@ pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) 
         for (i, m) in rows {
             let name = name_of(m);
             let description = if !m.available {
-                Some(MODEL_UNAVAILABLE_REASON.to_owned())
+                Some(tr(MODEL_UNAVAILABLE_REASON).to_owned())
             } else if !m.title.is_empty() && m.title != m.model {
                 Some(m.model.clone())
             } else {
@@ -1070,10 +1077,10 @@ pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) 
         let col = d.anon();
         d.view(&col, "width: Fill height: Fit flow: Down spacing: 4 padding: Inset{left: 10 right: 10 top: 6 bottom: 8}");
         if board.saving {
-            d.text("b3_model_saving", "Saving…", &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
+            d.text("b3_model_saving", tr("Saving…"), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
         }
         if board.external_change {
-            d.text("b3_model_external", EXTERNAL_CHANGE, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+            d.text("b3_model_external", tr(EXTERNAL_CHANGE), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
         }
         if let Some(n) = board.latest() {
             let ink = if n.kind == Disposition::Refused { tok::RED_TEXT } else { tok::TEXT };

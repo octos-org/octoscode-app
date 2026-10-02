@@ -20,6 +20,7 @@
 use std::path::PathBuf;
 
 use crate::conv_layout::{Density, Metrics};
+use crate::i18n::{tr, tr1};
 
 // ---- palette (light; dark comes from retint_dsl) ---------------------------
 
@@ -1237,7 +1238,7 @@ fn queue_chip(queued: usize, steer: bool, m: &Metrics) -> String {
              View{{width: Fit height: Fill flow: Right align: Align{{y: 0.5}} padding: Inset{{left: 2 right: 2}}\n{l}}}\n\
              {hit}}}\n",
             dot = dot(),
-            l = label("queue_steer_label", "Steer now", &st, INK, "width: Fit height: Fit"),
+            l = label("queue_steer_label", tr("Steer now"), &st, INK, "width: Fit height: Fit"),
             hit = hit("queue_steer_hit", 6.0),
         )
     } else {
@@ -1250,7 +1251,7 @@ fn queue_chip(queued: usize, steer: bool, m: &Metrics) -> String {
          {count}{steer_part}{dot}\
          View{{width: 28 height: 28 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n{x}{remove}}}\n\
          }}\n",
-        count = label("queue_count", &format!("{queued} queued"), &st, INK, "width: Fit height: Fit"),
+        count = label("queue_count", &tr1("{value0} queued", &queued.to_string()), &st, INK, "width: Fit height: Fit"),
         dot = dot(),
         x = svg("queue_remove_icon", "b3_close.svg", 12.0, MUTED),
         remove = hit("queue_remove_hit", 14.0),
@@ -1280,7 +1281,7 @@ fn recovery_notice(phase: &str, queued: bool, m: &Metrics) -> String {
     let wrap = format!("width: Fill height: Fit flow: Right{{wrap: true}} max_lines: {FIT_WRAP_LINES}");
     let mut paras = String::new();
     for (i, p) in body.iter().enumerate() {
-        paras.push_str(&label(&format!("recovery_body_{i}"), p, &body_st, INK, &wrap));
+        paras.push_str(&label(&format!("recovery_body_{i}"), tr(p), &body_st, INK, &wrap));
     }
     let btn = |id: &str, text: &str, live: bool| {
         let fg = if live { INK } else { MUTED };
@@ -1290,7 +1291,7 @@ fn recovery_notice(phase: &str, queued: bool, m: &Metrics) -> String {
              RoundedView{{width: Fit height: 36 flow: Right align: Align{{y: 0.5}} padding: Inset{{left: 14 right: 14}} \
              draw_bg +: {{color: {SURFACE} border_radius: 8.0 border_size: 1.0 border_color: {BORDER}}}\n{l}}}\n\
              {hit_part}}}\n",
-            l = label(&format!("{id}_label"), text, &style(Face::Medium, s.small, s.small_line), fg, "width: Fit height: Fit"),
+            l = label(&format!("{id}_label"), tr(text), &style(Face::Medium, s.small, s.small_line), fg, "width: Fit height: Fit"),
         )
     };
     let mut buttons = String::new();
@@ -1303,7 +1304,7 @@ fn recovery_notice(phase: &str, queued: bool, m: &Metrics) -> String {
     let footer = if queued {
         label(
             "recovery_footer",
-            "Queued messages remain here. You can remove them below.",
+            tr("Queued messages remain here. You can remove them below."),
             &style(Face::Regular, s.tiny, s.small_line),
             MUTED,
             &wrap,
@@ -1320,7 +1321,7 @@ fn recovery_notice(phase: &str, queued: bool, m: &Metrics) -> String {
          View{{width: Fill height: Fit flow: Right{{wrap: true}} spacing: 8\n{buttons}}}\n\
          {footer}\
          }}\n",
-        t = label("recovery_title", title, &title_st, INK, &wrap),
+        t = label("recovery_title", tr(title), &title_st, INK, &wrap),
     )
 }
 
@@ -1358,7 +1359,7 @@ fn peer_readonly_row(slug: &str, m: &Metrics) -> String {
          {l}}}\n",
         l = label(
             "peer_readonly_label",
-            &format!("↳ read-only peer · {slug} · steer from the master"),
+            &tr1("↳ read-only peer · {value0} · steer from the master", slug),
             &style(Face::Regular, s.small, s.small_line),
             MUTED,
             "width: Fill height: Fit max_lines: 1 text_overflow: TextOverflow.Ellipsis",
@@ -1375,8 +1376,8 @@ pub fn empty_state(workspace: Option<&str>, m: &Metrics) -> String {
         Density::Phone => (23.0, 30.0),
     };
     let title = match workspace {
-        Some(ws) if !ws.is_empty() => format!("What should we build in {ws}?"),
-        _ => "What should we build?".to_owned(),
+        Some(ws) if !ws.is_empty() => tr1("What should we build in {value0}?", ws),
+        _ => tr("What should we build?").to_owned(),
     };
     let chip = match workspace {
         Some(ws) if !ws.is_empty() => format!(
@@ -1421,7 +1422,7 @@ pub fn empty_state(workspace: Option<&str>, m: &Metrics) -> String {
         ),
         hint = label(
             "empty_hint",
-            "Describe a change, investigate a bug, or ask how the code works.",
+            tr("Describe a change, investigate a bug, or ask how the code works."),
             &style(Face::Regular, 14.0, 22.0),
             MUTED,
             "width: Fill height: Fit max_width: 480 align: Align{x: 0.5} flow: Right{wrap: true}",
@@ -1441,12 +1442,12 @@ pub fn history_state(failed: Option<&str>, m: &Metrics) -> String {
         Density::Phone => (20.0, 27.0),
     };
     let (title, hint, ink) = match failed {
-        None => ("Loading conversation…".to_owned(), "Restoring session state".to_owned(), INK),
+        None => (tr("Loading conversation…").to_owned(), tr("Restoring session state").to_owned(), INK),
         Some(reason) => (
-            "Session recovery required".to_owned(),
-            format!(
-                "The conversation history could not be loaded: {}. Reopen it from the sidebar to try again.",
-                reason.trim().trim_end_matches('.')
+            tr("Session recovery required").to_owned(),
+            tr1(
+                "The conversation history could not be loaded: {value0}. Reopen it from the sidebar to try again.",
+                reason.trim().trim_end_matches('.'),
             ),
             "#cf222eff",
         ),
@@ -1689,12 +1690,12 @@ pub fn connect_card_with_offer(
         rp = 16.0,
         title = label(
             "connect_title",
-            "Connect to Octos",
+            tr("Connect to Octos"),
             &style(Face::SemiBold, if phone { 20.0 } else { 19.0 }, 26.0),
             INK,
             "width: Fit height: Fit",
         ),
-        server_cap = caption("Server"),
+        server_cap = caption(tr("Server")),
         server_field = field("connect_server", &c.server, "http://127.0.0.1:50190", false),
         server_err = label(
             "connect_server_error",
@@ -1703,18 +1704,18 @@ pub fn connect_card_with_offer(
             RED,
             "width: Fill height: Fit margin: Inset{top: 4} flow: Right{wrap: true}",
         ),
-        token_cap = caption("Access token"),
-        token_field = field("connect_token", "", "Paste your server token", true),
+        token_cap = caption(tr("Access token")),
+        token_field = field("connect_token", "", tr("Paste your server token"), true),
         note = label(
             "connect_note",
-            "Stored for this server only",
+            tr("Stored for this server only"),
             &style(Face::Regular, 12.0, 18.0),
             MUTED,
             "width: Fit height: Fit",
         ),
         btn_label = label(
             "connect_btn_label",
-            if c.connecting { "Connecting…" } else { "Connect" },
+            tr(if c.connecting { "Connecting…" } else { "Connect" }),
             &style(Face::Medium, 15.0, 20.0),
             "#ffffffff",
             "width: Fit height: Fit",
@@ -1722,7 +1723,7 @@ pub fn connect_card_with_offer(
         btn_hit = hit("connect_btn", 22.0),
         solo_label = label(
             "connect_solo_label",
-            "Use local solo server",
+            tr("Use local solo server"),
             &style(Face::Regular, 14.0, 20.0),
             "#2f6febff",
             "width: Fit height: Fit",
@@ -1732,7 +1733,7 @@ pub fn connect_card_with_offer(
         // routed by `screens::board1::entry_controls` -> `b1.open.pairing`.
         pair_label = label(
             "connect_pair_label",
-            "Pair with a link instead",
+            tr("Pair with a link instead"),
             &style(Face::Regular, 14.0, 20.0),
             "#2f6febff",
             "width: Fit height: Fit",

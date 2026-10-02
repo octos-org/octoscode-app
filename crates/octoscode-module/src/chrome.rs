@@ -460,7 +460,7 @@ script_mod! {
                 width: Fill height: 30 flow: Overlay
                 View{
                     width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: 28}
-                    OcLabel{text: "Clear search" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
+                    sb_c_text := OcLabel{text: "Clear search" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
                 }
                 sb_c_hit := OcHit{}
             }
@@ -1527,8 +1527,10 @@ pub struct ChromeRuntime {
 
 /// A24 — the NAMED shell labels whose DSL text is static copy (code never
 /// sets them); anonymous labels are static by construction.
-pub fn static_named() -> [LiveId; 7] {
+pub fn static_named() -> [LiveId; 8] {
     [
+        // The Settings nav cells' labels (`OcNavCell{… nv_label +: {text: …}}`).
+        live_id!(nv_label),
         live_id!(hd_tab_chat_on),
         live_id!(hd_tab_chat_off),
         live_id!(hd_tab_traj_on),
@@ -2362,6 +2364,8 @@ pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode
             }
             Row::ClearSearch => {
                 let item = list.item(cx, id, id!(SbClearTpl));
+                // A24: a list row is drawn from data (the static pass skips lists).
+                item.label(cx, ids!(sb_c_text)).set_text(cx, tr("Clear search"));
                 item.draw_all_unscoped(cx);
             }
             Row::Divider => {
