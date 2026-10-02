@@ -596,7 +596,7 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
     d.open(
         ui::B3_IDS.scroll,
         "ScrollYView",
-        &format!("width: Fill height: Fill flow: Down padding: Inset{{left: {body_pad} top: 6 right: {body_pad} bottom: 16}}"),
+        &format!("width: Fill height: Fill flow: Down padding: Inset{{left: {body_pad} top: 12 right: {body_pad} bottom: 16}}"),
     );
     d.view("b3_diff_body", "width: Fill height: Fit flow: Down spacing: 12");
     // The content width (a file card's): the box less the body's equal

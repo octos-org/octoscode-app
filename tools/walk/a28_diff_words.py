@@ -80,8 +80,9 @@ NOTE = {"en": "Large preview shown as plain text. All lines are included.",
         "zh": "大型预览以纯文本显示，已包含所有行。"}
 ZH_EYEBROW = "服务器确认的差异预览"  # the web's zh.ts for "Authoritative diff preview"
 CW = 11.5 * 0.6  # the mono face's advance at the code size (px)
-# The web's own changed words for the fixture (diff-presentation.ts run by
-# node on these exact lines; see docs/ux/a28/README.md).
+# The web's own changed words for the fixture (diff-presentation.ts's
+# changedWords / annotateTokens run by node on these exact lines; the same
+# values pin tests/a28_diff_words.rs word_marks_match_the_web_on_every_fixture).
 MARKS = {
     "b3_diff_file_0_h0_l2": ["Duration::from_millis", "500"],
     "b3_diff_file_0_h0_l3": ["self.backoff.next", "attempt"],
