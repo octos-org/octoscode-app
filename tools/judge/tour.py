@@ -1,0 +1,257 @@
+#!/usr/bin/env python3
+"""Judge tour: visit every reachable OctosCode screen in a RUNNING hidden app, capture it and run generic /snap checks.
+
+    python3 tools/judge/tour.py <port> <desktop|phone> <outdir> [first-run]
+
+The app must already run (outer/scripts/judge-tour.sh launches it with the capture seeds). For each screen:
+<outdir>/<NN>-<name>.png (downscaled to <= 1400 px), <name>.snap.json, and one line in <outdir>/checks.tsv.
+Generic checks (the human judge still looks at every PNG):
+  outside  - a laid-out text node lies (partly) outside the window
+  collapsed- a node with text has width or height < 2
+  overlap  - two sibling text nodes overlap by more than 25% of the smaller one
+  small    - a Button / hit narrower or shorter than 28 px (touch / pointer target)
+"""
+import json, os, subprocess, sys, time, urllib.parse, urllib.request
+
+PORT, MODE, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
+FIRST_RUN = len(sys.argv) > 4 and sys.argv[4] == "first-run"
+BASE = f"http://127.0.0.1:{PORT}"
+os.makedirs(OUT, exist_ok=True)
+N = [0]
+
+
+def get(path, timeout=15):
+    # The instrument answers 404 when the UI thread misses its 5 s window;
+    # one retry after a pause tells a transient stall from a dead app.
+    for attempt in (0, 1):
+        try:
+            with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
+                return r.read()
+        except Exception:
+            if attempt:
+                raise
+            time.sleep(1.5)
+
+
+def snap():
+    return json.loads(get("/snap?all=1"))
+
+
+def nodes(tree=None):
+    out = []
+
+    def walk(x, parent):
+        if isinstance(x, dict):
+            me = parent
+            if "r" in x:
+                out.append((x, parent))
+                me = x
+            for k, v in x.items():
+                if k != "r":
+                    walk(v, me)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v, parent)
+
+    walk(tree if tree is not None else snap(), None)
+    return out
+
+
+def find(wid):
+    for n, _ in nodes():
+        if n.get("i") == wid and n["r"][2] > 0 and n["r"][3] > 0:
+            return n
+    return None
+
+
+def find_text(text):
+    for n, _ in nodes():
+        if (n.get("t") or "").strip() == text and n["r"][2] > 0 and n["r"][3] > 0:
+            return n
+    return None
+
+
+def click_rect(r):
+    x, y, w, h = r
+    get(f"/click?x={x + w / 2}&y={y + h / 2}&wait=1")
+    time.sleep(0.6)
+
+
+def click(wid):
+    n = find(wid)
+    if n:
+        click_rect(n["r"])
+    return bool(n)
+
+
+def click_text(text):
+    n = find_text(text)
+    if n:
+        click_rect(n["r"])
+    return bool(n)
+
+
+def key(c, **mods):
+    q = {"c": c, "wait": 1}
+    q.update({k: 1 for k, v in mods.items() if v})
+    get("/k?" + urllib.parse.urlencode(q))
+    time.sleep(0.4)
+
+
+def type_text(t):
+    get("/t?" + urllib.parse.urlencode({"t": t, "wait": 1}))
+    time.sleep(0.3)
+
+
+def window():
+    s = json.loads(get("/s"))
+    sz = s["w"][0]["sz"]
+    return [0, 0, sz[0], sz[1]]
+
+
+def checks(tree):
+    win = window()
+    found = []
+    ns = nodes(tree)
+    for n, parent in ns:
+        r, t = n["r"], (n.get("t") or "").strip()
+        if r[2] <= 0 or r[3] <= 0:
+            if t and n.get("ty") in ("Label", "TextInput") and n.get("v", 1) != 0 and parent and parent["r"][2] > 0:
+                found.append(f"collapsed:{n.get('i')}")
+            continue
+        if t and n.get("ty") == "Label":
+            if r[0] < win[0] - 1 or r[1] < win[1] - 1 or r[0] + r[2] > win[2] + 1 or r[1] + r[3] > win[3] + 1:
+                found.append(f"outside:{n.get('i')}")
+        if n.get("ty") == "Button" and (r[2] < 27.5 or r[3] < 27.5) and n.get("v", 1) != 0:
+            found.append(f"small:{n.get('i')}:{round(r[2])}x{round(r[3])}")
+    by_parent = {}
+    win_area = win[2] * win[3]
+    for n, parent in ns:
+        # Siblings inside a SMALL container only: overlay layers (a dialog over
+        # the conversation) share a window-sized ancestor and are not defects.
+        if not parent or parent["r"][2] * parent["r"][3] > 0.4 * win_area:
+            continue
+        if (n.get("t") or "").strip() and n.get("ty") == "Label" and n["r"][2] > 0 and n["r"][3] > 0 and n.get("v", 1) != 0:
+            by_parent.setdefault(id(parent), []).append(n)
+    for sib in by_parent.values():
+        for i in range(len(sib)):
+            for j in range(i + 1, len(sib)):
+                a, b = sib[i]["r"], sib[j]["r"]
+                ix = max(0, min(a[0] + a[2], b[0] + b[2]) - max(a[0], b[0]))
+                iy = max(0, min(a[1] + a[3], b[1] + b[3]) - max(a[1], b[1]))
+                small = min(a[2] * a[3], b[2] * b[3])
+                if small > 0 and ix * iy > 0.25 * small:
+                    found.append(f"overlap:{sib[i].get('i')}/{sib[j].get('i')}")
+    return found
+
+
+def capture(name):
+    N[0] += 1
+    stem = f"{N[0]:02d}-{name}"
+    png = os.path.join(OUT, stem + ".png")
+    with open(png, "wb") as f:
+        f.write(get("/g?raw=1", timeout=30))
+    subprocess.run(["sips", "-Z", "1400", png, "--out", png], capture_output=True)
+    tree = snap()
+    with open(os.path.join(OUT, stem + ".snap.json"), "w") as f:
+        json.dump(tree, f)
+    found = checks(tree)
+    with open(os.path.join(OUT, "checks.tsv"), "a") as f:
+        f.write(f"{stem}\t{MODE}\t{len(found)}\t{' '.join(found[:12])}\n")
+    print(f"{stem}: {len(found)} flags {' '.join(found[:6])}")
+
+
+def close_overlays():
+    for _ in range(3):
+        key("escape")
+    for wid in ("drawer_close", "settings_close", "review_close", "b3_close", "dlg_close"):
+        click(wid)
+
+
+def clear_composer():
+    n = find("i0_composer_0")
+    if not n:
+        return
+    k = len(n.get("t") or "")
+    get("/k?c=end&wait=1")
+    for _ in range(k + 1):
+        get("/k?c=backspace&wait=1")
+
+
+def run_command(cmd):
+    if not click("i0_composer_0"):
+        return False
+    clear_composer()
+    type_text("/" + cmd)
+    key("return")
+    time.sleep(1.2)
+    return True
+
+
+def tour_live():
+    capture("conversation")
+    if MODE == "phone":
+        if click("sidebar_toggle_hit"):
+            capture("drawer")
+            click("drawer_close")
+    # sidebar search
+    if MODE != "phone" and click("sb_search"):
+        type_text("fix")
+        capture("sidebar-search")
+        for _ in range(4):
+            key("backspace")
+    # settings sections
+    if click("settings_open_hit"):
+        capture("settings-general")
+        for sec in ("Permissions", "Model", "Sandbox", "Connection", "About"):
+            if click_text(sec):
+                capture(f"settings-{sec.lower()}")
+        close_overlays()
+    if click("review_open_hit"):
+        capture("review")
+        close_overlays()
+    if click("fleet_nav_hit") or click_text("Fleet"):
+        capture("fleet")
+        click_text("Back")
+    if click("sb_add_hit") or click_text("Add workspace"):
+        capture("add-workspace")
+        close_overlays()
+    # the palette, then every implemented command that opens a surface
+    if click("i0_composer_0"):
+        clear_composer()
+        type_text("/")
+        capture("palette")
+        close_overlays()
+    for cmd in ("review", "undo", "rewind", "fork", "peer", "btw", "threads", "turn", "permissions", "gather",
+                "thinking", "images", "ps", "activity", "status", "cost", "model", "sessions", "tools", "mcp",
+                "skills", "research", "agents", "goal", "loop", "monitor", "resume"):
+        try:
+            if run_command(cmd):
+                capture(f"cmd-{cmd}")
+            close_overlays()
+            clear_composer()
+        except Exception as e:
+            with open(os.path.join(OUT, "checks.tsv"), "a") as f:
+                f.write(f"cmd-{cmd}\t{MODE}\terror\t{type(e).__name__}: {e}\n")
+            print(f"cmd-{cmd}: ERROR {e}")
+            try:
+                get("/s", timeout=5)
+            except Exception:
+                print("app gone - stopping the tour")
+                break
+
+
+def tour_first_run():
+    capture("connect")
+    if click("b1_connect_pair"):
+        capture("pair")
+        close_overlays()
+
+
+if __name__ == "__main__":
+    open(os.path.join(OUT, "checks.tsv"), "w").close()
+    if FIRST_RUN:
+        tour_first_run()
+    else:
+        tour_live()
+    print("tour done:", OUT)

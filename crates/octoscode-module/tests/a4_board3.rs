@@ -51,6 +51,8 @@ const METHODS: &[&str] = &[
     "peer/dispatch",
     "peer/control",
     "session/status/read",
+    // A8: resume verifies the opened candidate's canonical history.
+    "session/hydrate",
 ];
 
 #[derive(Default)]
@@ -82,7 +84,7 @@ fn result_for(method: &str, params: &Value) -> Value {
         }}),
         "session/list" => json!({"sessions": [
             {"id": "a4:main", "message_count": 4, "updated_at": "2026-10-01T09:00:00Z"},
-            {"id": "a4:alpha", "title": "Fix steer queue drop", "message_count": 3, "updated_at": "2026-10-01T10:00:00Z"},
+            {"id": "a4:api:alpha", "title": "Fix steer queue drop", "message_count": 3, "updated_at": "2026-10-01T10:00:00Z"},
             {"id": "bare-id", "title": "Unscoped row", "message_count": 1, "updated_at": "2026-09-30T10:00:00Z"}
         ]}),
         "tool/status/list" => json!({
@@ -155,6 +157,11 @@ fn result_for(method: &str, params: &Value) -> Value {
             "accepted_at_ms": 1, "payload_digest": "d", "duplicate": false
         }),
         "session/status/read" => json!({"session_id": session, "model": {"title": "DeepSeek V4 Flash", "model": "deepseek-v4-flash"}}),
+        // A8: the resumed candidate's canonical history (r43a hydrate shape).
+        "session/hydrate" => json!({"session_id": session, "cursor": {"stream": session, "seq": 2}, "messages": [
+            {"seq": 1, "role": "user", "content": "Fix steer queue drop", "persisted_at": "2026-10-01T10:00:00Z"},
+            {"seq": 2, "role": "assistant", "content": "Done.", "persisted_at": "2026-10-01T10:00:01Z"}
+        ]}),
         _ => json!({}),
     }
 }
@@ -410,7 +417,7 @@ async fn resume_lists_scoped_candidates_and_opens_only_the_exactly_confirmed_one
     {
         let st = host::state();
         let ids: Vec<&str> = st.resume.candidates.iter().map(|c| c.id.as_str()).collect();
-        assert_eq!(ids, ["a4:alpha", "bare-id"], "newest first; the current session is not a candidate");
+        assert_eq!(ids, ["a4:api:alpha", "bare-id"], "newest first; the current session is not a candidate");
         assert!(st.resume.candidates[1].blocked.is_some(), "an unscoped id is refused, never guessed");
     }
     // Blocked rows never arm; the confirm needs the exact title.
@@ -421,14 +428,14 @@ async fn resume_lists_scoped_candidates_and_opens_only_the_exactly_confirmed_one
     assert_eq!(host::perform("b3.resume.confirm", 0, &conv.store), Outcome::Done, "case differs: not armed");
     host::input_changed("resume.confirm", "Fix steer queue drop");
     let job = spawn_of(host::perform("b3.resume.confirm", 0, &conv.store));
-    assert_eq!(job, Job::ResumeOpen("a4:alpha".into()));
+    assert_eq!(job, Job::ResumeOpen("a4:api:alpha".into()));
     let opens_before = server.params_of("session/open").len();
     host::run(job, &conv).await.expect("resume open");
     wait_for(&server, "session/open", opens_before + 1).await;
     let opens = server.params_of("session/open");
     assert_eq!(opens.len(), opens_before + 1);
     let open = opens.last().unwrap();
-    assert_eq!(open["session_id"], json!("a4:alpha"));
+    assert_eq!(open["session_id"], json!("a4:api:alpha"));
     assert_eq!(open["cwd"], json!("/home/user/src/octos"));
     assert!(open.get("after").is_none_or(Value::is_null), "no replay cursor: {open}");
     assert!(!server.methods().iter().any(|m| m == "turn/start"), "resuming never starts a turn");
@@ -446,15 +453,15 @@ async fn the_switcher_opens_another_session_fresh_and_the_current_row_only_close
     let current = rows.iter().position(|r| r.current).expect("the current row");
     assert_eq!(host::perform("b3.switch.open", current, &conv.store), Outcome::Done);
     assert_eq!(host::open_dialog(), None, "selecting the current session just closes");
-    let other = rows.iter().position(|r| r.id == "a4:alpha").expect("another row");
+    let other = rows.iter().position(|r| r.id == "a4:api:alpha").expect("another row");
     let job = spawn_of(host::perform("b3.switch.open", other, &conv.store));
     let opens_before = server.params_of("session/open").len();
     host::run(job, &conv).await.expect("switch open");
     wait_for(&server, "session/open", opens_before + 1).await;
     let open = server.params_of("session/open").last().cloned().unwrap();
-    assert_eq!(open["session_id"], json!("a4:alpha"));
+    assert_eq!(open["session_id"], json!("a4:api:alpha"));
     assert!(open.get("after").is_none_or(Value::is_null), "fresh: no replay cursor ({open})");
-    assert_eq!(conv.session_id(), "a4:alpha");
+    assert_eq!(conv.session_id(), "a4:api:alpha");
 }
 
 #[tokio::test]

@@ -32,6 +32,11 @@ pub struct StripState {
     pub handover: Option<String>,
     /// The composer's measured width (the strip aligns to it).
     pub width: Option<f64>,
+    /// A8 — a peer THIS app started holds the session's seat
+    /// (`seatHolderKind` SELF, `seat-holder.ts:18-29`): its turn is never
+    /// "another client", and with no peer row it still reads
+    /// "Peers running (1)" (`App.tsx:2084-2086`).
+    pub self_held: bool,
 }
 
 /// The permission label (`App.tsx:2037-2045`).
@@ -68,9 +73,23 @@ pub fn activity_word(store: &Store, session: &str, turn: &str) -> Option<String>
     }
 }
 
-/// The state word by the web's precedence.
+/// The state word by the web's precedence (`App.tsx:2047-2088`, words
+/// `SessionStatusStrip.tsx:62-82`): not connected or an unhealthy recovery ->
+/// Reconnecting; a seat handover; a pending approval; a pending question; a
+/// FOREIGN seat holder; the live turn (another client's turn ->
+/// "Another client is working in this session", our own -> its live
+/// activity word, else Responding); running peers; our own held seat; Ready.
 pub fn state_word(store: &Store, active_turn: Option<&str>, handover: Option<&str>) -> String {
+    state_word_held(store, active_turn, handover, false)
+}
+
+/// [`state_word`] with the self-held fact (`StripState::self_held`).
+pub fn state_word_held(store: &Store, active_turn: Option<&str>, handover: Option<&str>, self_held: bool) -> String {
     if !store.is_live() {
+        return "Reconnecting".into();
+    }
+    let session = store.active_session().unwrap_or_default();
+    if store.domains.config.recovery(&session).phase != octoscode_store::domains::config::LossyPhase::Healthy {
         return "Reconnecting".into();
     }
     if let Some(h) = handover {
@@ -86,12 +105,23 @@ pub fn state_word(store: &Store, active_turn: Option<&str>, handover: Option<&st
     if store.domains.approval.question().map(|q| q.session_id == session).unwrap_or(false) {
         return "Waiting for your answer".into();
     }
+    if crate::chrome::held_by_other(store).is_some() {
+        return "Another app is using this session".into();
+    }
     if let Some(turn) = active_turn {
+        // `origin === "adopted" && !selfSeatHeld`: a turn this client never
+        // dispatched belongs to another attached client.
+        if !crate::flow::is_own_turn(turn) && !self_held {
+            return "Another client is working in this session".into();
+        }
         return activity_word(store, &session, turn).unwrap_or_else(|| "Responding".into());
     }
     let peers = store.domains.peer.list().into_iter().filter(|p| !p.closed).count();
     if peers > 0 {
         return format!("Peers running ({peers})");
+    }
+    if self_held {
+        return "Peers running (1)".into();
     }
     "Ready".into()
 }
@@ -123,7 +153,7 @@ pub fn facts(store: &Store, st: &StripState, active_turn: Option<&str>, mode: Op
         .or_else(|| permission_label(mode))
         .unwrap_or("Permissions not reported")
         .to_owned();
-    (model, state_word(store, active_turn, st.handover.as_deref()), perm)
+    (model, state_word_held(store, active_turn, st.handover.as_deref(), st.self_held), perm)
 }
 
 /// `session/status/read` -> the model label for the active Session.
@@ -144,9 +174,36 @@ pub async fn load_status(conv: &crate::flow::Conversation) -> Result<String, Str
             .or_else(|| m.get("model").and_then(|t| t.as_str()))
             .map(str::to_owned)
     });
-    let mut st = super::host::state();
-    if let Some(m) = &model {
-        st.strip.model = Some((session.clone(), m.clone()));
+    {
+        let mut st = super::host::state();
+        if let Some(m) = &model {
+            st.strip.model = Some((session.clone(), m.clone()));
+        }
+    }
+    // A8 — the permission fact: the web reads the session's permission
+    // profile when it opens (`refreshPermission`, use-octos-session's open
+    // path), so the strip names the mode from the start instead of
+    // "Permissions not reported" until the pane is opened.
+    if conv.store.domains.config.supported_methods().iter().any(|m| m == "permission/profile/list") {
+        use octoscode_client::domains::profile::PermissionProfileList;
+        if let Ok(r) = conv
+            .client()
+            .call::<PermissionProfileList>(octos_core::ui_protocol::PermissionProfileListParams {
+                session_id: octos_core::SessionKey(session.clone()),
+            })
+            .await
+        {
+            if r.session_id.0 == session {
+                use octoscode_store::domains::profile::PermissionProfileSelection as Sel;
+                let sel = |s: &octos_core::ui_protocol::PermissionProfileSelection| {
+                    serde_json::to_value(s).ok().and_then(|v| serde_json::from_value::<Sel>(v).ok())
+                };
+                if let Some(cur) = sel(&r.current) {
+                    let profiles: Vec<Sel> = r.profiles.iter().filter_map(sel).collect();
+                    conv.store.domains.profile.set_permission(cur, profiles);
+                }
+            }
+        }
     }
     Ok(model.unwrap_or_else(|| "no model reported".into()))
 }
@@ -175,31 +232,53 @@ pub fn lower(
         10.0,
         Some(tok::HAIRLINE),
     );
-    let row = d.anon();
-    d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}");
     // Three EQUAL cells (the board): a Fill cell shrank to its neighbours'
     // leftovers on a phone and clipped "Permissions not reported".
-    let cell_w = st
-        .width
-        .map(|w| format!("{}", ((w - 2.0) / 3.0).floor()))
-        .unwrap_or_else(|| "Fill".into());
-    let cell = |d: &mut Dsl, id: &str, text: &str, muted: bool, mono: bool, center: bool| {
-        let align = if center { "0.5" } else { "0.0" };
+    let split = |n: f64| {
+        st.width
+            .map(|w| format!("{}", ((w - (n - 1.0)) / n).floor()))
+            .unwrap_or_else(|| "Fill".into())
+    };
+    let cell = |d: &mut Dsl, id: &str, text: &str, muted: bool, cell_w: &str| {
         d.view(
             &format!("{id}_cell"),
-            &format!("width: {cell_w} height: Fit flow: Right align: Align{{x: {align} y: 0.5}} padding: Inset{{left: 10 right: 8 top: 8 bottom: 8}}"),
+            &format!("width: {cell_w} height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 10 right: 8 top: 8 bottom: 8}}"),
         );
-        let face = if mono { Face::Mono } else { Face::Regular };
-        d.text(id, text, &Txt::new(px, face, if muted { tok::FAINT } else { tok::TEXT }).w(W::Fill).wrap());
+        d.text(id, text, &Txt::new(px, Face::Regular, if muted { tok::FAINT } else { tok::TEXT }).w(W::Fill).wrap());
         d.close();
     };
     let model_missing = model == "Model not reported";
-    cell(&mut d, "b3_strip_model", &model, model_missing, false, false);
-    d.vrule(26.0);
-    cell(&mut d, "b3_strip_state", &state, false, false, false);
-    d.vrule(26.0);
-    cell(&mut d, "b3_strip_perm", &perm, perm == "Permissions not reported", false, false);
-    d.close();
+    let perm_missing = perm == "Permissions not reported";
+    if narrow {
+        // A8 — a phone width is the web's <=760 px strip
+        // (`SessionConfig.module.css:54-75`): the state word first, on its
+        // own line, the model and the permission under it. Three cells in a
+        // row broke "deepseek-v4-flash" and "Workspace write" mid-word at
+        // 360 px.
+        let col = d.anon();
+        d.view(&col, "width: Fill height: Fit flow: Down");
+        cell(&mut d, "b3_strip_state", &state, false, &split(1.0));
+        let line = d.anon();
+        d.rule(&line, "width: Fill height: 1", tok::HAIRLINE);
+        let row = d.anon();
+        d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}");
+        let half = split(2.0);
+        cell(&mut d, "b3_strip_model", &model, model_missing, &half);
+        d.vrule(26.0);
+        cell(&mut d, "b3_strip_perm", &perm, perm_missing, &half);
+        d.close();
+        d.close();
+    } else {
+        let row = d.anon();
+        d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}");
+        let third = split(3.0);
+        cell(&mut d, "b3_strip_model", &model, model_missing, &third);
+        d.vrule(26.0);
+        cell(&mut d, "b3_strip_state", &state, false, &third);
+        d.vrule(26.0);
+        cell(&mut d, "b3_strip_perm", &perm, perm_missing, &third);
+        d.close();
+    }
     d.tap("b3_strip_tap", "b3.strip.settings");
     d.close();
     // The board's caption under the strip is the web strip's own title
@@ -254,11 +333,15 @@ mod tests {
 
     #[test]
     fn the_state_word_follows_the_precedence_table() {
+        crate::flow::forget_own_turns();
         let s = Store::new();
         assert_eq!(state_word(&s, None, None), "Reconnecting", "not connected first");
         let s = live_store();
         assert_eq!(state_word(&s, None, Some("Resuming chat…")), "Resuming chat…");
         s.domains.session.timeline.append("s", Some("t".into()), EntryKind::REASONING, "hmm".into());
+        assert_eq!(state_word(&s, Some("t"), None), "Another client is working in this session", "not dispatched here");
+        crate::flow::note_own_turn("t");
+        crate::flow::note_own_turn("other");
         assert_eq!(state_word(&s, Some("t"), None), "Thinking…");
         s.domains.session.timeline.append("s", Some("t".into()), EntryKind::ASSISTANT_TEXT, "ok".into());
         assert_eq!(state_word(&s, Some("t"), None), "Writing…");
@@ -272,6 +355,25 @@ mod tests {
         assert_eq!(facts(&s, &st, None, None).0, "Model not reported");
         let st = StripState { model: Some(("s".into(), "glm-5.3".into())), ..Default::default() };
         assert_eq!(facts(&s, &st, None, None).0, "glm-5.3");
+    }
+
+    #[test]
+    fn a_phone_width_puts_the_state_word_over_the_model_and_the_permission() {
+        let s = live_store();
+        let st = |w: f64| StripState { width: Some(w), ..Default::default() };
+        let phone = lower(&s, &st(330.0), None, Some("workspace_write"), None);
+        let at = |dsl: &str, id: &str| dsl.find(&format!("{id} := View")).unwrap();
+        assert!(at(&phone, "b3_strip_state_cell") < at(&phone, "b3_strip_model_cell"), "the state word first");
+        assert!(phone.contains("b3_strip_state_cell := View {\nwidth: 330 "), "on its own full-width line");
+        for id in ["b3_strip_model_cell", "b3_strip_perm_cell"] {
+            assert!(phone.contains(&format!("{id} := View {{\nwidth: 164 ")), "{id}: half the strip");
+        }
+        assert_eq!(phone.matches('{').count(), phone.matches('}').count());
+        let desk = lower(&s, &st(660.0), None, Some("workspace_write"), None);
+        assert!(at(&desk, "b3_strip_model_cell") < at(&desk, "b3_strip_state_cell"), "desktop: model | state | permission");
+        for id in ["b3_strip_model_cell", "b3_strip_state_cell", "b3_strip_perm_cell"] {
+            assert!(desk.contains(&format!("{id} := View {{\nwidth: 219 ")), "{id}: a third");
+        }
     }
 
     #[test]
