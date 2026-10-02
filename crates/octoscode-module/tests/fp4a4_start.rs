@@ -1,42 +1,65 @@
-//! Card #P4a4 — the fleet Start control flow (parity row `Start control
-//! flow`) through the PRODUCTION path.
+//! Card #P4a4 (A10 rewrite) — the fleet Start control flow (parity rows
+//! `Start control flow`, `Fleet Start = acquire (CAS) -> await proof ->
+//! dispatch once`) through the PRODUCTION path, `fleet_driver::start` (the
+//! chain the Fleet pane's Start job runs).
 //!
-//! One activation ⇒ the driver seat is acquired and then EXACTLY ONE
-//! `peer/dispatch` goes out, in the web's wire encoding verbatim
-//! (`control/peer-dispatch-commands.ts:90-106`: camelCase fence echo, the
-//! operation id minted per activation, the REQUESTED model lane echoed,
-//! `dispatch.kind = "new_brief"`, the kickoff input carried). A SECOND Start
-//! mints a DISTINCT operation id. A REFUSED dispatch keeps the brief in the
-//! composer for retry ("a refused Start keeps the brief visible for retry",
-//! FleetView.harness.test.tsx:372); only a SUCCESS consumes it. The
-//! fail-closed gate (`peerDispatchAdmitted`, :47) admits nothing without the
-//! `external_driver_v1` feature.
-//!
-//! The responder answers the RECORDED-style bodies (an acquire fence, a
-//! dispatch ack) — the same harness shape as f30c_replay, plus an error arm
-//! for the refusal case.
-
+//! The old card locked in a wire that was NOT the web's: an acquire of
+//! `{session_id, slug}` with no CAS, a camelCase dispatch (`driverId`,
+//! `controlToken`, `kickoffInput`) with the literal model `"inherit"`, and
+//! the raw brief as the kickoff. The web's chain (`fleet-start-sequencer.ts`,
+//! `external-driver.ts:749-755`, `external-driver-peer-control.ts:632-644`)
+//! is: acquire `{session_id, driver_id, expected_revision, lease_seconds:
+//! 120}` CAS on the walked revision → `peer/prepare` → EXACTLY ONE snake_case
+//! `peer/dispatch` carrying the Start's operation id, the REQUESTED lane, a
+//! `new_brief` target titled with the staged slug, and the kickoff prompt.
+//! The responder answers in those shapes (the faithful fixture's,
+//! `a10-fleet-driver-synthetic.jsonl`), echoing the request's ids.
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use futures_util::{SinkExt, StreamExt};
-use octoscode_module::bindings::Ctx;
-use octoscode_module::flow::{Conversation, FlowUi};
-use octoscode_module::screens::fleet;
-use octoscode_store::Store;
+use octoscode_module::flow::Conversation;
+use octoscode_module::screens::board3::{fleetview, host};
+use octoscode_module::screens::fleet_driver::{self, StartOutcome};
+use octoscode_module::screens::peers;
+use serde_json::{json, Value};
 use tokio::net::TcpListener;
 use tokio_tungstenite::tungstenite::Message;
 
-/// A fake WS server: each request is answered with its recorded body (by
-/// method), or `{result: null}`; methods in `error_for` get a JSON-RPC ERROR
-/// instead (the refusal case). Records every (method, params) it receives.
-struct ReplayServer {
-    url: String,
-    seen: Arc<Mutex<Vec<(String, serde_json::Value)>>>,
+/// The fixture's `session/open` (the RECORDED r6 reply + the advertised
+/// external-driver methods and `external_driver_v1`); `advertise: false`
+/// strips the driver methods and the feature again.
+fn opened(advertise: bool) -> Value {
+    let path = format!(
+        "{}/../octoscode-client/tests/fixtures/a10-fleet-driver-synthetic.jsonl",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let text = std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {path}: {e}"));
+    let mut opened = text
+        .lines()
+        .filter_map(|l| serde_json::from_str::<Value>(l).ok())
+        .find(|v| v["dir"] == "in" && v["method"] == "session/open")
+        .map(|v| v["body"].clone())
+        .expect("fixture session/open");
+    if !advertise {
+        let caps = &mut opened["capabilities"];
+        caps["supported_features"].as_array_mut().unwrap().retain(|f| f != "external_driver_v1");
+        caps["supported_methods"].as_array_mut().unwrap().retain(|m| {
+            let m = m.as_str().unwrap_or("");
+            !m.starts_with("session/driver/") && m != "peer/dispatch" && m != "peer/control"
+        });
+    }
+    opened
 }
 
-impl ReplayServer {
-    async fn start(bodies: Vec<(String, serde_json::Value)>, error_for: Vec<String>) -> Self {
+struct Server {
+    url: String,
+    seen: Arc<Mutex<Vec<(String, Value)>>>,
+}
+
+impl Server {
+    /// `refuse`: answer `peer/dispatch` with this typed refusal kind.
+    async fn start(advertise: bool, refuse: Option<&'static str>) -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").await.expect("bind");
         let addr = listener.local_addr().expect("addr");
         let seen = Arc::new(Mutex::new(Vec::new()));
@@ -44,242 +67,165 @@ impl ReplayServer {
         tokio::spawn(async move {
             let Ok((stream, _)) = listener.accept().await else { return };
             let Ok(ws) = tokio_tungstenite::accept_async(stream).await else { return };
-            let (mut tx, mut rx_in) = ws.split();
-            while let Some(Ok(msg)) = rx_in.next().await {
+            let (mut tx, mut rx) = ws.split();
+            while let Some(Ok(msg)) = rx.next().await {
                 let Message::Text(text) = msg else { continue };
-                let Ok(v) = serde_json::from_str::<serde_json::Value>(&text) else { continue };
+                let Ok(v) = serde_json::from_str::<Value>(&text) else { continue };
+                let Some(id) = v.get("id").cloned() else { continue };
                 let method = v["method"].as_str().unwrap_or("").to_owned();
-                let id = v["id"].as_str().unwrap_or("").to_owned();
-                let params = v.get("params").cloned().unwrap_or(serde_json::Value::Null);
-                rec.lock().unwrap().push((method.clone(), params.clone()));
-                let reply = if error_for.iter().any(|m| *m == method) {
-                    serde_json::json!({
-                        "jsonrpc": "2.0", "id": id,
-                        "error": {"code": -32000, "message": "no seat for that peer"}
-                    })
-                } else {
-                    let result = bodies
-                        .iter()
-                        .find(|(m, _)| *m == method)
-                        .map(|(_, b)| b.clone())
-                        .unwrap_or(serde_json::Value::Null);
-                    serde_json::json!({"jsonrpc": "2.0", "id": id, "result": result})
+                let p = v["params"].clone();
+                rec.lock().unwrap().push((method.clone(), p.clone()));
+                let reply: Result<Value, Value> = match method.as_str() {
+                    "session/open" => {
+                        let mut o = opened(advertise);
+                        o["session_id"] = p["session_id"].clone();
+                        Ok(json!({ "opened": o }))
+                    }
+                    "session/list" => Ok(json!({ "sessions": [] })),
+                    "session/driver/get" => Ok(json!({
+                        "mode": "external", "recovery": "none",
+                        "binding": {"driver_id": "someone-else", "epoch": 7, "revision": 42, "lease_expires_at_ms": 0},
+                        "operations": {"items": [], "snapshot": "s", "observed_revision": "42", "complete": true, "next_cursor": null}
+                    })),
+                    "session/driver/acquire" => Ok(json!({
+                        "control_token": "tok-1", "recovery": "none",
+                        "binding": {"driver_id": p["driver_id"], "epoch": 7, "revision": 43, "lease_expires_at_ms": 1770000000000u64}
+                    })),
+                    "peer/prepare" => Ok(json!({
+                        "slug": "r6-smoke", "topic": "peer-r6-smoke", "profile_id": "dsflash",
+                        "cwd": "/home/user/src/octos", "brief_path": "/home/user/.octos/peers/r6-smoke/brief.md"
+                    })),
+                    "peer/dispatch" => match refuse {
+                        Some(kind) => Err(json!({"code": -32602, "message": "driver operation refused: peer/dispatch", "data": {"kind": kind}})),
+                        None => Ok(json!({
+                            "operation_id": p["operation_id"], "state": "accepted", "model": "glm-5.3",
+                            "model_lane": p["model"], "workspace_root": "/home/user/src/octos", "scoped_goal": null,
+                            "adopted_turn_id": "00000000-0000-4000-8000-0000000000d1",
+                            "adopted_session_id": "dsflash:main#peer-r6-smoke", "slug": "r6-smoke",
+                            "duplicate": false, "accepted_at_ms": 1, "payload_digest": "d"
+                        })),
+                    },
+                    _ => Ok(json!({})),
                 };
-                let _ = tx.send(Message::Text(reply.to_string().into())).await;
+                let frame = match reply {
+                    Ok(r) => json!({"jsonrpc": "2.0", "id": id, "result": r}),
+                    Err(e) => json!({"jsonrpc": "2.0", "id": id, "error": e}),
+                };
+                let _ = tx.send(Message::Text(frame.to_string().into())).await;
             }
         });
-        Self {
-            url: format!("ws://{addr}"),
-            seen,
-        }
+        Self { url: format!("http://{addr}"), seen }
     }
 
-    fn sent(&self, method: &str) -> Vec<serde_json::Value> {
-        self.seen
-            .lock()
-            .unwrap()
-            .iter()
-            .filter(|(m, _)| m == method)
-            .map(|(_, p)| p.clone())
-            .collect()
-    }
-
-    fn count(&self, method: &str) -> usize {
-        self.seen.lock().unwrap().iter().filter(|(m, _)| m == method).count()
+    fn sent(&self, method: &str) -> Vec<Value> {
+        self.seen.lock().unwrap().iter().filter(|(m, _)| m == method).map(|(_, p)| p.clone()).collect()
     }
 }
 
-fn store_with_peer() -> std::sync::Arc<Store> {
-    // Returns Arc: Ctx::new takes &Arc<Store>; the &Store APIs deref-coerce.
-    let store = Store::new();
-    store.domains.session.set_active(Some("dsflash:main".into()));
-    store.domains.peer.upsert(octoscode_store::domains::peer::Peer::named("r6-smoke"));
-    std::sync::Arc::new(store)
-}
-
-/// Connect + drain, the f30c glue verbatim.
-fn connect(
-    rt: &tokio::runtime::Runtime,
-    server: &ReplayServer,
-) -> (
-    Arc<Conversation>,
-    tokio::sync::mpsc::Receiver<octos_app_transport::TransportEvent>,
-) {
-    let (conv, evt_rx) = rt
-        .block_on(async { Conversation::connect(&server.url, "mapb-dummy", "dsflash", None, None) })
-        .expect("the conversation connects to the replay server");
+async fn connect(server: &Server) -> Arc<Conversation> {
+    let (conv, mut events) = Conversation::connect(&server.url, "dummy", "dsflash", None, None).expect("connect");
     let conv = Arc::new(conv);
-    // run_start reads the session from the CONVERSATION's store (in
-    // production it is the same store lib.rs passes to spawn); the test's
-    // own store is a separate instance, so set the active session on both.
-    conv.store
-        .domains
-        .session
-        .set_active(Some("dsflash:main".into()));
-    (conv, evt_rx)
-}
-
-fn poll_until(server: &ReplayServer, rt: &tokio::runtime::Runtime, want: usize) {
-    rt.block_on(async {
-        let deadline = tokio::time::Instant::now() + Duration::from_secs(5);
-        loop {
-            if server.count("peer/dispatch") >= want
-                || tokio::time::Instant::now() > deadline
-            {
-                break;
-            }
-            tokio::time::sleep(Duration::from_millis(20)).await;
+    let drv = conv.clone();
+    tokio::spawn(async move {
+        while let Some(evt) = events.recv().await {
+            peers::note_transport_event(&drv, &evt);
+            let _ = drv.on_event(evt);
         }
     });
+    conv.open_workspace(None).await.expect("open");
+    for _ in 0..100 {
+        if !conv.store.domains.config.supported_methods().is_empty() {
+            break;
+        }
+        tokio::time::sleep(Duration::from_millis(10)).await;
+    }
+    conv
 }
 
-#[test]
-fn the_gate_is_fail_closed_and_the_chain_sends_exactly_one_dispatch() {
-    let rt = tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(1)
-        .enable_all()
-        .build()
-        .expect("runtime");
-    let store = store_with_peer();
-    // The fence the (recorded-style) acquire hands back — echoed verbatim
-    // into the dispatch frame.
-    let bodies = vec![(
-        "session/driver/acquire".to_owned(),
-        serde_json::json!({"driverId": "drv-1", "epoch": 7, "controlToken": "tok-1"}),
-    )];
-    let server = rt.block_on(ReplayServer::start(bodies, vec![]));
-    let (conv, mut evt_rx) = connect(&rt, &server);
-    {
-        let drain = conv.clone();
-        rt.spawn(async move {
-            while let Some(evt) = evt_rx.recv().await {
-                let _ = drain.on_event(evt);
-            }
-        });
-    }
-    let ui = std::sync::Arc::new(Mutex::new(FlowUi::default()));
+fn serial() -> std::sync::MutexGuard<'static, ()> {
+    static L: Mutex<()> = Mutex::new(());
+    L.lock().unwrap_or_else(|e| e.into_inner())
+}
 
-    // WITHOUT the feature the gate admits nothing — locally, before any wire
-    // traffic (the web's peerDispatchAdmitted, fail-closed).
-    assert!(!fleet::start_admitted(&store), "no capabilities yet");
-    assert!(
-        fleet::action_params("peer.start", 0, &store, "run the queue").is_none(),
-        "the gate refuses before a frame is built"
-    );
-    let ctx = Ctx::new(&store, &ui);
-    fleet::spawn(
-        fleet::resolve("peer.start", 0, &ctx),
-        &rt,
-        &conv,
-        &ui,
-        &store,
-    );
-    std::thread::sleep(Duration::from_millis(300));
-    assert_eq!(server.count("session/driver/acquire"), 0, "no acquire without the gate");
-    assert_eq!(server.count("peer/dispatch"), 0, "no dispatch without the gate");
+fn lanes() -> Vec<String> {
+    vec!["glm-53".into()]
+}
 
-    // WITH the feature the chain runs: acquire -> exactly ONE dispatch.
-    store.set_capabilities(vec!["external_driver_v1".into()]);
-    assert!(fleet::start_admitted(&store));
-    let (method, params) =
-        fleet::action_params("peer.start", 0, &store, "run the queue").expect("admitted");
-    assert_eq!(method, "peer.start");
-    assert_eq!(params["slug"], "r6-smoke");
-    ui.lock().unwrap().set_draft_inner("run the queue");
-    fleet::spawn(
-        fleet::resolve("peer.start", 0, &ctx),
-        &rt,
-        &conv,
-        &ui,
-        &store,
-    );
-    poll_until(&server, &rt, 1);
+#[tokio::test]
+async fn the_gate_is_fail_closed_and_the_chain_sends_exactly_one_dispatch() {
+    let _s = serial();
+    fleet_driver::reset_seat();
+    std::env::set_var("OCTOSCODE_DRIVER_ID_PATH", std::env::temp_dir().join("fp4a4-driver-id"));
+    // WITHOUT the methods + feature: nothing is admitted, nothing is sent.
+    let closed = Server::start(false, None).await;
+    let conv = connect(&closed).await;
+    fleet_driver::load_inventory(&conv).await.expect("an unadvertised walk is a no-op");
+    assert!(!fleet_driver::control_ready(&conv.store));
+    let out = fleet_driver::start(&conv, "op-1", "glm-53", &lanes(), "run the queue", &mut None).await;
+    assert!(matches!(out, StartOutcome::Refused { .. }), "{out:?}");
+    assert!(closed.sent("session/driver/acquire").is_empty() && closed.sent("peer/dispatch").is_empty());
 
-    // The fence was acquired for THIS session+slug…
+    // WITH them: walk → acquire (CAS on the walked revision) → prepare →
+    // EXACTLY ONE dispatch, the web's snake_case frame.
+    fleet_driver::reset_seat();
+    let server = Server::start(true, None).await;
+    let conv = connect(&server).await;
+    fleet_driver::load_inventory(&conv).await.expect("walk");
+    assert!(fleet_driver::control_ready(&conv.store));
+    let mut staged = None;
+    let out = fleet_driver::start(&conv, "op-first", "glm-53", &lanes(), "run the queue", &mut staged).await;
+    assert!(matches!(&out, StartOutcome::Accepted { operation_id, .. } if operation_id == "op-first"), "{out:?}");
     let acquire = &server.sent("session/driver/acquire")[0];
     assert_eq!(acquire["session_id"], "dsflash:main");
-    assert_eq!(acquire["slug"], "r6-smoke");
-    // …and EXACTLY ONE dispatch went out, the web's frame verbatim.
-    assert_eq!(server.count("peer/dispatch"), 1, "one activation, one dispatch");
-    let dispatch = &server.sent("peer/dispatch")[0];
-    assert_eq!(dispatch["driverId"], "drv-1");
-    assert_eq!(dispatch["epoch"], 7);
-    assert_eq!(dispatch["controlToken"], "tok-1");
-    assert_eq!(dispatch["model"], "inherit", "the REQUESTED lane is echoed");
-    assert_eq!(dispatch["dispatch"]["kind"], "new_brief");
-    assert_eq!(dispatch["dispatch"]["brief"], "run the queue");
-    assert_eq!(dispatch["dispatch"]["title"], "r6-smoke");
-    assert_eq!(dispatch["kickoffInput"][0]["kind"], "text");
-    assert_eq!(dispatch["kickoffInput"][0]["text"], "run the queue");
-    let first_op = dispatch["operationId"].as_str().expect("operation id").to_owned();
-    assert!(!first_op.is_empty());
-
-    // SUCCESS consumes the brief (the composer is clear).
-    assert!(ui.lock().unwrap().draft().is_empty(), "a successful Start consumes the brief");
-
-    // A SECOND Start mints a DISTINCT operation id (the row's clause).
-    ui.lock().unwrap().set_draft_inner("run the queue again");
-    fleet::spawn(
-        fleet::resolve("peer.start", 0, &ctx),
-        &rt,
-        &conv,
-        &ui,
-        &store,
-    );
-    poll_until(&server, &rt, 2);
-    let dispatches = server.sent("peer/dispatch");
-    assert_eq!(dispatches.len(), 2);
-    let second_op = dispatches[1]["operationId"].as_str().expect("operation id").to_owned();
-    assert_ne!(first_op, second_op, "a second Start mints a distinct operation id");
+    assert_eq!(acquire["expected_revision"], 42, "CAS on the observed revision");
+    assert_eq!(acquire["lease_seconds"], 120);
+    assert!(acquire.get("slug").is_none(), "no slug-addressed seat");
+    assert_eq!(server.sent("peer/dispatch").len(), 1, "one activation, one dispatch");
+    let d = &server.sent("peer/dispatch")[0];
+    assert_eq!(d["driver_id"], acquire["driver_id"]);
+    assert_eq!(d["epoch"], 7);
+    assert_eq!(d["control_token"], "tok-1");
+    assert_eq!(d["operation_id"], "op-first");
+    assert_eq!(d["model"], "glm-53", "the REQUESTED lane, never \"inherit\"");
+    assert_eq!(d["dispatch"], json!({"kind": "new_brief", "brief": "run the queue", "title": "r6-smoke"}));
+    assert!(d["kickoff_input"][0]["text"].as_str().unwrap().starts_with("You are a peer agent. Your brief:"));
+    assert!(d.get("driverId").is_none() && d.get("kickoffInput").is_none(), "no camelCase wire");
+    // A SECOND Start (a new staging) carries a DISTINCT operation id; the
+    // held seat is reused (no second acquire).
+    let out = fleet_driver::start(&conv, "op-second", "glm-53", &lanes(), "run it again", &mut None).await;
+    assert!(matches!(&out, StartOutcome::Accepted { operation_id, .. } if operation_id == "op-second"));
+    let ds = server.sent("peer/dispatch");
+    assert_eq!(ds.len(), 2);
+    assert_ne!(ds[0]["operation_id"], ds[1]["operation_id"]);
+    assert_eq!(server.sent("session/driver/acquire").len(), 1, "the held seat is reused");
 }
 
-#[test]
-fn a_refused_dispatch_keeps_the_brief_for_retry() {
-    let rt = tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(1)
-        .enable_all()
-        .build()
-        .expect("runtime");
-    let store = store_with_peer();
-    store.set_capabilities(vec!["external_driver_v1".into()]);
-    let bodies = vec![(
-        "session/driver/acquire".to_owned(),
-        serde_json::json!({"driverId": "drv-2", "epoch": 3, "controlToken": "tok-2"}),
-    )];
-    // peer/dispatch REFUSES (a JSON-RPC error) — the seat was taken.
-    let server = rt.block_on(ReplayServer::start(
-        bodies,
-        vec!["peer/dispatch".to_owned()],
-    ));
-    let (conv, mut evt_rx) = connect(&rt, &server);
+#[tokio::test]
+async fn a_refused_dispatch_keeps_the_brief_for_retry() {
+    let _s = serial();
+    fleet_driver::reset_seat();
+    host::reset();
+    std::env::set_var("OCTOSCODE_DRIVER_ID_PATH", std::env::temp_dir().join("fp4a4-driver-id"));
+    let server = Server::start(true, Some("driver_operation_conflict")).await;
+    let conv = connect(&server).await;
+    fleet_driver::load_inventory(&conv).await.expect("walk");
     {
-        let drain = conv.clone();
-        rt.spawn(async move {
-            while let Some(evt) = evt_rx.recv().await {
-                let _ = drain.on_event(evt);
-            }
-        });
+        let mut st = host::state();
+        st.fleet.lanes = vec![fleetview::LaneInfo { key: "glm-53".into(), ..Default::default() }];
+        st.fleet.lane = "glm-53".into();
+        st.fleet.brief = "hold the queue".into();
     }
-    let ui = std::sync::Arc::new(Mutex::new(FlowUi::default()));
-    let ctx = Ctx::new(&store, &ui);
-
-    ui.lock().unwrap().set_draft_inner("hold the queue");
-    fleet::spawn(
-        fleet::resolve("peer.start", 0, &ctx),
-        &rt,
-        &conv,
-        &ui,
-        &store,
-    );
-    poll_until(&server, &rt, 1);
-
-    // The dispatch WAS attempted (exactly once)…
-    assert_eq!(server.count("peer/dispatch"), 1);
-    // …and its refusal left the brief IN the composer for retry — task
-    // words, never protocol vocabulary, on the log; the draft is untouched.
+    let job = match host::perform("b3.fleet.start", 0, &conv.store) {
+        host::Outcome::Spawn(j) => j,
+        other => panic!("{other:?}"),
+    };
+    host::run(job, &conv).await.expect("settles");
+    assert_eq!(server.sent("peer/dispatch").len(), 1, "attempted exactly once");
+    let st = host::state();
+    assert!(matches!(&st.fleet.start, fleetview::StartState::Failed { kind, .. } if kind == "driver_operation_conflict"));
+    assert_eq!(st.fleet.brief, "hold the queue", "a refused Start keeps the brief visible for retry");
     assert_eq!(
-        ui.lock().unwrap().draft(),
-        "hold the queue",
-        "a refused Start keeps the brief visible for retry"
+        fleet_driver::dispatch_refusal_label("driver_operation_conflict"),
+        "A different request already used this id — nothing was sent"
     );
 }

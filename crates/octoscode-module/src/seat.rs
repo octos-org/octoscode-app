@@ -134,6 +134,15 @@ pub struct Proof {
     pub lease_expires_at_ms: u64,
 }
 
+impl Proof {
+    /// The proof of a seat taken through the typed driver leaf (the console's
+    /// "Acquire seat" or the Fleet's Start, `screens::fleet_driver`): the web
+    /// holds ONE `controlAcquire` for the console and the composer handover.
+    pub fn from_acquire(driver_id: &str, epoch: u64, token: &str, revision: u64, lease_expires_at_ms: u64) -> Self {
+        Self { driver_id: driver_id.to_owned(), epoch, token: token.to_owned(), revision, lease_expires_at_ms }
+    }
+}
+
 impl std::fmt::Debug for Proof {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Proof")

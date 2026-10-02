@@ -78,7 +78,11 @@ impl crate::OctoscodeView {
         // 2. The Trajectory replaces the transcript and the composer.
         self.view.widget(cx, ids!(conversation_inner)).set_visible(cx, !traj);
         self.view.widget(cx, ids!(traj_view)).set_visible(cx, traj);
-        self.view.widget(cx, ids!(composer_dock)).set_visible(cx, !traj);
+        // A10 — the Fleet pane replaces the chat area, composer included
+        // (`sync_board3` hides it; this sync must not show it again).
+        let fleet_open =
+            crate::screens::board3::host::open_dialog() == Some(crate::screens::board3::host::Dialog::Fleet);
+        self.view.widget(cx, ids!(composer_dock)).set_visible(cx, !traj && !fleet_open);
         let traj_dsl = sf::lower_trajectory(&store, m.pane_w, phone).map(|l| l.dsl).unwrap_or_default();
         let splash = self.view.splash(cx, ids!(traj_splash));
         match self.mounts.mount(cx, &splash, &quiet(&traj_dsl)) {
@@ -281,31 +285,12 @@ impl crate::OctoscodeView {
             }
             Outcome::Action(id) => self.perform_action(cx, &id, 0),
             Outcome::ReviewDiff(preview_id) => {
-                // The `D` path (`ApprovalPanel.tsx:45`, `:93-99`): the review
-                // sheet reads THIS preview through `diff/preview/get`.
+                // The `D` path (`ApprovalPanel.tsx:45`, `:93-99`): the diff
+                // review (`DiffReviewDialog`) reads THIS preview through ONE
+                // `diff/preview/get` (A10: the board-3 dialog).
                 crate::screens::review::set_preview_id(preview_id);
-                let (ui, conv) = {
-                    let b = self.bridge.lock().unwrap();
-                    (b.ui.clone(), b.conv.clone())
-                };
-                if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
-                    rt.spawn(async move {
-                        let e = crate::screens::review::Effect::ScopeCycle;
-                        if let Err(err) = crate::screens::review::perform(e, &conv).await {
-                            ::log::warn!("octoscode: review diff from approval: {err}");
-                        }
-                    });
-                }
-                let opened = match ui.lock() {
-                    Ok(mut u) => {
-                        if !u.review_open() {
-                            u.toggle_review();
-                        }
-                        true
-                    }
-                    Err(_) => false,
-                };
-                makepad_widgets::log!("[octoscode] approval: review diff opened={opened}");
+                self.open_diff_review(cx);
+                makepad_widgets::log!("[octoscode] approval: review diff opened");
             }
             Outcome::Done | Outcome::Unrouted => {}
         }

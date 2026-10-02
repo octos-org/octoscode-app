@@ -1,0 +1,213 @@
+== 1. /agents palette row CLICK opens the Agents panel; the roster loads (agent/list)
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:3249:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3347:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3671:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:3249:17 - [octoscode] composer remounted
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'age'
+CLICK palette_row_name '/agents' r=[286, 252, 66, 28]
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 1 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 4 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5290:25 - [octoscode] palette row 0 clicked
+    log: [I] apps/octoscode/module/src/lib.rs:2520:17 - [octoscode] palette run /agents -> compose:/agents
+    log: [I] apps/octoscode/module/src/flow.rs:1701:17 - [octoscode] command /agents: board-3 surface (Spawn(AgentsLoad))
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 5 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 13 tap(s), 2 input(s)
+PASS agents: /agents row CLICK -> panel with the agent/list roster — rows=['c24b-probe', 'c24b-probe']
+PASS agents: the roster shows the running and the completed agent
+PASS roster: dialog numeric checks — frame=720x567 centre_dx=0.0 margins L=20 R=20 labels=19 outside=0 overlaps=0 controls=7 under28=0
+SHOT 01-roster-desktop
+== 2. Read status (row 0) -> the status card
+CLICK b3_agents_row_0_act_status r=[223, 458, 107, 30] at (276,473)
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.agents.status#0
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.agents.status #0 -> Spawn(AgentStatus("<redacted-agent>"))
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 AgentStatus("<redacted-agent>"): status shown
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 13 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5997:17 - [octoscode] nav tap: b3.agents.status#0
+    log: [I] apps/octoscode/module/src/lib.rs:5007:21 - [octoscode] nav route: b3.agents.status#0
+    log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.agents.status#0
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 13 tap(s), 2 input(s)
+PASS agents: Read status CLICK -> agent/status/read -> 'Status — <id>' card
+PASS agents: the status card shows Owner session / Backend
+SHOT 02-status-desktop
+== 3. List artifacts -> Read artifact (by id)
+CLICK b3_agents_row_0_act_artifacts r=[453, 218, 113, 30] at (510,233)
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.agents.artifacts#0
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.agents.artifacts #0 -> Spawn(AgentArtifacts("<redacted-agent>"))
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 AgentArtifacts("<redacted-agent>"): 1 artifact(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 13 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5997:17 - [octoscode] nav tap: b3.agents.artifacts#0
+    log: [I] apps/octoscode/module/src/lib.rs:5007:21 - [octoscode] nav route: b3.agents.artifacts#0
+    log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.agents.artifacts#0
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 14 tap(s), 2 input(s)
+PASS agents: List artifacts CLICK -> one detail viewer shows the artifacts (status card replaced)
+CLICK b3_agents_artifact_read_0 r=[752, 599, 113, 30] at (808,614)
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.agents.artifact#0
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.agents.artifact #0 -> Spawn(AgentArtifactRead("<redacted-agent>", Some("artifact-1"), None))
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 AgentArtifactRead("<redacted-agent>", Some("artifact-1"), None): artifact shown
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 13 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 13 tap(s), 2 input(s)
+PASS agents: Read artifact CLICK -> agent/artifact/read -> the content card (markup inert)
+SHOT 03-artifact-desktop
+== 4. Read output -> Load more (appends from next_cursor)
+CLICK b3_agents_row_0_act_output r=[338, 243, 107, 30] at (392,258)
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.agents.output#0
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.agents.output #0 -> Spawn(AgentOutput("<redacted-agent>", false))
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 AgentOutput("<redacted-agent>", false): 61 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5997:17 - [octoscode] nav tap: b3.agents.output#0
+    log: [I] apps/octoscode/module/src/lib.rs:5007:21 - [octoscode] nav route: b3.agents.output#0
+    log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.agents.output#0
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 14 tap(s), 2 input(s)
+PASS agents: Read output CLICK -> the output card with Load more
+CLICK b3_agents_output_more r=[766, 615, 99, 26] at (816,628)
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.agents.output_more
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.agents.output_more #0 -> Spawn(AgentOutput("<redacted-agent>", true))
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 AgentOutput("<redacted-agent>", true): 32 chars
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 13 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 13 tap(s), 2 input(s)
+PASS agents: Load more CLICK -> the next page appended, Load more gone
+SHOT 04-output-desktop
+== 5. Interrupt agent (row 0, running) -> the recorded receipt
+CLICK b3_agents_row_0_act_interrupt r=[574, 246, 123, 30] at (636,261)
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.agents.interrupt#0
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.agents.interrupt #0 -> Spawn(AgentControl("<redacted-agent>", "interrupt"))
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 AgentControl("<redacted-agent>", "interrupt"): agent interrupted
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 11 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 11 tap(s), 2 input(s)
+PASS agents: Interrupt agent CLICK -> agent/interrupt -> status 'interrupted' + activity line
+PASS agents: the interrupted row offers no further control
+SHOT 05-interrupted-desktop
+== 6. Inspect or control an agent by ID -> Close agent
+CLICK b3_agents_by_id r=[209, 357, 670, 30] at (544,372)
+PASS agents: the by-ID section opens by CLICK
+TYPE '<redacted-agent>'
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.agents.by_id
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.agents.by_id #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 17 tap(s), 4 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5997:17 - [octoscode] nav tap: b3.agents.by_id
+    log: [I] apps/octoscode/module/src/lib.rs:5007:21 - [octoscode] nav route: b3.agents.by_id
+    log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.agents.by_id
+CLICK b3_agents_id_act_close r=[705, 466, 106, 30] at (758,481)
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.agents.id.close
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.agents.id.close #0 -> Spawn(AgentControl("<redacted-agent>", "close"))
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 AgentControl("<redacted-agent>", "close"): agent closed
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 17 tap(s), 4 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5997:17 - [octoscode] nav tap: b3.agents.id.close
+    log: [I] apps/octoscode/module/src/lib.rs:5007:21 - [octoscode] nav route: b3.agents.id.close
+    log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.agents.id.close
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 17 tap(s), 4 input(s)
+PASS agents: Close agent (by ID) CLICK -> agent/close -> 'closed'
+SHOT 06-by-id-close-desktop
+== 7. Request parallel agents: the composed text rides an ordinary turn/start
+TYPE 'audit the parser'
+CLICK b3_agents_spawn_go r=[686, 300, 179, 34] at (776,317)
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.agents.spawn
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.agents.spawn #0 -> Spawn(AgentsSpawn("Spawn 1 agent(s) to accomplish in parallel: audit the parser"))
+    log: [I] apps/octoscode/module/src/flow.rs:1203:17 - [octoscode] turn started: 01a0fb9e-50d5-770b-a12a-9c373c2c6864
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 AgentsSpawn("Spawn 1 agent(s) to accomplish in parallel: audit the parser"): queued turn 01a0fb9e-50d5-770b-a12a-9c373c2c6864
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 17 tap(s), 4 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5997:17 - [octoscode] nav tap: b3.agents.spawn
+    log: [I] apps/octoscode/module/src/lib.rs:5007:21 - [octoscode] nav route: b3.agents.spawn
+    log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.agents.spawn
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Agents): 17 tap(s), 4 input(s)
+PASS agents: Request parallel agents CLICK -> AgentsSpawn queued; the task field clears (the count stays)
+PASS agents: exactly one ordinary turn/start reached the wire (replay log) — turn/start x1
+PASS final: dialog numeric checks — frame=720x567 centre_dx=0.0 margins L=20 R=20 labels=19 outside=0 overlaps=0 controls=5 under28=0
+SHOT 07-spawned-desktop
+== 8. the wire: every click's method reached the replay server
+PASS wire: agent/list x1 — replay log: 1
+PASS wire: agent/status/read x1 — replay log: 1
+PASS wire: agent/artifact/list x1 — replay log: 1
+PASS wire: agent/artifact/read x1 — replay log: 1
+PASS wire: agent/output/read x2 — replay log: 2
+PASS wire: agent/interrupt x1 — replay log: 1
+PASS wire: agent/close x1 — replay log: 1
+CLICK b3_close r=[861, 116, 28, 28] at (875,130)
+PASS agents: the close glyph CLICK closes the panel
+== 24/24 checks passed

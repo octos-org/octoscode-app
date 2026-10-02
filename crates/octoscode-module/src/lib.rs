@@ -1531,6 +1531,8 @@ impl OctoscodeView {
                 // A5 — loop/monitor/goal notifications keep the autonomy
                 // dialogs' cache current (the web store's applyNotification).
                 screens::autonomy::note_transport_event(&evt);
+                // A10 — peer/staged + peer/closed drive the peer manager.
+                screens::peers::note_transport_event(&drv, &evt);
                 let e = drv.on_event(evt);
                 ::log::debug!("[octoscode] {e:?}");
                 SignalToUI::set_ui_signal();
@@ -1586,6 +1588,12 @@ impl OctoscodeView {
             let store = { self.bridge.lock().unwrap().store.clone() };
             let outcome = screens::board3::host::perform(action, index, &store);
             makepad_widgets::log!("[octoscode] board3 action {action} #{index} -> {outcome:?}");
+            // A10 — a form submit takes the focus from its field, so the
+            // remount that settles it does not hand the focus (and a phone's
+            // on-screen keyboard) back to the rebuilt input.
+            if screens::board3::host::take_blur() {
+                cx.set_key_focus(Area::Empty);
+            }
             self.board3_outcome(cx, outcome);
             return;
         }
@@ -1896,6 +1904,14 @@ impl OctoscodeView {
         // #30a: the board-3 review screens' ids route through their own table
         // first (one-owner rule); the conversation router never sees them.
         if screens::review::is_action(action) {
+            // A10 — Start reads the dialog's "Review instructions" field.
+            if action == "review.start" {
+                let typed = self
+                    .view
+                    .text_input(cx, &[LiveId::from_str(screens::dialog::REVIEW_PROMPT_INPUT)])
+                    .text();
+                screens::review::set_prompt(&typed);
+            }
             let (store, ui, conv) = {
                 let b = self.bridge.lock().unwrap();
                 (b.store.clone(), b.ui.clone(), b.conv.clone())
@@ -1994,12 +2010,19 @@ impl OctoscodeView {
             }
             // Card #28e — board-4 chrome toggles. Flip the FlowUi flag; the
             // next `sync_labels` moves it onto the view (`set_visible`).
+            // A10 — the header's Review entry (and its shortcut) is the
+            // web's DiffReviewDialog: a board-3 modal over the latest
+            // announced preview, with the web's loading / error / empty
+            // states (the old docked sheet had none and sat under the
+            // session title).
+            actions::Effect::UiChrome(actions::UiChrome::ReviewToggle) => {
+                self.toggle_diff_review(cx);
+                return;
+            }
             actions::Effect::UiChrome(which) => {
                 if let Ok(mut u) = ui.lock() {
                     match which {
-                        actions::UiChrome::ReviewToggle => {
-                            u.toggle_review();
-                        }
+                        actions::UiChrome::ReviewToggle => {}
                         actions::UiChrome::SettingsToggle => {
                             u.toggle_settings();
                         }
@@ -2089,6 +2112,8 @@ impl OctoscodeView {
                     ::log::info!("octoscode: connection.retry connected");
                     rt.spawn(async move {
                         while let Some(evt) = evt_rx.recv().await {
+                            // A10 — the peer manager's staged/closed.
+                            screens::peers::note_transport_event(&conv, &evt);
                             let e = conv.on_event(evt);
                             ::log::debug!("[octoscode] {e:?}");
                             SignalToUI::set_ui_signal();
@@ -2298,6 +2323,13 @@ impl OctoscodeView {
         makepad_widgets::log!("[octoscode] dialog action: {action}");
         match &effect {
             screens::dialog::Effect::Open(_) | screens::dialog::Effect::Close => {
+                // A10 — closing an autonomy dialog suspends its families (the
+                // web store's effect lease): an in-flight read answers into a
+                // superseded revision and never publishes.
+                if effect == screens::dialog::Effect::Close {
+                    let store = { self.bridge.lock().unwrap().store.clone() };
+                    screens::autonomy::suspend(&store);
+                }
                 let opened = screens::dialog::apply(&effect);
                 if let Some(d) = opened {
                     let ui = { self.bridge.lock().unwrap().ui.clone() };
@@ -2324,6 +2356,22 @@ impl OctoscodeView {
             // card, Confirm performs the asked action through its owner,
             // Cancel returns to the dialog.
             screens::dialog::Effect::Ask(asked) => {
+                // A10 — "Review installation": the source fields' text is
+                // what the confirmation names (and later installs).
+                if asked == "skills.install_source" {
+                    let repo = self
+                        .view
+                        .text_input(cx, &[LiveId::from_str(screens::dialog::SKILLS_SOURCE_REPO_INPUT)])
+                        .text();
+                    let branch = self
+                        .view
+                        .text_input(cx, &[LiveId::from_str(screens::dialog::SKILLS_SOURCE_BRANCH_INPUT)])
+                        .text();
+                    screens::dialog::set_skills_source(&repo, &branch);
+                    if repo.trim().is_empty() {
+                        screens::dialog::set_notice("Type the repository or server-side path first.");
+                    }
+                }
                 let store = { self.bridge.lock().unwrap().store.clone() };
                 let c = screens::dialog::confirmation_for(asked, &store);
                 makepad_widgets::log!("[octoscode] dialog confirm asked: {asked} ({})", c.is_some());
@@ -2373,6 +2421,20 @@ impl OctoscodeView {
             screens::dialog::Effect::CancelForm => {
                 screens::dialog::set_form(None);
                 makepad_widgets::log!("[octoscode] dialog form cancelled");
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
+            // A10 — the loop form's cadence: keep what was typed, rebuild the
+            // fields for the chosen mode.
+            screens::dialog::Effect::FormMode(mode) => {
+                if let Some(form) = screens::dialog::pending_form() {
+                    let values = self.dialog_form_values(cx, &form);
+                    let prompt = values.first().cloned().unwrap_or_default();
+                    let interval = values.get(1).cloned().unwrap_or_default();
+                    screens::dialog::set_form(Some(screens::dialog::loop_form(mode, &prompt, &interval)));
+                    makepad_widgets::log!("[octoscode] dialog form mode: {mode}");
+                }
                 self.sync_labels(cx);
                 self.view.redraw(cx);
                 return;
@@ -2509,14 +2571,7 @@ impl OctoscodeView {
         let Some(mut form) = screens::dialog::pending_form() else {
             return;
         };
-        let values: Vec<String> = form
-            .fields
-            .iter()
-            .map(|(id, _, _)| {
-                let wid = LiveId::from_str(&screens::dialog::form_input_id(form.dialog, id));
-                self.view.text_input(cx, &[wid]).text()
-            })
-            .collect();
+        let values = self.dialog_form_values(cx, &form);
         for (field, v) in form.fields.iter_mut().zip(&values) {
             field.2 = v.clone();
         }
@@ -2527,7 +2582,15 @@ impl OctoscodeView {
         };
         let effect = {
             let ctx = bindings::Ctx::new(&store, &ui);
-            screens::autonomy::resolve(&form.action, 0, Some(&value), &ctx)
+            // A10: the loop (cadence) and monitor forms build their effect
+            // from the fields directly; the gate still runs first.
+            match screens::dialog::form_effect(&form, &values) {
+                Some(_) if !screens::autonomy::action_advertised(&form.action, &store) => {
+                    screens::autonomy::Effect::Unhandled(format!("{}[not-advertised]", form.action))
+                }
+                Some(e) => e,
+                None => screens::autonomy::resolve(&form.action, 0, Some(&value), &ctx),
+            }
         };
         if let screens::autonomy::Effect::Unhandled(why) = &effect {
             makepad_widgets::log!("[octoscode] dialog form refused: {why}");
@@ -2546,6 +2609,18 @@ impl OctoscodeView {
         }
         self.sync_labels(cx);
         self.view.redraw(cx);
+    }
+
+    /// A10 — the open form's fields' current text (read from the mounted
+    /// inputs), in field order.
+    fn dialog_form_values(&mut self, cx: &mut Cx, form: &screens::dialog::Form) -> Vec<String> {
+        form.fields
+            .iter()
+            .map(|(id, _, _)| {
+                let wid = LiveId::from_str(&screens::dialog::form_input_id(form.dialog, id));
+                self.view.text_input(cx, &[wid]).text()
+            })
+            .collect()
     }
 
     /// A5 — search the skill registry for `q` (the Skills dialog's box):
@@ -2880,6 +2955,8 @@ impl OctoscodeView {
                                 screens::models::note_transport_event(&evt);
                                 screens::review::note_transport_event(&evt);
                                 screens::autonomy::note_transport_event(&evt);
+                                // A10 — the peer manager's staged/closed.
+                                screens::peers::note_transport_event(&drv, &evt);
                                 let _ = drv.on_event(evt);
                                 SignalToUI::set_ui_signal();
                             }
@@ -3182,12 +3259,42 @@ impl OctoscodeView {
             }
             Ok(false) => {}
         }
+        // A10 — the web's `TurnStopButton` states on the same control:
+        // Stop (black), Starting… / Stopping… (inert, greyed), no Stop when
+        // the server offers no interrupt (the arrow queues a typed draft).
+        let (stop, drafted) = {
+            let b = self.bridge.lock().unwrap();
+            let (active, draft) = {
+                let ui = b.ui.lock().unwrap();
+                (ui.active_turn(), ui.draft())
+            };
+            let stop = if composer_live {
+                screens::board3::seats::stop_state(&b.store, active.as_deref())
+            } else {
+                screens::board3::seats::StopState::Idle
+            };
+            (stop, !draft.trim().is_empty())
+        };
+        use screens::board3::seats::StopState;
+        let (send_icon, stop_icon, busy, control) = match stop {
+            StopState::Idle => (true, false, false, true),
+            StopState::Stop => (false, true, false, true),
+            StopState::Starting | StopState::Stopping => (false, true, true, true),
+            StopState::Unavailable => (true, false, false, drafted),
+        };
         self.view
             .widget(cx, &[live_id!(composer_splash), live_id!(composer_send_icon)])
-            .set_visible(cx, !composer_live);
+            .set_visible(cx, send_icon);
         self.view
             .widget(cx, &[live_id!(composer_splash), live_id!(composer_stop_icon)])
-            .set_visible(cx, composer_live);
+            .set_visible(cx, stop_icon);
+        self.view
+            .widget(cx, &[live_id!(composer_splash), live_id!(composer_stop_busy)])
+            .set_visible(cx, busy);
+        self.view
+            .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_5)])
+            .set_visible(cx, control);
+        self.sync_seats(cx);
         // #29d — the Stage C screens (board 2.8/2.11/2.12) mount into the review
         // column's temporary slot while #28e's shell (drawer + palette overlay)
         // is pending. OCTOSCODE_SCREEN=palette|error|loading names one; unset
@@ -3661,6 +3768,10 @@ impl OctoscodeView {
         {
             let ui = { self.bridge.lock().unwrap().ui.clone() };
             let active_turn = ui.lock().unwrap().active_turn();
+            // A10 — the Fleet's control seat targets the master's live turn.
+            screens::board3::host::set_live_turn(active_turn.clone());
+            // A10 — the Agents panel's spawn is idle-only.
+            screens::board3::host::note_turn_busy(active_turn.is_some());
             let mode = {
                 let ctx = bindings::Ctx::new(&store, &ui);
                 screens::workspace::query(&ctx, "set.permission_mode")
@@ -3706,6 +3817,14 @@ impl OctoscodeView {
         }
         let lowered = screens::board3::host::lower_open(&store);
         self.view.widget(cx, ids!(board3_dock)).set_visible(cx, lowered.is_some());
+        // A10 — the Fleet pane REPLACES the chat area (FleetPane.tsx): the
+        // composer under it goes too, so its hidden field and buttons can
+        // never take a tap (or a phone's keyboard focus) meant for the pane.
+        let fleet_open = screens::board3::host::open_dialog() == Some(screens::board3::host::Dialog::Fleet);
+        let dock = self.view.widget(cx, ids!(composer_dock));
+        if dock.visible() == fleet_open {
+            dock.set_visible(cx, !fleet_open);
+        }
         let Some(lowered) = lowered else {
             self.b3_taps.clear();
             self.b3_inputs.clear();
@@ -3751,7 +3870,25 @@ impl OctoscodeView {
                     screens::board3::host::open_dialog(),
                     self.b3_taps.len(),
                     self.b3_inputs.len()
-                )
+                );
+                // A10 — a remount rebuilds every input: when none of the
+                // rebuilt inputs holds the key focus, the text IME must not
+                // stay up (a phone's on-screen keyboard over the Fleet pane
+                // with no field to type in). Phone only: there the pane's
+                // fields are the only ones on screen (the composer is hidden
+                // under the pane, the sidebar is a closed drawer), so this
+                // never takes the focus from another field.
+                if conv_layout::current().density == conv_layout::Density::Phone
+                    && screens::board3::host::open_dialog() == Some(screens::board3::host::Dialog::Fleet)
+                {
+                    let focused = self.b3_inputs.iter().any(|(id, _)| {
+                        self.view.text_input(cx, &[live_id!(board3_splash), *id]).key_focus(cx)
+                    });
+                    if !focused {
+                        cx.set_key_focus(Area::Empty);
+                        cx.hide_text_ime();
+                    }
+                }
             }
             Ok(false) => {}
         }
@@ -3872,6 +4009,28 @@ impl OctoscodeView {
         makepad_widgets::log!("[octoscode] vim paste ({} bytes) in Normal mode", te.input.len());
         self.sync_labels(cx);
         true
+    }
+
+    /// A10 — open (or, when it is the open one, close) the diff review: the
+    /// header's Review entry, its shortcut, and an approval's Review diff
+    /// (which first names its preview, `review::set_preview_id`).
+    fn toggle_diff_review(&mut self, cx: &mut Cx) {
+        use screens::board3::host::{self as b3, Dialog};
+        if b3::open_dialog() == Some(Dialog::DiffReview) {
+            b3::close();
+        } else {
+            self.open_diff_review(cx);
+        }
+        self.view.redraw(cx);
+    }
+
+    fn open_diff_review(&mut self, cx: &mut Cx) {
+        use screens::board3::host::{self as b3, Dialog};
+        // One modal at a time: A5's dialogs and the palette give way.
+        screens::dialog::close();
+        let out = b3::open(Dialog::DiffReview);
+        self.board3_outcome(cx, out);
+        self.view.redraw(cx);
     }
 
     /// A4 — carry out what a board-3 action asked for: a transport job on
@@ -4163,6 +4322,47 @@ impl OctoscodeView {
     /// the LIVE labels: the composer's DSL carries no width, so a resize
     /// never remounts it (each remount replaced the TextInput; measured on a
     /// maximize: nine remounts and the typed draft gone).
+    /// A10 — the composer's two seats (web `SessionControlBar`): a missing
+    /// capability removes its seat (no dead control); the menus open above
+    /// the seats' measured rects (module-view coordinates).
+    fn sync_seats(&mut self, cx: &mut Cx) {
+        let store = { self.bridge.lock().unwrap().store.clone() };
+        let (perm, model) = (
+            screens::board3::seats::permission_seat(&store),
+            screens::board3::seats::model_seat(&store),
+        );
+        self.view
+            .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_2)])
+            .set_visible(cx, perm);
+        self.view
+            .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_model)])
+            .set_visible(cx, model);
+        let origin = self.view.area().rect(cx).pos;
+        let anchor = |r: Rect| {
+            (r.size.x > 0.0).then(|| screens::board3::seats::Anchor {
+                x: r.pos.x - origin.x,
+                y: r.pos.y - origin.y,
+                w: r.size.x,
+                h: r.size.y,
+            })
+        };
+        let p = anchor(self.view.widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_2)]).area().rect(cx));
+        let m = anchor(self.view.widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_model)]).area().rect(cx));
+        screens::board3::host::set_seat_anchors(p, m);
+        // The web reads the permission profile when a Session opens: the seat
+        // names the server's preset before its menu is ever opened.
+        if perm && store.domains.profile.permission().is_none() {
+            if let Some(session) = store.active_session() {
+                if screens::board3::host::seat_read_needed(&session) {
+                    self.board3_outcome(
+                        cx,
+                        screens::board3::host::Outcome::Spawn(screens::board3::host::Job::PermissionLoad),
+                    );
+                }
+            }
+        }
+    }
+
     fn apply_composer_fit(&mut self, cx: &mut Cx) {
         let fit = fluid::composer_row_fit(&conv_layout::current());
         let (approval_max, model_max) = (fit.approval_max, fit.model_max);
@@ -5191,36 +5391,41 @@ impl OctoscodeView {
                 // control is STOP (scene 08 / Codex) and sends `turn/interrupt`
                 // (the L1 fix); otherwise it submits the draft.
                 if self.view.button(cx, ids!(send_hit)).clicked(actions) {
-                    makepad_widgets::log!("[octoscode] send_hit clicked");
-                    let live = {
+                    let (live, stop) = {
                         let b = self.bridge.lock().unwrap();
                         let ctx = bindings::Ctx::new(&b.store, &b.ui);
-                        bindings::query(&ctx, "turn.active")
+                        let live = bindings::query(&ctx, "turn.active")
                             .and_then(|v| v.as_bool())
-                            .unwrap_or(false)
+                            .unwrap_or(false);
+                        let active = b.ui.lock().unwrap().active_turn();
+                        (live, screens::board3::seats::stop_state(&b.store, active.as_deref()))
                     };
-                    if live {
-                        self.perform_action(cx, bindings::ACTION_INTERRUPT, 0);
-                    } else {
-                        self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
+                    makepad_widgets::log!("[octoscode] send_hit clicked (live={live}, stop={stop:?})");
+                    use screens::board3::seats::StopState;
+                    match (live, stop) {
+                        // A10 — Starting… / Stopping… are inert (the web's
+                        // disabled TurnStopButton): nothing is sent.
+                        (true, StopState::Starting | StopState::Stopping) => {}
+                        // No interrupt offered: the arrow queues the draft.
+                        (true, StopState::Unavailable) => self.perform_action(cx, bindings::ACTION_SUBMIT, 0),
+                        (true, _) => self.perform_action(cx, bindings::ACTION_INTERRUPT, 0),
+                        (false, _) => self.perform_action(cx, bindings::ACTION_SUBMIT, 0),
                     }
                 }
-                // #P4a1 — the approval pill: cycle the permission mode and
-                // reflect the server's read-back (the web's
-                // permission/profile/set, permissions-section.tsx:27-28;
-                // #42a owns the protocol side).
+                // A10 — the composer's two seats (web `SessionControlBar`):
+                // the approval pill (permission seat) opens the permission
+                // menu — a dangerous preset goes through its confirmation,
+                // never a blind cycle — and the model label (model seat)
+                // opens the model menu.
                 if self.view.button(cx, ids!(approval_pill_hit)).clicked(actions) {
-                    let conv = {
-                        let b = self.bridge.lock().unwrap();
-                        b.conv.clone()
-                    };
-                    if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
-                        screens::workspace::spawn(
-                            screens::workspace::Effect::CyclePermissionMode,
-                            rt,
-                            conv,
-                        );
-                    }
+                    makepad_widgets::log!("[octoscode] permission seat clicked");
+                    let out = screens::board3::host::open(screens::board3::host::Dialog::Permission);
+                    self.board3_outcome(cx, out);
+                }
+                if self.view.button(cx, ids!(model_seat_hit)).clicked(actions) {
+                    makepad_widgets::log!("[octoscode] model seat clicked");
+                    let out = screens::board3::host::open(screens::board3::host::Dialog::ModelMenu);
+                    self.board3_outcome(cx, out);
                 }
                 // `+` (attach) and the mic are not wired to a protocol method
                 // yet; they are present as hit targets so the component's own
@@ -5588,6 +5793,10 @@ impl OctoscodeView {
                 // docs/keyboard.md table's live evidence).
                 makepad_widgets::log!("[octoscode] key {:?} -> {:?}", e.key_code, action);
                 let mut open_changed = false;
+                // A10 — the diff review opens after the match (it needs
+                // `&mut self`): Some(true) = an approval's preview, Some(false)
+                // = the Review shortcut's toggle.
+                let mut diff_review: Option<bool> = None;
                 match action {
                     KeyAction::PaletteClose => {
                         ui.lock().unwrap().set_palette_open(false);
@@ -5702,16 +5911,8 @@ impl OctoscodeView {
                     // when the id is absent, like the web's `&& previewId`.
                     KeyAction::ApprovalReviewDiff(preview_id) => {
                         crate::screens::review::set_preview_id(preview_id);
-                        if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
-                            let conv = conv.clone();
-                            rt.spawn(async move {
-                                let e = crate::screens::review::Effect::ScopeCycle;
-                                if let Err(err) = crate::screens::review::perform(e, &conv).await {
-                                    ::log::warn!("octoscode: D diff review: {err}");
-                                }
-                            });
-                        }
-                        ui.lock().unwrap().toggle_review();
+                        let _ = conv;
+                        diff_review = Some(true);
                     }
                     // registry.ts:614 — the parity shortcut resolves; the
                     // approval surface it reveals lands with the approval
@@ -5722,12 +5923,17 @@ impl OctoscodeView {
                         );
                     }
                     KeyAction::ReviewToggle => {
-                        ui.lock().unwrap().toggle_review();
+                        diff_review = Some(false);
                     }
                     KeyAction::SettingsToggle => {
                         ui.lock().unwrap().toggle_settings();
                     }
                     KeyAction::Ignore => {}
+                }
+                match diff_review {
+                    Some(true) => self.open_diff_review(cx),
+                    Some(false) => self.toggle_diff_review(cx),
+                    None => {}
                 }
                 if open_changed {
                     self.sync_labels(cx);

@@ -46,6 +46,7 @@ const METHODS: &[&str] = &[
     "onboarding/workspace_create",
     "profile/sub_providers/list",
     "peer/prepare",
+    "session/driver/get",
     "session/driver/acquire",
     "peer/dispatch",
     "peer/control",
@@ -129,8 +130,32 @@ fn result_for(method: &str, params: &Value) -> Value {
             "slug": "review-diff", "topic": "peer-review-diff", "profile_id": PROFILE,
             "cwd": "/home/user/src/octos", "brief_path": "/home/user/.octos/peers/review-diff/brief.md"
         }),
-        "session/driver/acquire" => json!({"driver_id": "drv-1", "epoch": 3, "control_token": "ctl-1"}),
-        "peer/dispatch" | "peer/control" => json!({"accepted": true}),
+        // A10: the web's external-driver shapes (`external-driver.ts`
+        // `parseSessionDriverGetResult` / `parseDriverAcquireResult`,
+        // `external-driver-peer-control.ts` receipts): an empty COMPLETE
+        // inventory, a binding that names the acquiring driver, receipts that
+        // echo the request's ids.
+        "session/driver/get" => json!({
+            "mode": "internal", "recovery": "none",
+            "operations": {"items": [], "snapshot": "s1", "observed_revision": "0", "complete": true, "next_cursor": null}
+        }),
+        "session/driver/acquire" => json!({
+            "control_token": "ctl-1", "recovery": "none",
+            "binding": {"driver_id": params["driver_id"], "epoch": 3, "revision": 0, "lease_expires_at_ms": 1}
+        }),
+        "peer/dispatch" => json!({
+            "operation_id": params["operation_id"], "state": "accepted", "model": "deepseek-chat",
+            "model_lane": params["model"], "workspace_root": "/home/user/src/octos", "scoped_goal": null,
+            "adopted_turn_id": "00000000-0000-4000-8000-0000000000d1",
+            "adopted_session_id": format!("{session}#peer-review-diff"), "slug": "review-diff",
+            "duplicate": false, "accepted_at_ms": 1, "payload_digest": "d"
+        }),
+        "peer/control" => json!({
+            "operation_id": params["operation_id"], "state": "accepted",
+            "target_operation_id": params["target_operation_id"], "expected_turn_id": params["expected_turn_id"],
+            "target_session_id": format!("{session}#peer-review-diff"), "slug": "review-diff",
+            "accepted_at_ms": 1, "payload_digest": "d", "duplicate": false
+        }),
         "session/status/read" => json!({"session_id": session, "model": {"title": "DeepSeek V4 Flash", "model": "deepseek-v4-flash"}}),
         // A8: the resumed candidate's canonical history (r43a hydrate shape).
         "session/hydrate" => json!({"session_id": session, "cursor": {"stream": session, "seq": 2}, "messages": [
@@ -285,6 +310,9 @@ fn lock() -> std::sync::MutexGuard<'static, ()> {
     let dir = std::env::temp_dir().join(format!("a4-board3-test-{}", std::process::id()));
     let _ = std::fs::create_dir_all(&dir);
     std::env::set_var("OCTOSCODE_RECENTS_DIR", &dir);
+    // A10: the Fleet's Start takes a lease under this app's driver id — a
+    // test's id never lands in the operator's home.
+    std::env::set_var("OCTOSCODE_DRIVER_ID_PATH", dir.join("driver-id"));
     std::env::set_var("OCTOSCODE_SHOW_THINKING_FILE", dir.join("show-thinking.json"));
     g
 }
@@ -440,30 +468,37 @@ async fn the_switcher_opens_another_session_fresh_and_the_current_row_only_close
 }
 
 #[tokio::test]
-async fn fleet_start_prepares_seats_dispatches_once_and_steers_its_working_peer() {
+async fn fleet_start_seats_prepares_dispatches_once_and_steers_its_working_peer() {
     let _g = lock();
     let server = FakeServer::start().await;
-    let (conv, _ev) = connected(&server).await;
+    let (conv, mut ev) = connected(&server).await;
     conv.store.set_capabilities(vec!["external_driver_v1".into()]);
+    octoscode_module::screens::fleet_driver::reset_seat();
 
     let job = spawn_of(host::perform("b3.open.fleet", 0, &conv.store));
     assert_eq!(job, Job::FleetLanes);
-    host::run(job, &conv).await.expect("lanes");
+    host::run(job, &conv).await.expect("lanes + inventory");
     assert_eq!(server.params_of("profile/sub_providers/list")[0], json!({"profile_id": PROFILE}));
-    assert_eq!(host::state().fleet.lane_info[0].title(), "deepseek/deepseek-chat", "the form summarises the server's row");
-    // A blank brief never starts.
+    assert_eq!(host::state().fleet.lanes[0].title(), "deepseek/deepseek-chat", "the form summarises the server's row");
+    // A10: no implicit lane; a blank brief never starts.
+    host::input_changed("fleet.brief", "Review the diff");
+    assert_eq!(host::perform("b3.fleet.start", 0, &conv.store), Outcome::Done, "no lane chosen");
+    host::perform("b3.fleet.lane", 0, &conv.store);
     host::input_changed("fleet.brief", "   ");
     assert_eq!(host::perform("b3.fleet.start", 0, &conv.store), Outcome::Done);
     host::input_changed("fleet.brief", "Review the diff");
     let job = spawn_of(host::perform("b3.fleet.start", 0, &conv.store));
-    assert_eq!(job, Job::FleetStart("strong".into(), "Review the diff".into()));
+    assert!(matches!(&job, Job::FleetStart { lane, brief, .. } if lane == "strong" && brief == "Review the diff"));
     host::run(job, &conv).await.expect("start");
+    drain(&conv, &mut ev).await;
     let order: Vec<String> = server
         .methods()
         .into_iter()
         .filter(|m| m.starts_with("peer/") || m == "session/driver/acquire")
         .collect();
-    assert_eq!(order, ["peer/prepare", "session/driver/acquire", "peer/dispatch"], "one dispatch after the seat");
+    // A10: Start IS the implicit acquisition — the seat comes FIRST
+    // (fleet-start-sequencer.ts), then prepare, then EXACTLY ONE dispatch.
+    assert_eq!(order, ["session/driver/acquire", "peer/prepare", "peer/dispatch"], "one dispatch after the seat");
     let dispatch = &server.params_of("peer/dispatch")[0];
     assert_eq!(dispatch["epoch"], json!(3));
     assert_eq!(dispatch["control_token"], json!("ctl-1"));
@@ -471,14 +506,16 @@ async fn fleet_start_prepares_seats_dispatches_once_and_steers_its_working_peer(
     assert_eq!(dispatch["dispatch"]["kind"], json!("new_brief"));
     let kickoff = dispatch["kickoff_input"][0]["text"].as_str().unwrap();
     assert!(kickoff.contains("Review the diff") && kickoff.contains("/home/user/.octos/peers/review-diff/brief.md"));
-    // The row reads Working; a steer goes to THAT operation.
-    let list = fleetview::rows(&host::state().fleet, &conv.store);
-    assert_eq!(list[0].phase, fleetview::Phase::Working);
-    host::input_changed("fleet.steer", "Focus on tests");
+    // The adopted row reads Working; a steer goes to THAT operation and turn.
+    let rows = fleetview::rows(&conv.store, octoscode_module::screens::peers::now_ms());
+    assert_eq!(rows[0].status, fleetview::Status::Working);
+    host::lower_open(&conv.store).expect("lowers");
+    host::input_changed("fleet.steer#0", "Focus on tests");
     let job = spawn_of(host::perform("b3.fleet.steer", 0, &conv.store));
     host::run(job, &conv).await.expect("steer");
     let control = &server.params_of("peer/control")[0];
     assert_eq!(control["target_operation_id"], dispatch["operation_id"]);
+    assert_eq!(control["expected_turn_id"], json!("00000000-0000-4000-8000-0000000000d1"));
     assert_eq!(control["command"]["input"][0]["text"], json!("Focus on tests"));
 }
 

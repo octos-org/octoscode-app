@@ -1,0 +1,179 @@
+CLICK OctosCode icon on the phone home at (153,363)
+== 1. /skills: the warning paragraph and the sections
+CLICK composer r=[28, 765, 304, 29]
+TYPE '/'
+TYPE 'ski'
+CLICK palette_row_name '/skills' r=[30, 260, 54, 28]
+PASS skills: /skills palette CLICK opens the dialog
+PASS skills open: dialog numeric checks — frame=360x776 centre_dx=0.0 margins L=34 R=17 labels=8 outside=0 overlaps=0 controls=1 under28=0
+SHOT 01-skills-phone
+== 2. search the registry: rows with the web's fields
+TYPE 'lint'
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:3249:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3347:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3671:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:3249:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3249:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5794:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 0 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 1 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5122:21 - [octoscode] draft synced: 4 chars
+    log: [I] apps/octoscode/module/src/lib.rs:5290:25 - [octoscode] palette row 0 clicked
+    log: [I] apps/octoscode/module/src/lib.rs:2520:17 - [octoscode] palette run /skills -> dialog.open.skills
+    log: [I] apps/octoscode/module/src/lib.rs:2323:9 - [octoscode] dialog action: dialog.open.skills
+    log: [I] apps/octoscode/module/src/lib.rs:2323:9 - [octoscode] dialog action: dialog.refresh.profile
+    log: [I] apps/octoscode/module/src/lib.rs:2466:29 - [octoscode] dialog load dialog.refresh.profile: 3 reads
+    log: [I] apps/octoscode/module/src/lib.rs:2718:33 - [octoscode] dialog skills mounted: frame 360x780 scale 0.861, 2 tap(s)
+KEY Return
+    log: [I] apps/octoscode/module/src/lib.rs:2637:9 - [octoscode] skills search: "lint"
+    log: [I] apps/octoscode/module/src/lib.rs:2640:26 - [octoscode] skills search "lint": 2 package(s)
+    log: [I] apps/octoscode/module/src/lib.rs:2718:33 - [octoscode] dialog skills mounted: frame 360x780 scale 0.861, 4 tap(s)
+PASS skills: Enter in the search box -> profile/skills/registry/search -> rows
+PASS skills: row fields — description, repo, tools/licence, Requires, Installed
+PASS registry rows: dialog numeric checks — frame=360x776 centre_dx=0.0 margins L=34 R=17 labels=20 outside=0 overlaps=0 controls=2 under28=0
+SHOT 02-registry-phone
+== 3. Install (row 0) through the confirm card
+CLICK dlg_skills_reg_0_install_control r=[244, 415, 80, 44] at (284,437)
+    log: [I] apps/octoscode/module/src/lib.rs:5222:25 - [octoscode] dialog tap: dialog.ask.skills.install_3
+    log: [I] apps/octoscode/module/src/lib.rs:2323:9 - [octoscode] dialog action: dialog.ask.skills.install_3
+    log: [I] apps/octoscode/module/src/lib.rs:2377:17 - [octoscode] dialog confirm asked: skills.install_3 (true)
+    log: [I] apps/octoscode/module/src/lib.rs:2718:33 - [octoscode] dialog skills mounted: frame 360x780 scale 0.947, 3 tap(s)
+PASS skills: Install CLICK -> 'Confirm server installation'
+SHOT 03-install-confirm-phone
+CLICK dlg_skills_cf_confirm_control r=[186, 241, 155, 44] at (264,263)
+    log: [I] apps/octoscode/module/src/lib.rs:5222:25 - [octoscode] dialog tap: dialog.confirm
+    log: [I] apps/octoscode/module/src/lib.rs:2323:9 - [octoscode] dialog action: dialog.confirm
+    log: [I] apps/octoscode/module/src/lib.rs:2387:21 - [octoscode] dialog confirmed: skills.install_3
+    log: [I] apps/octoscode/module/src/lib.rs:2718:33 - [octoscode] dialog skills mounted: frame 360x780 scale 0.861, 1 tap(s)
+PASS skills: Confirm install CLICK -> installed; the receipt line; the row in Installed
+PASS after install: dialog numeric checks — frame=360x776 centre_dx=0.0 margins L=34 R=17 labels=11 outside=0 overlaps=0 controls=2 under28=0
+SHOT 04-installed-phone
+== 4. Install from source: repo + branch through the confirm card
+TYPE 'octos-org/review-kit'
+TYPE 'dev'
+TAP the keyboard's hide chevron (337,513)
+    log: [I] apps/octoscode/module/src/lib.rs:2201:30 - [octoscode] screens: skills.install_3 done
+    log: [I] apps/octoscode/module/src/lib.rs:2718:33 - [octoscode] dialog skills mounted: frame 360x780 scale 0.861, 3 tap(s)
+CLICK dlg_skills_src_review_control r=[165, 588, 160, 44] at (245,610)
+    log: [I] apps/octoscode/module/src/lib.rs:5222:25 - [octoscode] dialog tap: dialog.ask.skills.install_source
+    log: [I] apps/octoscode/module/src/lib.rs:2323:9 - [octoscode] dialog action: dialog.ask.skills.install_source
+    log: [I] apps/octoscode/module/src/lib.rs:2377:17 - [octoscode] dialog confirm asked: skills.install_source (true)
+    log: [I] apps/octoscode/module/src/lib.rs:2718:33 - [octoscode] dialog skills mounted: frame 360x780 scale 0.947, 3 tap(s)
+PASS skills: Review installation CLICK -> the confirm names 'octos-org/review-kit · branch dev'
+SHOT 05-source-confirm-phone
+CLICK dlg_skills_cf_confirm_control r=[186, 241, 155, 44] at (264,263)
+== 4b. the Profile lock while the install is in flight (the server answers in 2.5 s)
+PASS skills: the lease holds -> the lock line shows
+SHOT 07-locked-phone
+    log: [I] apps/octoscode/module/src/lib.rs:5222:25 - [octoscode] dialog tap: dialog.confirm
+    log: [I] apps/octoscode/module/src/lib.rs:2323:9 - [octoscode] dialog action: dialog.confirm
+    log: [I] apps/octoscode/module/src/lib.rs:2387:21 - [octoscode] dialog confirmed: skills.install_source
+    log: [I] apps/octoscode/module/src/lib.rs:2718:33 - [octoscode] dialog skills mounted: frame 360x780 scale 0.861, 1 tap(s)
+PASS skills: a Remove CLICK while locked routes nothing (no confirm asked)
+PASS skills: the source installs; the receipt names the skipped skill; the lock lifts
+== 5. Remove (row 0) through the confirm card
+    log: [I] apps/octoscode/module/src/lib.rs:2201:30 - [octoscode] screens: skills.install_source done
+    log: [I] apps/octoscode/module/src/lib.rs:2718:33 - [octoscode] dialog skills mounted: frame 360x780 scale 0.861, 4 tap(s)
+CLICK dlg_skills_t_remove0_hit r=[260, 346, 51, 44] at (286,368)
+    log: [I] apps/octoscode/module/src/lib.rs:5222:25 - [octoscode] dialog tap: dialog.ask.skills.remove_0
+    log: [I] apps/octoscode/module/src/lib.rs:2323:9 - [octoscode] dialog action: dialog.ask.skills.remove_0
+    log: [I] apps/octoscode/module/src/lib.rs:2377:17 - [octoscode] dialog confirm asked: skills.remove_0 (true)
+    log: [I] apps/octoscode/module/src/lib.rs:2718:33 - [octoscode] dialog skills mounted: frame 360x780 scale 0.947, 3 tap(s)
+CLICK dlg_skills_cf_confirm_control r=[186, 241, 155, 44] at (264,263)
+    log: [I] apps/octoscode/module/src/lib.rs:5222:25 - [octoscode] dialog tap: dialog.confirm
+    log: [I] apps/octoscode/module/src/lib.rs:2323:9 - [octoscode] dialog action: dialog.confirm
+    log: [I] apps/octoscode/module/src/lib.rs:2387:21 - [octoscode] dialog confirmed: skills.remove_0
+    log: [I] apps/octoscode/module/src/lib.rs:2201:30 - [octoscode] screens: skills.remove_0 done
+    log: [I] apps/octoscode/module/src/lib.rs:2718:33 - [octoscode] dialog skills mounted: frame 360x780 scale 0.861, 3 tap(s)
+    log: [I] apps/octoscode/module/src/lib.rs:2718:33 - [octoscode] dialog skills mounted: frame 360x780 scale 0.861, 3 tap(s)
+PASS skills: Remove CLICK -> 'Confirm removal' -> Confirm -> 'Removed code-linter …'
+PASS after remove: dialog numeric checks — frame=360x776 centre_dx=0.0 margins L=34 R=17 labels=11 outside=0 overlaps=0 controls=2 under28=0
+SHOT 06-removed-phone
+PASS wire: profile/skills/registry/search x1 — replay log: 1
+PASS wire: profile/skills/install x2 — replay log: 2
+PASS wire: profile/skills/remove x1 — replay log: 1
+CLICK dialog_close r=[326, 91, 28, 28] at (340,105)
+== 17/17 checks passed

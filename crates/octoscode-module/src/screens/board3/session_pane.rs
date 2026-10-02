@@ -25,7 +25,11 @@
 //!    or "Not supported by this server" (feature `session.sandbox.v1`);
 //! 5. Show thinking — the persisted preference;
 //! 6. Advanced (collapsed by default, remembered) — who controls the session
-//!    and the external-driver disclosure (`screens::driver_discovery`).
+//!    and the external-driver disclosure (`screens::driver_discovery`), then
+//!    the web's `advancedChildren` (A10): the control seat and the peer
+//!    controller console (`fleet_console::session_controls` — Acquire seat /
+//!    Release seat, the four seat commands, Dispatch), gated on the record's
+//!    control readiness (`fleet_driver::control_ready`).
 use serde_json::{json, Value};
 
 use octoscode_store::Store;
@@ -342,7 +346,7 @@ pub fn foreign_held(st: &PaneState, store: &Store) -> bool {
             .disclosure()
             .and_then(|d| (d.mode == dd::Mode::External).then_some(d.binding.as_ref()))
             .flatten()
-            .is_some_and(|b| b.driver_id != crate::chrome::NATIVE_DRIVER_ID)
+            .is_some_and(|b| b.driver_id != crate::chrome::native_driver_id())
 }
 
 /// Our own peer holds the seat (`seatHolderKind` SELF, `seat-holder.ts:18-29`).
@@ -351,7 +355,61 @@ pub fn own_held(st: &PaneState) -> bool {
         .disclosure()
         .and_then(|d| (d.mode == dd::Mode::External).then_some(d.binding.as_ref()))
         .flatten()
-        .is_some_and(|b| b.driver_id == crate::chrome::NATIVE_DRIVER_ID)
+        .is_some_and(|b| b.driver_id == crate::chrome::native_driver_id())
+}
+
+/// A10 — after a seat change re-walked the store's inventory
+/// (`fleet_driver::load_inventory`), the pane's disclosure follows it (the
+/// web's ONE `driverInventory` per record) without a second walk.
+pub fn mirror_inventory(store: &Store) {
+    use octoscode_store::domains::peer::FleetInventory;
+    let inv = store.domains.peer.inventory();
+    let mut st = super::host::state();
+    let bound = if st.pane.session.is_empty() { store.active_session().unwrap_or_default() } else { st.pane.session.clone() };
+    let next = match inv {
+        Some(FleetInventory::Complete { session_id, snapshot, observed_revision, operations, disclosure, .. }) if session_id == bound => {
+            let mode = if disclosure.mode == "external" { dd::Mode::External } else { dd::Mode::Internal };
+            let recovery = match disclosure.recovery.as_str() {
+                "interrupted" => dd::Recovery::Interrupted,
+                "recovery_required" => dd::Recovery::RecoveryRequired,
+                _ => dd::Recovery::None,
+            };
+            Inventory::Complete {
+                snapshot,
+                observed_revision,
+                operations: operations
+                    .into_iter()
+                    .map(|o| dd::Operation {
+                        operation_id: o.operation_id,
+                        slug: o.slug,
+                        lifecycle: o.lifecycle,
+                        adopted_session_id: o.adopted_session_id,
+                        model: o.model,
+                        model_lane: o.model_lane,
+                        accepted_at_ms: o.accepted_at_ms,
+                    })
+                    .collect(),
+                disclosure: dd::Disclosure {
+                    mode,
+                    recovery,
+                    binding: disclosure.binding.map(|(driver_id, epoch, revision, lease_expires_at_ms)| dd::Binding {
+                        driver_id,
+                        epoch,
+                        revision,
+                        lease_expires_at_ms,
+                    }),
+                },
+            }
+        }
+        Some(FleetInventory::Error { session_id, reason }) if session_id == bound => {
+            match dd::REFUSAL_KINDS.iter().find(|k| reason.ends_with(*k)) {
+                Some(k) => Inventory::Error(dd::ErrorReason::Refused(*k)),
+                None => Inventory::Error(dd::ErrorReason::Unknown),
+            }
+        }
+        _ => return,
+    };
+    st.pane.driver = next;
 }
 
 /// Route one `b3.sc.*` action.
@@ -520,6 +578,17 @@ pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
         None
     };
     let driver = dd::walk(conv).await;
+    // A10 — the Advanced children's facts (the web reads them per record):
+    // the walked inventory the seat's readiness and CAS revision come from,
+    // and the profile's lanes for the console's picker. Only when the server
+    // advertises `peer/control` (+ `external_driver_v1`): otherwise there is
+    // no seat and nothing is read.
+    if crate::screens::fleet_driver::peer_control_admitted(store) {
+        let _ = crate::screens::fleet_driver::load_inventory(conv).await;
+        if crate::screens::fleet_driver::control_advertised(store) {
+            let _ = super::fleetview::load_lanes(conv).await;
+        }
+    }
     let mut st = super::host::state();
     if st.pane.ticket != ticket || conv.scope_key() != scope {
         return Ok("stale pane read dropped".into());
@@ -672,6 +741,7 @@ pub async fn resume_chat(conv: &crate::flow::Conversation) -> Result<String, Str
         let st = super::host::state();
         st.pane.driver.disclosure().and_then(|d| d.binding.as_ref()).map(|b| b.revision)
     };
+    crate::screens::fleet_driver::acquiring_driver_id(); // persisted before a lease is taken under it
     let mut acquire = crate::chrome::take_over_params(&session);
     if let Some(r) = revision {
         acquire["expected_revision"] = json!(r);
@@ -682,13 +752,14 @@ pub async fn resume_chat(conv: &crate::flow::Conversation) -> Result<String, Str
     };
     let token = reply.get("control_token").and_then(|t| t.as_str()).filter(|t| !t.is_empty());
     let binding = reply.get("binding");
-    let ours = binding.and_then(|b| b.get("driver_id")).and_then(|d| d.as_str()) == Some(crate::chrome::NATIVE_DRIVER_ID);
+    let me = crate::chrome::native_driver_id();
+    let ours = binding.and_then(|b| b.get("driver_id")).and_then(|d| d.as_str()) == Some(me.as_str());
     let (Some(token), true) = (token, ours) else { return fail("acquire receipt malformed") };
     let epoch = binding.and_then(|b| b.get("epoch")).and_then(|e| e.as_u64()).unwrap_or(0);
     let rev = binding.and_then(|b| b.get("revision")).and_then(|e| e.as_u64()).unwrap_or(0);
     let release = json!({
         "session_id": session,
-        "driver_id": crate::chrome::NATIVE_DRIVER_ID,
+        "driver_id": me,
         "epoch": epoch,
         "control_token": token,
         "expected_revision": rev,
@@ -781,7 +852,7 @@ fn status_line(d: &mut Dsl, id: &str, text: &str, color: &'static str) {
     d.text(id, text, &Txt::new(12.0, Face::Regular, color).w(W::Fill).wrap());
 }
 
-pub fn build(d: &mut Dsl, st: &PaneState, frame: &Frame, store: &Store) {
+pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetState, frame: &Frame, store: &Store) {
     let width = frame.dialog_w(560.0);
     let pad = ui::dialog_pad(frame, width);
     // The card's content width: dialog - padding - the scroll gutter - the
@@ -1007,6 +1078,9 @@ pub fn build(d: &mut Dsl, st: &PaneState, frame: &Frame, store: &Store) {
     d.close();
     if st.advanced_open {
         advanced(d, st, store, foreign, inner_w);
+        // A10 — `advancedChildren`: the control seat + the controller
+        // console, inside the same card width.
+        super::fleet_console::session_controls(d, fleet, store, inner_w);
     }
     d.close();
     ui::body_close(d);
@@ -1210,7 +1284,7 @@ mod tests {
         for st in [PaneState { loading: true, ..Default::default() }, loaded] {
             for frame in [Frame::DESKTOP, Frame { avail_w: 360.0, avail_h: 700.0 }] {
                 let mut d = Dsl::new();
-                build(&mut d, &st, &frame, &store);
+                build(&mut d, &st, &mut Default::default(), &frame, &store);
                 let dsl = d.finish();
                 assert!(
                     crate::mount::eval_component(&mut cx, makepad_widgets::MAIN_SPLASH_VM_ID, &dsl).is_ok(),
@@ -1245,7 +1319,7 @@ mod tests {
             ..Default::default()
         };
         let mut d = Dsl::new();
-        build(&mut d, &st, &Frame::DESKTOP, &store);
+        build(&mut d, &st, &mut Default::default(), &Frame::DESKTOP, &store);
         let dsl = d.finish();
         assert_eq!(dsl.matches('{').count(), dsl.matches('}').count());
         let taps = crate::screens::taps::wired_taps(&dsl);
@@ -1270,7 +1344,7 @@ mod tests {
         };
         let lower = |store: &Store| {
             let mut d = Dsl::new();
-            build(&mut d, &st, &Frame::DESKTOP, store);
+            build(&mut d, &st, &mut Default::default(), &Frame::DESKTOP, store);
             d.finish()
         };
         let idle = lower(&store);

@@ -554,7 +554,15 @@ fn agent_from_ui(a: &UiAgentRecord) -> AgentRecord {
         artifact_count: a.artifact_count,
         output_tail: a.output_tail.clone(),
         updated_at_ms: a.updated_at_ms,
+        last_task: a.last_task.clone(),
+        summary: a.summary.clone(),
     }
+}
+
+/// A10 — the store row for one octos-core agent record (the Agents panel's
+/// `agent/list` / `agent/status/read` folds).
+pub fn agent_record(a: &UiAgentRecord) -> AgentRecord {
+    agent_from_ui(a)
 }
 
 fn loop_from_ui(l: &UiLoopRecord) -> LoopRecord {
@@ -625,6 +633,11 @@ impl NotificationHandler for AgentUpdatedHandler {
     fn handle(&self, n: &UiNotification) {
         if let UiNotification::AgentUpdated(e) = n {
             self.store.note_seen(Self::METHOD);
+            // A10: an OWNING agent event supersedes an in-flight agents
+            // read (web `store.ts`: an `agent/updated` that changed the list
+            // bumps the `agents` revision, so a detail read dispatched before
+            // it cannot repaint stale details).
+            self.store.domains.autonomy.supersede_family("agents");
             self.store.domains.autonomy.upsert_agent(agent_from_ui(&e.agent));
         }
     }

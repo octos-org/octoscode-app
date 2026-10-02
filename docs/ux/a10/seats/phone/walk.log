@@ -1,0 +1,125 @@
+CLICK OctosCode icon on the phone home at (153,363)
+== 1. the seats: permission left, model right
+PASS seats: both seats are drawn (the server offers both menus)
+PASS seats: the permission seat names the server's preset before its menu opens (read at Session open) — Write · Network allowed
+== 2. the permission menu (approval pill CLICK)
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:3249:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3347:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3671:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:3249:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3249:17 - [octoscode] composer remounted
+CLICK approval_pill_hit r=[56, 803, 127, 30] at (120,818)
+    log: [I] apps/octoscode/module/src/lib.rs:5421:21 - [octoscode] permission seat clicked
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Permission): 5 tap(s), 0 input(s)
+PASS permission: approval pill CLICK -> the menu above it (permission/profile/list)
+PASS permission: the current preset first, then the other profiles (shield / name / check)
+menu [34, 590, 310, 205] over seat [56, 803, 127, 30]: gap=8.0 edge=22.0 clamped=True
+PASS permission: the menu sits above the seat, left-aligned to it
+PASS permission menu: menu numeric checks — frame=310x205 centre_dx=9.0 margins L=12 R=12 labels=5 outside=0 overlaps=0 controls=4 under28=0
+SHOT 01-permission-menu-phone
+CLICK b3_perm_opt_1 r=[38, 659, 302, 44] at (189,681)
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.perm.choose#1
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.perm.choose #1 -> Spawn(PermissionSet("read_only", "deny"))
+    log: [I] apps/octoscode/module/src/lib.rs:5997:17 - [octoscode] nav tap: b3.perm.choose#1
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 PermissionSet("read_only", "deny"): read_only/deny applied
+    log: [I] apps/octoscode/module/src/lib.rs:5007:21 - [octoscode] nav route: b3.perm.choose#1
+    log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.perm.choose#1
+    log: [I] apps/octoscode/module/src/lib.rs:3249:17 - [octoscode] composer remounted
+PASS permission: 'Read · Network blocked' CLICK -> permission/profile/set; the menu closes
+PASS permission: the seat shows the read-back (the web's trigger label) — Read · Network blocked
+SHOT 01b-permission-applied-phone
+== 3. full access only through the acknowledged confirmation
+CLICK approval_pill_hit r=[56, 803, 126, 30] at (119,818)
+PASS permission: reopened, the read-back is current (Read · Network blocked first, checked)
+CLICK b3_perm_opt_2 r=[38, 747, 302, 44] at (189,769)
+    log: [I] apps/octoscode/module/src/lib.rs:5421:21 - [octoscode] permission seat clicked
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 PermissionLoad: 3 preset(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Permission): 4 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.perm.choose#2
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.perm.choose #2 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Permission): 3 tap(s), 0 input(s)
+PASS permission: 'Full access' CLICK -> the confirmation, not a set
+PASS risk: the web's copy — title, summary (Full access / Network allowed), the box, the hint
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.noop
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.noop #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:5997:17 - [octoscode] nav tap: b3.noop
+    log: [I] apps/octoscode/module/src/lib.rs:5007:21 - [octoscode] nav route: b3.noop
+    log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.noop
+PASS risk: 'Enable full access' is inert until the box is ticked
+PASS risk confirmation: menu numeric checks — frame=328x355 centre_dx=0.0 margins L=16 R=16 labels=10 outside=0 overlaps=0 controls=2 under28=0
+SHOT 02-risk-phone
+CLICK b3_risk_ack r=[32, 497, 296, 49] at (180,522)
+PASS risk: the acknowledgement CLICK ticks the box; the hint goes; Enable is armed
+SHOT 03-risk-ack-phone
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.perm.ack
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.perm.ack #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Permission): 4 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5997:17 - [octoscode] nav tap: b3.perm.ack
+    log: [I] apps/octoscode/module/src/lib.rs:5007:21 - [octoscode] nav route: b3.perm.ack
+    log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.perm.ack
+CLICK b3_risk_confirm r=[171, 578, 157, 36] at (250,596)
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.perm.confirm
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.perm.confirm #0 -> Spawn(PermissionSet("danger_full_access", "allow"))
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 PermissionSet("danger_full_access", "allow"): danger_full_access/allow applied
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted None: 1 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3249:17 - [octoscode] composer remounted
+PASS risk: 'Enable full access' CLICK -> permission/profile/set {danger_full_access, allow}; closed
+== 4. the model menu (model seat CLICK)
+CLICK model_seat_hit r=[190, 803, 78, 30] at (229,818)
+    log: [I] apps/octoscode/module/src/lib.rs:5426:21 - [octoscode] model seat clicked
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 ModelsLoad: 4 model(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(ModelMenu): 3 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3249:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(ModelMenu): 4 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(ModelMenu): 4 tap(s), 0 input(s)
+PASS model: the model label CLICK -> the menu above it (profile/llm/list {session_id})
+PASS model: the two deepseek routes read apart (model · route)
+PASS model: grouped by provider; the unavailable model disabled with its reason
+PASS model: the selected model is checked; the seat names it
+menu [16, 513, 292, 282] over seat [195, 803, 73, 30]: gap=8.0 edge=40.0 clamped=True
+PASS model: the menu sits above the seat, right-aligned to it
+PASS model menu: menu numeric checks — frame=292x282 centre_dx=-18.0 margins L=12 R=12 labels=12 outside=0 overlaps=0 controls=3 under28=0
+SHOT 04-model-menu-phone
+CLICK b3_model_opt_1 r=[20, 605, 284, 44] at (162,627)
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.model.choose#1
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.model.choose #1 -> Spawn(ModelSelect(1))
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(ModelMenu): 1 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 ModelSelect(1): Saved. The server keeps running deepseek-v4-flash until it restarts
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(ModelMenu): 4 tap(s), 0 input(s)
+PASS model: the r2-route fallback CLICK -> profile/llm/select -> the restart_required notice
+PASS model notice: menu numeric checks — frame=292x337 centre_dx=-18.0 margins L=12 R=12 labels=13 outside=0 overlaps=0 controls=3 under28=0
+SHOT 05-model-restart-phone
+CLICK b3_model_opt_2 r=[20, 621, 284, 44] at (162,643)
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.model.choose#2
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.model.choose #2 -> Spawn(ModelSelect(2))
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 ModelSelect(2): Saved. Your next message uses kimi-k3
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(ModelMenu): 1 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3249:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(ModelMenu): 4 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(ModelMenu): 4 tap(s), 0 input(s)
+PASS model: Kimi K3 CLICK -> reloaded: 'Saved. Your next message uses kimi-k3'; checked
+SHOT 06-model-reloaded-phone
+== 5. an outside press dismisses; the seat and the notice persist
+CLICK outside the menu at (162,437)
+PASS model: an outside press closes the menu; the seat now names Kimi K3 — closed=True seat='Kimi K3' dialog=None
+    log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.close #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:5997:17 - [octoscode] nav tap: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:5007:21 - [octoscode] nav route: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.close
+CLICK model_seat_hit r=[200, 803, 68, 30] at (234,818)
+PASS model: reopened, the Session's notice is still there
+SHOT 07-model-sticky-phone
+KEY Escape
+== 6. the wire
+PASS wire: permission/profile/set x2 — replay log: 2
+PASS wire: profile/llm/select x2 — replay log: 2
+PASS wire: permission/profile/list read — replay log: 6
+PASS wire: profile/llm/list read — replay log: 5
+== 30/30 checks passed

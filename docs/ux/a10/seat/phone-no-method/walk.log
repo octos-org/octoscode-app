@@ -1,0 +1,12 @@
+CLICK OctosCode icon on the phone home at (153,363)
+== the e2e no-method variant: peer/control unadvertised
+CLICK b3_strip_tap r=[12, 666, 336, 62] at (180,697)
+CLICK b3_sc_adv r=[32, 783, 286, 36] at (175,801)
+PASS pane: the strip CLICK opens 'Session settings'; Advanced CLICK shows who controls it
+PASS no-method: no seat panel and no console
+PASS no-method: zero acquire / control frames
+PASS no-method: pane numeric checks — frame=328x741 centre_dx=0.0 margins L=16 R=16 labels=22 outside=0 overlaps=0 controls=8 under28=0
+SHOT 06-no-method-phone
+CLICK b3_close r=[300, 111, 28, 28] at (314,125)
+PASS pane: the close CLICK
+== 5/5 checks passed

@@ -88,8 +88,7 @@ pub fn owns(action: &str) -> bool {
     matches!(
         action,
         "peer.steer" | "peer_1_steer" | "peer_2_steer" | "peer_3_steer" | "task.cancel"
-            | "task.open.running" | "peer.start" | "peer_1_start" | "peer_2_start"
-            | "peer_3_start"
+            | "task.open.running"
     )
 }
 
@@ -101,13 +100,26 @@ pub fn is_action(id: &str) -> bool {
 
 // ------------------------------------------------------------------- bindings
 
-fn peer_rows(store: &Store) -> Vec<Peer> {
-    // The store's roster is a map (unordered); the card's rows must be
-    // DETERMINISTIC across runs (a row maps to a steer target), so the
-    // projection orders by slug.
-    let mut rows = store.domains.peer.list();
-    rows.sort_by(|a, b| a.name.cmp(&b.name));
-    rows
+/// A10 — the per-session Fleet slice agrees with the Fleet view: the SAME
+/// union rows (walked acceptance facts ∪ the peer manager's roster), the same
+/// `Peer N · model` labels and status words (`fleet-facts.ts:239-312`; the
+/// old slug-sorted `peer/staged` + gather list showed raw slugs and leaked
+/// gather rows into the roster).
+fn peer_rows(store: &Store) -> Vec<crate::screens::board3::fleetview::FleetRow> {
+    crate::screens::board3::fleetview::rows(store, crate::screens::peers::now_ms())
+}
+
+/// The badge word the slice's compact pill shows: the Fleet word, with the
+/// two waiting words folded to "Waiting" (the full word rides the meta line)
+/// and "Outcome unknown" to "Unknown".
+fn badge_word(status: crate::screens::board3::fleetview::Status) -> String {
+    use crate::screens::board3::fleetview::Status;
+    use crate::screens::board3::fleet_copy::t;
+    match status {
+        Status::WaitingApproval | Status::WaitingAnswer => t("Waiting"),
+        Status::Unknown => t("Unknown"),
+        s => t(s.word()),
+    }
 }
 
 /// Running tasks in a STABLE order (id-sorted) — row `i` must always be the
@@ -209,12 +221,10 @@ pub fn query_binding(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             let i: usize = idx.parse().ok()?;
             let p = peer_rows(store).into_iter().nth(i)?;
             match field {
-                "name" => json!(p.name),
-                "status" if p.closed => json!("Done"),
-                // The remaining §4.3 words need phase facts the native store
-                // does not carry (parity row 110) — authored (empty) stays.
-                "status" => Value::Null,
-                // Elapsed/tokens are not in `Peer` — authored (empty) stays.
+                // `Peer N · model` — never the slug.
+                "name" => json!(p.label),
+                "status" => json!(badge_word(p.status)),
+                "meta" => json!(row_meta(&p)),
                 _ => Value::Null,
             }
         }
@@ -273,16 +283,13 @@ pub fn action_params(
 ) -> Option<(String, Value)> {
     let session = store.active_session().unwrap_or_default();
     match action {
+        // A10: a steer is ONE `peer/control` frame through the external-
+        // driver leaf (fence + accepted operation + adopted turn,
+        // `external-driver-peer-control.ts:694-703`), built by
+        // `fleet_driver::row_control` — never a `{session_id, slug}` guess.
         "peer.steer" | "peer_1_steer" | "peer_2_steer" | "peer_3_steer" => {
-            let slug = peer_rows(store).into_iter().nth(row)?.name;
-            Some((
-                "peer/control".to_owned(),
-                json!({
-                    "session_id": session,
-                    "slug": slug,
-                    "command": { "kind": "steer", "input": [{ "kind": "text", "text": steer_text }] },
-                }),
-            ))
+            let _ = (row, steer_text);
+            None
         }
         "task.cancel" => {
             // A5: row-aware — each generated run block's Cancel addresses
@@ -305,17 +312,6 @@ pub fn action_params(
                 }),
             ))
         }
-        "peer.start" | "peer_1_start" | "peer_2_start" | "peer_3_start" => {
-            // Admissible only through the fail-closed gate.
-            if !start_admitted(store) {
-                return None;
-            }
-            let slug = peer_rows(store).into_iter().nth(row)?.name;
-            Some((
-                "peer.start".to_owned(),
-                json!({ "slug": slug, "model": "inherit", "brief": steer_text }),
-            ))
-        }
         _ => None,
     }
 }
@@ -331,10 +327,6 @@ pub enum Effect {
     CancelTask { row: usize },
     /// `task/output/read` the running card's output.
     OpenRunning,
-    /// #P4a4 row `Start control flow`: start peer row `row` — acquire the
-    /// driver seat, then emit exactly ONE `peer/dispatch`. The brief is the
-    /// composer's current draft.
-    Start { row: usize },
     /// The id was not one of this screen set's.
     Unhandled(String),
 }
@@ -361,7 +353,6 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             row,
             text: ctx.ui.lock().unwrap().draft(),
         },
-        "peer.start" | "peer_1_start" | "peer_2_start" | "peer_3_start" => Effect::Start { row },
         "task.cancel" => Effect::CancelTask { row: index },
         "task.open.running" => Effect::OpenRunning,
         other => Effect::Unhandled(other.to_owned()),
@@ -578,7 +569,7 @@ fn block_span(src: &str, anchor: &str) -> Option<(usize, usize)> {
 /// Mint `copy <id> { class: user-copy, en: <value> }` declarations after the
 /// card's LAST authored copy line (the L0 copy table).
 fn mint_copies(card_src: &str, minted: &[(String, String)]) -> String {
-    let mut lines: Vec<String> = card_src.lines().map(str::to_owned).collect();
+    let lines: Vec<String> = card_src.lines().map(str::to_owned).collect();
     let Some(pos) = lines.iter().rposition(|l| l.trim_start().starts_with("copy ")) else {
         return card_src.to_owned();
     };
@@ -625,17 +616,19 @@ fn put_placements(data: &mut Value, rows: &[(String, &'static str, f64, f64, f64
     }
 }
 
-/// The web's `formatElapsed` (`peer-row-view.ts:127-136`): `42s`, `1m30s`,
-/// `2h05m`.
-fn format_elapsed(staged_at_ms: u64) -> String {
-    let secs = (octoscode_store::domains::peer::now_ms().saturating_sub(staged_at_ms) / 1000) as u32;
-    if secs < 60 {
-        return format!("{secs}s");
+/// The slice row's meta line: the full waiting word for a waiting row, else
+/// elapsed (the web's `formatElapsed`, at the dialog's minute granularity) ·
+/// `↓` tokens (`—` before the first).
+fn row_meta(p: &crate::screens::board3::fleetview::FleetRow) -> String {
+    use crate::screens::board3::fleetview::Status;
+    let elapsed = crate::screens::dialog::minute_granularity(&crate::screens::peers::format_elapsed(p.elapsed_ms));
+    let tokens = if p.tokens > 0 { crate::screens::peers::format_tokens(p.tokens) } else { "—".to_owned() };
+    match p.status {
+        Status::WaitingApproval | Status::WaitingAnswer => {
+            format!("{} · {elapsed}", crate::screens::board3::fleet_copy::t(p.status.word()))
+        }
+        _ => format!("{elapsed} · {tokens}"),
     }
-    if secs < 3600 {
-        return format!("{}m{:02}s", secs / 60, secs % 60);
-    }
-    format!("{}h{:02}m", secs / 3600, (secs % 3600) / 60)
 }
 
 fn rewrite_rows(screen_id: &str, card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> String {
@@ -716,13 +709,20 @@ fn rewrite_fleet_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
         const PITCH: f64 = 138.36;
         for (i, p) in peers.iter().enumerate() {
             let y = Y0 + i as f64 * PITCH;
-            let (badge, status_comp, badge_w, status) = if p.closed {
-                (BADGE_OFF, BADGE_OFF_T, 69.0, "Done")
+            use crate::screens::board3::fleetview::Status;
+            // The badge wears the row's OWN status word and tone: terminal
+            // rows the neutral pill, waiting rows the amber one, the rest
+            // the green one; the pill hugs its word.
+            let word = badge_word(p.status);
+            let w = crate::screens::board3::ui::text_w(&word, 18.0, crate::screens::board3::ui::Face::Regular) + 28.0;
+            let (badge, status_comp, badge_w) = if p.status.terminal() {
+                (BADGE_OFF, BADGE_OFF_T, w.max(69.0))
+            } else if matches!(p.status, Status::WaitingApproval | Status::WaitingAnswer) {
+                ("Surfacef7d1de35cc6f", "Text463574b60513", w.max(85.0))
             } else {
-                // An open peer is live on the roster's activity axis
-                // (peer-roster.ts:40-42) → the §4.3 word "Working".
-                (BADGE_ON, BADGE_ON_T, 86.0, "Working")
+                (BADGE_ON, BADGE_ON_T, w.max(86.0))
             };
+            let status = word.as_str();
             body.push_str(&format!(
                 "      Group3d2637879433(instance: \"peer_r{i}\") {{\n        \
                  {badge}(instance: \"peer_r{i}_badge\") {{\n          \
@@ -739,7 +739,7 @@ fn rewrite_fleet_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
             }
             placed.push((format!("peer_r{i}"), ROW, 11.0, y, 383.0, 89.37));
             placed.push((format!("peer_r{i}_badge"), badge, 28.0, y + 27.08, badge_w, 52.0));
-            placed.push((format!("peer_r{i}_status"), status_comp, 41.91, y + 41.86, 58.93, 26.88));
+            placed.push((format!("peer_r{i}_status"), status_comp, 41.91, y + 41.86, badge_w - 28.0, 26.88));
             // WIDENED: the authored 42px name column clipped longer slugs.
             placed.push((format!("peer_r{i}_name"), NAME, 147.48, y + 28.14, 160.0, 22.3));
             placed.push((
@@ -752,13 +752,8 @@ fn rewrite_fleet_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
             ));
             placed.push((format!("peer_r{i}_steer"), STEER, 329.77, y + 46.44, 42.63, 24.13));
             minted.push((format!("peer_r{i}_status_text"), status.to_owned()));
-            minted.push((format!("peer_r{i}_name_text"), p.name.clone()));
-            // #32c item 11: the meta line (elapsed · tokens). Tokens have no
-            // store source yet → the web's own zero-value dash.
-            minted.push((
-                format!("peer_r{i}_meta_text"),
-                format!("{} · —", format_elapsed(p.staged_at_ms)),
-            ));
+            minted.push((format!("peer_r{i}_name_text"), p.label.clone()));
+            minted.push((format!("peer_r{i}_meta_text"), row_meta(p)));
             minted.push((format!("peer_r{i}_steer_text"), "Steer".to_owned()));
         }
     }
@@ -1002,9 +997,14 @@ pub fn lower_tree(
         // Grey text on a grey pill: the badge SURFACE (id `peer_rN_badge`)
         // and the Done TEXT (id `peer_rN_status`) are both directly
         // addressable — no parent tracking needed.
+        let terminal_words: Vec<String> = ["Finished", "Stopped", "Failed", "Unknown"]
+            .iter()
+            .map(|w| crate::screens::board3::fleet_copy::t(w))
+            .collect();
+        let is_terminal = |t: Option<&str>| t.is_some_and(|t| terminal_words.iter().any(|w| w == t));
         let mut work = vec![&mut tree];
         while let Some(n) = work.pop() {
-            if n.attrs.text.as_deref() == Some("Done") {
+            if is_terminal(n.attrs.text.as_deref()) {
                 n.attrs.color = Some(0xFF61_66_6B);
             }
             if n
@@ -1017,10 +1017,7 @@ pub fn lower_tree(
                 // decide from the badge's OWN status text child — "Done" (and
                 // the other terminal words) take the neutral surface, a
                 // "Working" pill keeps the kit's green one.
-                let terminal = n
-                    .children
-                    .iter()
-                    .any(|c| matches!(c.attrs.text.as_deref(), Some("Done")));
+                let terminal = n.children.iter().any(|c| is_terminal(c.attrs.text.as_deref()));
                 if terminal {
                     n.attrs.bg = Some(0xFFE9_EA_EC);
                 }
@@ -1036,98 +1033,15 @@ pub fn lower_tree(
 // --------------------------------------------------------------------- spawn
 
 /// Perform one routed effect through the production client (lib.rs's
-/// `perform_action` arm; the workspace.rs `spawn` shape). The wire frame
-/// comes from the ONE pure table ([`action_params`]) — the effect only names
-/// the row and carries the steer draft captured at route time.
-/// #P4a4 row `Start control flow` — the fail-closed capability gate, the
-/// web's `peerDispatchAdmitted` (`control/peer-dispatch-commands.ts:47`)
-/// reduced to what the store keeps: `peer/dispatch` must be requested AND the
-/// `external_driver_v1` feature must be among the accepted capabilities. An
-/// absent block is NOT admitted — never a guess. (Deviation: the native store
-/// keeps the FEATURE list, not the method list, so the method half is gated
-/// by the requested-features set the transport connects with —
-/// `octoscode-client/src/features.rs`.)
-pub fn start_admitted(store: &Store) -> bool {
-    store
-        .capabilities()
-        .iter()
-        .any(|c| c == "external_driver_v1")
-}
-
-/// A SECOND Start must mint a DISTINCT operation id (the row's clause; the
-/// web mints one per activation and reuses it verbatim across RETRIES of the
-/// same staging). No uuid crate: a process-global counter + the ms clock.
-fn mint_operation_id(slug: &str) -> String {
-    use std::sync::atomic::{AtomicU64, Ordering};
-    static SEQ: AtomicU64 = AtomicU64::new(1);
-    let n = SEQ.fetch_add(1, Ordering::Relaxed);
-    format!("op-{}-{slug}-{n}", now_ms())
-}
-
-fn now_ms() -> u64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as u64)
-        .unwrap_or(0)
-}
-
-/// The full Start chain: acquire the driver seat, then dispatch EXACTLY ONCE
-/// (the web: one activation ⇒ exactly one `peer/dispatch` frame,
-/// `peer-dispatch-commands.ts:35-80`; the frame is the web's wire encoding
-/// verbatim — camelCase, `dispatch.kind = "new_brief"`, the requested model
-/// lane echoed, the kickoff input carried when there is one). A REFUSED
-/// dispatch keeps the brief in the composer for retry ("a refused Start keeps
-/// the brief visible for retry", FleetView.harness.test.tsx:372); only a
-/// SUCCESS consumes it.
-async fn run_start(
-    conv: Arc<Conversation>,
-    ui: std::sync::Arc<Mutex<FlowUi>>,
-    slug: String,
-    model: String,
-    brief: String,
-) {
-    use octoscode_client::domains::peer::PeerDispatch;
-    use octoscode_client::domains::session::SessionDriverAcquire;
-
-    let session = conv.store.active_session().unwrap_or_default();
-    // 1. the driver seat (caller-held fence — no ambient acquire).
-    let fence = match conv
-        .client()
-        .call::<SessionDriverAcquire>(serde_json::json!({
-            "session_id": session, "slug": slug,
-        }))
-        .await
-    {
-        Ok(v) => v,
-        Err(e) => {
-            ::log::warn!("octoscode: fleet start: driver seat refused: {e}");
-            return; // the brief stays; the operator can retry
-        }
-    };
-    // 2. EXACTLY ONE dispatch, the web's frame verbatim.
-    let operation_id = mint_operation_id(&slug);
-    let params = serde_json::json!({
-        "driverId": fence["driverId"],
-        "epoch": fence["epoch"],
-        "controlToken": fence["controlToken"],
-        "operationId": operation_id,
-        "model": model,
-        "dispatch": { "kind": "new_brief", "brief": brief, "title": slug },
-        "kickoffInput": [{ "kind": "text", "text": brief }],
-    });
-    match conv.client().call::<PeerDispatch>(params).await {
-        Ok(_) => {
-            ui.lock().unwrap().set_draft_inner("");
-            ::log::info!("octoscode: fleet start: peer/{slug} dispatched ({operation_id})");
-        }
-        Err(e) => {
-            // Task words, never protocol vocabulary — the refusal keeps the
-            // brief for retry and names nothing internal.
-            ::log::warn!("octoscode: fleet start: couldn't start that peer: {e}");
-        }
-    }
-}
-
+/// `perform_action` arm; the workspace.rs `spawn` shape).
+///
+/// A10: the slice's Steer is ONE `peer/control` steer frame through the
+/// external-driver chain (`fleet_driver::row_control`: the held fence, the
+/// row's accepted operation id and ADOPTED turn) — the old
+/// `{session_id, slug, command}` frame was not the web's wire. The legacy
+/// `peer.start` path (acquire `{session_id, slug}` + a camelCase dispatch with
+/// the literal model `"inherit"`) is gone: Start is the Fleet pane's form
+/// (`board3::fleetview`, acquire with CAS -> prepare -> ONE dispatch).
 pub fn spawn(
     effect: Effect,
     rt: &tokio::runtime::Runtime,
@@ -1135,38 +1049,10 @@ pub fn spawn(
     ui: &std::sync::Arc<Mutex<FlowUi>>,
     store: &Store,
 ) {
-    // #P4a4: the Start chain is its own async flow (acquire -> ONE dispatch),
-    // not a single request/response — route it before the generic arm.
-    if let Effect::Start { row } = &effect {
-        if !start_admitted(store) {
-            ::log::warn!("octoscode: fleet start: peer/dispatch not admitted (missing external_driver_v1)");
-            return;
-        }
-        let Some(slug) = peer_rows(store).into_iter().nth(*row).map(|p| p.name) else {
-            ::log::warn!("octoscode: fleet start: no peer row {row}");
-            return;
-        };
-        let (brief, model) = {
-            let ui = ui.lock().unwrap();
-            let d = ui.draft();
-            (d, "inherit".to_owned())
-        };
-        if brief.trim().is_empty() {
-            ::log::warn!("octoscode: fleet start: nothing to start — the brief is empty");
-            return;
-        }
-        // The gate passed: run the chain. ui is Arc'd in lib.rs.
-        let conv = conv.clone();
-        let ui = ui.clone();
-        rt.spawn(async move {
-            run_start(conv, ui, slug, model, brief).await;
-        });
-        return;
-    }
-    // A5 — a steer with no text never leaves the client (the web's row input
-    // is required before Steer, `FleetView.tsx` steerDrafts); the open dialog
-    // says where the text comes from.
-    if let Effect::Steer { text, .. } = &effect {
+    if let Effect::Steer { row, text } = &effect {
+        // A5 — a steer with no text never leaves the client (the web's row
+        // input is required before Steer); the open dialog says where the
+        // text comes from.
         if text.trim().is_empty() {
             ::log::warn!("octoscode: fleet steer: nothing to send — the steering text is empty");
             crate::screens::dialog::set_notice(
@@ -1174,14 +1060,45 @@ pub fn spawn(
             );
             return;
         }
+        let rows = peer_rows(store);
+        let Some(r) = rows.get(*row) else {
+            ::log::warn!("octoscode: fleet steer: no peer row {row}");
+            return;
+        };
+        let (Some(identity), true) = (r.identity.clone(), r.control_supported) else {
+            crate::screens::dialog::set_notice(crate::screens::board3::fleet_copy::t(
+                "This server does not support remote control of peers",
+            ));
+            return;
+        };
+        if r.status != crate::screens::board3::fleetview::Status::Working {
+            crate::screens::dialog::set_notice(crate::screens::board3::fleet_copy::t("Only while working"));
+            return;
+        }
+        let text = text.clone();
+        ui.lock().unwrap().set_draft_inner("");
+        makepad_widgets::log!("[octoscode] fleet action -> peer/control steer ({identity})");
+        let conv = conv.clone();
+        rt.spawn(async move {
+            match crate::screens::fleet_driver::row_control(
+                &conv,
+                &identity,
+                crate::screens::peers::RowAction::Steer,
+                &text,
+            )
+            .await
+            {
+                Ok(ack) => crate::screens::dialog::set_info(crate::screens::board3::fleet_copy::t(&ack)),
+                Err(label) => crate::screens::dialog::set_notice(label),
+            }
+            makepad_widgets::SignalToUI::set_ui_signal();
+        });
+        return;
     }
     let (action, row, text) = match &effect {
-        Effect::Steer { row, text } => ("peer.steer", *row, text.clone()),
         Effect::CancelTask { row } => ("task.cancel", *row, String::new()),
         Effect::OpenRunning => ("task.open.running", 0, String::new()),
-        // Routed above (the if-let returned); the match only needs the arms
-        // the compiler cannot prove unreachable.
-        Effect::Start { .. } => return,
+        Effect::Steer { .. } => return,
         Effect::Unhandled(id) => {
             ::log::warn!("octoscode: fleet action unhandled {id:?}");
             return;
@@ -1191,11 +1108,6 @@ pub fn spawn(
         ::log::warn!("octoscode: fleet action {action}[{row}]: nothing to send (no target row/task)");
         return;
     };
-    // A sent steer clears the composer draft (the web clears the row's
-    // `steerDrafts` entry on send, `FleetView.tsx:505-507`).
-    if matches!(effect, Effect::Steer { .. }) {
-        ui.lock().unwrap().set_draft_inner("");
-    }
     makepad_widgets::log!("[octoscode] fleet action -> {method}");
     let conv = conv.clone();
     rt.spawn(async move {
@@ -1206,6 +1118,39 @@ pub fn spawn(
             ::log::warn!("octoscode: fleet {method}: {e}");
         }
     });
+}
+
+/// A10 — the capture roster: the reference board's three peers staged as
+/// ROSTER rows (the union the slice and the Fleet pane both read) — two
+/// working (one waiting for an approval), one finished.
+pub fn seed_capture_roster(store: &Store) {
+    use octoscode_store::domains::peer::{Activity, Origin, Outcome, PeerRow, RequestKind, RowStatus};
+    let session = store.active_session().unwrap_or_else(|| "dsflash:main".to_owned());
+    let now = crate::screens::peers::now_ms();
+    let rows = [
+        ("tests", "Run the full test suite and fix failures", RowStatus::Started, Activity::Live, None, 18 * 60_000u64, 41_000u64),
+        ("docs", "Update the steer-queue docs", RowStatus::Started, Activity::Blocked, Some(RequestKind::Approval), 7 * 60_000, 12_000),
+        ("review", "Review the reconnect diff", RowStatus::Started, Activity::Done, None, 24 * 60_000, 28_000),
+    ];
+    for (i, (slug, brief, status, activity, request, age, tokens)) in rows.into_iter().enumerate() {
+        let identity = format!("{session}#peer-{slug}");
+        let mut r = PeerRow::opening(&identity, slug, Origin::Dispatch, &format!("00000000-0000-4000-8000-0000000000d{i}"), now - age);
+        r.status = status;
+        r.activity = activity;
+        r.brief = brief.to_owned();
+        r.model = Some(["deepseek-v4-flash", "kimi-k2", "glm-4.6"][i].to_owned());
+        r.operation_id = Some(format!("00000000-0000-4000-8000-00000000000{i}"));
+        r.accepted_at_ms = Some(now - age);
+        r.opened_at_ms = Some(now - age);
+        r.output_tokens = tokens;
+        r.request_kind = request;
+        r.request_id = request.map(|_| "00000000-0000-4000-8000-0000000000a1".to_owned());
+        if activity == Activity::Done {
+            r.outcome = Some(Outcome::Finished);
+            r.finished_at_ms = Some(now - 60_000);
+        }
+        store.domains.peer.stage_row(r, true);
+    }
 }
 
 /// The Stage-B fixture store for the capture host: three peers (two working,
@@ -1246,6 +1191,15 @@ pub fn capture_store() -> std::sync::Arc<Store> {
     }
     if peers.contains(&"review") {
         store.domains.peer.mark_closed("review");
+    }
+    // A10: the slice reads the ROSTER (the union), so the capture stages it.
+    if !peers.is_empty() {
+        seed_capture_roster(&store);
+        if peers.len() == 1 {
+            for r in store.domains.peer.rows().into_iter().filter(|r| r.slug != "tests") {
+                store.domains.peer.clear_roster_row(&r.identity);
+            }
+        }
     }
     let tasks_env = std::env::var("OCTOSCODE_CAPTURE_TASKS").unwrap_or_else(|_| "2".into());
     let tasks: &str = tasks_env.as_str();

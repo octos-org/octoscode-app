@@ -40,10 +40,26 @@ pub enum Dialog {
     Fleet,
     /// Screen 12 (right) — the Vim key legend (`?` in Normal mode).
     Vim,
+    /// A10 — the Agents panel (`/agents`, web `AgentPanel.tsx`; no board).
+    Agents,
+    /// A10 — Research provider lanes (`/research`, web `ResearchDialog.tsx`;
+    /// no board).
+    Research,
+    /// A10 — the permission seat's menu (web `PermissionMenu` +
+    /// `PermissionRiskDialog`; no board).
+    Permission,
+    /// A10 — the model seat's menu (web `ModelMenu`; no board).
+    ModelMenu,
+    /// A10 — the Profile's configured model providers (web
+    /// `ModelManagementSection`; no board).
+    Routes,
     /// A8 — the Session settings pane (the strip's click, `App.tsx:3139`).
     SessionPane,
     /// A8 — the workspace launch decision panel (`LaunchDecisionPanel`).
     Launch,
+    /// A10 — the header's Review entry: the authoritative diff preview (web
+    /// `DiffReviewDialog`; no board).
+    DiffReview,
 }
 
 impl Dialog {
@@ -58,8 +74,14 @@ impl Dialog {
             "switcher" | "sessions" => Dialog::Switcher,
             "fleet" => Dialog::Fleet,
             "vim" => Dialog::Vim,
+            "agents" | "agent" => Dialog::Agents,
+            "research" | "lanes" => Dialog::Research,
+            "permission_menu" => Dialog::Permission,
+            "model_menu" => Dialog::ModelMenu,
+            "routes" | "providers" => Dialog::Routes,
             "session-settings" | "session_pane" => Dialog::SessionPane,
             "launch" => Dialog::Launch,
+            "diff_review" | "review_changes" => Dialog::DiffReview,
             _ => return None,
         })
     }
@@ -80,8 +102,18 @@ pub struct State {
     pub strip: super::strip::StripState,
     /// The composer's Vim preference + mode (screen 12).
     pub vim: super::vim::VimState,
+    /// A10 — the Agents panel's form drafts.
+    pub agents: super::agents::AgentsState,
+    /// A10 — the Research lanes dialog's draft + generation guard.
+    pub research: super::research::ResearchState,
+    /// A10 — the composer seats' menus.
+    pub seats: super::seats::SeatsState,
+    /// A10 — the model providers dialog.
+    pub routes: super::routes::RoutesState,
     /// A8 — the Session settings pane.
     pub pane: super::session_pane::PaneState,
+    /// A10 — the header Review entry's diff preview.
+    pub diff: super::diff_review::DiffReviewState,
     /// A8 — the dialog the board-3 splash last mounted (None after an open or
     /// a close), so a remount of the SAME dialog keeps its scroll position.
     pub mounted: Option<Dialog>,
@@ -104,7 +136,12 @@ impl Default for State {
             fleet: Default::default(),
             strip: Default::default(),
             vim: Default::default(),
+            agents: Default::default(),
+            research: Default::default(),
+            seats: Default::default(),
+            routes: Default::default(),
             pane: Default::default(),
+            diff: Default::default(),
             mounted: None,
             pending_clipboard: None,
         }
@@ -175,6 +212,19 @@ pub fn take_clipboard() -> Option<String> {
     state().pending_clipboard.take()
 }
 
+/// A10 — a submit asked the host to take the key focus from its field.
+static BLUR: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Ask the host to drop the key focus after this action (a form submit).
+pub fn request_blur() {
+    BLUR.store(true, std::sync::atomic::Ordering::SeqCst);
+}
+
+/// Whether an action asked for the focus to drop (clears the request).
+pub fn take_blur() -> bool {
+    BLUR.swap(false, std::sync::atomic::Ordering::SeqCst)
+}
+
 /// What the host mounts: the DSL, its tap targets (also recoverable with
 /// `taps::wired_taps`) and its text inputs (widget id, input key).
 #[derive(Debug, Clone)]
@@ -198,22 +248,29 @@ pub fn set_content_x(x: f64) {
     state().fleet.content_x = x.max(0.0);
 }
 
+/// A10 — the master session's live turn (the control seat's expected turn).
+pub fn set_live_turn(turn: Option<String>) {
+    state().fleet.console.live_turn = turn;
+}
+
 /// Lower the open dialog against the live store, or `None` when closed.
 pub fn lower_open(store: &Store) -> Option<Lowered> {
     let mut st = state();
     let open = st.open?;
     let mut d = Dsl::new();
     if open == Dialog::Fleet {
-        // Announce a peer that changed into an announced state, once.
-        let rows = super::fleetview::rows(&st.fleet, store);
+        // A10: announce a peer that changed into an announced state, once
+        // (keyed by the row, `fleetAnnouncement`).
+        let rows = super::fleetview::rows(store, crate::screens::peers::now_ms());
         if let Some(a) = super::fleetview::announce(&st.fleet.seen, &rows) {
             makepad_widgets::log!("[octoscode] fleet announce: {a}");
             st.fleet.announcement = Some(a);
         }
-        st.fleet.seen = rows.iter().map(|r| (r.label.clone(), r.phase)).collect();
+        st.fleet.seen = rows.iter().map(|r| (r.key.clone(), r.status)).collect();
     }
+    let frame = st.frame;
     match open {
-        Dialog::Fleet => super::fleetview::build(&mut d, &st.fleet, &st.frame, store),
+        Dialog::Fleet => super::fleetview::build(&mut d, &mut st.fleet, &frame, store),
         Dialog::Inventory => super::inventory::build(&mut d, &st.inv, &st.frame, store),
         Dialog::Inspector => super::inspector::build(&mut d, &st.insp, &st.frame, store),
         Dialog::Thinking => super::thinking::build(&mut d, &st.frame, store),
@@ -221,8 +278,17 @@ pub fn lower_open(store: &Store) -> Option<Lowered> {
         Dialog::History => super::checkpoints::build(&mut d, &st.ck, &st.frame, store),
         Dialog::Switcher => super::switcher::build(&mut d, &st.switch, &st.frame, store, &st.vim),
         Dialog::Vim => super::vim::build_help(&mut d, &st.vim, &st.frame),
-        Dialog::SessionPane => super::session_pane::build(&mut d, &st.pane, &st.frame, store),
+        Dialog::Agents => super::agents::build(&mut d, &st.agents, &st.frame, store),
+        Dialog::Research => super::research::build(&mut d, &st.research, &st.frame, store),
+        Dialog::Permission => super::seats::build_permission(&mut d, &st.seats, &st.frame, store),
+        Dialog::ModelMenu => super::seats::build_models(&mut d, &st.seats, &st.frame, store),
+        Dialog::Routes => super::routes::build(&mut d, &st.routes, &st.frame, store),
+        Dialog::SessionPane => {
+            let s = &mut *st;
+            super::session_pane::build(&mut d, &s.pane, &mut s.fleet, &s.frame, store)
+        }
         Dialog::Launch => crate::screens::launch::build(&mut d, &st.frame),
+        Dialog::DiffReview => super::diff_review::build(&mut d, &st.diff, &st.frame, store),
         Dialog::Images => {
             let session = store.domains.session.active().unwrap_or_default();
             let drafts = crate::screens::media::drafts_for_session(&session);
@@ -262,16 +328,67 @@ pub enum Job {
     SwitchDelete(String),
     /// `POST /api/upload` per selected image.
     ImagesUpload,
-    /// `profile/sub_providers/list` (the Start form's models).
+    /// The Fleet's opening reads: `profile/sub_providers/list` (the Start
+    /// form's models, when advertised) + the `session/driver/get`
+    /// inventory walk (A10).
     FleetLanes,
-    /// prepare -> driver seat -> one dispatch.
-    FleetStart(String, String),
-    /// `peer/control` steer (op index, text).
-    FleetSteer(usize, String),
+    /// A10 — Start: acquire (CAS) -> prepare -> EXACTLY ONE dispatch with
+    /// this operation id (a retry reuses it).
+    FleetStart { operation_id: String, lane: String, brief: String },
+    /// A10 — ONE `peer/control` for a Fleet row (row key, roster identity).
+    FleetRow { key: String, identity: String, action: crate::screens::peers::RowAction, text: String },
+    /// A10 — the console's explicit seat acquire / release (next external).
+    FleetSeatAcquire,
+    FleetSeatRelease,
+    /// A10 — ONE control-seat command (`PeerControlPanel`).
+    FleetSeatControl { kind: String, live_turn: Option<String> },
+    /// A10 — the console's staged dispatch (held seat only).
+    FleetConsoleDispatch { lane: String, brief: String, title: Option<String> },
+    /// A10 — ONE console roster control.
+    FleetConsoleRow { identity: String, action: String, text: String },
+    /// A10 — the blackboard gather (`/gather`): `peer/gather` -> the
+    /// composed synthesis prompt as ONE ordinary turn.
+    FleetGather,
     /// `session/status/read` for the strip's model.
     StatusRead,
     /// `GET /api/files` for a delivered file (entry id, preview?).
     FileFetch(u64, bool),
+    /// A10 — `agent/list` (the Agents panel's roster).
+    AgentsLoad,
+    /// A10 — `agent/status/read` into the detail viewer.
+    AgentStatus(String),
+    /// A10 — `agent/output/read` (agent, load more?).
+    AgentOutput(String, bool),
+    /// A10 — `agent/artifact/list` into the detail viewer.
+    AgentArtifacts(String),
+    /// A10 — `agent/artifact/read` (agent, artifact id | path).
+    AgentArtifactRead(String, Option<String>, Option<String>),
+    /// A10 — `agent/interrupt` | `agent/close`.
+    AgentControl(String, &'static str),
+    /// A10 — the spawn: an ordinary queued `turn/start` with the composed text.
+    AgentsSpawn(String),
+    /// A10 — `profile/sub_providers/list` for the Research dialog (generation).
+    ResearchLoad(u64),
+    /// A10 — `profile/sub_providers/upsert` the confirmed draft (generation).
+    ResearchSave(u64, super::research::Draft),
+    /// A10 — `profile/sub_providers/remove` the confirmed key (generation).
+    ResearchRemove(u64, String),
+    /// A10 — `permission/profile/list {session_id}` (the permission seat).
+    PermissionLoad,
+    /// A10 — `permission/profile/set` (mode, network).
+    PermissionSet(&'static str, &'static str),
+    /// A10 — `profile/llm/list {session_id, profile_id}` (the model seat).
+    ModelsLoad,
+    /// A10 — `profile/llm/select` the listed model at this index.
+    ModelSelect(usize),
+    /// A10 — `profile/llm/list {profile_id}` (the configured providers).
+    RoutesLoad(u64),
+    /// A10 — `profile/llm/fetch_models` for the route at this index.
+    RoutesFetch(u64, usize),
+    /// A10 — `profile/llm/test` then `profile/llm/upsert` (route, model).
+    RoutesSave(u64, usize, String),
+    /// A10 — `profile/llm/delete` the route at this index.
+    RoutesDelete(u64, usize),
     /// A8 — the Session settings pane's reads (status stamp, permission
     /// presets, model list, driver disclosure).
     PaneLoad,
@@ -281,6 +398,8 @@ pub enum Job {
     PanePerm(super::session_pane::PermIntent),
     /// A8 — Resume chat: acquire -> release(internal) -> send once.
     PaneResumeChat,
+    /// A10 — ONE `diff/preview/get` for the header Review entry (generation).
+    DiffReviewLoad(u64),
     /// A8 — the launch panel's profile choice.
     LaunchChoose(String),
     /// A8 — the launch panel's "Create the local profile" (no_profile).
@@ -375,17 +494,65 @@ pub fn open(dialog: Dialog) -> Outcome {
         }
         Dialog::Fleet => {
             st.fleet.announcement = None;
-            st.fleet.brief_snap = st.fleet.brief.clone();
+            st.fleet.snap_inputs();
             Outcome::Spawn(Job::FleetLanes)
         }
         Dialog::Vim => Outcome::Done,
+        Dialog::Agents => {
+            st.agents.snap();
+            st.agents.spawn_error = None;
+            Outcome::Spawn(Job::AgentsLoad)
+        }
+        Dialog::Research => super::research::on_open(&mut st.research),
+        Dialog::Permission => super::seats::on_open_permission(&mut st.seats),
+        Dialog::ModelMenu => super::seats::on_open_models(&mut st.seats),
+        Dialog::Routes => {
+            // Opened from the Models dialog: one modal at a time.
+            crate::screens::dialog::close();
+            super::routes::on_open(&mut st.routes)
+        }
         Dialog::SessionPane => super::session_pane::on_open(&mut st.pane),
         Dialog::Launch => Outcome::Done,
+        Dialog::DiffReview => super::diff_review::on_open(&mut st.diff),
     }
+}
+
+/// Close `dialog` if it is the open one (a finished job's own close).
+pub fn close_if(dialog: Dialog) {
+    if open_dialog() == Some(dialog) {
+        close();
+    }
+}
+
+/// Where the composer's seats sit in the module view (the menus open above
+/// them).
+pub fn set_seat_anchors(permission: Option<super::seats::Anchor>, model: Option<super::seats::Anchor>) {
+    let mut st = state();
+    st.seats.perm_anchor = permission;
+    st.seats.model_anchor = model;
+}
+
+/// Whether the permission seat still needs `session`'s profile read (asked
+/// once per opened Session, so the seat names the server's preset before
+/// its menu is ever opened).
+pub fn seat_read_needed(session: &str) -> bool {
+    let mut st = state();
+    if st.seats.read_for.as_deref() == Some(session) {
+        return false;
+    }
+    st.seats.read_for = Some(session.to_owned());
+    true
 }
 
 pub fn close() {
     let mut st = state();
+    if st.open == Some(Dialog::Research) {
+        // `onEscape: if (!mutating) onClose()`, Close disabled while mutating.
+        if st.research.mutating {
+            return;
+        }
+        super::research::on_close(&mut st.research);
+    }
     if st.open == Some(Dialog::Images) {
         drop(st);
         if let Some(store) = active_drafts() {
@@ -395,6 +562,9 @@ pub fn close() {
     }
     if st.open == Some(Dialog::Launch) && crate::screens::launch::snapshot().phase != crate::screens::launch::Phase::Opening {
         crate::screens::launch::cancel();
+    }
+    if st.open == Some(Dialog::DiffReview) {
+        super::diff_review::on_close(&mut st.diff);
     }
     st.open = None;
     st.mounted = None;
@@ -472,8 +642,29 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
     if action.starts_with("b3.fleet.") {
         return super::fleetview::perform(&mut st.fleet, action, index, store);
     }
+    if action.starts_with("b3.agents.") {
+        return super::agents::perform(&mut st.agents, action, index, store);
+    }
+    if action.starts_with("b3.research.") {
+        return super::research::perform(&mut st.research, action, index, store);
+    }
+    if action.starts_with("b3.perm.") || action.starts_with("b3.model.") {
+        return super::seats::perform(&mut st.seats, action, index, store);
+    }
+    if action.starts_with("b3.routes.") {
+        return super::routes::perform(&mut st.routes, action, index, store);
+    }
     if action.starts_with("b3.sc.") {
         return super::session_pane::perform(&mut st.pane, action, index, store);
+    }
+    if action.starts_with("b3.diff.") {
+        let out = super::diff_review::perform(&mut st.diff, action, store);
+        if matches!(out, Outcome::Action(_)) {
+            // "Code review…": the /review dialog replaces this one.
+            st.open = None;
+            st.mounted = None;
+        }
+        return out;
     }
     if action.starts_with("b3.launch.") {
         drop(st);
@@ -489,6 +680,9 @@ pub fn input_changed(key: &str, text: &str) {
         "inv" => super::inventory::input_changed(&mut st.inv, key, text),
         "resume" => super::resume::input_changed(&mut st.resume, key, text),
         "fleet" => super::fleetview::input_changed(&mut st.fleet, key, text),
+        "agents" => super::agents::input_changed(&mut st.agents, key, text),
+        "research" => super::research::input_changed(&mut st.research, key, text),
+        "routes" => super::routes::input_changed(&mut st.routes, key, text),
         // A7 — the history dialog's fork name.
         "ck" => super::checkpoints::input_changed(&mut st.ck, key, text),
         _ => {}
@@ -518,6 +712,9 @@ pub fn live_visibility(store: &Store) -> Vec<(String, bool)> {
     match st.open {
         Some(Dialog::Inventory) => super::inventory::visibility(&st.inv, store),
         Some(Dialog::Resume) => super::resume::visibility(&st.resume),
+        Some(Dialog::Agents) => super::agents::visibility(&st.agents),
+        Some(Dialog::Research) => super::research::visibility(&st.research),
+        Some(Dialog::Routes) => super::routes::visibility(&st.routes),
         Some(Dialog::History) => super::checkpoints::visibility(&st.ck),
         _ => Vec::new(),
     }
@@ -607,6 +804,12 @@ pub fn command(name: &str, args: &str, conv: &crate::flow::Conversation) -> Opti
             Some(open(Dialog::History))
         }
         "sessions" | "ss" => Some(open(Dialog::Switcher)),
+        // A10 — the web's `/agents` (alias `/agent`) autonomy intent: the
+        // Agents panel (`registry.ts:383-397`).
+        "agents" | "agent" => Some(open(Dialog::Agents)),
+        // A10 — the web's `/research` (alias `/lanes`) Settings intent
+        // (`registry.ts:374-382`, `App.tsx:1481-1483`).
+        "research" | "lanes" => Some(open(Dialog::Research)),
         // `App.tsx:1267-1269`: flip the preference (which also returns the
         // composer to Insert, `vim-edit.ts:31-33`); the field note shows it.
         "vimmode" | "vim-mode" => {
@@ -650,12 +853,57 @@ pub fn job_unavailable(job: &Job) {
             st.switch.error = Some(msg);
         }
         Job::ImagesUpload => st.img.error = Some(msg),
-        Job::FleetLanes => st.fleet.lanes_loading = false,
-        Job::FleetStart(..) | Job::FleetSteer(..) => {
-            st.fleet.starting = false;
-            st.fleet.start_error = Some(msg);
+        Job::FleetLanes => st.fleet.lane_read = super::fleetview::LaneRead::Unread,
+        Job::FleetStart { lane, brief, operation_id } => {
+            st.fleet.start = super::fleetview::StartState::Unknown {
+                lane: lane.clone(),
+                brief: brief.clone(),
+                operation_id: operation_id.clone(),
+            };
+        }
+        Job::FleetRow { key, .. } => {
+            st.fleet.row_note.insert(key.clone(), msg);
+        }
+        Job::FleetSeatAcquire | Job::FleetSeatRelease => st.fleet.console.seat_busy = false,
+        Job::FleetConsoleRow { .. } => {}
+        Job::FleetSeatControl { .. } => {
+            st.fleet.console.seat = super::fleet_console::SeatPanel::Refused(msg);
+        }
+        Job::FleetConsoleDispatch { .. } => {
+            st.fleet.console.outcome = super::fleet_console::ConsoleOutcome::Unknown { dispatch: true };
+        }
+        Job::FleetGather => {
+            st.fleet.gathering = false;
+            st.fleet.announcement = Some(super::fleet_copy::t(super::fleetview::GATHER_FAILED));
         }
         Job::StatusRead => {}
+        Job::AgentsLoad => st.agents.loading = false,
+        Job::AgentsSpawn(_) => st.agents.spawn_error = Some(super::agents::SPAWN_REFUSED.into()),
+        Job::AgentStatus(_)
+        | Job::AgentOutput(..)
+        | Job::AgentArtifacts(_)
+        | Job::AgentArtifactRead(..)
+        | Job::AgentControl(..) => {}
+        Job::ResearchLoad(_) | Job::ResearchSave(..) | Job::ResearchRemove(..) => {
+            st.research.pending = false;
+            st.research.busy = false;
+            st.research.mutating = false;
+            st.research.error = Some(msg);
+        }
+        Job::PermissionLoad | Job::PermissionSet(..) => {
+            st.seats.perm_loading = false;
+            st.seats.perm_busy = false;
+            st.seats.perm_error = Some(msg);
+        }
+        Job::ModelsLoad | Job::ModelSelect(_) => {
+            st.seats.models_loading = false;
+            st.seats.models_busy = false;
+            st.seats.models_error = Some(msg);
+        }
+        Job::RoutesLoad(_) | Job::RoutesFetch(..) | Job::RoutesSave(..) | Job::RoutesDelete(..) => {
+            st.routes.busy = false;
+            st.routes.error = Some(msg);
+        }
         Job::PaneLoad => {
             st.pane.loading = false;
             st.pane.driver = crate::screens::driver_discovery::Inventory::Unavailable;
@@ -670,6 +918,10 @@ pub fn job_unavailable(job: &Job) {
         Job::PaneResumeChat => {
             st.pane.resume_busy = false;
             st.pane.resume_notice = Some("Couldn't resume chat — nothing was sent".into());
+        }
+        Job::DiffReviewLoad(_) => {
+            st.diff.loading = false;
+            st.diff.error = Some(msg);
         }
         Job::LaunchChoose(_) | Job::LaunchCreateProfile => crate::screens::launch::cancel(),
         Job::FileFetch(id, _) => {
@@ -728,17 +980,53 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         Job::SwitchOpen(id) => super::switcher::open(conv, id).await,
         Job::SwitchDelete(id) => super::switcher::delete(conv, id).await,
         Job::ImagesUpload => super::images::upload(conv).await,
-        Job::FleetLanes => super::fleetview::load_lanes(conv).await,
-        Job::FleetStart(model, brief) => super::fleetview::start(conv, model, brief).await,
-        Job::FleetSteer(op, text) => super::fleetview::steer(conv, op, text).await,
+        Job::FleetLanes => {
+            let lanes = super::fleetview::load_lanes(conv).await;
+            let inv = crate::screens::fleet_driver::load_inventory(conv).await;
+            Ok(format!("{lanes:?}; {inv:?}"))
+        }
+        Job::FleetStart { operation_id, lane, brief } => super::fleetview::run_start(conv, operation_id, lane, brief).await,
+        Job::FleetRow { key, identity, action, text } => super::fleetview::run_row(conv, key, identity, action, text).await,
+        // The web re-walks after an acquire or a release
+        // (`refreshControlInventory`), so the next CAS reads the revision the
+        // lease moved, and the disclosure follows it.
+        Job::FleetSeatAcquire => super::fleet_console::run_seat_change(conv, true).await,
+        Job::FleetSeatRelease => super::fleet_console::run_seat_change(conv, false).await,
+        Job::FleetSeatControl { kind, live_turn } => super::fleet_console::run_seat(conv, kind, live_turn).await,
+        Job::FleetConsoleDispatch { lane, brief, title } => super::fleet_console::run_dispatch(conv, lane, brief, title).await,
+        Job::FleetConsoleRow { identity, action, text } => super::fleet_console::run_row(conv, identity, action, text).await,
+        Job::FleetGather => super::fleetview::run_gather(conv).await,
         Job::StatusRead => super::strip::load_status(conv).await,
         Job::FileFetch(id, preview) => super::rows::fetch(conv, id, preview).await,
+        Job::AgentsLoad => super::agents::load(conv).await,
+        Job::AgentStatus(id) => super::agents::read_status(conv, id).await,
+        Job::AgentOutput(id, more) => super::agents::read_output(conv, id, more).await,
+        Job::AgentArtifacts(id) => super::agents::list_artifacts(conv, id).await,
+        Job::AgentArtifactRead(id, aid, path) => super::agents::read_artifact(conv, id, aid, path).await,
+        Job::AgentControl(id, kind) => super::agents::control(conv, id, kind).await,
+        Job::AgentsSpawn(text) => super::agents::spawn(conv, text).await,
+        Job::ResearchLoad(generation) => super::research::load(conv, generation).await,
+        Job::ResearchSave(generation, draft) => {
+            super::research::mutate(conv, generation, super::research::Confirm::Save(draft)).await
+        }
+        Job::ResearchRemove(generation, key) => {
+            super::research::mutate(conv, generation, super::research::Confirm::Remove(key)).await
+        }
+        Job::PermissionLoad => super::seats::load_permission(conv).await,
+        Job::PermissionSet(mode, network) => super::seats::set_permission(conv, mode, network).await,
+        Job::ModelsLoad => super::seats::load_models(conv).await,
+        Job::ModelSelect(index) => super::seats::select_model(conv, index).await,
+        Job::RoutesLoad(g) => super::routes::load(conv, g).await,
+        Job::RoutesFetch(g, i) => super::routes::fetch(conv, g, i).await,
+        Job::RoutesSave(g, i, model) => super::routes::save(conv, g, i, model).await,
+        Job::RoutesDelete(g, i) => super::routes::delete(conv, g, i).await,
         Job::PaneLoad => super::session_pane::load(conv).await,
         Job::PaneModel(i) => super::session_pane::select_model(conv, i).await,
         Job::PanePerm(intent) => super::session_pane::set_permission(conv, intent).await,
         // Boxed: resume chat sends the prompt through `submit_draft`, which
         // itself routes slash commands back into this function.
         Job::PaneResumeChat => Box::pin(super::session_pane::resume_chat(conv)).await,
+        Job::DiffReviewLoad(generation) => super::diff_review::load(conv, generation).await,
         Job::LaunchChoose(profile) => match crate::screens::launch::choose(conv, profile).await {
             crate::screens::launch::Launched::Opened(id) => Ok(format!("launched {id}")),
             other => Err(format!("{other:?}")),
@@ -748,6 +1036,15 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
             other => Err(format!("{other:?}")),
         },
     }
+}
+
+/// The host reports whether a turn runs: the Agents spawn is idle-only, and
+/// a running turn is known Profile work (the Research lock).
+pub fn note_turn_busy(busy: bool) {
+    super::agents::note_turn_busy(busy);
+    let mut st = state();
+    super::research::note_turn_busy(&mut st.research, busy);
+    super::seats::note_turn_busy(&mut st.seats, busy);
 }
 
 /// Files the platform picker (or a drop) handed over while the images
@@ -774,7 +1071,7 @@ mod tests {
 
     #[test]
     fn every_dialog_id_round_trips_and_routes_are_b3_only() {
-        for id in ["inventory", "inspector", "thinking", "resume", "images", "history", "switcher", "fleet", "vim"] {
+        for id in ["inventory", "inspector", "thinking", "resume", "images", "history", "switcher", "fleet", "vim", "agents"] {
             assert!(Dialog::from_id(id).is_some(), "{id}");
         }
         assert!(routes("b3.close"));

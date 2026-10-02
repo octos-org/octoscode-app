@@ -9,6 +9,7 @@ pub mod autonomy;
 pub mod composer;
 pub mod config;
 pub mod media;
+pub mod models;
 pub mod peer;
 pub mod profile;
 pub mod review;
@@ -34,6 +35,8 @@ pub struct State {
     pub peer: peer::Peers,
     pub profile: profile::Profiles,
     pub media: media::Media,
+    /// A10 — the per-Session model-selection notice boards.
+    pub models: models::ModelNotices,
     pub config: config::Config,
     pub composer: composer::Composer,
 }

@@ -170,11 +170,7 @@ fn the_recorded_bodies_fold_into_the_fleet_and_tasks_state() {
 
 #[test]
 fn the_action_table_maps_the_card_controls_to_their_wire_frames() {
-    let store = Arc::new(Store::new());
-    store.domains.session.set_active(Some("dsflash:main".into()));
-    for name in ["tests", "docs", "review"] {
-        store.domains.peer.upsert(octoscode_store::domains::peer::Peer::named(name));
-    }
+    let store = peers_store(&[("tests", false), ("docs", false), ("review", false)]);
     store.domains.task.upsert_snapshot(
         octoscode_store::domains::task::TaskSnapshot::from_list_row(
             "t-run".into(),
@@ -192,18 +188,13 @@ fn the_action_table_maps_the_card_controls_to_their_wire_frames() {
         ),
     );
 
-    // Steer the THIRD row = one `peer/control` steer frame with the typed
-    // text (the command shape of `external-driver-peer-control.ts:99/147`;
-    // the driver-seat capture keys are the reported native gap). Rows are
-    // slug-ordered (docs, review, tests), so row 2 is `tests`.
-    let (method, params) =
-        fleet::action_params("peer.steer", 2, &store, "hold the queue").expect("steer routes");
-    assert_eq!(method, "peer/control");
-    assert_eq!(params["session_id"], "dsflash:main");
-    assert_eq!(params["slug"], "tests");
-    assert_eq!(params["command"]["kind"], "steer");
-    assert_eq!(params["command"]["input"][0]["kind"], "text");
-    assert_eq!(params["command"]["input"][0]["text"], "hold the queue");
+    // A10: a steer is NEVER a bare `{session_id, slug, command}` frame (that
+    // was not the web's wire): it is the fenced external-driver chain
+    // (`fleet_driver::row_control` — the held seat's fence, the row's
+    // accepted operation id and ADOPTED turn,
+    // `external-driver-peer-control.ts:694-703`), pinned at the wire in
+    // `tests/a10_fleet.rs`. The pure table has no steer row.
+    assert!(fleet::action_params("peer.steer", 2, &store, "hold the queue").is_none());
 
     // Cancel = one `task/cancel` for the RUNNING task (parity row 348).
     let (method, params) =
@@ -310,25 +301,23 @@ fn replay_refresh_then_the_actions_over_the_recorded_frames() {
         &store,
     );
 
-    // Steer's draft is consumed (the web clears the row's draft on send).
-    assert!(ui.lock().unwrap().draft().is_empty());
+    // A10: the gathered `r6-smoke` is a gather-prompt row, NOT a roster row
+    // (no accepted operation, no adopted turn): the steer has no target, so
+    // nothing is sent and the draft stays for the operator.
+    assert_eq!(ui.lock().unwrap().draft(), "hold the queue");
 
     rt.block_on(async {
         let deadline = tokio::time::Instant::now() + Duration::from_secs(5);
         loop {
-            let have_both = server.seen.lock().unwrap().iter().any(|(m, _)| m == "peer/control")
-                && server.seen.lock().unwrap().iter().any(|(m, _)| m == "task/cancel");
-            if have_both || tokio::time::Instant::now() > deadline {
+            let have = server.seen.lock().unwrap().iter().any(|(m, _)| m == "task/cancel");
+            if have || tokio::time::Instant::now() > deadline {
                 break;
             }
             tokio::time::sleep(Duration::from_millis(20)).await;
         }
     });
 
-    let steer = server.sent("peer/control").expect("peer/control went out");
-    assert_eq!(steer["slug"], "r6-smoke");
-    assert_eq!(steer["command"]["kind"], "steer");
-    assert_eq!(steer["command"]["input"][0]["text"], "hold the queue");
+    assert!(server.sent("peer/control").is_none(), "no unfenced steer frame");
     let cancel = server.sent("task/cancel").expect("task/cancel went out");
     assert_eq!(cancel["session_id"], "dsflash:main");
     // The running task here is the one the RECORDED update created.
@@ -362,21 +351,30 @@ fn the_bindings_cover_the_cards_and_the_lowered_cards_carry_the_live_values() {
         fleet::query_binding(&ctx, "fleet.goal").unwrap(),
         serde_json::json!("Fix steer queue")
     );
-    // `review` sorts to row 2 (docs, review, tests) and the model closed it —
-    // the one terminal word the store owns.
-    // GENERATED rows (#30c2): the sorted roster docs(0), review(1, closed),
-    // tests(2) — styles are chosen per item in the row builder; the bindings
-    // carry each item's text.
+    // A10: the GENERATED rows (#30c2) are the Fleet's union rows in staging
+    // order — tests(0, working), docs(1, waiting on an approval),
+    // review(2, finished) — labelled `Peer N · model`, never the slug
+    // (`fleet-facts.ts:239-312`), with the Fleet's status words.
     assert_eq!(
         fleet::query_binding(&ctx, "fleet.peer_r0.name").unwrap(),
-        serde_json::json!("docs")
+        serde_json::json!("Peer 1 · deepseek-v4-flash")
+    );
+    assert_eq!(
+        fleet::query_binding(&ctx, "fleet.peer_r0.status").unwrap(),
+        serde_json::json!("Working")
     );
     assert_eq!(
         fleet::query_binding(&ctx, "fleet.peer_r1.status").unwrap(),
-        serde_json::json!("Done")
+        serde_json::json!("Waiting")
     );
-    assert!(fleet::query_binding(&ctx, "fleet.peer_r2.status").unwrap().is_null());
-    assert!(fleet::query_binding(&ctx, "fleet.peer_r0.meta").unwrap().is_null());
+    assert_eq!(
+        fleet::query_binding(&ctx, "fleet.peer_r2.status").unwrap(),
+        serde_json::json!("Finished")
+    );
+    let meta = fleet::query_binding(&ctx, "fleet.peer_r0.meta").unwrap();
+    assert!(meta.as_str().unwrap().starts_with("18m · "), "{meta}");
+    let waiting = fleet::query_binding(&ctx, "fleet.peer_r1.meta").unwrap();
+    assert!(waiting.as_str().unwrap().starts_with("Waiting for your approval · "), "{waiting}");
 
     // The Tasks values: the running/settled commands and the four output
     // lines the store accumulated.
@@ -419,17 +417,21 @@ fn count_str(hay: &str, needle: &str) -> usize {
     hay.matches(needle).count()
 }
 
+/// A10: the rows are the peer manager's ROSTER (dispatched peers with an
+/// accepted operation), in staging order; `closed` = the peer finished.
 fn peers_store(rows: &[(&str, bool)]) -> Arc<Store> {
+    use octoscode_store::domains::peer::{Activity, Origin, Outcome, PeerRow, RowStatus};
     let store = Arc::new(Store::new());
     store.domains.session.set_active(Some("dsflash:main".into()));
-    for (name, closed) in rows {
-        store
-            .domains
-            .peer
-            .upsert(octoscode_store::domains::peer::Peer::named(*name));
+    for (i, (name, closed)) in rows.iter().enumerate() {
+        let mut r = PeerRow::opening(&format!("dsflash:main#peer-{name}"), name, Origin::Dispatch, "t", octoscode_module::screens::peers::now_ms());
+        r.status = RowStatus::Started;
+        r.operation_id = Some(format!("00000000-0000-4000-8000-00000000000{i}"));
+        r.activity = if *closed { Activity::Done } else { Activity::Live };
         if *closed {
-            store.domains.peer.mark_closed(name);
+            r.outcome = Some(Outcome::Finished);
         }
+        store.domains.peer.stage_row(r, false);
     }
     store
 }
@@ -499,16 +501,17 @@ fn fleet_rows_are_one_per_item_with_status_styles_and_zero_is_the_empty_state() 
     assert!(src.contains("copy.peer_r0_name"), "row text binds the item");
     assert!(!src.contains("instance: \"peer_2\""), "authored rows removed");
 
-    // 3 peers (docs, review*, tests) → three rows whose STYLES come from each
-    // item: closed review wears the terminal badge + Done, the open two wear
-    // the active badge — NOT the design's position-bound row styles.
-    let store = peers_store(&[("tests", false), ("docs", false), ("review", true)]);
+    // 3 peers (docs, review*, tests — staging order) → three rows whose
+    // STYLES come from each item: finished review wears the terminal badge,
+    // the open two wear the active badge — NOT the design's position-bound
+    // row styles.
+    let store = peers_store(&[("docs", false), ("review", true), ("tests", false)]);
     let ctx = Ctx::new(&store, &ui);
     let (src, _, _) = fleet::lower_card_src("autonomy-06", &ctx).expect("fleet lowers");
     assert_eq!(count_str(&src, "Group3d2637879433(instance: \"peer_r"), 3, "one row per item");
     assert!(
         src.contains("Surfacefe8deb6b02b9(instance: \"peer_r1_badge\")"),
-        "exactly the CLOSED item (review, sorted to row 1) wears the terminal badge"
+        "exactly the FINISHED item (review, row 1) wears the terminal badge"
     );
     assert!(
         !src.contains("Surfacefe8deb6b02b9(instance: \"peer_r0_badge\")")
