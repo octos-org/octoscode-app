@@ -963,8 +963,13 @@ def cp_pill_cycle(app):
     laid = {str(w.get("t") or "").strip() for w in d.get("s", []) if app.laid_out(w)}
     titled = "Permission" in laid
     above = m[1] + m[3] <= r0[1] + 1
-    state = next((t for t in ("No permission presets are available.", "Permission unavailable",
-                              "Loading access…") if t in laid), None)
+    # With no presets the menu says why: empty / unavailable / loading, or the
+    # read's own error line with Retry (this replay's `{}` answer names no
+    # session: "permission/profile/list returned another session").
+    state = next((str(w.get("t")).strip() for w in d.get("s", [])
+                  if str(w.get("i", "")) in ("b3_perm_empty", "b3_perm_unavailable", "b3_perm_loading",
+                                             "b3_perm_error_text")
+                  and app.laid_out(w) and (w.get("t") or "").strip()), None)
     opts = sum(1 for w in d.get("s", []) if re.match(r"^b3_perm_opt_\d+$", str(w.get("i", "")))
                and app.laid_out(w))
     app.key("escape")
@@ -1002,9 +1007,22 @@ def c_queue(app):
     # queued-mid-turn slice needs a keyboard-queue path this card did not
     # probe out; the retest server log saw ONE turn/start for the mid-turn
     # second send — it was an interrupt, not a send).
-    def proses(snap):
-        return sum(1 for w in snap.get("s", [])
-                   if "assistantprose" in str(w.get("i", "")))
+    # A11: each prompt's OWN turn is proven on the wire — the replay server's
+    # log of `turn/start` — and its settlement in the window (no working row,
+    # no queued chip left). Counting assistant rows was virtualization-bound:
+    # the second recorded answer is long and the list shows only its tail.
+    server_log = WALK / f"server-{scenario_for('composer')}.log"
+
+    def starts():
+        try:
+            return server_log.read_text().count("<- turn/start")
+        except OSError:
+            return -1
+
+    def settled(s):
+        queued = any(str(w.get("i", "")) == "queue_count" and app.laid_out(w) and (w.get("t") or "").strip()
+                     for w in s.get("s", []))
+        return "workingrow" not in app.kinds(s) and not queued
 
     r = None
     for _ in range(20):
@@ -1017,24 +1035,30 @@ def c_queue(app):
     # turn LIVE, and the mounted composer DROPS text typed mid-turn (the
     # #34a instrument probes; retest8's clauses one=0 two=0 proses=0). Let
     # the earlier turn settle before typing.
-    app.wait_for(lambda s: "workingrow" not in app.kinds(s), timeout=45,
-                 what="earlier composer turns to settle")
+    app.wait_for(settled, timeout=45, what="earlier composer turns to settle")
     time.sleep(1.0)
-    app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
-    base = proses(app.snap())
-    app.clear_composer(); app.type("walk queue one"); app.send()
-    app.wait_for(lambda s: proses(s) > base, timeout=60,
-                 what="queue one's own answer")
-    r = app.rect_re(app.snap(), COMPOSER_INPUT_RE)
-    app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
-    app.clear_composer(); app.type("walk queue two"); app.send()
-    app.wait_for(lambda s: proses(s) > base + 1, timeout=60,
-                 what="queue two's own answer")
+    base = starts()
+    for n, prompt in enumerate(("walk queue one", "walk queue two"), start=1):
+        r = app.rect_re(app.snap(), COMPOSER_INPUT_RE)
+        app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+        app.clear_composer(); app.type(prompt); app.send()
+        for _ in range(40):
+            if starts() >= base + n:
+                break
+            time.sleep(0.5)
+        if starts() < base + n:
+            return False, f"{prompt!r} never reached the wire (turn/start x{starts() - base})"
+        time.sleep(1.0)
+        app.wait_for(settled, timeout=60, what=f"{prompt!r}'s own turn to settle")
+    own_turns = starts() - base
     d = app.snap()
     tr = app.shown_rect_re(d, THREAD_OPEN_RE)
     if not tr:
         return False, "no laid-out session row (sb_r_open) to reselect"
     app.click(int(tr[0] + tr[2] / 2), int(tr[1] + tr[3] / 2))
+    time.sleep(3.0)
+    if starts() - base != own_turns:
+        return False, f"the reselect sent turn/start again (x{starts() - base - own_turns})"
     # The web contract (runtime-recovery.spec.ts:5): continuing past the turn
     # must not REPLAY anything and must not lose turns — the first bubble is
     # EXPECTED to sit above the viewport after a reselect (the timeline shows
@@ -1051,37 +1075,17 @@ def c_queue(app):
                    and m.group(1) == "userbubble"
                    and (w.get("t") or "").strip().startswith(text))
 
-    def replayed(snap):
-        # Virtualization makes per-row text presence timing/viewport-dependent
-        # (retest10: proses=2 with both prompt texts absent from the window;
-        # the web keeps the full DOM, the native list materialises ~a screen).
-        # The contract's durable facts (runtime-recovery.spec.ts): NO
-        # duplicate bubbles (nothing replayed), both ANSWERS retained
-        # (nothing lost), one session.
-        proses = sum(1 for w in snap.get("s", [])
-                     if "assistantprose" in str(w.get("i", "")))
-        return (tree_count(snap, "walk queue one") <= 1
-                and tree_count(snap, "walk queue two") <= 1
-                and proses >= 2)
-
-    try:
-        app.wait_for(replayed, timeout=20,
-                     what="the timeline after the reselect (no replay, answers kept)")
-    except AssertionError as e:
-        # Instrumented failure (the runner env differs from the hand probe:
-        # earlier composer checks leave turns in the timeline): dump every
-        # clause so the retest log names the failing one.
-        d = app.snap()
-        proses = sum(1 for w in d.get("s", [])
-                     if "assistantprose" in str(w.get("i", "")))
-        raise AssertionError(
-            f"clauses one={tree_count(d, 'walk queue one')} "
-            f"two={tree_count(d, 'walk queue two')} proses={proses} "
-            f"sessions={app.text_of(d, 'sessions')!r}") from None
+    # Virtualization makes per-row presence viewport-dependent (the native list
+    # materialises ~a screen; the web keeps the whole DOM): what IS durable is
+    # that no prompt bubble is doubled (nothing replayed into the timeline),
+    # the timeline renders, and no session was minted.
     d = app.snap()
+    one, two = tree_count(d, "walk queue one"), tree_count(d, "walk queue two")
+    rendered = any(app.laid_out(w) for w in d.get("s", []) if INSTANCE_KIND_RE.match(str(w.get("i", ""))))
     sessions = (app.text_of(d, "sessions") or "").strip()
-    ok = "1" in sessions
-    return ok, (f"no_replay(one<=1,two=1) tail_kept {sessions!r}")
+    ok = own_turns == 2 and one <= 1 and two <= 1 and rendered and sessions.endswith(" 1")
+    return ok, (f"own turn/start x{own_turns}, each settled; reselect sent none; bubbles one={one} two={two} "
+                f"timeline_rendered={rendered} {sessions!r}")
 
 
 @check("composer", "the conversation column hosts the timeline PortalList")
