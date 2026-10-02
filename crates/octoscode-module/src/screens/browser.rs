@@ -800,11 +800,14 @@ pub fn perform(id: &str, value: Option<&str>) -> Option<Effect> {
 /// [`MAX_ASCENT`] steps (`WorkspaceFolderBrowser.tsx` `load`,
 /// `workspaceBrowseRetryPath`, `workspace-browse.ts:208-222`).
 pub async fn list(conv: &crate::flow::Conversation, path: Option<String>, resolve_ancestor: bool) -> Result<(), String> {
+    let request = begin_request();
     let mut candidate = path;
     for _ in 0..=MAX_ASCENT {
         match conv.client().call::<WorkspaceList>(WorkspaceListParams { path: candidate.clone() }).await {
             Ok(listing) => {
-                state().listed(&listing);
+                if is_latest(request) {
+                    state().listed(&listing);
+                }
                 return Ok(());
             }
             Err(e) => {
@@ -820,15 +823,33 @@ pub async fn list(conv: &crate::flow::Conversation, path: Option<String>, resolv
                         continue;
                     }
                     _ => {
-                        state().refuse(refusal.clone(), candidate.clone());
+                        if is_latest(request) {
+                            state().refuse(refusal.clone(), candidate.clone());
+                        }
                         return Err(format!("onboarding/workspace_list: {}", refusal.kind));
                     }
                 }
             }
         }
     }
-    state().refuse(Refusal { kind: UNKNOWN.to_owned(), banned_root: None }, None);
+    if is_latest(request) {
+        state().refuse(Refusal { kind: UNKNOWN.to_owned(), banned_root: None }, None);
+    }
     Err("onboarding/workspace_list: no listable ancestor".to_owned())
+}
+
+/// Latest-request-wins for the listing (the web's browse state machine drops
+/// a superseded answer): every `list` takes a ticket, and only the newest
+/// ticket may fold its answer in. Measured: a breadcrumb's listing that
+/// resolved after a typed path's refusal overwrote the refusal.
+static LATEST_LIST: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+fn begin_request() -> u64 {
+    LATEST_LIST.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1
+}
+
+fn is_latest(request: u64) -> bool {
+    LATEST_LIST.load(std::sync::atomic::Ordering::SeqCst) == request
 }
 
 /// `onboarding/workspace_create` then MOVE INTO the new folder (the web's
@@ -856,6 +877,14 @@ pub async fn create(conv: &crate::flow::Conversation, parent: String, name: Stri
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn only_the_newest_listing_may_fold_its_answer_in() {
+        let first = begin_request();
+        let second = begin_request();
+        assert!(!is_latest(first), "a superseded answer is dropped");
+        assert!(is_latest(second));
+    }
 
     fn listing() -> BrowserUi {
         BrowserUi {

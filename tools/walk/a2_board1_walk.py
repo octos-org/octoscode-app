@@ -327,7 +327,20 @@ def main():
     click_until("sb_add_hit", "b1_br_row_1"); click("b1_br_row_1")
     capture("p4-08_browser")
     click("b1_br_crumb_2"); time.sleep(1.0)
-    click("b1_br_path"); key("Backspace", 12); typ("/private"); key("ReturnKey"); wait("b1_br_backto")
+    click("b1_br_path"); key("Backspace", 12); typ("/private")
+    for _ in range(3):
+        # Return only once the field holds the typed path (a coalesced /t can
+        # land late), and again if the refusal never came.
+        end = time.time() + 3
+        while time.time() < end and (find("b1_br_path") or {}).get("t") != "/private":
+            time.sleep(0.2)
+        key("ReturnKey")
+        end = time.time() + 6
+        while time.time() < end and not find("b1_br_backto"):
+            time.sleep(0.25)
+        if find("b1_br_backto"):
+            break
+    wait("b1_br_backto", 1)
     capture("p4-09_refused")
     click_until("b1_br_backto", "b1_br_row_0")
     # The browser's back lands on the picker (the web's add -> choose)
