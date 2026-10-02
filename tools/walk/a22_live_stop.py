@@ -48,11 +48,17 @@ LONG = "Write the whole numbers from 1 to 1200 as English words, one per line, a
 LONG2 = "Write the whole numbers from 1 to 1200 as Roman numerals, one per line, and nothing else."
 
 
+READ_PAUSES = (1.5, 3.0, 6.0)
+
+
 def get(path, timeout=30):
-    """A read is retried; an input (/click, /t, /k, /m) never is: a click
-    re-sent after a slow frame lands on whatever moved under the pointer."""
+    """A read is retried after growing pauses (the instrument answers 404 when
+    a frame misses its window on a loaded machine); an input (/click, /t, /k,
+    /m) never is: its 404 is a coalesced frame, the input was delivered, and a
+    click re-sent after a slow frame lands on whatever moved under the
+    pointer."""
     once = path.startswith(("/click", "/t?", "/k?", "/m?"))
-    for attempt in range(3):
+    for attempt in range(len(READ_PAUSES) + 1):
         try:
             with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
                 return r.read()
@@ -60,9 +66,9 @@ def get(path, timeout=30):
             if once:
                 time.sleep(0.5)
                 return b"{}"
-            if attempt == 2:
+            if attempt == len(READ_PAUSES):
                 raise
-            time.sleep(0.5)
+            time.sleep(READ_PAUSES[attempt])
 
 
 def snap():
@@ -143,9 +149,26 @@ def redact(text):
 def capture(name):
     N[0] += 1
     base = os.path.join(OUT, f"{N[0]:02d}-{name}")
-    s = snap()
+    try:
+        s = snap()  # needed to paint the header's machine path over
+    except Exception as e:
+        line = f"NOTE capture {N[0]:02d}-{name}: the snap failed after retries ({type(e).__name__}) — nothing saved"
+        print(line, flush=True)
+        with open(os.path.join(OUT, "checks.txt"), "a") as f:
+            f.write(line + "\n")
+        return
+    with open(base + ".snap.json", "w") as f:
+        f.write(redact(json.dumps(scrub(s), ensure_ascii=False)))
+    try:
+        grab = get("/g?raw=1", timeout=30)
+    except Exception as e:  # recorded, never an empty PNG, never the run's end
+        line = f"NOTE capture {N[0]:02d}-{name}: the grab failed after retries ({type(e).__name__}) — no PNG"
+        print(line, flush=True)
+        with open(os.path.join(OUT, "checks.txt"), "a") as f:
+            f.write(line + "\n")
+        return
     with open(base + ".png", "wb") as f:
-        f.write(get("/g?raw=1", timeout=30))
+        f.write(grab)
     # The header's folder line is a machine path: painted over (the final-live rule).
     try:
         from PIL import Image, ImageDraw
@@ -161,9 +184,8 @@ def capture(name):
     except Exception as e:  # never ship an unredacted capture
         os.remove(base + ".png")
         print("capture redaction failed:", e)
-    subprocess.run(["sips", "-Z", "1400", base + ".png", "--out", base + ".png"], capture_output=True)
-    with open(base + ".snap.json", "w") as f:
-        f.write(redact(json.dumps(scrub(s), ensure_ascii=False)))
+    if os.path.exists(base + ".png"):
+        subprocess.run(["sips", "-Z", "1400", base + ".png", "--out", base + ".png"], capture_output=True)
 
 
 def trace():
