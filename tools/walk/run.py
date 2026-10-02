@@ -581,6 +581,13 @@ class Procs:
             "HEADLESS_ARGS": "--module octoscode",
             "HEADLESS_STATE": str(state),
         })
+        # Brief §8 (A11): every instance reads and writes a FRESH state tree
+        # (drafts, credentials, preferences, notifications, recents, ...),
+        # never the operator's own files.
+        from walk_env import isolated_env  # noqa: PLC0415 (same directory)
+        env.update(isolated_env(ROOT / "tmp" / "walk" / "state" / f"{scenario}-{time.time_ns()}"))
+        # This checkout's design files, never the shared materialized copy.
+        env.setdefault("OCTOSCODE_DESIGN_DIR", str(ROOT / "design"))
         if extra_env:
             env.update(extra_env)
         # The env of the running app, so a check can assert what it was LAUNCHED
@@ -682,6 +689,9 @@ class LiveGate:
         state.mkdir(parents=True, exist_ok=True)
         env = os.environ.copy()
         env.update(self.env_extra)
+        # Brief §8 (A11): isolated app state for the live instance too.
+        from walk_env import isolated_env  # noqa: PLC0415 (same directory)
+        env.update(isolated_env(ROOT / "tmp" / "walk" / "state" / f"live-{time.time_ns()}"))
         cwd = self.shell_cwd or default_shell_cwd(BIN)
         r = subprocess.run(["bash", str(HEADLESS), "start", str(BIN),
                             str(self.app_port)],
