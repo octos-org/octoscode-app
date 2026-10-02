@@ -33,7 +33,7 @@
 [replay-serve] <- peer/prepare (id=15)
 [replay-serve] -> peer/prepare (fleet sim) 
 [replay-serve] <- peer/dispatch (id=16)
-[replay-serve] -> peer/dispatch (fleet sim) operation_id=c5d5ffa8-fdd7-4d27-a4e9-2761f52fab0d model=lane-glm adopted_session_id=dsflash:main#peer-fix-steer-queue-drop-on adopted_turn_id=00000000-0000-4000-8000-0000000000d2
+[replay-serve] -> peer/dispatch (fleet sim) operation_id=a2f1120c-b529-4304-a914-9e8cadb4d14e model=lane-glm adopted_session_id=dsflash:main#peer-fix-steer-queue-drop-on adopted_turn_id=00000000-0000-4000-8000-0000000000d2
 [replay-serve] <- session/open (id=17)
 [replay-serve] => turn/started (fleet) session_id=dsflash:main#peer-fix-steer-queue-drop-on
 [replay-serve] => progress/updated (fleet) session_id=dsflash:main#peer-fix-steer-queue-drop-on
@@ -41,33 +41,35 @@
 [replay-serve] <- peer/prepare (id=18)
 [replay-serve] -> peer/prepare (fleet sim) 
 [replay-serve] <- peer/dispatch (id=19)
-[replay-serve] -> peer/dispatch (fleet sim) operation_id=03a73197-266a-49ce-bca5-df9659ad03a9 model=lane-primary adopted_session_id=dsflash:main#peer-run-the-cli-test-suite adopted_turn_id=00000000-0000-4000-8000-0000000000d3
+[replay-serve] -> peer/dispatch (fleet sim) operation_id=cfb0981b-5613-41a8-857e-1f9d501486e0 model=lane-primary adopted_session_id=dsflash:main#peer-run-the-cli-test-suite adopted_turn_id=00000000-0000-4000-8000-0000000000d3
 [replay-serve] <- session/open (id=20)
 [replay-serve] => turn/started (fleet) session_id=dsflash:main#peer-run-the-cli-test-suite
 [replay-serve] => approval/requested (fleet) session_id=dsflash:main#peer-run-the-cli-test-suite approval_id=01a0eb92-9444-7101-aa6f-000000020001
 [replay-serve] <- peer/prepare (id=21)
 [replay-serve] -> peer/prepare (fleet sim) 
 [replay-serve] <- peer/dispatch (id=22)
-[replay-serve] -> peer/dispatch (fleet sim) operation_id=de9b892d-970d-4a11-bd13-08b3d9973882 model=lane-deepseek adopted_session_id=dsflash:main#peer-review-pr-2566 adopted_turn_id=00000000-0000-4000-8000-0000000000d4
+[replay-serve] -> peer/dispatch (fleet sim) operation_id=07b95e5c-af08-417f-b6e4-0c917678254c model=lane-deepseek adopted_session_id=dsflash:main#peer-review-pr-2566 adopted_turn_id=00000000-0000-4000-8000-0000000000d4
 [replay-serve] <- session/open (id=23)
 [replay-serve] => turn/started (fleet) session_id=dsflash:main#peer-review-pr-2566
 [replay-serve] => progress/updated (fleet) session_id=dsflash:main#peer-review-pr-2566
 [replay-serve] => turn/completed (fleet) session_id=dsflash:main#peer-review-pr-2566
 [replay-serve] <- peer/control (id=24)
-[replay-serve] -> peer/control (fleet sim) operation_id=96e4c407-5e30-4375-96b0-f73911ca450d target_operation_id=c5d5ffa8-fdd7-4d27-a4e9-2761f52fab0d expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=approval_respond approval_id=01a0eb92-9444-7101-aa6f-000000010001 decision=approve
+[replay-serve] -> peer/control (fleet sim) operation_id=4935f5db-dfda-4653-b392-931e46b9cd6f target_operation_id=a2f1120c-b529-4304-a914-9e8cadb4d14e expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=approval_respond approval_id=01a0eb92-9444-7101-aa6f-000000010001 decision=approve
 [replay-serve] => approval/decided (fleet) session_id=dsflash:main#peer-fix-steer-queue-drop-on approval_id=01a0eb92-9444-7101-aa6f-000000010001 decision=approve
 [replay-serve] <- peer/control (id=25)
-[replay-serve] -> peer/control (fleet sim) operation_id=55d28365-a98e-4351-9ae6-e0982cac9ce9 target_operation_id=03a73197-266a-49ce-bca5-df9659ad03a9 expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=approval_respond approval_id=01a0eb92-9444-7101-aa6f-000000020001 decision=deny
+[replay-serve] -> peer/control (fleet sim) operation_id=8d075f8d-aef2-4ff6-a59b-9d1f5b7e4dfc target_operation_id=cfb0981b-5613-41a8-857e-1f9d501486e0 expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=approval_respond approval_id=01a0eb92-9444-7101-aa6f-000000020001 decision=deny
 [replay-serve] => approval/decided (fleet) session_id=dsflash:main#peer-run-the-cli-test-suite approval_id=01a0eb92-9444-7101-aa6f-000000020001 decision=deny
 [replay-serve] => approval/requested (fleet) session_id=dsflash:main#peer-run-the-cli-test-suite approval_id=01a0eb92-9444-7101-aa6f-000000020002
 [replay-serve] <- peer/control (id=26)
-[replay-serve] -> peer/control (fleet sim) operation_id=856cc9ff-0d59-4afa-ac63-d8ef58344c69 target_operation_id=03a73197-266a-49ce-bca5-df9659ad03a9 expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=approval_respond approval_id=01a0eb92-9444-7101-aa6f-000000020002 decision=approve approval_scope=session
+[replay-serve] -> peer/control (fleet sim) operation_id=c482f25f-d25c-432d-a727-1fa3d5402b5e target_operation_id=cfb0981b-5613-41a8-857e-1f9d501486e0 expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=approval_respond approval_id=01a0eb92-9444-7101-aa6f-000000020002 decision=approve approval_scope=session
 [replay-serve] => approval/decided (fleet) session_id=dsflash:main#peer-run-the-cli-test-suite approval_id=01a0eb92-9444-7101-aa6f-000000020002 decision=approve
 [replay-serve] => approval/requested (fleet) session_id=dsflash:main#peer-run-the-cli-test-suite approval_id=01a0eb92-9444-7101-aa6f-000000020003
 [replay-serve] <- peer/control (id=27)
-[replay-serve] -> peer/control (fleet sim) operation_id=0a447c29-d87b-4c40-b462-c90de4ae8d7f target_operation_id=03a73197-266a-49ce-bca5-df9659ad03a9 expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=approval_respond approval_id=01a0eb92-9444-7101-aa6f-000000020003 decision=deny
+[replay-serve] -> peer/control (fleet sim) operation_id=4c21f09a-b5de-418e-85bc-77f8245168b0 target_operation_id=cfb0981b-5613-41a8-857e-1f9d501486e0 expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=approval_respond approval_id=01a0eb92-9444-7101-aa6f-000000020003 decision=deny
 [replay-serve] => approval/decided (fleet) session_id=dsflash:main#peer-run-the-cli-test-suite approval_id=01a0eb92-9444-7101-aa6f-000000020003 decision=deny
 [replay-serve] => approval/requested (fleet) session_id=dsflash:main#peer-run-the-cli-test-suite approval_id=01a0eb92-9444-7101-aa6f-000000020004
 [replay-serve] <- peer/control (id=28)
-[replay-serve] -> peer/control (fleet sim) operation_id=8c4e62ee-f231-4fe9-8b57-1a75836187ff target_operation_id=03a73197-266a-49ce-bca5-df9659ad03a9 expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=interrupt
+[replay-serve] -> peer/control (fleet sim) operation_id=6c4f597a-31ab-47f1-8031-1eecb29e2a0f target_operation_id=cfb0981b-5613-41a8-857e-1f9d501486e0 expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=interrupt
 [replay-serve] => turn/error (fleet) session_id=dsflash:main#peer-run-the-cli-test-suite
+[replay-serve] <- session/driver/renew (id=29)
+[replay-serve] -> session/driver/renew (fleet sim) 
