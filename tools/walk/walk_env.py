@@ -25,6 +25,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 HEADLESS = ROOT / "harness" / "headless.sh"

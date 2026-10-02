@@ -1,4 +1,4 @@
-# D10c. The makepad remote bridge refuses browser requests; the daily APK has no bridge: DECIDED (integrator, 2026-10-02)
+# D10c. The makepad remote bridge needs a per-launch token and refuses browser requests; the daily APK has no bridge: DECIDED (integrator + supervisor, 2026-10-02)
 
 Found by the judge while preparing the APK rebuild.
 
@@ -26,6 +26,19 @@ No evidence of misuse; the exposure is the design gap itself.
 
 ## Decision
 
+0. **A per-launch token on every request** (the supervisor's follow-up: header checks stop browsers, not local
+   programs or other phone apps).
+   - At start the bridge takes `MAKEPAD_REMOTE_TOKEN` when given (at run time, or baked in at build time on phones,
+     like the port). Otherwise it generates `mprt_` + 32 bytes from /dev/urandom, as hex.
+   - It writes the token to `<tmp>/makepad-remote/port-<PORT>.token` (directory 0700, file 0600) and refuses every
+     request without `X-Makepad-Token: <token>` (403 `{"err":"token"}`). The comparison is constant-time.
+   - The token is never printed or logged; the listening line names only the file.
+   - Clients:
+     - `tools/walk/bridgeauth.py`: importing it installs a urllib opener that sends the token for a loopback port
+       with a token file. Every walk, judge and outer script that drives the bridge imports it.
+     - `harness/bcurl`: curl with the token as a header read from a file descriptor, never on a command line.
+       `harness/headless.sh` and the outer scripts use it.
+   - The `mprt_` prefix lets `repo_hermetic` fail any tracked file that carries a token.
 1. **Browser guard in the bridge**, as one tracked patch, `patches/makepad/remote-browser-guard.patch`, applied to
    every tree by `scripts/apply-makepad-patches.sh` (host, octosense-fork and apk-build `.sources`, and apk-build
    `.mk`). The patch:
@@ -38,10 +51,23 @@ No evidence of misuse; the exposure is the design gap itself.
    device-test APK must be asked for explicitly (`--build-test-bridge`, printed as a warning), and is never the
    operator's daily install.
 
-The desktop Dev.app keeps the bridge (the judge checks it is up and connected). With the guard, no web page can reach
-it. Local processes of the same user are trusted on desktop in any case.
+The desktop Dev.app keeps the bridge (the judge checks it is up and connected). With the token and the guard, no web
+page and no other user's process can drive it. A process of the same user that reads the 0600 token file can, as it
+can read any of that user's files. On the phone, only a device-test APK has a bridge at all.
 
 ## Proof
+
+Token: host build be2ed9e8 + the patch, app on a scratch port.
+- The token file is `-rw-------` and its directory `drwx------`.
+- No token -> 403 `{"err":"token"}`; a wrong token -> 403.
+- `harness/bcurl` (with and without a scheme), urllib with `bridgeauth`, and `snap_has.py` -> 200; urllib without it
+  -> 403.
+- The token plus `Origin` or `Sec-Fetch-Site` -> 403.
+- The token is in the app log 0 times and on no other process's command line.
+- `headless.sh` start/stop, run.py walks (a26_palettes 52/52, a3_chrome 47/47 + 40/40, a9_prefs 28/28 at desktop
+  and phone) and the judge tour (live, 12 captures, 0 flags) all pass through the token.
+
+Browser guard:
 
 - Host build d07ca8cc + the patch, app on a scratch port:
   - plain curl / urllib / `Host: localhost` -> 200;
@@ -57,5 +83,4 @@ it. Local processes of the same user are trusted on desktop in any case.
 
 ## Upstream
 
-The guard is small and general, so it can go upstream with D10b's notification PR. That PR is for the operator to
-open; no agent opens it.
+`D10c-upstream-pr.md` is the PR draft for the operator to submit. No agent opens it.

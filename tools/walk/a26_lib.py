@@ -18,6 +18,7 @@ import urllib.request
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import a10_lib  # noqa: E402
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 # The window background each look draws (screens/theme.rs: the light /
 # dark shell roles, each named palette's --display-surface).
