@@ -204,6 +204,13 @@ impl Core {
         Core::stream(self.world.clone(), tx, session.to_owned(), turn.to_owned(), ticks);
     }
 
+    /// The server pushes a notification (the socket's writer).
+    fn notify(&self, method: &str, params: Value) {
+        if let Some(tx) = self.push.lock().unwrap().as_ref() {
+            let _ = tx.send(note(method, params));
+        }
+    }
+
     fn hold_history(&self, session: &str) {
         self.world.lock().unwrap().held.insert(session.to_owned());
     }
@@ -468,5 +475,43 @@ async fn the_queue_and_recovery_controls_act_on_the_session_they_were_tapped_in(
     conv.continue_without_turn_in(&x);
     assert!(conv.store.domains.composer.recovery(&x).is_none(), "X's own hold is released");
     assert!(conv.store.domains.composer.snapshot(&x).active.is_none());
+    quit(&conv);
+}
+
+/// The approval keys (A22 audit, the row-250 class): an approval pending in
+/// X never turns Y/S/N into a decision while Y is on screen — nothing is
+/// answered there under Y's id — and in X the keys answer X's own approval
+/// under X. The shape is the recorded r5 `approval/requested`.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn the_approval_keys_answer_only_the_approval_of_the_session_on_screen() {
+    use octoscode_module::screens::keys::{self, KeyAction};
+    let core = Core::start().await;
+    let conv = launch(&core).await;
+    let x = conv.session_id();
+    let y = "a22:api:y";
+    let approval = "01a0e773-f844-7d50-b171-b38d159f02aa";
+    let tx = run_long_turn(&conv, &core, "a job in X that asks").await;
+    open(&conv, y).await;
+    core.notify("approval/requested", json!({
+        "approval_id": approval, "approval_kind": "command", "body": "printf a22", "risk": "low",
+        "session_id": x, "title": "A22 approval", "tool_name": "shell", "turn_id": tx,
+        "typed_details": {"command": {"argv": ["printf", "a22"], "command_line": "printf a22",
+                                      "tool_call_id": "a22-approval-1"}, "kind": "command"}
+    }));
+    until("X's approval is pending", || conv.store.domains.approval.detail(approval).is_some()).await;
+    // In Y: the keys see no approval of Y — no decision, nothing sent.
+    let in_y = conv.store.active_session().unwrap();
+    assert_eq!(in_y, y);
+    assert_eq!(keys::oldest_pending_id_in(&conv.store, &in_y), None, "Y shows no approval");
+    assert_eq!(keys::key_decision(&conv.store, &in_y, &KeyAction::ApprovalApproveRequest), None);
+    assert!(!conv.ui().lock().unwrap().approval_pending(), "Y's window is not waiting on X's approval");
+    // Back in X: the key answers X's own approval, under X.
+    open(&conv, &x).await;
+    let body = keys::key_decision(&conv.store, &x, &KeyAction::ApprovalApproveRequest).expect("X's approval");
+    assert_eq!((body["approval_id"].clone(), body["session_id"].clone()), (json!(approval), json!(x)), "{body}");
+    conv.client().request("approval/respond", body).await.expect("sent");
+    let sent = core.params_of("approval/respond");
+    assert_eq!(sent.len(), 1, "exactly the one decision made in X: {sent:?}");
+    assert_eq!(sent[0]["session_id"], json!(x));
     quit(&conv);
 }

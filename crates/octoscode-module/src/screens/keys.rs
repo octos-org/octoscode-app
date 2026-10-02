@@ -258,6 +258,39 @@ pub fn oldest_pending_id(store: &Store) -> Option<String> {
         .map(|a| a.id)
 }
 
+/// A22 audit — the approval the keyboard answers in `session`: the card
+/// that Session shows (its payload names it — the same row the card's own
+/// buttons answer, `surfaces::perform` `showing(session)`), never another
+/// Session's; a row with no payload (a proof seed) names no Session and is
+/// answerable as before. [`oldest_pending_id`] is the store-wide FIFO.
+pub fn oldest_pending_id_in(store: &Store, session: &str) -> Option<String> {
+    if let Some((p, _)) = store.domains.approval.showing(session) {
+        return Some(p.id);
+    }
+    store
+        .domains
+        .approval
+        .pending()
+        .into_iter()
+        .find(|a| !a.decided && !a.cancelled && store.domains.approval.detail(&a.id).is_none())
+        .map(|a| a.id)
+}
+
+/// A22 audit — the diff preview id of the row [`oldest_pending_id_in`]
+/// returns for `session`, so `D` and Y/S/N act on the same card.
+pub fn preview_id_in(store: &Store, session: &str) -> Option<String> {
+    let id = oldest_pending_id_in(store, session)?;
+    store.domains.approval.pending().into_iter().find(|a| a.id == id).and_then(|a| a.preview_id)
+}
+
+/// A22 audit — the `approval/respond` body a decision key sends in
+/// `session` (the Session on screen when it was pressed): its own showing
+/// approval, under its own id; `None` = nothing to answer there.
+pub fn key_decision(store: &Store, session: &str, action: &KeyAction) -> Option<serde_json::Value> {
+    let id = oldest_pending_id_in(store, session)?;
+    respond_body(action, session, &id)
+}
+
 /// #P4f2 row 7: the diff preview id of the SAME FIFO row
 /// [`oldest_pending_id`] returns, so `D` and Y/S/N can never act on different
 /// cards. `None` when the showing approval is not a diff approval — the web's

@@ -5885,13 +5885,17 @@ impl OctoscodeView {
                 // handler lands pushed cards — or the flow's own flag
                 // (module-driven transports). The FlowUi flag alone missed
                 // server-pushed cards (the first live drive's dead Y).
+                // A22 audit — the approval of the Session ON SCREEN only:
+                // another Session's pending approval never turns Y/S/N into
+                // a decision here (it was answered under this Session's id).
+                let key_session = store.active_session().unwrap_or_default();
                 let approval_pending =
-                    crate::screens::keys::oldest_pending_id(&store).is_some()
+                    crate::screens::keys::oldest_pending_id_in(&store, &key_session).is_some()
                         || ui.lock().unwrap().approval_pending();
                 // #P4f2 row 7: the SHOWING approval's diff preview id, from the
                 // same FIFO row the decision keys answer, so `D` and Y/S/N can
                 // never act on different cards.
-                let approval_preview = crate::screens::keys::preview_id(&store);
+                let approval_preview = crate::screens::keys::preview_id_in(&store, &key_session);
                 let action = crate::screens::keys::resolve(
                     e.key_code,
                     e.modifiers.shift,
@@ -6008,25 +6012,18 @@ impl OctoscodeView {
                     | KeyAction::ApprovalApproveSession
                     | KeyAction::ApprovalDenyRequest => {
                         if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
-                            let approval_id = crate::screens::keys::oldest_pending_id(&store);
-                            if let Some(approval_id) = approval_id {
-                                let body = crate::screens::keys::respond_body(
-                                    &action,
-                                    &conv.session_id(),
-                                    &approval_id,
-                                );
-                                if let Some(body) = body {
-                                    let client = conv.client().clone();
-                                    rt.spawn(async move {
-                                        if let Err(e) =
-                                            client.request("approval/respond", body).await
-                                        {
-                                            ::log::warn!("octoscode: approval/respond: {e}");
-                                        }
-                                    });
-                                }
+                            // A22 audit — the decision is the Session on
+                            // screen's own approval, under its own id.
+                            let session = store.active_session().unwrap_or_default();
+                            if let Some(body) = crate::screens::keys::key_decision(&store, &session, &action) {
+                                let client = conv.client().clone();
+                                rt.spawn(async move {
+                                    if let Err(e) = client.request("approval/respond", body).await {
+                                        ::log::warn!("octoscode: approval/respond: {e}");
+                                    }
+                                });
                             } else {
-                                ::log::warn!("octoscode: keyboard decision: no pending approval");
+                                ::log::warn!("octoscode: keyboard decision: no pending approval in {session}");
                             }
                         }
                     }
