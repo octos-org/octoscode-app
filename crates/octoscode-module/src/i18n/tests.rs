@@ -269,6 +269,87 @@ fn a_switch_re_renders_the_lowered_surfaces() {
     assert_eq!(kit_header(), kit_en);
 }
 
+/// The native-only supplement never shadows the web: a key the web catalog
+/// (or an alias) translates must not be here — the web's wording wins, and
+/// the day the web adds a key this test names the entry to delete.
+#[test]
+fn the_native_supplement_never_shadows_the_web() {
+    let mut seen = std::collections::HashSet::new();
+    for (en, zh) in native::NATIVE_ZH {
+        assert!(seen.insert(*en), "duplicate native key {en:?}");
+        assert!(web_zh(en).is_none(), "{en:?} has the web's Chinese ({:?}): drop the native entry", web_zh(en));
+        assert!(alias::web_key(en).is_none(), "{en:?} is an alias");
+        assert_eq!(tr_in(Lang::Zh, en), *zh, "{en:?} resolves to the native entry");
+        assert_eq!(tr_in(Lang::En, en), *en);
+    }
+}
+
+/// Every native value keeps its placeholders and reads Chinese.
+#[test]
+fn every_native_entry_keeps_its_placeholders_and_is_chinese() {
+    for (en, zh) in native::NATIVE_ZH {
+        assert_eq!(placeholders(zh), placeholders(en), "{en:?}");
+        assert!(
+            zh.chars().any(|c| ('\u{4e00}'..='\u{9fff}').contains(&c)),
+            "{en:?} -> {zh:?}: no Chinese"
+        );
+        assert!(!zh.trim().is_empty() && zh.trim() == *zh || zh.starts_with('\u{b7}'), "{en:?}: stray whitespace");
+    }
+}
+
+/// The native copy uses the web's own vocabulary (`native::GLOSSARY`, the
+/// web catalog's rendering of each term): a native entry naming "Session"
+/// says 会话, "Profile" 配置档案, "workspace" 工作区, …
+#[test]
+fn the_native_copy_uses_the_web_vocabulary() {
+    fn has_word(text: &str, term: &str) -> bool {
+        // A `{placeholder}` name is not a word of the copy.
+        let mut words = String::new();
+        let mut depth = 0;
+        for c in text.chars() {
+            match c {
+                '{' => depth += 1,
+                '}' if depth > 0 => depth -= 1,
+                _ if depth == 0 => words.push(c),
+                _ => words.push(' '),
+            }
+        }
+        let lower = words.to_lowercase();
+        let mut from = 0;
+        while let Some(at) = lower[from..].find(term).map(|n| n + from) {
+            let before = lower[..at].chars().next_back();
+            let after_at = at + term.len();
+            let rest = &lower[after_at..];
+            let rest = rest.strip_prefix("es").or_else(|| rest.strip_prefix('s')).unwrap_or(rest);
+            let after = rest.chars().next();
+            let word = |c: Option<char>| c.is_some_and(|c| c.is_alphanumeric() || c == '_');
+            if !word(before) && !word(after) {
+                return true;
+            }
+            from = at + 1;
+        }
+        false
+    }
+    let mut bad = Vec::new();
+    for (en, zh) in native::NATIVE_ZH {
+        for (term, renderings) in native::GLOSSARY {
+            if !has_word(en, term) || native::GLOSSARY_EXEMPT.contains(&(*en, *term)) {
+                continue;
+            }
+            if !renderings.iter().any(|r| zh.contains(r)) {
+                bad.push(format!("{en:?} -> {zh:?}: {term:?} should read {renderings:?}"));
+            }
+        }
+    }
+    assert!(bad.is_empty(), "native copy off the web's vocabulary:\n{}", bad.join("\n"));
+    // The glossary itself is the web's: each rendering occurs in the catalog.
+    for (term, renderings) in native::GLOSSARY {
+        for r in *renderings {
+            assert!(catalog().values().any(|v| v.contains(r)), "{term}: {r} is not the web's vocabulary");
+        }
+    }
+}
+
 /// One string, two spellings: native copy with typographic quotes finds the
 /// web key written with straight ones (and only that — no other folding).
 #[test]

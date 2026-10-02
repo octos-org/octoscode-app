@@ -499,20 +499,26 @@ fn no_converted_surface_bypasses_tr() {
 /// The rest of `screens/` (phase 2): counted, and the count may only fall.
 #[test]
 fn the_remaining_screens_only_get_fewer_bypasses() {
-    let mut per_file: BTreeMap<String, usize> = BTreeMap::new();
+    let mut per_file: BTreeMap<String, Vec<(usize, String, String)>> = BTreeMap::new();
     for rel in screens_files() {
         if CONVERTED.contains(&rel.as_str()) {
             continue;
         }
-        let n = bypasses(&read(&rel)).len();
-        if n > 0 {
-            per_file.insert(rel, n);
+        let found = bypasses(&read(&rel));
+        if !found.is_empty() {
+            per_file.insert(rel, found);
         }
     }
-    let total: usize = per_file.values().sum();
+    let total: usize = per_file.values().map(Vec::len).sum();
     println!("A24 phase-2 remainder: {total} bypass(es) in {} file(s):", per_file.len());
-    for (f, n) in &per_file {
-        println!("  {n:4}  {f}");
+    for (f, found) in &per_file {
+        println!("  {:4}  {f}", found.len());
+    }
+    // `--nocapture` lists each one (file:line, the builder, the text).
+    for (f, found) in &per_file {
+        for (line, call, text) in found {
+            println!("    {f}:{line} {call}… {text:?}");
+        }
     }
     assert!(total <= REMAINING_CEILING, "{total} > the ceiling {REMAINING_CEILING}: new copy bypasses tr()");
 }

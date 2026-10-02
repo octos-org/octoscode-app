@@ -4180,9 +4180,9 @@ impl OctoscodeView {
                 // FileDialogAction in a later actions pass.
                 cx.open_select_file_dialog(
                     FileDialog::new()
-                        .set_title("Choose image files".to_owned())
+                        .set_title(i18n::tr("Choose image files").to_owned())
                         .add_filter(
-                            "Images".to_owned(),
+                            i18n::tr("Images").to_owned(),
                             ["png", "jpg", "jpeg", "gif", "webp"].iter().map(|s| s.to_string()).collect(),
                         )
                         .set_multiple(true)

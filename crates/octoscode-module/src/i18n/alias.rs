@@ -9,8 +9,10 @@
 //! for the same control; a test proves every key is in the web catalog and
 //! that both sides carry the same placeholders.
 //!
-//! A native string with no web counterpart is not listed here: it stays
-//! English in Chinese and is reported as copy without a web key.
+//! A native string with no web counterpart is not listed here: its reviewed
+//! Chinese lives in the native-only supplement (`native.rs`, consulted after
+//! this table). An alias is kept only when the web key's Chinese is a correct
+//! rendering of the native text; a looser "generic" match is a native entry.
 use std::collections::HashMap;
 use std::sync::OnceLock;
 
@@ -28,16 +30,11 @@ const fn a(native: &'static str, web: &'static str, cite: &'static str) -> Alias
     Alias { native, web, cite }
 }
 
-/// Every alias, grouped by surface. "generic" marks an entry whose web
-/// control is worded around the browser (or names no exact counterpart), so
-/// the alias is the web's generic key for the same action — still the web's
-/// own translation.
+/// Every alias, grouped by surface.
 pub static ALIASES: &[Alias] = &[
     // ---- the sidebar (board 2 screens 1-5; web features/shell/ProductSidebar.tsx)
     a("New chat", "New Session", "features/shell/ProductSidebar.tsx:558"),
     a("Search chats", "Search sessions", "features/shell/ProductSidebar.tsx:568"),
-    // generic: the workspace menu's new-session item (the menu names the workspace)
-    a("New chat here", "New session", "features/shell/ProductSidebar.tsx:553"),
     a("By workspace", "Workspace", "features/shell/ProductSidebar.tsx:1107"),
     a("All", "In one list", "features/shell/ProductSidebar.tsx:1117"),
     a("No chats yet.", "No sessions yet.", "features/shell/ProductSidebar.tsx:848"),
@@ -48,8 +45,6 @@ pub static ALIASES: &[Alias] = &[
     // ---- Settings (web features/product-settings, session-config, connection)
     a("Stop server\u{2026}", "Stop server", "features/product-settings/GeneralSettingsContent.tsx:332"),
     a("Advanced\u{2026}", "Advanced", "features/session-config/SessionConfigPane.tsx:367"),
-    // generic: the web's button is "Save browser preferences" (names the browser)
-    a("Save preferences", "Save", "features/product-settings/ModelManagementSection.tsx:914"),
     // the server-address row (About; the Connect card and pairing's field)
     a("Server", "Server origin", "features/connection/ConnectionPanel.tsx:199"),
     a("Server defaults", "server default", "features/autonomy/AutonomyPanel.tsx:126"),
@@ -75,13 +70,8 @@ pub static ALIASES: &[Alias] = &[
     a("Inspect tool availability", "Inspect server-owned tool availability and policy", "features/commands/registry.ts:349"),
     a("Inspect MCP connections", "Inspect server-reported MCP connections", "features/commands/registry.ts:358"),
     // ---- the composer, its strip and the connection banner
-    // generic: the queued chip's steer action (the Fleet's Steer)
-    a("Steer now", "Steer", "features/fleet/FleetView.tsx:730"),
     a("Reconnecting\u{2026}", "Reconnecting", "features/session-config/SessionStatusStrip.tsx:68"),
     a("Running", "running", "features/timeline/Timeline.tsx:401"),
-    // generic: the banner's title and its retry action
-    a("Not connected to Octos", "Not connected", "features/product-settings/GeneralSettingsContent.tsx:158"),
-    a("Retry now", "Retry", "features/shell/ProductSidebar.tsx:696"),
     // ---- the Connect card and pairing (web features/connection/ConnectionPanel.tsx)
     a("Access token", "Auth token", "features/connection/ConnectionPanel.tsx:246"),
     a("That pairing link didn\u{2019}t work.", "That pairing link did not work", "features/connection/ConnectionPanel.tsx:174"),

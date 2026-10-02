@@ -2142,7 +2142,11 @@ impl ChromeRuntime {
                 cx,
                 view,
                 ids!(hd_held_text),
-                &tr_with("This session is open in {who}. You can read along; take over to send.", &[("who", &who)]),
+                // A24: the fallback holder name is copy (a driver id is data).
+                &tr_with(
+                    "This session is open in {who}. You can read along; take over to send.",
+                    &[("who", if who == ANOTHER_CLIENT { tr(ANOTHER_CLIENT) } else { who.as_str() })],
+                ),
             );
         }
 
@@ -2241,12 +2245,11 @@ impl ChromeRuntime {
         // Model.
         text(cx, view, &[live_id!(set_model), live_id!(vb_text)], &settings::model_of(store));
         let thinking = settings::thinking_of(store);
-        // A24: the web has no key for "Off" / "On": this one control stays
-        // English rather than read "Off | On | 高" (i18n::keep).
-        use crate::i18n::keep;
-        set_segment(cx, view, live_id!(th_off), keep("Off"), thinking == settings::Thinking::Off);
-        set_segment(cx, view, live_id!(th_on), keep("On"), thinking == settings::Thinking::On);
-        set_segment(cx, view, live_id!(th_high), keep("High"), thinking == settings::Thinking::High);
+        // A24: one control, one language — "Off" / "On" are native-supplement
+        // entries, "High" the web's (关 | 开 | 高).
+        set_segment(cx, view, live_id!(th_off), tr("Off"), thinking == settings::Thinking::Off);
+        set_segment(cx, view, live_id!(th_on), tr("On"), thinking == settings::Thinking::On);
+        set_segment(cx, view, live_id!(th_high), tr("High"), thinking == settings::Thinking::High);
         show(cx, view, ids!(set_models_row), crate::screens::dialog::advertises(store, "profile/llm/list"));
         // Sandbox (new-chat defaults).
         set_toggle(cx, view, live_id!(tg_sb_write), st.sandbox.workspace_write);
@@ -2486,6 +2489,9 @@ pub fn set_held(session: &str, holder: Option<Holder>) {
     }
 }
 
+/// The holder name when the binding carries no driver id (product copy).
+pub const ANOTHER_CLIENT: &str = "another client";
+
 /// Classify a `session/driver/get` result (the web's `seatHolderKind`,
 /// seat-holder.ts:18-29; the wire per `parseSessionDriverGetResult`,
 /// external-driver.ts:148-193): a foreign holder only when the mode is
@@ -2502,7 +2508,7 @@ pub fn foreign_holder(result: &serde_json::Value, own: &str) -> Option<Holder> {
     Some(Holder {
         label: driver
             .filter(|s| !s.trim().is_empty())
-            .unwrap_or("another client")
+            .unwrap_or(ANOTHER_CLIENT)
             .to_owned(),
         revision: binding
             .and_then(|b| b.get("revision"))
