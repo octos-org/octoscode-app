@@ -24,6 +24,21 @@ import time
 
 from a10_lib import Walk, checks_line, dialog_checks, run_session
 
+# A11: the walk aggregator's convention (tools/walk/native.py; read with ast).
+WALK = {
+    "name": "a10_seats",
+    "title": "the composer's permission and model seats: presets, the full-access confirmation, model menu",
+    "modes": ["desktop", "phone"],
+    "app": "self",
+    "runs": [{"argv": ["{mode}", "{out}"], "env": {"A10_PORT": "{port}", "A10_REPLAY_PORT": "{fport}"}}],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 900,
+    "rows": {
+        163: ["permission: approval pill CLICK -> the menu above it", "permission: 'Full access' CLICK -> the confirmation",
+              "risk: 'Enable full access' is inert until the box is ticked", "risk: 'Enable full access' CLICK"],
+    },
+}
+
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a10/seats/{MODE}"
 

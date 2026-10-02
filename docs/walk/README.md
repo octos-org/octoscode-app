@@ -39,10 +39,12 @@ effect. run.py runs them through `tools/walk/native.py` and **re-points** the
 walk rows they prove: those rows' verdicts come from the native checks, not
 from run.py's area-matched Phase-3 checks.
 
-**Picked up by convention, no registration.** Any `tools/walk/*_walk.py` or
-`tools/*/*_walk.py` with a top-level literal `WALK = {...}` is a native walk
-(read with `ast`, never imported). `python3 tools/walk/native.py` lists what it
-finds. The literal says how to launch it and which rows it proves:
+**Picked up by convention, no registration.** Any `tools/walk/*.py` or
+`tools/*/*.py` with a top-level literal `WALK = {...}` is a native walk (read
+with `ast`, never imported; `*_walk.py` is the habit — A10's walks are
+`a10_<area>.py` and take the aggregator's ports from `A10_PORT` /
+`A10_REPLAY_PORT`). `python3 tools/walk/native.py` lists what it finds. The
+literal says how to launch it and which rows it proves:
 
 ```python
 WALK = {
@@ -63,9 +65,10 @@ The full schema (placeholders, per-run `app_env` / `fixture_env` /
 
 **Isolation (brief §8).** Every app the aggregator launches gets a fresh state
 tree under `tmp/walk/native/<walk>-<mode>/state/` for drafts, credentials,
-preferences, notifications, recents, show-thinking, downloads and display
-preferences (`tools/walk/walk_env.py`); a "self" walk inherits the same
-environment. The phone is launched straight into OctosCode
+preferences, notifications, recents, show-thinking, downloads, display
+preferences, the driver id and the Session pane's Advanced memory
+(`tools/walk/walk_env.py`); a "self" walk inherits the same environment (A10's
+`run_session` sets its own per-run tree). The phone is launched straight into OctosCode
 (`--test-action page:0 --test-action launch-octoscode`, 360x780).
 
 **A row's native verdict** is the AND of every mapped check in every mode a

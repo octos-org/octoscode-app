@@ -5,10 +5,12 @@ of the subagents' native click walks, not only run.py's own checks.
 
 ## The convention (how a walk is picked up — no registration)
 
-Any `tools/walk/*_walk.py` or `tools/*/*_walk.py` that carries a top-level
-literal `WALK = {...}`. It is read with `ast.literal_eval` — the script is
+Any `tools/walk/*.py` or `tools/*/*.py` that carries a top-level literal
+`WALK = {...}` (a `*_walk.py` name is the habit, not the rule: A10's walks
+are `a10_<area>.py`). It is read with `ast.literal_eval` — the script is
 NEVER imported (walk scripts parse argv / touch files at import time). A
-script without a `WALK` literal is listed as "not a native walk" and skipped.
+`*_walk.py` without a `WALK` literal is listed as "not a native walk" and
+skipped.
 
     WALK = {
         "name": "a2_board1",                  # unique; names the evidence
@@ -91,13 +93,26 @@ DEFAULT_READY = ["connect_btn", "b1_connect_pair", "i0_composer_0", "sidebar_tog
 
 # ------------------------------------------------------------------ discovery
 
+NAMED = ("tools/walk/*_walk.py", "tools/*/*_walk.py")
+ANY = ("tools/walk/*.py", "tools/*/*.py")
+
+
 def walk_paths(root: pathlib.Path = ROOT) -> list:
+    """Every `*_walk.py`, plus any other tools script that carries a top-level
+    `WALK = {` literal (A10's walks are `a10_<area>.py`)."""
     seen, out = set(), []
-    for pattern in ("tools/walk/*_walk.py", "tools/*/*_walk.py"):
+    for pattern in NAMED + ANY:
         for p in sorted(root.glob(pattern)):
-            if p.resolve() not in seen:
-                seen.add(p.resolve())
-                out.append(p)
+            if p.resolve() in seen:
+                continue
+            if pattern in ANY:
+                try:
+                    if "\nWALK = {" not in p.read_text(errors="ignore"):
+                        continue
+                except OSError:
+                    continue
+            seen.add(p.resolve())
+            out.append(p)
     return out
 
 

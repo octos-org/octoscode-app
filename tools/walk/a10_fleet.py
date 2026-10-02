@@ -23,6 +23,41 @@ import time
 
 from a10_lib import Walk, checks_line, dialog_checks, inside, run_session
 
+# A11: the walk aggregator's convention (tools/walk/native.py; read with ast,
+# never imported). run_session takes the aggregator's ports from A10_PORT /
+# A10_REPLAY_PORT; {out} keeps its captures out of the committed docs/ux/a10.
+WALK = {
+    "name": "a10_fleet",
+    "title": "Fleet: the pane, lane picker, Start (one dispatch), row actions, Finished, Advanced, the seat",
+    "modes": ["desktop", "phone"],
+    "app": "self",
+    "runs": [{"argv": ["{mode}", "{out}"], "env": {"A10_PORT": "{port}", "A10_REPLAY_PORT": "{fport}"}}],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 900,
+    "rows": {
+        128: ["fleet: Fleet entry CLICK -> the Fleet pane", "fleet: the Model picker CLICK opens the two advertised lanes"],
+        129: {"checks": ["fleet: Start is disabled with no lane and no brief", "fleet: Start CLICK -> FleetStart job"],
+              "partial": "disabled with neither a lane nor a brief, live with both; the lane-only state is not asserted"},
+        130: ["fleet: Start CLICK -> FleetStart job", "fleet: the wire was acquire -> prepare -> ONE dispatch",
+              "fleet: the adopted row"],
+        131: ["fleet: three Starts = three DISTINCT operation ids on the wire"],
+        132: ["fleet: Steer CLICK -> ONE peer/control(steer)"],
+        133: ["fleet: Approve CLICK -> peer/control(approval_respond)", "fleet: the row says 'Sent'"],
+        134: ["fleet: Stop CLICK -> peer/control(interrupt)", "wire: peer/control x5"],
+        136: ["fleet: Start on lane-review -> the typed refusal", "fleet: the refused staging settles"],
+        137: {"checks": ["fleet: Advanced CLICK opens the session controller",
+                         "fleet: the disclosure CLICK opens the read-only driver facts"],
+              "partial": "the console opens behind Advanced; its absence before that is not asserted"},
+        138: {"checks": ["fleet: Start is disabled with no lane and no brief",
+                         "fleet: the Model picker CLICK opens the two advertised lanes",
+                         "fleet: choosing lane-primary shows its provider/model"],
+              "partial": "the picker's advertised lanes are the only source; a hand-typed lane is not attempted"},
+        122: {"checks": ["fleet: Approve CLICK", "fleet: Steer CLICK", "fleet: Answer CLICK", "fleet: Stop CLICK",
+                         "wire: peer/control x5"],
+              "partial": "one frame per command from Fleet's row actions; the seat panel's own buttons are not each walked"},
+    },
+}
+
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a10/fleet/{MODE}"
 # A10's app port is 8420; the replay port is free per run (another agent's

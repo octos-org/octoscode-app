@@ -39,6 +39,9 @@ ISOLATED_KEYS = (
     "OCTOSCODE_SHOW_THINKING_FILE",
     "OCTOSCODE_DOWNLOAD_DIR",
     "OCTOSCODE_DISPLAY_PREFS_PATH",
+    # A10: the per-install driver id and the Session pane's Advanced memory.
+    "OCTOSCODE_DRIVER_ID_PATH",
+    "OCTOSCODE_PANE_ADVANCED_FILE",
 )
 
 PHONE_SIZE = "360x780"
@@ -60,6 +63,10 @@ def isolated_env(state: pathlib.Path) -> dict:
         "OCTOSCODE_DOWNLOAD_DIR": str(state / "downloads"),
         # A9's display preferences (screens/a9_prefs.rs).
         "OCTOSCODE_DISPLAY_PREFS_PATH": str(state / "display-v1.json"),
+        # A10: the per-install driver id (never ~/.octoscode/driver-id) and the
+        # Session pane's Advanced disclosure memory.
+        "OCTOSCODE_DRIVER_ID_PATH": str(state / "driver-id"),
+        "OCTOSCODE_PANE_ADVANCED_FILE": str(state / "session-pane-advanced.json"),
     }
 
 

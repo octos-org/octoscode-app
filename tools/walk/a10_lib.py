@@ -481,6 +481,12 @@ def run_session(walk_fn, *, mode: str, outdir: str, port: int = 8420, replay_por
     app_bin = app_bin or os.environ.get("OCTOSCODE_APP_BIN")
     if not app_bin:
         raise SystemExit("set OCTOSCODE_APP_BIN to the HOST binary (outer/scripts/hostbuild.sh)")
+    # A11: the walk aggregator (tools/walk/native.py) runs these walks in ITS
+    # port block — A10_PORT / A10_REPLAY_PORT override the defaults (unset,
+    # every walk keeps A10's own ports).
+    port = int(os.environ.get("A10_PORT") or port)
+    if replay_port:
+        replay_port = int(os.environ.get("A10_REPLAY_PORT") or replay_port)
     state = ROOT / "tmp" / "hs"
     state.mkdir(parents=True, exist_ok=True)
     replay = None
