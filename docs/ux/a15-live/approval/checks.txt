@@ -1,0 +1,19 @@
+PASS restart: the history shows at startup (no click)
+PASS restart: the stopped turn keeps its notice
+PASS title: the header names the Session (server title) — 'Create a file named judge.txt in this workspace co'
+PASS strip: the model fact is the runtime model — 'deepseek-v4-flash'
+PASS new chat: an empty Session
+PASS defaults line: nothing stored -> the server's defaults (no false 'Ask for approval') — 'New chat defaults · Server default permissions · deepseek-v4-flash · Thinking: On'
+PASS seat: the new Session runs the server default — 'Write · Network allowed'
+PASS settings opens (CLICK Settings)
+PASS permissions section shown
+PASS readback before: the server's selection (Write · Network allowed, asks on request) — 'Server: Write · Network allowed · asks on request'
+PASS CLICK Ask for approval
+PASS readback after: the server applied the preset (Network blocked, asks on request) — 'Server: Write · Network blocked · asks on request'
+PASS seat follows the server: Write · Network blocked — 'Write · Network blocked'
+PASS scratch_dir exists before
+PASS ask mode: the approval card appears for the shell command
+PASS the card names the command — Use your bash tool to run exactly this command, nothing else, and do not ask me first: rm -rf scratch_dir rm -rf scratch
+PASS scratch_dir still there while the card waits
+PASS the turn completes
+PASS Approve once ran it: scratch_dir is gone on disk
