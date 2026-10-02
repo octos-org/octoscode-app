@@ -296,6 +296,11 @@ impl ConnectUi {
                 String::new()
             },
             connecting: self.connecting,
+            hint: if self.failure.is_some() || self.raw_error.is_some() {
+                crate::screens::a9_connect::hint().unwrap_or("").to_owned()
+            } else {
+                String::new()
+            },
         }
     }
 }
@@ -645,7 +650,12 @@ pub fn clock_12h() -> String {
     // Local wall clock (was a hard-coded UTC+8: the lane's own zone).
     let off = crate::flow::local_offset_secs(std::time::SystemTime::now());
     let sod = (now as i64 + off).rem_euclid(86_400) as u64;
-    let (h24, m) = (sod / 3600, (sod % 3600) / 60);
+    clock_12h_of((sod / 3600) as u32, ((sod % 3600) / 60) as u32)
+}
+
+/// `H:MM AM/PM` for a wall-clock hour/minute (A9: split out so the
+/// 12-hour edges are pinned without the clock).
+pub fn clock_12h_of(h24: u32, m: u32) -> String {
     let ampm = if h24 < 12 { "AM" } else { "PM" };
     let h12 = match h24 % 12 {
         0 => 12,

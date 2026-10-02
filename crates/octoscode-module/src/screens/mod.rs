@@ -4,6 +4,16 @@
 //! #29d added `palette` (board 2.8/2.11/2.12) on task/29d while main carried
 //! `connect`/`models`/`workspace` (#29a/#29c) — the #29d2 merge keeps all four.
 //! #30c adds `fleet` (board 3.6/3.7) on task/30c.
+// A9: Activity — the operator-opened cross-session task scan.
+pub mod activity;
+// A9: Settings connection additions (status, info rows, Disconnect/Forget).
+pub mod a9_settings;
+// A9: the fatal + per-surface error boundaries (crash screen, unavailable panel).
+pub mod a9_boundary;
+// A9: the Connect failure probe (unreachable / refused token / origin, honestly).
+pub mod a9_connect;
+// A9: display preferences (the web's display.v1 whitelist; Vim editing).
+pub mod a9_prefs;
 pub mod autonomy;
 // #A2: board 1 as live, reachable native surfaces (the host + its view kit).
 pub mod board1;

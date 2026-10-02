@@ -1,0 +1,13 @@
+PASS the Connect card shows (nothing reachable at launch)
+PASS an unreachable address: 'Can't reach <address>' — "Can't reach http://127.0.0.1:1"
+PASS …with its actions (check the address · Retry) — Last tried 8:59 PM · check the address · Retry
+PASS …the probe said Unreachable
+SHOT docs/ux/a9-connect/desktop-connect-unreachable.png
+PASS a refused token: 'The server refused this token' — 'The server refused this token'
+PASS …told apart by the probe (401), not guessed
+PASS …with its actions (Re-enter the token · Retry) — Last tried 9:00 PM · Re-enter the token · Retry
+PASS …the token field is given the key focus
+PASS …and keeps the typed value — 14 chars
+PASS the error callout sits inside the card — [471, 196, 416, 52] in [439, 131, 480, 477]
+SHOT docs/ux/a9-connect/desktop-connect-rejected.png
+== WALK a9 connect desktop: 10/10 passed
