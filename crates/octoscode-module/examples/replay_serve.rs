@@ -322,7 +322,15 @@ mod surfaces {
         let r5 = fixture("r5-turn-a6ea8505.jsonl");
         let r5_session = recorded_session(&r5);
         let mut out = Vec::new();
+        // Envelopes after an inserted fixture frame move up one per-thread
+        // seq (the client drops a non-increasing seq as stale).
+        let mut shift = 0u64;
         for f in frames.iter().filter(|f| f.dir == "in" && f.body.get("turn_id").and_then(|t| t.as_str()) == Some(turn)) {
+            let mut f = f.clone();
+            if shift > 0 && f.method == "projection/envelope" {
+                f.body["seq"] = json!(f.body["seq"].as_u64().unwrap_or(0) + shift);
+            }
+            let f = &f;
             match f.method.as_str() {
                 // The app answers; the decision is synthesized from ITS reply.
                 "approval/decided" => continue,
@@ -357,6 +365,23 @@ mod surfaces {
                 }
                 "user_question/requested" => {
                     out.push((f.clone(), Some(Hold::Question)));
+                    continue;
+                }
+                // Turn 2: the tool's delivered file (a fixture `file_attached`
+                // envelope built from the turn's own recorded tool_end frame),
+                // so the transcript shows a Download row the walk can click.
+                "projection/envelope" if n == 1 && f.body["payload"]["type"] == "tool_end" => {
+                    out.push((f.clone(), None));
+                    let mut file = f.clone();
+                    file.body["payload"] = json!({"type": "file_attached", "data": {
+                        "path": "/home/user/src/octos/out/r23-report.pdf",
+                        "mime": "application/pdf",
+                        "size_bytes": 2048,
+                        "attachment_owner": {"tool_call_id": f.body["payload"]["data"]["tool_call_id"]}
+                    }});
+                    file.body["seq"] = json!(f.body["seq"].as_u64().unwrap_or(0) + 1);
+                    out.push((file, None));
+                    shift += 1;
                     continue;
                 }
                 "plan/updated" => {
@@ -541,6 +566,29 @@ async fn main() {
         let standalone = standalone.clone();
         let replies = replies.clone();
         tokio::spawn(async move {
+            // A6 `surfaces`: the web's delivered-file download
+            // (`GET /api/files?path=…&session=…`, `media.ts:147-165`) is plain
+            // HTTP on the same port; answer it with a small PDF body.
+            if label == "surfaces" {
+                let mut head = [0u8; 16];
+                let n = stream.peek(&mut head).await.unwrap_or(0);
+                if String::from_utf8_lossy(&head[..n]).starts_with("GET /api/files") {
+                    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+                    let mut stream = stream;
+                    let mut buf = vec![0u8; 8192];
+                    let k = stream.read(&mut buf).await.unwrap_or(0);
+                    let req = String::from_utf8_lossy(&buf[..k]).to_string();
+                    println!("[replay-serve] surfaces: {}", req.lines().next().unwrap_or(""));
+                    let body = b"%PDF-1.7\n% r23-report (fixture)\n%%EOF\n";
+                    let resp = format!(
+                        "HTTP/1.1 200 OK\r\nContent-Type: application/pdf\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                        body.len()
+                    );
+                    let _ = stream.write_all(resp.as_bytes()).await;
+                    let _ = stream.write_all(body).await;
+                    return;
+                }
+            }
             let Ok(ws) = tokio_tungstenite::accept_async(stream).await else {
                 return;
             };

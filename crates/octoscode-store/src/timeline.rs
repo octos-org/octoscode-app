@@ -293,6 +293,44 @@ impl Timeline {
         id
     }
 
+    /// A6 — a delivered file, idempotent per (turn, file name): the web keys
+    /// the row `file-attached:<turn>:<name>` (`timeline/model.ts:604-615`), so
+    /// a `file_attached` frame and the persisted answer's `meta.media` naming
+    /// the same file — or a replay of either — keep ONE row. The newer data
+    /// is merged over the old (a later frame may add the size or MIME).
+    pub fn upsert_attachment(
+        &self,
+        session: &str,
+        turn_id: Option<String>,
+        path: &str,
+        data: serde_json::Value,
+    ) -> u64 {
+        let name = |p: &str| p.rsplit(['/', '\\']).find(|s| !s.is_empty()).unwrap_or(p).to_owned();
+        let want = name(path);
+        let mut map = self.inner.lock().unwrap();
+        let entries = map.entry(session.to_owned()).or_default();
+        if let Some(e) = entries.iter_mut().find(|e| {
+            e.kind == EntryKind::ATTACHMENT
+                && e.turn_id == turn_id
+                && name(e.data.get("path").and_then(|p| p.as_str()).unwrap_or(&e.text)) == want
+        }) {
+            if let (Some(old), Some(new)) = (e.data.as_object_mut(), data.as_object()) {
+                for (k, v) in new {
+                    if !v.is_null() {
+                        old.insert(k.clone(), v.clone());
+                    }
+                }
+            }
+            return e.id;
+        }
+        let id = self.next_id.fetch_add(1, Ordering::Relaxed);
+        let mut e = TimelineEntry::new(id, turn_id, EntryKind::ATTACHMENT);
+        e.text = path.to_owned();
+        e.data = data;
+        entries.push(e);
+        id
+    }
+
     /// A6 — the next free ordinal notice id `<prefix>:<n>` (the web's
     /// `nextNoticeId`, `entry-model.ts:101-110`): `n` starts at the session's
     /// entry count and skips ids already taken, so two same-millisecond

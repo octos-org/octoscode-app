@@ -194,6 +194,9 @@ pub struct QuestionUi {
     pub focus_visible: bool,
     pub busy: bool,
     pub error: Option<String>,
+    /// The DSL last handed to the mount (`lower_takeover` compares against
+    /// it to tell a remount from a keystroke).
+    pub last_dsl: Option<String>,
 }
 
 impl QuestionUi {

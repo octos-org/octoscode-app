@@ -305,11 +305,11 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
                 // an attachment row, never inline in the body
                 // (`AttachmentList.tsx`).
                 for path in &meta.media {
-                    timeline.append_data(
+                    // A6: one row per (turn, file) — see `upsert_attachment`.
+                    timeline.upsert_attachment(
                         &session,
                         Some(turn_id.clone()),
-                        EntryKind::ATTACHMENT,
-                        path.clone(),
+                        path,
                         serde_json::json!({
                             "path": path,
                             "delivered": true,
@@ -371,11 +371,11 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
                 size_bytes,
                 attachment_owner,
             } => {
-                timeline.append_data(
+                // A6: one row per (turn, file) — see `upsert_attachment`.
+                timeline.upsert_attachment(
                     &session,
                     Some(turn_id.clone()),
-                    EntryKind::ATTACHMENT,
-                    path.clone(),
+                    path,
                     serde_json::json!({
                         "path": path, "mime": mime, "size_bytes": size_bytes,
                         "owner": owner_json(attachment_owner),

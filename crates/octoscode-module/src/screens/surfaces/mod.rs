@@ -184,12 +184,28 @@ pub fn lower_takeover(store: &Store, m: &Metrics) -> Option<Lowered> {
         Takeover::Question(_) => {
             let q = store.domains.approval.question()?;
             let qs = takeover::parse_questions(&q.questions)?;
-            let st = {
-                let mut s = state();
-                s.question.bind(&q, qs.len());
-                s.question.clone()
-            };
-            takeover::question_card(&mut d, &q, &qs, &st, &look);
+            let mut s = state();
+            s.question.bind(&q, qs.len());
+            takeover::question_card(&mut d, &q, &qs, &s.question, &look);
+            let lowered = Lowered::from(d);
+            // Typing never remounts (the card lowers the LAST-MOUNTED text).
+            // When anything else changed — a selection, sending, an error,
+            // the focus ring — the card remounts anyway, so it carries the
+            // typed draft: a failed send keeps the text and the selections
+            // (`final-input.spec.ts`: "long questions retain free text and
+            // selections after a failed response").
+            let draft: Vec<String> = s.question.answers.iter().map(|a| a.free_text.clone()).collect();
+            let remounts = s.question.last_dsl.as_deref().is_some_and(|last| last != lowered.dsl);
+            if remounts && s.question.free_snap != draft {
+                s.question.free_snap = draft;
+                let mut d2 = Dsl::new();
+                takeover::question_card(&mut d2, &q, &qs, &s.question, &look);
+                let carried = Lowered::from(d2);
+                s.question.last_dsl = Some(carried.dsl.clone());
+                return Some(carried);
+            }
+            s.question.last_dsl = Some(lowered.dsl.clone());
+            return Some(lowered);
         }
     }
     Some(Lowered::from(d))

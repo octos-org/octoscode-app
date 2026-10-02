@@ -389,6 +389,10 @@ pub async fn fetch(conv: &crate::flow::Conversation, id: u64, preview: bool) -> 
         Ok(bytes) => {
             let dir = if preview {
                 std::env::temp_dir().join("octoscode-previews")
+            } else if let Some(d) = std::env::var_os("OCTOSCODE_DOWNLOAD_DIR") {
+                // A6: a walk / test saves into its own directory, never the
+                // person's real Downloads folder.
+                std::path::PathBuf::from(d)
             } else {
                 std::env::var("HOME")
                     .map(|h| std::path::PathBuf::from(h).join("Downloads"))
