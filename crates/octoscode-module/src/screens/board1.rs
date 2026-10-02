@@ -100,13 +100,24 @@ impl Ui {
     pub fn returns(&mut self, id: &str, action: &str) {
         self.returns.push((id.to_owned(), action.to_owned()));
     }
+    /// Push what follows to the bottom of a phone sheet (the board anchors
+    /// p4-02's Cancel, p4-03's Connect, p4-05's Forget low on the screen); a
+    /// desktop dialog hugs its content, so there it is a fixed gap.
+    pub fn spacer(&mut self, l: &Layout, desktop_gap: f64, phone_min: f64) {
+        if l.phone {
+            self.push(format!("View {{ width: Fill height: Fill }}\n{}", kit::gap(phone_min)));
+        } else {
+            self.push(kit::gap(desktop_gap));
+        }
+    }
+
     /// The board's header: the back chevron and the centred title. On a phone
     /// the chevron sits on its own row above the title (the atlas); in a
     /// desktop dialog both share one row, the web's dialog header shape
     /// (`NewSessionWorkspacePicker.tsx` header: back button + heading).
     pub fn header(&mut self, l: &Layout, back_id: &str, back_action: &str, title: &str) {
         let t = Text::new("b1_title", title)
-            .px(if l.phone { 22.0 } else { 20.0 })
+            .px(if l.phone { 22.0 } else { 21.0 })
             .weight(600)
             .fill()
             .centered()
@@ -536,6 +547,7 @@ fn picker_view(pk: &PickerUi, l: &Layout) -> Ui {
 
 fn compose(surface: Surface, w: f64, h: f64) -> Ui {
     let l = Layout::of(surface, w, h);
+    kit::set_type_scale(if l.phone { 1.08 } else { 1.0 });
     let body = match surface {
         Surface::Pairing => pairing::view(&pairing::state(), &l),
         Surface::Provider => provider::view(&provider::state(), &l),
@@ -545,6 +557,7 @@ fn compose(surface: Surface, w: f64, h: f64) -> Ui {
             picker_view(&pk, &l)
         }
     };
+    kit::set_type_scale(1.0);
     wrap(body, &l)
 }
 
@@ -552,8 +565,11 @@ fn compose(surface: Surface, w: f64, h: f64) -> Ui {
 fn wrap(body: Ui, l: &Layout) -> Ui {
     let mut ui = Ui { dsl: String::new(), ..body.clone() };
     if l.phone {
+        // An opaque sheet: a plain `View`'s `show_bg` paints nothing on this
+        // fork (the first phone capture showed the Connect card through it),
+        // a `SolidView` does (the desktop scrim below is one).
         ui.dsl = format!(
-            "b1_sheet := View {{ width: Fill height: Fill flow: Down show_bg: true draw_bg.color: {}\nb1_card := View {{ width: Fill height: Fill flow: Down padding: Inset{{left: {} right: {} top: 12 bottom: 20}}\n{}}}\n}}\n",
+            "b1_sheet := View {{ width: Fill height: Fill flow: Overlay\nSolidView {{ width: Fill height: Fill draw_bg.color: {} }}\nb1_card := View {{ width: Fill height: Fill flow: Down padding: Inset{{left: {} right: {} top: 12 bottom: 20}}\n{}}}\n}}\n",
             kit::WHITE,
             l.pad,
             l.pad,
@@ -561,7 +577,7 @@ fn wrap(body: Ui, l: &Layout) -> Ui {
         );
     } else {
         ui.dsl = format!(
-            "View {{ width: Fill height: Fill flow: Overlay\nSolidView {{ width: Fill height: Fill draw_bg.color: #0000004d }}\n{}View {{ width: Fill height: Fill align: Align{{x: 0.5 y: 0.5}} padding: 20\nb1_card := DesignSurface {{ width: {} height: Fit flow: Down\ndraw_bg.color: {} draw_bg.radius: 16 draw_bg.border_width: 1 draw_bg.border_position: 1 draw_bg.border_color: {}\nView {{ width: Fill height: Fit flow: Down padding: Inset{{left: {} right: {} top: 16 bottom: 24}}\n{}}}\n}}\n}}\n}}\n",
+            "View {{ width: Fill height: Fill flow: Overlay\nSolidView {{ width: Fill height: Fill draw_bg.color: #0000003d }}\n{}View {{ width: Fill height: Fill align: Align{{x: 0.5 y: 0.5}} padding: 20\nb1_card := DesignSurface {{ width: {} height: Fit flow: Down\ndraw_bg.color: {} draw_bg.radius: 18 draw_bg.border_width: 1 draw_bg.border_position: 1 draw_bg.border_color: {}\nView {{ width: Fill height: Fit flow: Down padding: Inset{{left: {} right: {} top: 16 bottom: 24}}\n{}}}\n}}\n}}\n}}\n",
             kit::hit("b1_backdrop", false),
             l.card_w,
             kit::WHITE,
@@ -693,7 +709,7 @@ pub fn note_context(ctx: &Context) {
             if top() == Some(Surface::Pairing) {
                 pop();
             }
-            ::log::info!("[octoscode] pairing: connected — the paired token is live");
+            makepad_widgets::log!("[octoscode] pairing: connected — the paired token is live");
         } else if ctx.connect_failed {
             host().awaiting_connect = false;
             pairing::connect_failed(&mut pairing::state());
@@ -797,7 +813,7 @@ pub fn settings_entries() -> Ui {
     let mut v = Ui::default();
     let row = |label: &str, id: &str, action_label: &str| {
         format!(
-            "View {{ width: Fill height: 32 flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8\n{}{}}}\n",
+            "View {{ width: Fill height: 32 flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8 padding: Inset{{left: 4}}\n{}{}}}\n",
             Text::new("", label).px(13.0).fill().one_line().dsl(),
             kit::link(id, action_label, kit::BLUE, 13.0, 500)
         )
@@ -827,39 +843,34 @@ pub fn entry_controls() -> Vec<(String, String)> {
 
 // ------------------------------------------------------------- execution
 
-/// Run one async [`Work`] on the module's runtime. UI-integration work
-/// (Connect, LeaveToForm, Scan, Forget) is the host's and is NOT handled here.
-pub fn spawn(work: Work, rt: &tokio::runtime::Runtime, conv: Option<Arc<Conversation>>) {
+/// Run one async [`Work`] to completion — the production half of every
+/// board-1 action that talks to a server (what [`spawn`] runs on the module's
+/// runtime; the transport tests drive it directly). UI-integration work
+/// (Connect, LeaveToForm, Scan, Forget) is the host's (`lib.rs`
+/// `perform_board1_work`) and is refused here.
+pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), String> {
     let need_conv = |what: &str| {
-        ::log::warn!("[octoscode] board1 {what}: no connection yet");
+        makepad_widgets::log!("[octoscode] board1 {what}: no connection yet");
+        Err(format!("board1 {what}: no connection yet"))
     };
-    match work {
+    let out = match work {
         Work::PairExchange { link, generation } => {
-            rt.spawn(async move {
-                let result = octoscode_client::pairing::claim_pairing_code(&link).await;
-                // The kind is logged, never the code or the token.
-                match &result {
-                    Ok(_) => ::log::info!("[octoscode] pairing: claim accepted"),
-                    Err(k) => ::log::info!("[octoscode] pairing: claim refused ({})", k.as_str()),
-                }
-                let out = pairing::finish_exchange(&mut pairing::state(), generation, result);
-                if let Some(pairing::Out::Connect { server, token }) = out {
-                    leave_for_host(Work::Connect { server, token });
-                    awaiting_connect(true);
-                }
-                mark_dirty();
-                SignalToUI::set_ui_signal();
-            });
+            let result = octoscode_client::pairing::claim_pairing_code(&link).await;
+            // The kind is logged, never the code or the token.
+            match &result {
+                Ok(_) => makepad_widgets::log!("[octoscode] pairing: claim accepted"),
+                Err(k) => makepad_widgets::log!("[octoscode] pairing: claim refused ({})", k.as_str()),
+            }
+            let out = pairing::finish_exchange(&mut pairing::state(), generation, result);
+            if let Some(pairing::Out::Connect { server, token }) = out {
+                awaiting_connect(true);
+                leave_for_host(Work::Connect { server, token });
+            }
+            Ok(())
         }
         Work::ProviderLoad => {
             let Some(conv) = conv else { return need_conv("provider load") };
-            rt.spawn(async move {
-                if let Err(e) = provider::load(&conv).await {
-                    ::log::warn!("[octoscode] board1 provider load: {e}");
-                }
-                mark_dirty();
-                SignalToUI::set_ui_signal();
-            });
+            provider::load(&conv).await
         }
         Work::ProviderTransport(effect) => {
             let Some(conv) = conv else {
@@ -867,40 +878,31 @@ pub fn spawn(work: Work, rt: &tokio::runtime::Runtime, conv: Option<Arc<Conversa
                 mark_dirty();
                 return need_conv("provider save");
             };
-            rt.spawn(async move {
-                match provider::perform_transport(&conv, effect).await {
-                    Ok(true) => {
-                        ::log::info!("[octoscode] board1 provider: saved (profile/llm/upsert applied)");
-                        if top() == Some(Surface::Provider) {
-                            pop();
-                        }
+            match provider::perform_transport(&conv, effect).await {
+                Ok(true) => {
+                    makepad_widgets::log!("[octoscode] board1 provider: saved (profile/llm/upsert applied)");
+                    if top() == Some(Surface::Provider) {
+                        pop();
                     }
-                    Ok(false) => ::log::info!("[octoscode] board1 provider: test passed"),
-                    Err(e) => ::log::info!("[octoscode] board1 provider: {e}"),
+                    Ok(())
                 }
-                mark_dirty();
-                SignalToUI::set_ui_signal();
-            });
+                Ok(false) => {
+                    makepad_widgets::log!("[octoscode] board1 provider: test passed");
+                    Ok(())
+                }
+                Err(e) => {
+                    makepad_widgets::log!("[octoscode] board1 provider: {e}");
+                    Err(e)
+                }
+            }
         }
         Work::BrowserList { path, resolve_ancestor } => {
             let Some(conv) = conv else { return need_conv("browse") };
-            rt.spawn(async move {
-                if let Err(e) = browser::list(&conv, path, resolve_ancestor).await {
-                    ::log::info!("[octoscode] board1 browser: {e}");
-                }
-                mark_dirty();
-                SignalToUI::set_ui_signal();
-            });
+            browser::list(&conv, path, resolve_ancestor).await
         }
         Work::BrowserCreate { parent, name } => {
             let Some(conv) = conv else { return need_conv("create folder") };
-            rt.spawn(async move {
-                if let Err(e) = browser::create(&conv, parent, name).await {
-                    ::log::info!("[octoscode] board1 browser: {e}");
-                }
-                mark_dirty();
-                SignalToUI::set_ui_signal();
-            });
+            browser::create(&conv, parent, name).await
         }
         Work::PickerLoad => {
             let recents: Vec<(String, String)> =
@@ -908,42 +910,36 @@ pub fn spawn(work: Work, rt: &tokio::runtime::Runtime, conv: Option<Arc<Conversa
                     .into_iter()
                     .map(|r| (r.name, r.path))
                     .collect();
-            {
-                let mut h = host();
-                h.picker.recents = recents;
-            }
+            host().picker.recents = recents;
             let Some(conv) = conv else {
                 let mut h = host();
                 h.picker.loading = false;
                 h.dirty = true;
+                drop(h);
                 return need_conv("picker");
             };
             let advertised = conv.store.capabilities().iter().any(|c| c == browser::BROWSE_FEATURE);
             let session_root = conv.store.domains.session.workspace_root(&conv.session_id());
-            rt.spawn(async move {
-                use octoscode_client::domains::profile::{WorkspaceList, WorkspaceListParams};
-                // The server's working directory: a `workspace_list` with no
-                // path lists exactly it (`profile.rs` WorkspaceListParams);
-                // without the browse feature, the open session's reported root.
-                let root = if advertised {
-                    conv.client()
-                        .call::<WorkspaceList>(WorkspaceListParams { path: None })
-                        .await
-                        .ok()
-                        .map(|l| l.canonical_path)
-                        .or(session_root)
-                } else {
-                    session_root
-                };
-                {
-                    let mut h = host();
-                    h.picker.server_root = root;
-                    h.picker.browse_advertised = advertised;
-                    h.picker.loading = false;
-                    h.dirty = true;
-                }
-                SignalToUI::set_ui_signal();
-            });
+            use octoscode_client::domains::profile::{WorkspaceList, WorkspaceListParams};
+            // The server's working directory: a `workspace_list` with no path
+            // lists exactly it (`profile.rs` WorkspaceListParams); without the
+            // browse feature, the open session's reported root
+            // (`server-working-directory.ts:2-23`).
+            let root = if advertised {
+                conv.client()
+                    .call::<WorkspaceList>(WorkspaceListParams { path: None })
+                    .await
+                    .ok()
+                    .map(|l| l.canonical_path)
+                    .or(session_root)
+            } else {
+                session_root
+            };
+            let mut h = host();
+            h.picker.server_root = root;
+            h.picker.browse_advertised = advertised;
+            h.picker.loading = false;
+            Ok(())
         }
         Work::NewSession { cwd } => {
             let Some(conv) = conv else {
@@ -951,37 +947,45 @@ pub fn spawn(work: Work, rt: &tokio::runtime::Runtime, conv: Option<Arc<Conversa
                 mark_dirty();
                 return need_conv("new session");
             };
-            rt.spawn(async move {
-                match conv.new_chat(Some(cwd.clone())).await {
-                    Ok(id) => {
-                        ::log::info!("[octoscode] board1: new session {id} in the chosen workspace");
-                        let rows = super::recents::remember_workspace(
-                            &*super::recents::store(),
-                            &super::recents::endpoint(),
-                            &cwd,
-                            super::recents::now_ms(),
-                        );
-                        let mut h = host();
-                        h.picker.recents = rows.into_iter().map(|r| (r.name, r.path)).collect();
-                        h.picker.starting = None;
-                        h.stack.clear();
-                        h.dirty = true;
-                    }
-                    Err(e) => {
-                        ::log::warn!("[octoscode] board1 new session: {e}");
-                        let mut h = host();
-                        h.picker.starting = None;
-                        h.picker.error = Some("The session didn't open. Check the folder, then try again.".to_owned());
-                        h.dirty = true;
-                    }
+            match conv.new_chat(Some(cwd.clone())).await {
+                Ok(id) => {
+                    makepad_widgets::log!("[octoscode] board1: new session {id} in the chosen workspace");
+                    let rows = super::recents::remember_workspace(
+                        &*super::recents::store(),
+                        &super::recents::endpoint(),
+                        &cwd,
+                        super::recents::now_ms(),
+                    );
+                    let mut h = host();
+                    h.picker.recents = rows.into_iter().map(|r| (r.name, r.path)).collect();
+                    h.picker.starting = None;
+                    h.stack.clear();
+                    Ok(())
                 }
-                SignalToUI::set_ui_signal();
-            });
+                Err(e) => {
+                    makepad_widgets::log!("[octoscode] board1 new session: {e}");
+                    let mut h = host();
+                    h.picker.starting = None;
+                    h.picker.error = Some("The session didn’t open. Check the folder, then try again.".to_owned());
+                    Err(e)
+                }
+            }
         }
         Work::Connect { .. } | Work::LeaveToForm { .. } | Work::Scan | Work::Forget => {
-            ::log::warn!("[octoscode] board1: {work:?} is the host's to perform");
+            makepad_widgets::log!("[octoscode] board1: {work:?} is the host's to perform");
+            Err("board1: host work".to_owned())
         }
-    }
+    };
+    mark_dirty();
+    out
+}
+
+/// Run one async [`Work`] on the module's runtime and wake the UI when done.
+pub fn spawn(work: Work, rt: &tokio::runtime::Runtime, conv: Option<Arc<Conversation>>) {
+    rt.spawn(async move {
+        let _ = execute(work, conv).await;
+        SignalToUI::set_ui_signal();
+    });
 }
 
 #[cfg(test)]

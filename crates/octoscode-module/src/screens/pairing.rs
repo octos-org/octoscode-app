@@ -97,7 +97,7 @@ impl Problem {
     /// The board's headline + next step for this situation. One bounded pair
     /// per situation, never the server's prose (walk 110). The board's own
     /// copy is used verbatim where the atlas has it (p4-03 "already used",
-    /// p4-04 "doesn't support pairing").
+    /// p4-04 "doesn’t support pairing").
     pub fn copy(&self) -> (&'static str, &'static str) {
         match self {
             Problem::Pairing(k) => match k {
@@ -114,7 +114,7 @@ impl Problem {
                     "Restart the Octos server, then pair again.",
                 ),
                 PairingErrorKind::CodeInvalid => (
-                    "This pairing link isn't complete.",
+                    "This pairing link isn’t complete.",
                     "Copy the whole link again from Octos.",
                 ),
                 PairingErrorKind::OriginNotLoopback => (
@@ -122,21 +122,21 @@ impl Problem {
                     "Pairing links only work for Octos on this computer.",
                 ),
                 PairingErrorKind::NotSupported => (
-                    "This server doesn't support pairing.",
+                    "This server doesn’t support pairing.",
                     "Octos on another computer must be paired from that computer.",
                 ),
                 PairingErrorKind::Unreachable => (
-                    "Octos isn't answering at that address.",
+                    "Octos isn’t answering at that address.",
                     "Check that Octos is still running, then try again.",
                 ),
             },
             Problem::NotALink => (
-                "That isn't a pairing link.",
+                "That isn’t a pairing link.",
                 "Paste the whole link Octos printed, or enter the server and token.",
             ),
-            Problem::BadEndpoint(why) => ("That server address can't be used.", why),
+            Problem::BadEndpoint(why) => ("That server address can’t be used.", why),
             Problem::ConnectFailed => (
-                "Paired, but the connection didn't open.",
+                "Paired, but the connection didn’t open.",
                 "Check the server address, then connect with the token.",
             ),
         }
@@ -508,11 +508,11 @@ pub fn view(ui: &PairingUi, l: &Layout) -> Ui {
 }
 
 fn pair_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
-    v.push(kit::gap(if l.phone { 24.0 } else { 16.0 }));
+    v.push(kit::gap(if l.phone { 28.0 } else { 16.0 }));
     // The viewfinder: a light-grey rounded square with four corner brackets
     // (atlas screen 1). The whole box is the scan control.
     let vf_w = (l.content_w * 0.78).min(288.0).round();
-    let vf_h = if l.phone { (vf_w * 0.72).round().min(210.0) } else { 150.0 };
+    let vf_h = if l.phone { (vf_w * 0.76).round().min(222.0) } else { 150.0 };
     let bracket = |file: &str, ax: f64, ay: f64| {
         format!(
             "View {{ width: Fill height: Fill align: Align{{x: {ax} y: {ay}}} padding: 16\n{}}}\n",
@@ -529,7 +529,7 @@ fn pair_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
         kit::hit("b1_pair_scan", true),
     ));
     v.button("b1_pair_scan", "pair.scan");
-    v.push(kit::gap(12.0));
+    v.push(kit::gap(if l.phone { 16.0 } else { 12.0 }));
     v.push(Text::new("b1_pair_cap1", "Scan the pairing QR shown in Octos").px(14.0).color(kit::MUTED).fill().centered().one_line().dsl());
     v.push(kit::gap(2.0));
     v.push(Text::new("b1_pair_cap2", "on your computer").px(14.0).color(kit::MUTED).fill().centered().one_line().dsl());
@@ -537,9 +537,9 @@ fn pair_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
         v.push(kit::gap(6.0));
         v.push(Text::new("b1_pair_scan_note", note).px(13.0).color(kit::FAINT).fill().centered().dsl());
     }
-    v.push(kit::gap(if l.phone { 20.0 } else { 14.0 }));
+    v.push(kit::gap(if l.phone { 30.0 } else { 14.0 }));
     v.push(kit::or_divider());
-    v.push(kit::gap(if l.phone { 18.0 } else { 12.0 }));
+    v.push(kit::gap(if l.phone { 26.0 } else { 12.0 }));
     v.push(
         Field::new("b1_pair_link", &ui.link_draft)
             .label("Paste pairing link")
@@ -548,10 +548,10 @@ fn pair_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
     );
     v.input("b1_pair_link", "pair.paste");
     v.returns("b1_pair_link", "pair.submit");
-    v.push(kit::gap(if l.phone { 24.0 } else { 18.0 }));
+    v.push(kit::gap(if l.phone { 32.0 } else { 18.0 }));
     v.push(kit::pill_primary("b1_pair_submit", "Pair", "Fill"));
     v.button("b1_pair_submit", "pair.submit");
-    v.push(kit::gap(8.0));
+    v.push(kit::gap(if l.phone { 16.0 } else { 8.0 }));
     v.push(centered(&kit::link(
         "b1_pair_fallback",
         "Enter server and token instead",
@@ -564,17 +564,17 @@ fn pair_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
 
 fn pairing_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
     let host = if ui.pairing_host.is_empty() { "Octos".to_owned() } else { ui.pairing_host.clone() };
-    v.push(kit::gap(if l.phone { 110.0 } else { 52.0 }));
+    v.push(kit::gap(if l.phone { 160.0 } else { 52.0 }));
     v.push(format!(
         "View {{ width: Fill height: Fit align: Align{{x: 0.5 y: 0.0}}\n{}}}\n",
-        kit::svg("b1_pair_spinner", "b1_spinner.svg", 40.0)
+        kit::svg("b1_pair_spinner", "b1_spinner.svg", if l.phone { 48.0 } else { 40.0 })
     ));
-    v.push(kit::gap(20.0));
+    v.push(kit::gap(if l.phone { 34.0 } else { 20.0 }));
     let line = format!("Pairing with {host}\u{2026}");
     v.push(Text::new("b1_pairing_line", &line).px(17.0).fill().centered().one_line().dsl());
-    v.push(kit::gap(14.0));
+    v.push(kit::gap(if l.phone { 40.0 } else { 14.0 }));
     v.push(Text::new("b1_pairing_once", "This code works once.").px(15.0).color(kit::MUTED).fill().centered().one_line().dsl());
-    v.push(kit::gap(if l.phone { 150.0 } else { 56.0 }));
+    v.spacer(l, 56.0, 96.0);
     v.push(centered(&kit::pill_outline("b1_pair_cancel", "Cancel", "136")));
     v.button("b1_pair_cancel", "pair.cancel");
 }
@@ -584,7 +584,7 @@ fn problem_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
         .problem
         .as_ref()
         .map(Problem::copy)
-        .unwrap_or(("That pairing link didn't work.", "Enter the server and token instead."));
+        .unwrap_or(("That pairing link didn’t work.", "Enter the server and token instead."));
     v.push(kit::gap(if l.phone { 24.0 } else { 16.0 }));
     v.push(kit::callout(true, false, head, Some(next)));
     v.push(kit::gap(if l.phone { 28.0 } else { 18.0 }));
@@ -599,9 +599,12 @@ fn problem_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
     v.push(Field::new("b1_conn_token", &ui.token).label("Access token").password().dsl());
     v.input("b1_conn_token", "connect.token");
     v.returns("b1_conn_token", "connect.submit");
-    v.push(kit::gap(if l.phone { 64.0 } else { 22.0 }));
+    v.spacer(l, 22.0, 64.0);
     v.push(kit::pill_primary("b1_conn_submit", "Connect", "Fill"));
     v.button("b1_conn_submit", "connect.submit");
+    if l.phone {
+        v.push(kit::gap(70.0));
+    }
 }
 
 fn no_pairing_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
@@ -634,9 +637,12 @@ fn paired_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
     rows.push(kit::note_row("Stays on this device only", kit::MUTED));
     v.push(kit::gap(if l.phone { 24.0 } else { 16.0 }));
     v.push(kit::list_card("b1_conn_rows", &rows));
-    v.push(kit::gap(if l.phone { 220.0 } else { 40.0 }));
+    v.spacer(l, 40.0, 40.0);
     v.push(centered(&kit::link("b1_pair_forget", "Forget this device", kit::RED, 15.0, 500)));
     v.button("b1_pair_forget", "pair.forget");
+    if l.phone {
+        v.push(kit::gap(90.0));
+    }
 }
 
 fn centered(inner: &str) -> String {

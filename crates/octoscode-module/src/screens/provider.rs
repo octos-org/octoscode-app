@@ -569,7 +569,7 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
     v.push(kit::gap(field_gap));
     let eye = format!(
         "View {{ width: 36 height: 36 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n{}{}}}\n",
-        kit::svg("", if ui.key_revealed { "b1_eye_off.svg" } else { "b1_eye.svg" }, 20.0),
+        kit::svg("", if ui.key_revealed { "b1_eye_off.svg" } else { "b1_eye.svg" }, 22.0),
         kit::hit("b1_prov_eye", true)
     );
     let mut key = Field::new("b1_prov_key", &ui.key)
@@ -580,9 +580,10 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         key = key.password();
     }
     // A stored key is never sent back to the client: the field stays blank and
-    // its placeholder says a key is kept (walk 87, "a blank masked key").
+    // shows the board's mask as its placeholder (walk 87, "a blank masked
+    // key"); typing replaces it, an empty field keeps the stored key.
     if ui.key.is_empty() && ui.key_stored {
-        key = key.placeholder("•••••••••••••••••••• (saved)");
+        key = key.placeholder("••••••••••••••••••••••").placeholder_ink();
     } else if ui.key.is_empty() {
         key = key.placeholder("Paste the provider's API key");
     }
@@ -613,13 +614,13 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
                 "View {{ width: Fill height: {} flow: Overlay\nView {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 14 right: 12}} spacing: 10\n{}{}}}\n{}}}\n",
                 if l.phone { 46 } else { 40 },
                 Text::new(&format!("b1_prov_model_t{i}"), &label).px(14.0).fill().one_line().dsl(),
-                kit::svg("", "b1_check_on.svg", 20.0),
+                kit::svg("", "b1_check_on.svg", 23.0),
                 kit::hit(&id, true)
             )
         })
         .collect();
     v.push(kit::list_card("b1_prov_models", &rows));
-    v.push(kit::gap(if l.phone { 22.0 } else { 16.0 }));
+    v.spacer(l, 16.0, 22.0);
     let primary_label = match (ui.busy, ui.screen) {
         (true, _) => "Saving\u{2026}",
         (false, Screen::Rejected) => "Try again",
@@ -633,6 +634,9 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
     ));
     v.button("b1_prov_cancel", "provider.cancel");
     v.button("b1_prov_save", primary_action);
+    if l.phone {
+        v.push(kit::gap(24.0));
+    }
     v
 }
 

@@ -146,11 +146,23 @@ async fn http(mut stream: TcpStream, cfg: Cfg, claimed: Arc<Mutex<bool>>) {
                 .and_then(|v| v["code"].as_str().map(str::to_owned))
                 .unwrap_or_default();
             println!("[board1-serve] POST /pair/claim ({} chars)", code.len());
-            match cfg.pair.as_str() {
-                "used" => kind("pair_code_unknown"),
-                "expired" => kind("pair_code_expired"),
-                "locked" => kind("pair_code_locked"),
+            // Walk fixtures: the code picks the server's answer, so one run
+            // can show every pairing state by clicks alone.
+            //   USED0000 -> pair_code_unknown   EXPIRED0 -> pair_code_expired
+            //   LOCKED00 -> pair_code_locked    NOPAIR00 -> 404 (no pairing)
+            //   SLOWPAIR -> the good claim after 20 s (p4-02 / Cancel)
+            if code == "SLOWPAIR" {
+                tokio::time::sleep(std::time::Duration::from_secs(20)).await;
+            }
+            match (cfg.pair.as_str(), code.as_str()) {
+                ("used", _) | (_, "USED0000") => kind("pair_code_unknown"),
+                ("expired", _) | (_, "EXPIRED0") => kind("pair_code_expired"),
+                ("locked", _) | (_, "LOCKED00") => kind("pair_code_locked"),
+                (_, "NOPAIR00") => (404, None),
                 _ if code.len() != 8 => kind("pair_code_invalid"),
+                // The slow code never burns the printed one (a cancelled
+                // exchange must leave the real link usable).
+                (_, "SLOWPAIR") => (200, Some(serde_json::json!({"token": TOKEN, "server_origin": origin}))),
                 _ if code == CODE && !std::mem::replace(&mut *claimed.lock().unwrap(), true) => {
                     (200, Some(serde_json::json!({"token": TOKEN, "server_origin": origin})))
                 }

@@ -20,7 +20,7 @@
 pub const INK: &str = "#1d1d1fff";
 pub const MUTED: &str = "#6e6e73ff";
 pub const FAINT: &str = "#8e8e93ff";
-pub const PLACEHOLDER: &str = "#a1a1a6ff";
+pub const PLACEHOLDER: &str = "#8e8e93ff";
 pub const HAIR: &str = "#e5e5e7ff";
 pub const FIELD_EDGE: &str = "#d2d2d7ff";
 pub const WHITE: &str = "#ffffffff";
@@ -37,6 +37,23 @@ pub const CLEAR: &str = "#00000000";
 /// same with `{:?}`, `octoscript-makepad/src/design.rs:655`).
 pub fn lit(s: &str) -> String {
     format!("{s:?}")
+}
+
+thread_local! {
+    /// The type scale of the view being built: 1.0 in a desktop dialog, a
+    /// little larger on a phone sheet (the board's phone artboards set body
+    /// text ~16-17 px on a 406 px width). Set by `board1::compose` per view;
+    /// thread-local so parallel builds (tests) never see each other's scale.
+    static TYPE_SCALE: std::cell::Cell<f64> = const { std::cell::Cell::new(1.0) };
+}
+
+/// Build the next views at this type scale (see [`TYPE_SCALE`]).
+pub fn set_type_scale(s: f64) {
+    TYPE_SCALE.with(|c| c.set(s));
+}
+
+fn scaled(px: f64) -> f64 {
+    (px * TYPE_SCALE.with(|c| c.get()) * 4.0).round() / 4.0
 }
 
 /// One Inter face at `px` logical pixels (the renderer's `size * 0.75` point
@@ -67,7 +84,7 @@ pub fn font_spaced(weight: u16, px: f64, line_spacing: f64) -> String {
     };
     format!(
         "TextStyle{{font_family: FontFamily{{latin := FontMember{{res: file_resource({latin:?}) asc: 0.04 desc: 0.04 weight: {weight}}} cjk := FontMember{{res: crate_resource(\"makepad_widgets:resources/{cjk}\") asc: 0.0 desc: 0.0 weight: {weight}}} symbols := FontMember{{res: crate_resource(\"makepad_widgets:resources/jetbrains_mono_variable.ttf\") asc: 0 desc: 0 weight: 400}} emoji := FontMember{{res: {emoji} asc: 0 desc: 0}}}} font_size: {:.2} line_spacing: {line_spacing}}}",
-        px * 0.75
+        scaled(px) * 0.75
     )
 }
 
@@ -255,6 +272,9 @@ pub struct Field<'a> {
     pub error: bool,
     pub read_only: bool,
     pub trailing: Option<String>,
+    /// The placeholder draws in ink, not grey: a stored secret's mask (the
+    /// board's p4-06 key field shows black dots for a key the profile keeps).
+    pub placeholder_ink: bool,
 }
 
 impl<'a> Field<'a> {
@@ -268,7 +288,12 @@ impl<'a> Field<'a> {
             error: false,
             read_only: false,
             trailing: None,
+            placeholder_ink: false,
         }
+    }
+    pub fn placeholder_ink(mut self) -> Self {
+        self.placeholder_ink = true;
+        self
     }
     pub fn label(mut self, l: &'a str) -> Self {
         self.label = Some(l);
@@ -293,7 +318,8 @@ impl<'a> Field<'a> {
     pub fn dsl(&self) -> String {
         let mut out = String::new();
         if let Some(l) = self.label {
-            out.push_str(&Text::new("", l).px(14.0).weight(500).fill().one_line().dsl());
+            // The board's field labels are regular weight ("Server", "Name").
+            out.push_str(&Text::new("", l).px(15.0).fill().one_line().dsl());
             out.push_str(&gap(8.0));
         }
         let (edge, width) = if self.error { (RED, 1.5) } else { (FIELD_EDGE, 1.0) };
@@ -302,8 +328,18 @@ impl<'a> Field<'a> {
             "DesignSurface {{\nwidth: Fill height: 44 flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 14 right: {}}}\ndraw_bg.color: {WHITE} draw_bg.radius: 10 draw_bg.border_width: {width} draw_bg.border_position: 1 draw_bg.border_color: {edge}\n",
             if trailing_w > 0.0 { 4.0 } else { 14.0 }
         ));
+        let ph = if self.placeholder_ink { INK } else { PLACEHOLDER };
+        // An empty field STARTS in the input's `empty` state. Left to its
+        // creation-time 0.2 s transition, the placeholder drew in the typed
+        // ink until some event advanced the animator (measured on the phone
+        // shell's first frame: #1d1d1f, grey only after a hover).
+        let empty_default = if self.text.is_empty() {
+            "animator +: {empty +: {default: @on}}\n"
+        } else {
+            ""
+        };
         out.push_str(&format!(
-            "{} := TextInputFlat {{\nwidth: Fill height: Fit padding: Inset{{top: 4 bottom: 4}} margin: 0 flow: Right\ntext: {}\nempty_text: {}\nis_password: {} is_read_only: {}\ndraw_bg +: {{color: {CLEAR} color_hover: {CLEAR} color_focus: {CLEAR} color_down: {CLEAR} color_empty: {CLEAR} color_disabled: {CLEAR} border_size: 0.0 border_color: {CLEAR} border_color_hover: {CLEAR} border_color_focus: {CLEAR} border_color_down: {CLEAR} border_color_empty: {CLEAR} border_color_disabled: {CLEAR}}}\ndraw_text +: {{color: {INK} color_hover: {INK} color_focus: {INK} color_down: {INK} color_disabled: {MUTED} color_empty: {PLACEHOLDER} color_empty_hover: {PLACEHOLDER} color_empty_focus: {PLACEHOLDER} text_style: {}}}\ndraw_cursor.color: {INK}\n}}\n",
+            "{} := TextInputFlat {{\n{empty_default}width: Fill height: Fill padding: Inset{{top: 12 bottom: 12}} margin: 0 flow: Right\ntext: {}\nempty_text: {}\nis_password: {} is_read_only: {}\ndraw_bg +: {{color: {CLEAR} color_hover: {CLEAR} color_focus: {CLEAR} color_down: {CLEAR} color_empty: {CLEAR} color_disabled: {CLEAR} border_size: 0.0 border_color: {CLEAR} border_color_hover: {CLEAR} border_color_focus: {CLEAR} border_color_down: {CLEAR} border_color_empty: {CLEAR} border_color_disabled: {CLEAR}}}\ndraw_text +: {{color: {INK} color_hover: {INK} color_focus: {INK} color_down: {INK} color_disabled: {MUTED} color_empty: {ph} color_empty_hover: {ph} color_empty_focus: {PLACEHOLDER} text_style: {}}}\ndraw_cursor.color: {INK}\n}}\n",
             self.id,
             lit(self.text),
             lit(self.placeholder),

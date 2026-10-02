@@ -136,11 +136,11 @@ pub fn classify(e: &octoscode_client::ClientError) -> Refusal {
 pub fn refusal_copy(kind: &str) -> (&'static str, &'static str) {
     match kind {
         "workspace_list_permission_denied" => (
-            "The server won't list this folder.",
+            "The server won’t list this folder.",
             "Pick another folder or type a path you can access.",
         ),
         "workspace_list_invalid_path" => (
-            "That path can't be browsed.",
+            "That path can’t be browsed.",
             "Browse from the server's working directory instead.",
         ),
         "workspace_list_not_found" => (
@@ -157,15 +157,15 @@ pub fn refusal_copy(kind: &str) -> (&'static str, &'static str) {
             "Use a single name without slashes, up to 255 bytes.",
         ),
         "workspace_create_parent_not_found" => (
-            "The folder you're creating in is no longer on the server.",
+            "The folder you’re creating in is no longer on the server.",
             "Go up one level and try again.",
         ),
         "workspace_create_parent_not_a_directory" => (
-            "The place you're creating in is a file, not a folder.",
+            "The place you’re creating in is a file, not a folder.",
             "Go up one level and pick a folder.",
         ),
         "workspace_create_permission_denied" => (
-            "Octos can't create a folder here.",
+            "Octos can’t create a folder here.",
             "Pick a folder the Octos server is allowed to write to.",
         ),
         "workspace_create_root_escape" => (
@@ -174,11 +174,11 @@ pub fn refusal_copy(kind: &str) -> (&'static str, &'static str) {
         ),
         "workspace_create_exists_not_directory" => ("A file of that name is already here.", "Choose a different folder name."),
         PROFILE_LOCAL_UNSUPPORTED => (
-            "This server doesn't offer folder browsing.",
+            "This server doesn’t offer folder browsing.",
             "Type the workspace path instead.",
         ),
         _ => (
-            "Couldn't reach the server's folders.",
+            "Couldn’t reach the server's folders.",
             "Try again, or type the workspace path instead.",
         ),
     }
@@ -192,16 +192,16 @@ pub fn validate_folder_name(name: &str) -> Option<&'static str> {
         return Some("Enter a name for the new folder.");
     }
     if name.contains('/') || name.contains('\\') {
-        return Some("A folder name can't contain a slash. Enter one name only.");
+        return Some("A folder name can’t contain a slash. Enter one name only.");
     }
     if name == "." || name == ".." {
         return Some("Enter a folder name other than . or ..");
     }
     if name.chars().any(|c| (c as u32) < 0x20 || c as u32 == 0x7f) {
-        return Some("A folder name can't contain control characters. Use plain text.");
+        return Some("A folder name can’t contain control characters. Use plain text.");
     }
     if name != name.trim() {
-        return Some("A folder name can't start or end with a space. Trim it.");
+        return Some("A folder name can’t start or end with a space. Trim it.");
     }
     if name.len() > 255 {
         return Some("That folder name is too long. Use up to 255 bytes.");
@@ -680,21 +680,24 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
         v.button("b1_br_newcancel", "browser.newfolder.cancel");
         v.button("b1_br_create", "browser.create");
     }
-    v.push(kit::gap(if l.phone { 22.0 } else { 14.0 }));
+    v.spacer(l, 14.0, 22.0);
     v.push(Field::new("b1_br_path", &ui.path_draft).placeholder("/home/user/code").dsl());
     v.input("b1_br_path", "browser.path");
     v.returns("b1_br_path", "browser.go");
     v.push(kit::gap(if l.phone { 12.0 } else { 10.0 }));
     v.push(kit::pill_primary("b1_br_use", "Use this folder", "Fill"));
     v.button("b1_br_use", "browser.use");
+    if l.phone {
+        v.push(kit::gap(36.0));
+    }
 }
 
 fn refused_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
     let kind = ui.failure.as_ref().map(|r| r.kind.as_str()).unwrap_or(UNKNOWN);
     let (head, next) = refusal_copy(kind);
-    v.push(kit::gap(if l.phone { 8.0 } else { 4.0 }));
+    v.push(kit::gap(if l.phone { 14.0 } else { 4.0 }));
     v.push(kit::callout(false, true, head, Some(next)));
-    v.push(kit::gap(if l.phone { 30.0 } else { 20.0 }));
+    v.push(kit::gap(if l.phone { 52.0 } else { 20.0 }));
     let back_to = format!("Back to {}", if ui.path.is_empty() { "/".to_owned() } else { ui.path.clone() });
     let w = (l.content_w * 0.66).round().max(180.0);
     v.push(format!(
@@ -702,7 +705,7 @@ fn refused_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
         kit::pill_outline("b1_br_backto", &back_to, &format!("{w}"))
     ));
     v.button("b1_br_backto", "browser.back");
-    v.push(kit::gap(if l.phone { 30.0 } else { 20.0 }));
+    v.push(kit::gap(if l.phone { 96.0 } else { 20.0 }));
     v.push(Field::new("b1_br_path", &ui.path_draft).placeholder("/home/user/code").dsl());
     v.input("b1_br_path", "browser.path");
     v.returns("b1_br_path", "browser.go");
