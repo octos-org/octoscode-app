@@ -421,8 +421,20 @@ pub fn code_block(
             // A13: whole lines in a sideways-scrolling box; uncoloured
             // (`lang: ""`) when no grammar knows the fence's language.
             let lang_id = crate::highlight::grammar(lang).map(|g| g.id).unwrap_or("");
+            // The bar: a quiet grey handle in the block's bottom padding,
+            // inset past the card's 12 px corners (the theme's default
+            // handle is near-white: a bright stripe on the tip-grey card).
+            let (bar, bar_on) = if crate::screens::theme::resolved() == "dark" {
+                ("#5a5a5eff", "#6e6e73ff")
+            } else {
+                ("#d1d1d6ff", "#aeaeb2ff")
+            };
             format!(
                 "i{tok}_code_{k}_scroll := ScrollXView{{width: Fill height: Fit flow: Down\n\
+                 scroll_bars.scroll_bar_x.bar_side_margin: 12\n\
+                 scroll_bars.scroll_bar_x.draw_bg.color: {bar}\n\
+                 scroll_bars.scroll_bar_x.draw_bg.color_hover: {bar_on}\n\
+                 scroll_bars.scroll_bar_x.draw_bg.color_drag: {bar_on}\n\
                  View{{width: Fit height: Fit flow: Down padding: Inset{{left: 16 right: 16 top: 0 bottom: 14}}\n\
                  {lines}}}\n\
                  }}\n",
