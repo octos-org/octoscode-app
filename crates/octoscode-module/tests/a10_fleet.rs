@@ -87,6 +87,9 @@ struct Knobs {
     /// The adopted peer asks a QUESTION (r23's recorded one) instead of an
     /// approval after its attach.
     question: bool,
+    /// Notifications pushed after the next `test/kick` request (a server-
+    /// initiated frame through the REAL transport decode + drain hook).
+    kick: Vec<(String, Value)>,
 }
 
 struct Server {
@@ -137,6 +140,10 @@ impl Server {
                         Ok(json!({ "opened": opened }))
                     }
                     "session/list" => Ok(json!({ "sessions": [] })),
+                    "test/kick" => {
+                        pushes.extend(std::mem::take(&mut kn.lock().unwrap().kick));
+                        Ok(json!({}))
+                    }
                     "session/driver/get" => Ok(body("session/driver/get")),
                     "profile/sub_providers/list" => Ok(body("profile/sub_providers/list")),
                     "session/driver/acquire" => {
@@ -642,4 +649,55 @@ async fn a_question_blocked_row_is_answered_with_one_question_respond() {
     let st = host::state();
     assert_eq!(st.fleet.row_note.get(PEER).map(String::as_str), Some("Sent"));
     assert!(st.fleet.steer.get(PEER).is_none(), "the sent answer clears the draft");
+}
+
+
+/// `peer/staged` / `peer/closed` bodies (`PeerStagedEvent` /
+/// `PeerClosedEvent`, octos-core ui_protocol.rs:6482-6523).
+fn staged(session: &str, slug: &str) -> Value {
+    json!({
+        "session_id": session, "topic": format!("peer-{slug}"), "slug": slug,
+        "brief": "Survey the parser", "brief_path": format!("<HOME>/.octos/peers/{slug}/brief.md"),
+        "cwd": "<WORKSPACE>", "profile_id": "dsflash"
+    })
+}
+
+fn closed(session: &str, slug: &str) -> Value {
+    json!({"session_id": session, "topic": format!("peer-{slug}"), "slug": slug, "profile_id": "dsflash"})
+}
+
+/// The peer manager's lifecycle (`peer-manager.ts` `#stage` / `#open` /
+/// `#close`): a `peer/staged` from the CONFIRMED master scope stages ONE
+/// roster row (`<profile>:local:tui#peer-<slug>`) and — remote control not
+/// ready — opens it in the BACKGROUND (`session/open` of the peer session;
+/// the active session is untouched) with ONE kickoff `turn/start`; a stage
+/// from another scope is ignored; `peer/closed` tombstones the row and a
+/// replayed stage never re-opens it.
+#[tokio::test]
+async fn a_staged_peer_opens_in_the_background_and_closes_for_good() {
+    const IDENT: &str = "dsflash:local:tui#peer-ada";
+    let _s = serial();
+    fresh();
+    let server = Server::start().await;
+    let conv = connect(&server).await;
+    assert!(!fleet_driver::control_ready(&conv.store), "no walk yet: the non-dispatch open");
+    server.knobs.lock().unwrap().kick =
+        vec![("peer/staged".into(), staged(SESSION, "ada")), ("peer/staged".into(), staged("other:main", "bob"))];
+    conv.client().request("test/kick", json!({})).await.expect("kick");
+    assert!(wait_until(|| server.sent("turn/start").iter().any(|p| p["session_id"] == IDENT)).await, "the kickoff");
+    let opens = |s: &Server| s.sent("session/open").into_iter().filter(|p| p["session_id"] == IDENT).count();
+    assert_eq!(opens(&server), 1, "ONE background open");
+    let kick = server.sent("turn/start").into_iter().find(|p| p["session_id"] == IDENT).unwrap();
+    assert!(kick["input"][0]["text"].as_str().unwrap().starts_with("You are a peer agent. Your brief:\n\nSurvey the parser"));
+    assert_eq!(conv.store.active_session().as_deref(), Some(SESSION), "the active session is untouched");
+    let rows = conv.store.domains.peer.rows();
+    assert_eq!(rows.len(), 1, "the other scope's stage is ignored");
+    assert!(wait_until(|| conv.store.domains.peer.row(IDENT).is_some_and(|r| r.status == octoscode_store::domains::peer::RowStatus::Started)).await);
+    assert_eq!(fleetview::rows(&conv.store, peers::now_ms())[0].label, "Peer 1", "a roster row, never the slug");
+    // Closed: the row is tombstoned; a replayed stage never re-opens it.
+    server.knobs.lock().unwrap().kick = vec![("peer/closed".into(), closed(SESSION, "ada")), ("peer/staged".into(), staged(SESSION, "ada"))];
+    conv.client().request("test/kick", json!({})).await.expect("kick");
+    assert!(wait_until(|| conv.store.domains.peer.is_tombstoned(IDENT)).await, "peer/closed tombstones the row");
+    tokio::time::sleep(Duration::from_millis(200)).await;
+    assert_eq!(opens(&server), 1, "the replayed stage never re-opens a closed peer");
 }
