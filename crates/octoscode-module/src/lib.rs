@@ -2486,6 +2486,68 @@ impl OctoscodeView {
         // is pending. OCTOSCODE_SCREEN=palette|error|loading names one; unset
         // leaves the screen exactly as before this card. The mount cache
         // compares the DSL string, so live-slot flips repaint exactly once.
+        // A3 (board 12): read the active session's driver record once per
+        // session when the server advertises `session/driver/get` (the web's
+        // driver-inventory read, driver-inventory-snapshot.ts), and record a
+        // FOREIGN holder for the held banner (seat-holder.ts:18-29).
+        {
+            let (store, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.conv.clone())
+            };
+            let active = store.active_session();
+            if active.is_some() && active != self.chrome.driver_probe {
+                self.chrome.driver_probe = active.clone();
+                let advertised = store
+                    .domains
+                    .config
+                    .supported_methods()
+                    .iter()
+                    .any(|m| m == "session/driver/get");
+                if let (true, Some(rt), Some(conv), Some(sid)) =
+                    (advertised, self.runtime.as_ref(), conv, active)
+                {
+                    rt.spawn(async move {
+                        let params = serde_json::json!({ "session_id": sid });
+                        match conv.client().request("session/driver/get", params).await {
+                            Ok(v) => {
+                                let held = chrome::foreign_holder(&v, chrome::NATIVE_DRIVER_ID);
+                                makepad_widgets::log!("[octoscode] driver/get {sid}: held={held:?}");
+                                chrome::set_held(&sid, held);
+                            }
+                            Err(e) => makepad_widgets::log!("[octoscode] driver/get {sid}: {e}"),
+                        }
+                        SignalToUI::set_ui_signal();
+                    });
+                }
+            }
+        }
+        // A3: desktop notifications (General > Desktop notifications): a
+        // settled turn or a new wait on the active session, while the window
+        // is in the background, posts one OS notice (`Cx::show_notification`).
+        {
+            let store = { self.bridge.lock().unwrap().store.clone() };
+            if let Some(now) = chrome::Attention::of(&store) {
+                let title = store
+                    .sessions()
+                    .into_iter()
+                    .find(|s| s.id == now.session)
+                    .and_then(|s| s.label_stem())
+                    .unwrap_or_else(|| "Your chat".to_owned());
+                let notice = chrome::attention_notice(
+                    self.chrome.attention.as_ref(),
+                    &now,
+                    &title,
+                    screens::settings::snapshot().notifications,
+                    self.chrome.unfocused,
+                );
+                if let Some((t, body)) = notice {
+                    makepad_widgets::log!("[octoscode] notify: {t} — {body}");
+                    cx.show_notification(&t, &body);
+                }
+                self.chrome.attention = Some(now);
+            }
+        }
         // A3: `+ Add workspace` docks the folder browser IN-APP (the web's
         // "Add workspace" opens the workspace picker, ProductSidebar.tsx:578).
         if screens::sidebar::take_add_request() {
@@ -3344,6 +3406,9 @@ impl Widget for OctoscodeView {
                 self.window_h = ev.new_geom.inner_size.y;
                 self.sync_chrome(cx);
             }
+            // A3: desktop notifications fire only while in the background.
+            Event::WindowLostFocus(_) => self.chrome.unfocused = true,
+            Event::WindowGotFocus(_) => self.chrome.unfocused = false,
             Event::Actions(actions) => {
                 // Card #21c item 5: the ONE composer is the mounted #16
                 // component. Its own input is a real `TextInput` (id

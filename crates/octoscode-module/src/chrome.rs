@@ -161,16 +161,20 @@ script_mod! {
     // A toggle: two pre-coloured tracks + a knob that sits left (off) or right
     // (on); the host flips the four layers' visibility (no runtime colours).
     let OcToggle = View{
-        width: 40 height: 24 flow: Overlay
-        tg_off := RoundedView{width: Fill height: Fill draw_bg +: {color: #E5E5EA border_radius: 12.0}}
-        tg_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: #2F6FEB border_radius: 12.0}}
-        tg_knob_off := View{
-            width: Fill height: Fill align: Align{x: 0.0 y: 0.5} padding: Inset{left: 2}
-            RoundedView{width: 20 height: 20 draw_bg +: {color: #FFFFFF border_radius: 10.0 border_size: 0.5 border_color: #0000001F}}
-        }
-        tg_knob_on := View{
-            width: Fill height: Fill align: Align{x: 1.0 y: 0.5} padding: Inset{right: 2} visible: false
-            RoundedView{width: 20 height: 20 draw_bg +: {color: #FFFFFF border_radius: 10.0}}
+        // The hit is 44x32 (>= 28 px both ways); the drawn track is 40x24.
+        width: 44 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+        View{
+            width: 40 height: 24 flow: Overlay
+            tg_off := RoundedView{width: Fill height: Fill draw_bg +: {color: #E5E5EA border_radius: 12.0}}
+            tg_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: #2F6FEB border_radius: 12.0}}
+            tg_knob_off := View{
+                width: Fill height: Fill align: Align{x: 0.0 y: 0.5} padding: Inset{left: 2}
+                RoundedView{width: 20 height: 20 draw_bg +: {color: #FFFFFF border_radius: 10.0 border_size: 0.5 border_color: #0000001F}}
+            }
+            tg_knob_on := View{
+                width: Fill height: Fill align: Align{x: 1.0 y: 0.5} padding: Inset{right: 2} visible: false
+                RoundedView{width: 20 height: 20 draw_bg +: {color: #FFFFFF border_radius: 10.0}}
+            }
         }
         tg_hit := OcHitQuiet{draw_bg.border_radius: 12.0}
     }
@@ -289,7 +293,8 @@ script_mod! {
 
         // By workspace | All, and the sort control on the right.
         sb_modes := View{
-            width: Fill height: 30 flow: Overlay margin: Inset{top: 12 bottom: 8}
+            // 32 tall: the segments (track minus its 2 px inset) are 28.
+            width: Fill height: 32 flow: Overlay margin: Inset{top: 12 bottom: 8}
             RoundedView{
                 width: Fit height: Fill flow: Right padding: 2
                 draw_bg +: {color: #F2F2F4 border_radius: 9.0}
@@ -822,9 +827,9 @@ script_mod! {
                 sec_general := View{
                     width: Fill height: Fit flow: Down
                     View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
                         View{
-                            width: Fill height: 28 flow: Overlay
+                            width: Fill height: 32 flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Desktop notifications"}}
                             View{width: Fill height: Fill align: Align{x: 1.0 y: 0.5} tg_notify := OcToggle{}}
                         }
@@ -978,9 +983,9 @@ script_mod! {
                 sec_sandbox := View{
                     width: Fill height: Fit flow: Down visible: false
                     View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
                         View{
-                            width: Fill height: 28 flow: Overlay
+                            width: Fill height: 32 flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Workspace write"}}
                             View{width: Fill height: Fill align: Align{x: 1.0 y: 0.5} tg_sb_write := OcToggle{}}
                         }
@@ -993,9 +998,9 @@ script_mod! {
                     }
                     OcRule{}
                     View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
                         View{
-                            width: Fill height: 28 flow: Overlay
+                            width: Fill height: 32 flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Network access"}}
                             View{width: Fill height: Fill align: Align{x: 1.0 y: 0.5} tg_sb_network := OcToggle{}}
                         }
@@ -1008,9 +1013,9 @@ script_mod! {
                     }
                     OcRule{}
                     View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
                         View{
-                            width: Fill height: 28 flow: Overlay
+                            width: Fill height: 32 flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Read outside workspace"}}
                             View{width: Fill height: Fill align: Align{x: 1.0 y: 0.5} tg_sb_read := OcToggle{}}
                         }
@@ -1235,6 +1240,62 @@ pub struct ChromeRuntime {
     /// A screen docked IN-APP (e.g. the folder browser from + Add
     /// workspace); `OCTOSCODE_SCREEN` stays the dev override.
     pub docked: Option<String>,
+    /// The session whose driver record was last read (board 12's probe).
+    pub driver_probe: Option<String>,
+    /// Whether the app window has focus (desktop notifications fire only in
+    /// the background).
+    pub unfocused: bool,
+    /// The attention facts last seen, so a notification fires once per change.
+    pub attention: Option<Attention>,
+}
+
+/// What the desktop-notification hook compares between syncs: the active
+/// session's newest settled turn and whether it waits for the person.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct Attention {
+    pub session: String,
+    pub settled_turn: Option<String>,
+    pub waiting: bool,
+}
+
+impl Attention {
+    /// The active session's attention facts from the store.
+    pub fn of(store: &octoscode_store::Store) -> Option<Attention> {
+        let session = store.active_session()?;
+        let entries = store.domains.session.timeline.entries(&session);
+        let settled_turn = entries
+            .iter()
+            .rev()
+            .filter_map(|e| e.turn_id.clone())
+            .find(|t| store.domains.turn.terminal(t).is_some());
+        let waiting = crate::screens::sidebar::session_status(store, &session, Some(&session))
+            == crate::screens::sidebar::Status::Waiting;
+        Some(Attention { session, settled_turn, waiting })
+    }
+}
+
+/// The web's attention notice (desktop-notifications.ts: "Notify when a turn
+/// needs you or finishes while OctosCode is in the background"): a notice
+/// only when enabled, unfocused, and the SAME session newly settled a turn
+/// or newly waits. Returns (title, body).
+pub fn attention_notice(
+    prev: Option<&Attention>,
+    now: &Attention,
+    title: &str,
+    enabled: bool,
+    unfocused: bool,
+) -> Option<(String, String)> {
+    let prev = prev.filter(|p| p.session == now.session)?;
+    if !enabled || !unfocused {
+        return None;
+    }
+    if now.waiting && !prev.waiting {
+        return Some(("OctosCode needs you".to_owned(), format!("{title} is waiting for input")));
+    }
+    if now.settled_turn.is_some() && now.settled_turn != prev.settled_turn {
+        return Some(("OctosCode".to_owned(), format!("{title} finished")));
+    }
+    None
 }
 
 /// What the chrome's clicks ask the host to perform.
@@ -2034,6 +2095,25 @@ pub fn seed_board2(store: &octoscode_store::Store, variant: &str) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_notice_fires_once_per_new_settle_or_wait_and_only_in_the_background() {
+        let base = Attention { session: "s1".into(), settled_turn: Some("t1".into()), waiting: false };
+        let settled = Attention { settled_turn: Some("t2".into()), ..base.clone() };
+        let waiting = Attention { waiting: true, ..base.clone() };
+        // In the background, enabled: a new settled turn and a new wait notify.
+        assert!(attention_notice(Some(&base), &settled, "Fix it", true, true)
+            .is_some_and(|(_, b)| b == "Fix it finished"));
+        assert!(attention_notice(Some(&base), &waiting, "Fix it", true, true)
+            .is_some_and(|(_, b)| b == "Fix it is waiting for input"));
+        // No change, focused, disabled, first sight, or another session: none.
+        assert_eq!(attention_notice(Some(&base), &base, "x", true, true), None);
+        assert_eq!(attention_notice(Some(&base), &settled, "x", true, false), None);
+        assert_eq!(attention_notice(Some(&base), &settled, "x", false, true), None);
+        assert_eq!(attention_notice(None, &settled, "x", true, true), None);
+        let other = Attention { session: "s2".into(), ..settled };
+        assert_eq!(attention_notice(Some(&base), &other, "x", true, true), None);
+    }
 
     #[test]
     fn every_section_round_trips_its_id() {
