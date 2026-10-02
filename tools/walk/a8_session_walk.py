@@ -12,11 +12,16 @@ The app must run hidden on PORT against the A8 fixture server
   OCTOS_BASE_URL=http://127.0.0.1:8428 OCTOS_PROFILE_ID=a8 \\
   OCTOSCODE_RECENTS_DIR=<tmp> OCTOSCODE_PANE_ADVANCED_FILE=<tmp>/adv.json \\
   OCTOSCODE_SHOW_THINKING_FILE=<tmp>/think.json OCTOSCODE_DRAFTS_FILE=<tmp>/drafts.json \\
+  OCTOSCODE_CREDENTIALS_DIR=<tmp>/credentials OCTOSCODE_PREF_PATH=<tmp>/prefs.json \\
+  OCTOSCODE_NOTIFICATIONS_FILE=<tmp>/notifications.json OCTOSCODE_DOWNLOAD_DIR=<tmp>/downloads \\
   OCTOSCODE_DESIGN_DIR=$PWD/design \\
   MAKEPAD_WM_TEST_APP=octoscode HEADLESS_ARGS="--module octoscode" \\
     bash harness/headless.sh start <host-bin> 8418
   python3 tools/walk/a8_session_walk.py 8418 desktop <LOG> [captures-dir]
   bash harness/headless.sh stop 8418
+
+Every app a walk starts gets a per-run <tmp> for ALL of its state (the brief's
+test-isolation rule): never the operator's ~/.octoscode.
 
 Phone: the same with OCTOSENSE_WINDOW_SIZE=360x780 and
 HEADLESS_ARGS="--module octoscode --test-action page:0 --test-action launch-octoscode".
