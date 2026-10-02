@@ -31,6 +31,7 @@ from __future__ import annotations
 import json
 import os
 import pathlib
+import re
 import sys
 import time
 
@@ -59,6 +60,11 @@ def _path_rules() -> list[tuple[str, str]]:
 def scrub(text: str) -> str:
     for raw, ph in _path_rules():
         text = text.replace(raw, ph)
+    # A hydrated transcript can carry the login name outside any path (an
+    # `ls -l` owner column): rewritten too.
+    login = pathlib.Path(os.path.expanduser("~")).name
+    if len(login) >= 3:
+        text = re.sub(rf"\b{re.escape(login)}\b", "user", text)
     return text
 
 
@@ -300,6 +306,16 @@ def phase_restore(w: a10_lib.Walk, tr: str, prompt: str) -> None:
     if prompt:
         w.check("its history is in the conversation (the earlier prompt's bubble)", w.wait(lambda: in_timeline(w, prompt[:40]), 20))
     shot(w, f"01-restored-{w.mode}")
+    # A19b — and the WHOLE history, read by scrolling (A19_EXPECT_FILE: the
+    # Session's distinct prompts).
+    if os.environ.get("A19_EXPECT_FILE"):
+        expected = json.loads(pathlib.Path(os.environ["A19_EXPECT_FILE"]).read_text())
+        seen = transcript_scrolled(w)
+        text = "\n".join(seen)
+        missing = [e for e in expected if e[:70] not in text]
+        w.check(f"the full history by scrolling: all {len(expected)} distinct prompts of the Session",
+                bool(expected) and not missing, f"missing {missing}")
+        w.note(f"scroll-read {len(seen)} distinct transcript texts")
 
 
 def phase_restore_turn(w: a10_lib.Walk, tr: str, prompt: str) -> None:
