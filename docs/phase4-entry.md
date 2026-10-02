@@ -14,12 +14,12 @@ Counts use the FINAL bucket (phase4_bucket_manual when set, else phase4_bucket).
 | g-connection | 7 | 0 | 0 | 7 |
 | g-control | 42 | 1 | 0 | 43 |
 | g-history | 17 | 4 | 3 | 24 |
-| g-settings | 12 | 2 | 9 | 23 |
+| g-settings | 16 | 2 | 5 | 23 |
 | g-timeline | 36 | 9 | 5 | 50 |
 | session:links-resume | 12 | 4 | 2 | 18 |
-| session:list-sidebar | 9 | 6 | 4 | 19 |
+| session:list-sidebar | 10 | 6 | 3 | 19 |
 | session:store-hydrate | 11 | 9 | 2 | 22 |
 | workspace | 10 | 2 | 0 | 12 |
-| **total** | **282** | **44** | **35** | **361** |
+| **total** | **287** | **44** | **30** | **361** |
 
-Regenerated 2026-10-02 10:27 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.
+Regenerated 2026-10-02 11:56 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.
