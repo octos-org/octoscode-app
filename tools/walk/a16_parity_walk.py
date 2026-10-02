@@ -11,6 +11,8 @@ Walks:
                in flight (replay --slow profile/skills/install) locks the
                Research lanes opened from the palette; the lock lifts when
                the install lands.
+  readonly     (row 280) — the server lists the models but offers no
+               profile/llm/select: the rows read-only, a CLICK routes nothing.
   restart      (rows 272/280, web profileDefaultNeedsRestart +
                ModelsSettingsContent's notice) — the Session settings pane's
                Model card: no notice while the runtime IS the Profile
@@ -23,7 +25,7 @@ Walks:
                here on the replay port.
 
 usage: OCTOSCODE_APP_BIN=<host octosense> A10_PORT=<app port> A10_REPLAY_PORT=<server port> \\
-         a16_parity_walk.py <profile-ext|restart|sidebar> <desktop|phone> [outdir]
+         a16_parity_walk.py <profile-ext|restart|readonly|sidebar> <desktop|phone> [outdir]
 """
 import json
 import os
@@ -223,6 +225,29 @@ def restart(W: Walk) -> None:
     W.check("wire: session/status/read on every pane open (>= 3)", W.replay_saw("session/status/read", 2) >= 3)
 
 
+def readonly(W: Walk) -> None:
+    """The server offers the list but not `profile/llm/select` (replay
+    --drop-method): the Profile's models read-only, a row CLICK routes
+    nothing."""
+    W.note("== 1. the strip CLICK opens Session settings: the list without a select")
+    W.check("pane: strip CLICK -> 'Session settings' with the Model card", open_pane(W))
+    W.check("pane: the models are listed", W.wait(lambda: bool(W.visible("b3_sc_model_2_title")), 6))
+    W.check("pane: 'Profile defaults are read-only on this server.'",
+            W.wait(lambda: W.text("b3_sc_models_readonly") == "Profile defaults are read-only on this server.", 6),
+            W.text("b3_sc_models_readonly"))
+    pane_numeric(W, "read-only list")
+    W.shot(f"01-pane-read-only-{MODE}")
+    W.mark()
+    r = W.rect("b3_sc_model_2_box") or W.rect("b3_sc_model_2_title")
+    if r:
+        W.note(f"CLICK the Kimi K3 row (no tap target while read-only) r={r}")
+        W.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
+    W.check("pane: a row CLICK routes nothing (no 'Saving…', no select on the wire)",
+            r is not None and not W.wait(lambda: bool(W.visible("b3_sc_model_saving")), 1.5)
+            and W.replay_saw("profile/llm/select", 1) == 0)
+    W.check("pane: closed", close_pane(W))
+
+
 # ---------------------------------------------------------------- sidebar
 
 A8_TITLES = ["Fix steer queue drop on reconnect", "Add session fork", "Review PR #2566",
@@ -379,6 +404,9 @@ if __name__ == "__main__":
                              replay_args=["--slow", "profile/skills/install=25000"]))
     if WHICH == "restart":
         sys.exit(run_session(restart, mode=MODE, outdir=OUT, scenario="a10"))
+    if WHICH == "readonly":
+        sys.exit(run_session(readonly, mode=MODE, outdir=OUT, scenario="a10",
+                             replay_args=["--drop-method", "profile/llm/select"]))
     if WHICH == "sidebar":
         sys.exit(run_sidebar())
     raise SystemExit(f"unknown walk {WHICH!r}")

@@ -296,6 +296,9 @@ pub struct PaneState {
     pub external_change: bool,
     pub model_saving: bool,
     pub model_notice: Option<String>,
+    /// The last `profile/llm/list` read failed: the list is UNREAD, never
+    /// "no models" (`modelControlState` error, `model-projection.ts:8-18`).
+    pub models_error: Option<String>,
     /// The web's `restartHint` per Session: whether the last selection —
     /// this pane's picker or the composer's model menu — answered
     /// `restart_required` (`seats::answer_needs_restart`).
@@ -438,7 +441,9 @@ pub fn mirror_inventory(store: &Store) {
 pub fn perform(st: &mut PaneState, action: &str, index: usize, store: &Store) -> Outcome {
     match action {
         "b3.sc.model" => {
-            if st.model_saving {
+            // Read-only without `profile/llm/select` (fail closed: nothing
+            // unadvertised reaches the wire).
+            if st.model_saving || !advertised(store, LLM_SELECT) {
                 return Outcome::Done;
             }
             match st.models.get(index) {
@@ -505,6 +510,15 @@ pub fn perform(st: &mut PaneState, action: &str, index: usize, store: &Store) ->
             }
             _ => Outcome::Done,
         },
+        // The model list's Try again (`ModelsSettingsContent.tsx:118-128`
+        // `onRefresh`): the pane's reads again.
+        "b3.sc.models.retry" => {
+            if st.loading {
+                return Outcome::Done;
+            }
+            st.loading = true;
+            Outcome::Spawn(Job::PaneLoad)
+        }
         "b3.sc.thinking" => {
             // `onShowThinkingChange` (`App.tsx:3302-3306`): the Session's
             // visibility AND the persisted preference.
@@ -584,6 +598,7 @@ pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
             Err(e) => notes.push(format!("{PERM_LIST}: {e}")),
         }
     }
+    let mut models_error = None;
     let models = if advertised(store, LLM_LIST) {
         match conv
             .client()
@@ -593,6 +608,7 @@ pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
             Ok(v) => Some(parse_models(&v)),
             Err(e) => {
                 notes.push(format!("{LLM_LIST}: {e}"));
+                models_error = Some(crate::screens::dialog::display_error(&e.to_string()));
                 None
             }
         }
@@ -618,6 +634,7 @@ pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
     let p = &mut st.pane;
     p.loading = false;
     p.status = status;
+    p.models_error = models_error;
     if let Some(models) = models {
         // Case 23 (`use-model-selection.ts:162-190`): a refresh that shows a
         // different selection than the last one seen, which this pane did
@@ -991,7 +1008,21 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
         let notice = super::seats::restart_notice(profile_default.as_ref().map(|(n, _, _)| n.as_str()), runtime.as_deref());
         restart_box(d, "b3_sc_restart", &notice);
     }
-    if !st.models.is_empty() {
+    // The list's states (`modelControlState` + `ModelsSettingsContent.tsx:
+    // 109-138`): loading only while nothing is listed yet; unread (a failed
+    // read) is an error with Try again, never "no models"; an empty read says
+    // so; without `profile/llm/select` the rows are the Profile's, read-only.
+    let can_select = advertised(store, LLM_SELECT);
+    if st.loading && st.models.is_empty() {
+        status_line(d, "b3_sc_models_loading", "Loading models…", tok::MUTED);
+    } else if !advertised(store, LLM_LIST) {
+        status_line(d, "b3_sc_models_none", "Not supported by this server", tok::MUTED);
+    } else if let Some(e) = &st.models_error {
+        ui::failure(d, "b3_sc_models_error", "Couldn't load the models.", e);
+        d.button("b3_sc_models_retry", "Try again", "b3.sc.models.retry", if st.loading { Btn::OutlineOff } else { Btn::Outline }, W::Fit, 32.0);
+    } else if st.models.is_empty() {
+        status_line(d, "b3_sc_models_empty", "No models are available.", tok::MUTED);
+    } else {
         d.gap(W::Fill, 2.0);
         d.hairline();
         for (i, m) in st.models.iter().enumerate() {
@@ -1000,13 +1031,12 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
                 (Some(r), _) => format!("{} · {r}", m.family_id),
                 (None, _) => m.family_id.clone(),
             };
-            let event = (!st.model_saving && m.available && !m.selected).then(|| format!("b3.sc.model#{i}"));
+            let event = (can_select && !st.model_saving && m.available && !m.selected).then(|| format!("b3.sc.model#{i}"));
             choice_row(d, &format!("b3_sc_model_{i}"), &m.title, Some(&sub), m.selected, event.as_deref(), inner_w);
         }
-    } else if st.loading {
-        status_line(d, "b3_sc_models_loading", "Loading models…", tok::MUTED);
-    } else if !advertised(store, LLM_LIST) {
-        status_line(d, "b3_sc_models_none", "Not supported by this server", tok::MUTED);
+        if !can_select {
+            status_line(d, "b3_sc_models_readonly", "Profile defaults are read-only on this server.", tok::MUTED);
+        }
     }
     if st.model_saving {
         status_line(d, "b3_sc_model_saving", "Saving…", tok::MUTED);
@@ -1389,7 +1419,7 @@ mod tests {
     fn the_pane_lowers_balanced_with_every_section_and_its_taps() {
         let store = Store::new();
         store.set_active(Some("s".into()));
-        store.domains.config.set_supported_methods(vec![PERM_SET.into(), LLM_LIST.into()]);
+        store.domains.config.set_supported_methods(vec![PERM_SET.into(), LLM_LIST.into(), LLM_SELECT.into()]);
         let st = PaneState {
             models: vec![ModelRow { title: "glm-5".into(), model_id: "glm-5".into(), family_id: "zhipu".into(), provider: "zhipu".into(), route_id: None, route_label: None, selected: false, available: true }],
             advanced_open: true,
@@ -1448,6 +1478,48 @@ mod tests {
             lower(&st).contains("Profile default is DeepSeek V4 Flash. This Octos process is still serving glm-5."),
             "another runtime model needs a restart without any hint"
         );
+    }
+
+    /// The model list's states (`modelControlState`,
+    /// `ModelsSettingsContent.tsx:109-138`): loading while nothing is listed;
+    /// a failed read is an error with Try again — never "no models"; an
+    /// empty read says "No models are available."; without
+    /// `profile/llm/select` the rows are read-only (no tap, the web's line,
+    /// and a stray pick routes nothing).
+    #[test]
+    fn the_model_list_reads_loading_error_empty_and_read_only() {
+        let store = Store::new();
+        store.set_active(Some("s".into()));
+        store.domains.config.set_supported_methods(vec![LLM_LIST.into(), LLM_SELECT.into()]);
+        let lower = |st: &PaneState, store: &Store| {
+            let mut d = Dsl::new();
+            build(&mut d, st, &mut Default::default(), &Frame::DESKTOP, store);
+            d.finish()
+        };
+        let loading = lower(&PaneState { loading: true, ..Default::default() }, &store);
+        assert!(loading.contains("Loading models…") && !loading.contains("No models are available."));
+        let failed = PaneState { models_error: Some("profile store unavailable".into()), ..Default::default() };
+        let dsl = lower(&failed, &store);
+        assert!(dsl.contains("Couldn't load the models.") && !dsl.contains("No models are available."), "unread is not empty");
+        assert!(crate::screens::taps::wired_taps(&dsl).iter().any(|(_, e)| e == "b3.sc.models.retry"), "Try again");
+        let mut st = failed.clone();
+        assert_eq!(perform(&mut st, "b3.sc.models.retry", 0, &store), Outcome::Spawn(Job::PaneLoad));
+        assert_eq!(perform(&mut st, "b3.sc.models.retry", 0, &store), Outcome::Done, "one read at a time");
+        assert!(lower(&PaneState::default(), &store).contains("No models are available."), "an empty read");
+        let rows = PaneState {
+            models: parse_models(&json!({"models": [
+                {"model": "glm-5", "provider": "zhipu", "route": "zhipu", "selected": false, "available": true}
+            ]})),
+            ..Default::default()
+        };
+        assert!(crate::screens::taps::wired_taps(&lower(&rows, &store)).iter().any(|(_, e)| e == "b3.sc.model#0"));
+        store.domains.config.set_supported_methods(vec![LLM_LIST.into()]);
+        let ro = lower(&rows, &store);
+        assert!(ro.contains("Profile defaults are read-only on this server."));
+        assert!(!crate::screens::taps::wired_taps(&ro).iter().any(|(_, e)| e.starts_with("b3.sc.model#")), "no pick is wired");
+        let mut st = rows.clone();
+        assert_eq!(perform(&mut st, "b3.sc.model", 0, &store), Outcome::Done, "a stray pick routes nothing");
+        assert!(!st.model_saving);
     }
 
     /// `model-section.tsx:76-81`: "This response is using:" only while a turn
