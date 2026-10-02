@@ -51,6 +51,9 @@ pub mod remembered;
 // profile/local/create -> profile/llm/test -> profile/llm/upsert -> open).
 pub mod onboarding;
 pub mod media;
+// A23: the model-provider controller + projection the providers dialog and
+// the provider editor share (web model-settings.ts + model-management-projection.ts).
+pub mod model_settings;
 pub mod models;
 // #D1: the five native-pairing cards (p4-01..p4-05) — one owner per action id.
 pub mod pairing;

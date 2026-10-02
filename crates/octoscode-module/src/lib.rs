@@ -2857,6 +2857,14 @@ impl OctoscodeView {
                 self.connect_key = None;
             }
             Work::Scan => cx.show_qr_scanner(),
+            // A23 — the provider editor opened from the providers dialog
+            // closed: the dialog returns (re-read) with the editor's line.
+            Work::ReturnToProviders { notice } => {
+                let outcome = screens::board3::host::reopen_routes(notice);
+                self.board3_outcome(cx, outcome);
+            }
+            // A23 — the GLM-5.3-Flash guidance's "Official guide".
+            Work::OpenUrl(url) => cx.open_url(&url, OpenUrlInPlace::No),
             Work::Forget => {
                 // Walk 112: the credential goes and the connect form returns
                 // empty — the same Offline the drawer's Disconnect sets.

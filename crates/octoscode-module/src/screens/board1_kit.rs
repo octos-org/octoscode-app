@@ -223,6 +223,29 @@ fn pill(
     )
 }
 
+/// A23 — the outline pill at its label's width (the editor's probe actions,
+/// "Test connection" / "Fetch available models"): the board's outline pill
+/// (1.5 px ink edge, 999 radius) with side padding instead of a Fill width.
+pub fn pill_outline_fit(id: &str, label: &str, height: f64) -> String {
+    let edge = INK;
+    format!(
+        "{id} := ButtonFlat {{\nwidth: Fit height: {height} padding: Inset{{left: 18 right: 18}} margin: 0 align: Align{{x: 0.5 y: 0.5}}\ntext: {}\ndraw_bg +: {{color: {WHITE} color_hover: #f5f5f7ff color_down: #ececeeff color_focus: {WHITE} color_disabled: {WHITE} border_size: 1.5 border_radius: {} border_color: {edge} border_color_hover: {edge} border_color_down: {edge} border_color_focus: {edge} border_color_disabled: {edge}}}\ndraw_text +: {{color: {INK} color_hover: {INK} color_down: {INK} color_focus: {INK} color_disabled: {INK} text_style: {}}}\n}}\n",
+        lit(label),
+        height / 4.0,
+        font(600, 14.0)
+    )
+}
+
+/// A23 — a status line: a round dot and its sentence (board 3's status
+/// light, "● connected"): green for a passed probe, red for a failed one.
+pub fn status_line(id: &str, text: &str, ok: bool) -> String {
+    let (dot, ink) = if ok { ("#1f883dff", "#166534ff") } else { (RED, RED) };
+    format!(
+        "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8\nDesignSurface {{ width: 8 height: 8 show_bg: true draw_bg.color: {dot} draw_bg.radius: 4 draw_bg.ellipse: 1 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: {CLEAR} }}\n{}}}\n",
+        Text::new(id, text).px(14.0).color(ink).fill().dsl()
+    )
+}
+
 /// A text-only control (the board's blue link, or the red "Forget this device").
 pub fn link(id: &str, label: &str, color: &str, px: f64, weight: u16) -> String {
     format!(
