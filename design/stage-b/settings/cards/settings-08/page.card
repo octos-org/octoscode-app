@@ -1,0 +1,156 @@
+# ledger settings-08@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Settings" }
+copy perm_ask_label_text { class: user-copy, en: "" }
+copy t_opt1_text { class: user-copy, en: "Ask for approval" }
+copy t_opt1_d_text { class: user-copy, en: "Server asks before shell, write and network" }
+copy perm_workspace_label_text { class: user-copy, en: "" }
+copy t_opt2_text { class: user-copy, en: "Auto-approve in workspace" }
+copy t_opt2_d_text { class: user-copy, en: "Approve actions in this workspace" }
+copy perm_full_label_text { class: user-copy, en: "" }
+copy t_opt3_text { class: user-copy, en: "Full access" }
+copy t_opt3_d_text { class: user-copy, en: "No prompts • full read/write/network" }
+copy t_readback_text { class: user-copy, en: "Server: ask before shell, write and network" }
+copy t_advanced_text { class: user-copy, en: "Advanced…" }
+copy advanced_link_label_text { class: user-copy, en: "" }
+state perm_ask_control_enabled { shape: bool, initial: true }
+state perm_workspace_control_enabled { shape: bool, initial: true }
+state perm_full_control_enabled { shape: bool, initial: true }
+state advanced_link_control_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Surfacee5b93d650579(instance: text) {
+  view Kit(component: "Surfacee5b93d650579", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Textc6f4d696a751(instance: text, text: text) {
+  view Kit(component: "Textc6f4d696a751", instance: instance, text: text)
+}
+component Surfaceb137a51eded7(instance: text) {
+  view Kit(component: "Surfaceb137a51eded7", instance: instance) { slot }
+}
+component Surfacef14af3ff6c0c(instance: text) {
+  view Kit(component: "Surfacef14af3ff6c0c", instance: instance) { slot }
+}
+component KitButton04c0a703bffb(instance: text) {
+  view Kit(component: "KitButton04c0a703bffb", instance: instance) { slot }
+}
+component Surfacee502f30c4358(instance: text) {
+  view Kit(component: "Surfacee502f30c4358", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Textc1271c2044f7(instance: text, text: text) {
+  view Kit(component: "Textc1271c2044f7", instance: instance, text: text)
+}
+component Text82db225a86a2(instance: text, text: text) {
+  view Kit(component: "Text82db225a86a2", instance: instance, text: text)
+}
+component Text8eb7fd5b8f7e(instance: text, text: text) {
+  view Kit(component: "Text8eb7fd5b8f7e", instance: instance, text: text)
+}
+component Surfacef62c27e92548(instance: text) {
+  view Kit(component: "Surfacef62c27e92548", instance: instance) { slot }
+}
+component KitButton070603f926e6(instance: text) {
+  view Kit(component: "KitButton070603f926e6", instance: instance) { slot }
+}
+component Text7f0c4527a910(instance: text, text: text) {
+  view Kit(component: "Text7f0c4527a910", instance: instance, text: text)
+}
+component Textae3123d4756a(instance: text, text: text) {
+  view Kit(component: "Textae3123d4756a", instance: instance, text: text)
+}
+component Texte79f4352e82c(instance: text, text: text) {
+  view Kit(component: "Texte79f4352e82c", instance: instance, text: text)
+}
+component Textce69a2316473(instance: text, text: text) {
+  view Kit(component: "Textce69a2316473", instance: instance, text: text)
+}
+component Surfacec4c38149242a(instance: text) {
+  view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
+}
+component Textc5174abdaaa4(instance: text, text: text) {
+  view Kit(component: "Textc5174abdaaa4", instance: instance, text: text)
+}
+component Text85e30ff2ccf5(instance: text, text: text) {
+  view Kit(component: "Text85e30ff2ccf5", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surfacef228e8bd3284(instance: text) {
+  view Kit(component: "Surfacef228e8bd3284", instance: instance) { slot }
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Surfacee5b93d650579(instance: "rail_chip") {
+
+  }
+  Vectore0a378fde04f(instance: "rail_gear_i")
+  Vectore0a378fde04f(instance: "rail_shield_i")
+  Vectore0a378fde04f(instance: "rail_code_i")
+  Vectore0a378fde04f(instance: "rail_box_i")
+  Vectore0a378fde04f(instance: "rail_plug_i")
+  Vectore0a378fde04f(instance: "rail_info_i")
+  Vectore0a378fde04f(instance: "back")
+  Textc6f4d696a751(instance: "t_title", text: copy.t_title_text)
+  Surfaceb137a51eded7(instance: "perm_ask_ring") {
+
+  }
+  Surfacef14af3ff6c0c(instance: "perm_ask_dot") {
+
+  }
+  KitButton04c0a703bffb(instance: "perm_ask") {
+    Surfacee502f30c4358(instance: "perm_ask_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "perm_ask_control", enabled: perm_ask_control_enabled)
+    Textc1271c2044f7(instance: "perm_ask_label", text: copy.perm_ask_label_text)
+  }
+  Text82db225a86a2(instance: "t_opt1", text: copy.t_opt1_text)
+  Text8eb7fd5b8f7e(instance: "t_opt1_d", text: copy.t_opt1_d_text)
+  Surfacef62c27e92548(instance: "perm_workspace_ring") {
+
+  }
+  KitButton070603f926e6(instance: "perm_workspace") {
+    Surfacee502f30c4358(instance: "perm_workspace_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "perm_workspace_control", enabled: perm_workspace_control_enabled)
+    Textc1271c2044f7(instance: "perm_workspace_label", text: copy.perm_workspace_label_text)
+  }
+  Text7f0c4527a910(instance: "t_opt2", text: copy.t_opt2_text)
+  Textae3123d4756a(instance: "t_opt2_d", text: copy.t_opt2_d_text)
+  Surfacef62c27e92548(instance: "perm_full_ring") {
+
+  }
+  KitButton04c0a703bffb(instance: "perm_full") {
+    Surfacee502f30c4358(instance: "perm_full_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "perm_full_control", enabled: perm_full_control_enabled)
+    Textc1271c2044f7(instance: "perm_full_label", text: copy.perm_full_label_text)
+  }
+  Texte79f4352e82c(instance: "t_opt3", text: copy.t_opt3_text)
+  Textce69a2316473(instance: "t_opt3_d", text: copy.t_opt3_d_text)
+  Surfacec4c38149242a(instance: "div") {
+
+  }
+  Textc5174abdaaa4(instance: "t_readback", text: copy.t_readback_text)
+  Text85e30ff2ccf5(instance: "t_advanced", text: copy.t_advanced_text)
+  KitButton2c6804b990a5(instance: "advanced_link") {
+    Surfacef228e8bd3284(instance: "advanced_link_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "advanced_link_control", enabled: advanced_link_control_enabled)
+    Textc1271c2044f7(instance: "advanced_link_label", text: copy.advanced_link_label_text)
+  }
+}

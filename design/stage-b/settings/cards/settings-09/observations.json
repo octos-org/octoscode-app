@@ -1,0 +1,452 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "f7b615150eec65add22fbb5fb5870e39c03e7a116e80311f7fda04fe31b4f5d1",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 1.1340415506532446,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Settings",
+      "requested_bounds": [
+        72.06,
+        40.2,
+        60.77,
+        40.84
+      ],
+      "status": "observed",
+      "ocr_text": "Settings",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        73.3582554517134,
+        44.53565217391304,
+        56.91588785046729,
+        35.08869565217391
+      ],
+      "ink_color": [
+        6,
+        5,
+        6
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.06219496822605,
+        40.202526778421856,
+        60.77280521095727,
+        40.84494564268325
+      ]
+    },
+    {
+      "id": "t_row1",
+      "expected_text": "Sandbox",
+      "requested_bounds": [
+        72.03,
+        142.29,
+        60.84,
+        36.05
+      ],
+      "status": "observed",
+      "ocr_text": "Sandbox",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        73.3582554517134,
+        145.75304347826085,
+        56.91588785046729,
+        25.641739130434782
+      ],
+      "ink_color": [
+        5,
+        4,
+        4
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.02922222234314,
+        142.29330745778466,
+        60.838750845175305,
+        36.05227340592273
+      ]
+    },
+    {
+      "id": "sandbox_write_label",
+      "expected_text": "",
+      "requested_bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_row1_d",
+      "expected_text": "Workspace write",
+      "requested_bounds": [
+        71.98,
+        219.45,
+        98.88,
+        38.02
+      ],
+      "status": "observed",
+      "ocr_text": "Workspace write",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        73.3582554517134,
+        222.6782608695652,
+        96.7570093457944,
+        29.690434782608694
+      ],
+      "ink_color": [
+        17,
+        17,
+        17
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        71.98119296956362,
+        219.4470067617642,
+        98.87873341212764,
+        38.02265477180481
+      ]
+    },
+    {
+      "id": "t_row2",
+      "expected_text": "Allow writes inside the workspace",
+      "requested_bounds": [
+        72.09,
+        266.75,
+        185.93,
+        32.33
+      ],
+      "status": "observed",
+      "ocr_text": "Allow writes inside the workspace",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        73.3582554517134,
+        267.21391304347827,
+        183.3956386292835,
+        29.690434782608694
+      ],
+      "ink_color": [
+        137,
+        140,
+        147
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.09345976207162,
+        266.75000040416666,
+        185.92523364485984,
+        32.3333333333333
+      ]
+    },
+    {
+      "id": "sandbox_network_label",
+      "expected_text": "",
+      "requested_bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_row2_d",
+      "expected_text": "Network access",
+      "requested_bounds": [
+        72.09,
+        366.44,
+        92.33,
+        29.64
+      ],
+      "status": "observed",
+      "ocr_text": "Network access",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        73.99065420560748,
+        367.08173913043476,
+        89.16822429906543,
+        24.292173913043477
+      ],
+      "ink_color": [
+        27,
+        27,
+        27
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.09345719558672,
+        366.44444419745366,
+        92.33021806853583,
+        29.638888888888957
+      ]
+    },
+    {
+      "id": "t_row3",
+      "expected_text": "Allow outbound network requests",
+      "requested_bounds": [
+        73.36,
+        417.64,
+        183.4,
+        29.64
+      ],
+      "status": "observed",
+      "ocr_text": "Allow outbound network requests",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        73.3582554517134,
+        417.015652173913,
+        182.13084112149534,
+        28.34086956521739
+      ],
+      "ink_color": [
+        132,
+        135,
+        140
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        73.35825698001037,
+        417.6388887766204,
+        183.39563862928352,
+        29.63888888888887
+      ]
+    },
+    {
+      "id": "sandbox_read_outside_label",
+      "expected_text": "",
+      "requested_bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_row3_d",
+      "expected_text": "Read outside workspace",
+      "requested_bounds": [
+        72.09,
+        514.64,
+        142.92,
+        35.03
+      ],
+      "status": "observed",
+      "ocr_text": "Read outside workspace",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        73.99065420560748,
+        515.5339130434783,
+        140.39252336448598,
+        31.04
+      ],
+      "ink_color": [
+        24,
+        25,
+        25
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.09345894311527,
+        514.6388892391667,
+        142.92211838006233,
+        35.027777777777736
+      ]
+    },
+    {
+      "id": "t_foot",
+      "expected_text": "Allow reading files outside the workspace",
+      "requested_bounds": [
+        73.36,
+        565.83,
+        222.6,
+        35.03
+      ],
+      "status": "observed",
+      "ocr_text": "Allow reading files outside the workspace",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        73.3582554517134,
+        566.8173913043478,
+        221.33956386292834,
+        29.690434782608694
+      ],
+      "ink_color": [
+        142,
+        145,
+        152
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        73.35825471813084,
+        565.8333336836112,
+        222.60436137071656,
+        35.027777777777736
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "back",
+      "bounds": [
+        18.0,
+        44.0,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "sandbox_write",
+      "bounds": [
+        330.0,
+        222.0,
+        50.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4291616507,
+      "radius": 15.0
+    },
+    {
+      "id": "sandbox_write_knob",
+      "bounds": [
+        356.0,
+        225.0,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294704382,
+      "radius": 12.0
+    },
+    {
+      "id": "sandbox_network",
+      "bounds": [
+        330.0,
+        369.0,
+        50.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293322730,
+      "radius": 15.0
+    },
+    {
+      "id": "sandbox_network_knob",
+      "bounds": [
+        333.0,
+        372.0,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.0
+    },
+    {
+      "id": "sandbox_read_outside",
+      "bounds": [
+        330.0,
+        517.0,
+        50.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293388522,
+      "radius": 15.0
+    },
+    {
+      "id": "sandbox_read_outside_knob",
+      "bounds": [
+        333.0,
+        520.0,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294769917,
+      "radius": 12.0
+    },
+    {
+      "id": "div",
+      "bounds": [
+        24.0,
+        674.0,
+        358.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        23.999999728571424,
+        229.6006945727927,
+        37.99999999999999,
+        29.947916666666625
+      ],
+      "confidence": 1,
+      "text": "\u2039>"
+    },
+    {
+      "bounds": [
+        29.99999988571429,
+        361.3715275353423,
+        28.000000000000004,
+        33.94097222222223
+      ],
+      "confidence": 1,
+      "text": "$"
+    },
+    {
+      "bounds": [
+        116.00000254999998,
+        521.0937499001735,
+        306.00000000000006,
+        23.95833333333331
+      ],
+      "confidence": 1,
+      "text": "Applies to new turns in this session"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

@@ -1,0 +1,534 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface156d085f4ff5",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        406.0,
+        776.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "rail_chip",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface0a56596fdcbe",
+      "semantic_role": "layout",
+      "bounds": [
+        11.0,
+        121.0,
+        42.0,
+        50.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "rail_gear_i",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        16.0,
+        130.0,
+        24.0,
+        34.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "rail_shield_i",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        16.0,
+        218.0,
+        24.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "rail_code_i",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        16.0,
+        318.0,
+        24.0,
+        34.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "rail_box_i",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        16.0,
+        404.0,
+        24.0,
+        54.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "rail_plug_i",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        16.0,
+        500.0,
+        24.0,
+        50.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "rail_info_i",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        16.0,
+        592.0,
+        24.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "dim",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaced3531a881782",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        406.0,
+        776.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "b_title",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textd791394674eb",
+      "semantic_role": "text",
+      "bounds": [
+        74.8,
+        44.7,
+        61.91,
+        38.34
+      ],
+      "text": "Settings",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 14.49
+    },
+    {
+      "source_id": "b_sec",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text9e3e4e51c5dd",
+      "semantic_role": "text",
+      "bounds": [
+        74.23,
+        146.33,
+        48.24,
+        27.35
+      ],
+      "text": "General",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 11.72
+    },
+    {
+      "source_id": "b_stop",
+      "native_id": "beauty_0_10",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text764ac8ba9b39",
+      "semantic_role": "text",
+      "bounds": [
+        73.2,
+        635.3,
+        84.87,
+        46.88
+      ],
+      "text": "Stop server\u2026",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "b_stop_help",
+      "native_id": "beauty_0_11",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texte902af0900c3",
+      "semantic_role": "text",
+      "bounds": [
+        74.79,
+        683.35,
+        208.3,
+        32.84
+      ],
+      "text": "Shuts down Octos on this computer",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12.08
+    },
+    {
+      "source_id": "modal",
+      "native_id": "beauty_0_12",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface6cd31c06adc5",
+      "semantic_role": "layout",
+      "bounds": [
+        28.0,
+        176.0,
+        350.0,
+        372.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "m_title",
+      "native_id": "beauty_0_13",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text74092aa779ea",
+      "semantic_role": "text",
+      "bounds": [
+        112.45,
+        230.11,
+        185.53,
+        42.46
+      ],
+      "text": "Stop the Octos server?",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 16.4
+    },
+    {
+      "source_id": "m_body1",
+      "native_id": "beauty_0_14",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textcbc0a5932961",
+      "semantic_role": "text",
+      "bounds": [
+        97.91,
+        315.27,
+        222.62,
+        35.59
+      ],
+      "text": "All sessions on this computer stop.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.27
+    },
+    {
+      "source_id": "m_body2",
+      "native_id": "beauty_0_15",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text218adebaf198",
+      "semantic_role": "text",
+      "bounds": [
+        108.14,
+        366.08,
+        192.69,
+        35.59
+      ],
+      "text": "Running turns are interrupted.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.33
+    },
+    {
+      "source_id": "cancel_btn_fill",
+      "native_id": "beauty_0_16",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface3e28bd1e494c",
+      "semantic_role": "layout",
+      "bounds": [
+        58.0,
+        480.0,
+        128.0,
+        46.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "cancel_label",
+      "native_id": "beauty_0_17",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textf99ab23b7b66",
+      "semantic_role": "text",
+      "bounds": [
+        121.0,
+        490.4,
+        47.0,
+        33.7
+      ],
+      "text": "Cancel",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14.5
+    },
+    {
+      "source_id": "cancel_btn",
+      "native_id": "beauty_0_18",
+      "parent": "page",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        58.0,
+        480.0,
+        128.0,
+        46.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "cancel_btn_surface",
+      "native_id": "beauty_0_18_0",
+      "parent": "cancel_btn",
+      "kind": "stack",
+      "component": "Surfacee502f30c4358",
+      "semantic_role": "layout",
+      "bounds": [
+        58.0,
+        480.0,
+        128.0,
+        46.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "cancel_btn_control",
+      "native_id": "beauty_0_18_1",
+      "parent": "cancel_btn",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        58.0,
+        480.0,
+        128.0,
+        46.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "cancel_btn_label",
+      "native_id": "beauty_0_18_2",
+      "parent": "cancel_btn",
+      "kind": "text",
+      "component": "Textc1271c2044f7",
+      "semantic_role": "text",
+      "bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "text": "",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 10.0
+    },
+    {
+      "source_id": "stop_btn_fill",
+      "native_id": "beauty_0_19",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceceb1d642b847",
+      "semantic_role": "layout",
+      "bounds": [
+        220.0,
+        480.0,
+        128.0,
+        46.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "stop_btn_label",
+      "native_id": "beauty_0_20",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text9ae876351092",
+      "semantic_role": "text",
+      "bounds": [
+        234.86,
+        484.2,
+        85.33,
+        57.56
+      ],
+      "text": "Stop server",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 14.52
+    },
+    {
+      "source_id": "stop_confirm",
+      "native_id": "beauty_0_21",
+      "parent": "page",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        220.0,
+        480.0,
+        128.0,
+        46.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "stop_confirm_surface",
+      "native_id": "beauty_0_21_0",
+      "parent": "stop_confirm",
+      "kind": "stack",
+      "component": "Surfacee502f30c4358",
+      "semantic_role": "layout",
+      "bounds": [
+        220.0,
+        480.0,
+        128.0,
+        46.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "stop_confirm_control",
+      "native_id": "beauty_0_21_1",
+      "parent": "stop_confirm",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        220.0,
+        480.0,
+        128.0,
+        46.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "stop_confirm_label",
+      "native_id": "beauty_0_21_2",
+      "parent": "stop_confirm",
+      "kind": "text",
+      "component": "Textc1271c2044f7",
+      "semantic_role": "text",
+      "bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "text": "",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 10.0
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "90ad8fc36606b0213f8563e1b0c75efdb06a0bcc60af8f3b6932dee38c3eee2b",
+  "mapping_basis": "mapped.json"
+}

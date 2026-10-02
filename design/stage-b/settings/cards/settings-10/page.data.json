@@ -1,0 +1,129 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "strip": {
+        "component": "Surfaceb4206391250d",
+        "layout": {
+          "x": 5.0,
+          "y": 9.0,
+          "w": 397.0,
+          "h": 137.0
+        }
+      },
+      "t_strip1": {
+        "component": "Text6757ae954469",
+        "layout": {
+          "x": 17.14,
+          "y": 45.65,
+          "w": 321.64,
+          "h": 32.22
+        }
+      },
+      "t_strip2": {
+        "component": "Text6757ae954469",
+        "layout": {
+          "x": 15.82,
+          "y": 88.61,
+          "w": 154.23,
+          "h": 32.22
+        }
+      },
+      "t_change": {
+        "component": "Textceafa785adbf",
+        "layout": {
+          "x": 338.05,
+          "y": 88.11,
+          "w": 45.59,
+          "h": 30.9
+        }
+      },
+      "defaults_change": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 326.0,
+          "y": 84.0,
+          "w": 70.0,
+          "h": 42.0
+        }
+      },
+      "defaults_change_surface": {
+        "component": "Surfacef228e8bd3284",
+        "layout": {
+          "x": 326.0,
+          "y": 84.0,
+          "w": 70.0,
+          "h": 42.0
+        }
+      },
+      "defaults_change_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 326.0,
+          "y": 84.0,
+          "w": 70.0,
+          "h": 42.0
+        }
+      },
+      "defaults_change_label": {
+        "component": "Textc1271c2044f7",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 8.0,
+          "h": 15.0
+        }
+      },
+      "t_placeholder": {
+        "component": "Text8936e01c41d7",
+        "layout": {
+          "x": 113.13,
+          "y": 354.4,
+          "w": 160.46,
+          "h": 41.66
+        }
+      },
+      "t_placeholder_sub": {
+        "component": "Text30658d2fdf24",
+        "layout": {
+          "x": 93.09,
+          "y": 413.57,
+          "w": 204.69,
+          "h": 25.52
+        }
+      },
+      "composer": {
+        "component": "Inputd45730a1c3f5",
+        "layout": {
+          "x": 20.0,
+          "y": 580.0,
+          "w": 366.0,
+          "h": 84.0
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "composer",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "composer",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

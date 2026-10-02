@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "88d3ae1b3bfe1d46bbc974711a15640b3662ef67d336ea28190ad62ed51622f8",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      55.0,
+      109.0,
+      347.0,
+      480.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "back",
+      "bounds": [
+        18.0,
+        44.0,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "perm_ask",
+      "bounds": [
+        46.0,
+        228.0,
+        22.0,
+        22.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.0
+    },
+    {
+      "id": "perm_ask_dot",
+      "bounds": [
+        53.0,
+        235.0,
+        8.0,
+        8.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "radius": 4.0
+    },
+    {
+      "id": "perm_workspace",
+      "bounds": [
+        46.0,
+        348.0,
+        22.0,
+        22.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 11.0
+    },
+    {
+      "id": "perm_full",
+      "bounds": [
+        46.0,
+        470.0,
+        22.0,
+        22.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.0
+    },
+    {
+      "id": "div",
+      "bounds": [
+        24.0,
+        596.0,
+        358.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    }
+  ]
+}

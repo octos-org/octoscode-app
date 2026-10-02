@@ -1,0 +1,144 @@
+# ledger settings-06@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "General" }
+copy t_notif_text { class: user-copy, en: "Desktop notifications" }
+copy notifications_toggle_label_text { class: user-copy, en: "" }
+copy t_help1_text { class: user-copy, en: "Notify when a turn needs you or" }
+copy t_help2_text { class: user-copy, en: "finishes while OctosCode is in the" }
+copy t_help3_text { class: user-copy, en: "background" }
+copy t_theme_text { class: user-copy, en: "Theme" }
+copy t_theme_v_text { class: user-copy, en: "System ▾" }
+copy t_server_text { class: user-copy, en: "Octos server" }
+copy t_server_v_text { class: user-copy, en: "127.0.0.1:50190 • Connected" }
+copy t_stop_text { class: user-copy, en: "Stop server…" }
+copy stop_row_label_text { class: user-copy, en: "" }
+copy t_stop_help_text { class: user-copy, en: "Shuts down Octos on this computer" }
+state notifications_toggle_control_enabled { shape: bool, initial: true }
+state stop_row_control_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Surface0a56596fdcbe(instance: text) {
+  view Kit(component: "Surface0a56596fdcbe", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Textab443e831880(instance: text, text: text) {
+  view Kit(component: "Textab443e831880", instance: instance, text: text)
+}
+component Surfacec4c38149242a(instance: text) {
+  view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
+}
+component Textdfa9e2b65a20(instance: text, text: text) {
+  view Kit(component: "Textdfa9e2b65a20", instance: instance, text: text)
+}
+component Surfaceb137a51eded7(instance: text) {
+  view Kit(component: "Surfaceb137a51eded7", instance: instance) { slot }
+}
+component Surface8f4a44fe5ed9(instance: text) {
+  view Kit(component: "Surface8f4a44fe5ed9", instance: instance) { slot }
+}
+component KitButton55c470ed1164(instance: text) {
+  view Kit(component: "KitButton55c470ed1164", instance: instance) { slot }
+}
+component Surfacee502f30c4358(instance: text) {
+  view Kit(component: "Surfacee502f30c4358", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Textc1271c2044f7(instance: text, text: text) {
+  view Kit(component: "Textc1271c2044f7", instance: instance, text: text)
+}
+component Text2ef1455a3505(instance: text, text: text) {
+  view Kit(component: "Text2ef1455a3505", instance: instance, text: text)
+}
+component Text261ac24de40d(instance: text, text: text) {
+  view Kit(component: "Text261ac24de40d", instance: instance, text: text)
+}
+component Text65d7719c169c(instance: text, text: text) {
+  view Kit(component: "Text65d7719c169c", instance: instance, text: text)
+}
+component Text2153ab381e3f(instance: text, text: text) {
+  view Kit(component: "Text2153ab381e3f", instance: instance, text: text)
+}
+component Texted9a4e39f297(instance: text, text: text) {
+  view Kit(component: "Texted9a4e39f297", instance: instance, text: text)
+}
+component Text1d2028810ca7(instance: text, text: text) {
+  view Kit(component: "Text1d2028810ca7", instance: instance, text: text)
+}
+component Text94b54f563235(instance: text, text: text) {
+  view Kit(component: "Text94b54f563235", instance: instance, text: text)
+}
+component Textb1920073cdcc(instance: text, text: text) {
+  view Kit(component: "Textb1920073cdcc", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surface5a25c66269e8(instance: text) {
+  view Kit(component: "Surface5a25c66269e8", instance: instance) { slot }
+}
+component Textd5de0da85a87(instance: text, text: text) {
+  view Kit(component: "Textd5de0da85a87", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Surface0a56596fdcbe(instance: "rail_chip") {
+
+  }
+  Vectore0a378fde04f(instance: "rail_gear_i")
+  Vectore0a378fde04f(instance: "rail_shield_i")
+  Vectore0a378fde04f(instance: "rail_code_i")
+  Vectore0a378fde04f(instance: "rail_box_i")
+  Vectore0a378fde04f(instance: "rail_plug_i")
+  Vectore0a378fde04f(instance: "rail_info_i")
+  Vectore0a378fde04f(instance: "back")
+  Textab443e831880(instance: "t_title", text: copy.t_title_text)
+  Surfacec4c38149242a(instance: "div1") {
+
+  }
+  Textdfa9e2b65a20(instance: "t_notif", text: copy.t_notif_text)
+  Surfaceb137a51eded7(instance: "notifications_toggle_pill") {
+    Surface8f4a44fe5ed9(instance: "notifications_toggle_knob") {
+
+    }
+  }
+  KitButton55c470ed1164(instance: "notifications_toggle") {
+    Surfacee502f30c4358(instance: "notifications_toggle_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "notifications_toggle_control", enabled: notifications_toggle_control_enabled)
+    Textc1271c2044f7(instance: "notifications_toggle_label", text: copy.notifications_toggle_label_text)
+  }
+  Text2ef1455a3505(instance: "t_help1", text: copy.t_help1_text)
+  Text261ac24de40d(instance: "t_help2", text: copy.t_help2_text)
+  Text65d7719c169c(instance: "t_help3", text: copy.t_help3_text)
+  Surfacec4c38149242a(instance: "div2") {
+
+  }
+  Text2153ab381e3f(instance: "t_theme", text: copy.t_theme_text)
+  Texted9a4e39f297(instance: "t_theme_v", text: copy.t_theme_v_text)
+  Surfacec4c38149242a(instance: "div3") {
+
+  }
+  Text1d2028810ca7(instance: "t_server", text: copy.t_server_text)
+  Text94b54f563235(instance: "t_server_v", text: copy.t_server_v_text)
+  Surfacec4c38149242a(instance: "div4") {
+
+  }
+  Textb1920073cdcc(instance: "t_stop", text: copy.t_stop_text)
+  KitButton2c6804b990a5(instance: "stop_row") {
+    Surface5a25c66269e8(instance: "stop_row_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "stop_row_control", enabled: stop_row_control_enabled)
+    Textc1271c2044f7(instance: "stop_row_label", text: copy.stop_row_label_text)
+  }
+  Textd5de0da85a87(instance: "t_stop_help", text: copy.t_stop_help_text)
+}
