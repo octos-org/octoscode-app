@@ -95,7 +95,11 @@ def conversation(rows, rep):
         module = next(w for w in rows if w["ty"] == "MpModuleView")
     pane = find(rows, "conversation_column")
     mod_r, pane_r = module["r"], pane["r"]
-    phone, pad, cpad, col_w, comp_w = metrics(mod_r[2], pane_r[2])
+    # The live chrome root: narrower than the module under an
+    # OCTOSENSE_WINDOW_SIZE viewport cap (the root's right padding).
+    base = find(rows, "base")
+    view_w = base["r"][2] if base else mod_r[2]
+    phone, pad, cpad, col_w, comp_w = metrics(view_w, pane_r[2])
     # The rows' content boxes: full-width rows (worked-for, tool cards,
     # actions) and the right-aligned bubble mark the column's two edges.
     kinds = ("workedfor", "toolcell", "assistantprose", "answeractions", "userbubble", "workingrow")
@@ -177,10 +181,14 @@ def conversation(rows, rep):
 def connect(rows, rep):
     module = next(w for w in rows if w["ty"] == "MpModuleView")
     mod_r = module["r"]
-    phone = mod_r[2] < 760
+    # Under an OCTOSENSE_WINDOW_SIZE cap the first-run chrome is narrower
+    # than the module (the root's right padding).
+    first = find(rows, "first_run")
+    view_r = first["r"] if first else mod_r
+    phone = view_r[2] < 760
     sidebar = 0 if phone else 261
     card = find(rows, "connect_card")
-    pane_l, pane_r = mod_r[0] + sidebar, right(mod_r)
+    pane_l, pane_r = view_r[0] + sidebar, right(view_r)
     c = card["r"]
     gl, gr = c[0] - pane_l, pane_r - right(c)
     rep.check("card centred in the pane", abs(gl - gr) <= TOL + 16 and gl >= 16 - TOL,

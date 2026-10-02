@@ -1259,6 +1259,10 @@ pub struct OctoscodeView {
     /// under the composer.
     #[rust]
     dock_overlap: f64,
+    /// A1 — `OCTOSENSE_WINDOW_SIZE`'s width: the content lays out at most
+    /// this wide (0 = the module's own width).
+    #[rust]
+    viewport_cap: f64,
     /// #32h TOP: the composer text the WIDGET currently holds (changed
     /// events and our own set_text keep it current). The store draft is
     /// pushed to the widget ONLY when it differs — a real external change
@@ -1327,13 +1331,16 @@ impl OctoscodeView {
         }
         // A1 — `OCTOSENSE_WINDOW_SIZE=WxH` (the phone-size check, RULES:
         // "reproduce phone issues on desktop at 360x780") now constrains the
-        // module's own width, so the responsive layout the env selects is
-        // also the width it lays out at (the shell window itself ignores the
-        // env). A width at or above the module's window changes nothing.
+        // module's own content width, so the responsive layout the env
+        // selects is also the width it lays out at (the shell window itself
+        // ignores the env). Applied per draw as right padding on the root
+        // overlay (`apply_viewport_cap`) — the module host lays the root out
+        // with its own walk, so a `max_width` on it measured no effect. A
+        // width at or above the module's window changes nothing.
         if let Ok(sz) = std::env::var("OCTOSENSE_WINDOW_SIZE") {
             if let Some(w) = sz.split_once('x').and_then(|(w, _)| w.parse::<f64>().ok()) {
                 if w > 0.0 {
-                    self.view.walk.max_width = Some(FitBound::Abs(w));
+                    self.viewport_cap = w;
                 }
             }
         }
@@ -2805,7 +2812,20 @@ impl OctoscodeView {
     /// the timeline rows read the same metrics per draw.
     fn track_conversation_geometry(&mut self, cx: &mut Cx, shell: DVec2) {
         let module = self.view.area().rect(cx);
-        let win_w = module.size.x;
+        // The env viewport cap: the root overlay's right padding keeps every
+        // layer at most `viewport_cap` wide.
+        if self.viewport_cap > 0.0 && module.size.x > 0.0 {
+            let pad = (module.size.x - self.viewport_cap).max(0.0).floor();
+            if (self.view.layout.padding.right - pad).abs() > 0.5 {
+                self.view.layout.padding.right = pad;
+                self.view.redraw(cx);
+            }
+        }
+        let win_w = if self.viewport_cap > 0.0 {
+            module.size.x.min(self.viewport_cap)
+        } else {
+            module.size.x
+        };
         // The desktop shell's dock floats over the bottom ~90 px of its window
         // (#28e2: dock top y≈810 at 900 tall). A floating module window ends
         // above it; a MAXIMIZED one reaches into it and the dock covered the
