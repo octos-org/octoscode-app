@@ -3439,12 +3439,32 @@ impl OctoscodeView {
         let splash = self.view.splash(cx, ids!(board3_splash));
         match self.mounts.mount(cx, &splash, &lowered.dsl) {
             Err(e) => makepad_widgets::log!("[octoscode] board3 mount: {e}"),
-            Ok(true) => makepad_widgets::log!(
-                "[octoscode] board3 mounted {:?}: {} tap(s), {} input(s)",
-                screens::board3::host::open_dialog(),
-                self.b3_taps.len(),
-                self.b3_inputs.len()
-            ),
+            Ok(true) => {
+                makepad_widgets::log!(
+                    "[octoscode] board3 mounted {:?}: {} tap(s), {} input(s)",
+                    screens::board3::host::open_dialog(),
+                    self.b3_taps.len(),
+                    self.b3_inputs.len()
+                );
+                // A10 — a remount rebuilds every input: when none of the
+                // rebuilt inputs holds the key focus, the text IME must not
+                // stay up (a phone's on-screen keyboard over the Fleet pane
+                // with no field to type in). Phone only: there the pane's
+                // fields are the only ones on screen (the composer is hidden
+                // under the pane, the sidebar is a closed drawer), so this
+                // never takes the focus from another field.
+                if conv_layout::current().density == conv_layout::Density::Phone
+                    && screens::board3::host::open_dialog() == Some(screens::board3::host::Dialog::Fleet)
+                {
+                    let focused = self.b3_inputs.iter().any(|(id, _)| {
+                        self.view.text_input(cx, &[live_id!(board3_splash), *id]).key_focus(cx)
+                    });
+                    if !focused {
+                        cx.set_key_focus(Area::Empty);
+                        cx.hide_text_ime();
+                    }
+                }
+            }
             Ok(false) => {}
         }
         self.board3_visibility(cx, &store);
