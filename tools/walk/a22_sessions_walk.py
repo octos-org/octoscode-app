@@ -62,17 +62,17 @@ SHOT_N = [0]
 
 
 def get(path, timeout=20):
+    """A read is retried; an input (/click, /t, /k, /m) never is: a click
+    re-sent after a slow frame lands on whatever moved under the pointer."""
+    once = path.startswith(("/click", "/t?", "/k?", "/m?"))
     for attempt in range(4):
         try:
             with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
                 return r.read()
-        except urllib.error.HTTPError:
-            if path.startswith(("/click", "/t?", "/k?", "/m?")):
+        except Exception:
+            if once:
                 time.sleep(0.3)
                 return b"{}"
-            if attempt == 3:
-                raise
-        except Exception:
             if attempt == 3:
                 raise
         time.sleep(0.5)
