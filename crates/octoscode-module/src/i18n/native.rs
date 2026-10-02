@@ -721,6 +721,29 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("The token budget is a whole number of tokens, such as 100000.", "令牌预算必须是整数，例如 100000。"),
     // ---- the transcript's working row (flow.rs turn_activity)
     ("Working \u{b7} {value0}s", "工作中 \u{b7} {value0} 秒"),
+    // ---- desktop notifications (attention.rs: the Settings row and the OS notice; desktop-notifications.ts has no zh)
+    ("Enabling\u{2026}", "正在开启\u{2026}"),
+    (
+        "Notify when a turn needs you or finishes while OctosCode is in the background",
+        "OctosCode 在后台时，若轮次需要你处理或已完成，将发送通知",
+    ),
+    ("Desktop notifications are unavailable here.", "此处无法使用桌面通知。"),
+    ("Desktop notifications are on.", "桌面通知已开启。"),
+    ("Permission was not granted. You can enable notifications later.", "未获得权限。你可以稍后再开启通知。"),
+    ("Could not enable desktop notifications. Try again when permissions allow.", "无法开启桌面通知。请在权限允许时重试。"),
+    ("Notification permission changed.", "通知权限已更改。"),
+    ("OctosCode could not show a desktop notification.", "OctosCode 无法显示桌面通知。"),
+    (
+        "Notifications are blocked. Allow OctosCode in System Settings \u{203a} Notifications.",
+        "通知已被阻止。请在\u{201c}系统设置 \u{203a} 通知\u{201d}中允许 OctosCode。",
+    ),
+    (
+        "Notifications are blocked. Allow them in Settings \u{203a} Apps \u{203a} OctosCode \u{203a} Notifications.",
+        "通知已被阻止。请在\u{201c}设置 \u{203a} 应用 \u{203a} OctosCode \u{203a} 通知\u{201d}中允许。",
+    ),
+    ("A background response needs your input. Return to OctosCode to review it.", "后台回复需要你的输入。请返回 OctosCode 查看。"),
+    ("A background response needs attention. Return to OctosCode to review it.", "后台回复需要处理。请返回 OctosCode 查看。"),
+    ("A background response finished. Return to OctosCode to review it.", "后台回复已完成。请返回 OctosCode 查看。"),
 ];
 
 /// The web catalog's vocabulary: each English term (matched as a word,
@@ -806,6 +829,10 @@ pub static GLOSSARY: &[(&str, &[&str])] = &[
 pub static GLOSSARY_EXEMPT: &[(&str, &str)] = &[
     // The verb "turn off", not a conversation turn.
     ("Turn off Vim editing", "turn"),
+    // "Return to OctosCode to review it": look at it (查看), not a code review.
+    ("A background response needs your input. Return to OctosCode to review it.", "review"),
+    ("A background response needs attention. Return to OctosCode to review it.", "review"),
+    ("A background response finished. Return to OctosCode to review it.", "review"),
 ];
 
 /// The native Chinese for `source`, if it is native copy (A31's helper; the

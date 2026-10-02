@@ -482,7 +482,7 @@ impl DesktopNotifications {
         self.clear(os);
         let id = notice_id(&scope.session_id);
         let title = label.map(str::trim).filter(|l| !l.is_empty()).unwrap_or(NOTICE_TITLE);
-        os.post(&id, title, notice_body(state));
+        os.post(&id, title, crate::i18n::tr(notice_body(state)));
         self.notice = Some(id);
     }
 
