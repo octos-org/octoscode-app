@@ -44,7 +44,18 @@ WALK = {
     "runs": [{"argv": ["{mode}", "{out}"], "env": {"A30_PORT": "{port}", "A30_REPLAY_PORT": "{fport}"}}],
     "needs": ["target/debug/examples/replay_serve"],
     "timeout": 1500,
-    "rows": {},
+    "rows": {
+        73: ["dock: hidden while there are no peers", "Alt+P -> the dock folds to one pill", "Alt+P again -> expanded"],
+        116: {"checks": ["rows: the Fleet's status words", "Alt+Y on the focused Peer 1 (no pending approval) sends NOTHING",
+                         "Peer 1 -> Working"],
+              "partial": "the blocked row, a resolution returning it to Working and Alt+Y sending nothing on a row with "
+                         "no pending approval are walked; on a row WITH one, Alt+Y is wired natively by the approved "
+                         "board 4 (the web's e2e asserts its unwired App)"},
+        133: ["Approve once CLICK -> exactly ONE peer/control approval_respond"],
+        139: {"checks": ["dock: hidden while there are no peers", "rows: 'Peer N · model'"],
+              "partial": "the dock's roster (no slug) and its absence with no peers are walked; the approved board wires "
+                         "the action set and the fold pill natively, where the web's e2e asserts its unwired App"},
+    },
 }
 
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
@@ -83,6 +94,17 @@ def asked(W: Walk, session: str) -> list[str]:
     """The approval ids the replay asked for in `session`, oldest first."""
     return [kv(l).get("approval_id", "") for l in replay_lines(W, "=> approval/requested (fleet)")
             if kv(l).get("session_id") == session]
+
+
+def logged_any(W: Walk, needles: list[str], secs: float = 4.0) -> bool:
+    """Any of `needles` in the app log since the last mark (one read)."""
+    seen: list[str] = []
+
+    def has() -> bool:
+        seen.extend(W.log_since())
+        return any(n in l for l in seen for n in needles)
+
+    return W.wait(has, secs)
 
 
 def key_alt(W: Walk, code: str) -> None:
@@ -350,10 +372,17 @@ def walk(W: Walk) -> None:
     drawer_open(W)
     W.check("dock: hidden while there are no peers (the sidebar shows, the dock does not)",
             W.wait_shown("sb_add_hit", 6) and not W.visible("peer_dock_row") and not W.visible("pd_dock"))
+    # The hidden window takes key events once it has had a click: a neutral
+    # one on the brand label.
+    head = W.rect("sidebar_header")
+    if head:
+        W.click_xy(head[0] + 40, head[1] + head[3] / 2)
     W.mark()
     key_alt(W, "KeyP")
-    W.check("dock: Alt+P with no peers draws no dock (and flips nothing)",
-            not W.visible("pd_dock") and W.logged("shortcut Alt+P: no peer dock on screen", 4))
+    # Nothing to fold: the chord is inert ("no peer dock on screen"), or —
+    # the composer holding the key focus at launch — suppressed (§8).
+    seen = logged_any(W, ["shortcut Alt+P: no peer dock on screen", "TogglePeerDock suppressed"], 4)
+    W.check("dock: Alt+P with no peers draws no dock (and flips nothing)", not W.visible("pd_dock") and seen)
     drawer_close(W)
 
     W.note("== 2. three peers from the Fleet's production Start (glm-4.6, gpt-5.4, deepseek-v4-flash)")
@@ -436,8 +465,19 @@ def walk(W: Walk) -> None:
 
     W.note("== 5. the board's state: Peer 1 working, Peer 2 waiting (threaded card), Peer 3 finished")
     time.sleep(0.6)
+
+    def secs(t: str) -> int:
+        m = re.fullmatch(r"(?:(\d+)m)?(\d+)s", t or "")
+        return int(m.group(1) or 0) * 60 + int(m.group(2)) if m else -1
+
+    e0, f0 = secs(text_any(W, "pd_row_0_elapsed")), secs(text_any(W, "pd_row_2_elapsed"))
+    time.sleep(3.2)
+    e1, f1 = secs(text_any(W, "pd_row_0_elapsed")), secs(text_any(W, "pd_row_2_elapsed"))
+    W.check("rows: the elapsed clock ticks in place for a working peer (and stays frozen for a finished one)",
+            e0 >= 0 and e1 - e0 >= 2 and f0 == f1 >= 0, f"Peer 1 {e0}s -> {e1}s, Peer 3 {f0}s -> {f1}s")
     dock_checks(W, f"{mode} expanded")
     capture(W, f"{mode}-02-expanded", "expanded: working / waiting + card / finished")
+    dark_phase(W)
 
     W.note("== 6. Alt+P folds the dock to ONE pill; Alt+P again expands it")
     drawer_close(W) if mode == "phone" else None
@@ -456,7 +496,7 @@ def walk(W: Walk) -> None:
     capture(W, f"{mode}-03-collapsed", "collapsed pill")
     W.mark()
     key_alt(W, "KeyP")
-    W.check("Alt+P again -> expanded", W.wait_shown("pd_row_0_label", 6) and W.logged("peer dock expanded", 4))
+    W.check("Alt+P again -> expanded", W.wait_shown("pd_hide", 6) and W.logged("peer dock expanded", 4))
 
     W.note("== 7. Deny on Peer 2: ONE frame with Peer 2's pending id; Peer 2 asks again")
     p2_ask = asked(W, p2_sess)
@@ -533,6 +573,32 @@ def walk(W: Walk) -> None:
     W.click("pd_pill")
     W.check("the pill CLICK expands", W.wait_shown("pd_row_0_label", 6))
     drawer_close(W)
+
+
+def dark_phase(W: Walk) -> None:
+    """The dock on the dark look (the sidebar footer's theme toggle, A26's
+    live re-theme): its tokens retint, the waiting amber stays readable; then
+    back to the starting look."""
+    W.note("== dark: the dock on the dark look")
+    drawer_open(W)
+    start = W.text("sb_theme_label")
+    for _ in range(4):
+        if W.text("sb_theme_label") == "Dark":
+            break
+        W.click("sb_theme_hit")
+        time.sleep(1.0)
+    W.check("dark: the footer's theme toggle reaches Dark", W.text("sb_theme_label") == "Dark", repr(W.text("sb_theme_label")))
+    W.wait_shown("pd_row_1_card", 6)
+    time.sleep(0.8)
+    dock_checks(W, f"{W.mode} dark expanded")
+    capture(W, f"{W.mode}-02b-dark-expanded", "dark look: working / waiting + card / finished")
+    for _ in range(4):
+        if W.text("sb_theme_label") == start:
+            break
+        W.click("sb_theme_hit")
+        time.sleep(1.0)
+    W.check("dark: the toggle returns to the starting look", W.text("sb_theme_label") == start, repr(W.text("sb_theme_label")))
+    time.sleep(0.6)
 
 
 def zh_phase(W: Walk) -> None:

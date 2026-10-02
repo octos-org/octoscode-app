@@ -203,8 +203,6 @@ struct State {
     /// The last refusal per row: (the request it was for, bounded copy,
     /// when it was said).
     notes: HashMap<String, (Option<String>, String, u64)>,
-    /// The waiting card last scrolled into view: (row key, request id).
-    revealed: Option<(String, String)>,
 }
 
 fn state() -> MutexGuard<'static, State> {
@@ -382,6 +380,11 @@ pub fn perform(action: &str, slot: usize, store: &Store, compact: bool) -> Outco
     let Some(row) = store.domains.peer.row(&identity) else {
         return Outcome::Refused(tr("This peer is no longer in the roster.").to_owned());
     };
+    // ⌥Y / ⌥N on a focused row that was drawn with no pending request: the
+    // chord has nothing to answer — nothing sent, nothing to say.
+    if d.request_id.is_none() && matches!(act, RowAction::Approve | RowAction::ApproveSession | RowAction::Deny) {
+        return Outcome::Refused("no pending approval on this row".to_owned());
+    }
     // The row must still show EXACTLY the ids this control was drawn for.
     if !fleet_driver::still_drawn(&row, act, &d.target()) {
         st.notes.insert(d.key.clone(), (d.request_id.clone(), STALE_DRAWN.to_owned(), peers::now_ms()));
@@ -491,9 +494,21 @@ fn tail(r: &DockRow) -> String {
 /// secondary ink (the board's "Working · ↓ 12.4k" is grey).
 fn status_ink(s: Status) -> &'static str {
     match s {
-        Status::WaitingApproval | Status::WaitingAnswer => tok::AMBER,
+        Status::WaitingApproval | Status::WaitingAnswer => amber_ink(),
         Status::Failed => tok::RED_TEXT,
         _ => tok::MUTED,
+    }
+}
+
+/// The waiting ink on the sidebar: the kit's amber (#A35A00, 5.6:1 on white)
+/// on a light look; on a dark look (dark, or a named palette) the session
+/// tree's own waiting amber (#F5A524) — the kit's amber has no dark twin in
+/// the retint table and read ~3.2:1 on the dark sidebar.
+fn amber_ink() -> &'static str {
+    if crate::screens::theme::resolved() == "dark" {
+        "#f5a524ff"
+    } else {
+        tok::AMBER
     }
 }
 
@@ -751,7 +766,7 @@ fn pill_view(d: &mut Dsl, rows: &[DockRow], seat: Seat) -> f64 {
     ];
     if waiting > 0 {
         segs.push(vec![
-            ("pd_pill_warn", "⚠".to_owned(), tok::AMBER, Face::Medium),
+            ("pd_pill_warn", "⚠".to_owned(), amber_ink(), Face::Medium),
             ("pd_pill_waiting", tr1("{value0} waiting", &waiting.to_string()), tok::MUTED, Face::Regular),
         ]);
     }
@@ -864,17 +879,28 @@ pub fn lower(store: &Store, now_ms: u64, seat: Seat) -> Option<Lowered> {
         let tree_min = if waiting { TREE_MIN_WAITING } else { TREE_MIN };
         let cap = if seat.room > 0.0 { (seat.room - tree_min - height).max(ROW_H + 8.0) } else { f64::INFINITY };
         if natural > cap {
-            d.open("pd_rows", "ScrollYView", &format!("width: Fill height: {} flow: Down spacing: 2", fmt(cap.floor())));
+            // A quiet handle in the look's greys (the theme's default handle
+            // is near-white: a bright stripe on a dark sidebar) — `fluid.rs`'s
+            // code-block bar.
+            let (bar, bar_on) = if crate::screens::theme::resolved() == "dark" {
+                ("#5a5a5eff", "#6e6e73ff")
+            } else {
+                ("#d1d1d6ff", "#aeaeb2ff")
+            };
+            d.open(
+                "pd_rows",
+                "ScrollYView",
+                &format!(
+                    "width: Fill height: {} flow: Down spacing: 2\nscroll_bars.scroll_bar_y.draw_bg.color: {bar}\nscroll_bars.scroll_bar_y.draw_bg.color_hover: {bar_on}\nscroll_bars.scroll_bar_y.draw_bg.color_drag: {bar_on}",
+                    fmt(cap.floor())
+                ),
+            );
             height += cap.floor();
-            // A NEW waiting card is brought into view once (the remount put
-            // the region back at its top).
-            if let Some((i, r)) = rows.iter().enumerate().find(|(_, r)| r.approval.is_some()) {
-                let req = r.approval.as_ref().map(|a| a.request_id.clone()).unwrap_or_default();
-                let key = (r.key.clone(), req);
-                if st.revealed.as_ref() != Some(&key) {
-                    st.revealed = Some(key);
-                    scroll_to = Some(offsets[i]);
-                }
+            // A remount puts the region back at its top: the first waiting
+            // card is brought into view after it (a sync that does not
+            // remount keeps the person's own scroll).
+            if let Some(i) = rows.iter().position(|r| r.approval.is_some()) {
+                scroll_to = Some(offsets[i]);
             }
         } else {
             d.view("pd_rows", "width: Fill height: Fit flow: Down spacing: 2");

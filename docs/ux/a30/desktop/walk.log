@@ -1,0 +1,297 @@
+== 1. no peers: the dock is hidden (the web renders nothing)
+PASS dock: hidden while there are no peers (the sidebar shows, the dock does not)
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:413:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:1396:9 - [octoscode] a24 language at launch: en
+    log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+    log: [I] apps/octoscode/module/src/attention.rs:938:9 - [octoscode] attention: start (platform api true, focused false)
+    log: [I] apps/octoscode/module/src/lib.rs:1643:13 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/lib.rs:3385:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4188:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/flow_controller.rs:293:17 - [octoscode] driver/get dsflash:main: held=Some(Holder { label: "octoscode-native:00000000-0000-4000-8000-0000000000aa", revision: 42 })
+    log: [I] apps/octoscode/module/src/lib.rs:3483:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4188:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3804:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:3385:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/attention.rs:984:9 - [octoscode] attention: os Authorization { status: Unavailable, requested: false, error: None }
+KEY Alt+KeyP
+    log: [I] apps/octoscode/module/src/lib.rs:5991:25 - [octoscode] shortcut TogglePeerDock suppressed (ShortcutFacts { target_is_text_input: true, in_dialog: false })
+PASS dock: Alt+P with no peers draws no dock (and flips nothing)
+== 2. three peers from the Fleet's production Start (glm-4.6, gpt-5.4, deepseek-v4-flash)
+CLICK fleet_nav_hit r=[64, 569, 260, 34] at (194,586)
+PASS fleet: the footer's Fleet entry opens the pane
+CLICK b3_fleet_model_tap r=[365, 196, 648, 36] at (689,214)
+CLICK b3_fleet_opt_0 r=[369, 244, 640, 32] at (689,260)
+TYPE 'Fix steer queue drop on reconnect'
+RETRY the brief (read back 'Describe the task for the peer')
+TYPE 'Fix steer queue drop on reconnect'
+CLICK b3_fleet_start r=[950, 409, 63, 34] at (982,426)
+CLICK b3_fleet_model_tap r=[365, 297, 648, 36] at (689,315)
+CLICK b3_fleet_opt_1 r=[369, 377, 640, 32] at (689,393)
+TYPE 'Run the CLI test suite'
+RETRY the brief (read back 'Describe the task for the peer')
+TYPE 'Run the CLI test suite'
+CLICK b3_fleet_start r=[950, 435, 63, 34] at (982,452)
+CLICK b3_fleet_model_tap r=[365, 297, 648, 36] at (689,315)
+CLICK b3_fleet_opt_2 r=[369, 409, 640, 32] at (689,425)
+TYPE 'Review PR 2566'
+RETRY the brief (read back 'Describe the task for the peer')
+TYPE 'Review PR 2566'
+CLICK b3_fleet_start r=[950, 435, 63, 34] at (982,452)
+PASS fleet: three Starts -> three dispatches on lanes glm / primary / deepseek — [('lane-glm', 'dsflash:main#peer-fix-steer-queue-drop-on'), ('lane-primary', 'dsflash:main#peer-run-the-cli-test-suite'), ('lane-deepseek', 'dsflash:main#peer-review-pr-2566')]
+CLICK b3_fleet_back r=[351, 94, 64, 30] at (383,109)
+== 3. the dock between the session tree and the footer
+PASS desktop: the dock starts expanded
+PASS rows: 'Peer N · model' in the Fleet's order and words (never the slug) — ['Peer 1 · glm-4.6', 'Peer 2 · gpt-5.4', 'Peer 3 · deepseek-v4-flash']
+PASS rows: the Fleet's status words (waiting, waiting, finished) — ['Waiting for your approval', 'Waiting for your approval', 'Finished']
+PASS rows: elapsed in the web's format (Ns / MmSSs) — ['13s', '8s', '2s']
+PASS rows: '↓ tokens' (12.4k on Peer 1, 31k on Peer 3) — [' · ↓ 12.4k', '', ' · ↓ 31k']
+PASS rows: only the approval-blocked rows grow the threaded card
+PASS card: 'asks to run shell' + the target, Approve once / Deny / Stop + Approve for session — asks='asks to run shell' target='cargo test -p octos-cli'
+== 4. Approve once on Peer 1: ONE frame bound to Peer 1's own ids
+    log: [I] apps/octoscode/module/src/lib.rs:5598:21 - [octoscode] sidebar: fleet
+    log: [I] apps/octoscode/module/src/lib.rs:1721:13 - [octoscode] board3 action b3.open.fleet #0 -> Spawn(FleetLanes)
+    log: [I] apps/octoscode/module/src/lib.rs:1985:21 - [octoscode] sidebar action: drawer.close
+    log: [I] apps/octoscode/module/src/lib.rs:4188:42 - [octoscode] board3 FleetLanes: Ok("3 lanes"); Ok("0 operation(s), revision 42")
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 2 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 4 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5484:25 - [octoscode] board3 tap: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:1721:13 - [octoscode] board3 action b3.fleet.lane.toggle #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 7 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6271:17 - [octoscode] nav tap: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:5229:21 - [octoscode] nav route: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:3047:9 - [octoscode] screen action: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:5484:25 - [octoscode] board3 tap: b3.fleet.lane#0
+    log: [I] apps/octoscode/module/src/lib.rs:1721:13 - [octoscode] board3 action b3.fleet.lane #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 4 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 5 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5484:25 - [octoscode] board3 tap: b3.fleet.start
+    log: [I] apps/octoscode/module/src/lib.rs:1721:13 - [octoscode] board3 action b3.fleet.start #0 -> Spawn(FleetStart { operation_id: "08e78bbf-980c-4a3b-a25c-278824404758", lane: "lane-glm", brief: "Fix steer queue drop on reconnect" })
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 4 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4188:42 - [octoscode] board3 FleetStart { operation_id: "08e78bbf-980c-4a3b-a25c-278824404758", lane: "lane-glm", brief: "Fix steer queue drop on reconnect" }: Accepted { slug: "fix-steer-queue-drop-on", operation_id: "08e78bbf-980c-4a3b-a25c-278824404758", duplicate: false }
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (2 tap(s), desktop)
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 6 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-fix-steer-queue-drop-on: TurnStarted { turn_id: Some("00000000-0000-4000-8000-0000000000d2") }
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-fix-steer-queue-drop-on: Usage { output_tokens: 12400 }
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 6 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-fix-steer-queue-drop-on: AttentionRequested { request_id: Some("01a0eb92-9444-7101-aa6f-000000010001"), kind: Some(Approval), detail: Some(Approval(ApprovalDetail { tool_name: "shell", target: Some("cargo build -p octos-core"), scope: Some("command"), title: Some("Peer requests to run checks"), body: Some("A staged peer wants to run the repository checks.") })) }
+    log: [I] apps/octoscode/module/src/screens/board3/host.rs:270:13 - [octoscode] fleet announce: Peer 1 · glm-4.6 is waiting for your approval
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 7 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (6 tap(s), desktop)
+    log: [I] apps/octoscode/module/src/lib.rs:5484:25 - [octoscode] board3 tap: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:1721:13 - [octoscode] board3 action b3.fleet.lane.toggle #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 10 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6271:17 - [octoscode] nav tap: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:5229:21 - [octoscode] nav route: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:3047:9 - [octoscode] screen action: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:5484:25 - [octoscode] board3 tap: b3.fleet.lane#1
+    log: [I] apps/octoscode/module/src/lib.rs:1721:13 - [octoscode] board3 action b3.fleet.lane #1 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 7 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 8 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5484:25 - [octoscode] board3 tap: b3.fleet.start
+    log: [I] apps/octoscode/module/src/lib.rs:1721:13 - [octoscode] board3 action b3.fleet.start #0 -> Spawn(FleetStart { operation_id: "cf036a7c-186d-42a1-9c78-2963ccf24956", lane: "lane-primary", brief: "Run the CLI test suite" })
+    log: [I] apps/octoscode/module/src/lib.rs:4188:42 - [octoscode] board3 FleetStart { operation_id: "cf036a7c-186d-42a1-9c78-2963ccf24956", lane: "lane-primary", brief: "Run the CLI test suite" }: Accepted { slug: "run-the-cli-test-suite", operation_id: "cf036a7c-186d-42a1-9c78-2963ccf24956", duplicate: false }
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 7 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (7 tap(s), desktop, rows scroll)
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 9 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-run-the-cli-test-suite: TurnStarted { turn_id: Some("00000000-0000-4000-8000-0000000000d3") }
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-run-the-cli-test-suite: AttentionRequested { request_id: Some("01a0eb92-9444-7101-aa6f-000000020001"), kind: Some(Approval), detail: Some(Approval(ApprovalDetail { tool_name: "shell", target: Some("cargo test -p octos-cli"), scope: Some("command"), title: Some("Peer requests to run checks"), body: Some("A staged peer wants to run the repository checks.") })) }
+    log: [I] apps/octoscode/module/src/screens/board3/host.rs:270:13 - [octoscode] fleet announce: Peer 2 · gpt-5.4 is waiting for your approval
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 10 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (11 tap(s), desktop, rows scroll)
+    log: [I] apps/octoscode/module/src/lib.rs:5484:25 - [octoscode] board3 tap: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:1721:13 - [octoscode] board3 action b3.fleet.lane.toggle #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 13 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6271:17 - [octoscode] nav tap: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:5229:21 - [octoscode] nav route: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:3047:9 - [octoscode] screen action: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:5484:25 - [octoscode] board3 tap: b3.fleet.lane#2
+    log: [I] apps/octoscode/module/src/lib.rs:1721:13 - [octoscode] board3 action b3.fleet.lane #2 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 10 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 11 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5484:25 - [octoscode] board3 tap: b3.fleet.start
+    log: [I] apps/octoscode/module/src/lib.rs:1721:13 - [octoscode] board3 action b3.fleet.start #0 -> Spawn(FleetStart { operation_id: "ed699733-39c0-4c69-8577-7485c5f69644", lane: "lane-deepseek", brief: "Review PR 2566" })
+    log: [I] apps/octoscode/module/src/lib.rs:4188:42 - [octoscode] board3 FleetStart { operation_id: "ed699733-39c0-4c69-8577-7485c5f69644", lane: "lane-deepseek", brief: "Review PR 2566" }: Accepted { slug: "review-pr-2566", operation_id: "ed699733-39c0-4c69-8577-7485c5f69644", duplicate: false }
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 10 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (12 tap(s), desktop, rows scroll)
+    log: [I] apps/octoscode/module/src/lib.rs:4008:17 - [octoscode] board3 mounted Some(Fleet): 12 tap(s), 4 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5484:25 - [octoscode] board3 tap: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:1721:13 - [octoscode] board3 action b3.close #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:6271:17 - [octoscode] nav tap: b3.close
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-review-pr-2566: TurnStarted { turn_id: Some("00000000-0000-4000-8000-0000000000d4") }
+    log: [I] apps/octoscode/module/src/lib.rs:5229:21 - [octoscode] nav route: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:3047:9 - [octoscode] screen action: b3.close
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-review-pr-2566: Usage { output_tokens: 31000 }
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-review-pr-2566: TurnTerminal { outcome: Finished, error: None }
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (12 tap(s), desktop, rows scroll)
+CLICK pd_row_0_approve r=[90, 431, 99, 30] at (140,446)
+PASS Approve once CLICK -> exactly ONE peer/control approval_respond with Peer 1's approval id, operation and adopted turn (never Peer 2's) — [{'operation_id': '10b68e5a-36ad-4355-a63b-d0dd05a802e3', 'target_operation_id': '08e78bbf-980c-4a3b-a25c-278824404758', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d2', 'command': 'approval_respond', 'approval_id': '01a0eb92-9444-7101-aa6f-000000010001', 'decision': 'approve'}] p1_ask=['01a0eb92-9444-7101-aa6f-000000010001'] p2_ask=['01a0eb92-9444-7101-aa6f-000000020001']
+PASS Peer 1 -> Working · ↓ 12.4k · Sent (the acknowledgment, the card gone) — 'Working' ' · ↓ 12.4k · Sent'
+== 5. the board's state: Peer 1 working, Peer 2 waiting (threaded card), Peer 3 finished
+PASS rows: the elapsed clock ticks in place for a working peer (and stays frozen for a finished one) — Peer 1 15s -> 18s, Peer 3 2s -> 2s
+PASS desktop expanded: dock numeric checks (inside the column, between tree and footer, the tree's grid, no clipped/overlapping labels, controls >= 28 px) — dock=[64, 293, 260, 242] tree_h=37 order=True labels=14 outside=[] overlaps=[] controls=5 under28=[] align=[('label_x', 0), ('elapsed_right', 0), ('glyph_x', 0)]
+SHOT desktop-02-expanded
+== dark: the dock on the dark look
+CLICK sb_theme_hit r=[64, 603, 260, 34] at (194,620)
+PASS dark: the footer's theme toggle reaches Dark — 'Dark'
+PASS desktop dark expanded: dock numeric checks (inside the column, between tree and footer, the tree's grid, no clipped/overlapping labels, controls >= 28 px) — dock=[64, 293, 260, 242] tree_h=37 order=True labels=14 outside=[] overlaps=[] controls=5 under28=[] align=[('label_x', 0), ('elapsed_right', 0), ('glyph_x', 0)]
+SHOT desktop-02b-dark-expanded
+CLICK sb_theme_hit r=[64, 603, 260, 34] at (194,620)
+CLICK sb_theme_hit r=[64, 603, 260, 34] at (194,620)
+PASS dark: the toggle returns to the starting look — 'System'
+== 6. Alt+P folds the dock to ONE pill; Alt+P again expands it
+    log: [I] apps/octoscode/module/src/a30_host.rs:88:17 - [octoscode] peer dock tap: pd.approve#2
+    log: [I] apps/octoscode/module/src/a30_host.rs:109:17 - [octoscode] peer dock pd.approve#2 -> Approve on dsflash:main#peer-fix-steer-queue-drop-on (drawn request 01a0eb92-9444-7101-aa6f-000000010001)
+    log: [I] apps/octoscode/module/src/a30_host.rs:114:44 - [octoscode] peer dock control: Sent
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (12 tap(s), desktop, rows scroll)
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-fix-steer-queue-drop-on: AttentionResolvedFor { request_id: "01a0eb92-9444-7101-aa6f-000000010001" }
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (8 tap(s), desktop, rows scroll)
+    log: [I] apps/octoscode/module/src/lib.rs:4275:13 - [octoscode] chrome: Action("theme.cycle", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2131:21 - [octoscode] theme -> dark
+    log: [I] apps/octoscode/module/src/a26_host.rs:56:9 - [octoscode] a26 retheme -> dark
+    log: [I] apps/octoscode/module/src/lib.rs:3385:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3804:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (8 tap(s), desktop, rows scroll)
+    log: [I] apps/octoscode/module/src/lib.rs:4275:13 - [octoscode] chrome: Action("theme.cycle", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2131:21 - [octoscode] theme -> light
+    log: [I] apps/octoscode/module/src/a26_host.rs:56:9 - [octoscode] a26 retheme -> light
+    log: [I] apps/octoscode/module/src/lib.rs:3385:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3804:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (8 tap(s), desktop, rows scroll)
+    log: [I] apps/octoscode/module/src/lib.rs:4275:13 - [octoscode] chrome: Action("theme.cycle", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2131:21 - [octoscode] theme -> system
+    log: [I] apps/octoscode/module/src/a26_host.rs:56:9 - [octoscode] a26 retheme -> light
+    log: [I] apps/octoscode/module/src/lib.rs:3385:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3804:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (8 tap(s), desktop, rows scroll)
+KEY Alt+KeyP
+    log: [I] apps/octoscode/module/src/a30_host.rs:166:9 - [octoscode] shortcut Alt+P -> peer dock folded
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: folded (1 tap(s), desktop)
+PASS Alt+P -> the dock folds to one pill (log + /snap)
+PASS pill: 'Peers · 3 · 1 working · ⚠ 1 waiting · 1/3 finished' — ['Peers', '3', '1 working', '⚠', '1 waiting', '1/3 finished']
+PASS pill: the 'Show peers · ⌥P' hint — 'Show peers · ⌥P'
+PASS desktop collapsed: dock numeric checks (inside the column, between tree and footer, the tree's grid, no clipped/overlapping labels, controls >= 28 px) — dock=[64, 437, 260, 98] tree_h=181 order=True labels=7 outside=[] overlaps=[] controls=1 under28=[] align=[('pill_inside', True)]
+SHOT desktop-03-collapsed
+KEY Alt+KeyP
+    log: [I] apps/octoscode/module/src/a30_host.rs:166:9 - [octoscode] shortcut Alt+P -> peer dock expanded
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (8 tap(s), desktop, rows scroll)
+PASS Alt+P again -> expanded
+== 7. Deny on Peer 2: ONE frame with Peer 2's pending id; Peer 2 asks again
+CLICK pd_row_1_deny r=[195, 431, 50, 30] at (220,446)
+PASS Deny CLICK -> exactly ONE approval_respond deny with Peer 2's approval id, operation and turn — [{'operation_id': '7aa5b6c0-e772-4d7c-ba6d-ed07e813b34c', 'target_operation_id': 'cf036a7c-186d-42a1-9c78-2963ccf24956', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d3', 'command': 'approval_respond', 'approval_id': '01a0eb92-9444-7101-aa6f-000000020001', 'decision': 'deny'}] p2_ask=['01a0eb92-9444-7101-aa6f-000000020001']
+PASS Peer 2 asks again (a NEW approval id, a new target on its card) — ['01a0eb92-9444-7101-aa6f-000000020001', '01a0eb92-9444-7101-aa6f-000000020002']
+== 8. Approve for session on Peer 2: ONE frame with the session scope
+CLICK pd_row_1_session r=[90, 466, 126, 28] at (153,480)
+PASS Approve for session CLICK -> exactly ONE approval_respond approve + approval_scope=session on Peer 2's new id — [{'operation_id': '529a6255-4925-499e-9231-8bb201f07471', 'target_operation_id': 'cf036a7c-186d-42a1-9c78-2963ccf24956', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d3', 'command': 'approval_respond', 'approval_id': '01a0eb92-9444-7101-aa6f-000000020002', 'decision': 'approve', 'approval_scope': 'session'}]
+PASS Peer 2 asks a third time
+== 9. Alt+Y / Alt+N act on the FOCUSED row only
+    log: [I] apps/octoscode/module/src/a30_host.rs:88:17 - [octoscode] peer dock tap: pd.deny#4
+    log: [I] apps/octoscode/module/src/a30_host.rs:109:17 - [octoscode] peer dock pd.deny#4 -> Deny on dsflash:main#peer-run-the-cli-test-suite (drawn request 01a0eb92-9444-7101-aa6f-000000020001)
+    log: [I] apps/octoscode/module/src/a30_host.rs:114:44 - [octoscode] peer dock control: Sent
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (8 tap(s), desktop, rows scroll)
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-run-the-cli-test-suite: AttentionResolvedFor { request_id: "01a0eb92-9444-7101-aa6f-000000020001" }
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (4 tap(s), desktop)
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-run-the-cli-test-suite: AttentionRequested { request_id: Some("01a0eb92-9444-7101-aa6f-000000020002"), kind: Some(Approval), detail: Some(Approval(ApprovalDetail { tool_name: "shell", target: Some("cargo clippy --workspace"), scope: Some("command"), title: Some("Peer requests to run checks"), body: Some("A staged peer wants to run the repository checks.") })) }
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (8 tap(s), desktop, rows scroll)
+    log: [I] apps/octoscode/module/src/a30_host.rs:88:17 - [octoscode] peer dock tap: pd.approve_session#8
+    log: [I] apps/octoscode/module/src/a30_host.rs:109:17 - [octoscode] peer dock pd.approve_session#8 -> ApproveSession on dsflash:main#peer-run-the-cli-test-suite (drawn request 01a0eb92-9444-7101-aa6f-000000020002)
+    log: [I] apps/octoscode/module/src/a30_host.rs:114:44 - [octoscode] peer dock control: Sent
+    log: [I] apps/octoscode/module/src/lib.rs:6271:17 - [octoscode] nav tap: pd.approve_session#8
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-run-the-cli-test-suite: AttentionResolvedFor { request_id: "01a0eb92-9444-7101-aa6f-000000020002" }
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (4 tap(s), desktop)
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-run-the-cli-test-suite: AttentionRequested { request_id: Some("01a0eb92-9444-7101-aa6f-000000020003"), kind: Some(Approval), detail: Some(Approval(ApprovalDetail { tool_name: "shell", target: Some("rm -rf target/debug/incremental"), scope: Some("command"), title: Some("Peer requests to run checks"), body: Some("A staged peer wants to run the repository checks.") })) }
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (8 tap(s), desktop, rows scroll)
+CLICK pd_row_0_focus r=[64, 330, 260, 40] at (194,350)
+    log: [I] apps/octoscode/module/src/a30_host.rs:88:17 - [octoscode] peer dock tap: pd.focus#6
+    log: [I] apps/octoscode/module/src/a30_host.rs:104:30 - [octoscode] peer dock pd.focus#6
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (8 tap(s), desktop, rows scroll)
+    log: [I] apps/octoscode/module/src/lib.rs:6271:17 - [octoscode] nav tap: pd.focus#6
+PASS focus: a row CLICK focuses it (log); a row with no card shows no ring
+KEY Alt+KeyY
+PASS Alt+Y on the focused Peer 1 (no pending approval) sends NOTHING — []
+CLICK pd_row_1_focus r=[64, 330, 260, 40] at (194,350)
+PASS focus: Peer 2's row CLICK draws the ring around the row ⌥Y / ⌥N will answer
+KEY Alt+KeyN
+PASS Alt+N on the focused Peer 2 -> exactly ONE deny on Peer 2's pending id — [{'operation_id': 'bee1d7a0-14af-4930-9800-bdda91ca53aa', 'target_operation_id': 'cf036a7c-186d-42a1-9c78-2963ccf24956', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d3', 'command': 'approval_respond', 'approval_id': '01a0eb92-9444-7101-aa6f-000000020003', 'decision': 'deny'}]
+== 10. Stop on Peer 2: ONE interrupt bound to Peer 2's operation and turn
+CLICK pd_row_1_stop r=[251, 431, 47, 30] at (274,446)
+PASS Stop CLICK -> exactly ONE peer/control interrupt on Peer 2's operation + adopted turn — [{'operation_id': '92854b77-bf2c-4518-8181-c51df76c4dcc', 'target_operation_id': 'cf036a7c-186d-42a1-9c78-2963ccf24956', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d3', 'command': 'interrupt'}]
+PASS Peer 2 -> Stopped (the turn's own terminal) — 'Stopped'
+PASS wire: every peer/control so far went to the row clicked (Peer 1 x1, Peer 2 x4) — ['08e78bbf-980c-4a3b-a25c-278824404758', 'cf036a7c-186d-42a1-9c78-2963ccf24956', 'cf036a7c-186d-42a1-9c78-2963ccf24956', 'cf036a7c-186d-42a1-9c78-2963ccf24956', 'cf036a7c-186d-42a1-9c78-2963ccf24956']
+== 11. Hide peers / the pill toggle the fold
+CLICK pd_hide r=[248, 374, 68, 28] at (282,388)
+PASS 'Hide peers' CLICK folds
+PASS pill after the stop: 'Peers · 3 · 1 working · 2/3 finished' (no waiting segment)
+CLICK pd_pill r=[64, 464, 260, 36] at (194,482)
+PASS the pill CLICK expands
+== zh: the dock in Chinese
+CLICK sb_settings_hit r=[64, 637, 260, 34] at (194,654)
+CLICK nv_hit r=[161, 417, 164, 40] at (243,437)
+PASS zh: Settings > Preferences opens from the footer
+    log: [I] apps/octoscode/module/src/a30_host.rs:149:17 - [octoscode] peer dock key -> pd.approve#6
+    log: [I] apps/octoscode/module/src/a30_host.rs:105:38 - [octoscode] peer dock pd.approve#6 refused: no pending approval on this row (nothing sent)
+    log: [I] apps/octoscode/module/src/a30_host.rs:88:17 - [octoscode] peer dock tap: pd.focus#10
+    log: [I] apps/octoscode/module/src/a30_host.rs:104:30 - [octoscode] peer dock pd.focus#10
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (8 tap(s), desktop, rows scroll)
+    log: [I] apps/octoscode/module/src/a30_host.rs:149:17 - [octoscode] peer dock key -> pd.deny#10
+    log: [I] apps/octoscode/module/src/a30_host.rs:109:17 - [octoscode] peer dock pd.deny#10 -> Deny on dsflash:main#peer-run-the-cli-test-suite (drawn request 01a0eb92-9444-7101-aa6f-000000020003)
+    log: [I] apps/octoscode/module/src/a30_host.rs:114:44 - [octoscode] peer dock control: Sent
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-run-the-cli-test-suite: AttentionResolvedFor { request_id: "01a0eb92-9444-7101-aa6f-000000020003" }
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (4 tap(s), desktop)
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-run-the-cli-test-suite: AttentionRequested { request_id: Some("01a0eb92-9444-7101-aa6f-000000020004"), kind: Some(Approval), detail: Some(Approval(ApprovalDetail { tool_name: "shell", target: Some("cargo publish --dry-run"), scope: Some("command"), title: Some("Peer requests to run checks"), body: Some("A staged peer wants to run the repository checks.") })) }
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (8 tap(s), desktop, rows scroll)
+    log: [I] apps/octoscode/module/src/a30_host.rs:88:17 - [octoscode] peer dock tap: pd.stop#12
+    log: [I] apps/octoscode/module/src/a30_host.rs:109:17 - [octoscode] peer dock pd.stop#12 -> Stop on dsflash:main#peer-run-the-cli-test-suite (drawn request 01a0eb92-9444-7101-aa6f-000000020004)
+    log: [I] apps/octoscode/module/src/a30_host.rs:114:44 - [octoscode] peer dock control: Stop requested
+    log: [I] apps/octoscode/module/src/lib.rs:6271:17 - [octoscode] nav tap: pd.stop#12
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-run-the-cli-test-suite: TurnTerminal { outcome: Stopped, error: Some("Turn interrupted") }
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (4 tap(s), desktop)
+    log: [I] apps/octoscode/module/src/a30_host.rs:88:17 - [octoscode] peer dock tap: pd.fold
+    log: [I] apps/octoscode/module/src/a30_host.rs:104:30 - [octoscode] peer dock pd.fold#0
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: folded (1 tap(s), desktop)
+    log: [I] apps/octoscode/module/src/a30_host.rs:88:17 - [octoscode] peer dock tap: pd.fold
+    log: [I] apps/octoscode/module/src/a30_host.rs:104:30 - [octoscode] peer dock pd.fold#0
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (4 tap(s), desktop)
+    log: [I] apps/octoscode/module/src/lib.rs:4275:13 - [octoscode] chrome: OpenSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1878:13 - [octoscode] settings action: settings.panel.open
+    log: [I] apps/octoscode/module/src/lib.rs:4275:13 - [octoscode] chrome: Action("settings.section.preferences", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1878:13 - [octoscode] settings action: settings.section.preferences
+    log: [I] apps/octoscode/module/src/lib.rs:4275:13 - [octoscode] chrome: Action("a9.prefs.lang.zh", 0)
+    log: [I] apps/octoscode/module/src/a9_host.rs:188:21 - [octoscode] a24 language -> zh (switched)
+    log: [I] apps/octoscode/module/src/lib.rs:3385:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/chrome.rs:2311:13 - [octoscode] a24 shell copy: 47 text(s) set (zh; 86 source(s))
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (4 tap(s), desktop)
+PASS zh: 简体中文 CLICK switches the language
+CLICK settings_close r=[905, 154, 32, 32] at (921,170)
+PASS zh: the dock reads Chinese (同侪 / 隐藏同侪 / 工作中 / 已停止 / 已完成) — {'pd_title': '同侪', 'pd_hide_label': '隐藏同侪', 'pd_row_0_status': '工作中', 'pd_row_1_status': '已停止', 'pd_row_2_status': '已完成'}
+PASS zh: 'Peer N' reads 同侪 N — '同侪 1 · glm-4.6'
+PASS desktop zh expanded: dock numeric checks (inside the column, between tree and footer, the tree's grid, no clipped/overlapping labels, controls >= 28 px) — dock=[64, 365, 260, 170] tree_h=109 order=True labels=13 outside=[] overlaps=[] controls=2 under28=[] align=[('label_x', 0), ('elapsed_right', 0), ('glyph_x', 0)]
+SHOT desktop-04-zh-expanded
+KEY Alt+KeyP
+PASS zh: the pill reads Chinese (同侪 · 3 · 1 个工作中 · 2/3 已完成; 显示同侪 · ⌥P) — ['同侪', '1 个工作中', '2/3 已完成', '显示同侪 · ⌥P']
+PASS desktop zh collapsed: dock numeric checks (inside the column, between tree and footer, the tree's grid, no clipped/overlapping labels, controls >= 28 px) — dock=[64, 455, 260, 80] tree_h=199 order=True labels=5 outside=[] overlaps=[] controls=1 under28=[] align=[('pill_inside', True)]
+SHOT desktop-05-zh-collapsed
+KEY Alt+KeyP
+CLICK sb_settings_hit r=[64, 637, 260, 34] at (194,654)
+CLICK nv_hit r=[161, 417, 164, 40] at (243,437)
+PASS zh: Settings reopens
+    log: [I] apps/octoscode/module/src/lib.rs:4275:13 - [octoscode] chrome: CloseSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1878:13 - [octoscode] settings action: settings.panel.close
+    log: [I] apps/octoscode/module/src/screens/fleet_driver.rs:407:26 - [octoscode] seat: dsflash:main: lease renewed
+    log: [I] apps/octoscode/module/src/a30_host.rs:166:9 - [octoscode] shortcut Alt+P -> peer dock folded
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: folded (1 tap(s), desktop)
+    log: [I] apps/octoscode/module/src/a30_host.rs:166:9 - [octoscode] shortcut Alt+P -> peer dock expanded
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (4 tap(s), desktop)
+    log: [I] apps/octoscode/module/src/lib.rs:4275:13 - [octoscode] chrome: OpenSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1878:13 - [octoscode] settings action: settings.panel.open
+    log: [I] apps/octoscode/module/src/lib.rs:4275:13 - [octoscode] chrome: Action("settings.section.preferences", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1878:13 - [octoscode] settings action: settings.section.preferences
+    log: [I] apps/octoscode/module/src/lib.rs:4275:13 - [octoscode] chrome: Action("a9.prefs.lang.en", 0)
+    log: [I] apps/octoscode/module/src/a9_host.rs:188:21 - [octoscode] a24 language -> en (switched)
+    log: [I] apps/octoscode/module/src/lib.rs:3385:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/chrome.rs:2311:13 - [octoscode] a24 shell copy: 47 text(s) set (en; 86 source(s))
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (4 tap(s), desktop)
+PASS zh: English restores
+CLICK settings_close r=[905, 154, 32, 32] at (921,170)
+== 46/46 checks passed

@@ -614,3 +614,44 @@ fn out_of_order_peer_updates_never_revive_or_clear_the_wrong_request() {
     let r = p.row("m#peer-a").unwrap();
     assert_eq!((r.activity, r.outcome, r.acknowledgment), (Activity::Done, Some(TurnOutcome::Stopped), None::<Ack>), "a terminal is final");
 }
+
+/// A stale press is SAID once ("Already handled" under the row whose card
+/// went away) and the note leaves after its time; ⌥Y on a focused row that
+/// was drawn with no pending approval is silent (nothing sent, no note).
+#[test]
+fn a_stale_refusal_is_said_once_then_leaves_and_a_cardless_chord_is_silent() {
+    use octoscode_store::domains::peer::{ApprovalDetail, RequestDetail};
+    let _s = serial();
+    fresh();
+    let store = Store::new();
+    store.set_active(Some(SESSION.into()));
+    let p = &store.domains.peer;
+    p.stage_row(row("m#peer-one", RowStatus::Started), false);
+    p.stage_row(row("m#peer-two", RowStatus::Started), false);
+    p.observe_session_event("m#peer-one", &PeerSessionEvent::TurnStarted { turn_id: None }, 1);
+    p.observe_session_event("m#peer-two", &PeerSessionEvent::TurnStarted { turn_id: None }, 1);
+    let detail = RequestDetail::Approval(ApprovalDetail { tool_name: "shell".into(), target: Some("make".into()), ..Default::default() });
+    p.observe_session_event(
+        "m#peer-one",
+        &PeerSessionEvent::AttentionRequested { request_id: Some("ap-1".into()), kind: Some(RequestKind::Approval), detail: Some(detail) },
+        2,
+    );
+    let now = peers::now_ms();
+    let lowered = dock::lower(&store, now, DESKTOP).unwrap();
+    assert!(lowered.dsl.contains("pd_row_0_card") && lowered.dsl.contains("asks to run shell"));
+    let (one, two) = (slot("m#peer-one"), slot("m#peer-two"));
+    // The approval is answered elsewhere: the card's controls are stale.
+    p.observe_session_event("m#peer-one", &PeerSessionEvent::AttentionResolvedFor { request_id: "ap-1".into() }, 3);
+    assert!(matches!(dock::perform(dock::ACTION_APPROVE, one, &store, false), Outcome::Refused(_)));
+    let said = dock::lower(&store, now, DESKTOP).unwrap();
+    assert!(said.dsl.contains("pd_row_0_note") && said.dsl.contains("Already handled"), "said once");
+    assert!(dock::note_showing(now));
+    let later = dock::lower(&store, now + 9_000, DESKTOP).unwrap();
+    assert!(!later.dsl.contains("pd_row_0_note"), "the note leaves after its time");
+    assert!(!dock::note_showing(now + 9_000));
+    // ⌥Y on the focused card-less row two: nothing to answer, nothing said.
+    assert!(matches!(dock::perform(dock::ACTION_FOCUS, two, &store, false), Outcome::Done));
+    assert_eq!(dock::focused_slot(), Some(two));
+    assert!(matches!(dock::perform(dock::ACTION_APPROVE, two, &store, false), Outcome::Refused(_)));
+    assert!(!dock::lower(&store, now, DESKTOP).unwrap().dsl.contains("pd_row_1_note"), "a card-less chord is silent");
+}

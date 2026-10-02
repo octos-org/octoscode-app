@@ -2056,6 +2056,17 @@ async fn main() {
                         continue;
                     }
                 }
+                // A30 (`--peer-dock`): the master's history is an empty, valid
+                // hydrate (the `history` scenario's New-chat shape), so the
+                // dock's captures show a plain conversation, not the fleet
+                // fixture's unrecorded hydrate.
+                if method == "session/hydrate" && fleet.as_ref().is_some_and(|sim| sim.peer_dock) {
+                    let s = v["params"]["session_id"].as_str().unwrap_or("").to_owned();
+                    println!("[replay-serve] -> session/hydrate (peer dock: an empty history)");
+                    let reply = serde_json::json!({"session_id": s, "cursor": {"stream": s, "seq": 1}, "messages": []});
+                    send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": reply})).await;
+                    continue;
+                }
                 if let Some(sim) = fleet.as_mut().filter(|_| FleetSim::handles(&method)) {
                     let (reply, mut pushes) = sim.reply(&method, &v["params"], &active_session);
                     let frame = match reply {
