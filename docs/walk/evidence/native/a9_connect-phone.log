@@ -1,0 +1,24 @@
+== native walk a9_connect [phone] (tools/walk/a9_connect_walk.py)
+-- run 1: exit 0 in 103 s
+PASS the Connect card shows (nothing reachable at launch)
+PASS an unreachable address: 'Can't reach <address>' — "Can't reach http://127.0.0.1:1"
+PASS …with its actions (check the address · Retry) — Last tried 3:31 AM · check the address · Retry
+PASS …the probe said Unreachable
+SHOT <repo>/tmp/walk/native/a9_connect-phone/out/phone-connect-unreachable.png
+PASS a refused token: 'The server refused this token' — 'The server refused this token'
+PASS …told apart by the probe (401), not guessed
+PASS …with its actions (Re-enter the token · Retry) — Last tried 3:32 AM · Re-enter the token · Retry
+PASS …the token field is given the key focus
+PASS …and keeps the typed value — 14 chars
+PASS the error callout sits inside the card — [36, 267, 288, 52] in [16, 205, 328, 474]
+SHOT <repo>/tmp/walk/native/a9_connect-phone/out/phone-connect-rejected.png
+== WALK a9 connect phone: 10/10 passed
+-- fixture log tail:
+[auth401] "POST /api/auth/solo HTTP/1.1" 401 -
+[auth401] "GET /api/ui-protocol/ws?ui_feature=approval.typed.v1&ui_feature=pane.snapshots.v1&ui_feature=session.workspace_cwd.v1&ui_feature=auxiliary.rest_to_ws.v1&ui_feature=state.session_hydrate.v1&ui_feature=state.thread_graph.v1&ui_feature=state.turn_state_get.v1&ui_feature=event.turn_steer_dropped.v1&ui_feature=user_question.v1&ui_feature=plan.todos.v1&ui_feature=projection.envelope.v2&ui_feature=harness.task_control.v1&ui_feature=harness.task_artifacts.v1&ui_feature=context.lifecycle.v1&ui_feature=review.start.v1&ui_feature=coding.autonomy.v1&ui_feature=coding.agent_control.v1&ui_feature=coding.goal_runtime.v1&ui_feature=coding.loop_runtime.v1&ui_feature=coding.monitor_runtime.v1&ui_feature=external_driver_v1 HTTP/1.1" 401 -
+[auth401] "GET /api/ui-protocol/ws?ui_feature=approval.typed.v1&ui_feature=pane.snapshots.v1&ui_feature=session.workspace_cwd.v1&ui_feature=auxiliary.rest_to_ws.v1&ui_feature=state.session_hydrate.v1&ui_feature=state.thread_graph.v1&ui_feature=state.turn_state_get.v1&ui_feature=event.turn_steer_dropped.v1&ui_feature=user_question.v1&ui_feature=plan.todos.v1&ui_feature=projection.envelope.v2&ui_feature=harness.task_control.v1&ui_feature=harness.task_artifacts.v1&ui_feature=context.lifecycle.v1&ui_feature=review.start.v1&ui_feature=coding.autonomy.v1&ui_feature=coding.agent_control.v1&ui_feature=coding.goal_runtime.v1&ui_feature=coding.loop_runtime.v1&ui_feature=coding.monitor_runtime.v1&ui_feature=external_driver_v1 HTTP/1.1" 401 -
+[auth401] "GET /api/ui-protocol/ws?ui_feature=approval.typed.v1&ui_feature=pane.snapshots.v1&ui_feature=session.workspace_cwd.v1&ui_feature=auxiliary.rest_to_ws.v1&ui_feature=state.session_hydrate.v1&ui_feature=state.thread_graph.v1&ui_feature=state.turn_state_get.v1&ui_feature=event.turn_steer_dropped.v1&ui_feature=user_question.v1&ui_feature=plan.todos.v1&ui_feature=projection.envelope.v2&ui_feature=harness.task_control.v1&ui_feature=harness.task_artifacts.v1&ui_feature=context.lifecycle.v1&ui_feature=review.start.v1&ui_feature=coding.autonomy.v1&ui_feature=coding.agent_control.v1&ui_feature=coding.goal_runtime.v1&ui_feature=coding.loop_runtime.v1&ui_feature=coding.monitor_runtime.v1&ui_feature=external_driver_v1 HTTP/1.1" 401 -
+[auth401] "GET /api/ui-protocol/ws?ui_feature=approval.typed.v1&ui_feature=pane.snapshots.v1&ui_feature=session.workspace_cwd.v1&ui_feature=auxiliary.rest_to_ws.v1&ui_feature=state.session_hydrate.v1&ui_feature=state.thread_graph.v1&ui_feature=state.turn_state_get.v1&ui_feature=event.turn_steer_dropped.v1&ui_feature=user_question.v1&ui_feature=plan.todos.v1&ui_feature=projection.envelope.v2&ui_feature=harness.task_control.v1&ui_feature=harness.task_artifacts.v1&ui_feature=context.lifecycle.v1&ui_feature=review.start.v1&ui_feature=coding.autonomy.v1&ui_feature=coding.agent_control.v1&ui_feature=coding.goal_runtime.v1&ui_feature=coding.loop_runtime.v1&ui_feature=coding.monitor_runtime.v1&ui_feature=external_driver_v1 HTTP/1.1" 401 -
+[auth401] "GET /api/ui-protocol/ws?ui_feature=approval.typed.v1&ui_feature=pane.snapshots.v1&ui_feature=session.workspace_cwd.v1&ui_feature=auxiliary.rest_to_ws.v1&ui_feature=state.session_hydrate.v1&ui_feature=state.thread_graph.v1&ui_feature=state.turn_state_get.v1&ui_feature=event.turn_steer_dropped.v1&ui_feature=user_question.v1&ui_feature=plan.todos.v1&ui_feature=projection.envelope.v2&ui_feature=harness.task_control.v1&ui_feature=harness.task_artifacts.v1&ui_feature=context.lifecycle.v1&ui_feature=review.start.v1&ui_feature=coding.autonomy.v1&ui_feature=coding.agent_control.v1&ui_feature=coding.goal_runtime.v1&ui_feature=coding.loop_runtime.v1&ui_feature=coding.monitor_runtime.v1&ui_feature=external_driver_v1 HTTP/1.1" 401 -
+[auth401] "GET /api/auth/me HTTP/1.1" 401 -
+[auth401] "GET /api/ui-protocol/ws HTTP/1.1" 401 -

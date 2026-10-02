@@ -1,0 +1,108 @@
+== native walk a7_composer [phone] (tools/walk/a7_composer_walk.py)
+-- run 1: exit 0 in 2 s
+PASS draft: the text sits unsent in the composer
+== WALK phone draft-save: 1/1 passed
+-- app restart (state kept)
+-- run 2: exit 0 in 0 s
+PASS draft: the unsent text is back after the restart — 'unsent draft survives a restart'
+PASS draft: it was restored, not sent — 0 turn/start at the fixture
+== WALK phone draft-check: 2/2 passed
+-- app restart (state kept)
+-- run 3: exit 0 in 90 s
+PASS markdown: the answer renders highlighted code (A7CodeLines)
+PASS markdown: inline + display math typeset (MathView) — 3
+PASS markdown: money stays prose ($12 and $5)
+PASS markdown: code banners name the language — ['toml']
+PASS markdown: only the absolute https link is a link (javascript: stays text) — 1 MarkdownLink
+PASS markdown: the remote image is not loaded (alt text only)
+PASS markdown: the rust fence is labelled — ['rust']
+PASS markdown: a code block offers Copy
+PASS layout: Copy hit targets >= 28 px — [[268, 451, 72, 30]]
+PASS markdown: Copy shows Copied — ['Copied']
+PASS markdown: the copy reached the clipboard (logged)
+PASS markdown: Copied returns to Copy after 1 s — ['Copy']
+PASS shortcuts: Alt+D inside the composer is suppressed
+PASS shortcuts: Alt+D inside a dialog is suppressed
+PASS queue: a prompt sent while a turn runs is queued (chip)
+PASS queue: the chip counts FIFO — '1 queued'
+PASS queue: the composer cleared on admission — ''
+PASS queue: Steer now is offered (turn/steer advertised, accepted owner running)
+PASS layout: queue_steer_hit >= 28 px — [98, 687, 72, 34]
+PASS layout: queue_remove_hit >= 28 px — [184, 690, 28, 28]
+PASS layout: the chip sits above the composer without overlap — chip [12, 687, 202, 34] composer [12, 729, 336, 93]
+PASS queue: Steer now steers into the running turn (chip gone)
+PASS queue: turn/steer was accepted into the captured turn
+PASS queue: ✕ removes the queued prompt without interrupting
+PASS queue: the steered text is in the answer
+PASS steer: with /steer on a prompt steers instead of queueing
+PASS collision: a typed turn_in_progress refusal reads as Session busy
+PASS collision: the text is kept for retry (back in the composer) — 'busy please'
+PASS collision: never 'Turn rejected'
+PASS recovery: an unacknowledged start holds the turn (recovery notice)
+PASS recovery: the timeout is disclosed
+PASS layout: recovery_check_hit >= 28 px — [28, 671, 116, 36]
+PASS layout: recovery_continue_hit >= 28 px — [152, 671, 154, 36]
+PASS recovery: Check status asks turn/state/get and clears the hold
+PASS recovery: an unknown lifecycle keeps the turn held
+PASS recovery: Continue without it releases the hold
+PASS history: /fork opens the Fork conversation dialog
+PASS history: Create is disabled until a valid name
+PASS history: a valid name arms Create
+PASS history: the typed name stays in the field — 'walk-fork'
+PASS history: the fork opens in the background (selection unchanged) — 'Conversation fork opened in the background. Your selection was not changed.'
+PASS history: the dialog names the child — 'Fork: a7:walk-fork'
+PASS history: the sidebar lists the forked conversation — ['Fix steer queue drop on reconnect', 'Fork · walk-fork']
+PASS history: /undo opens Undo workspace changes
+PASS history: Restore asks for confirmation first
+PASS history: Confirm restores the snapshot — 'Workspace snapshot restored. Conversation history was not changed.'
+PASS peer: the staged peer's Session is listed (/sessions)
+PASS peer: a focused peer Session shows the read-only row
+PASS peer: the editable composer is replaced
+PASS peer: the row names the peer — '↳ read-only peer · review-diff · steer from the master'
+PASS peer: back on the master the composer is editable
+PASS attention: Settings opens
+PASS attention: Desktop notifications are off until the Settings action (no prompt)
+PASS attention: the toggle opts in
+PASS attention: the opt-in is persisted
+PASS attention: turning it off persists too
+PASS media: /images opens the images dialog
+PASS media: a dropped PNG fills slot 0 (selected, not uploaded) — 'walk-shot.png · 0.00 MiB · image/png · Selected; not uploaded'
+PASS media: Upload is offered
+PASS media: the entry is uploading — 'walk-shot.png · 0.00 MiB · image/png · Uploading…'
+PASS media: Cancel uploads cancels locally — 'Transfers canceled locally. No server files were deleted.'
+PASS media: a double Upload sent ONE request — 1 POSTs
+PASS media: the cancelled transfer's receipt arrived late
+PASS media: the late receipt was ignored (not uploaded) — 'walk-shot.png · 0.00 MiB · image/png · Selected; not uploaded'
+PASS media: removing an in-flight entry frees the slot
+PASS media: its late receipt does not resurrect it
+PASS media: the picker is available again
+== WALK phone main: 67/67 passed
+-- fixture restart with {'A7_SERVE_HELD': 'octos-tui', 'A7_SERVE_RELEASE_DELAY_MS': '1500'}
+-- run 4: exit 0 in 3 s
+PASS seat: the held banner names the other app — 'This session is open in octos-tui. You can read along; take over to send.'
+PASS layout: Take over >= 28 px — [248, 150, 100, 36]
+PASS seat: a held Session refuses the send with the human message
+PASS seat: no protocol words reach the transcript
+PASS seat: the draft is kept — 'please ship it'
+PASS seat: no turn/start frame was written — 0 turn/start at the fixture
+PASS seat: Take over shows Resuming chat… — 'Resuming chat…'
+PASS seat: acquire -> release(internal) -> one send
+PASS seat: the answer arrives
+PASS seat: the banner is gone
+PASS seat: the status line is gone
+== WALK phone seat: 11/11 passed
+-- fixture log tail:
+[a7-serve] listening on ws://127.0.0.1:8504
+[a7-serve] client connected
+[a7-serve] <- session/open
+[a7-serve] <- session/list
+[a7-serve] <- profile/llm/list
+[a7-serve] <- session/driver/get
+[a7-serve] <- profile/skills/list
+[a7-serve] <- profile/sub_providers/list
+[a7-serve] <- session/status/read
+[a7-serve] <- session/driver/get
+[a7-serve] <- session/driver/acquire
+[a7-serve] <- session/driver/release
+[a7-serve] <- turn/start
+[a7-serve] client disconnected

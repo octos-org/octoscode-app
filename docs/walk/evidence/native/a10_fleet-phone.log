@@ -1,0 +1,113 @@
+== native walk a10_fleet [phone] (tools/walk/a10_fleet.py)
+-- run 1: exit 0 in 75 s
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=32923 app=octosense grabs=<abs>/octosense-32923
+[headless] up: pid 32923  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+== 1. the sidebar footer's Fleet entry CLICK opens the pane; the lanes and the driver inventory load
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK fleet_nav_hit r=[10, 812, 292, 34] at (156,829)
+PASS fleet: Fleet entry CLICK -> the Fleet pane
+PASS fleet: the opening reads went out (lane source + inventory walk)
+PASS fleet: control is ready -> the Start form shows
+PASS fleet: the walked dispatch is a union row 'Peer 1 · glm-4.6' (never the slug), grouped by its goal — group='Goal goal_01' row0='Peer 1 · glm-4.6' status='○ Requested'
+PASS fleet: an inventory-only row reads 'Requested'
+PASS fleet: Start is disabled with no lane and no brief (no button; a click sends NOTHING — no implicit lane) — start_box=[267, 333, 63, 34]
+PASS open: pane numeric checks (no clipped/overlapping labels, controls >= 28 px, column centred) — frame=360x776 centre_dx=0.0 margins L=16 R=16 labels=17 outside=0 overlaps=0 controls=5 under28=0 column=328 column_dx=0.0
+SHOT 01-open-phone
+== 2. the lane picker lists ONLY the advertised lanes; no default
+CLICK b3_fleet_model_tap r=[30, 194, 300, 36] at (180,212)
+PASS fleet: the Model picker CLICK opens the two advertised lanes — options=['lane-primary', 'lane-review']
+SHOT 02-picker-phone
+CLICK b3_fleet_opt_0 r=[34, 242, 292, 32] at (180,258)
+PASS fleet: choosing lane-primary shows its provider/model — lane='openai/gpt-5.4'
+== 3. Start = acquire (CAS) -> prepare -> ONE dispatch; the adopted row works, then waits for approval
+TYPE 'Review the reconnect diff'
+TAP the keyboard's hide key
+CLICK b3_fleet_start r=[267, 407, 63, 34] at (298,424)
+PASS fleet: Start CLICK -> FleetStart job
+PASS fleet: the wire was acquire -> prepare -> ONE dispatch, the CAS on the walked revision 42 — [replay-serve] -> session/driver/acquire (fleet sim) expected_revision=42; [replay-serve] -> peer/prepare (fleet sim) ; [replay-serve] -> peer/dispatch (fleet sim) operation_id=8a928428-01bc-4af2-b695-4189d92e90a7 model=lane-primary
+PASS fleet: the adopted row 'Peer 2 · gpt-5.4' appears and the brief clears — row1='Peer 2 · gpt-5.4'
+PASS fleet: the adopted session's own frames drive it to 'Waiting for your approval' — status='⚠ Waiting for your approval'
+PASS fleet: the live region announces it ('Peer 2 · gpt-5.4 is waiting for your approval') — announce='Peer 2 · gpt-5.4 is waiting for your approval'
+PASS waiting: pane numeric checks (no clipped/overlapping labels, controls >= 28 px, column centred) — frame=360x776 centre_dx=0.0 margins L=16 R=16 labels=27 outside=0 overlaps=0 controls=4 under28=0 column=328 column_dx=0.0
+SHOT 03-waiting-phone
+== 4. Approve -> ONE peer/control approval_respond -> approval/decided -> Working
+CLICK b3_fleet_row_1_approve r=[30, 787, 83, 32] at (72,803)
+PASS fleet: Approve CLICK -> peer/control(approval_respond) on the row's accepted operation + adopted turn — [replay-serve] -> peer/control (fleet sim) operation_id=81903dbc-cea2-4493-8459-4c83d96a05ce target_operation_id=8a928428-01bc-4af2-b695-4189d92e90a7 expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=approval_respond
+PASS fleet: the row says 'Sent'
+== 5. Steer the working peer
+TYPE 'Focus on the reconnect tests'
+TAP the keyboard's hide key
+CLICK b3_fleet_row_1_steer_btn r=[264, 761, 66, 34] at (297,778)
+PASS fleet: Steer CLICK -> ONE peer/control(steer) — [replay-serve] -> peer/control (fleet sim) operation_id=3d600807-011c-40c9-b6b6-662f30212b57 target_operation_id=8a928428-01bc-4af2-b695-4189d92e90a7 expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=steer
+== 6. a refused Start keeps the brief and the bounded label; its staging is a Failed row; the next Start mints a NEW id
+CLICK b3_fleet_model_tap r=[30, 295, 300, 36] at (180,313)
+CLICK b3_fleet_opt_1 r=[34, 375, 292, 32] at (180,391)
+TYPE 'Run the full test suite'
+TAP the keyboard's hide key
+CLICK b3_fleet_start r=[267, 433, 63, 34] at (298,450)
+PASS fleet: Start on lane-review -> the typed refusal -> 'Couldn't start: That model is not configured on this server' — error="Couldn't start: That model is not configured on this server" brief='Run the full test suite'
+PASS fleet: the refused staging settles as a terminal 'Failed' row under Peers' Finished (1) — label='Finished (1)'
+SHOT 04-refused-phone
+CLICK b3_fleet_model_tap r=[30, 295, 300, 36] at (180,313)
+CLICK b3_fleet_opt_0 r=[34, 343, 292, 32] at (180,359)
+CLICK b3_fleet_start r=[267, 433, 63, 34] at (298,450)
+PASS fleet: Start again (same brief, lane-primary) -> accepted 'Peer 4 · gpt-5.4' — row3='Peer 4 · gpt-5.4'
+PASS fleet: three Starts = three DISTINCT operation ids on the wire — ['8a928428-01bc-4af2-b695-4189d92e90a7', 'fa3e471e-380e-48a1-a47a-26ae1be21b9c', '0b8fcbdb-ba91-4695-8426-3f57312d66e0']
+== 6b. the peer asks a question: the row is an answer card; Answer -> ONE question_respond
+PASS fleet: the adopted session's question folds into 'Waiting for your answer' with the question on the card — status='⚠ Waiting for your answer' question='Which color would you like to pick?'
+TYPE 'Blue'
+TAP the keyboard's hide key
+PASS answer: pane numeric checks (no clipped/overlapping labels, controls >= 28 px, column centred) — frame=360x776 centre_dx=0.0 margins L=16 R=16 labels=22 outside=0 overlaps=0 controls=4 under28=0 column=328 column_dx=0.0
+SHOT 04b-answer-phone
+CLICK b3_fleet_row_3_answer r=[250, 760, 80, 34] at (290,777)
+PASS fleet: Answer CLICK -> ONE peer/control(question_respond) on the row's operation + adopted turn; 'Sent' — [replay-serve] -> peer/control (fleet sim) operation_id=92da7fb2-7f25-45fa-920b-fe5864375d24 target_operation_id=0b8fcbdb-ba91-4695-8426-3f57312d66e0 expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=question_respond
+== 7. Stop -> ONE interrupt -> the row finishes under its group's Finished (n)
+CLICK b3_fleet_row_3_stop r=[30, 809, 61, 32] at (60,825)
+PASS fleet: Stop CLICK -> peer/control(interrupt) -> turn/error -> 'Finished (2)' under Peers — label='Finished (2)'
+CLICK b3_fleet_finished_1 r=[16, 789, 328, 30] at (180,804)
+PASS fleet: the Finished (2) disclosure CLICK shows the stopped and the failed rows — stopped='✕ Stopped' failed='✕ Failed' reason='That model is not configured on this server'
+PASS finished: pane numeric checks (no clipped/overlapping labels, controls >= 28 px, column centred) — frame=360x776 centre_dx=0.0 margins L=16 R=16 labels=31 outside=0 overlaps=0 controls=4 under28=0 column=328 column_dx=0.0
+SHOT 05-finished-phone
+== 8. Advanced: the driver disclosure, Release seat -> re-walk -> Acquire seat
+CLICK b3_fleet_advanced r=[16, 786, 328, 32] at (180,802)
+PASS fleet: Advanced CLICK opens the session controller
+PASS fleet: the disclosure names the external controller — 'External controller'
+CLICK b3_fleet_disclosure_toggle r=[30, 789, 300, 30] at (180,804)
+PASS fleet: the disclosure CLICK opens the read-only driver facts (recovery, driver, epoch, revision, lease) — revision='43' epoch='8' lease='Lease expires Oct 2 10:07:52 UTC'
+PASS fleet: the session peers roster lists the rows
+PASS advanced: pane numeric checks (no clipped/overlapping labels, controls >= 28 px, column centred) — frame=360x776 centre_dx=0.0 margins L=30 R=30 labels=29 outside=0 overlaps=0 controls=4 under28=0 column=328 column_dx=0.0
+SHOT 06-advanced-phone
+CLICK b3_fleet_console_release r=[125, 737, 114, 32] at (182,753)
+PASS fleet: Release seat CLICK -> session/driver/release -> 'Acquire seat' appears
+PASS fleet: the release re-walks the inventory (web refreshControlInventory) — gets=3
+CLICK b3_fleet_console_acquire r=[30, 761, 111, 32] at (86,777)
+PASS fleet: Acquire seat CLICK -> ONE acquire on the re-walked revision — [replay-serve] -> session/driver/acquire (fleet sim) expected_revision=42; [replay-serve] -> session/driver/acquire (fleet sim) expected_revision=44
+== 9. Peer gather: ONE peer/gather -> the synthesis as ONE ordinary turn
+CLICK b3_fleet_gather r=[240, 92, 104, 30] at (292,107)
+PASS fleet: Peer gather CLICK -> peer/gather -> turn/start -> 'Peer synthesis queued'
+== 10. the control seat (PeerControlPanel): the master's live turn (the gather's synthesis) + the held seat's pending work
+CLICK b3_fleet_back r=[16, 92, 64, 30] at (48,107)
+PASS fleet: Back closes the pane and the composer returns
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK fleet_nav_hit r=[10, 812, 292, 34] at (156,829)
+PASS fleet: Fleet entry CLICK reopens the pane (the composer is hidden under it)
+PASS fleet: the synthesis turn handed the seat back first (release next=internal before its turn/start) — [replay-serve] -> session/driver/release (fleet sim) expected_revision=43 next=external; [replay-serve] -> session/driver/release (fleet sim) expected_revision=45 next=internal
+CLICK b3_fleet_console_acquire r=[30, 795, 111, 32] at (86,811)
+PASS fleet: Acquire seat CLICK -> ONE more acquire; the control seat mounts (held seat + pending work + live turn)
+CLICK b3_fleet_seat_cmd_2 r=[30, 649, 300, 32] at (180,665)
+PASS fleet: seat Steer CLICK -> ONE peer/control on the pending work + the master's live turn -> the receipt facts — worker='lint-sweep' dup='Newly applied'
+PASS seat: pane numeric checks (no clipped/overlapping labels, controls >= 28 px, column centred) — frame=360x776 centre_dx=0.0 margins L=30 R=30 labels=33 outside=0 overlaps=0 controls=6 under28=0 column=328 column_dx=0.0
+SHOT 07-seat-phone
+== 11. the wire: every click's method reached the replay server
+PASS wire: session/driver/acquire x3 — replay log: 3
+PASS wire: peer/prepare x3 — replay log: 3
+PASS wire: peer/dispatch x3 — replay log: 3
+PASS wire: session/driver/release x2 — replay log: 2
+PASS wire: peer/gather x1 — replay log: 1
+PASS wire: peer/control x5 (approve, steer, answer, stop, seat steer) — replay log: 5
+== 49/49 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 32923 exited after /gq
+[headless] port 8421 free

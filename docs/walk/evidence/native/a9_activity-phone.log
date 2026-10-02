@@ -1,0 +1,54 @@
+== native walk a9_activity [phone] (tools/walk/a9_activity_walk.py)
+-- run 1: exit 0 in 10 s
+PASS palette /activity opens Activity
+PASS the catalog reads arrive (3 rows) — 3 rows
+PASS one task/list per confirmed session, nothing opened — ['[replay-serve] -> task/list a9walk:review', '[replay-serve] -> task/list a9walk:main', '[replay-serve] -> task/list a9walk:fork', '[replay-serve] -> task/list a9walk:bump', '[replay-serve] -> task/list a9walk:hydrate']
+PASS status filters carry the counts — ['All 3', 'Running 1', 'Failed 1', 'Done 1']
+PASS the failed reads fail closed into the status line — '2 Session task snapshots unavailable'
+PASS footer names the refresh
+PASS rows: running, failed, done — ['c24b-probe', 'Rebuild after the octos-core bump', 'c24b-probe completed']
+PASS Inspect on the current session, Open session elsewhere — ['Inspect', 'Open session', 'Open session']
+PASS open: the dialog is shown — [0, 74, 360, 776]
+PASS open: the dialog lies inside the module — dialog [0, 74, 360, 776] module [0, 74, 360, 776]
+PASS open: full-bleed on the phone (the web's 100% x 100%) — 360 vs 360
+PASS open: hit targets >= 28 px — []
+PASS open: rows share one left edge — {8}
+PASS open: row texts inside their rows, clear of the pill — []
+PASS open: nothing spills past the card — []
+SHOT <repo>/tmp/walk/native/a9_activity-phone/out/phone-activity.png
+PASS search 'fork' leaves the fork row — [2]
+PASS typing never remounts the dialog
+PASS Failed + 'fork' shows the named empty state — 'No failed task matches “fork”.'
+SHOT <repo>/tmp/walk/native/a9_activity-phone/out/phone-activity-empty.png
+PASS All + cleared search shows every row — 3
+PASS Inspect opens the Tasks view and closes Activity
+PASS …which closes back to the conversation
+PASS Open session closes Activity and opens the owning session
+PASS a switch in flight shows the warning — 'Finish the workspace transition before opening another session.'
+PASS …and its Open session pills route nothing — []
+PASS blocked: the dialog is shown — [0, 74, 360, 776]
+PASS blocked: the dialog lies inside the module — dialog [0, 74, 360, 776] module [0, 74, 360, 776]
+PASS blocked: full-bleed on the phone (the web's 100% x 100%) — 360 vs 360
+PASS blocked: hit targets >= 28 px — []
+PASS blocked: rows share one left edge — {8}
+PASS blocked: row texts inside their rows, clear of the pill — []
+PASS blocked: nothing spills past the card — []
+SHOT <repo>/tmp/walk/native/a9_activity-phone/out/phone-activity-blocked.png
+PASS × closes Activity
+== WALK a9 activity phone: 32/32 passed
+-- fixture log tail:
+[replay-serve] <- session/list (id=21)
+[replay-serve] holding the switch's session/list for 6 s
+[replay-serve] <- permission/profile/list (id=22)
+[replay-serve] <- session/status/read (id=23)
+[replay-serve] <- session/hydrate (id=24)
+[replay-serve] <- task/list (id=25)
+[replay-serve] -> task/list a9walk:review
+[replay-serve] <- task/list (id=26)
+[replay-serve] -> task/list a9walk:main
+[replay-serve] <- task/list (id=27)
+[replay-serve] -> task/list a9walk:fork
+[replay-serve] <- task/list (id=28)
+[replay-serve] -> task/list a9walk:bump
+[replay-serve] <- task/list (id=29)
+[replay-serve] -> task/list a9walk:hydrate

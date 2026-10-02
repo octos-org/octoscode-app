@@ -1,0 +1,43 @@
+== native walk a3_chrome [phone] (tools/walk/a3_chrome_walk.py)
+-- run 1: exit 0 in 6 s
+PASS layout: hd_review_label is icon-only in this mode
+PASS layout: hd_settings_label is icon-only in this mode
+PASS Menu opens the drawer — clicked=True log~'drawer.open'
+PASS drawer width is min(320, w - 48) — [0, 74, 312, 776]
+PASS layout: session rows are 32 px — [32]
+PASS layout: group headers are 36 px — [36]
+PASS layout: rows and headers share one left edge — {10}
+PASS layout: chrome hit targets >= 28 px — []
+PASS layout: chrome stays inside the frame — []
+PASS All shows the flat list — clicked=True log~'sidebar.mode.flat'
+PASS By workspace regroups — clicked=True log~'sidebar.mode.grouped'
+PASS Search highlights the match — ['hydrate']
+PASS Search names the empty group
+PASS Clear search restores every row — clicked=True log~'search.clear'
+PASS A group header collapses it — clicked=True log~'workspace.toggle'
+PASS …and expands it again — clicked=True log~'workspace.toggle'
+PASS The ⋯ opens the workspace menu — clicked=True log~'workspace.menu'
+PASS Rename opens the form — clicked=True log~'workspace.rename'
+PASS Cancel closes the form — clicked=True log~'workspace.rename.cancel'
+PASS Sort cycles the order — clicked=True log~'sidebar.sort'
+PASS A session row opens its session — clicked=True log~'session.open'
+PASS Opening a row dismisses the drawer
+PASS Settings opens from the header — clicked=True log~'settings.panel.open'
+PASS Settings nav -> general — clicked=True log~'settings.section.general'
+PASS Settings nav -> permissions — clicked=True log~'settings.section.permissions'
+PASS Settings nav -> model — clicked=True log~'settings.section.model'
+PASS Settings nav -> sandbox — clicked=True log~'settings.section.sandbox'
+PASS Settings nav -> connection — clicked=True log~'settings.section.connection'
+PASS Settings nav -> preferences — clicked=True log~'settings.section.preferences'
+PASS Settings nav -> about — clicked=True log~'settings.section.about'
+PASS layout: settings hit targets >= 28 px — []
+PASS Desktop notifications toggles — clicked=True log~'notifications_toggle.toggle'
+PASS Stop server… opens the confirm — clicked=True log~'server.stop.request'
+PASS Cancel closes the confirm — clicked=True log~'server.stop.cancel'
+PASS Cancel sent no server/shutdown
+PASS Permissions preset Full access is offered — clicked=True log~'perm_full.select'
+PASS Thinking Off selects — clicked=True log~'settings.thinking.off'
+PASS Thinking On selects — clicked=True log~'settings.thinking.on'
+PASS Sandbox: Network access toggles — clicked=True log~'sandbox_network.toggle'
+PASS Settings closes — clicked=True log~'settings.panel.close'
+== WALK phone: 40/40 passed

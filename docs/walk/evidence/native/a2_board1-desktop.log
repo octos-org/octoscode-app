@@ -1,0 +1,57 @@
+== native walk a2_board1 [desktop] (tools/walk/a2_board1_walk.py)
+-- run 1: exit 0 in 46 s
+[entry_connect] entry=b1_connect_pair rect=[605, 482, 148, 32] pass=True
+PASS entry_connect: the entry b1_connect_pair is laid out (>= 28 px, inside the view) — [605, 482, 148, 32]
+[p4-01_pair] pass=True card=[329, 124, 440, 506] margins=[275, 275] small=[] overlaps=[] outside=[]
+PASS p4-01_pair: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [329, 124, 440, 506] margins [275, 275] small [] overlaps [] outside []
+[p4-03_link_problem] pass=True card=[329, 178, 440, 399] margins=[275, 275] small=[] overlaps=[] outside=[]
+PASS p4-03_link_problem: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [329, 178, 440, 399] margins [275, 275] small [] overlaps [] outside []
+[p4-04_cant_pair] pass=True card=[329, 224, 440, 307] margins=[275, 275] small=[] overlaps=[] outside=[]
+PASS p4-04_cant_pair: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [329, 224, 440, 307] margins [275, 275] small [] overlaps [] outside []
+[p4-02_pairing] pass=True card=[329, 203, 440, 349] margins=[275, 275] small=[] overlaps=[] outside=[]
+PASS p4-02_pairing: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [329, 203, 440, 349] margins [275, 275] small [] overlaps [] outside []
+[paired] live: True
+PASS paired_live: the good link claims, connects and goes live (no token box)
+[entry_settings_connection] entry=b1_set_connection rect=[813, 418, 112, 32] pass=True
+PASS entry_settings_connection: the entry b1_set_connection is laid out (>= 28 px, inside the view) — [813, 418, 112, 32]
+[p4-05_connection] pass=True card=[329, 215, 440, 324] margins=[275, 275] small=[] overlaps=[] outside=[]
+PASS p4-05_connection: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [329, 215, 440, 324] margins [275, 275] small [] overlaps [] outside []
+[entry_settings_model] entry=b1_set_provider rect=[813, 436, 112, 32] pass=True
+PASS entry_settings_model: the entry b1_set_provider is laid out (>= 28 px, inside the view) — [813, 436, 112, 32]
+[p4-06_provider] pass=True card=[319, 107, 460, 541] margins=[265, 265] small=[] overlaps=[] outside=[]
+PASS p4-06_provider: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [319, 107, 460, 541] margins [265, 265] small [] overlaps [] outside []
+PASS p4-07: a rejected key shows the bounded copy (no server text) and keeps the draft — 'The provider rejected this key (401).' / 'Your draft is kept.'; raw []
+[p4-07_rejected] pass=True card=[319, 96, 460, 583] margins=[265, 265] small=[] overlaps=[] outside=[]
+PASS p4-07_rejected: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [319, 96, 460, 583] margins [265, 265] small [] overlaps [] outside []
+PASS provider_saved_back_in_settings: a good key saves and the editor closes back to Settings
+[entry_add_workspace] entry=sb_add_hit rect=[64, 603, 260, 34] pass=True
+PASS entry_add_workspace: the entry sb_add_hit is laid out (>= 28 px, inside the view) — [64, 603, 260, 34]
+PASS p4-08: the server's hidden folders are reported — '3 hidden by the server'
+PASS p4-08: picking a subfolder fills the path box without leaving the parent — path '/home/user/code/octoscode-app', rows ['octos', 'octoscode-app', 'notes', 'scratch']
+[p4-08_browser] pass=True card=[279, 150, 540, 455] margins=[225, 225] small=[] overlaps=[] outside=[]
+PASS p4-08_browser: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [279, 150, 540, 455] margins [225, 225] small [] overlaps [] outside []
+PASS p4-08: a second tap drills into the folder — ['crates', 'design', 'docs']
+PASS p4-08: the breadcrumb drills back out — ['octos', 'octoscode-app', 'notes', 'scratch']
+[p4-09_refused] pass=True card=[279, 216, 540, 323] margins=[225, 225] small=[] overlaps=[] outside=[]
+PASS p4-09_refused: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [279, 216, 540, 323] margins [225, 225] small [] overlaps [] outside []
+[picker] pass=True card=[279, 216, 540, 323] margins=[225, 225] small=[] overlaps=[] outside=[]
+PASS picker: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [279, 216, 540, 323] margins [225, 225] small [] overlaps [] outside []
+PASS p4-08: New folder creates it and moves into it — path '/home/user/code/walk-made', 'No subfolders here.'
+PASS p4-08: Use this folder starts the session in the created folder — ['/home/user/code/walk-made', 'What should we build in walk-made?']
+walk complete; checks pass: {'entry_connect': True, 'p4-01_pair': True, 'p4-03_link_problem': True, 'p4-04_cant_pair': True, 'p4-02_pairing': True, 'paired_live': True, 'entry_settings_connection': True, 'p4-05_connection': True, 'entry_settings_model': True, 'p4-06_provider': True, 'p4-07_rejected': True, 'provider_saved_back_in_settings': True, 'entry_add_workspace': True, 'p4-08_browser': True, 'p4-09_refused': True, 'picker': True}
+-- fixture restart args ['--no-browse']
+-- run 2: exit 0 in 3 s
+PASS picker without the browse feature: no Browse and no New folder (fail closed) — server row True, browse False
+[picker-no-browse] pass=True card=[279, 248, 540, 258] margins=[225, 225] small=[] overlaps=[] outside=[]
+PASS picker-no-browse: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [279, 248, 540, 258] margins [225, 225] small [] overlaps [] outside []
+-- fixture log tail:
+[board1-serve] listening on 127.0.0.1:8500 (pair=ok, browse=false)
+PAIR-LINK http://app.invalid/?octos=http://127.0.0.1:8500&pair=3QK7ZP2M
+[board1-serve] ui-protocol socket open
+[board1-serve] <- session/open
+[board1-serve] <- session/list
+[board1-serve] <- profile/llm/list
+[board1-serve] <- profile/skills/list
+[board1-serve] <- profile/sub_providers/list
+[board1-serve] <- session/status/read
+[board1-serve] socket closed

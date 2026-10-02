@@ -1,0 +1,68 @@
+== native walk a10_seats [desktop] (tools/walk/a10_seats.py)
+-- run 1: exit 0 in 21 s
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=70817 app=octosense grabs=<abs>/octosense-70817
+[headless] up: pid 70817  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+== 1. the seats: permission left, model right
+PASS seats: both seats are drawn (the server offers both menus)
+PASS seats: the permission seat names the server's preset before its menu opens (read at Session open) — Write · Network allowed
+== 2. the permission menu (approval pill CLICK)
+CLICK approval_pill_hit r=[407, 622, 170, 30] at (492,637)
+PASS permission: approval pill CLICK -> the menu above it (permission/profile/list)
+PASS permission: the current preset first, then the other profiles (shield / name / check)
+menu [407, 417, 310, 197] over seat [407, 622, 170, 30]: gap=8.0 edge=0.0 clamped=False
+PASS permission: the menu sits above the seat, left-aligned to it
+PASS permission menu: menu numeric checks — frame=310x197 centre_dx=13.0 margins L=12 R=12 labels=5 outside=0 overlaps=0 controls=4 under28=0
+SHOT 01-permission-menu-desktop
+CLICK b3_perm_opt_1 r=[411, 484, 302, 42] at (562,505)
+PASS permission: 'Read · Network blocked' CLICK -> permission/profile/set; the menu closes
+PASS permission: the seat shows the read-back (the web's trigger label) — Read · Network blocked
+SHOT 01b-permission-applied-desktop
+== 3. full access only through the acknowledged confirmation
+CLICK approval_pill_hit r=[407, 622, 171, 30] at (492,637)
+PASS permission: reopened, the read-back is current (Read · Network blocked first, checked)
+CLICK b3_perm_opt_2 r=[411, 568, 302, 42] at (562,589)
+PASS permission: 'Full access' CLICK -> the confirmation, not a set
+PASS risk: the web's copy — title, summary (Full access / Network allowed), the box, the hint
+PASS risk: 'Enable full access' is inert until the box is ticked
+PASS risk confirmation: menu numeric checks — frame=460x316 centre_dx=0.0 margins L=16 R=16 labels=10 outside=0 overlaps=0 controls=2 under28=0
+SHOT 02-risk-desktop
+CLICK b3_risk_ack r=[335, 409, 428, 32] at (549,425)
+PASS risk: the acknowledgement CLICK ticks the box; the hint goes; Enable is armed
+SHOT 03-risk-ack-desktop
+CLICK b3_risk_confirm r=[606, 472, 157, 36] at (684,490)
+PASS risk: 'Enable full access' CLICK -> permission/profile/set {danger_full_access, allow}; closed
+== 4. the model menu (model seat CLICK)
+CLICK model_seat_hit r=[787, 622, 147, 30] at (860,637)
+PASS model: the model label CLICK -> the menu above it (profile/llm/list {session_id})
+PASS model: the two deepseek routes read apart (model · route)
+PASS model: grouped by provider; the unavailable model disabled with its reason
+PASS model: the selected model is checked; the seat names it
+menu [642, 332, 292, 282] over seat [784, 622, 149, 30]: gap=8.0 edge=1.0 clamped=False
+PASS model: the menu sits above the seat, right-aligned to it
+PASS model menu: menu numeric checks — frame=292x282 centre_dx=239.0 margins L=12 R=12 labels=12 outside=0 overlaps=0 controls=3 under28=0
+SHOT 04-model-menu-desktop
+CLICK b3_model_opt_1 r=[646, 423, 284, 44] at (788,445)
+PASS model: the r2-route fallback CLICK -> profile/llm/select -> the restart_required notice
+PASS model notice: menu numeric checks — frame=292x337 centre_dx=239.0 margins L=12 R=12 labels=13 outside=0 overlaps=0 controls=3 under28=0
+SHOT 05-model-restart-desktop
+CLICK b3_model_opt_2 r=[646, 439, 284, 44] at (788,461)
+PASS model: Kimi K3 CLICK -> reloaded: 'Saved. Your next message uses kimi-k3'; checked
+SHOT 06-model-reloaded-desktop
+== 5. an outside press dismisses; the seat and the notice persist
+CLICK outside the menu at (788,255)
+PASS model: an outside press closes the menu; the seat now names Kimi K3 — closed=True seat='Kimi K3' dialog=None
+CLICK model_seat_hit r=[858, 622, 76, 30] at (896,637)
+PASS model: reopened, the Session's notice is still there
+SHOT 07-model-sticky-desktop
+KEY Escape
+== 6. the wire
+PASS wire: permission/profile/set x2 — replay log: 2
+PASS wire: profile/llm/select x2 — replay log: 2
+PASS wire: permission/profile/list read — replay log: 6
+PASS wire: profile/llm/list read — replay log: 5
+== 30/30 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 70817 exited after /gq
+[headless] port 8421 free
