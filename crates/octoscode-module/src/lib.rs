@@ -967,7 +967,11 @@ script_mod! {
                     }
                     palette_row_inner := View {
                         width: Fill height: Fill flow: Right spacing: 8
-                        padding: Inset{left: 6 top: 8}
+                        // A5: both labels centre on the row (a shared top
+                        // inset put the 11 pt description above the 13 pt
+                        // name's baseline).
+                        padding: Inset{left: 6}
+                        align: Align{y: 0.5}
                         palette_row_name := Label { width: 150 height: Fit text: "" draw_text.text_style.font_size: 13  draw_text.color: theme.color_fg_app}
                         palette_row_desc := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
                     }

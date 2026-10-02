@@ -318,26 +318,63 @@ pub fn apply(effect: &Effect) -> Option<Dialog> {
     }
 }
 
-/// Append the notice line under the card's content (post-normalize card
-/// coordinates), growing the frame containers to hold it. The line keeps the
-/// card's own body face (cloned from its first text node) in the atlas red.
+/// Insert the notice line directly UNDER THE TITLE (post-normalize card
+/// coordinates): a reply remounts the card at the top of its scroll, so the
+/// line under the title is the one a user sees after a click near the bottom
+/// of a tall card. Content below moves down; a bordered card spanning the
+/// line grows; the frame containers grow. The line keeps the card's own body
+/// face (cloned from a text node) — the atlas red for an alert, the secondary
+/// grey for a result.
 fn append_notice(tree: &mut UiNode, text: &str, alert: bool, card: (f64, f64)) -> (f64, f64) {
     let (w, h) = card;
+    let frames = frame_ids(tree);
+    let is_frame =
+        |n: &UiNode| n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id));
     let mut proto: Option<UiNode> = None;
+    let mut title: Option<(f64, f64, f64, f64)> = None;
     walk(tree, &mut |n| {
-        if proto.is_none() && n.kind == NodeKind::Text && n.attrs.font_src.is_some() {
-            proto = Some(n.clone());
+        if n.kind == NodeKind::Text && n.attrs.font_src.is_some() {
+            if proto.is_none() {
+                proto = Some(n.clone());
+            }
+            if n.attrs.text.as_deref().is_some_and(|t| !t.trim().is_empty()) {
+                let r = rect(n);
+                if title.is_none_or(|t| r.1 < t.1 - 0.5) {
+                    title = Some(r);
+                }
+            }
         }
     });
-    let Some(mut node) = proto else { return card };
-    let line_h = 44.0;
+    let (Some(mut node), Some((tx, ty, _, th))) = (proto, title) else { return card };
+    // The bordered container holding the title bounds the line's width.
+    let mut right = w - PAD_X;
+    walk(tree, &mut |n| {
+        let (x, y, cw, ch) = rect(n);
+        if !is_frame(n) && n.kind == NodeKind::Stack && n.attrs.border.is_some()
+            && tx >= x && tx <= x + cw && ty >= y && ty <= y + ch
+        {
+            right = right.min(x + cw - 12.0);
+        }
+    });
+    let line_h = 40.0;
+    let y0 = ty + th + 10.0;
+    let delta = line_h + 6.0;
+    // Containers that span the insertion line grow; everything below moves.
+    walk_mut(tree, &mut |n| {
+        let (_, y, _, ch) = rect(n);
+        let frame = n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id));
+        if !frame && n.kind == NodeKind::Stack && y < y0 && y + ch > y0 {
+            n.attrs.h = Some((ch + delta) as f32);
+        }
+    });
+    shift_below(tree, y0, delta, &frames);
     node.children.clear();
     let a = &mut node.attrs;
     a.id = Some("dialog_notice".into());
     a.text = Some(text.to_owned());
-    a.x = Some(PAD_X);
-    a.y = Some(h - PAD_BOTTOM + 6.0);
-    a.w = Some((w - 2.0 * PAD_X) as f32);
+    a.x = Some(tx);
+    a.y = Some(y0);
+    a.w = Some((right - tx).max(80.0) as f32);
     a.h = Some(line_h as f32);
     a.size = Some(13.5);
     a.weight = Some(400);
@@ -345,8 +382,7 @@ fn append_notice(tree: &mut UiNode, text: &str, alert: bool, card: (f64, f64)) -
     a.alignx = Some(0.0);
     a.variant = None;
     a.fillw = None;
-    let grown = (w, h + line_h + 6.0);
-    let frames = frame_ids(tree);
+    let grown = (w, h + delta);
     walk_mut(tree, &mut |n| {
         if n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id)) {
             n.attrs.h = Some(grown.1 as f32);
@@ -736,10 +772,13 @@ fn live_context(tree: &mut UiNode, ctx: &Ctx<'_>) {
     for (label, value, l, v) in rows {
         set_text(tree, label, l);
         set_text(tree, value, &v);
-        right_align(tree, value, right, 170.0);
-        // The label box was measured for the atlas word ("Tools", 44px).
+        right_align(tree, value, right, 140.0);
+        // The label box was measured for the atlas word ("Tools", 44px); it
+        // runs up to the value's box, never under it.
+        let vx = right - 140.0;
         if let Some(n) = find_mut(tree, label) {
-            n.attrs.w = Some(150.0);
+            let x = n.attrs.x.unwrap_or(0.0);
+            n.attrs.w = Some((vx - 8.0 - x).max(40.0) as f32);
         }
     }
     // The compaction line, where the card authored "Keeps the last 4 turns".
@@ -1090,9 +1129,59 @@ fn centre_button_labels(tree: &mut UiNode) {
     });
 }
 
+/// A mounted card is rebuilt whenever its lowered text changes, so a clock
+/// that ticks every second (`formatElapsed`'s `42s` / `1m30s`) would remount
+/// the dialog every second — flicker, and a click can land mid-remount. The
+/// dialog shows elapsed time at MINUTE granularity: `<1m`, `1m`, `2h05m`.
+pub fn minute_granularity(meta: &str) -> String {
+    let (head, tail) = meta.split_once(" · ").map(|(h, t)| (h, Some(t))).unwrap_or((meta, None));
+    let head = head.trim();
+    let minutes = if let Some(s) = head.strip_suffix('s') {
+        match s.split_once('m') {
+            // "1m30s" → "1m"
+            Some((m, _)) => format!("{m}m"),
+            // "42s" → "<1m"
+            None if s.chars().all(|c| c.is_ascii_digit()) => "<1m".to_owned(),
+            None => head.to_owned(),
+        }
+    } else {
+        head.to_owned()
+    };
+    match tail {
+        Some(t) => format!("{minutes} · {t}"),
+        None => minutes,
+    }
+}
+
 /// autonomy-06 / -07: the goal heading spans the card (the atlas box fitted
 /// its sample "Fix steer queue"); an empty task list ends under its line.
 fn live_fleet_tasks(tree: &mut UiNode) {
+    // A task row's command runs up to its status pill, never under it.
+    for prefix in ["run_r", "done_r"] {
+        for i in 0..8 {
+            let (cmd, pill) = (format!("{prefix}{i}_cmd"), format!("{prefix}{i}_pill"));
+            if let (Some((cx, _, _, _)), Some((px, _, _, _))) = (rect_of(tree, &cmd), rect_of(tree, &pill)) {
+                if let Some(n) = find_mut(tree, &cmd) {
+                    let w = n.attrs.w.unwrap_or(0.0) as f64;
+                    if cx + w > px - 8.0 {
+                        n.attrs.w = Some((px - 8.0 - cx).max(40.0) as f32);
+                    }
+                }
+            }
+        }
+    }
+    walk_mut(tree, &mut |n| {
+        let is_meta = n
+            .attrs
+            .id
+            .as_deref()
+            .is_some_and(|id| id.starts_with("peer_r") && id.ends_with("_meta"));
+        if is_meta {
+            if let Some(t) = n.attrs.text.as_mut() {
+                *t = minute_granularity(t);
+            }
+        }
+    });
     if let (Some((_, _, _, _)), Some((cx, _, cw, _))) =
         (rect_of(tree, "fleet_goal_label"), rect_of(tree, "fleet_card"))
     {
@@ -1295,6 +1384,82 @@ const PAD_X: f64 = 20.0;
 const PAD_TOP: f64 = 20.0;
 const PAD_BOTTOM: f64 = 24.0;
 
+/// Whether a node DRAWS something: text with content, a vector, an image, or
+/// a surface with a fill or border. Hit targets and bare groups draw nothing,
+/// so they never decide a margin or a gap.
+fn draws(n: &UiNode) -> bool {
+    let (_, _, w, h) = rect(n);
+    if w <= 0.5 || h <= 0.5 {
+        return false;
+    }
+    match n.kind {
+        NodeKind::Text => n.attrs.text.as_deref().is_some_and(|t| !t.trim().is_empty()),
+        NodeKind::Svg | NodeKind::Image | NodeKind::Input => true,
+        NodeKind::Button => false,
+        _ => n.attrs.bg.is_some() || n.attrs.border.is_some(),
+    }
+}
+
+/// The largest empty vertical band a dialog keeps between drawn rows. The
+/// Stage-B cards are PHONE artboards that spread their rows over 776 px; in a
+/// dialog the same rows with 70–110 px voids pushed each card's last action
+/// below the fold (the goal's Clear goal, the context's Compact now). Bands
+/// above this are closed to it — the web dialogs' own compact rhythm.
+const MAX_GAP: f64 = 32.0;
+
+/// Close every empty vertical band taller than [`MAX_GAP`]. Occupancy is every
+/// drawing node, with a container's top and bottom EDGES counted as drawn, so
+/// a cut never crosses a card border; containers that span a cut shrink with
+/// it. Cuts apply bottom-up so earlier coordinates stay valid. Returns the
+/// height removed.
+fn squeeze(tree: &mut UiNode) -> f64 {
+    let frames = frame_ids(tree);
+    let mut spans: Vec<(f64, f64)> = Vec::new();
+    walk(tree, &mut |n| {
+        let frame = n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id));
+        if frame || !draws(n) {
+            return;
+        }
+        let (_, y, _, h) = rect(n);
+        let container = n.kind == NodeKind::Stack && n.children.iter().any(draws);
+        if container {
+            spans.push((y, y + 1.0));
+            spans.push((y + h - 1.0, y + h));
+        } else {
+            spans.push((y, y + h));
+        }
+    });
+    spans.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+    let mut bands: Vec<(f64, f64)> = Vec::new();
+    for (s, e) in spans {
+        match bands.last_mut() {
+            Some(last) if s <= last.1 => last.1 = last.1.max(e),
+            _ => bands.push((s, e)),
+        }
+    }
+    let mut cuts: Vec<(f64, f64)> = Vec::new(); // (at, amount)
+    for pair in bands.windows(2) {
+        let gap = pair[1].0 - pair[0].1;
+        if gap > MAX_GAP {
+            cuts.push((pair[1].0, gap - MAX_GAP));
+        }
+    }
+    let mut removed = 0.0;
+    for (at, amount) in cuts.into_iter().rev() {
+        // Containers spanning the cut shrink; everything at/below it rises.
+        walk_mut(tree, &mut |n| {
+            let frame = n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id));
+            let (_, y, _, h) = rect(n);
+            if !frame && y < at - 0.5 && y + h > at + 0.5 {
+                n.attrs.h = Some((h - amount) as f32);
+            }
+        });
+        shift_below(tree, at, -amount, &frames);
+        removed += amount;
+    }
+    removed
+}
+
 /// Crop the artboard to its content: translate the content to the padded
 /// origin and size the frame containers to the content box. Frame containers
 /// lose their fill (the dialog frame paints the surface and its rounded
@@ -1304,16 +1469,10 @@ fn normalize(tree: &mut UiNode) -> (f64, f64) {
     let is_frame = |n: &UiNode| n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id));
     let (mut x0, mut y0, mut x1, mut y1) = (f64::MAX, f64::MAX, f64::MIN, f64::MIN);
     walk(tree, &mut |n| {
-        if is_frame(n) {
+        if is_frame(n) || !draws(n) {
             return;
         }
         let (x, y, w, h) = rect(n);
-        if w <= 0.5 || h <= 0.5 {
-            return;
-        }
-        if n.kind == NodeKind::Text && n.attrs.text.as_deref().is_none_or(|t| t.trim().is_empty()) {
-            return;
-        }
         x0 = x0.min(x);
         y0 = y0.min(y);
         x1 = x1.max(x + w);
@@ -1510,6 +1669,7 @@ pub fn lower(d: Dialog, ctx: &Ctx<'_>, avail_w: f64, avail_h: f64) -> Result<Mou
     let st = autonomy_view(ctx);
     let mut tree = card_tree(d, ctx, &st)?;
     live(d, &mut tree, ctx, &st);
+    squeeze(&mut tree);
     let missing = wire(&mut tree, &controls(d, ctx, &st));
     let (cw, ch) = normalize(&mut tree);
     let frames = frame_ids(&tree);
@@ -1835,6 +1995,7 @@ pub fn live_tree(d: Dialog, ctx: &Ctx<'_>) -> Result<(UiNode, Vec<Control>), Str
     let st = autonomy_view(ctx);
     let mut tree = card_tree(d, ctx, &st)?;
     live(d, &mut tree, ctx, &st);
+    squeeze(&mut tree);
     let missing = wire(&mut tree, &controls(d, ctx, &st));
     normalize(&mut tree);
     let frames = frame_ids(&tree);
@@ -2101,6 +2262,23 @@ mod tests {
         assert!(!m.dsl.contains("\"Compact now\"") && !m.dsl.contains("\"Heuristic\""));
         let m = lower(Dialog::Models, &ctx, 990.0, 603.0).unwrap();
         assert!(!events(&m).iter().any(|e| e.starts_with("models.")), "read-only models");
+    }
+
+    /// A per-second clock never remounts the dialog: elapsed shows at minute
+    /// granularity, and two lowerings a few seconds apart are identical.
+    #[test]
+    fn the_fleet_dialog_is_stable_across_a_ticking_clock() {
+        assert_eq!(minute_granularity("42s · —"), "<1m · —");
+        assert_eq!(minute_granularity("1m30s · —"), "1m · —");
+        assert_eq!(minute_granularity("2h05m · —"), "2h05m · —");
+        assert_eq!(minute_granularity("7s"), "<1m");
+        let _s = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        let a = lower(Dialog::Fleet, &ctx, 990.0, 603.0).unwrap().dsl;
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        let b = lower(Dialog::Fleet, &ctx, 990.0, 603.0).unwrap().dsl;
+        assert_eq!(a, b, "the fleet DSL must not change with the wall clock");
     }
 
     /// The card SVGs resolve to their on-disk assets (the `:8170` design-lab

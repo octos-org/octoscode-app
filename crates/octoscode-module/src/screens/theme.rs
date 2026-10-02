@@ -583,11 +583,26 @@ pub fn clear_os_reader() {
 /// captures exercise system mode (disclosed in docs/upstream/ PR text too).
 #[cfg(target_os = "macos")]
 pub fn os_is_dark_macos() -> bool {
-    std::process::Command::new("defaults")
+    // A5: `resolved()` runs on every lowering (every docked card and dialog
+    // re-lowers on each UI signal), and each call spawned `defaults` — the
+    // app log's ui-hang samples showed `Command::output` in widget-draw at
+    // ~270 ms. The answer is cached for 2 s, so an OS appearance switch still
+    // lands within two seconds.
+    static CACHE: std::sync::Mutex<Option<(std::time::Instant, bool)>> =
+        std::sync::Mutex::new(None);
+    let mut cache = CACHE.lock().unwrap_or_else(|e| e.into_inner());
+    if let Some((at, dark)) = *cache {
+        if at.elapsed() < std::time::Duration::from_secs(2) {
+            return dark;
+        }
+    }
+    let dark = std::process::Command::new("defaults")
         .args(["read", "-g", "AppleInterfaceStyle"])
         .output()
         .map(|o| String::from_utf8_lossy(&o.stdout).trim().eq("Dark"))
-        .unwrap_or(false)
+        .unwrap_or(false);
+    *cache = Some((std::time::Instant::now(), dark));
+    dark
 }
 
 // ---- #31d workflow 1b: the native shell containers ------------------------------
