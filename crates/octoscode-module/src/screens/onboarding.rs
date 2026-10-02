@@ -627,6 +627,11 @@ where
     }
     // The keyless compatibility probe (`onboarding-submission.ts:48-51`).
     let wire_key = if api_key.is_empty() { crate::screens::connect::KEYLESS_PROBE } else { api_key };
+    if !api_key.is_empty() {
+        // The protocol trace scrubs this value wherever it shows up, including
+        // a provider error that echoes it (trace::register_secret).
+        octoscode_client::trace::register_secret(api_key);
+    }
     let created = match binding {
         None => {
             set_phase(t, Phase::CreatingProfile);
