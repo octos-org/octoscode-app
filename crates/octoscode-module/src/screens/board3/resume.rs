@@ -21,6 +21,7 @@ use octoscode_store::Store;
 
 use super::host::Outcome;
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::{tr, tr1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Candidate {
@@ -356,11 +357,11 @@ pub fn build(d: &mut Dsl, st: &ResumeState, frame: &Frame, _store: &Store) {
     let pad = ui::dialog_pad(frame, width);
     let inner_w = width - 2.0 * pad - 10.0;
     ui::shell_open(d, frame, width);
-    ui::header(d, "Resume chat", "b3.close");
+    ui::header(d, tr("Resume chat"), "b3.close");
     let scope = if st.workspace.is_empty() {
-        format!("Target Profile: {}", st.profile)
+        format!("{} {}", tr("Target Profile:"), st.profile)
     } else {
-        format!("Target Profile: {} · {}", st.profile, ui::leaf(&st.workspace))
+        format!("{} {} · {}", tr("Target Profile:"), st.profile, ui::leaf(&st.workspace))
     };
     d.text("b3_resume_scope", &scope, &ui::micro().w(W::Fill));
     d.gap(W::Fill, 12.0);
@@ -368,12 +369,12 @@ pub fn build(d: &mut Dsl, st: &ResumeState, frame: &Frame, _store: &Store) {
     // The caution (`ResumeDialog.tsx` intro; the board's amber banner). A
     // live authority change replaces it with the web's error copy.
     match &st.error {
-        Some(e) => ui::banner(d, "b3_resume_caution", e, "Refresh the catalog before selecting this row."),
+        Some(e) => ui::banner(d, "b3_resume_caution", tr(e), tr("Refresh the catalog before selecting this row.")),
         None => ui::banner(
             d,
             "b3_resume_caution",
-            "Catalog rows are unverified candidates, not confirmed workspace sessions.",
-            "Refresh the catalog before selecting a row. Bare IDs cannot safely identify a historical conversation.",
+            tr("Catalog rows are unverified candidates, not confirmed workspace sessions."),
+            tr("Refresh the catalog before selecting a row. Bare IDs cannot safely identify a historical conversation."),
         ),
     }
     d.gap(W::Fill, 12.0);
@@ -381,12 +382,12 @@ pub fn build(d: &mut Dsl, st: &ResumeState, frame: &Frame, _store: &Store) {
     // historical candidates").
     let srow = d.anon();
     d.view(&srow, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-    d.input("b3_resume_search", "resume.search", &st.query_snap, "Search history", false, 36.0);
+    d.input("b3_resume_search", "resume.search", &st.query_snap, tr("Search history"), false, 36.0);
     ui::icon_button(d, "b3_resume_refresh", "b3_refresh.svg", 16.0, "b3.resume.refresh");
     d.close();
     d.gap(W::Fill, 10.0);
     if st.loading {
-        d.text("b3_resume_loading", "Reading unverified history candidates…", &ui::meta());
+        d.text("b3_resume_loading", tr("Reading unverified history candidates…"), &ui::meta());
         d.gap(W::Fill, 6.0);
     }
     // The candidates: ONE bordered list, hairlines between rows.
@@ -400,7 +401,7 @@ pub fn build(d: &mut Dsl, st: &ResumeState, frame: &Frame, _store: &Store) {
     }
     let empty = d.anon();
     d.view(&empty, "width: Fill height: Fit flow: Right align: Align{x: 0.5 y: 0.5} padding: Inset{top: 8 bottom: 4}");
-    d.text("b3_resume_empty", "No matching historical candidates.", &ui::meta());
+    d.text("b3_resume_empty", tr("No matching historical candidates."), &ui::meta());
     d.close();
     d.gap(W::Fill, 12.0);
     confirm_area(d, st);
@@ -413,7 +414,7 @@ pub fn build(d: &mut Dsl, st: &ResumeState, frame: &Frame, _store: &Store) {
         let col = d.anon();
         d.view(&col, "width: Fill height: Fit flow: Down spacing: 3");
         d.text(&format!("{rid}_title"), &super::inventory::fit(&c.title, inner_w - 80.0, 12.5, false), &Txt::new(12.5, Face::Medium, tok::MUTED).w(W::Fill));
-        d.text(&format!("{rid}_blocked"), c.blocked.as_deref().unwrap_or(""), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        d.text(&format!("{rid}_blocked"), tr(c.blocked.as_deref().unwrap_or("")), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
         d.close();
         d.close();
     }
@@ -437,7 +438,7 @@ fn candidate_row(d: &mut Dsl, i: usize, c: &Candidate, selected: bool, divider: 
     // the 10 px gap and the "unverified" chip (11 px text + 7 + 7). A flat
     // 150 px reserve cut "Why is hydrate slow?" on a 360 px phone with room
     // to spare.
-    let chip_w = ui::text_w("unverified", 11.0, Face::Medium) + 14.0;
+    let chip_w = ui::text_w(tr("unverified"), 11.0, Face::Medium) + 14.0;
     d.text(
         &format!("{rid}_title"),
         &super::inventory::fit(&c.title, inner_w - 36.0 - chip_w - 2.0, 14.0, false),
@@ -447,17 +448,20 @@ fn candidate_row(d: &mut Dsl, i: usize, c: &Candidate, selected: bool, divider: 
     d.view(&l2, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
     let tag = c.id.split(':').next().unwrap_or(&c.id).to_owned();
     d.chip("", &tag, tok::TEXT, tok::CHIP, None, true);
-    let mut meta = format!("{} listed message{}", c.message_count, if c.message_count == 1 { "" } else { "s" });
+    let mut meta = tr1(
+        if c.message_count == 1 { "{value0} listed message" } else { "{value0} listed messages" },
+        &c.message_count.to_string(),
+    );
     if let Some(ms) = c.updated_ms {
         meta = format!("{} · {meta}", ui::rel_time(ui::now_ms(), ms));
     }
     d.text("", &meta, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
     d.close();
     if c.active_turn {
-        d.text("", "Busy — another client is working in this session", &Txt::new(11.5, Face::Regular, tok::BLUE_TEXT).w(W::Fill));
+        d.text("", tr("Busy — another client is working in this session"), &Txt::new(11.5, Face::Regular, tok::BLUE_TEXT).w(W::Fill));
     }
     d.close();
-    d.chip(&format!("{rid}_unverified"), "unverified", tok::AMBER, tok::AMBER_BG, Some(tok::AMBER_LINE), false);
+    d.chip(&format!("{rid}_unverified"), tr("unverified"), tok::AMBER, tok::AMBER_BG, Some(tok::AMBER_LINE), false);
     d.close();
     d.tap(&format!("{rid}_tap"), &format!("b3.resume.select#{i}"));
     d.close();
@@ -467,15 +471,15 @@ fn candidate_row(d: &mut Dsl, i: usize, c: &Candidate, selected: bool, divider: 
 fn confirm_area(d: &mut Dsl, st: &ResumeState) {
     let sel = st.selected.and_then(|i| st.candidates.get(i));
     ui::card_open(d, "b3_resume_confirm_card", 8.0);
-    ui::field_label(d, "b3_resume_confirm_label", "Confirm exact title to resume:");
-    let placeholder = match sel {
+    ui::field_label(d, "b3_resume_confirm_label", tr("Confirm exact title to resume:"));
+    let placeholder = tr(match sel {
         Some(_) => "Type the exact thread title above",
         None => "Select a candidate first",
-    };
+    });
     d.input("b3_resume_confirm", "resume.confirm", &st.confirm_snap, placeholder, false, 38.0);
     // Both variants are emitted; the live gate shows one (no remount while
     // typing — `live_visibility`).
-    let label = if st.opening { "Opening…" } else { "Resume chat" };
+    let label = tr(if st.opening { "Opening…" } else { "Resume chat" });
     d.view("b3_resume_go_off", "width: Fill height: Fit flow: Down");
     d.button("b3_resume_go_disabled", label, "b3.resume.confirm", Btn::Disabled, W::Fill, 38.0);
     d.close();
@@ -484,7 +488,7 @@ fn confirm_area(d: &mut Dsl, st: &ResumeState) {
     d.close();
     d.text(
         "b3_resume_note",
-        "A confirmed source Session is required to browse history. Opening does not submit a prompt.",
+        tr("A confirmed source Session is required to browse history. Opening does not submit a prompt."),
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     d.close();

@@ -16,6 +16,7 @@ use serde_json::{json, Value};
 
 use super::host::{Job, Outcome};
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::{tr, tr1};
 
 pub const TITLE: &str = "Model providers";
 pub const EMPTY: &str = "No model providers configured";
@@ -108,9 +109,9 @@ pub fn routes_of(v: &Value) -> Vec<Route> {
 /// `fetchFailureMessage` (`model-settings.ts:603-609`).
 pub fn fetch_failure(reason: &str) -> String {
     match reason {
-        "no_api_key" => "Add an API key before checking models.".to_owned(),
-        "provider_unavailable" => "The provider did not return an available-model catalog.".to_owned(),
-        other => format!("Could not check provider models: {}", crate::screens::provider::redact(other, "")),
+        "no_api_key" => tr("Add an API key before checking models.").to_owned(),
+        "provider_unavailable" => tr("The provider did not return an available-model catalog.").to_owned(),
+        other => tr1("Could not check provider models: {value0}", &crate::screens::provider::redact(other, "")),
     }
 }
 
@@ -441,7 +442,7 @@ fn route_card(d: &mut Dsl, st: &RoutesState, i: usize, r: &Route, inner_w: f64, 
     d.view(&head, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5}");
     d.text(&format!("{id}_name"), &ui::fit_w(&r.name(), inner_w - 90.0, 13.5, Face::Semibold), &Txt::new(13.5, Face::Semibold, tok::TEXT).w(W::Fill));
     if r.primary {
-        d.chip(&format!("{id}_primary"), "Primary", tok::BLUE_TEXT, tok::BLUE_BG, None, false);
+        d.chip(&format!("{id}_primary"), tr("Primary"), tok::BLUE_TEXT, tok::BLUE_BG, None, false);
     }
     d.close();
     let label = if r.label.is_empty() { r.route_id.clone() } else { r.label.clone() };
@@ -457,11 +458,11 @@ fn route_card(d: &mut Dsl, st: &RoutesState, i: usize, r: &Route, inner_w: f64, 
         d.text(&format!("{id}_base_url"), &r.base_url, &Txt::new(12.0, Face::Mono, tok::MUTED).w(W::Fill).wrap());
     }
     if !r.removable() {
-        d.text(&format!("{id}_readonly"), READ_ONLY, &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
+        d.text(&format!("{id}_readonly"), tr(READ_ONLY), &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
     } else {
         let acts = d.anon();
         // One row when both fit, else a column (wrapped pill rows touch).
-        let fits = pill_w("Add a model on this route") + 8.0 + pill_w("Delete") <= inner_w;
+        let fits = pill_w(tr("Add a model on this route")) + 8.0 + pill_w(tr("Delete")) <= inner_w;
         d.view(&acts, if fits {
             "width: Fill height: Fit flow: Right spacing: 8 padding: Inset{top: 4}"
         } else {
@@ -470,11 +471,11 @@ fn route_card(d: &mut Dsl, st: &RoutesState, i: usize, r: &Route, inner_w: f64, 
         let idle = !st.busy && st.editing.is_none() && st.deleting.is_none();
         if has(store, "profile/llm/test") && has(store, "profile/llm/upsert") {
             let kind = if idle { Btn::Outline } else { Btn::OutlineOff };
-            d.button(&format!("{id}_add"), "Add a model on this route", &format!("b3.routes.add#{i}"), kind, W::Fit, 32.0);
+            d.button(&format!("{id}_add"), tr("Add a model on this route"), &format!("b3.routes.add#{i}"), kind, W::Fit, 32.0);
         }
         if has(store, "profile/llm/delete") {
             let kind = if idle { Btn::Outline } else { Btn::OutlineOff };
-            d.button(&format!("{id}_delete"), "Delete", &format!("b3.routes.delete#{i}"), kind, W::Fit, 32.0);
+            d.button(&format!("{id}_delete"), tr("Delete"), &format!("b3.routes.delete#{i}"), kind, W::Fit, 32.0);
         }
         d.close();
     }
@@ -491,21 +492,21 @@ fn editor(d: &mut Dsl, st: &RoutesState, r: &Route, store: &Store, compact: bool
         12.0,
         Some(tok::HAIRLINE),
     );
-    d.text("b3_routes_editor_title", "Add model provider", &ui::heading().w(W::Fill));
+    d.text("b3_routes_editor_title", tr("Add model provider"), &ui::heading().w(W::Fill));
     d.text(
         "b3_routes_editor_route",
         &format!("{} · {} ({})", r.family_id, if r.label.is_empty() { &r.route_id } else { &r.label }, r.route_id),
         &ui::meta().w(W::Fill),
     );
-    ui::field_label(d, "b3_routes_model_label", "Model ID");
+    ui::field_label(d, "b3_routes_model_label", tr("Model ID"));
     d.input("b3_routes_model", "routes.model", &st.model_snap, "", true, 36.0);
     if has(store, "profile/llm/fetch_models") {
         let kind = if st.busy { Btn::OutlineOff } else { Btn::Outline };
-        let label = if st.busy { "Fetching…" } else { "Fetch available models" };
+        let label = tr(if st.busy { "Fetching…" } else { "Fetch available models" });
         d.button("b3_routes_fetch", label, "b3.routes.fetch", kind, W::Fit, 34.0);
     }
     if !st.fetched.is_empty() {
-        ui::field_label(d, "b3_routes_fetched_label", "Available from endpoint");
+        ui::field_label(d, "b3_routes_fetched_label", tr("Available from endpoint"));
         let chips = d.anon();
         let total: f64 = st.fetched.iter().map(|m| pill_w(m) + 8.0).sum();
         d.view(&chips, if total <= inner_w + 8.0 {
@@ -523,14 +524,14 @@ fn editor(d: &mut Dsl, st: &RoutesState, r: &Route, store: &Store, compact: bool
     let foot = d.anon();
     d.view(&foot, &format!("width: Fill height: Fit flow: {} align: Align{{x: 1.0 y: 0.5}} spacing: 8", if compact { "Down" } else { "Right" }));
     let w = if compact { W::Fill } else { W::Fit };
-    d.button("b3_routes_cancel", "Cancel", "b3.routes.cancel", if st.busy { Btn::OutlineOff } else { Btn::Outline }, w, 34.0);
+    d.button("b3_routes_cancel", tr("Cancel"), "b3.routes.cancel", if st.busy { Btn::OutlineOff } else { Btn::Outline }, w, 34.0);
     let both = d.anon();
-    d.view(&both, &format!("width: {} height: 34 flow: Overlay", if compact { "Fill".to_owned() } else { format!("{}", (ui::text_w("Save", 13.0, Face::Medium) + 32.0).ceil()) }));
+    d.view(&both, &format!("width: {} height: 34 flow: Overlay", if compact { "Fill".to_owned() } else { format!("{}", (ui::text_w(tr("Save"), 13.0, Face::Medium) + 32.0).ceil()) }));
     d.view("b3_routes_save_off", "width: Fill height: Fit flow: Right");
-    d.button("b3_routes_save_disabled", "Save", "b3.routes.save", Btn::Disabled, W::Fill, 34.0);
+    d.button("b3_routes_save_disabled", tr("Save"), "b3.routes.save", Btn::Disabled, W::Fill, 34.0);
     d.close();
     d.view("b3_routes_save_on", "width: Fill height: Fit flow: Right");
-    let label = if st.busy { "Saving…" } else { "Save" };
+    let label = tr(if st.busy { "Saving…" } else { "Save" });
     d.button("b3_routes_save", label, "b3.routes.save", if st.busy { Btn::Disabled } else { Btn::Primary }, W::Fill, 34.0);
     d.close();
     d.close();
@@ -547,24 +548,30 @@ fn delete_card(d: &mut Dsl, st: &RoutesState, r: &Route, compact: bool) {
         12.0,
         Some("#f3c4c7ff"),
     );
-    d.text("b3_routes_delete_title", "Delete model provider?", &ui::heading().w(W::Fill));
+    d.text("b3_routes_delete_title", tr("Delete model provider?"), &ui::heading().w(W::Fill));
+    // The web composes both around the route (ModelManagementSection.tsx:951-959);
+    // its "Type" key is the noun's 类型, so the verb is a context entry (输入).
     d.text(
         "b3_routes_delete_body",
-        &format!("This removes the configured route for {}. Existing sessions may still refer to it.", r.name()),
+        &format!("{} {}{}", tr("This removes the configured route for"), r.name(), tr(". Existing sessions may still refer to it.")),
         &ui::meta().w(W::Fill).wrap(),
     );
-    d.text("b3_routes_delete_prompt", &format!("Type {} to confirm", r.delete_phrase()), &Txt::new(12.5, Face::Medium, tok::TEXT).w(W::Fill).wrap());
+    d.text(
+        "b3_routes_delete_prompt",
+        &format!("{} {} {}", crate::i18n::tr_ctx("verb", "Type"), r.delete_phrase(), tr("to confirm")),
+        &Txt::new(12.5, Face::Medium, tok::TEXT).w(W::Fill).wrap(),
+    );
     d.input("b3_routes_phrase", "routes.phrase", "", "", true, 36.0);
     if st.delete_failed {
-        d.text("b3_routes_delete_failed", DELETE_FAILED, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+        d.text("b3_routes_delete_failed", tr(DELETE_FAILED), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     let foot = d.anon();
     d.view(&foot, &format!("width: Fill height: Fit flow: {} align: Align{{x: 1.0 y: 0.5}} spacing: 8", if compact { "Down" } else { "Right" }));
     let w = if compact { W::Fill } else { W::Fit };
-    d.button("b3_routes_delete_cancel", "Cancel", "b3.routes.cancel", if st.busy { Btn::OutlineOff } else { Btn::Outline }, w, 34.0);
+    d.button("b3_routes_delete_cancel", tr("Cancel"), "b3.routes.cancel", if st.busy { Btn::OutlineOff } else { Btn::Outline }, w, 34.0);
     let both = d.anon();
-    let label = if st.busy { "Deleting…" } else { "Delete provider" };
-    d.view(&both, &format!("width: {} height: 34 flow: Overlay", if compact { "Fill".to_owned() } else { format!("{}", (ui::text_w("Delete provider", 13.0, Face::Medium) + 32.0).ceil()) }));
+    let label = tr(if st.busy { "Deleting…" } else { "Delete provider" });
+    d.view(&both, &format!("width: {} height: 34 flow: Overlay", if compact { "Fill".to_owned() } else { format!("{}", (ui::text_w(tr("Delete provider"), 13.0, Face::Medium) + 32.0).ceil()) }));
     d.view("b3_routes_delete_off", "width: Fill height: Fit flow: Right");
     d.button("b3_routes_delete_disabled", label, "b3.routes.confirm_delete", Btn::Disabled, W::Fill, 34.0);
     d.close();
@@ -594,22 +601,22 @@ pub fn build(d: &mut Dsl, st: &RoutesState, frame: &Frame, store: &Store) {
     ui::shell_open(d, frame, width);
     let row = d.anon();
     d.view(&row, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4");
-    d.text("b3_title", TITLE, &ui::title().w(W::Fill));
+    d.text("b3_title", tr(TITLE), &ui::title().w(W::Fill));
     ui::icon_button(d, "b3_routes_refresh", "b3_refresh.svg", 16.0, "b3.routes.refresh");
     ui::close_glyph(d, "b3.close");
     d.close();
     let profile = store.domains.profile.current().unwrap_or_default();
-    d.text("b3_routes_scope", &format!("Server Profile: {profile}"), &ui::micro().w(W::Fill));
+    d.text("b3_routes_scope", &format!("{} {profile}", tr("Server Profile:")), &ui::micro().w(W::Fill));
     d.gap(W::Fill, 10.0);
     ui::body_open(d, frame, width, 60.0);
     if st.busy && !st.loaded {
-        d.text("b3_routes_loading", "Loading model providers…", &ui::meta());
+        d.text("b3_routes_loading", tr("Loading model providers…"), &ui::meta());
     }
     if let Some(e) = &st.error {
-        d.text("b3_routes_error", e, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+        d.text("b3_routes_error", tr(e), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     if let Some(n) = &st.notice {
-        d.text("b3_routes_notice", n, &Txt::new(12.5, Face::Regular, tok::GREEN_TEXT).w(W::Fill).wrap());
+        d.text("b3_routes_notice", tr(n), &Txt::new(12.5, Face::Regular, tok::GREEN_TEXT).w(W::Fill).wrap());
     }
     if let Some(r) = st.deleting.and_then(|i| st.routes.get(i)) {
         delete_card(d, st, r, compact);
@@ -620,8 +627,8 @@ pub fn build(d: &mut Dsl, st: &RoutesState, frame: &Frame, store: &Store) {
         d.gap(W::Fill, 4.0);
     }
     if st.loaded && st.routes.is_empty() {
-        d.text("b3_routes_empty", EMPTY, &ui::body_medium().w(W::Fill));
-        d.text("b3_routes_empty_hint", "Add a provider route to make a model available to Core.", &ui::meta().w(W::Fill).wrap());
+        d.text("b3_routes_empty", tr(EMPTY), &ui::body_medium().w(W::Fill));
+        d.text("b3_routes_empty_hint", tr("Add a provider route to make a model available to Core."), &ui::meta().w(W::Fill).wrap());
     }
     for (i, r) in st.routes.iter().enumerate() {
         route_card(d, st, i, r, inner_w, store);

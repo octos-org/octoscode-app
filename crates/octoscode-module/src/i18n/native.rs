@@ -378,6 +378,62 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Background task finished", "后台任务已完成"),
     ("Saved to {value0}", "已保存到 {value0}"),
     ("Preview", "预览"),
+    // ---- research lanes, Resume chat, model providers (board3/research.rs, resume.rs, routes.rs)
+    ("Confirm save", "确认保存"),
+    ("default model", "默认模型"),
+    ("Edit {value0}", "编辑 {value0}"),
+    ("Remove {value0}", "删除 {value0}"),
+    ("API key environment name", "API 密钥环境变量名"),
+    ("Maximum output tokens (optional)", "最大输出 token 数（可选）"),
+    (
+        "Could not confirm the server change. It may have been applied; refresh before a new attempt and re-enter any credential.",
+        "无法确认服务器更改。它可能已被应用；请先刷新，再重新尝试并重新输入凭据。",
+    ),
+    ("Couldn't load the research lanes.", "无法加载研究通道。"),
+    ("Refresh the catalog before selecting this row.", "选择此行前请先刷新目录。"),
+    ("Catalog rows are unverified candidates, not confirmed workspace sessions.", "目录中的行是未经验证的候选项，并非已确认的工作区会话。"),
+    (
+        "Refresh the catalog before selecting a row. Bare IDs cannot safely identify a historical conversation.",
+        "选择行前请先刷新目录。仅凭 ID 无法可靠地识别历史对话。",
+    ),
+    ("{value0} listed message", "{value0} 条已列出消息"),
+    ("{value0} listed messages", "{value0} 条已列出消息"),
+    ("unverified", "未验证"),
+    ("Confirm exact title to resume:", "确认要恢复的完整标题："),
+    ("Type the exact thread title above", "在上方输入完整的线程标题"),
+    ("Select a candidate first", "请先选择一个候选项"),
+    ("Opening\u{2026}", "正在打开\u{2026}"),
+    (
+        "A confirmed source Session is required to browse history. Opening does not submit a prompt.",
+        "浏览历史需要已确认的来源会话。打开不会发送提示。",
+    ),
+    (
+        "This Session ID is already retained under another workspace or Profile. It cannot be rebound on the shared connection.",
+        "此会话 ID 已保留在另一个工作区或配置档案下，无法在共享连接上重新绑定。",
+    ),
+    ("This retained Session is closed.", "此保留的会话已关闭。"),
+    (
+        "This Session is still opening. Wait for its existing preparation to finish before resuming it.",
+        "此会话仍在打开中。请等待其现有准备完成后再恢复。",
+    ),
+    (
+        "This catalog ID does not identify a full Session in the captured Profile. An authoritative full ID is required; no Profile or channel will be guessed.",
+        "此目录 ID 无法在所记录的配置档案中标识完整的会话。需要权威的完整 ID；不会猜测配置档案或频道。",
+    ),
+    ("The server does not advertise scoped Session opening and hydration.", "服务器未声明支持按范围打开会话和加载会话历史。"),
+    ("A history opening is already pending.", "已有一个历史打开操作正在进行。"),
+    ("Historical identity was not resolved. The listed conversation was not resumed.", "未能解析历史身份。所列对话未被恢复。"),
+    ("A confirmed source Session is required to browse history.", "浏览历史需要已确认的来源会话。"),
+    ("History catalog is too large to inspect safely.", "历史目录过大，无法安全检查。"),
+    ("The history catalog contains duplicate ambiguous IDs.", "历史目录包含重复且有歧义的 ID。"),
+    ("History listing failed.", "历史列表加载失败。"),
+    ("Confirm the exact Session, workspace and Profile before opening.", "打开前请确认准确的会话、工作区和配置档案。"),
+    ("Add a model on this route", "在此路由上添加模型"),
+    ("Core did not report a complete route identity. This entry is read-only.", "Core 未报告完整的路由身份。此条目为只读。"),
+    ("Add an API key before checking models.", "检查模型前请先添加 API 密钥。"),
+    ("The provider did not return an available-model catalog.", "提供商未返回可用模型目录。"),
+    ("Could not check provider models: {value0}", "无法检查提供商模型：{value0}"),
+    ("verb|Type", "输入"),
 ];
 
 /// The web catalog's vocabulary: each English term (matched as a word,
@@ -460,4 +516,8 @@ pub static GLOSSARY: &[(&str, &[&str])] = &[
 
 /// The few (entry, term) pairs where the word is not the noun the glossary
 /// renders — each reviewed; keep this list short.
-pub static GLOSSARY_EXEMPT: &[(&str, &str)] = &[];
+pub static GLOSSARY_EXEMPT: &[(&str, &str)] = &[
+    // Model tokens are not auth tokens: the web keeps "token" for them
+    // ('Goal token budget, optional' -> '目标 token 预算（可选）').
+    ("Maximum output tokens (optional)", "token"),
+];
