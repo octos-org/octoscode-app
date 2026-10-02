@@ -42,7 +42,15 @@ WALK = {
     "fixture": {"argv": ["{examples}/board1_serve", "{fport}"]},
     "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:8499", "OCTOS_PROFILE_ID": "octoscode"},
             "ready": ["b1_connect_pair"]},
-    "runs": [{"argv": ["{mode}", "{out}"], "env": {"PORT": "{port}", "A2_FIXTURE_PORT": "{fport}"}}],
+    "runs": [
+        {"argv": ["{mode}", "{out}"], "env": {"PORT": "{port}", "A2_FIXTURE_PORT": "{fport}"}},
+        # Row 224: the same fixture WITHOUT the browse feature, the app
+        # connected at launch.
+        {"restart": "both", "fixture_args": ["--no-browse"],
+         "app_env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_BEARER": "walk-dummy-token"},
+         "ready": ["sb_add_hit", "sidebar_toggle_hit", "i0_composer_0"],
+         "argv": ["{mode}", "{out}", "no-browse"], "env": {"PORT": "{port}", "A2_FIXTURE_PORT": "{fport}"}},
+    ],
     "needs": ["target/debug/examples/board1_serve"],
     "timeout": 600,
     "rows": {
@@ -57,6 +65,7 @@ WALK = {
         222: ["p4-08: New folder creates it and moves into it",
               "p4-08: Use this folder starts the session in the created folder"],
         223: ["p4-08: picking a subfolder"],
+        224: ["picker without the browse feature"],
     },
 }
 
@@ -458,8 +467,28 @@ def main():
     print("walk complete; checks pass:", {k: v.get("pass") for k, v in CHECKS.items()})
 
 
+def no_browse():
+    """A11 (row 224): against a server that does NOT advertise
+    onboarding.workspace_browse.v1 (board1_serve --no-browse), + Add workspace
+    opens the picker alone — no Browse folders…, no New folder (fail closed)."""
+    if MODE == "phone" and not visible("sb_add_hit"):
+        click_until("sidebar_toggle_hit", "sb_add_hit")
+    wait("sb_add_hit", 20)
+    click_until("sb_add_hit", "b1_pk_back")
+    time.sleep(1.0)
+    s = snap()
+    report("picker without the browse feature: no Browse and no New folder (fail closed)",
+           find("b1_pk_server", s) is not None and not find("b1_pk_browse", s) and not find("b1_pk_newfolder", s)
+           and not find("b1_br_row_0", s),
+           f"server row {bool(find('b1_pk_server', s))}, browse {bool(find('b1_pk_browse', s))}")
+    capture("picker-no-browse")
+    click_until("b1_pk_back", "b1_card", gone=True)
+
+
 if __name__ != "__main__":
     pass
+elif len(sys.argv) > 3 and sys.argv[3] == "no-browse":
+    no_browse()
 elif len(sys.argv) > 3 and sys.argv[3] == "--recheck":
     import glob
     for f in sorted(glob.glob(f"{OUT}/*.snap.json")):

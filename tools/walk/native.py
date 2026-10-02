@@ -25,8 +25,8 @@ script without a `WALK` literal is listed as "not a native walk" and skipped.
                     "pidfile": "{state}/serve.pid"},  # a walk may restart it
         # One run, or several; before a later run "restart" restarts the
         # "app" (state kept), the "fixture" or "both". A run's "app_env",
-        # "fixture_env" and "fixture_args" apply to the launch it causes
-        # (the first run's, to the first launch):
+        # "fixture_env", "fixture_args" and "ready" apply to the launch it
+        # causes (the first run's, to the first launch):
         "runs": [{"argv": ["{mode}", "{out}"], "env": {"PORT": "{port}"}},
                  {"restart": "both", "fixture_env": {"A7_SERVE_HELD": "octos-tui"},
                   "app_env": {"OCTOSCODE_PANIC_PROBE": "surface:fleet"}, "argv": [...]}],
@@ -314,7 +314,7 @@ def run_walk(path: pathlib.Path, spec: dict, mode: str, binary: str, port: int, 
         extra.update(expand(run.get("app_env", {}), ctx))
         env = app_env(mode, state, extra, hs=work / "hs")
         app = App(port, env)
-        ready = app_spec.get("ready", DEFAULT_READY)
+        ready = run.get("ready") or app_spec.get("ready", DEFAULT_READY)
         if not app.start(binary, ready_ids=tuple(ready)):
             raise RuntimeError("the app never showed " + "/".join(ready))
 
