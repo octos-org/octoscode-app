@@ -6012,6 +6012,15 @@ impl OctoscodeView {
                         // Session's id (what a bare `y` typed in Session Y
                         // did to Session X's approval).
                         let _ = conv;
+                        // The web's card answers keys only while the focus is
+                        // inside it (`ApprovalPanel.tsx:30-56`, the panel's own
+                        // onKeyDown): a key typed into a dialog or a text field
+                        // above the card is typing, never a decision.
+                        let facts = self.shortcut_facts(cx);
+                        if facts.target_is_text_input || facts.in_dialog || crate::screens::board3::host::is_open() {
+                            makepad_widgets::log!("[octoscode] keyboard decision ignored: the key belongs to {facts:?}");
+                            return;
+                        }
                         match crate::screens::keys::oldest_pending_id(&store) {
                             Some(_) => {
                                 let cv = match action {
