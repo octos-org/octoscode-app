@@ -1,0 +1,22 @@
+#!/bin/bash
+# bcurl: curl for the makepad remote bridge (decision D10c). Same arguments as curl; for a loopback URL it adds the
+# bridge's per-launch token, read from <tmp>/makepad-remote/port-<PORT>.token, as `X-Makepad-Token`. The header goes
+# through a file descriptor (`-H @fd`), so the token is never on a command line, printed or logged.
+#   harness/bcurl -s 127.0.0.1:8411/s
+#   harness/bcurl -s -o out.png "http://127.0.0.1:8411/g?raw=1"
+port=""
+for a in "$@"; do
+  if [[ "$a" =~ ^(https?://)?(127\.0\.0\.1|localhost):([0-9]+) ]]; then port=${BASH_REMATCH[3]}; break; fi
+done
+tok=""
+if [ -n "$port" ]; then
+  for d in "${TMPDIR:-}" "$(getconf DARWIN_USER_TEMP_DIR 2>/dev/null)" /tmp; do
+    [ -n "$d" ] || continue
+    f="${d%/}/makepad-remote/port-$port.token"
+    if [ -r "$f" ]; then tok=$(cat "$f"); break; fi
+  done
+fi
+if [ -n "$tok" ]; then
+  exec curl -H @<(printf 'X-Makepad-Token: %s\n' "$tok") "$@"
+fi
+exec curl "$@"

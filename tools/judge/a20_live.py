@@ -22,6 +22,8 @@ import sys
 import time
 import urllib.parse
 import urllib.request
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../walk"))  # noqa: E402
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 BIN, PORT, SERVE, OUT = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4]
 MODE = sys.argv[5] if len(sys.argv) > 5 else "desktop"
