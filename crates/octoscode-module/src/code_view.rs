@@ -9,6 +9,9 @@
 //! code face. Indentation is kept exactly; a run longer than the row wraps at
 //! its spaces; an empty line keeps its height. Copying uses the block's own
 //! Copy control (the trimmed source), so the widget is display only.
+//!
+//! `A7MathBlock` is the display-math line: the renderer's `MathView` centred
+//! the way KaTeX centres a display formula.
 use makepad_widgets::*;
 
 use crate::highlight::{self, Tok};
@@ -25,6 +28,41 @@ script_mod! {
                 font_size: theme.font_size_p
             }
         }
+    }
+
+    mod.widgets.A7MathBlockBase = #(A7MathBlock::register_widget(vm))
+    mod.widgets.A7MathBlock = set_type_default() do mod.widgets.A7MathBlockBase{
+        width: Fill
+        height: Fit
+        align: Align{x: 0.5}
+    }
+}
+
+/// A display-math block (`$$…$$`) centred on its own line, as KaTeX's
+/// `.katex-display` is (`text-align: center`). The renderer's Markdown hands
+/// the expression to its `display_math` item with `set_text`; a `View` drops
+/// that, so this wrapper forwards it to its `math` child (a `MathView`).
+#[derive(Script, ScriptHook, Widget)]
+pub struct A7MathBlock {
+    #[deref]
+    view: View,
+}
+
+impl Widget for A7MathBlock {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.view.draw_walk(cx, scope, walk)
+    }
+
+    fn text(&self) -> String {
+        self.view.text()
+    }
+
+    fn set_text(&mut self, cx: &mut Cx, v: &str) {
+        self.view.widget(cx, ids!(math)).set_text(cx, v);
     }
 }
 
@@ -51,6 +89,10 @@ pub struct A7CodeLines {
     /// Dark theme colours (`theme.css` `light-dark(...)`).
     #[live(false)]
     dark: bool,
+    /// One code line's height in logical px (the web's `12px/20px`); a row
+    /// is padded to it, since a single laid-out run is only its glyph box.
+    #[live(20.0)]
+    line_height: f64,
     /// The lexed lines, keyed by (text, lang, dark).
     #[rust]
     lines: Vec<Vec<(Vec4f, String)>>,
@@ -128,8 +170,20 @@ impl Widget for A7CodeLines {
         self.ensure_lines();
         cx.begin_turtle(walk, Layout { flow: Flow::Down, ..Layout::default() });
         let plain = hex(Tok::Plain.color(self.dark));
+        let glyph_box = self
+            .draw_text
+            .layout(cx, 0.0, 0.0, None, false, Align::default(), "Mg")
+            .size_in_lpxs
+            .height as f64
+            * self.draw_text.font_scale as f64;
+        let pad = ((self.line_height - glyph_box) / 2.0).max(0.0);
+        let row = Layout {
+            flow: Flow::right_wrap(),
+            padding: Inset { top: pad, bottom: pad, left: 0.0, right: 0.0 },
+            ..Layout::default()
+        };
         for line in &self.lines {
-            cx.begin_turtle(Walk::fill_fit(), Layout { flow: Flow::right_wrap(), ..Layout::default() });
+            cx.begin_turtle(Walk::fill_fit(), row);
             if line.is_empty() {
                 self.draw_text.color = plain;
                 self.draw_text.draw_walk(cx, Walk::fit(), Align::default(), " ");

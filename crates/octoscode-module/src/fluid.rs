@@ -294,7 +294,8 @@ pub fn assistant_answer(tok: &str, d: &crate::markdown::Display, copied: Option<
 /// One prose `Markdown` region (A1's look). With `math`, the renderer's math
 /// extension typesets `$…$` / `$$…$$` through makepad's MathView (the web's
 /// KaTeX): `inline_math` sits in the line at the body's height, `display_math`
-/// is its own block. Without it every `$` arrives escaped (`markdown::sanitize`).
+/// is its own centred block (`code_view::A7MathBlock`, KaTeX's
+/// `.katex-display`). Without it every `$` arrives escaped (`markdown::sanitize`).
 fn markdown_region(id: &str, body: &str, math: bool, m: &Metrics) -> String {
     let s = scale(m.density);
     let line = s.body_line + 1.0;
@@ -305,7 +306,7 @@ fn markdown_region(id: &str, body: &str, math: bool, m: &Metrics) -> String {
         format!(
             "use_math_widget: true\n\
              inline_math := MathView{{font_size: {inline:.2} baseline_offset: 3.0 color: {INK}}}\n\
-             display_math := MathView{{font_size: {display:.2} baseline_offset: 0.0 color: {INK}}}\n",
+             display_math := mod.widgets.A7MathBlock{{math := MathView{{font_size: {display:.2} baseline_offset: 0.0 color: {INK}}}}}\n",
             inline = s.body * 0.75 * 0.78,
             display = s.body * 0.75 * 0.92,
         )
@@ -431,6 +432,7 @@ fn highlighted_body(id: &str, g: crate::highlight::Grammar, code: &str) -> Strin
          text: {code:?}\n\
          lang: {lang:?}\n\
          dark: {dark}\n\
+         line_height: {CODE_LINE}\n\
          draw_text +: {{text_style: {mono}}}\n\
          }}\n",
         lang = g.id,
