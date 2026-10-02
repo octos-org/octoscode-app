@@ -157,6 +157,42 @@ fn buttons_and_keys_decide_with_the_web_scope_and_lifecycle_frames_clear_the_car
 }
 
 #[test]
+fn d_opens_the_diff_review_only_for_a_typed_diff_approval() {
+    let _g = lock();
+    let mut body = recorded("r5-turn-a6ea8505.jsonl", "approval/requested").remove(0);
+    let session = body["session_id"].as_str().unwrap().to_owned();
+    let (store, mut reg) = wired(&session);
+    reg.dispatch(&note("approval/requested", body.clone()));
+    let ui = ui();
+    let m = Metrics::for_window(990.0, true);
+    // A command approval carries no preview: D maps, but opens nothing, and
+    // the card offers no Review diff.
+    assert_eq!(surfaces::key(&store, "d", false, false, false, false, false), KeyOutcome::Action("cv.approval.diff".into(), 0));
+    assert_eq!(surfaces::perform("cv.approval.diff", 0, &store, &ui), Outcome::Done);
+    assert!(!surfaces::lower_takeover(&store, &m).unwrap().dsl.contains("Review diff"));
+    reg.dispatch(&note("approval/decided", recorded("r5-turn-a6ea8505.jsonl", "approval/decided").remove(0)));
+    // A typed DIFF approval: its preview id is the payload's
+    // `typed_details.diff.preview_id` (interaction.ts:94-102).
+    body["approval_id"] = json!("01a0e773-f844-7d50-b171-b38d159f00ab");
+    body["approval_kind"] = json!("diff");
+    body["typed_details"] = json!({"kind": "diff", "diff": {
+        "preview_id": "01920000-0000-7000-8000-0000000000f1", "operation": "apply_patch", "file_count": 1
+    }});
+    reg.dispatch(&note("approval/requested", body));
+    let card = surfaces::lower_takeover(&store, &m).unwrap().dsl;
+    assert!(card.contains("Review diff") && card.contains("Y / S / N / D"), "{card}");
+    assert_eq!(
+        surfaces::perform("cv.approval.diff", 0, &store, &ui),
+        Outcome::ReviewDiff("01920000-0000-7000-8000-0000000000f1".into())
+    );
+    // Modifier chords never act (ApprovalPanel.tsx:36-43).
+    for (shift, ctrl, alt, logo) in [(true, false, false, false), (false, true, false, false), (false, false, true, false), (false, false, false, true)] {
+        let k = surfaces::key(&store, "d", shift, ctrl, alt, logo, false);
+        assert!(matches!(k, KeyOutcome::Pass), "{shift} {ctrl} {alt} {logo}: {k:?}");
+    }
+}
+
+#[test]
 fn cancel_and_auto_resolve_update_the_ui_and_auto_resolve_leaves_a_deterministic_notice() {
     let _g = lock();
     let body = recorded("r23-conversation-a6ea8505.jsonl", "approval/requested").remove(0);

@@ -49,6 +49,7 @@ RESULTS = []
 SHOT_N = [0]
 LOG_SEQ = [0]
 WALK_LOG = []
+DOWNLOADS = [None]
 
 PROMPTS = [
     "In one short sentence, what is 17 times 23? Think it through.",
@@ -72,6 +73,13 @@ def get(path, timeout=20):
         if path.startswith(("/click", "/t?", "/k?", "/m?")):
             return ""
         raise
+
+
+def scrub(line):
+    """No machine paths in committed evidence: the checkout is `<repo>`,
+    any other home directory reads `/home/user`."""
+    line = line.replace(str(ROOT), "<repo>")
+    return re.sub(r"/Users/[^/\s]+", "/home/user", line)
 
 
 def say(line):
@@ -155,7 +163,7 @@ def app_logs():
 
 def replay_log():
     try:
-        return (OUT / f"replay-{RPORT}.log").read_text()
+        return (OUT / f"replay-{MODE}.log").read_text()
     except OSError:
         return ""
 
@@ -168,8 +176,30 @@ def window_size():
 def shot(name):
     SHOT_N[0] += 1
     path = OUT / f"{MODE}-{SHOT_N[0]:02d}-{name}.png"
-    with urllib.request.urlopen(BASE + "/g?raw=1", timeout=30) as r:
-        path.write_bytes(r.read())
+    data = None
+    for _ in range(4):  # the grab can 404 while a frame is in flight
+        try:
+            with urllib.request.urlopen(BASE + "/g?raw=1", timeout=30) as r:
+                data = r.read()
+            break
+        except urllib.error.HTTPError:
+            time.sleep(0.5)
+    if data is None:
+        say(f"  (no capture for {name})")
+        return None
+    path.write_bytes(data)
+    if not PHONE:
+        # The desktop shell's capture is the whole desktop: keep the OctosCode
+        # window only — the module view's rect plus the shell's 32 pt title
+        # bar above it (the PNG is at the window's dpi).
+        view = [w for w in snap() if w.get("ty") == "OctoscodeView" and w["r"][2] > 0]
+        sz = window_size() or [0, 0]
+        if view and sz[0]:
+            x, y, w, h = view[0]["r"]
+            y, h = max(y - 32, 0), h + min(32, y)
+            k = struct.unpack(">I", data[16:20])[0] / float(sz[0])  # PNG px per pt
+            subprocess.run(["sips", "-c", str(int(h * k)), str(int(w * k)), "--cropOffset",
+                            str(int(y * k)), str(int(x * k)), str(path), "--out", str(path)], capture_output=True)
     subprocess.run(["sips", "-Z", "1400", str(path)], capture_output=True)
     say(f"  shot {path.relative_to(ROOT)}")
     return path
@@ -222,8 +252,15 @@ def png_pixels(raw):
 
 def pixel_at(x, y):
     """The window's colour at logical (x, y) from a fresh full-size /g."""
-    with urllib.request.urlopen(BASE + "/g?raw=1", timeout=30) as r:
-        w, h, bpp, rows = png_pixels(r.read())
+    raw = None
+    for _ in range(4):
+        try:
+            with urllib.request.urlopen(BASE + "/g?raw=1", timeout=30) as r:
+                raw = r.read()
+            break
+        except urllib.error.HTTPError:
+            time.sleep(0.5)
+    w, h, bpp, rows = png_pixels(raw)
     sz = window_size() or [w, h]
     sx, sy = w / float(sz[0]), h / float(sz[1])
     px, py = int(x * sx), int(y * sy)
@@ -428,7 +465,7 @@ def walk_files_and_folds():
     if pdf:
         app_logs()
         click(f"b3_tl_file_download_{pdf[0]}")
-        saved = wait(lambda: (OUT / "downloads" / "r23-report.pdf").exists(), 10)
+        saved = wait(lambda: (DOWNLOADS[0] / "r23-report.pdf").exists(), 10)
         wire = "GET /api/files?path=%2Fhome%2Fuser%2Fsrc%2Foctos%2Fout%2Fr23-report.pdf" in replay_log()
         check("CLICK Download -> GET /api/files on the wire, saved to the download dir", saved and wire,
               f"saved={bool(saved)} wire={wire}")
@@ -437,8 +474,15 @@ def walk_files_and_folds():
         img = wait(lambda: shown(f"b3_tl_file_img_{png[0]}"), 10)
         check("CLICK Preview -> the image shows in its row", img, f"b3_tl_file_img_{png[0]}")
         r = rect(f"b3_tl_file_img_{png[0]}")
-        if r:
-            check("preview: the image is laid out at the row width, 220 px tall", r[3] >= 200, f"{[round(v) for v in r]}")
+        row = rect(f"b3_tl_file_{png[0]}")
+        if r and row:
+            # `fit: Smallest` inside a 220 px box: the 240x135 chart keeps its
+            # aspect at the row's width (desktop: height-bound 220; phone:
+            # width-bound).
+            aspect = r[2] / r[3] if r[3] else 0
+            check("preview: the image keeps its aspect inside its row", abs(aspect - 240 / 135) < 0.08
+                  and r[3] <= 220.5 and r[0] >= row[0] - 0.5 and r[0] + r[2] <= row[0] + row[2] + 0.5,
+                  f"{[round(v) for v in r]} in {[round(v) for v in row]}")
     shot("files")
     # The fold bar heads the transcript: scroll to the top and use it.
     if not check("fold bar shown at the transcript head", to_top()):
@@ -556,8 +600,8 @@ def walk_approvals():
     ok = wait(decided(1), 8)
     logs = app_logs()
     check("CLICK Deny -> approval/respond deny/request", ok and any("deny/request accepted" in l for l in logs))
-    diff = wait(lambda: text("cv_ap_title") == "Apply a patch to src/main.rs", 10)
-    if check("next: a typed diff approval with Review diff", diff and shown("cv_ap_diff")):
+    diff = wait(lambda: text("cv_ap_title").startswith("Apply a patch") and shown("cv_ap_diff"), 10)
+    if check("next: a typed diff approval with Review diff", diff, repr(text("cv_ap_title"))):
         approval_layout("diff approval card")
         shot("approval-diff")
         click("cv_ap_diff")
@@ -567,12 +611,18 @@ def walk_approvals():
         check("CLICK Review diff -> the review opens on diff/preview/get", opened and wire)
         shot("approval-review")
         interrupts = replay_log().count("<- turn/interrupt")
-        key("escape")
-        back = wait(lambda: shown("cv_ap_session") and not shown("review_close"), 6)
-        check("Esc closes the review back to the card (no turn/interrupt)",
-              back and replay_log().count("<- turn/interrupt") == interrupts)
-        if not back and click("review_close"):
-            wait(lambda: shown("cv_ap_session"), 4)
+        if PHONE:
+            # A phone has no Escape: the review's own close control.
+            click("review_close")
+            back = wait(lambda: shown("cv_ap_session") and not shown("review_close"), 6)
+            check("CLICK × closes the review back to the card", back)
+        else:
+            key("escape")
+            back = wait(lambda: shown("cv_ap_session") and not shown("review_close"), 6)
+            check("Esc closes the review back to the card (no turn/interrupt)",
+                  back and replay_log().count("<- turn/interrupt") == interrupts)
+            if not back and click("review_close"):
+                wait(lambda: shown("cv_ap_session"), 4)
         click("cv_ap_session")
         ok = wait(decided(2), 8)
         check("CLICK Approve for session -> approval/respond approve/session",
@@ -600,7 +650,8 @@ def walk_plan_and_trajectory():
     if not check("turn 5: the plan card (replaced wholesale: 1 of 3 done)", plan, repr(text("cv_pl_summary"))):
         return
     check("plan: headline = the in-progress step, statuses, updated-at",
-          text("cv_pl_title") == "Plan · Wire --help to document it"
+          ("Plan · Wire --help to document it".startswith(text("cv_pl_title").rstrip("…"))
+           and text("cv_pl_title").startswith("Plan · Wire --help"))
           and text("cv_pl_status_0") == "Done" and text("cv_pl_status_1") == "In progress"
           and text("cv_pl_status_2") == "Pending" and text("cv_pl_updated").startswith("Updated "),
           f"{text('cv_pl_title')!r} {text('cv_pl_updated')!r}")
@@ -665,6 +716,10 @@ def walk_plan_and_trajectory():
     det = wait(lambda: shown("cv_td_title") and "Compiling" in text("cv_td_out_text"), 10)
     wire = "<- task/output/read" in replay_log() and "<- task/artifact/list" in replay_log()
     check("CLICK a task row -> its detail: output + artifacts read", det and wire, repr(text("cv_td_out_meta")))
+    # (a phone hard-wraps the mono output: compare without the breaks)
+    live = wait(lambda: "reconnect_resumes_the_queue" in re.sub(r"\s+", "", text("cv_td_out_text")), 6)
+    check("live task/output/delta at the byte cursor appends to the open output",
+          live and "task/output/delta (live)" in replay_log(), repr(text("cv_td_out_meta")))
     layout("task detail", "b3_dialog", ["b3_close", "cv_td_more", "cv_td_art_0"],
            [("cv_td_more_label", "cv_td_more_box"), ("cv_td_out_text", "cv_td_out_box")], frame_id="b3_root")
     shot("task-detail")
@@ -691,11 +746,16 @@ def walk_plan_and_trajectory():
     click("hd_tab_chat_hit")
     chat = wait(lambda: shown("i0_composer_0") and shown("cv_pl_card"), 6)
     check("CLICK Chat -> the conversation + its plan card", chat)
-    # Interrupt the plan turn: its terminal drops the plan.
-    key("escape")
+    # Interrupt the plan turn: its terminal drops the plan (desktop: Esc;
+    # phone: CLICK the composer's stop control).
+    if PHONE:
+        click("send_hit")
+    else:
+        key("escape")
     wire = wait(lambda: replay_log().count("<- turn/interrupt") >= 2, 6)
     dropped = wait(lambda: not shown("cv_pl_card"), 15)
-    check("Esc -> turn/interrupt; the authoring turn's terminal drops the plan", wire and dropped)
+    check(("CLICK stop" if PHONE else "Esc") + " -> turn/interrupt; the authoring turn's terminal drops the plan",
+          wire and dropped)
 
 
 def walk_notice():
@@ -716,14 +776,15 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for f in OUT.glob(f"{MODE}-*.png"):
         f.unlink()
-    (OUT / "downloads").mkdir(exist_ok=True)
-    for f in (OUT / "downloads").glob("*"):
-        f.unlink()
     work = ROOT / "tmp" / "walk" / f"a6-{MODE}"
     work.mkdir(parents=True, exist_ok=True)
+    (work / "downloads").mkdir(exist_ok=True)
+    for f in (work / "downloads").glob("*"):
+        f.unlink()
+    DOWNLOADS[0] = work / "downloads"
     replay = ROOT / "target" / "debug" / "examples" / "replay_serve"
     serve = subprocess.Popen([str(replay), str(RPORT), "--scenario", "surfaces"],
-                             stdout=open(OUT / f"replay-{RPORT}.log", "w"), stderr=subprocess.STDOUT)
+                             stdout=open(OUT / f"replay-{MODE}.log", "w"), stderr=subprocess.STDOUT)
     time.sleep(1.5)
     env = os.environ.copy()
     env.update({
@@ -732,7 +793,7 @@ def main():
         "OCTOS_PROFILE_ID": "dsflash",
         "MAKEPAD_WM_TEST_APP": "octoscode",
         "OCTOSCODE_DESIGN_DIR": str(ROOT / "design"),
-        "OCTOSCODE_DOWNLOAD_DIR": str(OUT / "downloads"),
+        "OCTOSCODE_DOWNLOAD_DIR": str(DOWNLOADS[0]),
         "OCTOSCODE_SHOW_THINKING_FILE": str(work / "show-thinking.json"),
         "OCTOSCODE_RECENTS_DIR": str(work),
         "HEADLESS_STATE": str(work / "state"),
@@ -760,7 +821,8 @@ def main():
     finally:
         try:
             lines = json.loads(get("/log?since=0&n=20000")).get("l", [])
-            (OUT / f"app-{MODE}.log").write_text("\n".join(l for l in lines if "octoscode" in l or "[E]" in l) + "\n")
+            kept = [scrub(l) for l in lines if "octoscode" in l or "[E]" in l]
+            (OUT / f"app-{MODE}.log").write_text("\n".join(kept) + "\n")
         except Exception as e:
             say(f"  (app log not saved: {e!r})")
         subprocess.run(["bash", str(ROOT / "harness/headless.sh"), "stop", str(PORT)],

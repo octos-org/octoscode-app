@@ -1,0 +1,150 @@
+[I] crates/shell/src/lib.rs:4429:9 - wm: modules linked: ["rinx", "octoscode", "apphub", "card"]
+[I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <repo>/design
+[I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under /home/user/home/oa.noindex/host-agent-ab92b563581fa245e/apps/octoscode/module/resources/ux/Inter-400.ttf
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] root = design/components
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] thread-row -> design/components/thread-row/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] user-bubble -> design/components/user-bubble/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] assistant-prose -> design/components/assistant-prose/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] tool-cell -> design/components/tool-cell/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] working-row -> design/components/working-row/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] worked-for -> design/components/worked-for/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] answer-actions -> design/components/answer-actions/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] composer -> design/components/composer/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] new-chat -> design/components/new-chat/page.card -> on-disk
+[I] crates/shell/src/module_host.rs:156:9 - wm: module instance octoscode.1 for client 1 in isolate SplashVmId(1) (scope i1g1)
+[I] crates/shell/src/lib.rs:2117:9 - wm: launched octoscode as client 1 (in-process, octoscode)
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] root = design/components
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] thread-row -> design/components/thread-row/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] user-bubble -> design/components/user-bubble/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] assistant-prose -> design/components/assistant-prose/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] tool-cell -> design/components/tool-cell/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] working-row -> design/components/working-row/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] worked-for -> design/components/worked-for/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] answer-actions -> design/components/answer-actions/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] composer -> design/components/composer/page.card -> on-disk
+[I] apps/octoscode/module/src/components.rs:319:9 - [components] new-chat -> design/components/new-chat/page.card -> on-disk
+[I] apps/octoscode/module/src/lib.rs:3055:17 - [octoscode] composer remounted
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:217:17 - [octoscode] view: session dsflash:main restored (following)
+[I] apps/octoscode/module/src/lib.rs:3132:38 - [octoscode] chrome: 3 profile reads folded
+[I] apps/octoscode/module/src/lib.rs:3613:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+[I] apps/octoscode/module/src/lib.rs:3055:17 - [octoscode] composer remounted
+[I] apps/octoscode/module/src/lib.rs:4605:21 - [octoscode] draft synced: 61 chars
+[I] apps/octoscode/module/src/lib.rs:5188:17 - [octoscode] key ReturnKey -> ComposerSubmit
+[I] apps/octoscode/module/src/flow.rs:1063:17 - [octoscode] turn started: 01a0facf-fb72-7346-9147-b04b1b11a524
+[I] apps/octoscode/module/src/flow.rs:1409:43 - [octoscode] turn started: 01920000-0000-7000-8000-00000000023b
+[I] apps/octoscode/module/src/lib.rs:4931:37 - [octoscode] transcript row tap: b3.think.block.r1
+[I] apps/octoscode/module/src/lib.rs:1532:13 - [octoscode] board3 action b3.think.block.r1 #0 -> Done
+[I] apps/octoscode/module/src/lib.rs:4931:37 - [octoscode] transcript row tap: b3.think.block.r1
+[I] apps/octoscode/module/src/lib.rs:1532:13 - [octoscode] board3 action b3.think.block.r1 #0 -> Done
+[I] apps/octoscode/module/src/lib.rs:4605:21 - [octoscode] draft synced: 75 chars
+[I] apps/octoscode/module/src/lib.rs:5188:17 - [octoscode] key ReturnKey -> ComposerSubmit
+[I] apps/octoscode/module/src/flow.rs:1063:17 - [octoscode] turn started: 01a0fad0-0847-74f3-bcb5-551b27777499
+[I] apps/octoscode/module/src/flow.rs:1409:43 - [octoscode] turn started: 01920000-0000-7000-8000-00000000023c
+[I] apps/octoscode/module/src/lib.rs:5012:29 - [octoscode] tool.toggle: call_00_1nHw0JiGHc6HQdxNySqu4250 open
+[I] apps/octoscode/module/src/lib.rs:5012:29 - [octoscode] tool.toggle: call_00_1nHw0JiGHc6HQdxNySqu4250 closed
+[I] apps/octoscode/module/src/lib.rs:4931:37 - [octoscode] transcript row tap: b3.file.download#6
+[I] apps/octoscode/module/src/lib.rs:1532:13 - [octoscode] board3 action b3.file.download #6 -> Spawn(FileFetch(6, false))
+[I] apps/octoscode/module/src/lib.rs:3613:42 - [octoscode] board3 FileFetch(6, false): 38 bytes
+[I] apps/octoscode/module/src/lib.rs:4931:37 - [octoscode] transcript row tap: b3.file.preview#7
+[I] apps/octoscode/module/src/lib.rs:1532:13 - [octoscode] board3 action b3.file.preview #7 -> Spawn(FileFetch(7, true))
+[I] apps/octoscode/module/src/lib.rs:3613:42 - [octoscode] board3 FileFetch(7, true): 97408 bytes
+[I] apps/octoscode/module/src/lib.rs:4931:37 - [octoscode] transcript row tap: cv.fold.expand_all
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.fold.expand_all #0 -> Done
+[I] apps/octoscode/module/src/lib.rs:4931:37 - [octoscode] transcript row tap: cv.fold.collapse_all
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.fold.collapse_all #0 -> Done
+[I] apps/octoscode/module/src/lib.rs:4605:21 - [octoscode] draft synced: 78 chars
+[I] apps/octoscode/module/src/lib.rs:5188:17 - [octoscode] key ReturnKey -> ComposerSubmit
+[I] apps/octoscode/module/src/flow.rs:1063:17 - [octoscode] turn started: 01a0fad0-17af-70cb-a48c-49a3d55a4de1
+[I] apps/octoscode/module/src/flow.rs:1409:43 - [octoscode] turn started: 01920000-0000-7000-8000-000000000240
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Question("01a0eb8f-7b23-7030-9f26-a284864217a0")): 6 tap(s), 1 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.q.opt#1
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.q.opt #1 -> Done
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Question("01a0eb8f-7b23-7030-9f26-a284864217a0")): 6 tap(s), 1 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:356:17 - [octoscode] surfaces key Enter -> cv.q.submit#0
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.q.submit #0 -> Spawn(Answer { question_id: "01a0eb8f-7b23-7030-9f26-a284864217a0", session_id: "dsflash:main", answers: "[{\"free_text\":\"teal\",\"selected_labels\":[\"Green\"]}]" })
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:270:42 - [octoscode] surfaces Answer { question_id: "01a0eb8f-7b23-7030-9f26-a284864217a0", session_id: "dsflash:main", answers: "[{\"free_text\":\"teal\",\"selected_labels\":[\"Green\"]}]" }: answer accepted
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Question("01a0eb8f-7b23-7030-9f26-a284864217a1")): 5 tap(s), 1 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Question("01a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:350:17 - [octoscode] surfaces key ArrowDown: held by the takeover
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Question("01a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:356:17 - [octoscode] surfaces key Space -> cv.q.opt#1
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.q.opt #1 -> Done
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Question("01a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:350:17 - [octoscode] surfaces key ArrowDown: held by the takeover
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Question("01a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:350:17 - [octoscode] surfaces key ArrowDown: held by the takeover
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Question("01a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:356:17 - [octoscode] surfaces key Space -> cv.q.opt#3
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.q.opt #3 -> Done
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Question("01a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.q.opt#0
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.q.opt #0 -> Done
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Question("01a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.q.submit
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.q.submit #0 -> Spawn(Answer { question_id: "01a0eb8f-7b23-7030-9f26-a284864217a1", session_id: "dsflash:main", answers: "[{\"selected_labels\":[\"Green\",\"Purple\",\"Blue\"]}]" })
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:270:42 - [octoscode] surfaces Answer { question_id: "01a0eb8f-7b23-7030-9f26-a284864217a1", session_id: "dsflash:main", answers: "[{\"selected_labels\":[\"Green\",\"Purple\",\"Blue\"]}]" }: answer accepted
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Question("01a0eb8f-7b23-7030-9f26-a284864217a2")): 5 tap(s), 1 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Question("01a0eb8f-7b23-7030-9f26-a284864217a2")): 6 tap(s), 1 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.q.stop
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.q.stop #0 -> Action("turn.interrupt")
+[I] apps/octoscode/module/src/lib.rs:4605:21 - [octoscode] draft synced: 67 chars
+[I] apps/octoscode/module/src/lib.rs:5188:17 - [octoscode] key ReturnKey -> ComposerSubmit
+[I] apps/octoscode/module/src/flow.rs:1063:17 - [octoscode] turn started: 01a0fad0-2eb9-743d-b950-ed59f1628d21
+[I] apps/octoscode/module/src/flow.rs:1409:43 - [octoscode] turn started: 01920000-0000-7000-8000-000000000241
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Approval("01a0e773-f844-7d50-b171-b38d159f00aa")): 3 tap(s), 0 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.approval.deny
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.approval.deny #0 -> Spawn(Approve { approval_id: "01a0e773-f844-7d50-b171-b38d159f00aa", session_id: "dsflash:main", decision: "deny", scope: "request" })
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:270:42 - [octoscode] surfaces Approve { approval_id: "01a0e773-f844-7d50-b171-b38d159f00aa", session_id: "dsflash:main", decision: "deny", scope: "request" }: deny/request accepted
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Approval("01a0e773-f844-7d50-b171-b38d159f00ab")): 0 tap(s), 0 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Approval("01a0e773-f844-7d50-b171-b38d159f00ab")): 4 tap(s), 0 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.approval.diff
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.approval.diff #0 -> ReviewDiff("01920000-0000-7000-8000-0000000000f1")
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:308:17 - [octoscode] approval: review diff opened=true
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.approval.session
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.approval.session #0 -> Spawn(Approve { approval_id: "01a0e773-f844-7d50-b171-b38d159f00ab", session_id: "dsflash:main", decision: "approve", scope: "session" })
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:270:42 - [octoscode] surfaces Approve { approval_id: "01a0e773-f844-7d50-b171-b38d159f00ab", session_id: "dsflash:main", decision: "approve", scope: "session" }: approve/session accepted
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Approval("01a0e773-f844-7d50-b171-b38d159f00ac")): 0 tap(s), 0 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Approval("01a0e773-f844-7d50-b171-b38d159f00ac")): 3 tap(s), 0 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.approval.once
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.approval.once #0 -> Spawn(Approve { approval_id: "01a0e773-f844-7d50-b171-b38d159f00ac", session_id: "dsflash:main", decision: "approve", scope: "request" })
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:270:42 - [octoscode] surfaces Approve { approval_id: "01a0e773-f844-7d50-b171-b38d159f00ac", session_id: "dsflash:main", decision: "approve", scope: "request" }: approve/request accepted
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Approval("01a0e773-f844-7d50-b171-b38d159f00ad")): 0 tap(s), 0 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:106:17 - [octoscode] takeover mounted Some(Approval("01a0e773-f844-7d50-b171-b38d159f00ad")): 3 tap(s), 0 input(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:356:17 - [octoscode] surfaces key s -> cv.approval.session#0
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.approval.session #0 -> Spawn(Approve { approval_id: "01a0e773-f844-7d50-b171-b38d159f00ad", session_id: "dsflash:main", decision: "approve", scope: "session" })
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:270:42 - [octoscode] surfaces Approve { approval_id: "01a0e773-f844-7d50-b171-b38d159f00ad", session_id: "dsflash:main", decision: "approve", scope: "session" }: approve/session accepted
+[I] apps/octoscode/module/src/lib.rs:4605:21 - [octoscode] draft synced: 78 chars
+[I] apps/octoscode/module/src/lib.rs:5188:17 - [octoscode] key ReturnKey -> ComposerSubmit
+[I] apps/octoscode/module/src/flow.rs:1063:17 - [octoscode] turn started: 01a0fad0-3d0f-7610-8ea2-f209fe4951e1
+[I] apps/octoscode/module/src/flow.rs:1409:43 - [octoscode] turn started: 01920000-0000-7000-8000-000000000243
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.plan.toggle
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.plan.toggle #0 -> Done
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.plan.toggle
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.plan.toggle #0 -> Done
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.tab.trajectory #0 -> Spawn(Refresh)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:270:42 - [octoscode] surfaces Refresh: 2 task(s), 0 error(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.traj.refresh
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.traj.refresh #0 -> Spawn(Refresh)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:270:42 - [octoscode] surfaces Refresh: 2 task(s), 0 error(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.task.open#0
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.task.open #0 -> Spawn(OpenTask("01a0eb98-2eb6-7e33-9c35-6458c7140096"))
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:270:42 - [octoscode] surfaces OpenTask("01a0eb98-2eb6-7e33-9c35-6458c7140096"): output 218 bytes, 2 artifact(s)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.detail.more
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.detail.more #0 -> Spawn(MoreOutput)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:270:42 - [octoscode] surfaces MoreOutput: 365 bytes
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.art.read#0
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.art.read #0 -> Spawn(ReadArtifact(0))
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:270:42 - [octoscode] surfaces ReadArtifact(0): 34 bytes
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.detail.close
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.detail.close #0 -> Done
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:233:17 - [octoscode] surfaces tap: cv.task.cancel#0
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.task.cancel #0 -> Spawn(CancelTask("01a0eb98-2eb6-7e33-9c35-6458c7140096"))
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:270:42 - [octoscode] surfaces CancelTask("01a0eb98-2eb6-7e33-9c35-6458c7140096"): cancelled
+[I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 401 ms · phase=Actions detail=0 · samples=2 · ticks=2/expected=2 · top frames: 1x Actions: hashbrown::raw::RawTableInner::find_or_find_insert_index_inner+0xe8 (octosense) ← hashbrown::map::HashMap<K,V,S,A>::insert+0x60 (octosense) ← makepad_widgets::widget_tree::WidgetTree::collect_within_graph_with_skip+0x250 (octosense) ← makepad_widgets::widget_tree::WidgetTree::find_all_within_cached_graph+0x6f8 (octosense) ← makepad_widgets::widget_tree::WidgetTree::find_within+0x30 (octosense) ← octoscode_module::chrome::show+0x24 (octosense) ← octoscode_module::chrome::ChromeRuntime::sync+0x1478 (octosense) ← octoscode_module::OctoscodeView::sync_chrome+0x6c4 (octosense) | 1x Actions: makepad_widgets::widget_tree::WidgetTree::collect_within_graph_with_skip+0x364 (octosense) ← makepad_widgets::widget_tree::WidgetTree::find_all_within_cached_graph+0x6f8 (octosense) ← makepad_widgets::widget_tree::WidgetTree::find_within+0x30 (octosense) ← octoscode_module::chrome::text+0x2c (octosense) ← octoscode_module::chrome::ChromeRuntime::sync+0x19f8 (octosense) ← octoscode_module::OctoscodeView::sync_chrome+0x6c4 (octosense) ← octoscode_module::OctoscodeView::sync_labels+0x51f4 (octosense) ← _<octoscode_module::OctoscodeView as makepad_widgets::widget::Widget>::handle_event+0x556c (octosense)
+[I] apps/octoscode/module/src/lib.rs:1544:13 - [octoscode] surfaces action cv.tab.chat #0 -> Done
+[I] apps/octoscode/module/src/lib.rs:4862:21 - [octoscode] send_hit clicked
+[I] apps/octoscode/module/src/lib.rs:4605:21 - [octoscode] draft synced: 44 chars
+[I] apps/octoscode/module/src/lib.rs:5188:17 - [octoscode] key ReturnKey -> ComposerSubmit
+[I] apps/octoscode/module/src/flow.rs:1409:43 - [octoscode] turn started: 01920000-0000-7000-8000-000000000242
+[I] apps/octoscode/module/src/flow.rs:1063:17 - [octoscode] turn started: 01a0fad0-8089-745e-baaf-0ed7ecee704a
+[I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 445 ms · phase=Actions detail=0 · samples=2 · ticks=2/expected=3 · top frames: 1x Actions: _<core::hash::sip::Hasher<S> as core::hash::Hasher>::write+0x150 (octosense) ← core::hash::BuildHasher::hash_one+0x8c (octosense) ← makepad_widgets::widget_tree::WidgetTree::ensure_node_cached+0x3c (octosense) ← makepad_widgets::widget_tree::WidgetTree::collect_within_graph_with_skip+0x420 (octosense) ← makepad_widgets::widget_tree::WidgetTree::find_all_within_cached_graph+0x6f8 (octosense) ← makepad_widgets::widget_tree::WidgetTree::find_within+0x30 (octosense) ← octoscode_module::chrome::show+0x24 (octosense) ← octoscode_module::chrome::ChromeRuntime::sync+0x20c (octosense) | 1x Signal: hashbrown::raw::RawIterRange<T>::fold_impl+0x24 (octosense) ← _<makepad_widgets::portal_list::PortalList as makepad_widgets::widget::Widget>::handle_event+0x8d0 (octosense) ← _<makepad_widgets::view::View as makepad_widgets::widget::Widget>::handle_event+0x55c (octosense) ← _<makepad_widgets::view::View as makepad_widgets::widget::Widget>::handle_event+0x55c (octosense) ← _<makepad_widgets::view::View as makepad_widgets::widget::Widget>::handle_event+0x55c (octosense) ← _<makepad_widgets::view::View as makepad_widgets::widget::Widget>::handle_event+0x55c (octosense) ← _<makepad_widgets::view::View as makepad_widgets::widget::Widget>::handle_event+0x55c (octosense) ← _<octoscode_module::OctoscodeView as makepad_widgets::widget::Widget>::handle_event+0x34 (octosense)

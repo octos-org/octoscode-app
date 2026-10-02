@@ -809,7 +809,18 @@ async fn main() {
                     let handled = match method.as_str() {
                         "turn/start" => {
                             send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {"accepted": true}})).await;
-                            let frames = surfaces::turn_frames(&all_frames, played);
+                            let mut frames = surfaces::turn_frames(&all_frames, played);
+                            // The recorded turn's canonical user message
+                            // carries what the app actually sent (some
+                            // recordings redact it), so it settles onto the
+                            // app's own optimistic bubble.
+                            if let Some(typed) = params["input"][0]["text"].as_str().filter(|t| !t.is_empty()) {
+                                for (f, _) in frames.iter_mut() {
+                                    if f.method == "projection/envelope" && f.body["payload"]["type"] == "user_message" {
+                                        f.body["payload"]["data"]["text"] = serde_json::json!(typed);
+                                    }
+                                }
+                            }
                             println!("[replay-serve] surfaces: turn #{played} ({} frames)", frames.len());
                             played += 1;
                             tokio::spawn(stream_until_hold(tx.clone(), frames, recorded.clone(), active_session.clone(), delay_ms, held.clone()));
@@ -849,12 +860,27 @@ async fn main() {
                         m => match surfaces::reply(m, &params, &active_session) {
                             Some(body) => {
                                 println!("[replay-serve] -> {m} (surfaces reply)");
-                                send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": body})).await;
+                                send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": body.clone()})).await;
                                 // r4's live task frames merge into the list
                                 // the app just folded (`applyTaskUpdated`,
                                 // model.ts:104-137): once per connection,
                                 // after the first authoritative task/list,
                                 // re-pointed from r4's own session.
+                                // The opened task's output keeps streaming:
+                                // one live `task/output/delta` at the first
+                                // page's `next_cursor` (r4's frame shape).
+                                if m == "task/output/read" && params.pointer("/cursor/offset").is_none() {
+                                    let tx2 = tx.clone();
+                                    let delta = serde_json::json!({"jsonrpc": "2.0", "method": "task/output/delta", "params": {
+                                        "session_id": active_session, "task_id": params["task_id"],
+                                        "cursor": body["next_cursor"], "text": "test steer_queue::reconnect_resumes_the_queue ... ok\n"
+                                    }});
+                                    tokio::spawn(async move {
+                                        tokio::time::sleep(std::time::Duration::from_millis(700)).await;
+                                        println!("[replay-serve] surfaces -> task/output/delta (live)");
+                                        send(&tx2, delta).await;
+                                    });
+                                }
                                 if m == "task/list" && !live_sent {
                                     live_sent = true;
                                     let tx2 = tx.clone();
