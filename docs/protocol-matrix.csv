@@ -16,7 +16,7 @@ approval/requested,notification,,,,octos-core/src/ui_protocol.rs:1128,apps/web/s
 approval/respond,request,,,,octos-core/src/ui_protocol.rs:1036,apps/web/src/features/session/session-interaction-ledger.ts;packages/client/src/client.ts,6,handled,octoscode-client/src/domains/approval.rs;octoscode-module/src/flow.rs;octoscode-module/src/flow_link.rs,
 approval/scopes/list,request,,,,octos-core/src/ui_protocol.rs:1037,apps/web/src/features/commands/registry.ts;apps/web/src/features/inspection/inspection-controller.ts;packages/client/src/inspection.ts,4,handled,octoscode-client/src/domains/approval.rs;octoscode-module/src/screens/board3/inspector.rs;octoscode-module/src/screens/dialog.rs,
 background/activity,notification,,,,octos-core/src/ui_protocol.rs:1321,,0,handled,octoscode-client/src/domains/mod.rs,
-config/capabilities/list,?,,,,octos-core/src/ui_protocol.rs:1030,packages/client/src/client.ts,1,handled,octoscode-client/src/domains/config.rs,
+config/capabilities/list,?,,,,octos-core/src/ui_protocol.rs:1030,packages/client/src/client.ts,1,handled,octoscode-client/src/domains/config.rs;octoscode-module/src/screens/launch.rs,
 content/bulk_delete,request,,,,octos-core/src/ui_protocol.rs:1244,,0,absent,,
 content/delete,request,,,,octos-core/src/ui_protocol.rs:1242,,0,absent,,
 content/list,request,,,,octos-core/src/ui_protocol.rs:1240,,0,absent,,test-only matches: 1
