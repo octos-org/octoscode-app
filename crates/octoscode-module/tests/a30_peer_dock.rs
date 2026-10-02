@@ -436,9 +436,15 @@ async fn a_stale_approval_id_sends_nothing() {
     ];
     conv.client().request("test/kick", json!({})).await.expect("kick");
     assert!(wait_until(|| conv.store.domains.peer.row(&alpha).is_some_and(|r| r.request_id.as_deref() == Some(ap("alpha", 2).as_str()))).await);
-    // The tap still carrying the OLD slot is refused (no job)…
+    // The decision still carrying the OLD slot is refused (no job)…
     assert!(matches!(dock::perform(dock::ACTION_APPROVE, drawn, &conv.store, false), Outcome::Refused(_)));
-    assert!(matches!(dock::perform(dock::ACTION_STOP, drawn, &conv.store, false), Outcome::Refused(_)));
+    // (A30 follow-up: Stop targets the TURN, which did not move — it
+    // re-resolves to the current row instead of refusing; its one frame is
+    // `stop_re_resolves_once_when_the_approval_is_reissued_between_the_tap_and_the_send`.)
+    match dock::perform(dock::ACTION_STOP, drawn, &conv.store, false) {
+        Outcome::Spawn(job) => dock::abandon(&job),
+        other => panic!("Stop on the same turn re-resolves: {other:?}"),
+    }
     // …and the early job is refused before the wire.
     assert!(dock::run(early, &conv).await.is_err(), "the pending id changed: refused");
     assert!(server.sent("peer/control").is_empty(), "a stale approval id sends NOTHING");
@@ -800,10 +806,15 @@ fn a_short_desktop_column_keeps_two_session_rows_and_lists_the_waiting_peer_firs
     assert!(short.height <= room - (36.0 + 2.0 * 32.0), "the tree keeps its header + 2 session rows: dock {}", short.height);
     assert!(short.dsl.contains("pd_rows := ScrollYView"), "the rows scroll inside the dock");
     let (waiting, first) = (short.dsl.find("pd_row_1 :=").unwrap(), short.dsl.find("pd_row_0 :=").unwrap());
-    assert!(waiting < first, "the waiting peer is listed first on a short column");
-    assert_eq!(short.scroll_to, None, "no automatic jump after a remount");
-    // The phone drawer has room: the roster order, uncapped.
-    let tall = dock::lower(&store, peers::now_ms(), Seat { compact: true, width: 292.0, room: 446.0 }).unwrap();
-    assert!(!tall.dsl.contains("pd_rows := ScrollYView"));
-    assert!(tall.dsl.find("pd_row_0 :=").unwrap() < tall.dsl.find("pd_row_1 :=").unwrap(), "roster order with room");
+    assert!(waiting < first, "the waiting peer is listed first on a short column (no automatic scroll exists)");
+    // A tall seat has room: the roster order, uncapped — a tall desktop
+    // window, and the phone drawer once it is unfolded (it starts folded).
+    for seat in [Seat { compact: false, width: 260.0, room: 600.0 }, Seat { compact: true, width: 292.0, room: 446.0 }] {
+        if seat.compact {
+            assert!(!dock::toggle(true), "unfold the phone dock");
+        }
+        let tall = dock::lower(&store, peers::now_ms(), seat).unwrap();
+        assert!(!tall.dsl.contains("pd_rows := ScrollYView"), "{seat:?}");
+        assert!(tall.dsl.find("pd_row_0 :=").unwrap() < tall.dsl.find("pd_row_1 :=").unwrap(), "roster order with room: {seat:?}");
+    }
 }

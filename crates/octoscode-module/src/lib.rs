@@ -1393,16 +1393,13 @@ pub struct OctoscodeView {
     toast_timer: Timer,
     #[rust]
     toast_key: String,
-    /// A30 — the peer dock's taps (`peer_dock_splash`), its elapsed clock,
-    /// and the scroll a new waiting card asks for after the next layout.
+    /// A30 — the peer dock's taps (`peer_dock_splash`) and its elapsed clock.
     #[rust]
     peer_dock_taps: Vec<(LiveId, String)>,
     #[rust]
     peer_dock_timer: Timer,
     #[rust]
     peer_dock_ticking: bool,
-    #[rust]
-    peer_dock_scroll: Option<f64>,
 }
 
 impl OctoscodeView {
@@ -5365,8 +5362,6 @@ impl OctoscodeView {
                 .set_scroll_pos(cx, dvec2(0.0, y));
             self.view.redraw(cx);
         }
-        // A30 — a new waiting card in a capped peer dock, once laid out.
-        self.peer_dock_after_draw(cx);
         DrawStep::done()
     }
 
