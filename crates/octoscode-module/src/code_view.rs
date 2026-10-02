@@ -124,6 +124,29 @@ fn word_chunks(s: &str) -> Vec<String> {
     out
 }
 
+/// A wrapped row never starts with a space: a run's leading spaces move to
+/// the end of the run before it (the line's first run — its indentation —
+/// stays as it is), so the flow only breaks after whitespace.
+fn tidy(row: Vec<(Vec4f, String)>) -> Vec<(Vec4f, String)> {
+    let mut out: Vec<(Vec4f, String)> = Vec::with_capacity(row.len());
+    for (color, text) in row {
+        if out.is_empty() {
+            out.push((color, text));
+            continue;
+        }
+        let lead = text.len() - text.trim_start().len();
+        if lead > 0 {
+            if let Some(prev) = out.last_mut() {
+                prev.1.push_str(&text[..lead]);
+            }
+        }
+        if lead < text.len() {
+            out.push((color, text[lead..].to_owned()));
+        }
+    }
+    out
+}
+
 impl A7CodeLines {
     fn ensure_lines(&mut self) {
         let key = (self.text.as_ref().to_owned(), self.lang.as_ref().to_owned(), self.dark);
@@ -158,7 +181,7 @@ impl A7CodeLines {
                         }
                     }
                 }
-                row
+                tidy(row)
             })
             .collect();
         self.key = Some(key);
@@ -170,27 +193,20 @@ impl Widget for A7CodeLines {
         self.ensure_lines();
         cx.begin_turtle(walk, Layout { flow: Flow::Down, ..Layout::default() });
         let plain = hex(Tok::Plain.color(self.dark));
-        let glyph_box = self
-            .draw_text
-            .layout(cx, 0.0, 0.0, None, false, Align::default(), "Mg")
-            .size_in_lpxs
-            .height as f64
-            * self.draw_text.font_scale as f64;
-        let pad = ((self.line_height - glyph_box) / 2.0).max(0.0);
-        let row = Layout {
-            flow: Flow::right_wrap(),
-            padding: Inset { top: pad, bottom: pad, left: 0.0, right: 0.0 },
-            ..Layout::default()
-        };
+        // Every run sits in a box one code line tall (the web's 12px/20px),
+        // centred in it — so a long line that wraps keeps the same pitch.
+        let run_walk = Walk { width: Size::fit(), height: Size::Fixed(self.line_height), ..Walk::default() };
+        let centred = Align { x: 0.0, y: 0.5 };
+        let row = Layout { flow: Flow::right_wrap(), ..Layout::default() };
         for line in &self.lines {
             cx.begin_turtle(Walk::fill_fit(), row);
             if line.is_empty() {
                 self.draw_text.color = plain;
-                self.draw_text.draw_walk(cx, Walk::fit(), Align::default(), " ");
+                self.draw_text.draw_walk(cx, run_walk, centred, " ");
             }
             for (color, run) in line {
                 self.draw_text.color = *color;
-                self.draw_text.draw_walk(cx, Walk::fit(), Align::default(), run);
+                self.draw_text.draw_walk(cx, run_walk, centred, run);
             }
             cx.end_turtle();
         }
@@ -214,6 +230,21 @@ impl Widget for A7CodeLines {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_wrapped_row_never_starts_with_a_space() {
+        let c = hex("#000000ff");
+        let row = vec![
+            (c, "    ".to_owned()),
+            (c, "fn".to_owned()),
+            (c, " ".to_owned()),
+            (c, "flush".to_owned()),
+            (c, " -> ".to_owned()),
+            (c, "usize".to_owned()),
+        ];
+        let t: Vec<String> = tidy(row).into_iter().map(|(_, s)| s).collect();
+        assert_eq!(t, ["    ", "fn ", "flush ", "-> ", "usize"], "indentation kept; spaces end runs");
+    }
 
     #[test]
     fn long_runs_wrap_at_their_spaces_and_colours_parse() {

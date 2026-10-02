@@ -177,9 +177,15 @@ def check(name, ok, detail=""):
 
 
 def grab(state):
+    """Save the window PNG and its /snap (input values stripped: a
+    TextInput's raw value is never written) for the numeric UX checks."""
     if not OUT:
         return
     os.makedirs(OUT, exist_ok=True)
+    sn = json.loads(get("/snap?all=1"))
+    for w in sn.get("s", []):
+        w.pop("val", None)
+    json.dump(sn, open(os.path.join(OUT, f"{MODE}-{state}.json"), "w"))
     for _ in range(6):
         data = get("/g?raw=1", timeout=60)
         if data[:4] == b"\x89PNG":
