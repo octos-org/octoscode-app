@@ -1363,6 +1363,14 @@ async fn main() {
     }
     let fleet_cold = args.iter().any(|a| a == "--fleet-cold");
     let revoke_file = args.iter().position(|a| a == "--revoke-file").and_then(|i| args.get(i + 1)).cloned();
+    // A16: `--fail-scoped-list N` — the first N session-scoped
+    // `profile/llm/list` reads (per connection) answer an error.
+    let fail_scoped_list: u64 = args
+        .iter()
+        .position(|a| a == "--fail-scoped-list")
+        .and_then(|i| args.get(i + 1))
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0);
     let first_turn: usize = args
         .iter()
         .position(|a| a == "--first-turn")
@@ -1442,6 +1450,8 @@ async fn main() {
             });
             // A10: how many sequenced replies each method has consumed.
             let mut seq_pos: BTreeMap<String, usize> = BTreeMap::new();
+            // A16: the injected session-scoped list failures still to answer.
+            let mut fail_scoped_list = fail_scoped_list;
             // A6 `surfaces`: the web's delivered-file download
             // (`GET /api/files?path=…&session=…`, `media.ts:147-165`) is plain
             // HTTP on the same port; answer it with a small PDF body.
@@ -1881,6 +1891,16 @@ async fn main() {
                     "profile/llm/list" if seat_sim.is_some() => {
                         let sim = seat_sim.as_mut().expect("a10");
                         let scoped = v["params"].get("session_id").is_some();
+                        // A16: `--fail-scoped-list <n>` answers the first n
+                        // session-scoped reads with an error (the Session
+                        // settings pane's unread state, then its Try again).
+                        if scoped && fail_scoped_list > 0 {
+                            fail_scoped_list -= 1;
+                            println!("[replay-serve] -> profile/llm/list (session-scoped: injected ERROR, {fail_scoped_list} left)");
+                            send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id,
+                                "error": {"code": -32000, "message": "profile store unavailable"}})).await;
+                            continue;
+                        }
                         let m = if scoped { "profile/llm/list" } else { "profile/llm/list@profile" };
                         let r = sim.answer(m, &v["params"], &active_session).unwrap_or_default();
                         println!("[replay-serve] -> profile/llm/list (seat simulator, {})", if scoped { "session-scoped" } else { "profile config" });

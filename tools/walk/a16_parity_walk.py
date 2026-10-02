@@ -11,6 +11,8 @@ Walks:
                in flight (replay --slow profile/skills/install) locks the
                Research lanes opened from the palette; the lock lifts when
                the install lands.
+  unread       (row 280) — the pane's model read fails (replay --fail-scoped-list 1):
+               an error with Try again, never "no models"; Try again lists.
   readonly     (row 280) — the server lists the models but offers no
                profile/llm/select: the rows read-only, a CLICK routes nothing.
   restart      (rows 272/280, web profileDefaultNeedsRestart +
@@ -25,7 +27,7 @@ Walks:
                here on the replay port.
 
 usage: OCTOSCODE_APP_BIN=<host octosense> A10_PORT=<app port> A10_REPLAY_PORT=<server port> \\
-         a16_parity_walk.py <profile-ext|restart|readonly|sidebar> <desktop|phone> [outdir]
+         a16_parity_walk.py <profile-ext|restart|readonly|unread|sidebar> <desktop|phone> [outdir]
 """
 import json
 import os
@@ -248,6 +250,37 @@ def readonly(W: Walk) -> None:
     W.check("pane: closed", close_pane(W))
 
 
+def unread(W: Walk) -> None:
+    """The pane's model read fails (replay --fail-scoped-list 1): the list
+    is UNREAD — an error with Try again, never 'No models are available.' —
+    and Try again re-reads it."""
+    W.note("== 1. the strip CLICK opens Session settings: the model read fails")
+    time.sleep(0.4)
+    ok = W.click("b3_strip_tap") and W.wait(lambda: bool(W.visible("b3_sc_model_title")), 8)
+    W.check("pane: strip CLICK -> 'Session settings' with the Model card", ok)
+    W.check("pane: the failed read is an error — 'Couldn't load the models.' + the server's cause",
+            W.wait(lambda: W.text("b3_sc_models_error") == "Couldn't load the models.", 8)
+            and "profile store unavailable" in W.text("b3_sc_models_error_detail"),
+            f"{W.text('b3_sc_models_error')!r} / {W.text('b3_sc_models_error_detail')!r}")
+    W.check("pane: unread is never 'no models' (no empty line, no rows)",
+            not W.visible("b3_sc_models_empty") and not W.visible("b3_sc_model_0_title"))
+    W.check("pane: 'Try again' is offered (>= 28 px)", bool(W.rect("b3_sc_models_retry_box"))
+            and W.rect("b3_sc_models_retry_box")[3] >= 28, str(W.rect("b3_sc_models_retry_box")))
+    pane_numeric(W, "unread list")
+    W.shot(f"01-pane-unread-{MODE}")
+    W.note("== 2. Try again CLICK re-reads: the list")
+    W.check("pane: 'Try again' CLICK -> the models are listed, the error gone",
+            W.click("b3_sc_models_retry") and W.wait(lambda: bool(W.visible("b3_sc_model_0_title")), 10)
+            and not W.visible("b3_sc_models_error"))
+    W.shot(f"02-pane-retried-{MODE}")
+    lines = W.replay_log.read_text().splitlines() if W.replay_log and W.replay_log.exists() else []
+    failed = sum(1 for l in lines if "-> profile/llm/list (session-scoped: injected ERROR" in l)
+    served = sum(1 for l in lines if "-> profile/llm/list (seat simulator, session-scoped)" in l)
+    W.check("wire: the pane's session-scoped read failed once, the retry was answered",
+            failed == 1 and served >= 1, f"failed={failed} served={served}")
+    W.check("pane: closed", close_pane(W))
+
+
 # ---------------------------------------------------------------- sidebar
 
 A8_TITLES = ["Fix steer queue drop on reconnect", "Add session fork", "Review PR #2566",
@@ -407,6 +440,9 @@ if __name__ == "__main__":
     if WHICH == "readonly":
         sys.exit(run_session(readonly, mode=MODE, outdir=OUT, scenario="a10",
                              replay_args=["--drop-method", "profile/llm/select"]))
+    if WHICH == "unread":
+        sys.exit(run_session(unread, mode=MODE, outdir=OUT, scenario="a10",
+                             replay_args=["--fail-scoped-list", "1"]))
     if WHICH == "sidebar":
         sys.exit(run_sidebar())
     raise SystemExit(f"unknown walk {WHICH!r}")
