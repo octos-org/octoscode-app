@@ -331,22 +331,27 @@ def phase_migrate(w: a10_lib.Walk, tr: str, prompt: str) -> None:
 CHROME_PREFIXES = ("hd_", "sb_", "sg_", "b3_strip", "i0_composer", "composer_", "empty_", "set_", "history_")
 
 
-def transcript_scrolled(w: a10_lib.Walk, top_shot: str | None = None, steps: int = 60) -> set[str]:
+def transcript_scrolled(w: a10_lib.Walk, top_shot: str | None = None, steps: int = 400) -> set[str]:
     """tools/judge/live_smoke.py's transcript_scrolled: every transcript text
     from the bottom to the top of the conversation (the list lays out only
     the rows in view), then back to the bottom. Chrome texts are left out.
-    `top_shot`: a capture once the top is reached."""
+    `top_shot`: a capture once the top is reached. The top is where SIX
+    scroll steps in a row change nothing in view: the instrument clips each
+    rect to the viewport, so at phone width one paragraph taller than the
+    view reads the same for two or three steps, which the judge's two-step
+    test took for the top (measured: it stopped mid-answer)."""
     conv = w.composer()
     x = (conv["r"][0] + conv["r"][2] / 2) if conv else 600
     y = max(150, (conv["r"][1] - 220) if conv else 300)
     seen, quiet, last = set(), 0, None
     for _ in range(steps):
-        now = {(x_.get("t") or "") for x_ in w.snap()
-               if w.shown(x_) and (x_.get("t") or "").strip()
-               and not str(x_.get("i", "")).startswith(CHROME_PREFIXES)}
-        seen |= now
+        rows = [x_ for x_ in w.snap()
+                if w.shown(x_) and (x_.get("t") or "").strip()
+                and not str(x_.get("i", "")).startswith(CHROME_PREFIXES)]
+        seen |= {x_.get("t") or "" for x_ in rows}
+        now = {(x_.get("t") or "", round(x_["r"][1])) for x_ in rows}
         quiet = quiet + 1 if now == last else 0
-        if quiet >= 2:
+        if quiet >= 6:
             break
         last = now
         w.get(f"/m?k=scroll&x={x}&y={y}&dy=-350&wait=1")
@@ -367,6 +372,28 @@ def phase_upgrade(w: a10_lib.Walk, tr: str, prompt: str) -> None:
     # The Session's distinct user prompts (a JSON list), read from its copied
     # transcript by the caller.
     expected = json.loads(pathlib.Path(os.environ["A19_EXPECT_FILE"]).read_text()) if os.environ.get("A19_EXPECT_FILE") else []
+    # From the first frame the instrument serves until the history is on
+    # screen: the empty welcome (an empty timeline) must never show over this
+    # Session — only "Loading conversation…" while its history is read.
+    welcome = loading = frames_seen = 0
+    texts: list[str] = []
+    end = time.time() + 60
+    while time.time() < end:
+        try:
+            sn = w.snap()
+        except Exception:
+            time.sleep(0.1)
+            continue
+        frames_seen += 1
+        welcome += bool(w.visible("empty_title", sn))
+        loading += bool(w.visible("history_title", sn))
+        texts = [x.get("t") for x in sn if w.shown(x) and (x.get("t") or "").strip()
+                 and not str(x.get("i", "")).startswith(CHROME_PREFIXES)]
+        if texts:
+            break
+        time.sleep(0.1)
+    w.check("never the empty welcome over the Session, sampled from the first frame until its history showed",
+            welcome == 0 and bool(texts), f"{frames_seen} frames: {welcome} welcome, {loading} loading")
     w.check("the first launch after the upgrade lands in a Session", wait_live(w, 60))
     rows = trace(tr)
     opens = frames(rows, "out", "session/open")
@@ -381,6 +408,17 @@ def phase_upgrade(w: a10_lib.Walk, tr: str, prompt: str) -> None:
     w.check("wire: no launch/resolve, nothing created",
             not frames(rows, "out", "launch/resolve") and not frames(rows, "out", "profile/local/create"))
     w.check("wire: no history read refused", not refused, scrub(json.dumps(refused[:2])))
+    # The app log (the instrument's /log): the previous build's profile was
+    # resolved BEFORE the socket, so the connection carried it (Core finds
+    # `<profile>:main` only through the connection's X-Profile-Id).
+    try:
+        log = [scrub(l.split(" - ", 1)[-1]) for l in json.loads(w.get("/log?n=800")).get("l", [])]
+    except Exception:
+        log = []
+    resolved = [l for l in log if "migration: the previous build's profile is" in l]
+    w.check("the migration's profile was resolved before the socket (the connection carries it)", bool(resolved),
+            "; ".join(resolved[:1]))
+    w.note("app log: " + " | ".join(l for l in log if "[octoscode] migration" in l or "history" in l)[:600])
     w.check("no loading or failure state left on screen", w.wait(lambda: not w.visible("history_title"), 20))
     time.sleep(1.0)
     shot(w, f"01-first-launch-{w.mode}")
@@ -417,6 +455,101 @@ def phase_upgrade(w: a10_lib.Walk, tr: str, prompt: str) -> None:
         shot(w, f"03-next-prompt-{w.mode}")
 
 
+def open_sidebar(w: a10_lib.Walk) -> None:
+    """The phone's sidebar is a drawer: open it when its rows are hidden."""
+    if w.mode == "phone" and not w.visible("sb_add_hit"):
+        w.wait(lambda: w.click("sidebar_toggle_hit") and w.wait_shown("sb_add_hit", 3), 12)
+
+
+def phase_sidebar(w: a10_lib.Walk, tr: str, _prompt: str) -> None:
+    """A19b — the retry, live: a Session whose id does not name its profile
+    (`dsflash:main`) opened from the sidebar on a connection that does not
+    carry its profile (a fresh launch: no profile id; launch/resolve decided).
+    Core answers its history "unknown session" (measured); the retry finds
+    its folder (the per-workspace catalog), re-dials CARRYING the Session's
+    profile, the re-dial re-opens it in that folder, and the history shows —
+    "Loading conversation…" meanwhile, never the empty welcome."""
+    expected = json.loads(pathlib.Path(os.environ["A19_EXPECT_FILE"]).read_text()) if os.environ.get("A19_EXPECT_FILE") else []
+    want = os.environ.get("A19_EXPECT_SESSION", "")
+    title = os.environ.get("A19_EXPECT_TITLE", "")
+    folder = os.environ.get("A19_FOLDER", "ws")
+    w.check("the fresh launch is live", wait_live(w, 60))
+    w.check("wire: a fresh launch (launch/resolve, no profile id)",
+            any("profile_id" not in p for p in frames(trace(tr), "out", "launch/resolve")))
+    # + Add workspace: the folder browser over the serve's folder -> pick the
+    # Session's folder -> Use this folder (A2 board 1's p4-08 flow).
+    open_sidebar(w)
+    w.check("+ Add workspace opens the folder browser",
+            w.wait(lambda: w.click("sb_add_hit") and w.wait_shown("b1_br_row_t0", 4), 20))
+    idx = next((int(str(x["i"])[len("b1_br_row_t"):]) for x in w.snap()
+                if str(x.get("i", "")).startswith("b1_br_row_t") and (x.get("t") or "") == folder and w.shown(x)), None)
+    if not w.check(f"the browser lists {folder!r}", idx is not None):
+        return
+    w.click(f"b1_br_row_{idx}")
+    w.check("picking it fills the path box", w.wait(lambda: w.text("b1_br_path").endswith("/" + folder), 6))
+    w.click("b1_br_use")
+    w.check("Use this folder closes the browser", w.wait_shown("b1_title", 10, gone=True))
+
+    def row() -> dict | None:
+        open_sidebar(w)
+        return next((x for x in w.snap() if x.get("i") == "sb_r_title" and w.shown(x)
+                     and (x.get("t") or "").startswith(title)), None)
+
+    w.check("the sidebar lists the Session (the folder's catalog)", w.wait(lambda: row() is not None, 20))
+    r = row()
+    if r is None:
+        return
+    n_err = len(frames(trace(tr), "in", "error:session/hydrate"))
+    n_open = len(frames(trace(tr), "out", "session/open"))
+    x, y, rw, rh = r["r"]
+    w.note(f"CLICK the {title!r} row")
+    w.click_xy(x + rw / 2, y + rh / 2)
+    # From the click until its history is on screen: never the welcome.
+    welcome = loading = n = 0
+    end = time.time() + 60
+    while time.time() < end:
+        try:
+            sn = w.snap()
+        except Exception:
+            time.sleep(0.1)
+            continue
+        n += 1
+        welcome += bool(w.visible("empty_title", sn))
+        loading += bool(w.visible("history_title", sn))
+        if any("_userbubble_" in str(x_.get("i", "")) and w.shown(x_) for x_ in sn):
+            break
+        time.sleep(0.1)
+    w.check("never the empty welcome over it, sampled from the click until its history showed",
+            welcome == 0 and n > 0, f"{n} frames: {welcome} welcome, {loading} loading")
+    rows = trace(tr)
+    opens = [o for o in frames(rows, "out", "session/open")[n_open:] if o.get("session_id") == want]
+    refused = frames(rows, "in", "error:session/hydrate")[n_err:]
+    w.check("wire: the open carries the Session's folder",
+            bool(opens) and str(opens[0].get("cwd") or "").endswith("/" + folder), scrub(json.dumps(opens[:1])))
+    w.check("wire: Core refused the history on the connection without its profile ('unknown session')",
+            any(e.get("code") == -32100 for e in refused), json.dumps(refused[:1]))
+    reopen = [o for o in opens if o.get("reconnect")]
+    w.check("wire: the retry re-dialed and re-opened it in its folder",
+            bool(reopen) and str(reopen[-1].get("cwd") or "").endswith("/" + folder), scrub(json.dumps(reopen[-1:])))
+    w.check("wire: then its history read answered",
+            any(h.get("session_id") == want for h in frames(rows, "in", "session/hydrate")))
+    try:
+        log = [scrub(l.split(" - ", 1)[-1]) for l in json.loads(w.get("/log?n=800")).get("l", [])]
+    except Exception:
+        log = []
+    redial = [l for l in log if "history retry" in l and "re-dialing as" in l]
+    w.check("the app re-dialed carrying the Session's profile", bool(redial), "; ".join(redial[:1]))
+    w.check("no loading or failure state left on screen", w.wait(lambda: not w.visible("history_title"), 20))
+    time.sleep(1.0)
+    shot(w, f"01-sidebar-history-{w.mode}")
+    seen = transcript_scrolled(w, top_shot=f"02-sidebar-history-top-{w.mode}")
+    text = "\n".join(seen)
+    missing = [e for e in expected if e[:70] not in text]
+    w.check(f"the full history by scrolling: all {len(expected)} distinct prompts of the Session",
+            bool(expected) and not missing, f"missing {missing}")
+    w.note(f"scroll-read {len(seen)} distinct transcript texts")
+
+
 PHASES = {
     "fresh": phase_fresh,
     "session": phase_session,
@@ -424,6 +557,7 @@ PHASES = {
     "restore-turn": phase_restore_turn,
     "migrate": phase_migrate,
     "upgrade": phase_upgrade,
+    "sidebar": phase_sidebar,
 }
 
 

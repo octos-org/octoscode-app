@@ -2142,7 +2142,8 @@ impl Conversation {
             after: None,
             client_commands: None,
         };
-        self.frames.out("session/open", &serde_json::json!({"session_id": session, "reconnect": true}));
+        self.frames
+            .out("session/open", &serde_json::json!({"session_id": session, "reconnect": true, "cwd": params.cwd}));
         match self.cmd_tx.try_send(OutboundCommand::OpenSession(params)) {
             Ok(()) => {
                 ::log::info!("octoscode: reconnect — re-opened {session} (generation {})", self.generation());
