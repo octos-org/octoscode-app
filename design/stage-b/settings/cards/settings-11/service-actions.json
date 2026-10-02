@@ -1,0 +1,36 @@
+{
+  "frame_id": 11,
+  "controls": {
+    "think_off": {
+      "event": "settings.thinking.off",
+      "source_bounds": [
+        170,
+        348,
+        62,
+        44
+      ],
+      "enabled": true
+    },
+    "think_on": {
+      "event": "settings.thinking.on",
+      "source_bounds": [
+        236,
+        348,
+        62,
+        44
+      ],
+      "enabled": true
+    },
+    "think_high": {
+      "event": "settings.thinking.high",
+      "source_bounds": [
+        298,
+        348,
+        62,
+        44
+      ],
+      "enabled": true
+    }
+  },
+  "source": "authored from the approved stage-a board-2 atlas (operator 2026-10-01) + Apple Vision OCR"
+}

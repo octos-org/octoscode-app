@@ -33,6 +33,8 @@ use octoscode_store::Store;
 pub mod actions;
 pub mod bindings;
 pub mod cards;
+// A3: the board-2 chrome (sidebar body, header, Settings, Stop confirm).
+pub mod chrome;
 pub mod components;
 pub mod design;
 pub mod fallback;
@@ -51,6 +53,7 @@ use screen::Cache as ScreenCache;
 /// A5 — the dialog's wired action ids (a bare alias: the `Script` derive's
 /// field parser takes one ident + generics, not a `::` path).
 type DialogEvents = std::collections::HashSet<String>;
+use chrome::ChromeRuntime;
 
 /// #P4h1 row 306 — install the recents store and purge the legacy v1 cache at
 /// startup (the web's App.tsx:1019-1023). This is the production caller that
@@ -103,7 +106,8 @@ script_mod! {
         // the window edge (#F7F7F8, 260 px) and the review drawer is flush
         // right; each column carries its own inset.
         padding: 0
-        flow: Down spacing: 10
+        // A3: no gap — the conversation header bar is the window's top edge.
+        flow: Down spacing: 0
         // Card #21c item 7: the debug header is GONE from the visible UI. The
         // connection state / session count stay as 1px labels so `/g` still
         // carries them and `sync_labels` keeps a target (board: "connection
@@ -125,253 +129,14 @@ script_mod! {
         // is not clipped.
         columns := View {
             width: Fill height: Fill
-            flow: Right spacing: 10
+            flow: Right spacing: 0
 
-            threads_column := View {
-                width: 260 height: Fill flow: Down spacing: 6
-                // Card #28e item 1 (board 4): the sidebar is flush with the
-                // window edge on #F7F7F8 (the base no longer pads it).
-                draw_bg.color: theme.color_bg_odd
-                padding: Inset{left: 12 right: 10 top: 12 bottom: 12}
-                // Card #28e item 1 (board 4): the sidebar is 260 px with an
-                // `OctosCode ▾` header above `New chat`, then THREADS, then the
-                // autonomy sections (GOALS / LOOPS / FLEET) — native shell rows
-                // for now, L0 components only where one exists (thread-row,
-                // new-chat).
-                // #28e2 item 1: "▾" rendered as tofu (Inter lacks the glyph);
-                // the chevron is the kit's own SVG asset now.
-                sidebar_header := View {
-                    width: Fill height: Fit flow: Right spacing: 4
-                    Label {
-                        width: Fit height: Fit text: "OctosCode"
-                        draw_text.text_style.font_size: 13
-                        draw_text.color: theme.color_fg_app
-                    }
-                    Svg {
-                        width: 10 height: 10
-                        animating: false
-                        draw_svg.svg: file_resource(#(crate::design::icon_resource("chevron_down.svg")))
-                        draw_svg.preserve_viewbox: true
-                    }
-                    // #40b — the closed-state openers. The review toggle hit
-                    // and the settings close both live INSIDE their overlays,
-                    // so in the closed state there was no laid-out control to
-                    // open them (#40a: the toggle's rect was [0,0,0,0] and the
-                    // click died — the audit's dead-review-toggle row). The
-                    // sidebar header is always mounted; these two text
-                    // buttons are the always-laid-out entry points (the
-                    // in-panel pill / close still toggle back).
-                    review_open_hit := Button {
-                        width: Fit height: Fit text: "Review"
-                        draw_text.text_style.font_size: 11
-                        draw_text.color: theme.color_text_muted
-                        draw_bg.color: #00000000
-                        draw_bg.color_hover: #00000010
-                        draw_bg.color_down: #00000020
-                        draw_bg.border_size: 0.0
-                        draw_bg.color_2: #00000000
-                        draw_bg.border_color: #00000000
-                        draw_bg.border_color_2: #00000000
-                    }
-                    settings_open_hit := Button {
-                        width: Fit height: Fit text: "Settings"
-                        draw_text.text_style.font_size: 11
-                        draw_text.color: theme.color_text_muted
-                        draw_bg.color: #00000000
-                        draw_bg.color_hover: #00000010
-                        draw_bg.color_down: #00000020
-                        draw_bg.border_size: 0.0
-                        draw_bg.color_2: #00000000
-                        draw_bg.border_color: #00000000
-                        draw_bg.border_color_2: #00000000
-                    }
-                }
-                // Card #21c item 7: `New chat` is #16's own `new-chat` component
-                // at the top of the thread column (scene 01). A transparent hit
-                // target overlays it so the HOST routes `session.new` — the
-                // component's own button lives in the Splash isolate and never
-                // reports to the host (the `row_hit` pattern, below).
-                new_chat_row := View {
-                    width: Fill height: Fit flow: Overlay
-                    // Card #21g item 3: the #16 `new-chat` card ran flush to the
-                    // thread column's right edge, while the thread rows below it
-                    // stop short of that edge (the list reserves its scrollbar).
-                    // Give the card the same right inset so the two align.
-                    margin: Inset{left: 0 top: 0 right: 13 bottom: 0}
-                    // Card #21e item 2: the #16 `new-chat` component's artboard is
-                    // 374x76 (scene-01 `mapped.json`); a fixed 44px slot clipped its
-                    // bottom edge flat under the label. `Fit` takes the component's
-                    // own measured height (the same idiom `thread_splash` uses).
-                    new_chat_splash := Splash { width: Fill height: Fit }
-                    new_chat_hit := Button {
-                        width: Fill height: Fill text: ""
-                        draw_bg.color: #00000000
-                        draw_bg.color_hover: #00000010
-                        draw_bg.color_down: #00000020
-                        draw_bg.border_size: 0.0
-                        draw_bg.color_2: #00000000
-                        draw_bg.border_color: #00000000
-                        draw_bg.border_color_2: #00000000
-                    }
-                }
-                // Card #28e item 1: the autonomy sections — GOALS / LOOPS / FLEET
-                // — appear only when the session has them (board 4 frame 3).
-                // Native shell rows (no #16 component exists for these yet); the
-                // section label is small grey caps, each row 32 px.
-                autonomy_sections := View {
-                    width: Fill height: Fit flow: Down spacing: 4 visible: false
-                    Label {
-                        width: Fill height: Fit text: "GOALS"
-                        draw_text.text_style.font_size: 10
-                        draw_text.color: theme.color_text_muted
-                    }
-                    goals_list := View {
-                        width: Fill height: Fit flow: Down spacing: 2
-                        // #28e2 item 3: the goal row carries the board's
-                        // progress ring; rows ellipsize with "…" instead of
-                        // clipping mid-word.
-                        goal_wrap_1 := View {
-                            width: Fill height: 32 flow: Right spacing: 6
-                            goal_ring := Svg {
-                                width: 14 height: 14
-                                animating: false
-                                draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_ring.svg")))
-                                draw_svg.preserve_viewbox: true
-                            }
-                            goal_row_1 := Label {
-                                width: Fill height: Fit text: ""
-                                draw_text.text_style.font_size: 13
-                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                             draw_text.color: theme.color_fg_app}
-                        }
-                        goal_row_2 := Label {
-                            width: Fill height: 32 text: ""
-                            draw_text.text_style.font_size: 13
-                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                         draw_text.color: theme.color_fg_app}
-                    }
-                    Label {
-                        width: Fill height: Fit text: "LOOPS"
-                        draw_text.text_style.font_size: 10
-                        draw_text.color: theme.color_text_muted
-                    }
-                    loops_list := View {
-                        width: Fill height: Fit flow: Down spacing: 2
-                        loop_row_1 := Label {
-                            width: Fill height: 32 text: ""
-                            draw_text.text_style.font_size: 13
-                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                         draw_text.color: theme.color_fg_app}
-                        loop_row_2 := Label {
-                            width: Fill height: 32 text: ""
-                            draw_text.text_style.font_size: 13
-                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                         draw_text.color: theme.color_fg_app}
-                    }
-                    Label {
-                        width: Fill height: Fit text: "FLEET"
-                        draw_text.text_style.font_size: 10
-                        draw_text.color: theme.color_text_muted
-                    }
-                    fleet_list := View {
-                        width: Fill height: Fit flow: Down spacing: 2
-                        // #28e3 item 2: every fleet row reserves the SAME
-                        // 14px status slot, so all rows share one text inset
-                        // (the #28e2 dots collapsed when hidden and pushed
-                        // only the Blocked row's text). The dot itself is a
-                        // RoundedView — a plain View never paints draw_bg —
-                        // and sync_labels shows it on the Blocked row only.
-                        fleet_wrap_1 := View {
-                            width: Fill height: 32 flow: Right spacing: 6
-                            fleet_slot_1 := View {
-                                width: 14 height: 14 flow: Overlay
-                                fleet_dot_1 := RoundedView {
-                                    width: 8 height: 8
-                                    margin: Inset{left: 3 top: 3}
-                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
-                                    visible: false
-                                }
-                            }
-                            fleet_row_1 := Label {
-                                width: Fill height: Fit text: ""
-                                draw_text.text_style.font_size: 13
-                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                             draw_text.color: theme.color_fg_app}
-                        }
-                        fleet_wrap_2 := View {
-                            width: Fill height: 32 flow: Right spacing: 6
-                            fleet_slot_2 := View {
-                                width: 14 height: 14 flow: Overlay
-                                fleet_dot_2 := RoundedView {
-                                    width: 8 height: 8
-                                    margin: Inset{left: 3 top: 3}
-                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
-                                    visible: false
-                                }
-                            }
-                            fleet_row_2 := Label {
-                                width: Fill height: Fit text: ""
-                                draw_text.text_style.font_size: 13
-                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                             draw_text.color: theme.color_fg_app}
-                        }
-                        fleet_wrap_3 := View {
-                            width: Fill height: 32 flow: Right spacing: 6
-                            fleet_slot_3 := View {
-                                width: 14 height: 14 flow: Overlay
-                                fleet_dot_3 := RoundedView {
-                                    width: 8 height: 8
-                                    margin: Inset{left: 3 top: 3}
-                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
-                                    visible: false
-                                }
-                            }
-                            fleet_row_3 := Label {
-                                width: Fill height: Fit text: ""
-                                draw_text.text_style.font_size: 13
-                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                             draw_text.color: theme.color_fg_app}
-                        }
-                    }
-                }
-                // Card #21c item 6: one #16 `thread-row` per session (selected
-                // state, ellipsized title) — the component draws its own label,
-                // so no native title Label sits under it. A transparent `row_hit`
-                // routes the click with the item id (`thread.open`).
-                // Card #28e item 1: the THREADS section label (small grey caps)
-                // above the list.
-                Label {
-                    width: Fill height: Fit text: "THREADS"
-                    draw_text.text_style.font_size: 10
-                    draw_text.color: theme.color_text_muted
-                }
-                thread_list := PortalList {
-                    width: Fill height: Fill flow: Down drag_scrolling: true
-                    // Card #21g item 3: the rows must share the New chat card's
-                    // right inset so the two align (the atlas insets the card and
-                    // the selected row to one right edge).
-                    margin: Inset{left: 0 top: 0 right: 13 bottom: 0}
-                    ThreadRowTpl := View {
-                        width: Fill height: Fit flow: Overlay
-                        thread_splash := Splash { width: Fill height: Fit }
-                        row_hit := Button {
-                            width: Fill height: Fill text: ""
-                            draw_bg.color: #00000000
-                            draw_bg.color_hover: #00000012
-                            draw_bg.color_down: #00000022
-                            draw_bg.border_size: 0.0
-                            draw_bg.color_2: #00000000
-                            draw_bg.border_color: #00000000
-                            draw_bg.border_color_2: #00000000
-                        }
-                    }
-                }
-            }
-            // Card #28e item 1 (board 4): the 1 px hairline between the
-            // sidebar and the conversation column.
-            sidebar_rule := View {
-                width: 1 height: Fill
-                draw_bg.color: theme.color_outset_1
+            // A3 (board 2): the sidebar paints in `sidebar_dock` (a left
+            // overlay, below) so the SAME widget is the desktop column AND
+            // the phone drawer; at >= 760 px this spacer reserves its room
+            // (280 + the 1 px rule), the web's 280 px `.root`.
+            sidebar_spacer := View {
+                width: 281 height: Fill
             }
 
             conversation_column := View {
@@ -380,6 +145,11 @@ script_mod! {
                 // with a max width of 720 px. `align.x: 0.5` centers the
                 // `max_width: 720` child inside the Fill column.
                 align: Align{x: 0.5 y: 0.0}
+                // A3: the conversation header (the web's 52 px
+                // `.conversation-header`): menu trigger (compact), title,
+                // Review + Settings — plus the held banner and the new-chat
+                // defaults strip under it (board 2 screens 10/12).
+                oc_header := mod.widgets.OcHeaderBar {}
                 conversation_inner := View {
                     width: Fill height: Fill flow: Down spacing: 6
                     max_width: 720
@@ -561,36 +331,189 @@ script_mod! {
 
         } // base
 
-        // #31a: below 760 px the sidebar hides (Codex-style); this
-        // top-left hit brings it back OVER the content. The wrapper is
-        // Overlay so only the 36x36 button takes clicks; sync_chrome
-        // shows it only while the sidebar is hidden by WIDTH (a user
-        // toggle keeps it visible even at this size).
-        sidebar_toggle := View {
-            width: Fill height: Fill
-            flow: Overlay
+        // A3 (board 2 screen 5): the compact drawer's scrim — the web's
+        // NavigationSurface backdrop (closeOnBackdrop). Shown only while the
+        // drawer is open below 760 px; a tap closes it.
+        drawer_scrim := View {
+            width: Fill height: Fill flow: Overlay
             visible: false
-            sidebar_toggle_wrap := View {
-                width: 36 height: 36
-                margin: Inset{left: 8 top: 8}
-                flow: Overlay
-                menu_icon := Svg {
-                    width: 16 height: 16
-                    align: Align{x: 0.5 y: 0.5}
-                    animating: false
-                    draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_menu.svg")))
-                    draw_svg.preserve_viewbox: true
+            SolidView { width: Fill height: Fill draw_bg.color: #1D1D1F59 }
+            drawer_scrim_hit := mod.widgets.OcBackdrop {}
+        }
+        // A3 (board 2 screens 1-5): the product sidebar. One widget, two
+        // seats: at >= 760 px a 280 px column over `sidebar_spacer`; below,
+        // the drawer (min(320, w - 48), the web's `.drawer`) over the scrim.
+        sidebar_dock := View {
+            width: Fit height: Fill flow: Right
+            visible: false
+            threads_column := RoundedView {
+                width: 280 height: Fill flow: Down spacing: 0
+                padding: Inset{left: 10 right: 10 top: 6 bottom: 8}
+                draw_bg +: {color: theme.color_bg_app border_radius: 1.0}
+                // The brand row (the board's "OctosCode"); the drawer adds
+                // its close button on the right.
+                sidebar_header := View {
+                    width: Fill height: 46 flow: Right align: Align{y: 0.5}
+                    padding: Inset{left: 8}
+                    Label {
+                        width: Fill height: Fit text: "OctosCode" padding: 0
+                        draw_text.text_style: theme.oc_text_brand
+                        draw_text.color: theme.color_fg_app
+                    }
+                    // Desktop: collapse to the rail (the web's sidebar
+                    // toggle, ProductSidebar.tsx:532).
+                    sidebar_collapse_slot := View {
+                        width: 32 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        Svg {
+                            width: 17 height: 17
+                            animating: false
+                            draw_svg.svg: file_resource(#(crate::chrome::icon("panel_muted")))
+                            draw_svg.preserve_viewbox: true
+                        }
+                        sidebar_collapse := mod.widgets.OcHitRound {}
+                    }
+                    drawer_close_slot := View {
+                        width: 32 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        visible: false
+                        Svg {
+                            width: 16 height: 16
+                            animating: false
+                            draw_svg.svg: file_resource(#(crate::chrome::icon("x_fg")))
+                            draw_svg.preserve_viewbox: true
+                        }
+                        drawer_close := mod.widgets.OcHitRound {}
+                    }
                 }
-                sidebar_toggle_hit := Button {
-                    width: Fill height: Fill text: ""
-                    draw_bg.color: #00000000
-                    draw_bg.color_hover: #00000010
-                    draw_bg.color_down: #00000020
-                    draw_bg.border_size: 0.0
-                    draw_bg.color_2: #00000000
-                    draw_bg.border_color: #00000000
-                    draw_bg.border_color_2: #00000000
+                // The collapsed rail (desktop): chrome.rs `OcSidebarRail`.
+                oc_sidebar_rail := mod.widgets.OcSidebarRail { visible: false }
+                // New chat, Search chats, By workspace | All + Recent, and
+                // the tree (`thread_list`): chrome.rs `OcSidebarBody`.
+                oc_sidebar_body := mod.widgets.OcSidebarBody {}
+                // Card #28e item 1: GOALS / LOOPS / FLEET appear only when the
+                // session has them (board 4 frame 3), above the footer.
+                autonomy_sections := View {
+                    width: Fill height: Fit flow: Down spacing: 4 visible: false
+                    Label {
+                        width: Fill height: Fit text: "GOALS"
+                        draw_text.text_style: theme.oc_text_caps
+                        draw_text.color: theme.color_text_muted
+                    }
+                    goals_list := View {
+                        width: Fill height: Fit flow: Down spacing: 2
+                        // #28e2 item 3: the goal row carries the board's
+                        // progress ring; rows ellipsize with "…" instead of
+                        // clipping mid-word.
+                        goal_wrap_1 := View {
+                            width: Fill height: 28 flow: Right spacing: 6 align: Align{y: 0.5}
+                            goal_ring := Svg {
+                                width: 14 height: 14
+                                animating: false
+                                draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_ring.svg")))
+                                draw_svg.preserve_viewbox: true
+                            }
+                            goal_row_1 := Label {
+                                width: Fill height: Fit text: ""
+                                draw_text.text_style: theme.oc_text_row
+                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                             draw_text.color: theme.color_fg_app}
+                        }
+                        goal_row_2 := Label {
+                            width: Fill height: 28 text: ""
+                            draw_text.text_style: theme.oc_text_row
+                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                         draw_text.color: theme.color_fg_app}
+                    }
+                    Label {
+                        width: Fill height: Fit text: "LOOPS"
+                        draw_text.text_style: theme.oc_text_caps
+                        draw_text.color: theme.color_text_muted
+                    }
+                    loops_list := View {
+                        width: Fill height: Fit flow: Down spacing: 2
+                        loop_row_1 := Label {
+                            width: Fill height: 28 text: ""
+                            draw_text.text_style: theme.oc_text_row
+                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                         draw_text.color: theme.color_fg_app}
+                        loop_row_2 := Label {
+                            width: Fill height: 28 text: ""
+                            draw_text.text_style: theme.oc_text_row
+                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                         draw_text.color: theme.color_fg_app}
+                    }
+                    Label {
+                        width: Fill height: Fit text: "FLEET"
+                        draw_text.text_style: theme.oc_text_caps
+                        draw_text.color: theme.color_text_muted
+                    }
+                    fleet_list := View {
+                        width: Fill height: Fit flow: Down spacing: 2
+                        // #28e3 item 2: every fleet row reserves the SAME
+                        // 14px status slot, so all rows share one text inset
+                        // (the #28e2 dots collapsed when hidden and pushed
+                        // only the Blocked row's text). The dot itself is a
+                        // RoundedView — a plain View never paints draw_bg —
+                        // and sync_labels shows it on the Blocked row only.
+                        fleet_wrap_1 := View {
+                            width: Fill height: 28 flow: Right spacing: 6 align: Align{y: 0.5}
+                            fleet_slot_1 := View {
+                                width: 14 height: 14 flow: Overlay
+                                fleet_dot_1 := RoundedView {
+                                    width: 8 height: 8
+                                    margin: Inset{left: 3 top: 3}
+                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
+                                    visible: false
+                                }
+                            }
+                            fleet_row_1 := Label {
+                                width: Fill height: Fit text: ""
+                                draw_text.text_style: theme.oc_text_row
+                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                             draw_text.color: theme.color_fg_app}
+                        }
+                        fleet_wrap_2 := View {
+                            width: Fill height: 28 flow: Right spacing: 6 align: Align{y: 0.5}
+                            fleet_slot_2 := View {
+                                width: 14 height: 14 flow: Overlay
+                                fleet_dot_2 := RoundedView {
+                                    width: 8 height: 8
+                                    margin: Inset{left: 3 top: 3}
+                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
+                                    visible: false
+                                }
+                            }
+                            fleet_row_2 := Label {
+                                width: Fill height: Fit text: ""
+                                draw_text.text_style: theme.oc_text_row
+                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                             draw_text.color: theme.color_fg_app}
+                        }
+                        fleet_wrap_3 := View {
+                            width: Fill height: 28 flow: Right spacing: 6 align: Align{y: 0.5}
+                            fleet_slot_3 := View {
+                                width: 14 height: 14 flow: Overlay
+                                fleet_dot_3 := RoundedView {
+                                    width: 8 height: 8
+                                    margin: Inset{left: 3 top: 3}
+                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
+                                    visible: false
+                                }
+                            }
+                            fleet_row_3 := Label {
+                                width: Fill height: Fit text: ""
+                                draw_text.text_style: theme.oc_text_row
+                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                             draw_text.color: theme.color_fg_app}
+                        }
+                    }
                 }
+                // + Add workspace (chrome.rs `OcSidebarFoot`).
+                oc_sidebar_foot := mod.widgets.OcSidebarFoot {}
+            }
+            // The 1 px hairline between the sidebar and the conversation.
+            sidebar_rule := SolidView {
+                width: 1 height: Fill
+                draw_bg.color: theme.color_outset_1
             }
         }
 
@@ -827,101 +750,50 @@ script_mod! {
                 }
             }
         }
+        // A3 (board 2 screens 6-11): Settings. Desktop: the web's centred
+        // dialog (`SettingsSurface.module.css` .frame: min(800, 100vw - 48)
+        // x min(800, 100dvh - 48), radius 24 -> 16 here) over the dimmer,
+        // closed by the backdrop or the x; phone: a full-screen sheet with the
+        // board's icon rail. The frame margin/size are set by sync_chrome.
         settings_dock := View {
-            width: Fill height: Fill
-            align: Align{x: 1.0 y: 0.0}
+            width: Fill height: Fill flow: Overlay
+            align: Align{x: 0.5 y: 0.5}
             visible: false
-
-            // Card #28e item 4 (board 4 frame 2): the 420 px Session-settings
-            // drawer, docked right INSIDE the columns Right-flow (hidden = no
-            // space, visible = the center narrows, as in board 4 frame 2).
-            // Content comes in Stage C; this is the drawer shell (title + close).
-            settings_drawer := SolidView {
-                width: 420 height: Fill flow: Down spacing: 10
-                visible: true
-                draw_bg.color: theme.color_bg_app
-                // #40b — the #38c mechanism, verbatim. Instrument-proven on
-                // this fork: SolidView IGNORES padding (the drawer-level
-                // inset measured no effect across seven rounds), and every
-                // child-level trick (button margin, row margin, row padding,
-                // trailing spacers) laid out inside the un-insetted box, so
-                // the last control stayed flush at the window's right edge
-                // (right=900, `Disconnect` clipped — #40a). A plain inner
-                // View DOES honor padding (conversation_inner moved the
-                // bubble 900 -> 894), so the content lives there now.
-                settings_inner := View {
-                    width: Fill height: Fill flow: Down spacing: 10
-                    padding: Inset{right: 16}
-                    settings_header := View {
-                        width: Fill height: Fit flow: Right spacing: 8
-                        // Fill label: the empirically good header state —
-                        // the close wrap measured its full 28×28 slot with
-                        // it (Fit variants measured 0).
-                        Label {
-                            // #40b — Fit: a Fill sibling in this fork's Right
-                            // row steals from the LAST Fit child (the close
-                            // wrap measured 14 or 0 with Fill here); with Fit
-                            // the wrap keeps its 28x28 slot (round-4 truth).
-                            width: Fit height: Fit text: "Session settings"
-                            draw_text.text_style.font_size: 14
-                            draw_text.color: theme.color_text_muted}
-                        // #28e2 item 1: "✕" was tofu — the close SVG (same as
-                        // the review header's).
-                        settings_close_wrap := View {
-                            width: 28 height: 28 flow: Overlay
-                            settings_close_icon := Svg {
-                                width: 12 height: 12
-                                align: Align{x: 0.5 y: 0.5}
-                                animating: false
-                                draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_close.svg")))
-                                draw_svg.preserve_viewbox: true
-                            }
-                            // #40b — a deterministic hit slot: Fill inside
-                            // the Overlay measured 14 or 0 across rounds;
-                            // the explicit 28×28 keeps the full square
-                            // clickable.
-                            settings_close := Button {
-                                width: 28 height: 28 text: ""
-                                draw_bg.color: #00000000
-                                draw_bg.color_hover: #00000010
-                                draw_bg.color_down: #00000020
-                                draw_bg.border_size: 0.0
-                                draw_bg.color_2: #00000000
-                                draw_bg.border_color: #00000000
-                                draw_bg.border_color_2: #00000000
-                            }
-                        }
-                    }
-                    Label { width: Fill height: Fit text: "Model" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                    Label { width: Fill height: Fit text: "Permissions" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                    Label { width: Fill height: Fit text: "Sandbox" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                    Label { width: Fill height: Fit text: "Context" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                    // #34a row 165 — the web keeps the server connection actions
-                    // in General settings (product.spec.ts:1435: "Octos server",
-                    // Disconnect -> token screen -> Connect). The drawer gains the
-                    // General section with the action; the click flips the store's
-                    // connection row to Offline (the same state the transport-loss
-                    // path sets) and logs, never silently.
-                    Label { width: Fill height: Fit text: "General" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                    settings_conn := View {
-                        width: Fill height: Fit flow: Right spacing: 8
-                        // #40b — Fit: no Fill sibling, so `Disconnect`
-                        // keeps its own Fit slot (77px) instead of being
-                        // pushed past the row box (right=900, clipped).
-                        Label { width: Fit height: Fit text: "Octos server" draw_text.text_style.font_size: 12  draw_text.color: theme.color_fg_app}
-                        settings_disconnect := Button {
-                            width: Fit height: Fit text: "Disconnect"
-                            draw_bg.color: #00000000
-                            draw_bg.color_hover: #00000010
-                            draw_bg.color_down: #00000020
-                            draw_bg.border_size: 0.0
-                            draw_bg.color_2: #00000000
-                            draw_bg.border_color: #00000000
-                            draw_bg.border_color_2: #00000000
-                        }
-                    }
-                }
+            settings_backdrop := mod.widgets.OcBackdrop {}
+            settings_frame := View {
+                width: Fill height: Fill flow: Overlay
+                max_width: 800 max_height: 640
+                margin: 24
+                // Swallows clicks on the panel's empty areas so they never
+                // reach the backdrop under it.
+                settings_swallow := mod.widgets.OcBackdrop {}
+                settings_drawer := mod.widgets.OcSettingsPanel {}
             }
+        }
+
+        // A3 (board 2 screen 7): the Stop-server confirm, centred over its
+        // own scrim. Only `server_stop_confirm` here sends server/shutdown.
+        stop_dock := View {
+            width: Fill height: Fill flow: Overlay
+            align: Align{x: 0.5 y: 0.5}
+            visible: false
+            SolidView { width: Fill height: Fill draw_bg.color: #1D1D1F4D }
+            stop_backdrop := mod.widgets.OcBackdrop {}
+            stop_frame := View {
+                width: Fill height: Fit max_width: 400
+                margin: Inset{left: 16 right: 16}
+                stop_dialog := mod.widgets.OcStopConfirm {}
+            }
+        }
+
+        // A3 (board 2 screen 4): the workspace overflow menu, anchored to the
+        // clicked "⋯" by sync_chrome (margin within this full-window layer);
+        // a click anywhere else closes it.
+        sb_menu_dock := View {
+            width: Fill height: Fill flow: Overlay
+            visible: false
+            sb_menu_dismiss := mod.widgets.OcBackdrop {}
+            sb_menu := mod.widgets.OcWorkspaceMenu {}
         }
 
         // Card #28e item 5 (board 4 frame 3): the floating 560 px command
@@ -1070,8 +942,27 @@ script_mod! {
             // Fill/Fill: the reference host (screens_probe.rs:147) gives the
             // screen the full window; a Fit slot collapsed the mounted tree
             // to 0x0 (/snap-probed after the move out of review_column).
+            // A3: Overlay so the in-app dock's close sits over the card.
+            flow: Overlay
             screen_splash := Splash {
                 width: Fill height: Fill
+            }
+            // A3: a screen docked IN-APP (+ Add workspace -> the folder
+            // browser) gets a close; the env dev mount does not show it.
+            screen_dock_close_slot := View {
+                width: Fill height: Fit align: Align{x: 1.0 y: 0.0}
+                padding: Inset{top: 10 right: 10}
+                visible: false
+                View {
+                    width: 32 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                    Svg {
+                        width: 14 height: 14
+                        animating: false
+                        draw_svg.svg: file_resource(#(crate::chrome::icon("x_fg")))
+                        draw_svg.preserve_viewbox: true
+                    }
+                    screen_dock_close := mod.widgets.OcHitRound {}
+                }
             }
         }
 
@@ -1403,6 +1294,8 @@ pub struct OctoscodeView {
     window_w: f64,
     /// #31a: the <760 sidebar toggle — once the window hid the sidebar there
     /// was no way back; this flip shows it over the content (Codex-style).
+    /// A3: the drawer state now lives in `screens::sidebar` (drawer.open /
+    /// drawer.close); this field is kept for the env-seeded captures.
     #[rust]
     sidebar_open: bool,
     /// A5 — the open dialog's wired taps: `(widget id, action id)` pairs
@@ -1418,6 +1311,13 @@ pub struct OctoscodeView {
     /// drain skips them (one route per click, no unhandled-noise).
     #[rust]
     dialog_events: DialogEvents,
+    /// A3: the board-2 chrome's runtime (layout seat, menu anchor, the
+    /// in-app docked screen).
+    #[rust]
+    chrome: ChromeRuntime,
+    /// A3: the window's inner height (the settings frame's max height).
+    #[rust]
+    window_h: f64,
 }
 
 impl OctoscodeView {
@@ -1450,6 +1350,16 @@ impl OctoscodeView {
             return;
         }
 
+        // A3 — the board-2 capture seed (chrome.rs `seed_board2`): the board's
+        // two workspaces, five threads, one session per status. No transport.
+        if let Ok(variant) = std::env::var("OCTOSCODE_BOARD2_SEED") {
+            {
+                let b = self.bridge.lock().unwrap();
+                chrome::seed_board2(&b.store, &variant);
+            }
+            makepad_widgets::log!("[octoscode] synthetic live: board-2 seed ({variant})");
+            return;
+        }
         // Card #28e — the board-4 capture seed: a LIVE-looking store so the
         // window draws the full base chrome (sidebar, conversation, panels)
         // with the board's own fixture rows. No transport.
@@ -1712,6 +1622,98 @@ impl OctoscodeView {
             }
             return;
         }
+        // A3 / #D2b: board 2's Settings half (screens 6-12). The native chrome
+        // and the Stage B cards dispatch the SAME ids; ONE owner
+        // (`screens::settings`). The RPC ids (server/shutdown behind the
+        // confirm gate, permission/profile/set) go through the production
+        // client; the rest apply locally, as the web keeps them.
+        if screens::settings::owns(action) {
+            makepad_widgets::log!("[octoscode] settings action: {action}");
+            let (store, ui, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone(), b.conv.clone())
+            };
+            use screens::settings::UiEffect;
+            match screens::settings::apply_ui(action) {
+                UiEffect::None => {}
+                UiEffect::Open => {
+                    if let Ok(mut u) = ui.lock() {
+                        if !u.settings_open() {
+                            u.toggle_settings();
+                        }
+                    }
+                }
+                UiEffect::Close => {
+                    if let Ok(mut u) = ui.lock() {
+                        if u.settings_open() {
+                            u.toggle_settings();
+                        }
+                    }
+                }
+                UiEffect::Thinking(t) => screens::settings::set_thinking(&store, t),
+                UiEffect::Send => {
+                    if screens::settings::action_params(action, &store).is_none() {
+                        if action == "settings.model.next" {
+                            // One configured model: nothing to switch to.
+                            makepad_widgets::log!("[octoscode] settings: no other model to select");
+                        } else {
+                            // Unadvertised (no server/shutdown) or no session:
+                            // fail closed, visibly — never a silent no-op.
+                            screens::settings::note_failed(action, "not offered by this server");
+                        }
+                    } else if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                        let action = action.to_owned();
+                        let next_model = screens::settings::next_model(&store).map(|m| m.model);
+                        rt.spawn(async move {
+                            match screens::settings::perform(&conv, &action, &store).await {
+                                Ok(_) => {
+                                    screens::settings::note_sent(&action);
+                                    if let (true, Some(m)) = (action == "settings.model.next", next_model) {
+                                        screens::settings::mark_model_selected(&store, &m);
+                                    }
+                                    makepad_widgets::log!("[octoscode] settings sent: {action}");
+                                    if action == "server.stop.confirm" {
+                                        // The web disconnects on purpose after a
+                                        // confirmed stop (App.tsx onStopServer):
+                                        // the window returns to the connect card.
+                                        store.set_connection("Offline".to_owned(), false);
+                                    }
+                                }
+                                Err(e) => {
+                                    makepad_widgets::log!("[octoscode] settings {action}: {e}");
+                                    screens::settings::note_failed(&action, &e);
+                                }
+                            }
+                            SignalToUI::set_ui_signal();
+                        });
+                    } else {
+                        screens::settings::note_failed(action, "not connected");
+                    }
+                }
+                UiEffect::TakeOver => {
+                    // Board 12: claim the session's driver seat — the
+                    // external-driver seat API (`session/driver/acquire`,
+                    // web external-driver.ts:727-758; CAS on the revision the
+                    // last `session/driver/get` reported). The server decides;
+                    // a refusal leaves the banner up and is logged.
+                    let session = store.active_session().unwrap_or_default();
+                    if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                        rt.spawn(async move {
+                            let params = chrome::take_over_params(&session);
+                            match conv.client().request("session/driver/acquire", params).await {
+                                Ok(_) => {
+                                    chrome::set_held(&session, None);
+                                    makepad_widgets::log!("[octoscode] take over: seat acquired");
+                                }
+                                Err(e) => makepad_widgets::log!("[octoscode] take over refused: {e}"),
+                            }
+                            SignalToUI::set_ui_signal();
+                        });
+                    }
+                }
+            }
+            return;
+        }
         // #D2a: board 2's sidebar half (screens 1-5 — grouped tree, statuses,
         // search, collapsed rail, compact drawer) owns its 13 card events. They
         // route through the sidebar table FIRST (one-owner rule); the
@@ -1748,17 +1750,32 @@ impl OctoscodeView {
                     self.perform_action(cx, "thread.open", index);
                     return;
                 }
-                screens::sidebar::Effect::NewChatInWorkspace { workspace } => {
-                    // A per-workspace new session is the router's own new-chat
-                    // with the workspace's scope recorded; until the protocol
-                    // carries a per-session workspace scope we mint the session
-                    // and name the workspace on the log line rather than
-                    // silently pretending the scope took.
-                    ::log::info!(
-                        "octoscode: sidebar new chat in workspace {workspace:?} \
-                         (no per-session workspace scope in the protocol yet)"
+                screens::sidebar::Effect::NewChatInWorkspace { workspace, path } => {
+                    // #D2a: uniform observability — this IS a handled sidebar
+                    // action, so it emits the same "sidebar action:" line.
+                    makepad_widgets::log!(
+                        "[octoscode] sidebar action: {action} -> {workspace} ({})",
+                        path.as_deref().unwrap_or("server default cwd")
                     );
-                    self.perform_action(cx, bindings::ACTION_NEW_CHAT, 0);
+                    // A3: the web's "New session in {workspace}" opens the
+                    // session WITH that workspace's cwd (session/open { cwd },
+                    // session-defaults.ts:5-7) — the same `new_chat` path the
+                    // router's `session.new` takes, scoped by the group's path.
+                    let conv = { self.bridge.lock().unwrap().conv.clone() };
+                    if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                        rt.spawn(async move {
+                            match conv.new_chat(path).await {
+                                Ok(id) => ::log::info!("octoscode: new chat in {workspace}: {id}"),
+                                Err(e) => makepad_widgets::log!("[octoscode] new chat dropped: {e}"),
+                            }
+                        });
+                    }
+                    return;
+                }
+                screens::sidebar::Effect::AddWorkspace => {
+                    // The host docks the folder browser (sync_labels consumes
+                    // `sidebar::take_add_request`).
+                    makepad_widgets::log!("[octoscode] sidebar action: {action}");
                     return;
                 }
             }
@@ -2776,10 +2793,100 @@ impl OctoscodeView {
         // is pending. OCTOSCODE_SCREEN=palette|error|loading names one; unset
         // leaves the screen exactly as before this card. The mount cache
         // compares the DSL string, so live-slot flips repaint exactly once.
-        if let Some(which) = std::env::var("OCTOSCODE_SCREEN")
-            .ok()
-            .filter(|v| !matches!(v.as_str(), "connect" | "connect_failed" | "onboarding"))
+        // A3 (board 12): read the active session's driver record once per
+        // session when the server advertises `session/driver/get` (the web's
+        // driver-inventory read, driver-inventory-snapshot.ts), and record a
+        // FOREIGN holder for the held banner (seat-holder.ts:18-29).
         {
+            let (store, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.conv.clone())
+            };
+            let active = store.active_session();
+            if active.is_some() && active != self.chrome.driver_probe {
+                self.chrome.driver_probe = active.clone();
+                let advertised = store
+                    .domains
+                    .config
+                    .supported_methods()
+                    .iter()
+                    .any(|m| m == "session/driver/get");
+                if let (true, Some(rt), Some(conv), Some(sid)) =
+                    (advertised, self.runtime.as_ref(), conv, active)
+                {
+                    rt.spawn(async move {
+                        let params = serde_json::json!({ "session_id": sid });
+                        match conv.client().request("session/driver/get", params).await {
+                            Ok(v) => {
+                                let held = chrome::foreign_holder(&v, chrome::NATIVE_DRIVER_ID);
+                                makepad_widgets::log!("[octoscode] driver/get {sid}: held={held:?}");
+                                chrome::set_held(&sid, held);
+                            }
+                            Err(e) => makepad_widgets::log!("[octoscode] driver/get {sid}: {e}"),
+                        }
+                        SignalToUI::set_ui_signal();
+                    });
+                }
+            }
+        }
+        // A3: the Model row and the new-chat defaults strip name the profile's
+        // selected model — read the profile once per connection when the
+        // store has no model list yet (the read `screens::models::refresh`
+        // performs; before the chrome it ran only behind a dev flag).
+        {
+            let (store, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.conv.clone())
+            };
+            if !self.chrome.models_requested
+                && store.is_live()
+                && store.domains.profile.llm_models().is_empty()
+            {
+                if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                    self.chrome.models_requested = true;
+                    rt.spawn(async move {
+                        match screens::models::refresh(&conv, &conv.store).await {
+                            Ok(n) => makepad_widgets::log!("[octoscode] chrome: {n} profile reads folded"),
+                            Err(e) => makepad_widgets::log!("[octoscode] chrome profile reads: {e}"),
+                        }
+                        SignalToUI::set_ui_signal();
+                    });
+                }
+            }
+        }
+        // A3: desktop notifications (General > Desktop notifications): a
+        // settled turn or a new wait on the active session, while the window
+        // is in the background, posts one OS notice (`Cx::show_notification`).
+        {
+            let store = { self.bridge.lock().unwrap().store.clone() };
+            if let Some(now) = chrome::Attention::of(&store) {
+                let title = store
+                    .sessions()
+                    .into_iter()
+                    .find(|s| s.id == now.session)
+                    .and_then(|s| s.label_stem())
+                    .unwrap_or_else(|| "Your chat".to_owned());
+                let notice = chrome::attention_notice(
+                    self.chrome.attention.as_ref(),
+                    &now,
+                    &title,
+                    screens::settings::snapshot().notifications,
+                    self.chrome.unfocused,
+                );
+                if let Some((t, body)) = notice {
+                    makepad_widgets::log!("[octoscode] notify: {t} — {body}");
+                    cx.show_notification(&t, &body);
+                }
+                self.chrome.attention = Some(now);
+            }
+        }
+        // A3: `+ Add workspace` docks the folder browser IN-APP (the web's
+        // "Add workspace" opens the workspace picker, ProductSidebar.tsx:578).
+        if screens::sidebar::take_add_request() {
+            self.chrome.docked = Some("p4-08".to_owned());
+            makepad_widgets::log!("[octoscode] dock: folder browser (workspace.add)");
+        }
+        if let Some(which) = self.docked_screen() {
             // #28e6: connect is NOT mounted here — on first run it mounts
             // into THIS dock via the !live path (below); the other two setup
             // screens have no home yet. The handler keeps the #29d screens.
@@ -2821,6 +2928,10 @@ impl OctoscodeView {
                 screens::board3::lower(&which)
             } else if screens::theme::card_for(&which).is_some() {
                 screens::theme::lower(&which, &store)
+            } else if screens::settings::is_screen(&which) {
+                // #D2b: board 2's settings cards (the design record; the
+                // product Settings is the native chrome).
+                screens::settings::lower(&which)
             } else if let Some(screen) = screens::autonomy::Screen3::from_env() {
                 // #P4e1c — the autonomy cards (autonomy-03/04/05: Goal, Loops,
                 // Monitors). Before this the ONLY caller of
@@ -3007,26 +3118,128 @@ impl OctoscodeView {
                 }
             }
         }
-        // Card #21d item 5: the `new-chat` component (#16) is the thread
-        // column's first row. The row existed but was never mounted, so it
-        // rendered as an empty pill (no label, no compose icon).
-        let new_chat = {
-            let mut cache = std::mem::take(&mut self.cache);
-            let c = cache
-                .lower(&bridge, components::ItemKind::NewChat, 0, None)
-                .unwrap_or_default();
-            self.cache = cache;
-            c
-        };
-        let new_chat_splash = self.view.splash(cx, ids!(new_chat_splash));
-        if let Err(e) = self.mounts.mount(cx, &new_chat_splash, &new_chat) {
-            makepad_widgets::log!("[octoscode] new-chat mount: {e}");
-        }
+        // A3 (board 2): the sidebar's "New chat" row is native chrome
+        // (chrome.rs `sb_new_chat`); the #16 `new-chat` component mount that
+        // lived here is retired with its slot.
         // A5 — the open dialog (screens::dialog), re-lowered with the live
         // store; the mount cache remounts only when its DSL changed.
         self.sync_dialog(cx);
         self.sync_chrome(cx);
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
+    }
+
+    /// A3 (#D2a's 0x0 root cause, fixed once): the ONE "a screen is docked"
+    /// predicate — the mount arm and the dock's visibility both read it, so a
+    /// mounted screen can never sit in a hidden dock. In-app docking (+ Add
+    /// workspace) and the `OCTOSCODE_SCREEN` dev override share it.
+    fn docked_screen(&self) -> Option<String> {
+        self.chrome
+            .docked
+            .clone()
+            .or_else(|| std::env::var("OCTOSCODE_SCREEN").ok())
+            .filter(|v| chrome::screen_dockable(v))
+    }
+
+    /// A3 (board 2): perform the chrome's click intents through the one-owner
+    /// tables (`screens::sidebar`, `screens::settings`, the router), one log
+    /// line each — the click walk's receipts.
+    fn handle_chrome(&mut self, cx: &mut Cx, actions: &Actions) {
+        let (store, settings_open) = {
+            let b = self.bridge.lock().unwrap();
+            let open = b.ui.lock().map(|u| u.settings_open()).unwrap_or(false) || chrome_env().1;
+            (b.store.clone(), open)
+        };
+        let mut rt = std::mem::take(&mut self.chrome);
+        let intents = rt.clicks(cx, &self.view, &store, settings_open, actions);
+        self.chrome = rt;
+        if intents.is_empty() {
+            return;
+        }
+        let was_renaming = screens::sidebar::renaming();
+        for intent in intents {
+            makepad_widgets::log!("[octoscode] chrome: {intent:?}");
+            match intent {
+                chrome::Intent::Action(a, i) => self.perform_action(cx, a, i),
+                chrome::Intent::Menu(i, rect) => {
+                    // The menu anchors under the clicked "⋯" (module-local).
+                    let (ox, oy) = self.chrome.origin;
+                    self.chrome.menu_anchor =
+                        Some((rect.pos.x + rect.size.x - ox, rect.pos.y + rect.size.y - oy));
+                    self.perform_action(cx, "workspace.menu", i);
+                }
+                chrome::Intent::Query(q) => {
+                    screens::sidebar::set_query(&q);
+                }
+                chrome::Intent::RenameCommit(t) => {
+                    if let Some(key) = screens::sidebar::rename_commit(&t) {
+                        makepad_widgets::log!("[octoscode] sidebar rename {key:?} -> {t:?}");
+                    }
+                }
+                chrome::Intent::OpenSettings => self.perform_action(cx, "settings.panel.open", 0),
+                chrome::Intent::CloseSettings => self.perform_action(cx, "settings.panel.close", 0),
+                chrome::Intent::ToggleReview => self.perform_action(cx, "review.toggle", 0),
+                chrome::Intent::CloseMenu => {
+                    screens::sidebar::close_menu();
+                    if screens::sidebar::renaming().is_some() {
+                        self.perform_action(cx, "workspace.rename.cancel", 0);
+                    }
+                }
+                chrome::Intent::CloseDock => {
+                    self.chrome.docked = None;
+                    makepad_widgets::log!("[octoscode] dock closed");
+                }
+            }
+        }
+        // A rename just started: seed the field with the current name, focus it.
+        let now_renaming = screens::sidebar::renaming();
+        if now_renaming.is_some() && now_renaming != was_renaming {
+            let label = {
+                let p = screens::sidebar::snapshot();
+                p.last_groups
+                    .iter()
+                    .find(|g| Some(&g.key) == now_renaming.as_ref())
+                    .map(|g| g.label.clone())
+                    .unwrap_or_default()
+            };
+            let field = self.view.text_input(cx, ids!(sb_rename_input));
+            field.set_text(cx, &label);
+            self.view.widget(cx, ids!(sb_rename_input)).set_key_focus(cx);
+        }
+        self.sync_chrome(cx);
+        self.view.redraw(cx);
+    }
+
+    /// A3: Escape closes the top-most chrome surface (the web's onEscape on
+    /// every ModalSurface): the Stop dialog, the workspace menu, Settings,
+    /// then the drawer. Returns whether it consumed the key.
+    fn escape_chrome(&mut self, cx: &mut Cx) -> bool {
+        let settings_open = {
+            let b = self.bridge.lock().unwrap();
+            let open = b.ui.lock().map(|u| u.settings_open()).unwrap_or(false);
+            open
+        };
+        let consumed = if screens::settings::snapshot().stop_pending {
+            self.perform_action(cx, "server.stop.cancel", 0);
+            true
+        } else if screens::sidebar::menu_for().is_some() || screens::sidebar::renaming().is_some() {
+            screens::sidebar::close_menu();
+            self.perform_action(cx, "workspace.rename.cancel", 0);
+            true
+        } else if settings_open {
+            self.perform_action(cx, "settings.panel.close", 0);
+            true
+        } else if screens::sidebar::drawer_open() {
+            self.perform_action(cx, "drawer.close", 0);
+            true
+        } else {
+            false
+        };
+        if consumed {
+            makepad_widgets::log!("[octoscode] chrome: Escape closed the top surface");
+            self.sync_chrome(cx);
+            self.view.redraw(cx);
+        }
+        consumed
     }
 
     /// Card #28e — move the chrome state (FlowUi flags + store) onto the view:
@@ -3053,14 +3266,9 @@ impl OctoscodeView {
         // captures never fire WindowGeomChange, and the shell sizes the
         // window FROM this env — so when present it IS the width; real
         // windows (no env) keep the event-tracked value instead.
-        if let Ok(sz) = std::env::var("OCTOSENSE_WINDOW_SIZE") {
-            if let Some((w, _)) = sz.split_once('x') {
-                if let Ok(w) = w.parse::<f64>() {
-                    if w > 0.0 {
-                        self.window_w = w;
-                    }
-                }
-            }
+        if let Some((w, h)) = env_frame() {
+            self.window_w = w;
+            self.window_h = h;
         }
         // #32h A: a phone that never resized (the app opens full-screen; no
         // WindowGeomChange arrives) kept window_w at 0.0 and got the DESKTOP
@@ -3083,33 +3291,43 @@ impl OctoscodeView {
         // (Codex-style). A panel's dock wrapper hides with it (a visible
         // Fill/Fill overlay would shadow the composer's buttons).
         let wide = self.window_w == 0.0 || self.window_w >= 1260.0;
-        // #31a: below 760 the sidebar hides but the toggle can bring it back.
-        let width_hides_sidebar = self.window_w != 0.0 && self.window_w < 760.0;
-        let show_sidebar = !width_hides_sidebar || self.sidebar_open;
         self.view.widget(cx, ids!(base)).set_visible(cx, live);
         self.view.widget(cx, ids!(first_run)).set_visible(cx, !live);
-        self.view.widget(cx, ids!(threads_column)).set_visible(cx, show_sidebar);
-        // The toggle itself only exists while WIDTH hides the sidebar (and the
-        // shell is live — the first-run screen has its own chrome).
-        self.view.widget(cx, ids!(sidebar_toggle)).set_visible(cx, live && width_hides_sidebar);
-        // #31a: below 760 the toggle OPENS the sidebar as a drill-down screen
-        // and the conversation hides — showing both split the Right flow and
-        // left the conversation 385px, where the user bubble clipped at the
-        // window edge (the exact g3 defect class; 31a-toggle-after.png). The
-        // same icon closes, so nothing is ever clipped.
-        self.view
-            .widget(cx, ids!(conversation_column))
-            .set_visible(cx, !(width_hides_sidebar && self.sidebar_open));
+        // A3 (board 2): the sidebar's seat — the desktop column over its
+        // spacer, or the compact drawer (min(320, w-48)) over the scrim; the
+        // header's menu trigger opens the drawer (the web's compact
+        // `navigationTrigger`, App.tsx:2359-2369). `OCTOSCODE_DRAWER_OPEN`
+        // is the capture seed for the open drawer.
+        if self.sidebar_open {
+            self.sidebar_open = false;
+            screens::sidebar::set_drawer_open(true);
+        }
+        if self.window_h == 0.0 {
+            self.window_h = self.view.area().rect(cx).size.y;
+        }
+        {
+            let store = { self.bridge.lock().unwrap().store.clone() };
+            let (w, h) = (self.window_w, self.window_h);
+            let mut chrome = std::mem::take(&mut self.chrome);
+            chrome.origin = {
+                let r = self.view.area().rect(cx);
+                (r.pos.x, r.pos.y)
+            };
+            chrome.sync(cx, &self.view, &store, live, settings, w, h);
+            self.chrome = chrome;
+        }
         self.view.widget(cx, ids!(review_dock)).set_visible(cx, review);
         self.view.widget(cx, ids!(review_panel)).set_visible(cx, review);
         self.view
             .widget(cx, ids!(columns_review_spacer))
             .set_visible(cx, wide && review);
-        self.view.widget(cx, ids!(settings_dock)).set_visible(cx, settings);
-        self.view.widget(cx, ids!(settings_drawer)).set_visible(cx, settings);
+        // A3: Settings is the centred dialog (desktop) / full sheet (compact)
+        // over the dimmer — no docked column, so its spacer stays hidden.
+        self.view.widget(cx, ids!(settings_dock)).set_visible(cx, settings && live);
+        self.view.widget(cx, ids!(settings_drawer)).set_visible(cx, settings && live);
         self.view
             .widget(cx, ids!(columns_settings_spacer))
-            .set_visible(cx, wide && settings);
+            .set_visible(cx, false);
         self.view.widget(cx, ids!(palette)).set_visible(cx, palette);
         self.view.widget(cx, ids!(palette_dock)).set_visible(cx, palette);
         self.view
@@ -3123,28 +3341,19 @@ impl OctoscodeView {
         // probe proved the first-run-shaped slots mis-seat the card). A
         // visible Fill/Fill wrapper shadows clicks under it, but on first run
         // only the first-run chrome is under it.
-        let screen_dock_shown = std::env::var("OCTOSCODE_SCREEN")
-            .map(|v| {
-                // #P4e1c — `goal|loops|monitors` join the docked names. Without
-                // them the mount above builds the card but the dock that would
-                // SHOW it stays hidden, so the card is lowered, wired, and
-                // never seen: the mount would look done and reach nobody. The
-                // names match `autonomy::Screen3::from_env` (autonomy.rs:165).
-                matches!(
-                    v.as_str(),
-                    "palette"
-                        | "error"
-                        | "loading"
-                        | "goal"
-                        | "loops"
-                        | "monitors"
-                )
-            })
-            .unwrap_or(false)
-            || !live;
+        // #D2a root cause, fixed ONCE (A3): the dock's visibility used its own
+        // whitelist (palette|error|loading, later +goal|loops|monitors) while
+        // the mount arm above accepted ANY non-connect name — every other
+        // mounted card was lowered, wired and drawn into a HIDDEN dock (0x0
+        // rects, no screen_splash in /d). Both now read `docked_screen()`.
+        let screen_dock_shown = self.docked_screen().is_some() || !live;
         self.view
             .widget(cx, ids!(screen_dock))
             .set_visible(cx, screen_dock_shown);
+        // The in-app dock carries its own close (the env dev mount does not).
+        self.view
+            .widget(cx, ids!(screen_dock_close_slot))
+            .set_visible(cx, live && self.chrome.docked.is_some());
 
         // GOALS / LOOPS / FLEET rows (board 4 frame 3): visible only when the
         // session has them.
@@ -3188,7 +3397,9 @@ impl OctoscodeView {
             (goal_txt, loops, fleet)
         };
         let any = !goals.is_empty() || !loops.is_empty() || !fleet.is_empty();
-        self.view.widget(cx, ids!(autonomy_sections)).set_visible(cx, any);
+        // A3: the collapsed rail shows no sections (it is icons only).
+        let rail = screens::sidebar::snapshot().rail && !self.chrome.compact;
+        self.view.widget(cx, ids!(autonomy_sections)).set_visible(cx, any && !rail);
         self.view.label(cx, ids!(goal_row_1)).set_text(cx, &goals);
         let mut set_rows = |ids: &[LiveId], rows: &[String]| {
             for (i, id) in ids.iter().enumerate() {
@@ -3226,6 +3437,20 @@ impl OctoscodeView {
 /// BOTH call sites are migrated in the same commit as this change
 /// (`lib.rs:2293` review, `lib.rs:2574` the chrome table) — the #P4f2 lesson
 /// about a signature change riding alone.
+/// A3: `OCTOSENSE_WINDOW_SIZE=WxH` — the phone-size check. The desktop shell
+/// does not size its windows from it, so the module draws INSIDE a WxH frame
+/// (draw_walk) and lays out for that width: a real 360-wide layout, not a
+/// desktop window whose content merely believes it is narrow.
+fn env_frame() -> Option<(f64, f64)> {
+    static FRAME: std::sync::OnceLock<Option<(f64, f64)>> = std::sync::OnceLock::new();
+    *FRAME.get_or_init(|| {
+        let sz = std::env::var("OCTOSENSE_WINDOW_SIZE").ok()?;
+        let (w, h) = sz.split_once('x')?;
+        let (w, h) = (w.trim().parse::<f64>().ok()?, h.trim().parse::<f64>().ok()?);
+        (w > 0.0 && h > 0.0).then_some((w, h))
+    })
+}
+
 fn chrome_env() -> (bool, bool, bool, bool) {
     static CHROME: std::sync::OnceLock<(bool, bool, bool, bool)> = std::sync::OnceLock::new();
     *CHROME.get_or_init(|| {
@@ -3238,6 +3463,16 @@ fn chrome_env() -> (bool, bool, bool, bool) {
 
 impl Widget for OctoscodeView {
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        // A3: the phone-size frame (`env_frame`) — the module draws in a
+        // WxH box at the window's top-left, clipped to what the shell gives.
+        let walk = match env_frame() {
+            Some((w, h)) => Walk {
+                width: Size::Fixed(w),
+                height: Size::Fixed(h),
+                ..walk
+            },
+            None => walk,
+        };
         // The two lists share makepad's default item template, so a draw step's
         // widget uid is how it says WHICH list it is (captured once).
         if self.thread_uid == 0 {
@@ -3265,24 +3500,12 @@ impl Widget for OctoscodeView {
             if let Some(mut list) = step.as_portal_list().borrow_mut() {
                 let uid = list.widget_uid().0;
                 if uid == thread_uid {
-                    // The LEFT column: one `thread-row` component per session.
-                    let rows = {
-                        let b = bridge.lock().unwrap();
-                        screen::thread_rows(&b.store)
-                    };
-                    list.set_item_range(cx, 0, rows.len());
-                    while let Some(id) = list.next_visible_item(cx) {
-                        let Some(_row) = rows.get(id) else { continue };
-                        let item = list.item(cx, id, id!(ThreadRowTpl));
-                        let body = cache
-                            .lower(&bridge, components::ItemKind::ThreadRow, id, None)
-                            .unwrap_or_default();
-                        let splash = item.splash(cx, ids!(thread_splash));
-                        if let Err(e) = mounts.mount(cx, &splash, &body) {
-                            makepad_widgets::log!("[octoscode] thread-row mount: {e}");
-                        }
-                        item.draw_all_unscoped(cx);
-                    }
+                    // A3 (board 2 screens 1-5): the LEFT column is the native
+                    // sidebar tree — workspace groups, session rows with their
+                    // status and relative time, search hits — projected from
+                    // the store by `screens::sidebar::project` (chrome.rs).
+                    let store = { bridge.lock().unwrap().store.clone() };
+                    chrome::draw_sidebar_list(cx, &mut list, &store, None);
                 } else if uid == timeline_uid {
                     // The CENTER column: one component per timeline entry, in
                     // display order (`screen::timeline_rows`).
@@ -3543,8 +3766,12 @@ impl Widget for OctoscodeView {
             // below 760) re-derives in `sync_chrome`.
             Event::WindowGeomChange(ev) => {
                 self.window_w = ev.new_geom.inner_size.x;
+                self.window_h = ev.new_geom.inner_size.y;
                 self.sync_chrome(cx);
             }
+            // A3: desktop notifications fire only while in the background.
+            Event::WindowLostFocus(_) => self.chrome.unfocused = true,
+            Event::WindowGotFocus(_) => self.chrome.unfocused = false,
             Event::Actions(actions) => {
                 // Card #21c item 5: the ONE composer is the mounted #16
                 // component. Its own input is a real `TextInput` (id
@@ -3768,23 +3995,12 @@ impl Widget for OctoscodeView {
                 // Card #21 §3 — the per-item controls. A row click is routed
                 // WITH its item id (the same `items_with_actions` contract the
                 // makepad examples use).
-                let thread_list = self.view.portal_list(cx, ids!(thread_list));
-                for (item_id, item) in thread_list.items_with_actions(actions) {
-                    // #35c: same cause as new_chat_hit — the thread-row
-                    // COMPONENT draws its own Button over the host `row_hit`
-                    // (`/d`: i0_threadrow_1 [66,257,225,78] over row_hit
-                    // [66,260,225,72]), so the press never reaches the host
-                    // target. Query the component's own Button inside the SAME
-                    // item scope, so the click still routes with its item id.
-                    if item.button(cx, ids!(row_hit)).clicked(actions)
-                        || item.button(cx, &[live_id!(i0_threadrow_0)]).clicked(actions)
-                        || item.button(cx, &[live_id!(i0_threadrow_1)]).clicked(actions)
-                        || item.button(cx, &[live_id!(i0_threadrow)]).clicked(actions)
-                    {
-                        makepad_widgets::log!("[octoscode] thread row {item_id} clicked");
-                        self.perform_action(cx, "thread.open", item_id);
-                    }
-                }
+                // A3 (board 2): every chrome click — the header (menu,
+                // Review, Settings), the sidebar (New chat, search, modes,
+                // sort, the tree's rows / groups / "⋯", Add workspace), the
+                // workspace menu, Settings and the Stop dialog — routed
+                // through the one-owner tables (`chrome::Intent`).
+                self.handle_chrome(cx, actions);
                 let timeline_list = self.view.portal_list(cx, ids!(timeline_list));
                 let (live, rows) = {
                     let b = self.bridge.lock().unwrap();
@@ -3817,16 +4033,12 @@ impl Widget for OctoscodeView {
                 }
                 // Card #28e — the board-4 chrome controls. #40b: the sidebar
                 // header's closed-state openers route the same toggles.
+                // A3: the header's Review / Settings openers and the
+                // Settings close route through `handle_chrome` above.
                 if self.view.button(cx, ids!(review_toggle_hit)).clicked(actions)
                     || self.view.button(cx, ids!(review_close)).clicked(actions)
-                    || self.view.button(cx, ids!(review_open_hit)).clicked(actions)
                 {
                     self.perform_action(cx, "review.toggle", 0);
-                }
-                if self.view.button(cx, ids!(settings_close)).clicked(actions)
-                    || self.view.button(cx, ids!(settings_open_hit)).clicked(actions)
-                {
-                    self.perform_action(cx, "settings.toggle", 0);
                 }
                 // #34a row 165 — the drawer's General section carries the
                 // server connection action (product.spec.ts:1435). The native
@@ -3841,15 +4053,8 @@ impl Widget for OctoscodeView {
                          (reconnect via the connect screen)"
                     );
                 }
-                // #31a: the <760 sidebar toggle.
-                if self.view.button(cx, ids!(sidebar_toggle_hit)).clicked(actions) {
-                    self.sidebar_open = !self.sidebar_open;
-                    makepad_widgets::log!(
-                        "[octoscode] sidebar toggle -> {}",
-                        if self.sidebar_open { "open" } else { "closed" }
-                    );
-                    self.sync_chrome(cx);
-                }
+                // #31a -> A3: the <760 menu trigger now lives in the header
+                // and opens the drawer (`drawer.open`, handle_chrome).
                 self.sync_labels(cx);
             }
             // Card #31e — the keyboard surface routes through the ONE
@@ -3891,6 +4096,10 @@ impl Widget for OctoscodeView {
                 self.perform_action(cx, screens::dialog::ACTION_CLOSE, 0);
             }
             Event::KeyDown(e) => {
+                // A3: Escape closes the top-most chrome surface first.
+                if e.key_code == KeyCode::Escape && self.escape_chrome(cx) {
+                    return;
+                }
                 let (ui, store, conv) = {
                     let b = self.bridge.lock().unwrap();
                     (b.ui.clone(), b.store.clone(), b.conv.clone())
@@ -4137,6 +4346,9 @@ impl AppModule for OctoscodeModule {
         // the `script_mod!` body (it is not DSL, and `#{ … }` fails too because
         // `script_mod!` splices a script expression, not a unit block).
         init_recents_persistence();
+        // A3: the board-2 chrome templates (`mod.widgets.Oc*`) must exist
+        // before the shell's own DSL below instantiates them.
+        chrome::script_mod(vm);
         script_mod(vm);
         // Card #21b: the design/kit vocabulary every lowered #16 component names
         // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the

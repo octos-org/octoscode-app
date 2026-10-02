@@ -1,0 +1,16 @@
+{
+  "frame_id": 12,
+  "controls": {
+    "take_over": {
+      "event": "session.take_over",
+      "source_bounds": [
+        312,
+        56,
+        82,
+        44
+      ],
+      "enabled": true
+    }
+  },
+  "source": "authored from the approved stage-a board-2 atlas (operator 2026-10-01) + Apple Vision OCR"
+}

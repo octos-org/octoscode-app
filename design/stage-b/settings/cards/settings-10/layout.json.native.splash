@@ -1,0 +1,90 @@
+use mod.prelude.widgets.*
+return View{width:Fill height:Fill flow:Overlay beauty_0 := DesignSurface {
+width: 406 height: 776
+abs_pos: vec2(0, 0)
+draw_bg.radius: 0 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: #00000000
+flow: Overlay padding: 0 clip_x: false clip_y: false
+show_bg: true draw_bg.color: #fefefeff
+beauty_0_0 := DesignSurface {
+width: 397 height: 137
+abs_pos: vec2(5, 9)
+draw_bg.radius: 0 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: #00000000
+flow: Overlay padding: 0 clip_x: false clip_y: false
+show_bg: true draw_bg.color: #fefefeff
+}
+beauty_0_1 := Label {
+width: 321.64 height: 32.22
+abs_pos: vec2(17.14, 45.65)
+padding: 0 text: "New chat defaults • Ask for approval • Workspace write •" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-500.ttf") asc: 0.04 desc: 0.04 weight: 500} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 10.125 line_spacing: 1.9725156 letter_spacing: 0}
+draw_text.color: #1d1d1fff
+}
+beauty_0_2 := Label {
+width: 154.23 height: 32.22
+abs_pos: vec2(15.82, 88.61)
+padding: 0 text: "v4-flash v • Thinking: On" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-500.ttf") asc: 0.04 desc: 0.04 weight: 500} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 10.125 line_spacing: 1.9725156 letter_spacing: 0}
+draw_text.color: #1d1d1fff
+}
+beauty_0_3 := Label {
+width: 45.59 height: 30.9
+abs_pos: vec2(338.05, 88.11)
+padding: 0 text: "Change" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-500.ttf") asc: 0.04 desc: 0.04 weight: 500} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 8.4075 line_spacing: 0.99973 letter_spacing: 0}
+draw_text.color: #2f6febff
+}
+beauty_0_4 := KitButton {
+contract: "{\"bindings\":{\"control\":\"beauty_0_4_1\",\"label\":\"beauty_0_4_2\"},\"widget\":\"KitButton\"}" glass: false
+width: 70 height: 42
+abs_pos: vec2(326, 84)
+flow: Overlay padding: 0 clip_x: false clip_y: false
+beauty_0_4_0 := DesignSurface {
+width: 70 height: 42
+abs_pos: vec2(326, 84)
+draw_bg.radius: 8 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: #00000000
+flow: Overlay padding: 0 clip_x: false clip_y: false
+show_bg: true draw_bg.color: #00000000
+}
+beauty_0_4_1 := DesignNativeButton {
+width: 70 height: 42
+abs_pos: vec2(326, 84)
+enabled: true
+}
+beauty_0_4_2 := Label {
+width: 8 height: 15
+abs_pos: vec2(0, 0)
+padding: 0 text: "" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-400.ttf") asc: 0.04 desc: 0.04 weight: 400} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 7.5 line_spacing: 1.2397095 letter_spacing: 0}
+draw_text.color: #1d1d1fff
+}
+}
+beauty_0_5 := Label {
+width: 160.46 height: 41.66
+abs_pos: vec2(113.13, 354.4)
+padding: 0 text: "Ask Octos anything" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-500.ttf") asc: 0.04 desc: 0.04 weight: 500} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 12.585001 line_spacing: 0.9998451 letter_spacing: 0}
+draw_text.color: #6e6e73ff
+}
+beauty_0_6 := Label {
+width: 204.69 height: 25.52
+abs_pos: vec2(93.09, 413.57)
+padding: 0 text: "Start a new conversation with Octos." align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-400.ttf") asc: 0.04 desc: 0.04 weight: 400} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 8.655 line_spacing: 1.000505 letter_spacing: 0}
+draw_text.color: #6e6e73ff
+}
+beauty_0_7 := DesignInput {
+width: 366 height: 84
+abs_pos: vec2(20, 580)
+padding: 0 text: "" label_align: Align{x: 0 y: 0.5}
+empty_text: "Ask Octos anything" is_password: false
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-400.ttf") asc: 0.04 desc: 0.04 weight: 400} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 11.25 line_spacing: 4.6282487 letter_spacing: 0}
+draw_text.color: #6e6e73ff
+}
+}
+}

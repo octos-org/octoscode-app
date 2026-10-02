@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "a8e51d19b8e648a5a1bd6e81da24b1ee548779ac737bc107db90b358d4c187e5",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      89.0,
+      467.0,
+      111.0,
+      78.0
+    ],
+    [
+      220.0,
+      464.0,
+      115.0,
+      83.0
+    ],
+    [
+      87.0,
+      464.0,
+      115.0,
+      84.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4291152076
+    },
+    {
+      "id": "dim",
+      "bounds": [
+        0.0,
+        0.0,
+        406.0,
+        776.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4291152076
+    },
+    {
+      "id": "modal",
+      "bounds": [
+        28.0,
+        176.0,
+        350.0,
+        372.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.0
+    },
+    {
+      "id": "cancel_btn",
+      "bounds": [
+        89.0,
+        467.0,
+        111.0,
+        78.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "cancel_btn_surface",
+      "bounds": [
+        89.0,
+        467.0,
+        111.0,
+        78.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 39.0
+    },
+    {
+      "id": "cancel_btn_control",
+      "bounds": [
+        89.0,
+        467.0,
+        111.0,
+        78.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "stop_btn_fill",
+      "bounds": [
+        220.0,
+        464.0,
+        115.0,
+        83.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4292352026,
+      "radius": 41.5
+    }
+  ]
+}

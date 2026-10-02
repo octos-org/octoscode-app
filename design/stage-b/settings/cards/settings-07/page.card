@@ -1,0 +1,125 @@
+# ledger settings-07@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy b_title_text { class: user-copy, en: "Settings" }
+copy b_sec_text { class: user-copy, en: "General" }
+copy b_stop_text { class: user-copy, en: "Stop server…" }
+copy b_stop_help_text { class: user-copy, en: "Shuts down Octos on this computer" }
+copy m_title_text { class: user-copy, en: "Stop the Octos server?" }
+copy m_body1_text { class: user-copy, en: "All sessions on this computer stop." }
+copy m_body2_text { class: user-copy, en: "Running turns are interrupted." }
+copy cancel_label_text { class: user-copy, en: "Cancel" }
+copy cancel_btn_label_text { class: user-copy, en: "" }
+copy stop_btn_label_text { class: user-copy, en: "Stop server" }
+copy stop_confirm_label_text { class: user-copy, en: "" }
+state cancel_btn_control_enabled { shape: bool, initial: true }
+state stop_confirm_control_enabled { shape: bool, initial: true }
+component Surface156d085f4ff5(instance: text) {
+  view Kit(component: "Surface156d085f4ff5", instance: instance) { slot }
+}
+component Surface0a56596fdcbe(instance: text) {
+  view Kit(component: "Surface0a56596fdcbe", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Surfaced3531a881782(instance: text) {
+  view Kit(component: "Surfaced3531a881782", instance: instance) { slot }
+}
+component Textd791394674eb(instance: text, text: text) {
+  view Kit(component: "Textd791394674eb", instance: instance, text: text)
+}
+component Text9e3e4e51c5dd(instance: text, text: text) {
+  view Kit(component: "Text9e3e4e51c5dd", instance: instance, text: text)
+}
+component Text764ac8ba9b39(instance: text, text: text) {
+  view Kit(component: "Text764ac8ba9b39", instance: instance, text: text)
+}
+component Texte902af0900c3(instance: text, text: text) {
+  view Kit(component: "Texte902af0900c3", instance: instance, text: text)
+}
+component Surface6cd31c06adc5(instance: text) {
+  view Kit(component: "Surface6cd31c06adc5", instance: instance) { slot }
+}
+component Text74092aa779ea(instance: text, text: text) {
+  view Kit(component: "Text74092aa779ea", instance: instance, text: text)
+}
+component Textcbc0a5932961(instance: text, text: text) {
+  view Kit(component: "Textcbc0a5932961", instance: instance, text: text)
+}
+component Text218adebaf198(instance: text, text: text) {
+  view Kit(component: "Text218adebaf198", instance: instance, text: text)
+}
+component Surface3e28bd1e494c(instance: text) {
+  view Kit(component: "Surface3e28bd1e494c", instance: instance) { slot }
+}
+component Textf99ab23b7b66(instance: text, text: text) {
+  view Kit(component: "Textf99ab23b7b66", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surfacee502f30c4358(instance: text) {
+  view Kit(component: "Surfacee502f30c4358", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Textc1271c2044f7(instance: text, text: text) {
+  view Kit(component: "Textc1271c2044f7", instance: instance, text: text)
+}
+component Surfaceceb1d642b847(instance: text) {
+  view Kit(component: "Surfaceceb1d642b847", instance: instance) { slot }
+}
+component Text9ae876351092(instance: text, text: text) {
+  view Kit(component: "Text9ae876351092", instance: instance, text: text)
+}
+
+view root Surface156d085f4ff5(instance: "page") {
+  Surface0a56596fdcbe(instance: "rail_chip") {
+
+  }
+  Vectore0a378fde04f(instance: "rail_gear_i")
+  Vectore0a378fde04f(instance: "rail_shield_i")
+  Vectore0a378fde04f(instance: "rail_code_i")
+  Vectore0a378fde04f(instance: "rail_box_i")
+  Vectore0a378fde04f(instance: "rail_plug_i")
+  Vectore0a378fde04f(instance: "rail_info_i")
+  Surfaced3531a881782(instance: "dim") {
+
+  }
+  Textd791394674eb(instance: "b_title", text: copy.b_title_text)
+  Text9e3e4e51c5dd(instance: "b_sec", text: copy.b_sec_text)
+  Text764ac8ba9b39(instance: "b_stop", text: copy.b_stop_text)
+  Texte902af0900c3(instance: "b_stop_help", text: copy.b_stop_help_text)
+  Surface6cd31c06adc5(instance: "modal") {
+
+  }
+  Text74092aa779ea(instance: "m_title", text: copy.m_title_text)
+  Textcbc0a5932961(instance: "m_body1", text: copy.m_body1_text)
+  Text218adebaf198(instance: "m_body2", text: copy.m_body2_text)
+  Surface3e28bd1e494c(instance: "cancel_btn_fill") {
+
+  }
+  Textf99ab23b7b66(instance: "cancel_label", text: copy.cancel_label_text)
+  KitButton2c6804b990a5(instance: "cancel_btn") {
+    Surfacee502f30c4358(instance: "cancel_btn_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "cancel_btn_control", enabled: cancel_btn_control_enabled)
+    Textc1271c2044f7(instance: "cancel_btn_label", text: copy.cancel_btn_label_text)
+  }
+  Surfaceceb1d642b847(instance: "stop_btn_fill") {
+
+  }
+  Text9ae876351092(instance: "stop_btn_label", text: copy.stop_btn_label_text)
+  KitButton2c6804b990a5(instance: "stop_confirm") {
+    Surfacee502f30c4358(instance: "stop_confirm_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "stop_confirm_control", enabled: stop_confirm_control_enabled)
+    Textc1271c2044f7(instance: "stop_confirm_label", text: copy.stop_confirm_label_text)
+  }
+}

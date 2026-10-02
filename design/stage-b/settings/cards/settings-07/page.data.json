@@ -1,0 +1,275 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface156d085f4ff5",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 406.0,
+          "h": 776.0
+        }
+      },
+      "rail_chip": {
+        "component": "Surface0a56596fdcbe",
+        "layout": {
+          "x": 11.0,
+          "y": 121.0,
+          "w": 42.0,
+          "h": 50.0
+        }
+      },
+      "rail_gear_i": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 16.0,
+          "y": 130.0,
+          "w": 24.0,
+          "h": 34.0,
+          "src": "http://127.0.0.1:8188/ux-images/settings-07/assets/rail_gear_i-a302d15ebd84.svg"
+        }
+      },
+      "rail_shield_i": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 16.0,
+          "y": 218.0,
+          "w": 24.0,
+          "h": 48.0,
+          "src": "http://127.0.0.1:8188/ux-images/settings-07/assets/rail_shield_i-0d9a752a9a38.svg"
+        }
+      },
+      "rail_code_i": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 16.0,
+          "y": 318.0,
+          "w": 24.0,
+          "h": 34.0,
+          "src": "http://127.0.0.1:8188/ux-images/settings-07/assets/rail_code_i-419ca21d76e5.svg"
+        }
+      },
+      "rail_box_i": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 16.0,
+          "y": 404.0,
+          "w": 24.0,
+          "h": 54.0,
+          "src": "http://127.0.0.1:8188/ux-images/settings-07/assets/rail_box_i-4f74fd85f0bb.svg"
+        }
+      },
+      "rail_plug_i": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 16.0,
+          "y": 500.0,
+          "w": 24.0,
+          "h": 50.0,
+          "src": "http://127.0.0.1:8188/ux-images/settings-07/assets/rail_plug_i-5ac1c767324b.svg"
+        }
+      },
+      "rail_info_i": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 16.0,
+          "y": 592.0,
+          "w": 24.0,
+          "h": 48.0,
+          "src": "http://127.0.0.1:8188/ux-images/settings-07/assets/rail_info_i-e91367a9a5b2.svg"
+        }
+      },
+      "dim": {
+        "component": "Surfaced3531a881782",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 406.0,
+          "h": 776.0
+        }
+      },
+      "b_title": {
+        "component": "Textd791394674eb",
+        "layout": {
+          "x": 74.8,
+          "y": 44.7,
+          "w": 61.91,
+          "h": 38.34
+        }
+      },
+      "b_sec": {
+        "component": "Text9e3e4e51c5dd",
+        "layout": {
+          "x": 74.23,
+          "y": 146.33,
+          "w": 48.24,
+          "h": 27.35
+        }
+      },
+      "b_stop": {
+        "component": "Text764ac8ba9b39",
+        "layout": {
+          "x": 73.2,
+          "y": 635.3,
+          "w": 84.87,
+          "h": 46.88
+        }
+      },
+      "b_stop_help": {
+        "component": "Texte902af0900c3",
+        "layout": {
+          "x": 74.79,
+          "y": 683.35,
+          "w": 208.3,
+          "h": 32.84
+        }
+      },
+      "modal": {
+        "component": "Surface6cd31c06adc5",
+        "layout": {
+          "x": 28.0,
+          "y": 176.0,
+          "w": 350.0,
+          "h": 372.0
+        }
+      },
+      "m_title": {
+        "component": "Text74092aa779ea",
+        "layout": {
+          "x": 112.45,
+          "y": 230.11,
+          "w": 185.53,
+          "h": 42.46
+        }
+      },
+      "m_body1": {
+        "component": "Textcbc0a5932961",
+        "layout": {
+          "x": 97.91,
+          "y": 315.27,
+          "w": 222.62,
+          "h": 35.59
+        }
+      },
+      "m_body2": {
+        "component": "Text218adebaf198",
+        "layout": {
+          "x": 108.14,
+          "y": 366.08,
+          "w": 192.69,
+          "h": 35.59
+        }
+      },
+      "cancel_btn_fill": {
+        "component": "Surface3e28bd1e494c",
+        "layout": {
+          "x": 58.0,
+          "y": 480.0,
+          "w": 128.0,
+          "h": 46.0
+        }
+      },
+      "cancel_label": {
+        "component": "Textf99ab23b7b66",
+        "layout": {
+          "x": 121.0,
+          "y": 490.4,
+          "w": 47.0,
+          "h": 33.7
+        }
+      },
+      "cancel_btn": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 58.0,
+          "y": 480.0,
+          "w": 128.0,
+          "h": 46.0
+        }
+      },
+      "cancel_btn_surface": {
+        "component": "Surfacee502f30c4358",
+        "layout": {
+          "x": 58.0,
+          "y": 480.0,
+          "w": 128.0,
+          "h": 46.0
+        }
+      },
+      "cancel_btn_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 58.0,
+          "y": 480.0,
+          "w": 128.0,
+          "h": 46.0
+        }
+      },
+      "cancel_btn_label": {
+        "component": "Textc1271c2044f7",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 8.0,
+          "h": 15.0
+        }
+      },
+      "stop_btn_fill": {
+        "component": "Surfaceceb1d642b847",
+        "layout": {
+          "x": 220.0,
+          "y": 480.0,
+          "w": 128.0,
+          "h": 46.0
+        }
+      },
+      "stop_btn_label": {
+        "component": "Text9ae876351092",
+        "layout": {
+          "x": 234.86,
+          "y": 484.2,
+          "w": 85.33,
+          "h": 57.56
+        }
+      },
+      "stop_confirm": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 220.0,
+          "y": 480.0,
+          "w": 128.0,
+          "h": 46.0
+        }
+      },
+      "stop_confirm_surface": {
+        "component": "Surfacee502f30c4358",
+        "layout": {
+          "x": 220.0,
+          "y": 480.0,
+          "w": 128.0,
+          "h": 46.0
+        }
+      },
+      "stop_confirm_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 220.0,
+          "y": 480.0,
+          "w": 128.0,
+          "h": 46.0
+        }
+      },
+      "stop_confirm_label": {
+        "component": "Textc1271c2044f7",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 8.0,
+          "h": 15.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

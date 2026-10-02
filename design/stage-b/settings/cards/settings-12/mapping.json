@@ -1,0 +1,445 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "banner",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacee93df965987a",
+      "semantic_role": "layout",
+      "bounds": [
+        4.0,
+        9.0,
+        399.0,
+        138.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "info_i",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        24.0,
+        40.0,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_ban1",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textc793d02cb2a8",
+      "semantic_role": "text",
+      "bounds": [
+        55.51,
+        47.59,
+        188.86,
+        33.49
+      ],
+      "text": "This session is open in OctoSense [remote].",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 8.78
+    },
+    {
+      "source_id": "t_ban2",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text231cc99936e0",
+      "semantic_role": "text",
+      "bounds": [
+        53.71,
+        90.48,
+        165.32,
+        32.15
+      ],
+      "text": "You can read along; take over to send.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 8.83
+    },
+    {
+      "source_id": "takeover_fill",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface6aa6c9c7465f",
+      "semantic_role": "layout",
+      "bounds": [
+        311.0,
+        39.0,
+        80.0,
+        80.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "takeover_label",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text3b4abe632e7f",
+      "semantic_role": "text",
+      "bounds": [
+        323.67,
+        58.31,
+        56.96,
+        44.21
+      ],
+      "text": "Take over",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 10.96
+    },
+    {
+      "source_id": "take_over",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        312.0,
+        56.0,
+        82.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "take_over_surface",
+      "native_id": "beauty_0_6_0",
+      "parent": "take_over",
+      "kind": "stack",
+      "component": "Surfacee502f30c4358",
+      "semantic_role": "layout",
+      "bounds": [
+        312.0,
+        56.0,
+        82.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "take_over_control",
+      "native_id": "beauty_0_6_1",
+      "parent": "take_over",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        312.0,
+        56.0,
+        82.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "take_over_label",
+      "native_id": "beauty_0_6_2",
+      "parent": "take_over",
+      "kind": "text",
+      "component": "Textc1271c2044f7",
+      "semantic_role": "text",
+      "bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "text": "",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 10.0
+    },
+    {
+      "source_id": "ban_div",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        132.0,
+        406.0,
+        1.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_thread1",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text4b9be6227fe8",
+      "semantic_role": "text",
+      "bounds": [
+        16.44,
+        182.95,
+        167.28,
+        36.17
+      ],
+      "text": "Fix steer queue drop on reconnect",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 9.84
+    },
+    {
+      "source_id": "t_thread2",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textdf1f54f62750",
+      "semantic_role": "text",
+      "bounds": [
+        16.12,
+        266.05,
+        53.03,
+        25.44
+      ],
+      "text": "OctosCode",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 9.22
+    },
+    {
+      "source_id": "t_b1",
+      "native_id": "beauty_0_10",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text359465b6c29c",
+      "semantic_role": "text",
+      "bounds": [
+        16.01,
+        315.64,
+        189.35,
+        34.83
+      ],
+      "text": "\u2022 I found the root cause in steer/queue.py.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 9.22
+    },
+    {
+      "source_id": "t_b2",
+      "native_id": "beauty_0_11",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text0bc2dbc746fe",
+      "semantic_role": "text",
+      "bounds": [
+        19.43,
+        378.63,
+        126.58,
+        30.8
+      ],
+      "text": "\u2022 Examining steer/queue.py",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 9.31
+    },
+    {
+      "source_id": "t_b3",
+      "native_id": "beauty_0_12",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text44be84c38105",
+      "semantic_role": "text",
+      "bounds": [
+        19.53,
+        434.92,
+        188.37,
+        30.8
+      ],
+      "text": "\u2022 Reconnecting logic added to prevent drops.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 8.54
+    },
+    {
+      "source_id": "chip_patch",
+      "native_id": "beauty_0_13",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceede62a6da6ff",
+      "semantic_role": "layout",
+      "bounds": [
+        20.5,
+        510.0,
+        52.0,
+        36.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "chip_patch_t",
+      "native_id": "beauty_0_13_0",
+      "parent": "chip_patch",
+      "kind": "text",
+      "component": "Text20100aa2ba44",
+      "semantic_role": "text",
+      "bounds": [
+        27.38,
+        516.67,
+        25.57,
+        24.1
+      ],
+      "text": "Patch",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 7.19
+    },
+    {
+      "source_id": "t_add12",
+      "native_id": "beauty_0_14",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textb778a6ae939f",
+      "semantic_role": "text",
+      "bounds": [
+        133.06,
+        518.01,
+        18.22,
+        22.76
+      ],
+      "text": "+12",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 8.47
+    },
+    {
+      "source_id": "t_del4",
+      "native_id": "beauty_0_15",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texta76f1997d189",
+      "semantic_role": "text",
+      "bounds": [
+        170.08,
+        518.01,
+        12.83,
+        22.76
+      ],
+      "text": "-4",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 7.98
+    },
+    {
+      "source_id": "t_done",
+      "native_id": "beauty_0_16",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texte098364b2571",
+      "semantic_role": "text",
+      "bounds": [
+        15.91,
+        591.73,
+        76.57,
+        32.15
+      ],
+      "text": "\u2022 Session done",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 10.05
+    },
+    {
+      "source_id": "ghost_composer",
+      "native_id": "beauty_0_17",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacecb9670194267",
+      "semantic_role": "layout",
+      "bounds": [
+        17.0,
+        645.0,
+        373.0,
+        97.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_readonly",
+      "native_id": "beauty_0_18",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text50a4faec0abd",
+      "semantic_role": "text",
+      "bounds": [
+        28.13,
+        680.18,
+        184.44,
+        34.83
+      ],
+      "text": "Read-only while another client has control",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 9.06
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045"
+  },
+  "contract_sha256": "e4f0bec8a707f8a595c2ae36879ab47f31a53a64e595fddf5166d2de127f69ac",
+  "mapping_basis": "mapped.json"
+}
