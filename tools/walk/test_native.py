@@ -108,6 +108,21 @@ class Merge(unittest.TestCase):
         self.assertEqual([c["check"] for c in kept], ["w: x [desktop]", "generic two"])
         self.assertEqual(kept[0]["evidence"], "e.log:3")
 
+    def test_a_partial_row_keeps_run_py_targeted_checks_and_needs_both(self):
+        targeted = "a follow-up drains as its own turn and a reselect replays nothing"
+        generic = "the send control is present"  # an ALL smoke check
+        out_rows = [{"row_id": 5, "area": "a", "spec": "s", "case": "c", "status": "fail", "depth": "specific",
+                     "evidence": "", "reason": "failing checks: queue"}]
+        checks = [{"row_id": 5, "check": targeted, "status": "fail"},
+                  {"row_id": 5, "check": generic, "status": "fail"}]
+        native_rows = {5: {"status": "pass", "depth": "native-partial", "evidence": "e.log", "reason": "r",
+                           "checks": [("w: y [desktop]", True, "", "e.log:1")]}}
+        rows, kept = run.merge_native(out_rows, checks, native_rows)
+        self.assertEqual(rows[0]["status"], "fail", "the uncovered part's targeted check still counts")
+        self.assertIn(targeted, rows[0]["reason"])
+        self.assertEqual(sorted(c["check"] for c in kept), sorted([targeted, "w: y [desktop]"]),
+                         "the generic smoke check is dropped")
+
 
 class ParityReasons(unittest.TestCase):
     parity = [

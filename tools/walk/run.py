@@ -386,10 +386,17 @@ class App:
         return None
 
     def rect(self, snap: dict, ident: str):
+        # A11: the chrome mounts some ids twice (a hidden phone/rail twin), so
+        # the first match can be a zero rect — a click there lands at 0,0.
+        # Prefer the laid-out, visible instance.
+        first = None
         for w in snap.get("s", []):
             if str(w.get("i", "")) == ident:
-                return w["r"]
-        return None
+                r = w["r"]
+                if r[2] > 0 and r[3] > 0 and w.get("v", 1) != 0:
+                    return r
+                first = first or r
+        return first
 
     def click(self, x, y):
         return self._get_retry(f"/click?x={x}&y={y}&wait=1")
@@ -478,11 +485,15 @@ class App:
         """
         self.focus_composer()
         for attempt in range(3):
-            self.key("home")
-            time.sleep(0.3)
-            self.key_mod("end", shift=True)
-            time.sleep(0.3)
-            self.key("backspace")
+            # A11 (the brief's walk tip): the composer can hold a RESTORED
+            # prompt (an interrupted turn's text comes back, like the web),
+            # and Shift+End selection no longer clears it (measured: four
+            # "walk queue one" sends concatenated in one bubble). End, then
+            # one Backspace per character, is the method that empties it.
+            n = len(self.draft() or "")
+            self.key("end")
+            for _ in range(n + 1):
+                self.key("backspace")
             try:
                 return self.wait_for(
                     lambda s: (self.draft(s) or "") in ("", PLACEHOLDER),
@@ -862,7 +873,9 @@ def t_refresh(app):
 @check("threads", "New chat mints a fresh Session and re-opens the workspace",
        rows=("new chat", "session"))
 def t_new_chat(app):
-    app.click_id(app.snap(), "new_chat_hit")
+    # A11: A3's sidebar renamed the control (sb_new_chat_hit).
+    d0 = app.snap()
+    app.click_id(d0, "sb_new_chat_hit" if app.rect(d0, "sb_new_chat_hit") else "new_chat_hit")
     app.wait_for(lambda s: ("OctosCode" in [w.get("t", "") for w in s.get("s", [])]
                             and app.rect_re(s, COMPOSER_INPUT_RE) is not None),
                  what="the workspace to re-open after New chat")
@@ -1167,13 +1180,24 @@ def p_sections(app):
 @check("peer", "goals and loops open as dialogs from the palette",
        rows=("goal", "loop", "plan", "trajectory"))
 def p_rows(app):
+    # A11: the palette shows one page of rows (A5's palette fits its list), so
+    # '/' alone may not list /goal and /loop: filter for each, as a user does.
+    found = {}
+
+    def lists(s, want):
+        return any(w.get("t") == want for w in s.get("s", []) if w.get("i") == "palette_row_name")
+
+    for query, want in (("/go", "/goal"), ("/lo", "/loop")):
+        app.clear_composer()
+        app.type_into_composer(query)
+        try:
+            app.wait_for(lambda s: lists(s, want), timeout=4, what=f"the palette to list {want}")
+            found[want] = True
+        except AssertionError:
+            found[want] = False
     app.clear_composer()
-    app.type_into_composer("/")
-    d = app.snap()
-    rows = [w.get("t", "") for w in d.get("s", []) if w.get("i") == "palette_row_name"]
-    app.key("escape")
-    ok = "/goal" in rows and "/loop" in rows
-    return ok, f"palette rows={rows}"
+    ok = all(found.values())
+    return ok, f"palette rows found={found}"
 
 
 # ---- #41c: row-specific checks for the smoke-only rows --------------------- #
@@ -1428,7 +1452,8 @@ def c2_live_background(app):
     spend_turn()  # #41d budget
     app.wait_for(working, timeout=30, what="the background turn to go live")
     # focus a sibling: New chat mints a fresh session
-    nb = app.rect(app.snap(), "new_chat_hit") or app.rect(app.snap(), "newchat")
+    nb = (app.rect(app.snap(), "sb_new_chat_hit") or app.rect(app.snap(), "new_chat_hit")
+          or app.rect(app.snap(), "newchat"))
     assert nb, "no New chat control in the live app"
     app.click(int(nb[0] + nb[2] / 2), int(nb[1] + nb[3] / 2))
     time.sleep(8.0)  # away from the session while the turn runs
@@ -1809,8 +1834,10 @@ def k_focus(app):
     app.key("escape")
     d = app.snap()
     ids = app.widget_ids(d)
-    ok = "sidebar_toggle_hit" in ids and "new_chat_hit" in ids
-    return ok, f"sidebar={'sidebar_toggle_hit' in ids} new_chat={'new_chat_hit' in ids}"
+    # A11: A3's sidebar renamed New chat (sb_new_chat_hit).
+    new_chat = "sb_new_chat_hit" in ids or "new_chat_hit" in ids
+    ok = "sidebar_toggle_hit" in ids and new_chat
+    return ok, f"sidebar={'sidebar_toggle_hit' in ids} new_chat={new_chat}"
 
 
 @check("keyboard", "the a11y keyboard guarantees hold: Ctrl+K, Esc, / all route",
@@ -2553,15 +2580,37 @@ def demote_unbuilt(out_rows: list, rows: list, parity: list) -> int:
 
 
 def merge_native(out_rows: list, check_rows: list, native_rows: dict) -> tuple:
-    """Re-point every row a native walk maps: its verdict, depth, evidence and
-    per-check rows become the native walk's (run.py's area-mapped checks for
-    that row are dropped — they were Phase-3 generic checks)."""
+    """Re-point every row a native walk maps.
+
+    * `native` (a walk covers the whole case): the verdict, depth, evidence
+      and per-check rows become the native walk's — run.py's area-mapped
+      Phase-3 checks for that row are dropped.
+    * `native-partial`: the native checks are ADDED to run.py's own checks
+      that were TARGETED at rows (a `rows=` tuple, not the ALL smoke set) —
+      they may cover the part the walk does not — and the row passes only if
+      both do. run.py's ALL-generic smoke checks are dropped either way."""
     by_id = {r["row_id"]: r for r in out_rows}
+    partial = {rid for rid, v in native_rows.items() if v["depth"] == "native-partial"}
+    targeted = {c["name"] for c in CHECKS if c["rows"] is not ALL}
+
+    def is_targeted(c):
+        return c["check"].split(" [")[0] in targeted
+
     for rid, v in native_rows.items():
         r = by_id.get(rid)
-        if r is not None:
-            r.update(status=v["status"], depth=v["depth"], evidence=v["evidence"], reason=v["reason"])
-    kept = [c for c in check_rows if int(c["row_id"]) not in native_rows]
+        if r is None:
+            continue
+        own = ([c for c in check_rows if int(c["row_id"]) == rid and is_targeted(c)]
+               if rid in partial else [])
+        own_failed = [c["check"] for c in own if c["status"] != "pass"]
+        status = "fail" if (v["status"] != "pass" or own_failed) else "pass"
+        reason = v["reason"]
+        if own:
+            reason += (f"; with run.py's {len(own)} own checks"
+                       + (f", failing: {'; '.join(own_failed[:2])}" if own_failed else ", all pass"))
+        r.update(status=status, depth=v["depth"], evidence=v["evidence"], reason=reason)
+    kept = [c for c in check_rows
+            if int(c["row_id"]) not in native_rows or (int(c["row_id"]) in partial and is_targeted(c))]
     for rid, v in sorted(native_rows.items()):
         r = by_id.get(rid)
         if r is None:
