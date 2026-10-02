@@ -551,8 +551,9 @@ async fn a_response_on_a_replaced_socket_fails_closed_until_restored() {
     server.restart().await;
     let reopened = |s: &Server| s.params_of("session/open").len();
     let opens = reopened(&server);
+    // The transport's own backoff decides when it re-dials (a12 waits 40 s).
     assert!(
-        fold_until(&conv, &mut events, 20, |c| c.store.is_live() && reopened(&server) > opens).await,
+        fold_until(&conv, &mut events, 45, |c| c.store.is_live() && reopened(&server) > opens).await,
         "re-dialed and re-opened"
     );
     settle(&conv, &mut events, 600).await;
