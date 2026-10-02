@@ -22,6 +22,16 @@ pub struct SwitchState {
     pub loading: bool,
     pub error: Option<String>,
     pub opening: Option<String>,
+    /// A8 — the row whose delete waits for its confirmation.
+    pub confirm_delete: Option<String>,
+    /// A8 — the one delete in flight (`deletingSessionRef`, single-flight).
+    pub deleting: Option<String>,
+}
+
+/// A8 — `deleteSession` is offered only when `session/delete` is advertised
+/// (`use-workspace-product.ts:96-107`: `supportsMethod(…SESSION_DELETE)`).
+pub fn delete_offered(store: &Store) -> bool {
+    store.domains.config.supported_methods().iter().any(|m| m == "session/delete")
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -118,7 +128,66 @@ pub async fn open(conv: &crate::flow::Conversation, id: String) -> Result<String
     }
 }
 
+/// A8 — `session/delete` (`use-workspace-product.ts:96-125`): never the
+/// open Session, one at a time; the row goes on SUCCESS, a failure keeps it
+/// and says why (the server's own message, as the web's `errorMessage`).
+pub async fn delete(conv: &crate::flow::Conversation, id: String) -> Result<String, String> {
+    if conv.session_id() == id {
+        super::host::state().switch.deleting = None;
+        return Err("the open Session is never deleted".into());
+    }
+    let r = conv
+        .client()
+        .call::<octoscode_client::domains::session::SessionDelete>(octos_core::ui_protocol::SessionDeleteParams {
+            session_id: id.clone(),
+        })
+        .await;
+    let mut st = super::host::state();
+    st.switch.deleting = None;
+    match r {
+        Ok(_) => {
+            drop(st);
+            conv.store.domains.session.forget(&id);
+            crate::screens::drafts::restore_for(&crate::screens::drafts::key_of(conv, &id), "");
+            Ok(format!("deleted {id}"))
+        }
+        Err(e) => {
+            let msg = match &e {
+                octoscode_client::ClientError::Rpc { error, .. } => error.message.clone(),
+                other => other.to_string(),
+            };
+            st.switch.error = Some(format!("Couldn't delete the session: {msg}"));
+            Err(msg)
+        }
+    }
+}
+
 pub fn perform(st: &mut SwitchState, action: &str, index: usize, store: &Store) -> Outcome {
+    match action {
+        "b3.switch.delete" => {
+            let rows = rows(store);
+            let Some(row) = rows.get(index) else { return Outcome::Done };
+            if row.current || !delete_offered(store) || st.deleting.is_some() {
+                return Outcome::Done;
+            }
+            st.error = None;
+            st.confirm_delete = Some(row.id.clone());
+            return Outcome::Done;
+        }
+        "b3.switch.delete.cancel" => {
+            st.confirm_delete = None;
+            return Outcome::Done;
+        }
+        "b3.switch.delete.confirm" => {
+            let Some(id) = st.confirm_delete.take() else { return Outcome::Done };
+            if st.deleting.is_some() || store.active_session().as_deref() == Some(id.as_str()) {
+                return Outcome::Done;
+            }
+            st.deleting = Some(id.clone());
+            return Outcome::Spawn(super::host::Job::SwitchDelete(id));
+        }
+        _ => {}
+    }
     match action {
         "b3.switch.open" => {
             let rows = rows(store);
@@ -180,6 +249,34 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, _inner_w: f64) {
         }
         d.close();
         d.tap(&format!("{rid}_tap"), &format!("b3.switch.open#{i}"));
+        // A8 — delete: a trailing × above the row's open target (never on the
+        // open Session; only when `session/delete` is advertised), then an
+        // explicit confirmation in place.
+        if !r.current && delete_offered(store) {
+            let layer = d.anon();
+            d.view(&layer, "width: Fill height: Fill flow: Right align: Align{x: 1.0 y: 0.5} padding: Inset{right: 8}");
+            if st.deleting.as_deref() == Some(r.id.as_str()) {
+                d.text(&format!("{rid}_deleting"), "Deleting…", &Txt::new(12.0, Face::Regular, tok::MUTED));
+            } else if st.confirm_delete.as_deref() == Some(r.id.as_str()) {
+                d.surface(
+                    &format!("{rid}_confirm"),
+                    "width: Fit height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4 padding: Inset{left: 10 right: 4 top: 2 bottom: 2}",
+                    tok::SURFACE,
+                    10.0,
+                    Some(tok::HAIRLINE),
+                );
+                d.text(&format!("{rid}_confirm_q"), "Delete?", &Txt::new(12.0, Face::Medium, tok::TEXT));
+                d.link(&format!("{rid}_confirm_no"), "Cancel", Some("b3.switch.delete.cancel"), 12.5);
+                d.view(&format!("{rid}_confirm_yes_box"), "width: Fit height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5} padding: Inset{left: 6 right: 6}");
+                d.text(&format!("{rid}_confirm_yes_label"), "Delete", &Txt::new(12.5, Face::Medium, tok::RED));
+                d.tap(&format!("{rid}_confirm_yes"), "b3.switch.delete.confirm");
+                d.close();
+                d.close();
+            } else {
+                ui::icon_button(d, &format!("{rid}_delete"), "b3_x_small.svg", 12.0, &format!("b3.switch.delete#{i}"));
+            }
+            d.close();
+        }
         d.close();
     }
     d.close();
@@ -256,6 +353,24 @@ mod tests {
         assert_eq!(known_session_title("dsflash:main"), "Session main");
         assert_eq!(known_session_title("dsflash:abcdefghijkl"), "Session efghijkl", "the last 8 of a long leaf");
         assert_eq!(known_session_title(""), "Session unknown");
+    }
+
+    #[test]
+    fn delete_never_touches_the_open_session_and_asks_first() {
+        let store = Store::new();
+        store.set_sessions(vec![sess("dsflash:a", Some("A"), "2026-09-30T10:00:00Z"), sess("dsflash:b", Some("B"), "2026-10-01T10:00:00Z")]);
+        store.set_active(Some("dsflash:a".into()));
+        let mut st = SwitchState::default();
+        assert_eq!(perform(&mut st, "b3.switch.delete", 0, &store), Outcome::Done);
+        assert_eq!(st.confirm_delete, None, "unadvertised: no delete");
+        store.domains.config.set_supported_methods(vec!["session/delete".into()]);
+        perform(&mut st, "b3.switch.delete", 1, &store);
+        assert_eq!(st.confirm_delete, None, "the open Session (row 1, older) is never offered");
+        perform(&mut st, "b3.switch.delete", 0, &store);
+        assert_eq!(st.confirm_delete.as_deref(), Some("dsflash:b"), "asks first");
+        assert_eq!(perform(&mut st, "b3.switch.delete.confirm", 0, &store), Outcome::Spawn(super::super::host::Job::SwitchDelete("dsflash:b".into())));
+        perform(&mut st, "b3.switch.delete", 0, &store);
+        assert_eq!(st.confirm_delete, None, "single-flight while one delete runs");
     }
 
     #[test]

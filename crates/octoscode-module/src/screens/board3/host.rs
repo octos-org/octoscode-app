@@ -250,6 +250,8 @@ pub enum Job {
     SwitchLoad,
     /// `session/open` fresh.
     SwitchOpen(String),
+    /// A8 — `session/delete` a confirmed, non-open Session.
+    SwitchDelete(String),
     /// `POST /api/upload` per selected image.
     ImagesUpload,
     /// `profile/sub_providers/list` (the Start form's models).
@@ -604,9 +606,10 @@ pub fn job_unavailable(job: &Job) {
             st.ck.applying = false;
             st.ck.error = Some(msg);
         }
-        Job::SwitchLoad | Job::SwitchOpen(_) => {
+        Job::SwitchLoad | Job::SwitchOpen(_) | Job::SwitchDelete(_) => {
             st.switch.loading = false;
             st.switch.opening = None;
+            st.switch.deleting = None;
             st.switch.error = Some(msg);
         }
         Job::ImagesUpload => st.img.error = Some(msg),
@@ -683,6 +686,7 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         Job::CopyMarkdown => super::checkpoints::copy_markdown(conv).await,
         Job::SwitchLoad => super::switcher::load(conv).await,
         Job::SwitchOpen(id) => super::switcher::open(conv, id).await,
+        Job::SwitchDelete(id) => super::switcher::delete(conv, id).await,
         Job::ImagesUpload => super::images::upload(conv).await,
         Job::FleetLanes => super::fleetview::load_lanes(conv).await,
         Job::FleetStart(model, brief) => super::fleetview::start(conv, model, brief).await,

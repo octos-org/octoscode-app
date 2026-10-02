@@ -43,6 +43,7 @@ const METHODS: &[&str] = &[
     "approval/scopes/list",
     "turn/state/get",
     "session/hydrate",
+    "session/delete",
 ];
 
 /// What the server answers (the knobs a test turns).
@@ -132,6 +133,14 @@ fn reply(method: &str, p: &Value, script: &Mutex<Script>) -> Result<Value, Value
             }
         }}),
         "session/list" => json!({"sessions": s.list_rows}),
+        // r3-session line 29 (`{}`); a busy session refuses.
+        "session/delete" => {
+            if session.contains("locked") {
+                return Err(json!({"code": -32000, "message": "session is busy"}));
+            }
+            s.list_rows.retain(|r| r["id"] != json!(session));
+            json!({})
+        }
         "session/status/read" => json!({
             "session_id": session, "profile_id": PROFILE,
             "model": {"model": s.model, "provider": "deepseek", "selected": true},
@@ -702,4 +711,38 @@ async fn resume_rejects_a_double_submit_and_a_selection_switch_while_the_hydrate
     let opened: Vec<Value> = server.params_of("session/open").into_iter().filter(|p| p["session_id"] == json!(first.id)).collect();
     assert_eq!(opened.len(), 1, "exactly one opening");
     assert_eq!(conv.session_id(), first.id);
+}
+
+#[tokio::test]
+async fn delete_removes_a_confirmed_row_and_keeps_a_refused_one_with_its_reason() {
+    let _g = lock();
+    let server = FakeServer::start(Script {
+        list_rows: catalog(&[("a8:api:old", "Old chat", 2), ("a8:api:locked", "Busy chat", 2)]),
+        ..Default::default()
+    })
+    .await;
+    let (conv, _ev) = connected(&server).await;
+    host::run(spawn_of(host::command("sessions", "", &conv).unwrap()), &conv).await.unwrap();
+    let rows = octoscode_module::screens::board3::switcher::rows(&conv.store);
+    let at = |id: &str| rows.iter().position(|r| r.id == id).unwrap();
+    // The open Session is never offered.
+    let me = rows.iter().position(|r| r.current).expect("the open Session is listed");
+    host::perform("b3.switch.delete", me, &conv.store);
+    assert_eq!(host::state().switch.confirm_delete, None);
+    // Delete asks first, then sends ONE session/delete; the row goes on success.
+    host::perform("b3.switch.delete", at("a8:api:old"), &conv.store);
+    let dsl = host::lower_open(&conv.store).unwrap().dsl;
+    assert!(dsl.contains("\"Delete?\""), "the confirmation is in place");
+    let job = spawn_of(host::perform("b3.switch.delete.confirm", 0, &conv.store));
+    host::run(job, &conv).await.unwrap();
+    assert_eq!(server.params_of("session/delete"), vec![json!({"session_id": "a8:api:old"})]);
+    assert!(!conv.store.sessions().iter().any(|s| s.id == "a8:api:old"), "removed on success");
+    // A refused delete keeps the row and says why.
+    let rows = octoscode_module::screens::board3::switcher::rows(&conv.store);
+    let locked = rows.iter().position(|r| r.id == "a8:api:locked").unwrap();
+    host::perform("b3.switch.delete", locked, &conv.store);
+    let job = spawn_of(host::perform("b3.switch.delete.confirm", 0, &conv.store));
+    assert!(host::run(job, &conv).await.is_err());
+    assert!(conv.store.sessions().iter().any(|s| s.id == "a8:api:locked"), "the row stays");
+    assert_eq!(host::state().switch.error.as_deref(), Some("Couldn't delete the session: session is busy"));
 }
