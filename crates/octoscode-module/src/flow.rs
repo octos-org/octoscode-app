@@ -2420,6 +2420,16 @@ impl Conversation {
             // continuation checkpoints and clear the lossy phase — the web's
             // `commitHydrate` (`durable-session.ts:101-107`).
             TransportEvent::SessionHydrated { session_id, result } => {
+                // A15 — this reply answers the OLDEST in-flight read of the
+                // session (one socket answers in order), whatever it decodes
+                // to: an undecodable reply must not leave its generation
+                // behind for the next reply to be judged by.
+                let (requested_gen, current_in_flight) = {
+                    let mut map = self.hydrate_gen.lock().unwrap();
+                    let q = map.entry(session_id.clone()).or_default();
+                    let g = q.pop_front();
+                    (g, q.contains(&self.generation()))
+                };
                 match serde_json::from_value::<octos_core::ui_protocol::SessionHydrateResult>(
                     result.clone(),
                 ) {
@@ -2439,12 +2449,6 @@ impl Conversation {
                         // under the current one while the session still owes
                         // its resync (the web's "fails recovery preparation
                         // before committing the hydrate cursor").
-                        let (requested_gen, current_in_flight) = {
-                            let mut map = self.hydrate_gen.lock().unwrap();
-                            let q = map.entry(session_id.clone()).or_default();
-                            let g = q.pop_front();
-                            (g, q.contains(&self.generation()))
-                        };
                         if requested_gen.is_some_and(|g| g != self.generation()) {
                             ::log::warn!(
                                 "octoscode: session/hydrate for {session_id} from a retired generation — stale authority, not committed"
