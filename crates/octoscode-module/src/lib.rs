@@ -4378,7 +4378,7 @@ impl OctoscodeView {
         // The live validation line takes room only while it says something.
         self.view
             .label(cx, &[live_id!(screen_splash), live_id!(connect_server_error)])
-            .set_text(cx, endpoint_error.unwrap_or(""));
+            .set_text(cx, endpoint_error.map(i18n::tr).unwrap_or(""));
         self.view
             .widget(cx, &[live_id!(screen_splash), live_id!(connect_server_error)])
             .set_visible(cx, endpoint_error.is_some());

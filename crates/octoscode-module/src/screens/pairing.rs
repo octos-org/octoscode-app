@@ -30,6 +30,7 @@ use serde_json::Value;
 
 use super::board1_kit::{self as kit, Field, Text};
 use super::board1::{Layout, Ui};
+use crate::i18n::tr;
 
 /// The nine `#D1` pairing/editor/browser cards are one board; this module owns
 /// the five pairing cards.
@@ -484,8 +485,8 @@ pub fn paired_when(at_ms: u64, now_ms: u64) -> String {
     let clock = at.format("%-I:%M %p").to_string();
     let days = (now.date_naive() - at.date_naive()).num_days();
     match days {
-        0 => format!("Today, {clock}"),
-        1 => format!("Yesterday, {clock}"),
+        0 => crate::i18n::tr1("Today, {value0}", &clock),
+        1 => crate::i18n::tr1("Yesterday, {value0}", &clock),
         _ => format!("{}, {clock}", at.format("%b %-d")),
     }
 }
@@ -496,7 +497,7 @@ pub fn paired_when(at_ms: u64, now_ms: u64) -> String {
 pub fn view(ui: &PairingUi, l: &Layout) -> Ui {
     let mut v = Ui::default();
     let title = if ui.screen == Screen::Paired { "Connection" } else { "Pair with Octos" };
-    v.header(l, "b1_pair_back", "pair.back", title);
+    v.header(l, "b1_pair_back", "pair.back", tr(title));
     match ui.screen {
         Screen::Pair => pair_view(ui, l, &mut v),
         Screen::Pairing => pairing_view(ui, l, &mut v),
@@ -530,31 +531,31 @@ fn pair_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
     ));
     v.button("b1_pair_scan", "pair.scan");
     v.push(kit::gap(if l.phone { 16.0 } else { 12.0 }));
-    v.push(Text::new("b1_pair_cap1", "Scan the pairing QR shown in Octos").px(14.0).color(kit::MUTED).fill().centered().one_line().dsl());
+    v.push(Text::new("b1_pair_cap1", tr("Scan the pairing QR shown in Octos")).px(14.0).color(kit::MUTED).fill().centered().one_line().dsl());
     v.push(kit::gap(2.0));
-    v.push(Text::new("b1_pair_cap2", "on your computer").px(14.0).color(kit::MUTED).fill().centered().one_line().dsl());
+    v.push(Text::new("b1_pair_cap2", tr("on your computer")).px(14.0).color(kit::MUTED).fill().centered().one_line().dsl());
     if let Some(note) = ui.scan_note {
         v.push(kit::gap(6.0));
-        v.push(Text::new("b1_pair_scan_note", note).px(13.0).color(kit::FAINT).fill().centered().dsl());
+        v.push(Text::new("b1_pair_scan_note", tr(note)).px(13.0).color(kit::FAINT).fill().centered().dsl());
     }
     v.push(kit::gap(if l.phone { 30.0 } else { 14.0 }));
     v.push(kit::or_divider());
     v.push(kit::gap(if l.phone { 26.0 } else { 12.0 }));
     v.push(
         Field::new("b1_pair_link", &ui.link_draft)
-            .label("Paste pairing link")
+            .label(tr("Paste pairing link"))
             .placeholder("octos://pair?code=…")
             .dsl(),
     );
     v.input("b1_pair_link", "pair.paste");
     v.returns("b1_pair_link", "pair.submit");
     v.push(kit::gap(if l.phone { 32.0 } else { 18.0 }));
-    v.push(kit::pill_primary("b1_pair_submit", "Pair", "Fill"));
+    v.push(kit::pill_primary("b1_pair_submit", tr("Pair"), "Fill"));
     v.button("b1_pair_submit", "pair.submit");
     v.push(kit::gap(if l.phone { 16.0 } else { 8.0 }));
     v.push(centered(&kit::link(
         "b1_pair_fallback",
-        "Enter server and token instead",
+        tr("Enter server and token instead"),
         kit::BLUE,
         14.0,
         500,
@@ -570,12 +571,12 @@ fn pairing_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
         kit::svg("b1_pair_spinner", "b1_spinner.svg", if l.phone { 56.0 } else { 48.0 })
     ));
     v.push(kit::gap(if l.phone { 34.0 } else { 20.0 }));
-    let line = format!("Pairing with {host}\u{2026}");
+    let line = crate::i18n::tr1("Pairing with {value0}\u{2026}", &host);
     v.push(Text::new("b1_pairing_line", &line).px(17.0).fill().centered().one_line().dsl());
     v.push(kit::gap(if l.phone { 40.0 } else { 14.0 }));
-    v.push(Text::new("b1_pairing_once", "This code works once.").px(15.0).color(kit::MUTED).fill().centered().one_line().dsl());
+    v.push(Text::new("b1_pairing_once", tr("This code works once.")).px(15.0).color(kit::MUTED).fill().centered().one_line().dsl());
     v.spacer(l, 56.0, 96.0);
-    v.push(centered(&kit::pill_outline("b1_pair_cancel", "Cancel", "136")));
+    v.push(centered(&kit::pill_outline("b1_pair_cancel", tr("Cancel"), "136")));
     v.button("b1_pair_cancel", "pair.cancel");
 }
 
@@ -590,17 +591,17 @@ fn problem_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
     v.push(kit::gap(if l.phone { 28.0 } else { 18.0 }));
     v.push(
         Field::new("b1_conn_server", &ui.server)
-            .label("Server")
+            .label(tr("Server"))
             .placeholder("http://127.0.0.1:50190")
             .dsl(),
     );
     v.input("b1_conn_server", "connect.server");
     v.push(kit::gap(if l.phone { 22.0 } else { 14.0 }));
-    v.push(Field::new("b1_conn_token", &ui.token).label("Access token").password().dsl());
+    v.push(Field::new("b1_conn_token", &ui.token).label(tr("Access token")).password().dsl());
     v.input("b1_conn_token", "connect.token");
     v.returns("b1_conn_token", "connect.submit");
     v.spacer(l, 22.0, 64.0);
-    v.push(kit::pill_primary("b1_conn_submit", "Connect", "Fill"));
+    v.push(kit::pill_primary("b1_conn_submit", tr("Connect"), "Fill"));
     v.button("b1_conn_submit", "connect.submit");
     if l.phone {
         v.push(kit::gap(70.0));
@@ -618,7 +619,7 @@ fn no_pairing_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
     v.push(kit::gap(14.0));
     v.push(kit::callout(false, false, next, None));
     v.spacer(l, 40.0, 64.0);
-    v.push(kit::pill_primary("b1_pair_manual", "Use server and token", "Fill"));
+    v.push(kit::pill_primary("b1_pair_manual", tr("Use server and token"), "Fill"));
     v.button("b1_pair_manual", "pair.manual");
     if l.phone {
         v.push(kit::gap(70.0));
@@ -632,16 +633,16 @@ fn paired_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
         .map(|p| p.origin.clone())
         .filter(|s| !s.is_empty())
         .unwrap_or_else(|| ui.connected_server.clone());
-    let mut rows = vec![kit::kv_row("Server", &host_port(&server))];
+    let mut rows = vec![kit::kv_row(tr("Server"), &host_port(&server))];
     match &ui.paired {
-        Some(p) => rows.push(kit::kv_row("Paired", &paired_when(p.at_ms, now_ms()))),
-        None => rows.push(kit::kv_row("Signed in", "With an access token")),
+        Some(p) => rows.push(kit::kv_row(tr("Paired"), &paired_when(p.at_ms, now_ms()))),
+        None => rows.push(kit::kv_row(tr("Signed in"), tr("With an access token"))),
     }
-    rows.push(kit::note_row("Stays on this device only", kit::MUTED));
+    rows.push(kit::note_row(tr("Stays on this device only"), kit::MUTED));
     v.push(kit::gap(if l.phone { 24.0 } else { 16.0 }));
     v.push(kit::list_card("b1_conn_rows", &rows));
     v.spacer(l, 40.0, 40.0);
-    v.push(centered(&kit::link("b1_pair_forget", "Forget this device", kit::RED, 15.0, 500)));
+    v.push(centered(&kit::link("b1_pair_forget", tr("Forget this device"), kit::RED, 15.0, 500)));
     v.button("b1_pair_forget", "pair.forget");
     if l.phone {
         v.push(kit::gap(90.0));
