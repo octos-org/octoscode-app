@@ -1,0 +1,20 @@
+[replay-serve] capabilities: profile/llm/fetch_models withdrawn
+[replay-serve] scenario=onboarding fixture=live-gate-a6ea8505.jsonl: 266 frames; recorded session `dsflash:main`; 2 recorded turns ["01a0e75b-dfb8-708a-a7ce-5d29c534f2f6", "01a0e75b-f89c-7042-8372-06590a201ac8"]; 0 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8454/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] -> session/open (onboarding) {"cwd":"/srv/work/octos","profile_id":"dsflash","session_id":"dsflash:main"}
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- session/hydrate (id=2)
+[replay-serve] <- permission/profile/list (id=3)
+[replay-serve] <- profile/llm/list (id=4)
+[replay-serve] <- profile/skills/list (id=5)
+[replay-serve] <- profile/sub_providers/list (id=6)
+[replay-serve] <- session/status/read (id=7)
+[replay-serve] <- onboarding/workspace_list (id=8)
+[replay-serve] -> onboarding/workspace_list (onboarding) {"path":null}
+[replay-serve] <- onboarding/workspace_list (id=9)
+[replay-serve] -> onboarding/workspace_list (onboarding) {"path":null}
+[replay-serve] <- launch/resolve (id=10)
+[replay-serve] -> launch/resolve (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"dsflash"}

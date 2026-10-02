@@ -1,0 +1,24 @@
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:3300:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3398:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3726:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
+    log: [I] apps/octoscode/module/src/lib.rs:3300:17 - [octoscode] composer remounted
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK sb_add_hit r=[10, 778, 292, 34] at (156,795)
+PASS + Add workspace opens the folder browser
+CLICK b1_br_use r=[20, 754, 320, 44] at (180,776)
+PASS wire: the launch asked launch/resolve for the folder — [{'cwd': '/srv/work/no-profile', 'profile_id': 'dsflash'}]
+PASS the fallback: 'This server cannot onboard from this app'
+PASS …with the canonical 'octoscode onboard'
+PASS …and no way to start (no 'Test, save & open')
+PASS wire: no catalog read
+SHOT 12-fallback-phone
+PASS UX fallback: frame=328x358 centre_dx=0.0 margins L=16 R=16 labels=6 outside=0 overlaps=0 controls=1 under28=0; gutters L16 R16 T211 B207; b3_onb_disconnect 102x36; b3_close 28x28
+CLICK b3_onb_disconnect r=[216, 591, 102, 36] at (267,609)
+PASS Disconnect leaves the panel
+PASS wire: nothing was created
+== 9/9 checks passed

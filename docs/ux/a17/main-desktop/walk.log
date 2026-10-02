@@ -1,0 +1,219 @@
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:3300:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
+    log: [I] apps/octoscode/module/src/lib.rs:3398:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3726:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+CLICK sb_add_hit r=[64, 603, 260, 34] at (194,620)
+PASS + Add workspace opens the folder browser
+CLICK b1_br_use r=[307, 448, 484, 44] at (549,470)
+PASS wire: the launch asked launch/resolve for the folder — [{'cwd': '/srv/work/no-profile', 'profile_id': 'dsflash'}]
+PASS the panel opens: 'Create your local coding profile'
+PASS loading: 'Loading providers from Octos…'
+SHOT 01-loading-desktop
+PASS UX loading: frame=760x219 centre_dx=0.0 margins L=20 R=20 labels=4 outside=0 overlaps=0 controls=1 under28=0; gutters L115 R115 T192 B192; b3_close 28x28
+PASS the catalog failure card
+PASS it says what failed — 'the model catalog is still loading — try again'
+SHOT 02-catalog-failed-desktop
+PASS UX catalog failed: frame=760x251 centre_dx=0.0 margins L=20 R=20 labels=5 outside=0 overlaps=0 controls=1 under28=0; gutters L115 R115 T176 B176; b3_onb_disconnect 102x36; b3_onb_retry 66x36; b3_close 28x28
+CLICK b3_onb_retry r=[723, 447, 66, 36] at (756,465)
+PASS Retry reads the catalog again (wire: a 2nd profile/llm/catalog)
+PASS the form
+PASS defaults: Profile ID 'coding', name 'Coding' — 'coding' 'Coding'
+PASS defaults: the catalog's first family 'anthropic', its first model, the Official API — 'anthropic' 'Official API'
+PASS no key yet: 'Test, save & open' is disabled (the live variant swap)
+SHOT 03-form-desktop
+PASS UX form: frame=760x447 centre_dx=0.0 margins L=20 R=20 labels=11 outside=0 overlaps=0 controls=5 under28=0; gutters L115 R115 T78 B78; b3_onb_disconnect 102x36; b3_close 28x28
+CLICK b3_onb_default r=[189, 340, 222, 32] at (300,356)
+CLICK b3_onb_provider r=[189, 404, 207, 38] at (292,423)
+SHOT 04-provider-list-desktop
+PASS UX provider list: frame=760x556 centre_dx=0.0 margins L=20 R=20 labels=16 outside=0 overlaps=0 controls=11 under28=0; gutters L115 R115 T23 B24; b3_onb_disconnect 102x36; b3_close 28x28
+CLICK b3_onb_provider r=[189, 349, 207, 38] at (292,368)
+PASS a second click folds the list
+CLICK b3_onb_provider r=[189, 404, 207, 38] at (292,423)
+PASS the provider list unfolds
+PASS the provider option #2 reads 'deepseek' — 'deepseek'
+CLICK b3_onb_opt_2 r=[193, 459, 193, 31] at (290,474)
+PASS the provider list folds
+PASS the provider field shows 'deepseek' — 'deepseek'
+PASS a new provider takes its first model — deepseek-v4-flash
+CLICK b3_onb_model r=[406, 404, 276, 38] at (544,423)
+PASS the model list unfolds
+PASS the model option #1 reads 'deepseek-v4-pro' — 'deepseek-v4-pro'
+CLICK b3_onb_opt_1 r=[410, 445, 262, 31] at (541,460)
+PASS the model list folds
+PASS the model field shows 'deepseek-v4-pro' — 'deepseek-v4-pro'
+CLICK b3_onb_route r=[692, 404, 207, 38] at (796,423)
+SHOT 05-route-list-desktop
+PASS UX route list: frame=760x556 centre_dx=0.0 margins L=20 R=20 labels=16 outside=0 overlaps=0 controls=8 under28=0; gutters L115 R115 T23 B24; b3_onb_disconnect 102x36; b3_close 28x28
+CLICK b3_onb_route r=[692, 349, 207, 38] at (796,368)
+PASS the route list folds without a choice
+CLICK b3_onb_route r=[692, 404, 207, 38] at (796,423)
+PASS the route list unfolds
+PASS the route option #2 reads 'AutoDL' — 'AutoDL'
+CLICK b3_onb_opt_2 r=[696, 474, 193, 46] at (792,497)
+PASS the route list folds
+PASS the route field shows 'AutoDL' — 'AutoDL'
+CLICK b3_onb_apikey r=[199, 482, 690, 24] (right end)
+TYPE 'sk-test-rejected'
+PASS a typed key arms 'Test, save & open'
+SHOT 06-key-typed-desktop
+CLICK b3_onb_submit r=[754, 545, 145, 36] at (826,563)
+PASS busy: 'Testing provider' + 'Working…' — 'Testing provider'
+SHOT 07-testing-desktop
+PASS UX testing: frame=760x486 centre_dx=0.0 margins L=20 R=20 labels=14 outside=0 overlaps=0 controls=1 under28=0; gutters L115 R115 T58 B59; b3_close 28x28
+PASS the failure
+PASS the error leads with the server's own message — 'Provider connection failed'
+PASS the raw cause shows, the key REDACTED — 'API error (deepseek@api/deepseek-v4-pro, api_style=openai_chat_completions): authentication failed — HTTP 401 - {"error"'
+PASS no label anywhere carries the key
+PASS the retained profile: 'Profile coding-2 exists. A retry only repeats provider test and save.' — 'Profile coding-2 exists. A retry only repeats provider test and save.'
+PASS the identity is locked once created (no Profile ID input)
+SHOT 08-failed-desktop
+PASS UX failed: frame=760x549 centre_dx=0.0 margins L=20 R=20 labels=13 outside=0 overlaps=0 controls=4 under28=0; gutters L115 R115 T27 B27; b3_onb_submit 145x36; b3_onb_disconnect 102x36; b3_close 28x28
+PASS wire: ONE profile/local/create {requested_id coding, name Coding, make_default false (the click)} — [{"email": "", "make_default": false, "name": "Coding", "requested_id": "coding", "username": ""}]
+PASS wire: the test carries the catalog ENDPOINT as advertised (autodl, AutoDL, its base URL and env) — [{"api_key": "sk-t\u2026(16)", "profile_id": "coding-2", "selection": {"family_id": "deepseek", "model_id": "deepseek-v4-pro", "route": {"api_key_env": "AUTODL_API_KEY", "api_type": "openai", "base_url": "https://www.autodl.art/api/v1", "label": "AutoDL", "route_id": "autodl"}}}]
+PASS wire: the key reached the server (masked in its log) — [{"api_key": "sk-t\u2026(16)", "profile_id": "coding-2", "selection": {"family_id": "deepseek", "model_id": "deepseek-v4-pro", "route": {"api_key_env": "AUTODL_API_KEY", "api_type": "openai", "base_url": "https://www.autodl.art/api/v1", "label": "AutoDL", "route_id": "autodl"}}}]
+PASS wire: no save after a failed test
+CLICK b3_onb_route r=[692, 353, 207, 38] at (796,372)
+PASS the route list unfolds
+PASS the route option #0 reads 'Official API' — 'Official API'
+CLICK b3_onb_opt_0 r=[696, 401, 193, 31] at (792,416)
+PASS the route list folds
+PASS the route field shows 'Official API' — 'Official API'
+CLICK b3_onb_apikey r=[199, 431, 690, 24] (right end)
+TYPE 'sk-test-dummy'
+PASS the retry is armed
+CLICK b3_onb_submit r=[754, 596, 145, 36] at (826,614)
+PASS the panel closes once the Session opened
+PASS wire: the retry never re-creates (create x1, test x2, save x1) — 1/2/1
+PASS wire: the Official API route DERIVED from the family (deepseek, 'Official API', DEEPSEEK_API_KEY, openai) — [{"api_key": "sk-t\u2026(13)", "profile_id": "coding-2", "selection": {"family_id": "deepseek", "model_id": "deepseek-v4-pro", "route": {"api_key_env": "DEEPSEEK_API_KEY", "api_type": "openai", "label": "Official API", "route_id": "deepseek"}}}]
+PASS wire: saved exactly as tested, as the primary — [{"api_key": "sk-t\u2026(13)", "profile_id": "coding-2", "selection": {"family_id": "deepseek", "model_id": "deepseek-v4-pro", "route": {"api_key_env": "DEEPSEEK_API_KEY", "api_type": "openai", "label": "Official API", "route_id": "deepseek"}}, "set_primary": true}]
+PASS wire: the coding Session opens in the folder under Core's profile (coding-2:api:…) — [{"cwd": "/srv/work/no-profile", "profile_id": "coding-2", "session_id": "coding-2:api:01a0fc83-c1a4-77c9-a955-69838ad92748"}]
+SHOT 09-opened-desktop
+    log: [I] apps/octoscode/module/src/lib.rs:4177:13 - [octoscode] chrome: Action("workspace.add", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1931:21 - [octoscode] sidebar action: workspace.add
+    log: [I] apps/octoscode/module/src/lib.rs:3437:13 - [octoscode] dock: folder browser (workspace.add)
+    log: [I] apps/octoscode/module/src/lib.rs:2794:13 - [octoscode] board1 action: b1.open.add
+    log: [I] apps/octoscode/module/src/lib.rs:2794:13 - [octoscode] board1 action: browser.use
+    log: [I] apps/octoscode/module/src/screens/board1.rs:1028:21 - [octoscode] board1: new session awaiting the profile choice in the chosen workspace
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 2 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/screens/launch.rs:209:21 - [octoscode] onboarding prepare: catalog unavailable
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 4 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.retry
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.retry #0 -> Spawn(OnboardingPrepare)
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 2 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4110:42 - [octoscode] board3 OnboardingPrepare: catalog ready
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 8 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.default
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.default #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 8 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6075:17 - [octoscode] nav tap: b3.onb.default
+    log: [I] apps/octoscode/module/src/lib.rs:5076:21 - [octoscode] nav route: b3.onb.default
+    log: [I] apps/octoscode/module/src/lib.rs:2900:9 - [octoscode] screen action: b3.onb.default
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.select.provider
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.select.provider #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 28 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6075:17 - [octoscode] nav tap: b3.onb.select.provider
+    log: [I] apps/octoscode/module/src/lib.rs:5076:21 - [octoscode] nav route: b3.onb.select.provider
+    log: [I] apps/octoscode/module/src/lib.rs:2900:9 - [octoscode] screen action: b3.onb.select.provider
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.select.provider
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.select.provider #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 8 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6075:17 - [octoscode] nav tap: b3.onb.select.provider
+    log: [I] apps/octoscode/module/src/lib.rs:5076:21 - [octoscode] nav route: b3.onb.select.provider
+    log: [I] apps/octoscode/module/src/lib.rs:2900:9 - [octoscode] screen action: b3.onb.select.provider
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.select.provider
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.select.provider #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 28 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6075:17 - [octoscode] nav tap: b3.onb.select.provider
+    log: [I] apps/octoscode/module/src/lib.rs:5076:21 - [octoscode] nav route: b3.onb.select.provider
+    log: [I] apps/octoscode/module/src/lib.rs:2900:9 - [octoscode] screen action: b3.onb.select.provider
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.pick#2
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.pick #2 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 8 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.select.model
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.select.model #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 10 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6075:17 - [octoscode] nav tap: b3.onb.select.model
+    log: [I] apps/octoscode/module/src/lib.rs:5076:21 - [octoscode] nav route: b3.onb.select.model
+    log: [I] apps/octoscode/module/src/lib.rs:2900:9 - [octoscode] screen action: b3.onb.select.model
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.pick#1
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.pick #1 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 8 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.select.route #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 11 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6075:17 - [octoscode] nav tap: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:5076:21 - [octoscode] nav route: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:2900:9 - [octoscode] screen action: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.select.route #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 8 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6075:17 - [octoscode] nav tap: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:5076:21 - [octoscode] nav route: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:2900:9 - [octoscode] screen action: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.select.route #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 11 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6075:17 - [octoscode] nav tap: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:5076:21 - [octoscode] nav route: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:2900:9 - [octoscode] screen action: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.pick#2
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.pick #2 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 8 tap(s), 3 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.submit
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.submit #0 -> Spawn(OnboardingSubmit)
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 2 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 2 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 OnboardingSubmit failed: API error (deepseek@api/deepseek-v4-pro, api_style=openai_chat_completions): authentication failed — HTTP 401 - {"error":{"message":"Authentication Fails, Your api key: [redacted] is invalid","type":"authentication_error"}}
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 7 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.select.route #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 10 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6075:17 - [octoscode] nav tap: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:5076:21 - [octoscode] nav route: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:2900:9 - [octoscode] screen action: b3.onb.select.route
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.pick#0
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.pick #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 7 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5865:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5306:25 - [octoscode] board3 tap: b3.onb.submit
+    log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.onb.submit #0 -> Spawn(OnboardingSubmit)
+    log: [I] apps/octoscode/module/src/lib.rs:3930:17 - [octoscode] board3 mounted Some(Launch): 2 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4110:42 - [octoscode] board3 OnboardingSubmit: onboarded: coding-2 tested, saved and opened
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session coding-2:api:01a0fc83-c1a4-77c9-a955-69838ad92748 restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
+    log: [I] apps/octoscode/module/src/lib.rs:4111:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+PASS the app log never carries the key
+== 56/56 checks passed

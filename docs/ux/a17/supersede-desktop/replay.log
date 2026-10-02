@@ -1,0 +1,48 @@
+[replay-serve] scenario=onboarding fixture=live-gate-a6ea8505.jsonl: 266 frames; recorded session `dsflash:main`; 2 recorded turns ["01a0e75b-dfb8-708a-a7ce-5d29c534f2f6", "01a0e75b-f89c-7042-8372-06590a201ac8"]; 0 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8454/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] -> session/open (onboarding) {"cwd":"/srv/work/octos","profile_id":"dsflash","session_id":"dsflash:main"}
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- session/hydrate (id=2)
+[replay-serve] <- permission/profile/list (id=3)
+[replay-serve] <- profile/llm/list (id=4)
+[replay-serve] <- profile/skills/list (id=5)
+[replay-serve] <- profile/sub_providers/list (id=6)
+[replay-serve] <- session/status/read (id=7)
+[replay-serve] <- onboarding/workspace_list (id=8)
+[replay-serve] -> onboarding/workspace_list (onboarding) {"path":null}
+[replay-serve] <- onboarding/workspace_list (id=9)
+[replay-serve] -> onboarding/workspace_list (onboarding) {"path":null}
+[replay-serve] <- launch/resolve (id=10)
+[replay-serve] -> launch/resolve (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"dsflash"}
+[replay-serve] <- profile/llm/catalog (id=11)
+[replay-serve] -> profile/llm/catalog (onboarding) {}
+[replay-serve] <- onboarding/workspace_list (id=12)
+[replay-serve] -> onboarding/workspace_list (onboarding) {"path":null}
+[replay-serve] <- onboarding/workspace_list (id=13)
+[replay-serve] -> onboarding/workspace_list (onboarding) {"path":"/srv/work/no-profile"}
+[replay-serve] <- launch/resolve (id=14)
+[replay-serve] -> launch/resolve (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"dsflash"}
+[replay-serve] <- profile/llm/catalog (id=15)
+[replay-serve] -> profile/llm/catalog (onboarding) {}
+[replay-serve] => profile/llm/catalog reply sent after 2500 ms (onboarding)
+[replay-serve] => profile/llm/catalog reply sent after 2500 ms (onboarding)
+[replay-serve] <- profile/local/create (id=16)
+[replay-serve] -> profile/local/create (onboarding) {"email":"","make_default":true,"name":"Coding","requested_id":"coding","username":""}
+[replay-serve] <- profile/llm/test (id=17)
+[replay-serve] -> profile/llm/test (onboarding) {"api_key":"octoscode-web-keyless-probe","profile_id":"coding-2","selection":{"family_id":"ollama","model_id":"codellama","route":{"api_key_env":"","api_type":"openai","label":"Official API","route_id":"ollama"}}}
+[replay-serve] => profile/llm/test reply sent after 2500 ms (onboarding)
+[replay-serve] <- onboarding/workspace_list (id=18)
+[replay-serve] -> onboarding/workspace_list (onboarding) {"path":null}
+[replay-serve] <- onboarding/workspace_list (id=19)
+[replay-serve] -> onboarding/workspace_list (onboarding) {"path":"/srv/work/no-profile"}
+[replay-serve] <- launch/resolve (id=20)
+[replay-serve] -> launch/resolve (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"dsflash"}
+[replay-serve] <- session/open (id=21)
+[replay-serve] -> session/open (onboarding) {"cwd":"/srv/work/no-profile","profile_id":"coding-2","session_id":"coding-2:api:01a0fc84-0f6e-709e-b40b-ceee10706508"}
+[replay-serve] <- session/list (id=22)
+[replay-serve] <- session/hydrate (id=23)
+[replay-serve] <- permission/profile/list (id=24)
+[replay-serve] <- session/status/read (id=25)
