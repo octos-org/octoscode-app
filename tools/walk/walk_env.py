@@ -102,6 +102,27 @@ def scrub(text: str) -> str:
                   lambda m: "<abs>/" + m.group(0).rstrip("/").rsplit("/", 1)[-1], text)
 
 
+def crop_png(path, x: int, y: int, w: int, h: int, max_w: int = 1400):
+    """Crop a capture to the box (pixels) and fit it to `max_w` (the brief:
+    captures <= 1400 px wide). `sips --cropOffset 0 0` CENTRES the crop
+    (measured: a 720x1700 crop of an 804x1748 phone frame landed at 42,24),
+    so PIL does it when present; sips only gets non-zero offsets."""
+    path = str(path)
+    try:
+        from PIL import Image  # noqa: PLC0415
+        im = Image.open(path)
+        im = im.crop((x, y, min(x + w, im.width), min(y + h, im.height)))
+        if im.width > max_w:
+            im = im.resize((max_w, round(im.height * max_w / im.width)))
+        im.save(path)
+        return
+    except ImportError:
+        pass
+    subprocess.run(["sips", "-c", str(h), str(w), "--cropOffset", str(max(1, y)), str(max(1, x)),
+                    path, "--out", path], capture_output=True)
+    subprocess.run(["sips", "-Z", str(max_w), path], capture_output=True)
+
+
 class App:
     """One hidden app on `port`, driven through its instrument."""
 

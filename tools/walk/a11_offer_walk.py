@@ -39,7 +39,7 @@ import sys
 import time
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from walk_env import ROOT, App, Fixture, app_env, scrub  # noqa: E402
+from walk_env import ROOT, App, Fixture, app_env, crop_png, scrub  # noqa: E402
 
 # The aggregator's convention (docs/walk/README.md "Native click walks"): a
 # literal, read with `ast` — never imported.
@@ -131,28 +131,20 @@ def capture(app, name):
     data = app.png()
     if data:
         stem.with_suffix(".png").write_bytes(data)
-        if not PHONE:
-            # The desktop capture is the whole 1400x900 shell desktop: keep
-            # the OctosCode window (the module view + the 32 pt title bar).
-            view = next((w["r"] for w in s if w.get("ty") == "OctoscodeView" and App.shown(w)), None)
-            if view:
-                k = 2.0
-                x, y, w, h = view
+        view = next((w["r"] for w in s if w.get("ty") == "OctoscodeView" and App.shown(w)), None)
+        if view:
+            k = 2.0  # the capture is at the window's 2x density
+            x, y, w, h = view
+            if not PHONE:
+                # The desktop capture is the whole 1400x900 shell desktop:
+                # keep the OctosCode window (the module view + its 32 pt title bar).
                 y, h = max(y - 32, 0), h + min(32, y)
-                subprocess.run(["sips", "-c", str(int(h * k)), str(int(w * k)), "--cropOffset",
-                                str(int(y * k)), str(int(x * k)), str(stem.with_suffix(".png")),
-                                "--out", str(stem.with_suffix(".png"))], capture_output=True)
-        else:
-            # The phone shell frame is 402 wide; the module draws in its
-            # 360x780 window frame at the left (A3's env frame).
-            view = next((w["r"] for w in s if w.get("ty") == "OctoscodeView" and App.shown(w)), None)
-            if view:
-                k = 2.0
-                x, y, w, h = view
-                subprocess.run(["sips", "-c", str(int((h + y) * k)), str(int(w * k)), "--cropOffset",
-                                "0", str(int(x * k)), str(stem.with_suffix(".png")),
-                                "--out", str(stem.with_suffix(".png"))], capture_output=True)
-        subprocess.run(["sips", "-Z", "1400", str(stem.with_suffix(".png"))], capture_output=True)
+            else:
+                # The phone shell frame is 402 wide; the module draws in its
+                # 360x780 window frame at the left (A3's env frame): keep the
+                # frame from the status bar down.
+                h, y = h + y, 0
+            crop_png(stem.with_suffix(".png"), int(x * k), int(y * k), int(w * k), int(h * k))
     say(f"  shot {stem.name}")
     return s
 
