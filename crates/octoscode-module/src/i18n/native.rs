@@ -113,7 +113,6 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("No models are configured for this profile.", "此配置档案未配置模型。"),
     ("This configured model is unavailable.", "此已配置的模型不可用。"),
     ("Steer now", "立即引导"),
-    ("{value0} queued", "{value0} 条排队中"),
     ("\u{21b3} read-only peer \u{b7} {value0} \u{b7} steer from the master", "\u{21b3} 只读同侪 \u{b7} {value0} \u{b7} 请从主会话引导"),
     ("Couldn't confirm \u{2014} waiting for the previous attempt to expire", "无法确认 \u{2014} 正在等待上一次尝试过期"),
     (
@@ -611,6 +610,35 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("{value0}m", "{value0} 分钟前"),
     ("{value0}h", "{value0} 小时前"),
     ("{value0}d", "{value0} 天前"),
+    // ---- A31 (merged from main): the Skills dialog's background jobs (parity row 15;
+    // board 4 region 3) and its warning; each row's English source in a comment.
+    // board 4 region 3, the section title
+    ("Background jobs", "后台作业"),
+    // board 4 region 3, the header count
+    ("{value0} queued", "{value0} 个排队中"),
+    // README row 15 status table: queued -> ○ Queued
+    ("Queued", "排队中"),
+    // README row 15 status table: failed
+    ("Couldn't finish this job.", "无法完成此作业。"),
+    // README row 15 status table: abandoned
+    ("The server restarted before this job finished.", "服务器在此作业完成前已重启。"),
+    // A31 empty state
+    ("No background jobs in this Session.", "此会话没有后台作业。"),
+    // A31 loading state
+    ("Loading background jobs…", "正在加载后台作业…"),
+    // A31 list failure
+    ("Couldn't load background jobs.", "无法加载后台作业。"),
+    // A31: a server without skill.action_jobs.v1 (operator default)
+    (
+        "Only jobs announced since the app connected are shown; this server doesn't list earlier jobs.",
+        "仅显示应用连接后通知的作业；此服务器不提供更早作业的列表。",
+    ),
+    // screens/dialog.rs SKILLS_WARNING (the web's zh.ts key with 'in your browser')
+    (
+        "Skills are shared by this Profile, not installed on this device. Installation may download executable \
+         tools and dependencies. Review and trust the source first.",
+        "技能由此配置档案共享，不会安装到此设备。安装可能下载可执行工具和依赖。请先审查并信任来源。",
+    ),
 ];
 
 /// The web catalog's vocabulary: each English term (matched as a word,
@@ -697,3 +725,42 @@ pub static GLOSSARY_EXEMPT: &[(&str, &str)] = &[
     // The verb "turn off", not a conversation turn.
     ("Turn off Vim editing", "turn"),
 ];
+
+/// The native Chinese for `source`, if it is native copy (A31's helper; the
+/// lookup the catalog uses is [`super::native_zh`]).
+pub fn zh(source: &str) -> Option<&'static str> {
+    super::native_zh(source)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::i18n::{alias, catalog, tr_in, Lang};
+
+    fn placeholders(s: &str) -> Vec<String> {
+        let mut out: Vec<String> = s
+            .split('{')
+            .skip(1)
+            .filter_map(|p| p.split_once('}').map(|(name, _)| name.to_owned()))
+            .collect();
+        out.sort();
+        out
+    }
+
+    /// A31: every native row is new copy (no web key, no alias), Chinese,
+    /// with its placeholders; a context row (`ctx|source`) included.
+    #[test]
+    fn every_native_entry_is_new_copy_with_chinese_and_its_placeholders() {
+        let mut seen = std::collections::HashSet::new();
+        for (en, zh) in NATIVE_ZH {
+            assert!(seen.insert(*en), "duplicate {en:?}");
+            let source = en.split_once('|').map(|(_, s)| s).unwrap_or(en);
+            assert!(!catalog().contains_key(en), "{en:?} is a web key: use the web's translation");
+            assert!(alias::web_key(en).is_none(), "{en:?} is an alias of a web key");
+            assert_eq!(placeholders(source), placeholders(zh), "{en:?}");
+            assert!(zh.chars().any(|c| ('\u{4e00}'..='\u{9fff}').contains(&c)), "{en:?} -> {zh:?} is not Chinese");
+            assert_eq!(tr_in(Lang::Zh, en), *zh);
+            assert_eq!(tr_in(Lang::En, en), *en);
+        }
+    }
+}

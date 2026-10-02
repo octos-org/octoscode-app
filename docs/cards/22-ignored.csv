@@ -5,5 +5,4 @@ background/activity,feature not negotiated; no store projection yet
 queue/state,client-manufactured; server never emits it
 router/failover,web ignores; routing shown in logs only
 router/status,web ignores; routing shown in logs only
-skill/action/job/updated,web ignores; job state read on demand
 turn/spawn_complete,legacy pre-v2; superseded by projection/envelope background/spawn_complete (handled)

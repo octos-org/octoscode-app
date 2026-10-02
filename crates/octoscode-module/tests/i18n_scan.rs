@@ -74,7 +74,7 @@ const CONVERTED: &[&str] = &[
 /// The phase-2 ceiling: bypasses left in the rest of the crate (A24 phase 1
 /// measured `screens/`; phase 2 counts every file and resolves string
 /// constants too). Lower it as files are converted; it must reach 0.
-const REMAINING_CEILING: usize = 47;
+const REMAINING_CEILING: usize = 36;
 
 /// (call prefix, text-argument indices). A prefix starting with `.` or `::`
 /// matches a method / path call; otherwise the name must stand alone.

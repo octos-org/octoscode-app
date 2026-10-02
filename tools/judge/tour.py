@@ -11,7 +11,7 @@ Generic checks (the human judge still looks at every PNG):
   overlap  - two sibling text nodes overlap by more than 25% of the smaller one
   small    - a Button / hit narrower or shorter than 28 px (touch / pointer target)
 """
-import json, os, re, subprocess, sys, time, urllib.parse, urllib.request
+import json, os, re, subprocess, sys, time, urllib.error, urllib.parse, urllib.request
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "walk"))
 from snapsafe import scrub as _scrub  # noqa: E402
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../walk"))  # noqa: E402
@@ -26,16 +26,29 @@ N = [0]
 
 
 def get(path, timeout=15):
-    # The instrument answers 404 when the UI thread misses its 5 s window;
-    # one retry after a pause tells a transient stall from a dead app.
-    for attempt in (0, 1):
+    # An input route with wait=1 answers 404 when its frame was coalesced: the
+    # input WAS delivered (A11), so it is never re-sent (a retry would click
+    # twice). A read that 404s (the UI thread missed its 5 s window on a loaded
+    # machine) is retried once after a pause, which tells a stall from a dead app.
+    if path.startswith(("/click", "/t?", "/k?", "/m?")):
+        try:
+            with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return b""
+            raise
+    # Under a saturated machine (eight agents building) a frame can miss the
+    # window more than once; the pauses grow so a slow frame gets its turn.
+    pauses = (1.5, 3.0, 6.0)
+    for attempt in range(len(pauses) + 1):
         try:
             with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
                 return r.read()
         except Exception:
-            if attempt:
+            if attempt == len(pauses):
                 raise
-            time.sleep(1.5)
+            time.sleep(pauses[attempt])
 
 
 def snap():
@@ -154,8 +167,15 @@ def capture(name):
     N[0] += 1
     stem = f"{N[0]:02d}-{name}"
     png = os.path.join(OUT, stem + ".png")
+    try:
+        grab = get("/g?raw=1", timeout=30)
+    except Exception as e:  # recorded, never an empty PNG; the tour goes on
+        with open(os.path.join(OUT, "checks.tsv"), "a") as f:
+            f.write(f"{stem}\t{MODE}\tgrab-timeout\t{type(e).__name__}: {e}\n")
+        print(f"{stem}: grab-timeout ({e})")
+        return
     with open(png, "wb") as f:
-        f.write(get("/g?raw=1", timeout=30))
+        f.write(grab)
     subprocess.run(["sips", "-Z", "1400", png, "--out", png], capture_output=True)
     tree = snap()
     with open(os.path.join(OUT, stem + ".snap.json"), "w") as f:
@@ -237,9 +257,11 @@ def tour_live():
     # settings sections
     if click("settings_open_hit"):
         capture("settings-general")
-        for sec in ("Permissions", "Model", "Sandbox", "Connection", "Preferences", "About"):
-            if click_text(sec):
-                capture(f"settings-{sec.lower()}")
+        # By id: the desktop nav row (set_nav_<id>) or, on phone, the icon-only
+        # rail (set_rail_<id>) — the rail has no text to click.
+        for sec in ("permissions", "model", "sandbox", "connection", "preferences", "about"):
+            if click(f"set_nav_{sec}") or click(f"set_rail_{sec}"):
+                capture(f"settings-{sec}")
         close_overlays()
     if click("review_open_hit"):
         capture("review")

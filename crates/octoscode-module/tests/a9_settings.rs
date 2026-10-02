@@ -111,6 +111,10 @@ fn forget_server_removes_the_remembered_address_and_its_token() {
     let dir = std::env::temp_dir().join(format!("a9-settings-cred-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::env::set_var("OCTOSCODE_CREDENTIALS_DIR", &dir);
+    // A21: Forget also clears the tab drafts and the restore hints — on
+    // this test's own files, never ~/.octoscode (brief §8).
+    std::env::set_var("OCTOSCODE_DRAFTS_FILE", dir.join("composer-drafts.json"));
+    std::env::set_var("OCTOSCODE_CONNECTION_FILE", dir.join("connection-v1.json"));
     octoscode_module::credentials::remember_server("http://127.0.0.1:50190").unwrap();
     octoscode_module::credentials::remember_token("http://127.0.0.1:50190", "tok-one").unwrap();
     octoscode_module::credentials::remember_token("http://10.0.0.9:50190", "tok-two").unwrap();
@@ -119,10 +123,13 @@ fn forget_server_removes_the_remembered_address_and_its_token() {
     a9_settings::forget_saved("http://127.0.0.1:50190");
     assert_eq!(octoscode_module::credentials::prefill(), (None, None), "the next start prefills nothing");
     assert_eq!(octoscode_module::credentials::token_for("http://127.0.0.1:50190"), None);
+    // A21 (row 195, the web's way): Forget clears every origin's saved token
+    // (`ConnectionGate.tsx:319-356` -> `clearRememberedTokens`,
+    // `remembered-token.ts`), not only this server's.
     assert_eq!(
-        octoscode_module::credentials::token_for("http://10.0.0.9:50190").as_deref(),
-        Some("tok-two"),
-        "another server's token stays"
+        octoscode_module::credentials::token_for("http://10.0.0.9:50190"),
+        None,
+        "no other server's token survives Forget"
     );
     let _ = std::fs::remove_dir_all(&dir);
 }

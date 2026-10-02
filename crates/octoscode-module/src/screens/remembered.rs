@@ -183,6 +183,10 @@ pub fn forget(server: &str) {
 /// or the token changes, `ConnectionGate.tsx:266-307`). Compared in memory,
 /// never logged; returns whether the remembered open was dropped.
 pub fn on_connect_identity(server: &str, token: &str) -> bool {
+    // A21 — the tab envelope holds ONE endpoint's restore hints
+    // (`preferences.ts:59-70`, replaced whole on an identity change,
+    // `:118-135`): another origin's remembered open goes with its identity.
+    keep_only_in(&path(), server);
     if crate::credentials::token_for(server).unwrap_or_default() == token.trim() {
         return false;
     }
@@ -191,6 +195,30 @@ pub fn on_connect_identity(server: &str, token: &str) -> bool {
         forget(server);
     }
     had
+}
+
+/// A21 — drop every remembered open except `server`'s origin (`seen` stays:
+/// the migration marker is not a restore hint). Writes only when one went.
+pub fn keep_only_in(path: &Path, server: &str) {
+    let keep = crate::credentials::origin(server);
+    let mut f = read_all(path);
+    let before = f.servers.len();
+    f.servers.retain(|origin, _| Some(origin) == keep.as_ref());
+    if f.servers.len() != before {
+        let _ = write_all(path, f);
+    }
+}
+
+/// A21 — Forget clears the whole tab envelope's restore hints
+/// (`ConnectionGate.tsx:319-356`, `clearConnectionPreferences`), every
+/// origin's (`seen` stays).
+pub fn forget_all() {
+    let p = path();
+    let mut f = read_all(&p);
+    if !f.servers.is_empty() {
+        f.servers.clear();
+        let _ = write_all(&p, f);
+    }
 }
 
 /// The open reply's three facts (`App.tsx:974-992`), kept for `server`.

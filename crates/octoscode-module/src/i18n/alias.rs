@@ -89,6 +89,13 @@ pub static ALIASES: &[Alias] = &[
     // ---- the thinking-effort dialog (web features/reasoning/ReasoningDialog.tsx;
     // the board's segment says "Max" for REASONING_CHOICES' "Maximum")
     a("Max", "Maximum", "features/reasoning/ReasoningDialog.tsx:80"),
+    // ---- A31: the Skills dialog (web features/skills/SkillsDialog.tsx)
+    a("Skills", "Profile skills", "features/skills/SkillsDialog.tsx:146"),
+    a("Installed", "Installed skills", "features/skills/SkillsDialog.tsx:174"),
+    a("Registry", "Skill registry", "features/skills/SkillsDialog.tsx:205"),
+    // generic: a registry row's button reads "Review installation of <name>"
+    // (it opens the confirm card, like the native "Install" pill)
+    a("Install", "Review installation", "features/skills/SkillsDialog.tsx:267"),
 ];
 
 /// The web key a native string renders through, if it is an alias.

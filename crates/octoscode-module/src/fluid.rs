@@ -1254,7 +1254,7 @@ fn queue_chip(queued: usize, steer: bool, m: &Metrics) -> String {
          {count}{steer_part}{dot}\
          View{{width: 28 height: 28 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n{x}{remove}}}\n\
          }}\n",
-        count = label("queue_count", &tr1("{value0} queued", &queued.to_string()), &st, INK, "width: Fit height: Fit"),
+        count = label("queue_count", &crate::i18n::tr_with("{count} queued", &[("count", &queued.to_string())]), &st, INK, "width: Fit height: Fit"),
         dot = dot(),
         x = svg("queue_remove_icon", "b3_close.svg", 12.0, MUTED),
         remove = hit("queue_remove_hit", 14.0),

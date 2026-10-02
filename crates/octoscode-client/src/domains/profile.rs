@@ -21,8 +21,8 @@
 //!   in `docs/protocol-ext-matrix.csv` (rows for this domain).
 //!
 //! This file owns no notifications: the profile/onboarding extension surface is
-//! request-only. `skill/action/job/updated` (the one related notification) is a
-//! `config.rs` misc-singleton row, not this lane's (see `domains/mod.rs`).
+//! request-only. `skill/action/job/updated` (the one related notification) is
+//! owned by `skill_jobs.rs` (A31, parity row 15).
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};

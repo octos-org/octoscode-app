@@ -25,7 +25,8 @@
 //! - Never applied to model, user or server prose: only call sites that
 //!   carry product copy call [`tr`] (the web's rule, `zh.ts:1`).
 pub mod alias;
-// A24 phase 2: the reviewed native-only supplement (consulted last).
+// A24 phase 2 (+ A31's rows): the reviewed native-only supplement
+// (consulted last: web key, then alias, then native).
 pub mod native;
 pub mod tree;
 #[rustfmt::skip]
@@ -165,7 +166,8 @@ pub fn catalog_loaded() -> bool {
 }
 
 /// The Chinese text for an English source: the web key itself, else the
-/// web key of the same control ([`alias`]), each also tried with
+/// web key of the same control ([`alias`]), else native copy the web has
+/// no screen for ([`native`], board 4), each also tried with
 /// typographic quotes made straight (the native copy writes `can’t` where
 /// the web's key has `can't` — one string, two spellings); `None` = no web
 /// translation.
