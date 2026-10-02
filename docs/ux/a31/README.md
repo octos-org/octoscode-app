@@ -83,6 +83,12 @@ Code: `crates/octoscode-module/src/screens/skill_jobs.rs` (the read and the view
   file sends a live transition). Phases `seeded` (the /skills palette row CLICK, the race, every status, the live
   update, the Session scope by the other Session's sidebar row CLICK), `announced` (the feature withdrawn) and `zh`.
   Results and captures: `desktop/` and `phone/` (`walk.log`, `replay.log`, PNG + scrubbed snap per step).
+- **Live** (`tools/walk/a31_live_jobs.py`, `live/`): a PRIVATE octos serve (the pinned a6ea8505 build, a copy of the
+  dsflash profile, a mode-600 token; started and stopped by the script, its data deleted, every written file scanned
+  for the token: 0). The real `session/open` advertised `skill.action_jobs.v1` (octos lists it only for a client
+  that asked) and `skill/action/job/list`; the /skills palette row CLICK sent `skill/action/job/list
+  {profile_id: dsflash, session_id: dsflash:main}` and the section showed the real reply, "No background jobs in this
+  Session." (8/8). No model turn.
 - **UX** (`docs/ux-scores.csv`, area `a31`): before 3 (main has no section: `docs/ux/a14/after-*/skills-open-*.png`),
   after 9 desktop and phone for every state. Side by side: `compare-phone.png` (board | main | A31),
   `compare-desktop.png`, `compare-desktop-before-after.png`, `compare-phone-zh-announced.png`.
