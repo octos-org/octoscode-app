@@ -2155,19 +2155,26 @@ async fn main() {
                     // A9 — the activity scenario's session catalog.
                     "session/list" if activity => {
                         let profile = active_session.split(':').next().unwrap_or("").to_owned();
+                        // A22 row 228: full ids (`<profile>:api:<chat>`) for
+                        // the listed rows; the startup `<profile>:main` is the
+                        // Session the app opened.
                         let rows: Vec<Value> = ACTIVITY_SESSIONS
                             .iter()
                             .map(|(suffix, title)| serde_json::json!({
-                                "id": format!("{profile}:{suffix}"),
+                                "id": if *suffix == "main" { format!("{profile}:main") } else { format!("{profile}:api:{suffix}") },
                                 "title": title,
                                 "message_count": 4,
                                 "updated_at": "2026-09-29T05:16:54Z",
                                 "active_turn": false
                             }))
                             .collect();
-                        let frame = serde_json::json!({
-                            "jsonrpc": "2.0", "id": id, "result": {"sessions": rows}
-                        });
+                        let mut result = serde_json::json!({"sessions": rows});
+                        // A22 row 228: a `{cwd, profile_id}` read is ATTESTED.
+                        if let (Some(cwd), Some(p)) = (v["params"]["cwd"].as_str(), v["params"]["profile_id"].as_str()) {
+                            result["workspace_root"] = serde_json::json!(cwd);
+                            result["profile_id"] = serde_json::json!(p);
+                        }
+                        let frame = serde_json::json!({"jsonrpc": "2.0", "id": id, "result": result});
                         if opens > 1 {
                             // A switch (not the first open): its open settles
                             // 6 s later, the window the walk reopens Activity in.
@@ -2203,15 +2210,18 @@ async fn main() {
                             .as_str()
                             .unwrap_or(&active_session)
                             .to_owned();
-                        send(&tx, serde_json::json!({
-                            "jsonrpc": "2.0", "id": id,
-                            "result": {"sessions": [{
-                                "id": session,
-                                "title": "Why does main.rs print 5?",
-                                "message_count": 1,
-                                "active_turn": false
-                            }]}
-                        })).await;
+                        let mut result = serde_json::json!({"sessions": [{
+                            "id": session,
+                            "title": "Why does main.rs print 5?",
+                            "message_count": 1,
+                            "active_turn": false
+                        }]});
+                        // A22 row 228: a `{cwd, profile_id}` read is ATTESTED.
+                        if let (Some(cwd), Some(p)) = (v["params"]["cwd"].as_str(), v["params"]["profile_id"].as_str()) {
+                            result["workspace_root"] = serde_json::json!(cwd);
+                            result["profile_id"] = serde_json::json!(p);
+                        }
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": result})).await;
                     }
                     // A10 — the composer seats' simulator (scenario a10).
                     m @ ("permission/profile/list" | "permission/profile/set" | "profile/llm/select" | "review/start"

@@ -76,6 +76,10 @@ struct Script {
     hydrate_delay_ms: u64,
     /// `launch/resolve`'s reply; `None` = the launch probe is not advertised.
     launch: Option<Value>,
+    /// A22 row 228: advertise the scoped catalog (`session/list {cwd,
+    /// profile_id}` + `session.workspace_cwd.v1`, attested like octos
+    /// a6ea8505) without the launch probe.
+    catalog: bool,
     /// Hold `launch/resolve` replies back this long (ms).
     launch_delay_ms: u64,
     /// A17 — also advertise the web onboarding methods (`onboarding-
@@ -139,7 +143,7 @@ fn reply(method: &str, p: &Value, script: &Mutex<Script>) -> Result<Value, Value
     if !s.no_sandbox_feature {
         features.push("session.sandbox.v1");
     }
-    if s.launch.is_some() {
+    if s.launch.is_some() || s.catalog {
         features.push("session.workspace_cwd.v1");
     }
     Ok(match method {
@@ -151,6 +155,9 @@ fn reply(method: &str, p: &Value, script: &Mutex<Script>) -> Result<Value, Value
                 "capabilities_schema_version": 2,
                 "supported_methods": if s.onboarding {
                     METHODS.iter().copied().chain(ONBOARDING_METHODS.iter().copied()).collect::<Vec<_>>()
+                } else if s.catalog && s.launch.is_none() {
+                    // The catalog without the launch probe.
+                    METHODS.iter().copied().filter(|m| *m != "launch/resolve").collect::<Vec<_>>()
                 } else {
                     METHODS.to_vec()
                 },
@@ -158,7 +165,15 @@ fn reply(method: &str, p: &Value, script: &Mutex<Script>) -> Result<Value, Value
                 "supported_features": features
             }
         }}),
-        "session/list" => json!({"sessions": s.list_rows}),
+        "session/list" => {
+            let mut l = json!({"sessions": s.list_rows});
+            // A22 row 228: a `{cwd, profile_id}` read is ATTESTED.
+            if let (Some(cwd), Some(profile)) = (p["cwd"].as_str(), p["profile_id"].as_str()) {
+                l["workspace_root"] = json!(cwd);
+                l["profile_id"] = json!(profile);
+            }
+            l
+        }
         "launch/resolve" => s.launch.clone().unwrap_or(json!({})),
         // The recorded r29a line 8 shape (A17's panel decodes it typed).
         "profile/local/create" => json!({"profile_id": p["requested_id"], "user_id": p["requested_id"], "name": p["name"],
@@ -808,6 +823,8 @@ async fn delete_removes_a_confirmed_row_and_keeps_a_refused_one_with_its_reason(
     let _g = lock();
     let server = FakeServer::start(Script {
         list_rows: catalog(&[("a8:api:old", "Old chat", 2), ("a8:api:locked", "Busy chat", 2)]),
+        // A22 row 228: the switcher lists the ATTESTED catalog's rows.
+        catalog: true,
         ..Default::default()
     })
     .await;

@@ -87,6 +87,8 @@ impl ReplayServer {
             let mut features = vec![
                 "projection.envelope.v2".to_owned(),
                 "state.session_hydrate.v1".to_owned(),
+                // A22 row 228: the scoped catalog, as octos a6ea8505 offers it.
+                "session.workspace_cwd.v1".to_owned(),
             ];
             if btw_advertised {
                 features.push("session/btw".to_owned());
@@ -108,6 +110,7 @@ impl ReplayServer {
                             "result": {"opened": {
                                 "session_id": session,
                                 "active_profile_id": "dsflash",
+                                "workspace_root": "/home/user/octos",
                                 "cursor": {"stream": "dsflash:main", "seq": 1},
                                 "capabilities": {
                                     "version": {"protocol": "octos-ui/v1alpha1",
@@ -122,15 +125,21 @@ impl ReplayServer {
                         })
                     }
                     "session/list" => {
-                        // The recording's grammar (r22-live / r3-session rows).
-                        serde_json::json!({
-                            "jsonrpc": "2.0", "id": id,
-                            "result": {"sessions": [
-                                row("dsflash:fork", "Add session fork", 14, "2h ago"),
-                                row("dsflash:steer", "Fix steer queue drop on reconnect", 23, "1d ago"),
-                                row("dsflash:pr", "Review PR #2566", 17, "3d ago")
-                            ]}
-                        })
+                        // The recording's row grammar (r22-live / r3-session
+                        // rows). A22 row 228: a scoped read is ATTESTED and
+                        // lists full Session ids (`<profile>:<channel>:<chat>`)
+                        // — the only rows the catalog projects.
+                        let mut result = serde_json::json!({"sessions": [
+                            row("dsflash:api:fork", "Add session fork", 14, "2h ago"),
+                            row("dsflash:api:steer", "Fix steer queue drop on reconnect", 23, "1d ago"),
+                            row("dsflash:api:pr", "Review PR #2566", 17, "3d ago")
+                        ]});
+                        let p = &v["params"];
+                        if let (Some(cwd), Some(profile)) = (p["cwd"].as_str(), p["profile_id"].as_str()) {
+                            result["workspace_root"] = serde_json::json!(cwd);
+                            result["profile_id"] = serde_json::json!(profile);
+                        }
+                        serde_json::json!({"jsonrpc": "2.0", "id": id, "result": result})
                     }
                     "session/btw" => {
                         // The recording has no session/btw frame (no fixture
@@ -177,6 +186,9 @@ async fn connect_and_refresh(server: &ReplayServer) -> Conversation {
             _ => break,
         }
     }
+    // A22 row 228: the opened workspace's catalog (the production open's
+    // `spawn_catalog_refresh("open")`; this test drives no runtime handle).
+    conv.refresh_sessions().await.expect("session/list");
     conv
 }
 
@@ -223,7 +235,7 @@ async fn resume_stages_never_opens_and_confirm_opens_on_the_wire() {
     let SessEffect::ResumeConfirm(id) = &effect else {
         panic!("confirm resolves to ResumeConfirm, got {effect:?}");
     };
-    assert_eq!(id, "dsflash:fork");
+    assert_eq!(id, "dsflash:api:fork");
     sessions::apply(effect, &conv).await.expect("the confirmed open");
     assert!(
         server.count("session/open") > opens_before,

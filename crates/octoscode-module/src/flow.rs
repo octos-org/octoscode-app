@@ -1059,11 +1059,14 @@ impl Conversation {
             let mut c = self.candidate.lock().unwrap();
             let Some(cand) = c.as_mut().filter(|c| c.session == session) else { return false };
             if cand.started.elapsed() > HISTORY_WAIT {
+                // The history read never answered: the window says so and
+                // stays on the Session — what waited applies now, in order.
                 makepad_widgets::log!(
-                    "[octoscode] candidate {session}: its history never committed — {} buffered events dropped",
+                    "[octoscode] candidate {session}: its history never committed — releasing {} buffered events",
                     cand.staged.len()
                 );
-                *c = None;
+                drop(c);
+                self.release_candidate(&session, None);
                 return false;
             }
             if cand.staged.len() >= CANDIDATE_LIMIT {
@@ -1258,8 +1261,13 @@ impl Conversation {
             });
             e.failed = Some(reason);
         }
-        // A22 row 203 — no history, no candidate: it fails closed.
-        self.dispose_candidate(session, "its history could not be read");
+        // A22 row 203 — the history read failed, but the window stays on
+        // this Session with the failure shown (A19b): it IS the product
+        // authority, so its buffered live events apply in order (the web
+        // never shows a failed candidate — natively the switch already
+        // happened, and dropping them would lose live state of the Session on
+        // screen: another client's turn, a replay-loss marker).
+        self.release_candidate(session, None);
     }
 
     /// A19b — a `session/hydrate` the server refused. The error names its
@@ -2946,6 +2954,9 @@ impl Conversation {
                         }
                         // A19 — a restore that lands elsewhere is refused.
                         self.settle_open_watch(Err(format!("the server opened {actual} instead of {req}")));
+                        // A22 row 203 — another workspace's events are not this
+                        // Session's: the candidate fails closed, its buffer dropped.
+                        self.dispose_candidate(&r.opened.session_id.0, "the server opened another workspace");
                         // A19b — and the Session says why, instead of loading on.
                         self.history_failed(
                             &r.opened.session_id.0,

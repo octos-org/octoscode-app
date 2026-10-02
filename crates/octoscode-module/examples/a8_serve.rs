@@ -283,11 +283,20 @@ async fn ws(stream: TcpStream, cfg: Cfg, world: Arc<Mutex<World>>) {
                         }
                     }}))
                 }
-                "session/list" => Ok(json!({"sessions": w.sessions.iter().map(|(s, t)| {
-                    let mut row = json!({"id": s, "message_count": 2, "updated_at": "2026-10-01T09:00:00Z"});
-                    if !t.is_empty() { row["title"] = json!(t); }
-                    row
-                }).collect::<Vec<_>>()})),
+                "session/list" => {
+                    let mut l = json!({"sessions": w.sessions.iter().map(|(s, t)| {
+                        let mut row = json!({"id": s, "message_count": 2, "updated_at": "2026-10-01T09:00:00Z"});
+                        if !t.is_empty() { row["title"] = json!(t); }
+                        row
+                    }).collect::<Vec<_>>()});
+                    // A22 row 228: a `{cwd, profile_id}` read is ATTESTED, as
+                    // octos a6ea8505 answers it (`SessionListResult`).
+                    if let (Some(cwd), Some(profile)) = (params["cwd"].as_str(), params["profile_id"].as_str()) {
+                        l["workspace_root"] = json!(cwd);
+                        l["profile_id"] = json!(profile);
+                    }
+                    Ok(l)
+                }
                 "session/delete" => {
                     if session.contains("locked") {
                         Err(json!({"code": -32000, "message": "session is busy", "data": {"kind": "session_busy"}}))
