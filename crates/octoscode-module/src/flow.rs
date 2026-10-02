@@ -40,6 +40,12 @@ use octoscode_client::{Client, ClientError, Registry};
 use octoscode_store::Store;
 use url::Url;
 
+// A7 — the turn controller (queue / steer / recovery / reconcile) on this
+// conversation; a child module so it reads the private plumbing.
+#[path = "flow_controller.rs"]
+mod controller;
+pub use controller::hydrated_turns;
+
 /// Which way a traced frame went.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Direction {
@@ -205,6 +211,11 @@ pub struct FlowUi {
     review_open: bool,
     settings_open: bool,
     palette_open: bool,
+    /// A7 — the code block whose Copy was pressed: (answer row key, block
+    /// index, when). Shows "Copied" for one second (`CodeBlock.tsx:72-80`).
+    code_copied: Option<(String, usize, Instant)>,
+    /// A7 — not-sent / interrupted text waiting for its composer to empty.
+    parked_restores: Vec<(String, String)>,
 }
 
 impl FlowUi {
@@ -436,6 +447,46 @@ impl FlowUi {
         self.approval_pending
     }
 
+    /// A7 — how long a code block's Copy control reads "Copied"
+    /// (`CodeBlock.tsx:75-79`: a 1 000 ms reset timer).
+    pub const CODE_COPIED_FOR: Duration = Duration::from_millis(1_000);
+
+    /// A7 — a turn that never started (a collision, a rejection) or whose
+    /// wait was released: clear the live turn without recording a terminal
+    /// result (no "Worked for", no outcome marker).
+    pub fn abandon_turn(&mut self, turn_id: &str) {
+        if matches!(&self.active_turn, Some((id, _)) if id == turn_id) {
+            self.active_turn = None;
+        }
+    }
+
+    /// A7 — park text handed back while the owning composer was busy; it
+    /// returns when that composer is empty (`restoreUnsentTurn`).
+    pub fn park_restore(&mut self, session: &str, text: &str) {
+        if !text.trim().is_empty() {
+            self.parked_restores.push((session.to_owned(), text.to_owned()));
+        }
+    }
+
+    /// A7 — the oldest parked text for `session`, once.
+    pub fn take_parked_restore(&mut self, session: &str) -> Option<String> {
+        let i = self.parked_restores.iter().position(|(s, _)| s == session)?;
+        Some(self.parked_restores.remove(i).1)
+    }
+
+    /// A7 — record a code block's copy (`row` = the answer row's key).
+    pub fn note_code_copied(&mut self, row: &str, block: usize) {
+        self.code_copied = Some((row.to_owned(), block, Instant::now()));
+    }
+
+    /// A7 — the block of `row` whose Copy was pressed less than a second ago.
+    pub fn code_copied(&self, row: &str) -> Option<usize> {
+        match &self.code_copied {
+            Some((r, k, at)) if r == row && at.elapsed() < Self::CODE_COPIED_FOR => Some(*k),
+            _ => None,
+        }
+    }
+
     pub fn question_pending(&self) -> bool {
         self.question_pending
     }
@@ -591,11 +642,13 @@ pub struct Conversation {
     pending_open_cwd: Mutex<Option<String>>,
     /// A8 — this connection's authority epoch (the scope key's last part).
     epoch: u64,
-    /// A8 — the transport has been Live before: a later handshake is a
-    /// RECONNECT, which re-opens the active Session and hydrates it under a
-    /// new authority generation (`active-session-runtime.ts`: connect -> open
-    /// -> hydrate -> ready, every reconnect a new generation).
-    was_live: Mutex<bool>,
+    /// A8 — the transport has EVER been Live on this connection: a later
+    /// handshake is a RECONNECT, which re-opens the active Session and
+    /// hydrates it under a new authority generation
+    /// (`active-session-runtime.ts`: connect -> open -> hydrate -> ready,
+    /// every reconnect a new generation). Never reset (A7's `was_live` is the
+    /// last transition's, reset by a drop).
+    ever_live: Mutex<bool>,
     /// A8 — the generation (`open_seq`) each in-flight `session/hydrate` was
     /// requested under, by session: a reply from a retired generation is a
     /// stale authority and fails closed.
@@ -617,6 +670,16 @@ pub struct Conversation {
     /// the credential the socket carries. Never logged.
     http_base: String,
     bearer: String,
+    /// A7 — the shared handle (set by [`Conversation::attach`]) so a transport
+    /// event can start the next queued prompt on the runtime.
+    weak_self: Mutex<std::sync::Weak<Conversation>>,
+    /// A7 — queue heads to start when no shared handle is attached yet
+    /// (drained by [`Conversation::pump`]).
+    pending_starts: Mutex<Vec<octoscode_store::domains::composer::PromptTurn>>,
+    /// A7 — the connection was live before the last transition (a drop
+    /// suspends the transport generation; the next Live reconciles).
+    was_live: Mutex<bool>,
+    transport_suspended: Mutex<bool>,
 }
 
 /// A4 — the HTTP origin for the media endpoints (`media.ts:14-35`): `ws` ->
@@ -784,12 +847,16 @@ impl Conversation {
                 pending_open_cwd: Mutex::new(None),
                 creation_defaults: crate::screens::session_defaults::Pending::new(),
                 epoch: AUTHORITY_EPOCH.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1,
-                was_live: Mutex::new(false),
+                ever_live: Mutex::new(false),
                 hydrate_gen: Mutex::new(HashMap::new()),
                 open_seq: Arc::new(Mutex::new(0)),
                 started: Instant::now(),
                 http_base: http_base_of(base),
                 bearer: bearer.to_owned(),
+                weak_self: Mutex::new(std::sync::Weak::new()),
+                pending_starts: Mutex::new(Vec::new()),
+                was_live: Mutex::new(false),
+                transport_suspended: Mutex::new(false),
             },
             evt_rx,
         ))
@@ -1241,6 +1308,31 @@ impl Conversation {
 
     /// `turn/interrupt` — `{session_id, turn_id}` (`ui_protocol.rs:2097`).
     pub async fn interrupt(&self, turn_id: &str) -> Result<serde_json::Value, ClientError> {
+        // A7 — the turn controller's interrupt gate (`use-turn-controller.ts:
+        // 860-930`) for a turn the composer admitted: a start Core has not
+        // accepted yet is never interrupted ("Turn is still starting"), a turn
+        // already interrupting is not asked twice, and the interrupted prompt
+        // is stashed for ITS OWN terminal.
+        let session = self.session_id();
+        let composer = &self.store.domains.composer;
+        let known = composer.snapshot(&session).active.map(|a| a.turn_id).as_deref() == Some(turn_id);
+        if known {
+            if composer.dispatching_turn(&session).as_deref() == Some(turn_id) {
+                self.store.domains.session.timeline.upsert_notice(
+                    &session,
+                    Some(turn_id.to_owned()),
+                    &format!("still-starting:{turn_id}"),
+                    "Turn is still starting",
+                    "Octos has not accepted this turn yet, so no interrupt was sent.",
+                    "",
+                );
+                makepad_widgets::SignalToUI::set_ui_signal();
+                return Ok(serde_json::Value::Null);
+            }
+            if !composer.begin_interrupt(&session, turn_id) {
+                return Ok(serde_json::Value::Null);
+            }
+        }
         ::log::info!("octoscode: interrupting turn {turn_id}");
         self.trace.record(
             self.started,
@@ -1249,12 +1341,17 @@ impl Conversation {
             None,
             Some(format!("turn={turn_id}")),
         );
-        self.client
+        let reply = self
+            .client
             .request(
                 "turn/interrupt",
-                serde_json::json!({"session_id": self.session_id(), "turn_id": turn_id}),
+                serde_json::json!({"session_id": session, "turn_id": turn_id}),
             )
-            .await
+            .await;
+        if reply.is_err() && known {
+            self.store.domains.composer.interrupt_failed(&session, turn_id);
+        }
+        reply
     }
 
     /// Card #26 §2: if the current session owes a resync (a
@@ -1558,6 +1655,15 @@ impl Conversation {
             ::log::info!("octoscode: local shell bang: receipt appended, draft kept");
             return Ok(String::new());
         }
+        // A7 — `/steer [on|off]` (`intent.ts:96-108`, `set-steer`): the
+        // Session's local steering opt-in. Never sent to the model.
+        if let Some((name, args)) = crate::screens::palette::parse_command_invocation(&text) {
+            if matches!(name.to_ascii_lowercase().as_str(), "steer" | "steer-mid-turn" | "steermode") {
+                let receipt = self.steer_command(&args);
+                makepad_widgets::log!("[octoscode] command /steer: {receipt}");
+                return Ok(String::new());
+            }
+        }
         // A4 — the board-3 surfaces answer their web commands locally
         // (`/tools`, `/mcp`, `/threads`, `/turn`, `/permissions`,
         // `/thinking`, `/resume`, `/images`, `/rewind`, `/undo`, `/fork`,
@@ -1637,14 +1743,21 @@ impl Conversation {
                 return Ok(String::new());
             }
         }
+        // A7 — admission is refused while an unknown-outcome turn is held for
+        // recovery (`enqueuePrompt`: `if (recovery || …) return false`): the
+        // text stays in the composer and no attachment is consumed.
+        let session = self.session_id();
+        if self.store.domains.composer.recovery(&session).is_some() {
+            makepad_widgets::log!("[octoscode] submit held: the last response's outcome is unknown");
+            return Ok(String::new());
+        }
         // A4 — the AttachmentsDialog's draft rides THIS turn when every image
         // is uploaded; any row not yet uploaded refuses the send and keeps
         // both the prompt and the draft (`session-composer-drafts.ts:183-188`).
-        match crate::screens::media::take_for_submit(self) {
-            Ok(Some(media)) => return self.start_turn_with_media(text, media).await,
-            Ok(None) => {}
+        let media = match crate::screens::media::take_for_submit(self) {
+            Ok(Some(media)) => media,
+            Ok(None) => Vec::new(),
             Err(msg) => {
-                let session = self.session_id();
                 self.store.domains.session.timeline.append(
                     &session,
                     Some(crate::screens::palette::next_receipt_turn()),
@@ -1654,8 +1767,8 @@ impl Conversation {
                 makepad_widgets::SignalToUI::set_ui_signal();
                 return Ok(String::new());
             }
-        }
-        self.start_turn(text).await
+        };
+        self.submit_prompt(text, media).await
     }
 
     /// Flush the in-memory [`TraceSink`] transitions into the frame file
@@ -1727,8 +1840,18 @@ impl Conversation {
             TransportEvent::ConnectionState(s) => {
                 let live = matches!(s, octos_app_transport::ConnectionState::Live);
                 self.store.set_connection(format!("{s:?}"), live);
+                // A7: a drop suspends the turn controller's transport
+                // generation; the next Live reconciles from a hydrate.
+                let dropped = matches!(
+                    s,
+                    octos_app_transport::ConnectionState::Reconnecting { .. }
+                        | octos_app_transport::ConnectionState::Failed
+                        | octos_app_transport::ConnectionState::Idle
+                        | octos_app_transport::ConnectionState::Dialing
+                );
+                self.note_connection(live, dropped);
                 if live {
-                    *self.was_live.lock().unwrap() = true;
+                    *self.ever_live.lock().unwrap() = true;
                 }
                 // A8 — a handshake AFTER an earlier Live is a reconnect. The
                 // WS transport parks a re-dialed socket in Handshaking until a
@@ -1737,7 +1860,7 @@ impl Conversation {
                 // subscriptions), so the flow re-opens the active Session at
                 // its workspace and hydrates it, under a NEW authority
                 // generation (`active-session-runtime.ts` recovery).
-                if matches!(s, octos_app_transport::ConnectionState::Handshaking) && *self.was_live.lock().unwrap() {
+                if matches!(s, octos_app_transport::ConnectionState::Handshaking) && *self.ever_live.lock().unwrap() {
                     self.reopen_after_reconnect();
                 }
                 if live {
@@ -1836,6 +1959,12 @@ impl Conversation {
                 if let Some(defaults) = self.creation_defaults.take(&r.opened.session_id.0) {
                     self.apply_permission_default(&r.opened.session_id.0, &defaults, &caps.supported_methods);
                 }
+                // A7: the features too (safe steering needs
+                // `event.turn_steer_dropped.v1`, App.tsx:2849-2858).
+                self.store
+                    .domains
+                    .config
+                    .set_supported_features(caps.supported_features.clone());
                 self.store.domains.config.set_coding_gate(
                     octoscode_client::features::missing_coding_session_requirements(
                         &caps.supported_methods,
@@ -1875,6 +2004,9 @@ impl Conversation {
                 }
                 let ev = self.note_notification(payload);
                 self.registry.lock().unwrap().dispatch(payload);
+                // A7: the turn controller's view (activity / terminal /
+                // returned steering) — after the store folded the frame.
+                self.composer_observe(payload);
                 // Card #26 §2: a `protocol/replay_lossy` just marked the session
                 // lossy and raised a resync; issue the `session/hydrate` now.
                 // (Web: `active-session-runtime.ts:1256` `#hydrate(…, "recovery")`.)
@@ -2298,6 +2430,24 @@ fn trace_method(evt: &TransportEvent) -> String {
 /// comes from Howard Hinnant's `civil_from_days`. A local-clock offset is out
 /// of scope for this design label; a fresh turn renders `now` either way.
 fn format_completed_at(at: std::time::SystemTime, now: std::time::SystemTime) -> String {
+    format_completed_at_offset(at, now, local_offset_secs(at))
+}
+
+/// The platform time zone's offset from UTC (seconds east) at `at`. The web's
+/// `Intl.DateTimeFormat` renders local time; this label was UTC (an answer at
+/// 21:09 local read "4:09 AM" in the judge's live capture).
+pub(crate) fn local_offset_secs(at: std::time::SystemTime) -> i64 {
+    use chrono::Offset;
+    let local: chrono::DateTime<chrono::Local> = at.into();
+    i64::from(local.offset().fix().local_minus_utc())
+}
+
+/// [`format_completed_at`] at an explicit UTC offset (tests pin 0).
+fn format_completed_at_offset(
+    at: std::time::SystemTime,
+    now: std::time::SystemTime,
+    offset_secs: i64,
+) -> String {
     let secs = at
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs())
@@ -2309,6 +2459,7 @@ fn format_completed_at(at: std::time::SystemTime, now: std::time::SystemTime) ->
     if now_secs.saturating_sub(secs) < 60 {
         return "now".to_owned();
     }
+    let secs = (secs as i64 + offset_secs).max(0) as u64;
     const MONTHS: [&str; 12] = [
         "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
@@ -2407,28 +2558,40 @@ mod tests {
         // 2025-09-28T21:41:00Z
         let at = UNIX_EPOCH + Duration::from_secs(1_759_095_660);
         assert_eq!(
-            format_completed_at(at, at + Duration::from_secs(5)),
+            format_completed_at_offset(at, at + Duration::from_secs(5), 0),
             "now",
             "a fresh turn is 'now', like the web"
         );
         assert_eq!(
-            format_completed_at(at, at + Duration::from_secs(3600)),
+            format_completed_at_offset(at, at + Duration::from_secs(3600), 0),
             "Sep 28, 9:41 PM",
             "an older turn matches the atlas label"
         );
         // midnight and noon render 12-hour, not 0/24
         let midnight = UNIX_EPOCH + Duration::from_secs(1_767_139_500); // 2025-12-31T00:05Z
         assert_eq!(
-            format_completed_at(midnight, midnight + Duration::from_secs(3600)),
+            format_completed_at_offset(midnight, midnight + Duration::from_secs(3600), 0),
             "Dec 31, 12:05 AM"
         );
         let noon = UNIX_EPOCH + Duration::from_secs(1_735_732_800); // 2025-01-01T12:00Z
         assert_eq!(
-            format_completed_at(noon, noon + Duration::from_secs(3600)),
+            format_completed_at_offset(noon, noon + Duration::from_secs(3600), 0),
             // day is `numeric` (unpadded), like the web's
             // `Intl.DateTimeFormat({month:"short", day:"numeric"})`
             "Jan 1, 12:00 PM"
         );
+    }
+
+    /// Judge fix: the label is LOCAL time, like the web's Intl formatter.
+    /// 2025-10-02T04:09Z at UTC-7 is Oct 1, 9:09 PM; at UTC+8 Oct 2, 12:09 PM.
+    #[test]
+    fn answer_timestamp_is_local_time() {
+        use std::time::{Duration, UNIX_EPOCH};
+        let at = UNIX_EPOCH + Duration::from_secs(1_759_378_140); // 2025-10-02T04:09Z
+        let later = at + Duration::from_secs(3600);
+        assert_eq!(format_completed_at_offset(at, later, -7 * 3600), "Oct 1, 9:09 PM");
+        assert_eq!(format_completed_at_offset(at, later, 8 * 3600), "Oct 2, 12:09 PM");
+        assert_eq!(format_completed_at_offset(at, later, 0), "Oct 2, 4:09 AM");
     }
 
     /// Card #14 defect 4: a new chat gets a FRESH id (never the reused

@@ -278,8 +278,12 @@ impl Dsl {
         self.out.push('\n');
     }
 
-    /// Open a block: `<id> := <kind> {` then the property line.
+    /// Open a block: `<id> := <kind> {` then the property line. An empty id
+    /// mints an anonymous one (A7: ` := DesignSurface {` — the notice row's
+    /// unnamed rule — failed the WHOLE row in the app VM, so the slot kept
+    /// its previous content on screen).
     pub fn open(&mut self, id: &str, kind: &str, props: &str) {
+        let id = if id.is_empty() { self.anon() } else { id.to_owned() };
         let _ = writeln!(self.out, "{id} := {kind} {{");
         if !props.is_empty() {
             self.raw(props);

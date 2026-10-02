@@ -231,6 +231,13 @@ async fn serve(mut stream: TcpStream, seen: Arc<Mutex<Seen>>) {
         seen.lock().unwrap().rpc.push((method.clone(), v["params"].clone()));
         let frame = json!({"jsonrpc": "2.0", "id": v["id"].clone(), "result": result_for(&method, &v["params"])});
         let _ = tx.send(Message::Text(frame.to_string().into())).await;
+        if method == "turn/start" {
+            // A7: the turn finishes at once, so a later prompt is not queued
+            // behind it (the composer's FIFO, turn-queue.ts).
+            let done = json!({"jsonrpc": "2.0", "method": "turn/completed", "params": {
+                "session_id": v["params"]["session_id"], "turn_id": v["params"]["turn_id"]}});
+            let _ = tx.send(Message::Text(done.to_string().into())).await;
+        }
     }
 }
 
@@ -494,7 +501,7 @@ async fn the_strip_reads_the_session_model_once_and_shows_it() {
 async fn the_chosen_thinking_effort_rides_the_next_turn_start() {
     let _g = lock();
     let server = FakeServer::start().await;
-    let (conv, _ev) = connected(&server).await;
+    let (conv, mut ev) = connected(&server).await;
     assert_eq!(host::command("thinking", "", &conv), Some(Outcome::Done));
     assert_eq!(host::perform("b3.think.effort.high", 0, &conv.store), Outcome::Done);
     conv.ui().lock().unwrap().set_draft_inner("Which is larger?");
@@ -502,6 +509,17 @@ async fn the_chosen_thinking_effort_rides_the_next_turn_start() {
     wait_for(&server, "turn/start", 1).await;
     let start = server.params_of("turn/start").last().cloned().expect("turn/start");
     assert_eq!(start["reasoning_effort"], json!("high"), "{start}");
+    // A7: the first turn's terminal settles the composer before the next
+    // prompt (a prompt sent while a turn runs is queued, turn-queue.ts).
+    let session = conv.session_id();
+    for _ in 0..50 {
+        if conv.store.domains.composer.snapshot(&session).active.is_none() {
+            break;
+        }
+        if let Ok(Some(evt)) = tokio::time::timeout(Duration::from_millis(100), ev.recv()).await {
+            let _ = conv.on_event(evt);
+        }
+    }
     // Profile default omits the field.
     host::perform("b3.think.effort.default", 0, &conv.store);
     conv.ui().lock().unwrap().set_draft_inner("Again");

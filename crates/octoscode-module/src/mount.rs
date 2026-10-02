@@ -355,6 +355,129 @@ mod tests {
         assert!(eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl).is_ok(), "the GFM answer region evaluates");
     }
 
+    /// A7 — the production path for a model answer: store -> the transcript
+    /// rows -> `item_copies` -> `lower` -> the app VM. A settled answer keeps
+    /// only the absolute https link, never loads the remote image, typesets
+    /// its math, highlights its fence (`A7CodeLines`) behind a Copy control
+    /// that writes the trimmed code; the same text while streaming closes the
+    /// open fence for display (plain code, math off) and the stored text is
+    /// unchanged.
+    #[test]
+    fn a7_store_answers_lower_safely_and_evaluate() {
+        use std::sync::{Arc, Mutex};
+        const SETTLED: &str = "See [the notes](https://docs.example.com/steer) and [this](javascript:alert(1)); \
+             ![depth](https://cdn.example.com/depth.png)\n\n\
+             ```rust\nfn flush(q: &mut Vec<String>) -> usize {\n    q.len()\n}\n```\n\n\
+             The cost is $O(n)$:\n\n$$\nT = \\sum_i t_i\n$$\n\nIt costs $12 and $5 more.";
+        const STREAMING: &str = "Working on it:\n\n````ts\nconst x = 1;\n";
+        let store = Arc::new(octoscode_store::Store::new());
+        store.set_sessions(vec![octoscode_store::Session {
+            id: "s1".into(),
+            title: Some("t".into()),
+            message_count: 4,
+            updated_at: None,
+            last_prompt: None,
+            active_turn: true,
+        }]);
+        store.set_active(Some("s1".into()));
+        let tl = &store.domains.session.timeline;
+        tl.upsert_user_message("s1", "t1", "Explain the flush.", serde_json::json!({}));
+        tl.append("s1", Some("t1".into()), octoscode_store::EntryKind::ASSISTANT_TEXT, SETTLED.to_owned());
+        tl.finalize_assistant("s1", "t1", SETTLED);
+        tl.close_turn("s1", "t1");
+        store.domains.turn.started("t1");
+        store.domains.turn.set_terminal("t1", "completed");
+        tl.upsert_user_message("s1", "t2", "And the client?", serde_json::json!({}));
+        tl.append("s1", Some("t2".into()), octoscode_store::EntryKind::ASSISTANT_TEXT, STREAMING.to_owned());
+        store.domains.turn.started("t2");
+        let ui = Arc::new(Mutex::new(crate::flow::FlowUi::default()));
+        let rows = crate::screen::timeline_rows_folded(&store, true, &[]);
+        let prose: Vec<_> = rows.iter().filter(|r| r.kind == crate::components::ItemKind::AssistantProse).collect();
+        assert_eq!(prose.len(), 2, "one answer row per turn");
+        let mut cx = cx_with_vocabulary();
+        cx.with_vm(crate::code_view::script_mod);
+        let lower = |r: &crate::screen::Row| {
+            let ctx = crate::bindings::Ctx::new(&store, &ui);
+            let copies =
+                crate::components::item_copies(r.kind, &ctx, r.index, r.turn.as_deref()).expect("copies");
+            let blocks = crate::components::prose_code_blocks(&ctx, r.index, r.turn.as_deref());
+            (crate::components::lower(r.kind, "0", &copies).expect("lowers"), blocks)
+        };
+        // The settled answer.
+        let (dsl, blocks) = lower(prose[0]);
+        assert!(dsl.contains("https://docs.example.com/steer"), "the safe link stays: {dsl}");
+        assert!(!dsl.contains("javascript:"), "an unsafe link is plain text");
+        assert!(!dsl.contains("cdn.example.com"), "a remote image is never loaded (alt kept)");
+        assert!(dsl.contains("A7CodeLines") && dsl.contains("code_copy_"), "highlighted fence + Copy");
+        assert!(dsl.contains("use_math_widget: true") && dsl.contains("A7MathBlock"), "math typeset");
+        assert_eq!(blocks.len(), 1);
+        assert_eq!(blocks[0].1, "fn flush(q: &mut Vec<String>) -> usize {\n    q.len()\n}", "Copy writes the trimmed code");
+        assert!(eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl).is_ok(), "the settled answer evaluates");
+        // The same row while a reply streams: the open fence is closed for
+        // display, the code is plain, the stored text is unchanged.
+        let (dsl, blocks) = lower(prose[1]);
+        assert!(!dsl.contains("A7CodeLines"), "no highlighting while streaming");
+        assert!(dsl.contains("const x = 1;"), "the open fence's code shows");
+        assert_eq!(blocks.len(), 1, "the closed-for-display fence is one block");
+        assert_eq!(store.domains.session.timeline.assistant_text("s1").matches("````").count(), 1, "stored text unchanged");
+        assert!(eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl).is_ok(), "the streaming answer evaluates");
+    }
+
+    /// A7: the answer's display variants (math typeset through MathView, code
+    /// blocks with their banner + Copy hit, unsafe links/images stripped)
+    /// evaluate in the app VM at both densities — a widget property the
+    /// renderer lacks would fail the whole row at runtime.
+    #[test]
+    fn a7_answer_variants_evaluate_in_the_app_vm() {
+        use crate::conv_layout::Metrics;
+        let mut cx = cx_with_vocabulary();
+        cx.with_vm(crate::code_view::script_mod);
+        let samples = [
+            ("math", "Energy $E = mc^2$ powers it.\n\n$$\na^2 + b^2 = c^2\n$$"),
+            ("code", "Run it:\n\n```rust\nfn main() {\n    println!(\"hi\");\n}\n```\n\nThen `cargo test`."),
+            ("open fence", "Here:\n\n```ts\nconst x = 1;"),
+            ("links", "[safe](https://example.com) [bad](javascript:alert(1)) ![chart](https://x.test/c.png)"),
+        ];
+        for m in [Metrics::for_window(990.0, true), Metrics::for_window(360.0, false)] {
+            for (name, text) in samples {
+                for streaming in [false, true] {
+                    let d = crate::markdown::display(text, streaming);
+                    let dsl = crate::fluid::assistant_answer("0", &d, Some(1), &m);
+                    assert_eq!(dsl.matches('{').count(), dsl.matches('}').count(), "{name}: balanced");
+                    assert!(
+                        eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl).is_ok(),
+                        "{name} (streaming={streaming}) at {:?} must evaluate: {dsl}",
+                        m.density
+                    );
+                }
+            }
+        }
+    }
+
+    /// A7 — the transcript's system-notice row (board-3 rows, the collision /
+    /// not-sent / recovery notices land there) evaluates in the app VM; a
+    /// failed row keeps the slot's previous content on screen.
+    #[test]
+    fn a7_notice_rows_evaluate_in_the_app_vm() {
+        use octoscode_store::timeline::EntryKind;
+        let store = octoscode_store::Store::new();
+        store.set_active(Some("s".into()));
+        store.domains.session.timeline.upsert_notice(
+            "s",
+            Some("t1".into()),
+            "send-busy:t1",
+            "Session busy",
+            "Another client was working in this session, so this message was not sent.",
+            "info",
+        );
+        let id = store.domains.session.timeline.entries("s")[0].id;
+        assert_eq!(store.domains.session.timeline.entries("s")[0].kind, EntryKind::SYSTEM_NOTICE);
+        let dsl = crate::screens::board3::rows::lower(&crate::screens::board3::rows::TRow::Notice(id), &store);
+        let mut cx = cx_with_vocabulary();
+        let r = eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl);
+        assert!(r.is_ok(), "the notice row must evaluate: {dsl}");
+    }
+
     #[test]
     fn the_prelude_wraps_the_component_in_a_slot_sized_view() {
         // Card #21c item 3: the wrapper is a stacking (`Down`) `Fit` view, so a
