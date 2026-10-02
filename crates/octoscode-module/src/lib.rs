@@ -3375,7 +3375,13 @@ impl OctoscodeView {
                 (b.store.clone(), b.conv.clone())
             };
             let active = store.active_session();
-            if active.is_some() && active != self.chrome.driver_probe {
+            // A21 — only once the server's methods are known: the window
+            // switches to a Session as its open GOES OUT (A19b), and the
+            // methods arrive with the open's reply; latching the probe in
+            // between skipped it for good (measured: active=a8:main,
+            // 0 methods — no `session/driver/get`, no holder word).
+            let methods_known = !store.domains.config.supported_methods().is_empty();
+            if active.is_some() && active != self.chrome.driver_probe && methods_known {
                 self.chrome.driver_probe = active.clone();
                 let advertised = store
                     .domains
