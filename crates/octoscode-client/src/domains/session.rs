@@ -63,11 +63,15 @@ impl Method for SessionList {
     type Result = SessionListResult;
 }
 
-/// The params actually sent: only `cwd` is ever meaningful, and we send none.
+/// The params actually sent. The legacy listing sends none; the resume
+/// picker scopes the catalog the web's way, `{cwd, profile_id}`
+/// (`features/resume/resume-binding.ts:199-202`).
 #[derive(Debug, Default, Serialize)]
 pub struct SessionListParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cwd: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub profile_id: Option<String>,
 }
 
 impl From<SessionListRow> for Session {

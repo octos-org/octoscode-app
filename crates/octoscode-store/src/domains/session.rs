@@ -156,12 +156,16 @@ pub struct ThinkingPrefs {
 }
 
 impl Default for ThinkingPrefs {
+    /// A4: the web's defaults — effort "" is the Profile default (no
+    /// `reasoning_effort` on `turn/start`, `reasoning/model.ts:13-19`; the
+    /// `session/open` reply seeds an explicit one), reasoning shown (fails
+    /// closed to ON), and every thinking block folded (`App.tsx:515`).
     fn default() -> Self {
         Self {
-            effort: "high".into(),
+            effort: String::new(),
             show_reasoning: true,
             default_on: true,
-            expanded: vec!["row_0".into()],
+            expanded: Vec::new(),
         }
     }
 }

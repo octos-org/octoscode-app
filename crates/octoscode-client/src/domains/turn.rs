@@ -295,8 +295,25 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
             // Finalizes the segment its deltas wrote: our `finalize_assistant`
             // keeps the streamed text and closes the entry (falling back to
             // the persisted text if the deltas never arrived).
-            PayloadV2::AssistantPersisted { text, .. } => {
+            PayloadV2::AssistantPersisted { text, meta, .. } => {
                 timeline.finalize_assistant(&session, &turn_id, text);
+                // A4 — delivered files ride the persisted answer's
+                // `meta.media` (web `timeline/model.ts:502-523`); each becomes
+                // an attachment row, never inline in the body
+                // (`AttachmentList.tsx`).
+                for path in &meta.media {
+                    timeline.append_data(
+                        &session,
+                        Some(turn_id.clone()),
+                        EntryKind::ATTACHMENT,
+                        path.clone(),
+                        serde_json::json!({
+                            "path": path,
+                            "delivered": true,
+                            "message_id": meta.message_id,
+                        }),
+                    );
+                }
             }
             PayloadV2::ToolStart {
                 tool_call_id,
