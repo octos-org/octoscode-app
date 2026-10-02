@@ -1588,8 +1588,20 @@ impl OctoscodeView {
                 return;
             }
             screens::dialog::clear_notice();
+            // A5 — an entry-text create consumed the composer draft (the web
+            // resets its create form once the request is sent).
+            let consumed = matches!(
+                effect,
+                screens::autonomy::Effect::LoopCreate { .. }
+                    | screens::autonomy::Effect::SetGoal { .. }
+                    | screens::autonomy::Effect::MonitorCreate { .. }
+            );
             if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                 screens::autonomy::spawn(effect, rt, conv);
+                if consumed {
+                    ui.lock().unwrap().set_draft_inner(String::new());
+                    self.sync_labels(cx);
+                }
             }
             return;
         }

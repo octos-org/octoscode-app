@@ -1871,10 +1871,12 @@ fn confirm_tree(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState, c: &Confirm) -> Re
     let (Some(title_face), Some(body_face), Some(pill)) = (title_face, body_face, pill) else {
         return Err(format!("{}: the confirm card's faces are missing", d.card()));
     };
-    let text = |face: &UiNode, id: &str, t: &str, y: f64, size: f32, weight: i32, color: u32| -> (UiNode, f64) {
+    // `w`: the text box width. The title's stops short of the close button
+    // (`clear_close` would otherwise push a box under it to the left).
+    let text = |face: &UiNode, id: &str, t: &str, y: f64, w: f64, size: f32, weight: i32, color: u32| -> (UiNode, f64) {
         let mut n = face.clone();
         n.children.clear();
-        let per_line = (W / (0.5 * size as f64)).floor().max(1.0);
+        let per_line = (w / (0.5 * size as f64)).floor().max(1.0);
         let lines = (t.chars().count() as f64 / per_line).ceil().max(1.0);
         let h = (lines * size as f64 * 1.4).ceil();
         let a = &mut n.attrs;
@@ -1882,9 +1884,10 @@ fn confirm_tree(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState, c: &Confirm) -> Re
         a.text = Some(t.to_owned());
         a.x = Some(0.0);
         a.y = Some(y);
-        a.w = Some(W as f32);
+        a.w = Some(w as f32);
         a.h = Some(h as f32);
         a.size = Some(size);
+        a.line_height = None;
         a.weight = Some(weight);
         a.color = Some(color);
         a.alignx = Some(0.0);
@@ -1918,8 +1921,11 @@ fn confirm_tree(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState, c: &Confirm) -> Re
                     }
                 }
                 "_label" => {
-                    let lh = a.h.unwrap_or(26.0) as f64;
+                    let lh = 22.0;
+                    a.h = Some(lh as f32);
                     a.y = Some(y + (BTN_H - lh) / 2.0);
+                    a.size = Some(15.0);
+                    a.line_height = None;
                     a.text = Some(label.to_owned());
                     a.alignx = Some(0.5);
                     a.weight = Some(if primary { 600 } else { 500 });
@@ -1934,16 +1940,16 @@ fn confirm_tree(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState, c: &Confirm) -> Re
     };
     let mut page = own;
     page.children.clear();
-    let title_size = title_face.attrs.size.unwrap_or(22.0);
-    let (title, h) = text(&title_face, "cf_title", &c.title, 0.0, title_size, 700, 0xff1d_1d1f);
+    let title_size = title_face.attrs.size.unwrap_or(20.0).min(20.0);
+    let (title, h) = text(&title_face, "cf_title", &c.title, 0.0, W - 48.0, title_size, 700, 0xff1d_1d1f);
     page.children.push(title);
     let mut y = h + 14.0;
     if !c.detail.is_empty() {
-        let (detail, h) = text(&body_face, "cf_detail", &c.detail, y, 16.0, 600, 0xff1d_1d1f);
+        let (detail, h) = text(&body_face, "cf_detail", &c.detail, y, W, 16.0, 600, 0xff1d_1d1f);
         page.children.push(detail);
         y += h + 8.0;
     }
-    let (body, h) = text(&body_face, "cf_body", &c.body, y, 14.5, 400, 0xff6e_6e73);
+    let (body, h) = text(&body_face, "cf_body", &c.body, y, W, 14.5, 400, 0xff6e_6e73);
     page.children.push(body);
     y += h + 22.0;
     let half = (W - GAP) / 2.0;
@@ -2704,6 +2710,26 @@ mod tests {
         if crate::design::dir("stage-b/setup/cards/setup-07/assets").is_dir() {
             assert!(!models.contains("http_resource(\"http://127.0.0.1:8170"), "an unresolved card svg");
             assert!(models.contains("file_resource("), "the chevrons/check are files");
+        }
+    }
+
+    /// Dev probe: the confirm card's tree with every attribute.
+    #[test]
+    #[ignore]
+    fn dump_confirm() {
+        let _s = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        let c = confirmation_for("context.compact_now", &store).unwrap();
+        let st = autonomy_view(&ctx);
+        let raw = card_tree(Dialog::Context, &ctx, &st).unwrap();
+        println!("RAW t_title {:?}", find(&raw, "t_title").map(|n| n.attrs.clone()));
+        println!("RAW t_usage {:?}", find(&raw, "t_usage").map(|n| n.attrs.clone()));
+        let mut t = confirm_tree(Dialog::Context, &ctx, &st, &c).unwrap();
+        let _ = wire(&mut t, &confirm_controls());
+        let _ = normalize(&mut t);
+        for l in describe(&t) {
+            println!("{l}");
         }
     }
 
