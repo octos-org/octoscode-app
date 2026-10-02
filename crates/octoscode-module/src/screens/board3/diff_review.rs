@@ -198,7 +198,7 @@ fn empty_box(d: &mut Dsl, id: &str, head: Option<&str>, body: &str, alert: bool)
     let (fill, border) = if alert { (tok::RED_BG, Some("#f5c2c7ff")) } else { (tok::SURFACE2, Some(tok::HAIRLINE)) };
     d.surface(id, "width: Fill height: Fit flow: Down spacing: 6 padding: Inset{left: 14 right: 14 top: 14 bottom: 14}", fill, 10.0, border);
     if let Some(h) = head {
-        d.text(&format!("{id}_head"), h, &Txt::new(13.0, Face::Semibold, if alert { tok::RED } else { tok::TEXT }).w(W::Fill).wrap());
+        d.text(&format!("{id}_head"), h, &Txt::new(13.0, Face::Semibold, if alert { tok::RED_TEXT } else { tok::TEXT }).w(W::Fill).wrap());
     }
     d.text(&format!("{id}_body"), body, &Txt::new(12.5, Face::Regular, if alert { tok::TEXT } else { tok::MUTED }).w(W::Fill).wrap());
     d.close();
@@ -242,8 +242,8 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
     d.text("b3_title", &ui::fit_w(&title, title_budget, 16.0, Face::Semibold), &ui::title().w(W::Fill));
     d.close();
     if let (true, Some((a, r))) = (inline_totals, &totals_text) {
-        d.text("b3_diff_add", a, &Txt::new(12.5, Face::Semibold, tok::GREEN));
-        d.text("b3_diff_del", r, &Txt::new(12.5, Face::Semibold, tok::RED));
+        d.text("b3_diff_add", a, &Txt::new(12.5, Face::Semibold, tok::GREEN_TEXT));
+        d.text("b3_diff_del", r, &Txt::new(12.5, Face::Semibold, tok::RED_TEXT));
     }
     let can_refresh = !st.loading && st.preview_id.is_some() && advertised(store);
     d.button("b3_diff_refresh", "Refresh", "b3.diff.refresh", if can_refresh { Btn::Outline } else { Btn::OutlineOff }, W::Fit, 30.0);
@@ -252,8 +252,8 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
     if let (false, Some((a, r))) = (inline_totals, &totals_text) {
         let row = d.anon();
         d.view(&row, "width: Fill height: Fit flow: Right spacing: 6 padding: Inset{top: 4}");
-        d.text("b3_diff_add", a, &Txt::new(12.5, Face::Semibold, tok::GREEN));
-        d.text("b3_diff_del", r, &Txt::new(12.5, Face::Semibold, tok::RED));
+        d.text("b3_diff_add", a, &Txt::new(12.5, Face::Semibold, tok::GREEN_TEXT));
+        d.text("b3_diff_del", r, &Txt::new(12.5, Face::Semibold, tok::RED_TEXT));
         d.close();
     }
 
@@ -329,7 +329,7 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
                 let hid = format!("{id}_h{hi}");
                 let hrow = d.anon();
                 d.view(&hrow, "width: Fill height: Fit flow: Down padding: Inset{left: 12 right: 12 top: 8 bottom: 4}");
-                d.text(&format!("{hid}_header"), &h.header, &Txt::new(11.5, Face::Mono, tok::BLUE).w(W::Fill).wrap());
+                d.text(&format!("{hid}_header"), &h.header, &Txt::new(11.5, Face::Mono, tok::BLUE_TEXT).w(W::Fill).wrap());
                 d.close();
                 // A13 (judge, 360 px: "Args::\nparse()") — the hunk's lines
                 // stay WHOLE and scroll sideways together (the web's
@@ -357,8 +357,8 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
                     }
                     drawn += 1;
                     let (fill, prefix, ink) = match l.kind {
-                        DiffPreviewLineKind::Added => (tok::GREEN_BG, "+", tok::GREEN),
-                        DiffPreviewLineKind::Removed => (tok::RED_BG, "−", tok::RED),
+                        DiffPreviewLineKind::Added => (tok::GREEN_BG, "+", tok::GREEN_TEXT),
+                        DiffPreviewLineKind::Removed => (tok::RED_BG, "−", tok::RED_TEXT),
                         DiffPreviewLineKind::Context => (tok::TRANSPARENT, " ", tok::MUTED),
                     };
                     let lid = format!("{hid}_l{li}");

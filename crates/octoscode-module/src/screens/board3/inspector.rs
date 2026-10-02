@@ -442,7 +442,7 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, store: &Store) {
         d.text("b3_insp_loading", "Reading the captured Session…", &ui::meta());
     }
     if let Some(e) = &st.error {
-        d.text("b3_insp_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+        d.text("b3_insp_error", e, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     // The command's own subject first: `/permissions` reads the remembered
     // approvals (`InspectionDialog.tsx` "scopes"), `/turn` the turn state,
@@ -549,8 +549,8 @@ fn graph_card(d: &mut Dsl, st: &InspState, compact: bool) {
 fn decision_tag(d: &mut Dsl, id: &str, decision: &str) {
     let lower = decision.to_ascii_lowercase();
     let (text, fg, bg) = match lower.as_str() {
-        "allow" | "allowed" | "approve" | "approved" | "accept" => ("allowed".to_owned(), tok::BLUE, tok::BLUE_BG),
-        "deny" | "denied" | "reject" | "rejected" => ("denied".to_owned(), tok::RED, tok::RED_BG),
+        "allow" | "allowed" | "approve" | "approved" | "accept" => ("allowed".to_owned(), tok::BLUE_TEXT, tok::BLUE_BG),
+        "deny" | "denied" | "reject" | "rejected" => ("denied".to_owned(), tok::RED_TEXT, tok::RED_BG),
         other => (other.to_owned(), tok::MUTED, tok::SURFACE2),
     };
     d.chip(id, &text, fg, bg, None, false);
@@ -644,7 +644,7 @@ fn link_card(d: &mut Dsl, st: &InspState, field_w: f64) {
         d.close();
     }
     if st.copied {
-        d.text("b3_insp_copied", "Conversation link copied.", &Txt::new(12.0, Face::Regular, tok::GREEN));
+        d.text("b3_insp_copied", "Conversation link copied.", &Txt::new(12.0, Face::Regular, tok::GREEN_TEXT));
     }
     d.close();
 }

@@ -669,7 +669,7 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
             // prints stays under it, muted. The change refusal is already a
             // sentence for people.
             if e == MUTATION_FAILED {
-                status(d, "b3_research_error", e, tok::RED);
+                status(d, "b3_research_error", e, tok::RED_TEXT);
             } else {
                 ui::failure(d, "b3_research_error", LOAD_FAILED, e);
             }

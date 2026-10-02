@@ -606,7 +606,7 @@ fn actions(d: &mut Dsl, prefix: &str, base: &str, suffix: &str, caps: &Caps, ena
 /// The web's `.danger` button: red text on a white pill with a red hairline.
 fn danger_button(d: &mut Dsl, id: &str, label: &str, event: &str, on: bool) {
     let w = ui::text_w(label, 13.0, Face::Medium) + 32.0;
-    let (fg, line) = if on { (tok::RED, "#f1b8bcff") } else { (tok::FAINT, tok::HAIRLINE) };
+    let (fg, line) = if on { (tok::RED_TEXT, "#f1b8bcff") } else { (tok::DISABLED_INK, tok::HAIRLINE) };
     d.surface(&format!("{id}_box"), &format!("width: {w} height: 30 flow: Overlay align: Align{{x: 0.5 y: 0.5}}"), tok::SURFACE, 15.0, Some(line));
     let inner = d.anon();
     d.view(&inner, "width: Fill height: Fill flow: Right align: Align{x: 0.5 y: 0.5}");
@@ -633,8 +633,8 @@ fn field(d: &mut Dsl, label_id: &str, label: &str, input_id: &str, key: &str, va
 
 fn status_chip(d: &mut Dsl, id: &str, status: &str) {
     let (fg, bg) = match status {
-        "running" | "active" | "started" => (tok::GREEN, tok::GREEN_BG),
-        "failed" => (tok::RED, tok::RED_BG),
+        "running" | "active" | "started" => (tok::GREEN_TEXT, tok::GREEN_BG),
+        "failed" => (tok::RED_TEXT, tok::RED_BG),
         "interrupted" | "closed" | "completed" => (tok::MUTED, tok::SURFACE2),
         _ => (tok::AMBER, tok::AMBER_BG),
     };
@@ -692,7 +692,7 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
         d.close();
         d.text("b3_agents_spawn_hint", SPAWN_HINT, &ui::meta().w(W::Fill).wrap());
         if let Some(e) = &st.spawn_error {
-            d.text("b3_agents_spawn_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+            d.text("b3_agents_spawn_error", e, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
         }
         // Both variants are emitted; the live gate shows one ([`visibility`]:
         // no remount while typing, which would rebuild the focused input).

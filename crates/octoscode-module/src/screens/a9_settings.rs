@@ -280,7 +280,7 @@ pub fn lower(frame: &Frame) -> Option<super::activity::Lowered> {
         "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 1.0 y: 0.5} margin: Inset{top: 10}",
     );
     action_button(&mut d, "a9_lv_cancel", "Cancel", ACTION_CANCEL, tok::TEXT);
-    action_button(&mut d, "a9_lv_confirm", confirm_label, ACTION_CONFIRM, tok::RED);
+    action_button(&mut d, "a9_lv_confirm", confirm_label, ACTION_CONFIRM, tok::RED_TEXT);
     d.close();
     d.close(); // col
     d.close(); // dialog

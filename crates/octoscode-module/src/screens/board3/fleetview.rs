@@ -111,11 +111,11 @@ impl Status {
     fn tone(self) -> (&'static str, &'static str) {
         match self {
             Status::WaitingApproval | Status::WaitingAnswer => (tok::AMBER, tok::AMBER_BG),
-            Status::Working => (tok::GREEN, tok::GREEN_BG),
-            Status::Requested | Status::Starting | Status::StillStarting => (tok::BLUE, tok::BLUE_BG),
+            Status::Working => (tok::GREEN_TEXT, tok::GREEN_BG),
+            Status::Requested | Status::Starting | Status::StillStarting => (tok::BLUE_TEXT, tok::BLUE_BG),
             // An operator's own Stop is a calm terminal state, not an error.
             Status::Finished | Status::Stopped => (tok::MUTED, tok::SURFACE2),
-            Status::Failed | Status::Unknown => (tok::RED, tok::RED_BG),
+            Status::Failed | Status::Unknown => (tok::RED_TEXT, tok::RED_BG),
         }
     }
 }
@@ -829,12 +829,12 @@ fn lane_summary(d: &mut Dsl, info: &LaneInfo) {
     let row = d.anon();
     d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.0} spacing: 12 padding: Inset{top: 2 bottom: 2}");
     d.surface("b3_fleet_lane_avatar", "width: 34 height: 34 flow: Overlay align: Align{x: 0.5 y: 0.5}", tok::BLUE_BG, 17.0, None);
-    d.text("b3_fleet_lane_initial", &info.initial(), &Txt::new(15.0, Face::Medium, tok::BLUE));
+    d.text("b3_fleet_lane_initial", &info.initial(), &Txt::new(15.0, Face::Medium, tok::BLUE_TEXT));
     d.close();
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 6");
     d.text("b3_fleet_lane_title", &info.title(), &Txt::new(13.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
-    d.chip("b3_fleet_lane_state", "Configured", tok::GREEN, tok::GREEN_BG, None, false);
+    d.chip("b3_fleet_lane_state", "Configured", tok::GREEN_TEXT, tok::GREEN_BG, None, false);
     if let Some(desc) = &info.description {
         d.text("b3_fleet_lane_desc", desc, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     }
@@ -909,7 +909,7 @@ fn start_form(d: &mut Dsl, st: &FleetState, store: &Store) {
             d.text(
                 "b3_fleet_error",
                 &t1("Couldn't start: {value0}", fleet_driver::dispatch_refusal_label(kind)),
-                &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap(),
+                &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap(),
             );
         }
         StartState::Unknown { .. } if !st.start_dismissed => {
@@ -951,7 +951,7 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
     let av = format!("{id}_avatar");
     d.surface(&av, "width: 26 height: 26 flow: Overlay align: Align{x: 0.5 y: 0.5}", "#eef2fdff", 13.0, None);
     let initial: String = r.label.split(" · ").nth(1).and_then(|m| m.chars().next()).map(|c| c.to_uppercase().to_string()).unwrap_or_else(|| "P".into());
-    d.text(&format!("{av}_initial"), &initial, &Txt::new(11.0, Face::Semibold, tok::BLUE));
+    d.text(&format!("{av}_initial"), &initial, &Txt::new(11.0, Face::Semibold, tok::BLUE_TEXT));
     d.close();
     // The label never truncates to make room for the chip: when both do not
     // fit on one line (a phone, a long waiting word) the chip drops below.
@@ -983,12 +983,12 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
         Some((t("Peer started a new turn"), tok::AMBER))
     } else if let (Status::Failed, Some(reason)) = (r.status, r.error.as_ref()) {
         // A failed start says why (the bounded refusal copy, never a code).
-        Some((reason.clone(), tok::RED))
+        Some((reason.clone(), tok::RED_TEXT))
     } else if let Some(n) = st.row_note.get(&r.key) {
         let refused = matches!(r.control, Some(RowControl::Refused { .. })) || !matches!(n.as_str(), "Sent" | "Stop requested");
-        Some((t(n), if refused { tok::RED } else { tok::GREEN }))
+        Some((t(n), if refused { tok::RED_TEXT } else { tok::GREEN_TEXT }))
     } else {
-        r.ack.map(|a| (t(if a == Ack::StopRequested { "Stop requested" } else { "Sent" }), tok::GREEN))
+        r.ack.map(|a| (t(if a == Ack::StopRequested { "Stop requested" } else { "Sent" }), tok::GREEN_TEXT))
     };
     if let Some((text, color)) = note {
         d.text(&format!("{id}_note"), &text, &Txt::new(12.0, Face::Medium, color).w(W::Fill).wrap());
@@ -1116,7 +1116,7 @@ pub fn build(d: &mut Dsl, st: &mut FleetState, frame: &Frame, store: &Store) {
     }
     d.close();
     if let Some(a) = &st.announcement {
-        d.text("b3_fleet_announce", a, &Txt::new(12.0, Face::Medium, tok::BLUE).w(W::Fill).wrap());
+        d.text("b3_fleet_announce", a, &Txt::new(12.0, Face::Medium, tok::BLUE_TEXT).w(W::Fill).wrap());
     }
     let empty = list.is_empty();
     let none = t("No peers yet");

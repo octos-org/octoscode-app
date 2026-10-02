@@ -110,7 +110,7 @@ fn f31d_role_assignments_cover_both_modes() {
     theme::set_preference("light");
     let light = theme::role_assignments();
     assert!(light.contains("color_bg_app = #ffffff"), "light pins the shell's literals");
-    assert!(light.contains("color_text_muted = #6e6e73"));
+    assert!(light.contains("color_text_muted = #61666b"), "A18: the web's secondary label (WCAG 4.5:1 on every shell fill)");
     theme::set_preference("dark");
     let dark = theme::role_assignments();
     assert!(dark.contains("color_bg_app = #1c1f22"));

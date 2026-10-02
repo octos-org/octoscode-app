@@ -441,7 +441,7 @@ fn route_card(d: &mut Dsl, st: &RoutesState, i: usize, r: &Route, inner_w: f64, 
     d.view(&head, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5}");
     d.text(&format!("{id}_name"), &ui::fit_w(&r.name(), inner_w - 90.0, 13.5, Face::Semibold), &Txt::new(13.5, Face::Semibold, tok::TEXT).w(W::Fill));
     if r.primary {
-        d.chip(&format!("{id}_primary"), "Primary", tok::BLUE, tok::BLUE_BG, None, false);
+        d.chip(&format!("{id}_primary"), "Primary", tok::BLUE_TEXT, tok::BLUE_BG, None, false);
     }
     d.close();
     let label = if r.label.is_empty() { r.route_id.clone() } else { r.label.clone() };
@@ -556,7 +556,7 @@ fn delete_card(d: &mut Dsl, st: &RoutesState, r: &Route, compact: bool) {
     d.text("b3_routes_delete_prompt", &format!("Type {} to confirm", r.delete_phrase()), &Txt::new(12.5, Face::Medium, tok::TEXT).w(W::Fill).wrap());
     d.input("b3_routes_phrase", "routes.phrase", "", "", true, 36.0);
     if st.delete_failed {
-        d.text("b3_routes_delete_failed", DELETE_FAILED, &Txt::new(12.5, Face::Regular, tok::RED).w(W::Fill).wrap());
+        d.text("b3_routes_delete_failed", DELETE_FAILED, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     let foot = d.anon();
     d.view(&foot, &format!("width: Fill height: Fit flow: {} align: Align{{x: 1.0 y: 0.5}} spacing: 8", if compact { "Down" } else { "Right" }));
@@ -577,7 +577,7 @@ fn delete_card(d: &mut Dsl, st: &RoutesState, r: &Route, compact: bool) {
 }
 
 fn danger(d: &mut Dsl, id: &str, label: &str, event: &str, armed: bool) {
-    let (fill, ink) = if armed { (tok::RED, tok::WHITE) } else { (tok::DISABLED_BG, tok::FAINT) };
+    let (fill, ink) = if armed { (tok::RED, tok::WHITE) } else { (tok::DISABLED_BG, tok::DISABLED_INK) };
     d.surface(&format!("{id}_box"), "width: Fill height: 34 flow: Overlay align: Align{x: 0.5 y: 0.5}", fill, 17.0, None);
     d.text(&format!("{id}_label"), label, &Txt::new(13.0, Face::Medium, ink));
     if armed {
@@ -606,10 +606,10 @@ pub fn build(d: &mut Dsl, st: &RoutesState, frame: &Frame, store: &Store) {
         d.text("b3_routes_loading", "Loading model providers…", &ui::meta());
     }
     if let Some(e) = &st.error {
-        d.text("b3_routes_error", e, &Txt::new(12.5, Face::Regular, tok::RED).w(W::Fill).wrap());
+        d.text("b3_routes_error", e, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     if let Some(n) = &st.notice {
-        d.text("b3_routes_notice", n, &Txt::new(12.5, Face::Regular, tok::GREEN).w(W::Fill).wrap());
+        d.text("b3_routes_notice", n, &Txt::new(12.5, Face::Regular, tok::GREEN_TEXT).w(W::Fill).wrap());
     }
     if let Some(r) = st.deleting.and_then(|i| st.routes.get(i)) {
         delete_card(d, st, r, compact);

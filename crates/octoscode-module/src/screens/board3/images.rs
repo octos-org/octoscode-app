@@ -254,7 +254,7 @@ pub fn build(d: &mut Dsl, st: &ImgState, frame: &Frame, drafts: Option<&media::A
         d.text(
             &format!("b3_img_row_{i}"),
             &format!("{} · {} · {}", super::inventory::fit(&e.name, 220.0, 12.0, false), size_line(e.bytes, &e.mime), status_copy(e.status)),
-            &Txt::new(11.5, Face::Regular, if e.status == DraftStatus::Error { tok::RED } else { tok::MUTED }).w(W::Fill),
+            &Txt::new(11.5, Face::Regular, if e.status == DraftStatus::Error { tok::RED_TEXT } else { tok::MUTED }).w(W::Fill),
         );
     }
     d.gap(W::Fill, 12.0);

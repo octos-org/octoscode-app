@@ -1479,7 +1479,7 @@ mod tests {
         assert!(m.dsl.contains("A prompt is required for self-paced and fixed-interval loops."), "the notice renders");
         let at = m.dsl.find("dlg_loops_dialog_notice := Label").expect("the notice line");
         assert!(at < m.dsl.find("dialog_scroll := ScrollYView").unwrap(), "under the title, above the body");
-        assert!(block(&m.dsl, "dlg_loops_dialog_notice").unwrap().contains("#cf222eff"), "an alert is red");
+        assert!(block(&m.dsl, "dlg_loops_dialog_notice").unwrap().contains(crate::screens::board3::ui::tok::RED_TEXT), "an alert is red (the red TEXT ink)");
         let plain = {
             clear_notice();
             lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap()
@@ -1542,7 +1542,7 @@ mod tests {
         let dsl = lower(Dialog::Context, &ctx, 990.0, 603.0).unwrap().dsl;
         let (heur, llm) = (block(&dsl, "dlg_context_t_heur").unwrap(), block(&dsl, "dlg_context_t_llm").unwrap());
         assert!(heur.contains("Inter-500.ttf") && heur.contains("#1d1d1fff"), "{heur}");
-        assert!(llm.contains("Inter-400.ttf") && llm.contains("#6e6e73ff"), "{llm}");
+        assert!(llm.contains("Inter-400.ttf") && llm.contains(crate::screens::board3::ui::tok::MUTED), "{llm}");
         crate::screens::models::note_compact_mode(&serde_json::json!({"session_id": "dsflash:main", "mode": "llm"}));
     }
 

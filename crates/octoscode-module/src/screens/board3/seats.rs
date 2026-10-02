@@ -801,10 +801,10 @@ fn error_line(d: &mut Dsl, id: &str, message: &str, retry: &str) {
         8.0,
         None,
     );
-    d.text(&format!("{id}_text"), message, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+    d.text(&format!("{id}_text"), message, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     let b = d.anon();
     d.view(&b, "width: Fit height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5} padding: Inset{left: 4 right: 4}");
-    d.text(&format!("{id}_retry_label"), "Retry", &Txt::new(12.0, Face::Semibold, tok::RED));
+    d.text(&format!("{id}_retry_label"), "Retry", &Txt::new(12.0, Face::Semibold, tok::RED_TEXT));
     d.tap(&format!("{id}_retry"), retry);
     d.close();
     d.close();
@@ -835,7 +835,7 @@ fn option_row(
     }
     let copy = d.anon();
     d.view(&copy, "width: Fill height: Fit flow: Down spacing: 1");
-    let ink = if enabled { tok::TEXT } else { tok::FAINT };
+    let ink = if enabled { tok::TEXT } else { tok::DISABLED_INK };
     d.text(&format!("{id}_name"), &ui::fit_w(name, copy_w, 14.0, Face::Medium), &Txt::new(14.0, Face::Medium, ink).w(W::Fill));
     if let Some(desc) = description {
         d.text(&format!("{id}_desc"), &ui::fit_w(desc, copy_w, 12.0, Face::Regular), &Txt::new(12.0, Face::Regular, tok::FAINT).w(W::Fill));
@@ -962,7 +962,7 @@ fn build_risk(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store, o: &Pe
 /// danger action must not read as armed).
 fn danger_button(d: &mut Dsl, id: &str, label: &str, event: &str, armed: bool) {
     let w = (ui::text_w(label, 14.0, Face::Medium) + 32.0).ceil();
-    let (fill, ink) = if armed { (tok::RED, tok::WHITE) } else { (tok::DISABLED_BG, tok::FAINT) };
+    let (fill, ink) = if armed { (tok::RED, tok::WHITE) } else { (tok::DISABLED_BG, tok::DISABLED_INK) };
     d.surface(
         &format!("{id}_box"),
         &format!("width: {w} height: 36 flow: Overlay align: Align{{x: 0.5 y: 0.5}}"),
@@ -1076,7 +1076,7 @@ pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) 
             d.text("b3_model_external", EXTERNAL_CHANGE, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
         }
         if let Some(n) = board.latest() {
-            let ink = if n.kind == Disposition::Refused { tok::RED } else { tok::TEXT };
+            let ink = if n.kind == Disposition::Refused { tok::RED_TEXT } else { tok::TEXT };
             d.text("b3_model_notice", &n.message, &Txt::new(12.5, Face::Regular, ink).w(W::Fill).wrap());
         }
         d.close();

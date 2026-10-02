@@ -730,7 +730,7 @@ pub fn pane(d: &mut Dsl, store: &Store, st: &TrajState, width: f64, phone: bool)
             10.0,
             None,
         );
-        d.text("cv_tr_error", err, &Txt::new(12.5, Face::Regular, tok::RED).w(W::Fill).wrap());
+        d.text("cv_tr_error", err, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
         d.close();
     }
     // Session status.
@@ -858,7 +858,7 @@ fn task_row(d: &mut Dsl, i: usize, t: &TaskSnapshot, avail: &Avail, col_w: f64) 
         &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill),
     );
     if let Some(err) = t.error.as_deref().filter(|e| !e.trim().is_empty()) {
-        d.text(&format!("cv_tr_task_err_{i}"), err.trim(), &Txt::new(11.5, Face::Regular, tok::RED).w(W::Fill).wrap());
+        d.text(&format!("cv_tr_task_err_{i}"), err.trim(), &Txt::new(11.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     d.close();
     if avail.openable() {
@@ -891,15 +891,15 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
     d.view(&head, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.0} spacing: 10");
     let tcol = d.anon();
     d.view(&tcol, "width: Fill height: Fit flow: Down spacing: 3");
-    d.text("cv_td_eyebrow", "SUPERVISED TASK", &Txt::new(11.0, Face::Medium, tok::BLUE).w(W::Fill));
+    d.text("cv_td_eyebrow", "SUPERVISED TASK", &Txt::new(11.0, Face::Medium, tok::BLUE_TEXT).w(W::Fill));
     let title = task.as_ref().map(task_title).unwrap_or_else(|| "Task output".into());
     d.text("cv_td_title", &ui::fit_w(&title, width - 180.0, 17.0, Face::Semibold), &Txt::new(17.0, Face::Semibold, tok::TEXT).w(W::Fill));
     d.close();
     let state = task.as_ref().map(|t| t.state.clone()).unwrap_or_else(|| "loading".into());
     let (fg, bg) = match state.as_str() {
-        "completed" => (tok::GREEN, tok::GREEN_BG),
-        "failed" | "cancelled" => (tok::RED, tok::RED_BG),
-        "running" | "pending" | "cancelling" => (tok::BLUE, tok::BLUE_BG),
+        "completed" => (tok::GREEN_TEXT, tok::GREEN_BG),
+        "failed" | "cancelled" => (tok::RED_TEXT, tok::RED_BG),
+        "running" | "pending" | "cancelling" => (tok::BLUE_TEXT, tok::BLUE_BG),
         _ => (tok::MUTED, tok::CHIP),
     };
     d.chip("cv_td_state", &state, fg, bg, None, false);
@@ -1020,7 +1020,7 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
     d.close(); // grid
     if let Some(err) = &det.error {
         d.gap(W::Fill, 10.0);
-        d.text("cv_td_error", err, &Txt::new(12.5, Face::Regular, tok::RED).w(W::Fill).wrap());
+        d.text("cv_td_error", err, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     ui::shell_close(d);
 }
