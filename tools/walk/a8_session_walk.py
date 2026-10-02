@@ -170,10 +170,13 @@ def check(name, ok, detail=""):
 
 
 def shot(name):
+    """The capture AND its /snap (the numeric UX checks read the snap)."""
     if SHOTS:
         os.makedirs(SHOTS, exist_ok=True)
         with open(os.path.join(SHOTS, f"{MODE}-{name}.png"), "wb") as f:
             f.write(get("/g?raw=1", timeout=30))
+        with open(os.path.join(SHOTS, f"{MODE}-{name}.json"), "wb") as f:
+            f.write(get("/snap?all=1"))
 
 
 def layout_checks(tag):
@@ -213,7 +216,15 @@ def main():
     check("strip is laid out", wait(lambda: shown("b3_strip_tap"), 20))
     s = snap()
     cells = [rect(c, s) for c in ("b3_strip_model_cell", "b3_strip_state_cell", "b3_strip_perm_cell")]
-    check("strip: three equal cells", all(cells) and len({round(c[2]) for c in cells}) == 1, str(cells))
+    if MODE == "phone":
+        # The web's <=760 px strip: the state word on its own line, the model
+        # and the permission in two equal halves under it.
+        m, st_, p = cells
+        check("strip (phone): the state word spans the strip, above two equal halves",
+              all(cells) and st_[1] < m[1] and m[1] == p[1] and round(m[2]) == round(p[2])
+              and abs(st_[2] - (m[2] + p[2] + 1)) <= 2, str(cells))
+    else:
+        check("strip: three equal cells", all(cells) and len({round(c[2]) for c in cells}) == 1, str(cells))
     check("strip: the foreign holder is the state word", wait(lambda: text("b3_strip_state") == "Another app is using this session"), str(text("b3_strip_state")))
     shot("00-strip")
 

@@ -183,10 +183,13 @@ def check(name, ok, detail=""):
 
 
 def shot(name):
+    """The capture AND its /snap (the numeric UX checks read the snap)."""
     if SHOTS:
         os.makedirs(SHOTS, exist_ok=True)
         with open(os.path.join(SHOTS, f"{MODE}-{name}.png"), "wb") as f:
             f.write(get("/g?raw=1", timeout=30))
+        with open(os.path.join(SHOTS, f"{MODE}-{name}.json"), "wb") as f:
+            f.write(get("/snap?all=1"))
 
 
 def same_title(shown_t, title):
@@ -266,6 +269,11 @@ def phase1():
         click(f"b3_resume_row_{alpha}_tap")
         click("b3_resume_confirm")
         type_text("Add session fork")
+        if MODE == "phone":
+            # The on-screen keyboard is up: the dialog panned the typed field
+            # (and its button) above it.
+            time.sleep(0.6)
+            shot("01b-resume-keyboard")
         wait(lambda: scroll_to("b3_resume_go") is not None, 4)
         click("b3_resume_go")
     check("resume: a verified candidate opens and the dialog closes", wait(lambda: not shown("b3_resume_scope"), 8))

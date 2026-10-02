@@ -228,31 +228,53 @@ pub fn lower(
         10.0,
         Some(tok::HAIRLINE),
     );
-    let row = d.anon();
-    d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}");
     // Three EQUAL cells (the board): a Fill cell shrank to its neighbours'
     // leftovers on a phone and clipped "Permissions not reported".
-    let cell_w = st
-        .width
-        .map(|w| format!("{}", ((w - 2.0) / 3.0).floor()))
-        .unwrap_or_else(|| "Fill".into());
-    let cell = |d: &mut Dsl, id: &str, text: &str, muted: bool, mono: bool, center: bool| {
-        let align = if center { "0.5" } else { "0.0" };
+    let split = |n: f64| {
+        st.width
+            .map(|w| format!("{}", ((w - (n - 1.0)) / n).floor()))
+            .unwrap_or_else(|| "Fill".into())
+    };
+    let cell = |d: &mut Dsl, id: &str, text: &str, muted: bool, cell_w: &str| {
         d.view(
             &format!("{id}_cell"),
-            &format!("width: {cell_w} height: Fit flow: Right align: Align{{x: {align} y: 0.5}} padding: Inset{{left: 10 right: 8 top: 8 bottom: 8}}"),
+            &format!("width: {cell_w} height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 10 right: 8 top: 8 bottom: 8}}"),
         );
-        let face = if mono { Face::Mono } else { Face::Regular };
-        d.text(id, text, &Txt::new(px, face, if muted { tok::FAINT } else { tok::TEXT }).w(W::Fill).wrap());
+        d.text(id, text, &Txt::new(px, Face::Regular, if muted { tok::FAINT } else { tok::TEXT }).w(W::Fill).wrap());
         d.close();
     };
     let model_missing = model == "Model not reported";
-    cell(&mut d, "b3_strip_model", &model, model_missing, false, false);
-    d.vrule(26.0);
-    cell(&mut d, "b3_strip_state", &state, false, false, false);
-    d.vrule(26.0);
-    cell(&mut d, "b3_strip_perm", &perm, perm == "Permissions not reported", false, false);
-    d.close();
+    let perm_missing = perm == "Permissions not reported";
+    if narrow {
+        // A8 — a phone width is the web's <=760 px strip
+        // (`SessionConfig.module.css:54-75`): the state word first, on its
+        // own line, the model and the permission under it. Three cells in a
+        // row broke "deepseek-v4-flash" and "Workspace write" mid-word at
+        // 360 px.
+        let col = d.anon();
+        d.view(&col, "width: Fill height: Fit flow: Down");
+        cell(&mut d, "b3_strip_state", &state, false, &split(1.0));
+        let line = d.anon();
+        d.rule(&line, "width: Fill height: 1", tok::HAIRLINE);
+        let row = d.anon();
+        d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}");
+        let half = split(2.0);
+        cell(&mut d, "b3_strip_model", &model, model_missing, &half);
+        d.vrule(26.0);
+        cell(&mut d, "b3_strip_perm", &perm, perm_missing, &half);
+        d.close();
+        d.close();
+    } else {
+        let row = d.anon();
+        d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}");
+        let third = split(3.0);
+        cell(&mut d, "b3_strip_model", &model, model_missing, &third);
+        d.vrule(26.0);
+        cell(&mut d, "b3_strip_state", &state, false, &third);
+        d.vrule(26.0);
+        cell(&mut d, "b3_strip_perm", &perm, perm_missing, &third);
+        d.close();
+    }
     d.tap("b3_strip_tap", "b3.strip.settings");
     d.close();
     // The board's caption under the strip is the web strip's own title
@@ -329,6 +351,25 @@ mod tests {
         assert_eq!(facts(&s, &st, None, None).0, "Model not reported");
         let st = StripState { model: Some(("s".into(), "glm-5.3".into())), ..Default::default() };
         assert_eq!(facts(&s, &st, None, None).0, "glm-5.3");
+    }
+
+    #[test]
+    fn a_phone_width_puts_the_state_word_over_the_model_and_the_permission() {
+        let s = live_store();
+        let st = |w: f64| StripState { width: Some(w), ..Default::default() };
+        let phone = lower(&s, &st(330.0), None, Some("workspace_write"), None);
+        let at = |dsl: &str, id: &str| dsl.find(&format!("{id} := View")).unwrap();
+        assert!(at(&phone, "b3_strip_state_cell") < at(&phone, "b3_strip_model_cell"), "the state word first");
+        assert!(phone.contains("b3_strip_state_cell := View {\nwidth: 330 "), "on its own full-width line");
+        for id in ["b3_strip_model_cell", "b3_strip_perm_cell"] {
+            assert!(phone.contains(&format!("{id} := View {{\nwidth: 164 ")), "{id}: half the strip");
+        }
+        assert_eq!(phone.matches('{').count(), phone.matches('}').count());
+        let desk = lower(&s, &st(660.0), None, Some("workspace_write"), None);
+        assert!(at(&desk, "b3_strip_model_cell") < at(&desk, "b3_strip_state_cell"), "desktop: model | state | permission");
+        for id in ["b3_strip_model_cell", "b3_strip_state_cell", "b3_strip_perm_cell"] {
+            assert!(desk.contains(&format!("{id} := View {{\nwidth: 219 ")), "{id}: a third");
+        }
     }
 
     #[test]

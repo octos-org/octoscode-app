@@ -433,9 +433,14 @@ fn candidate_row(d: &mut Dsl, i: usize, c: &Candidate, selected: bool, divider: 
     d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{left: 14 right: 12 top: 11 bottom: 11}");
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 6");
+    // A8 — the title gets the row's real width: the row insets (14 + 12),
+    // the 10 px gap and the "unverified" chip (11 px text + 7 + 7). A flat
+    // 150 px reserve cut "Why is hydrate slow?" on a 360 px phone with room
+    // to spare.
+    let chip_w = ui::text_w("unverified", 11.0, Face::Medium) + 14.0;
     d.text(
         &format!("{rid}_title"),
-        &super::inventory::fit(&c.title, inner_w - 150.0, 14.0, false),
+        &super::inventory::fit(&c.title, inner_w - 36.0 - chip_w - 2.0, 14.0, false),
         &Txt::new(14.0, Face::Regular, tok::TEXT).w(W::Fill),
     );
     let l2 = d.anon();

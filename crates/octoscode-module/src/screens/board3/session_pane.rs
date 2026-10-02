@@ -1034,7 +1034,7 @@ fn risk_confirm(d: &mut Dsl, o: &PermOption, ack: bool) {
     // whole row is its 28+ px tap target.
     d.view("b3_sc_risk_ack_box", "width: Fill height: Fit flow: Overlay");
     let row = d.anon();
-    d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{top: 4 bottom: 4}");
+    d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{top: 6 bottom: 6}");
     d.surface(
         "b3_sc_risk_ack_check",
         "width: 18 height: 18 flow: Overlay align: Align{x: 0.5 y: 0.5}",

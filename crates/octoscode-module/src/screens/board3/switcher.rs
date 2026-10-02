@@ -205,8 +205,11 @@ pub fn perform(st: &mut SwitchState, action: &str, index: usize, store: &Store) 
 
 
 /// The panel body (shared by the dialog and the vim split view).
-pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, _inner_w: f64) {
+pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
     let rows = rows(store);
+    // A phone-narrow list: the delete confirmation sits on the row's meta
+    // line (bottom right), so the title keeps its width.
+    let narrow = inner_w > 0.0 && inner_w < 360.0;
     if st.loading && rows.is_empty() {
         d.text("b3_switch_loading", "Loading sessions…", &ui::meta());
     }
@@ -227,8 +230,37 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, _inner_w: f64) {
         }
         let (fill, border) = if r.current { (tok::SURFACE2, Some(tok::HAIRLINE)) } else { (tok::TRANSPARENT, None) };
         d.surface(&rid, "width: Fill height: Fit flow: Overlay", fill, 12.0, border);
+        // A8 — the trailing delete control sits on a layer over the row, so
+        // the row's text keeps clear of it (a phone-width title ran under the
+        // "Delete? Cancel Delete" pill): the right inset is the control's
+        // width plus its 8 px edge and a 6 px gap.
+        let confirming = st.confirm_delete.as_deref() == Some(r.id.as_str());
+        let trailing = if !r.current && delete_offered(store) {
+            if st.deleting.as_deref() == Some(r.id.as_str()) {
+                ui::text_w("Deleting…", 12.0, Face::Regular) + 14.0
+            } else if confirming && !narrow {
+                10.0 + ui::text_w("Delete?", 12.0, Face::Medium)
+                    + 4.0
+                    + ui::text_w("Cancel", 12.5, Face::Regular)
+                    + 4.0
+                    + 12.0
+                    + ui::text_w("Delete", 12.5, Face::Medium)
+                    + 4.0
+                    + 14.0
+            } else {
+                28.0 + 14.0
+            }
+        } else {
+            0.0
+        };
         let row = d.anon();
-        d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{left: 12 right: 12 top: 12 bottom: 12}");
+        d.view(
+            &row,
+            &format!(
+                "width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 10 padding: Inset{{left: 12 right: {} top: 12 bottom: 12}}",
+                trailing.max(12.0).ceil()
+            ),
+        );
         let col = d.anon();
         d.view(&col, "width: Fill height: Fit flow: Down spacing: 8");
         let color = if r.current { tok::MUTED } else { tok::TEXT };
@@ -254,7 +286,11 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, _inner_w: f64) {
         // explicit confirmation in place.
         if !r.current && delete_offered(store) {
             let layer = d.anon();
-            d.view(&layer, "width: Fill height: Fill flow: Right align: Align{x: 1.0 y: 0.5} padding: Inset{right: 8}");
+            if confirming && narrow {
+                d.view(&layer, "width: Fill height: Fill flow: Right align: Align{x: 1.0 y: 1.0} padding: Inset{right: 8 bottom: 8}");
+            } else {
+                d.view(&layer, "width: Fill height: Fill flow: Right align: Align{x: 1.0 y: 0.5} padding: Inset{right: 8}");
+            }
             if st.deleting.as_deref() == Some(r.id.as_str()) {
                 d.text(&format!("{rid}_deleting"), "Deleting…", &Txt::new(12.0, Face::Regular, tok::MUTED));
             } else if st.confirm_delete.as_deref() == Some(r.id.as_str()) {
@@ -371,6 +407,40 @@ mod tests {
         assert_eq!(perform(&mut st, "b3.switch.delete.confirm", 0, &store), Outcome::Spawn(super::super::host::Job::SwitchDelete("dsflash:b".into())));
         perform(&mut st, "b3.switch.delete", 0, &store);
         assert_eq!(st.confirm_delete, None, "single-flight while one delete runs");
+    }
+
+    #[test]
+    fn a_row_keeps_its_text_clear_of_the_delete_control() {
+        let store = Store::new();
+        store.set_sessions(vec![sess("dsflash:a", Some("A"), "2026-09-30T10:00:00Z"), sess("dsflash:b", Some("Review PR #2566"), "2026-10-01T10:00:00Z")]);
+        store.set_active(Some("dsflash:a".into()));
+        store.domains.config.set_supported_methods(vec!["session/delete".into()]);
+        let mut st = SwitchState::default();
+        // The right inset of the row content right before `id` in the DSL.
+        let inset = |dsl: &str, id: &str| -> f64 {
+            let at = dsl.find(id).unwrap();
+            let head = &dsl[..at];
+            let p = head.rfind("padding: Inset{left: 12 right: ").unwrap() + "padding: Inset{left: 12 right: ".len();
+            head[p..].split(' ').next().unwrap().parse().unwrap()
+        };
+        let lower = |st: &SwitchState| {
+            let mut d = Dsl::new();
+            build(&mut d, st, &Frame { avail_w: 360.0, avail_h: 780.0 }, &store, &Default::default());
+            d.finish()
+        };
+        let plain = lower(&st);
+        assert!(inset(&plain, "b3_switch_row_0_title") >= 42.0, "the × is reserved");
+        assert_eq!(inset(&plain, "b3_switch_row_1_title"), 12.0, "the open Session has no delete");
+        perform(&mut st, "b3.switch.delete", 0, &store);
+        let asking = lower(&st);
+        assert!(inset(&asking, "b3_switch_row_0_title") < 60.0, "phone: the title keeps its width");
+        assert!(asking.contains("align: Align{x: 1.0 y: 1.0} padding: Inset{right: 8 bottom: 8}"), "phone: the pill sits on the meta line");
+        // A desktop-wide list keeps the pill beside the title, reserved.
+        let mut d = Dsl::new();
+        build(&mut d, &st, &Frame::DESKTOP, &store, &Default::default());
+        let wide = d.finish();
+        let pill = 10.0 + ui::text_w("Delete?", 12.0, Face::Medium) + ui::text_w("Cancel", 12.5, Face::Regular) + ui::text_w("Delete", 12.5, Face::Medium);
+        assert!(inset(&wide, "b3_switch_row_0_title") >= pill, "desktop: the confirm pill is reserved");
     }
 
     #[test]

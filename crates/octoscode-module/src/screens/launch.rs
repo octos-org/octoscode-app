@@ -344,18 +344,29 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
         "This folder is known to more than one profile. Choose which profile should own the new Session."
     };
     d.text("b3_launch_body", body, &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill).wrap());
-    if let Some(cwd) = &st.cwd {
-        d.gap(W::Fill, 8.0);
-        d.readonly_text("b3_launch_cwd", cwd, true);
-    }
-    if let Some(e) = &st.error {
-        d.gap(W::Fill, 8.0);
-        d.text("b3_launch_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
-    }
-    d.gap(W::Fill, 12.0);
-    ui::body_open(d, frame, width, 190.0);
+    d.gap(W::Fill, 8.0);
+    // The folder and the choices share the body (one right edge: the body
+    // keeps the scroll bar's gutter).
+    ui::body_open(d, frame, width, 170.0);
     let list = d.anon();
     d.view(&list, "width: Fill height: Fit flow: Down spacing: 8");
+    if let Some(cwd) = &st.cwd {
+        // The web's `<code>` folder line: mono text on the grey well (a
+        // label, not a field — nothing here is edited or copied).
+        d.surface(
+            "b3_launch_cwd_field",
+            "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 10 right: 10 top: 7 bottom: 7}",
+            tok::SURFACE2,
+            8.0,
+            Some(tok::HAIRLINE),
+        );
+        d.text("b3_launch_cwd", cwd, &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
+        d.close();
+    }
+    if let Some(e) = &st.error {
+        d.text("b3_launch_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+    }
+    d.gap(W::Fill, 4.0);
     if no_profile {
         let ev = (!opening).then_some("b3.launch.create_profile");
         choice_button(d, "b3_launch_create", "Create the local profile", "Then start a coding Session in this folder", ev);
