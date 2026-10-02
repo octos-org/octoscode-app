@@ -1544,11 +1544,6 @@ impl Conversation {
             .filter(|e| seen_env.insert((e.thread_id.clone(), e.seq)))
             .collect();
         tool_envs.sort_by_key(|e| e.cursor.as_ref().map(|c| c.seq).unwrap_or(e.seq));
-        let carded: std::collections::HashSet<&str> = tool_envs
-            .iter()
-            .filter(|e| matches!(e.payload, PayloadV2::ToolStart { .. }))
-            .map(|e| e.turn_id.as_str())
-            .collect();
         let rows: Vec<octoscode_store::timeline::HydratedRow> = h
             .messages
             .iter()
@@ -1560,6 +1555,31 @@ impl Conversation {
                 turn_id: m.turn_id.as_ref().map(|t| t.0.to_string()).or_else(|| m.thread_id.clone()),
                 reasoning: m.reasoning_content.as_deref(),
             })
+            .collect();
+        // Cards only for a turn the transcript holds (its persisted rows, or
+        // rows streamed live): the replay window can retain a turn's tool
+        // records after its rows are gone (a rollback, a reset store), and a
+        // card with no prompt and no answer would float below every turn.
+        let mut held: std::collections::HashSet<String> = rows
+            .iter()
+            .filter(|r| r.role == "user" || r.role == "assistant")
+            .filter_map(|r| r.turn_id.clone())
+            .collect();
+        held.extend(
+            timeline
+                .entries(session)
+                .into_iter()
+                .filter(|e| e.kind == octoscode_store::EntryKind::USER_MESSAGE || e.kind == octoscode_store::EntryKind::ASSISTANT_TEXT)
+                .filter_map(|e| e.turn_id),
+        );
+        tool_envs.retain(|e| held.contains(e.turn_id.as_str()));
+        let carded: std::collections::HashSet<&str> = tool_envs
+            .iter()
+            .filter(|e| matches!(e.payload, PayloadV2::ToolStart { .. }))
+            .map(|e| e.turn_id.as_str())
+            .collect();
+        let rows: Vec<octoscode_store::timeline::HydratedRow> = rows
+            .into_iter()
             .filter(|r| !(r.role == "tool" && r.turn_id.as_deref().is_some_and(|t| carded.contains(t))))
             .collect();
         let mut added = if rows.is_empty() { 0 } else { timeline.fold_hydrated_messages(session, &rows) };

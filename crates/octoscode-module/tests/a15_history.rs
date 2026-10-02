@@ -223,6 +223,14 @@ impl Core {
         }));
     }
 
+    /// A turn's persisted rows are gone (a rollback, a reset store) while the
+    /// replay window still holds its tool records.
+    fn drop_rows_of(&self, session: &str, turn: &str) {
+        if let Some(p) = self.st.lock().unwrap().sessions.get_mut(session) {
+            p.rows.retain(|r| r["thread_id"] != json!(turn));
+        }
+    }
+
     /// The server restarted: durable rows stay, the replay window is gone.
     fn forget_replay(&self) {
         for p in self.st.lock().unwrap().sessions.values_mut() {
@@ -592,4 +600,27 @@ async fn a_stopped_turn_keeps_its_stopped_notice_once_after_a_restart() {
     assert!(a < n && n < c, "cold restart: first turn, stopped notice, later turn ({a}, {n}, {c})");
     assert_eq!(notices(&third).len(), 1);
     quit(&third);
+}
+
+/// The replay window can outlive a turn's rows (a rollback, a reset store):
+/// its tool records alone would draw cards with no prompt and no answer below
+/// every turn (seen live after the session store was reset). A card is drawn
+/// only for a turn the transcript holds.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn replayed_cards_of_a_turn_without_rows_are_not_drawn() {
+    let core = Core::start().await;
+    let (first, mut ev1) = launch(&core).await;
+    let session = first.session_id();
+    let gone = run_turn(&first, &mut ev1, "This turn is rolled back").await;
+    run_turn(&first, &mut ev1, "This one stays").await;
+    quit(&first);
+    core.drop_rows_of(&session, &gone);
+
+    let (second, _ev2) = launch(&core).await;
+    let rows = shown(&second);
+    assert_eq!(texts(&rows, ItemKind::UserBubble), vec!["This one stays"]);
+    assert_eq!(count(&rows, ItemKind::ToolCell), 1, "only the held turn's card");
+    let cards = second.store.domains.session.timeline.of_kind(&session, EntryKind::TOOL_CALL);
+    assert!(cards.iter().all(|e| e.turn_id.as_deref() != Some(gone.as_str())), "no card for the rolled-back turn");
+    quit(&second);
 }
