@@ -178,7 +178,15 @@ def grab(W):
     from PIL import Image
     import io
     sn = W.snap()
-    data = urllib.request.urlopen(W.base + "/g?raw=1", timeout=30).read()
+    data = b""
+    for _ in range(6):  # the grab can miss a frame ("could not be submitted"): retry, as Walk.shot does
+        try:
+            data = urllib.request.urlopen(W.base + "/g?raw=1", timeout=30).read()
+            if data[:4] == b"\x89PNG":
+                break
+        except Exception:  # noqa: BLE001
+            pass
+        time.sleep(0.6)
     img = Image.open(io.BytesIO(data)).convert("RGB")
     win = next((w["r"] for w in sn if w.get("ty") == "Window" and W.shown(w)), None)
     k = img.width / win[2] if win else 2.0

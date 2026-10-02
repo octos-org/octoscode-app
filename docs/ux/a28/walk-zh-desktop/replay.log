@@ -1,0 +1,46 @@
+[replay-serve] surfaces: --diff-words (a28-diff-words-synthetic.jsonl previews)
+[replay-serve] scenario=surfaces fixture=r23-conversation-a6ea8505.jsonl: 1417 frames; recorded session `dsflash:main`; 11 recorded turns ["01920000-0000-7000-8000-00000000023b", "01920000-0000-7000-8000-00000000023c", "01920000-0000-7000-8000-00000000023d", "01920000-0000-7000-8000-00000000023e", "01920000-0000-7000-8000-00000000023f", "01920000-0000-7000-8000-000000000240", "01920000-0000-7000-8000-000000000241", "01920000-0000-7000-8000-000000000242", "01920000-0000-7000-8000-000000000243", "01920000-0000-7000-8000-000000000244", "01920000-0000-7000-8000-000000000245"]; 49 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8602/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- session/hydrate (id=2)
+[replay-serve] <- session/list (id=3)
+[replay-serve] <- session/hydrate (id=4)
+[replay-serve] <- permission/profile/list (id=5)
+[replay-serve] <- profile/llm/list (id=6)
+[replay-serve] <- profile/skills/list (id=7)
+[replay-serve] <- profile/sub_providers/list (id=8)
+[replay-serve] <- session/status/read (id=9)
+[replay-serve] -> session/status/read (surfaces reply)
+[replay-serve] <- permission/profile/list (id=10)
+[replay-serve] <- turn/start (id=11)
+[replay-serve] surfaces: turn #3 (233 frames)
+[replay-serve] surfaces -> turn/started
+[replay-serve] <- session/list (id=12)
+[replay-serve] surfaces -> approval/requested
+[replay-serve] surfaces: holding at Approval (48 frames wait)
+[replay-serve] <- approval/respond (id=13)
+[replay-serve] surfaces: approval/respond releases 48 frames
+[replay-serve] surfaces -> approval/requested
+[replay-serve] surfaces: holding at Approval (47 frames wait)
+[replay-serve] <- diff/preview/get (id=14)
+[replay-serve] -> diff/preview/get (surfaces reply)
+[replay-serve] <- diff/preview/get (id=15)
+[replay-serve] -> diff/preview/get (surfaces reply)
+[replay-serve] <- approval/respond (id=16)
+[replay-serve] surfaces: approval/respond releases 47 frames
+[replay-serve] surfaces -> approval/requested
+[replay-serve] surfaces: holding at Approval (46 frames wait)
+[replay-serve] <- diff/preview/get (id=17)
+[replay-serve] -> diff/preview/get (surfaces reply)
+[replay-serve] <- approval/respond (id=18)
+[replay-serve] surfaces: approval/respond releases 46 frames
+[replay-serve] surfaces -> approval/requested
+[replay-serve] surfaces: holding at Approval (45 frames wait)
+[replay-serve] <- diff/preview/get (id=19)
+[replay-serve] -> diff/preview/get (surfaces reply)
+[replay-serve] <- approval/respond (id=20)
+[replay-serve] surfaces: approval/respond releases 45 frames
+[replay-serve] <- session/list (id=21)
