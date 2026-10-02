@@ -3473,10 +3473,12 @@ impl OctoscodeView {
             Ok(false) => {}
         }
         // A focused peer is a read-only watch surface: the editable composer
-        // is replaced by the status row (`ComposerInput.tsx:255-265`).
+        // is replaced by the status row (`ComposerInput.tsx:255-265`). A6: an
+        // approval / question takeover replaces it too (`App.tsx:2759-2826`).
+        let takeover = screens::surfaces::takeover(&store).is_some();
         self.view
             .widget(cx, ids!(composer_row))
-            .set_visible(cx, extras.peer_readonly.is_none());
+            .set_visible(cx, extras.peer_readonly.is_none() && !takeover);
     }
 
     /// A7 — the §8 facts, read structurally from the live tree: the key focus

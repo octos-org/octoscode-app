@@ -14,7 +14,7 @@ PASS CLICK again -> folded
 PASS turn 2: CLICK composer + type + Return -> turn/start
 PASS turn 2: delivered files are attachment rows — ['b3_tl_file_download_7', 'b3_tl_file_download_6']
 PASS files: r23-report.pdf (2 KiB) and coverage.png — ['coverage.png', 'r23-report.pdf'] ['96 KiB', '2 KiB']
-PASS CLICK the tool row -> its output discloses — ['12:29 - [octoscode] tool.toggle: call_00_1nHw0JiGHc6HQdxNySqu4250 open']
+PASS CLICK the tool row -> its output discloses — ['37:29 - [octoscode] tool.toggle: call_00_1nHw0JiGHc6HQdxNySqu4250 open']
   shot docs/ux/a6/walk/desktop-03-tool-expanded.png
 PASS CLICK Download -> GET /api/files on the wire, saved to the download dir — saved=True wire=True
 PASS CLICK Preview -> the image shows in its row — b3_tl_file_img_7
@@ -26,7 +26,7 @@ PASS CLICK Expand all -> every visible block opens — {'b3_tl_think_1': 42} -> 
 PASS CLICK Collapse all -> every block folds — heights {'b3_tl_think_1': 42} (folded {'b3_tl_think_1': 42})
   shot docs/ux/a6/walk/desktop-06-collapse-all.png
 PASS turn 3: CLICK composer + type + Return -> turn/start
-PASS turn 3: the question takes the composer over
+PASS turn 3: the question takes the composer over — card=True composer=False None
 PASS question: title + rule hint + disabled primary with its reason — 'Which color would you like to pick?' 'Choose one, or write your own' 'Choose an option to continue'
 PASS question: the consequence copy — 'Sends this answer and resumes the turn'
 PASS question card: card shown — cv_q_card
@@ -48,14 +48,14 @@ PASS CLICK Other + type -> the text stays (no remount) — 'teal'
 PASS Return (inside the Other field) -> user_question/respond on the wire, card settles
 PASS next: a multi-select question — 'Which accents should the theme use?'
 PASS multi-select: its rule hint
-PASS keys: ArrowDown / Space toggle options in the group — ['1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)', 'ost.rs:356:17 - [octoscode] surfaces key Space -> cv.q.opt#3', 'rs:1544:13 - [octoscode] surfaces action cv.q.opt #3 -> Done', '1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)']
+PASS keys: ArrowDown / Space toggle options in the group — ['1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)', 'ost.rs:356:17 - [octoscode] surfaces key Space -> cv.q.opt#3', 'rs:1567:13 - [octoscode] surfaces action cv.q.opt #3 -> Done', '1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)']
   shot docs/ux/a6/walk/desktop-09-question-multi.png
 PASS CLICK Submit answer -> user_question/respond on the wire
 PASS next: a third question
 PASS CLICK Stop turn -> turn/interrupt on the wire
 PASS the turn settles: the card closes, the composer is back
 PASS turn 4: CLICK composer + type + Return -> turn/start
-PASS turn 4: the approval takes the composer over
+PASS turn 4: the approval takes the composer over — card=True composer=False None
 PASS approval: title, risk, tool · kind, the typed command, Y / S / N — 'M9 approval fixture' 'low risk' 'shell · command' 'printf m9-approval-e2e' 'Y / S / N'
 PASS approval card: card shown — cv_ap_card
 PASS approval card: inside the frame with gutters >= 12 px — card [359, 489, 661, 173] frame [335, 76, 709, 603] gutters 24/24

@@ -522,7 +522,9 @@ def question_layout(name):
 def walk_questions():
     send_prompt(2)
     card = wait(lambda: shown("cv_q_card"), 25)
-    if not check("turn 3: the question takes the composer over", card and not shown("i0_composer_0")):
+    if not check("turn 3: the question takes the composer over", card and not shown("i0_composer_0"),
+                 f"card={bool(card)} composer={shown('i0_composer_0')} {rect('i0_composer_0')}"):
+        shot("question-failed")
         return
     check("question: title + rule hint + disabled primary with its reason",
           text("cv_q_title") == "Which color would you like to pick?"
@@ -589,7 +591,9 @@ def decided(n):
 def walk_approvals():
     send_prompt(3)
     card = wait(lambda: shown("cv_ap_card"), 25)
-    if not check("turn 4: the approval takes the composer over", card and not shown("i0_composer_0")):
+    if not check("turn 4: the approval takes the composer over", card and not shown("i0_composer_0"),
+                 f"card={bool(card)} composer={shown('i0_composer_0')} {rect('i0_composer_0')}"):
+        shot("approval-failed")
         return
     check("approval: title, risk, tool · kind, the typed command, Y / S / N",
           text("cv_ap_title") == "M9 approval fixture" and "low" in text("cv_ap_risk")
