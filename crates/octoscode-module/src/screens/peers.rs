@@ -460,6 +460,36 @@ pub fn fold_axis_for_test(store: &Store, name: &str, event: &PeerSessionEvent) {
     fold_axis(store, name, event);
 }
 
+/// A7 — `peerIdentityForTopic` (`packages/client/src/peer-protocol.ts:115-123`):
+/// a native peer's own Session id is `<profile>:local:tui#<topic>`, valid only
+/// for a profile without `:`/`#`/whitespace and a `peer-<slug>` topic.
+pub fn peer_identity_for_topic(profile_id: &str, topic: &str) -> Option<String> {
+    let profile_ok = !profile_id.trim().is_empty()
+        && !profile_id.chars().any(|c| c == ':' || c == '#' || c.is_whitespace());
+    let slug = topic.strip_prefix("peer-")?;
+    let slug_ok = slug.chars().next().is_some_and(|c| c.is_ascii_alphanumeric())
+        && slug.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-');
+    (profile_ok && slug_ok).then(|| format!("{profile_id}:local:tui#{topic}"))
+}
+
+/// A7 — `peerReadonlySlug` (`apps/web/src/features/composer/peer-readonly.ts:
+/// 23-32`): the slug of the OPENED peer whose native Session id EQUALS
+/// `session_id` — exact membership in the roster's identity set, never a
+/// `peer-` prefix match (which would false-positive on an ordinary Session
+/// whose topic merely starts with `peer-`). A closed peer no longer counts.
+pub fn readonly_slug(store: &Store, session_id: &str) -> Option<String> {
+    if session_id.is_empty() {
+        return None;
+    }
+    store.domains.peer.list().into_iter().find_map(|p| {
+        if p.closed {
+            return None;
+        }
+        let identity = peer_identity_for_topic(p.profile_id.as_deref()?, p.topic.as_deref()?)?;
+        (identity == session_id).then(|| p.name.clone())
+    })
+}
+
 /// The action ids this screen owns (the peer dock / fleet row controls).
 pub fn owns(action: &str) -> bool {
     matches!(
@@ -584,6 +614,51 @@ pub async fn perform(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A7 — the store's roster as `peer/staged` folds it (`observe_staged`).
+    fn roster() -> Store {
+        let store = Store::new();
+        for slug in ["review", "audit"] {
+            store.domains.peer.observe_staged(Peer {
+                topic: Some(format!("peer-{slug}")),
+                profile_id: Some("dev".into()),
+                origin_session_id: Some("dev:main".into()),
+                ..Peer::named(slug)
+            });
+        }
+        store
+    }
+
+    // peer-readonly.test.ts:14 "names the peer whose native session id is in
+    // the roster"
+    #[test]
+    fn the_read_only_row_names_the_peer_whose_session_is_in_the_roster() {
+        let store = roster();
+        assert_eq!(readonly_slug(&store, "dev:local:tui#peer-audit").as_deref(), Some("audit"));
+        assert_eq!(readonly_slug(&store, "dev:local:tui#peer-review").as_deref(), Some("review"));
+    }
+
+    // :19 "returns null for an ordinary session id, an empty roster, or no
+    // focus" + a closed peer no longer counts
+    #[test]
+    fn no_row_for_an_ordinary_session_an_empty_roster_or_no_focus() {
+        let store = roster();
+        assert_eq!(readonly_slug(&store, "dev:local:tui#ordinary"), None);
+        assert_eq!(readonly_slug(&Store::new(), "dev:local:tui#peer-review"), None);
+        assert_eq!(readonly_slug(&store, ""), None);
+        store.domains.peer.mark_closed("audit");
+        assert_eq!(readonly_slug(&store, "dev:local:tui#peer-audit"), None, "a closed peer is not open");
+    }
+
+    // :27 "never matches a merely peer-prefixed identity outside the exact
+    // roster"
+    #[test]
+    fn a_peer_prefixed_identity_outside_the_roster_never_matches() {
+        let store = roster();
+        assert_eq!(readonly_slug(&store, "dev:local:tui#peer-review-evil"), None);
+        assert_eq!(peer_identity_for_topic("dev", "review"), None, "a topic must be peer-<slug>");
+        assert_eq!(peer_identity_for_topic("a:b", "peer-x"), None, "a profile carries no ':'");
+    }
 
     fn entry(name: &str, state: PeerRowState) -> PeerRosterEntry {
         PeerRosterEntry {

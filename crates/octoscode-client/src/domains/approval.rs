@@ -163,7 +163,7 @@ impl NotificationHandler for ApprovalAutoResolvedHandler {
             let approved = matches!(auto.decision, octos_core::ui_protocol::ApprovalDecision::Approve);
             let title = if approved { "Auto-approved" } else { "Auto-denied" };
             let body = format!("{} · matched the {} scope", auto.tool_name, auto.scope);
-            self.store.domains.session.timeline.upsert_notice(
+            self.store.domains.session.timeline.upsert_notice_data(
                 &auto.session_id.0,
                 Some(auto.turn_id.0.to_string()),
                 &format!("approval:{id}"),

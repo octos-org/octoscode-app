@@ -169,6 +169,28 @@ impl Method for TurnSteer {
     type Result = TurnSteerResult;
 }
 
+/// A7 — `turnCollisionFrom` (`apps/web/src/features/composer/turn-collision.ts:17-33`):
+/// a refused `turn/start` whose TYPED error data names the occupying turn
+/// (`{kind: "turn_in_progress", turn_id: <protocol uuid>}`) is an ordinary
+/// busy signal — another attached client holds the session's one turn slot —
+/// never a rejection. Returns the occupier's turn id; `None` for every other
+/// failure, prose included (occupancy is never inferred from the message),
+/// and for a turn id that is not a protocol uuid.
+pub fn turn_collision_from(error: &crate::ClientError) -> Option<String> {
+    let crate::ClientError::Rpc { error, .. } = error else {
+        return None;
+    };
+    let data = error.data.as_ref()?.as_object()?;
+    if data.get("kind").and_then(|k| k.as_str()) != Some("turn_in_progress") {
+        return None;
+    }
+    let turn = data.get("turn_id")?;
+    if !crate::protocol_id::is_protocol_uuid(turn) {
+        return None;
+    }
+    turn.as_str().map(str::to_owned)
+}
+
 /// `thread/graph/get` — the session's thread graph (UPCR-2026-010).
 ///
 /// Web caller: `src-web/apps/web/src/features/inspection/inspection-binding.ts:146`
@@ -532,7 +554,7 @@ pub fn terminal_notice(
         data["token_usage"] = u;
     }
     let text = if body.is_empty() { outcome.to_owned() } else { format!("{outcome}: {body}") };
-    store.domains.session.timeline.upsert_notice(
+    store.domains.session.timeline.upsert_notice_data(
         session,
         Some(turn_id.to_owned()),
         &format!("terminal:{turn_id}"),
@@ -701,5 +723,38 @@ mod plan_terminal_tests {
             store.domains.task.plan("s1").is_none(),
             "the authoring turn's error clears the plan too"
         );
+    }
+}
+
+#[cfg(test)]
+mod collision_tests {
+    use super::turn_collision_from;
+    use crate::ClientError;
+    use octos_core::ui_protocol::RpcError;
+    use serde_json::json;
+
+    const OTHER_TURN: &str = "3f1a9c52-4d1b-4c2e-8f6a-0b7d21e9c4aa";
+
+    fn rpc(code: i64, message: &str, data: Option<serde_json::Value>) -> ClientError {
+        let mut error = RpcError::new(code, message);
+        error.data = data;
+        ClientError::Rpc { method: "turn/start".into(), error }
+    }
+
+    // ---- turn-collision.test.ts:8 / :19 / :29 / :39 / :53
+    #[test]
+    fn names_the_occupying_turn_only_from_the_typed_contract() {
+        let typed = rpc(-32600, "a turn is already running for this session", Some(json!({"kind": "turn_in_progress", "turn_id": OTHER_TURN})));
+        assert_eq!(turn_collision_from(&typed).as_deref(), Some(OTHER_TURN));
+        let prose = rpc(-32600, "turn/start: a turn is already running for this session", None);
+        assert_eq!(turn_collision_from(&prose), None, "never inferred from prose");
+        let reworded = rpc(-32600, "session occupied", Some(json!({"kind": "turn_in_progress", "turn_id": OTHER_TURN})));
+        assert_eq!(turn_collision_from(&reworded).as_deref(), Some(OTHER_TURN));
+        let bad_id = rpc(-32600, "busy", Some(json!({"kind": "turn_in_progress", "turn_id": "not-a-uuid"})));
+        assert_eq!(turn_collision_from(&bad_id), None);
+        assert_eq!(turn_collision_from(&rpc(-32602, "cwd is not accessible", None)), None);
+        assert_eq!(turn_collision_from(&rpc(-32600, "denied", Some(json!({"kind": "driver_mode_forbidden"})))), None);
+        let transport = ClientError::Transport { method: "turn/start".into(), reason: "a turn is already running".into() };
+        assert_eq!(turn_collision_from(&transport), None, "a transport failure proves nothing");
     }
 }

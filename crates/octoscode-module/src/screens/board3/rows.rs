@@ -171,6 +171,19 @@ fn entry(store: &Store, id: u64) -> Option<TimelineEntry> {
 /// The notice's title and body (`entry-model.ts`): a `code: message` text
 /// splits at the first ": "; terminal outcomes read as the web's titles.
 pub fn notice_parts(e: &TimelineEntry) -> (String, String) {
+    // A7: a client-authored notice (`Timeline::upsert_notice`, the web's
+    // `addSystemMessage(…, title, body)`) names its own title. A6: so does
+    // the approval auto-resolve notice (`Auto-approved` / `Auto-denied`,
+    // its body in `message`).
+    if let Some(title) = e.data.get("title").and_then(|t| t.as_str()) {
+        let body = e
+            .data
+            .get("body")
+            .or_else(|| e.data.get("message"))
+            .and_then(|b| b.as_str())
+            .unwrap_or(&e.text);
+        return (title.to_owned(), body.to_owned());
+    }
     if let Some(outcome) = e.data.get("outcome").and_then(|o| o.as_str()) {
         let title = match outcome {
             "interrupted" => "Turn stopped",
@@ -181,12 +194,6 @@ pub fn notice_parts(e: &TimelineEntry) -> (String, String) {
         // A6: the readable error rides the terminal notice
         // (`octoscode_client::domains::turn::terminal_notice`): the server's
         // message, or `Server error (<code>).` — never protocol metadata.
-        let body = e.data.get("message").and_then(|m| m.as_str()).unwrap_or("").to_owned();
-        return (title.to_owned(), body);
-    }
-    // A6: a notice that carries its own title (the approval auto-resolve
-    // "toast", `Auto-approved` / `Auto-denied`).
-    if let Some(title) = e.data.get("title").and_then(|t| t.as_str()) {
         let body = e.data.get("message").and_then(|m| m.as_str()).unwrap_or("").to_owned();
         return (title.to_owned(), body);
     }

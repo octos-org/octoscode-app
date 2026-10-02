@@ -291,7 +291,7 @@ impl NotificationHandler for WarningHandler {
             // (`model.test.ts:1610-1637`).
             let tl = &self.store.domains.session.timeline;
             let notice_id = tl.next_notice_id(&event.session_id.0, "warning");
-            tl.upsert_notice(
+            tl.upsert_notice_data(
                 &event.session_id.0,
                 None,
                 &notice_id,

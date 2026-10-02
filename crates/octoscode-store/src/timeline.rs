@@ -180,6 +180,33 @@ impl Timeline {
         id
     }
 
+    /// A7 — one system notice per `key` (the web's `addSystemMessage(entries,
+    /// id, title, body, tone)`, `timeline/model.ts`: the id dedups): replace
+    /// the keyed notice's title/body in place, else append it. Returns its id.
+    pub fn upsert_notice(
+        &self,
+        session: &str,
+        turn_id: Option<String>,
+        key: &str,
+        title: &str,
+        body: &str,
+        tone: &str,
+    ) -> u64 {
+        let data = serde_json::json!({"key": key, "title": title, "body": body, "tone": tone});
+        {
+            let mut map = self.inner.lock().unwrap();
+            let entries = map.entry(session.to_owned()).or_default();
+            if let Some(e) = entries.iter_mut().find(|e| {
+                e.kind == EntryKind::SYSTEM_NOTICE && e.data.get("key").and_then(|k| k.as_str()) == Some(key)
+            }) {
+                e.text = body.to_owned();
+                e.data = data;
+                return e.id;
+            }
+        }
+        self.append_data(session, turn_id, EntryKind::SYSTEM_NOTICE, body.to_owned(), data)
+    }
+
     /// Fold streamed `text` into the last OPEN entry of `(session, turn_id,
     /// kind)`, appending one when there is none. This is how `message/delta`
     /// becomes **one** assistant entry instead of thousands.
@@ -260,7 +287,7 @@ impl Timeline {
     /// instead of appending a duplicate — a replayed terminal, or a turn's
     /// `turn/error` AND its `turn_terminal` (both name `terminal:<turn>`).
     /// The id rides `data.notice_id`. Returns the row's entry id.
-    pub fn upsert_notice(
+    pub fn upsert_notice_data(
         &self,
         session: &str,
         turn_id: Option<String>,
@@ -571,21 +598,21 @@ mod a6_tests {
     #[test]
     fn a_notice_id_upserts_one_row_and_ordinals_never_collide() {
         let tl = Timeline::default();
-        let a = tl.upsert_notice("s", Some("t1".into()), "terminal:t1", "x".into(), serde_json::json!({"code": "e"}));
-        let b = tl.upsert_notice("s", Some("t1".into()), "terminal:t1", "y".into(), serde_json::json!({"code": "e2"}));
+        let a = tl.upsert_notice_data("s", Some("t1".into()), "terminal:t1", "x".into(), serde_json::json!({"code": "e"}));
+        let b = tl.upsert_notice_data("s", Some("t1".into()), "terminal:t1", "y".into(), serde_json::json!({"code": "e2"}));
         assert_eq!(a, b, "the same id is one row");
         assert_eq!(tl.len("s"), 1);
         assert_eq!(tl.entries("s")[0].text, "y");
         // Same-millisecond warnings keep two rows (web model.test.ts:1611).
         let w1 = tl.next_notice_id("s", "warning");
-        tl.upsert_notice("s", None, &w1, "w".into(), serde_json::json!({}));
+        tl.upsert_notice_data("s", None, &w1, "w".into(), serde_json::json!({}));
         let w2 = tl.next_notice_id("s", "warning");
         assert_ne!(w1, w2);
-        tl.upsert_notice("s", None, &w2, "w".into(), serde_json::json!({}));
+        tl.upsert_notice_data("s", None, &w2, "w".into(), serde_json::json!({}));
         assert_eq!(tl.len("s"), 3);
         // Deterministic: the id is a function of the transcript, not a clock.
         let other = Timeline::default();
-        other.upsert_notice("s", Some("t1".into()), "terminal:t1", "x".into(), serde_json::json!({}));
+        other.upsert_notice_data("s", Some("t1".into()), "terminal:t1", "x".into(), serde_json::json!({}));
         assert_eq!(other.next_notice_id("s", "warning"), w1);
     }
 
