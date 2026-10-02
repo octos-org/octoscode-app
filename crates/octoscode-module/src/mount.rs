@@ -386,6 +386,30 @@ mod tests {
         }
     }
 
+    /// A7 — the transcript's system-notice row (board-3 rows, the collision /
+    /// not-sent / recovery notices land there) evaluates in the app VM; a
+    /// failed row keeps the slot's previous content on screen.
+    #[test]
+    fn a7_notice_rows_evaluate_in_the_app_vm() {
+        use octoscode_store::timeline::EntryKind;
+        let store = octoscode_store::Store::new();
+        store.set_active(Some("s".into()));
+        store.domains.session.timeline.upsert_notice(
+            "s",
+            Some("t1".into()),
+            "send-busy:t1",
+            "Session busy",
+            "Another client was working in this session, so this message was not sent.",
+            "info",
+        );
+        let id = store.domains.session.timeline.entries("s")[0].id;
+        assert_eq!(store.domains.session.timeline.entries("s")[0].kind, EntryKind::SYSTEM_NOTICE);
+        let dsl = crate::screens::board3::rows::lower(&crate::screens::board3::rows::TRow::Notice(id), &store);
+        let mut cx = cx_with_vocabulary();
+        let r = eval_component(&mut cx, MAIN_SPLASH_VM_ID, &dsl);
+        assert!(r.is_ok(), "the notice row must evaluate: {dsl}");
+    }
+
     #[test]
     fn the_prelude_wraps_the_component_in_a_slot_sized_view() {
         // Card #21c item 3: the wrapper is a stacking (`Down`) `Fit` view, so a
