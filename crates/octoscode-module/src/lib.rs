@@ -1872,8 +1872,10 @@ impl OctoscodeView {
                     // acquire → release(next: internal) with that proof →
                     // send the composer's draft once (`resume_chat`).
                     if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                        // A22 audit — the banner of the Session it was tapped in.
+                        let session = conv.session_id();
                         rt.spawn(async move {
-                            conv.resume_chat().await;
+                            conv.resume_chat_in(&session).await;
                             SignalToUI::set_ui_signal();
                         });
                     }

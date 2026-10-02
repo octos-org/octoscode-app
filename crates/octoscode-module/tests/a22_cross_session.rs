@@ -40,8 +40,20 @@ struct Running {
     stop: Arc<AtomicBool>,
 }
 
+/// One Session's driver seat (the a7_seat shapes): held by another client
+/// until a Take over acquires and hands it back.
+#[derive(Clone)]
+struct Seat {
+    external: bool,
+    driver: String,
+    epoch: u64,
+    revision: u64,
+    token: Option<String>,
+}
+
 #[derive(Default)]
 struct World {
+    seats: HashMap<String, Seat>,
     seen: Vec<(String, Value)>,
     running: HashMap<String, Running>,
     /// Sessions whose `session/hydrate` is held (never answered).
@@ -67,7 +79,7 @@ fn opened(session: &str, cwd: &str) -> Value {
             "version": {"protocol": "octos-ui/v1alpha1", "schema_version": 1, "jsonrpc": "2.0"},
             "capabilities_schema_version": 2,
             "supported_methods": ["session/open", "session/hydrate", "session/list", "turn/start", "turn/interrupt", "turn/steer",
-                                  "turn/state/get"],
+                                  "turn/state/get", "session/driver/get", "session/driver/acquire", "session/driver/release"],
             "supported_notifications": ["turn/started", "projection/envelope"],
             "supported_features": ["state.session_hydrate.v1", "projection.envelope.v2", "session.workspace_cwd.v1",
                                    "event.turn_steer_dropped.v1"]
@@ -129,6 +141,42 @@ impl Core {
                                 }
                                 let _ = tx.send(ok(json!({"accepted": true})));
                                 Core::stream(world.clone(), tx.clone(), session, turn, 60);
+                            }
+                            "session/driver/get" => {
+                                let seat = world.lock().unwrap().seats.get(&session).cloned();
+                                let v = match seat {
+                                    Some(d) if d.external => json!({"mode": "external", "recovery": "none", "binding": {
+                                        "driver_id": d.driver, "epoch": d.epoch, "revision": d.revision,
+                                        "lease_expires_at_ms": 0}}),
+                                    _ => json!({"mode": "internal", "recovery": "none", "binding": null}),
+                                };
+                                let _ = tx.send(ok(v));
+                            }
+                            "session/driver/acquire" => {
+                                let mut w = world.lock().unwrap();
+                                let Some(d) = w.seats.get_mut(&session) else {
+                                    let _ = tx.send(json!({"jsonrpc": "2.0", "id": v["id"], "error": {"code": -32010, "message": "no seat"}}).to_string());
+                                    continue;
+                                };
+                                d.external = true;
+                                d.driver = p["driver_id"].as_str().unwrap_or_default().to_owned();
+                                d.epoch += 1;
+                                d.revision += 1;
+                                let token = format!("tok-{}", d.epoch);
+                                d.token = Some(token.clone());
+                                let r = json!({"control_token": token, "recovery": "none", "binding": {
+                                    "driver_id": d.driver, "epoch": d.epoch, "revision": d.revision,
+                                    "lease_expires_at_ms": 4_000_000_000_000u64}});
+                                let _ = tx.send(ok(r));
+                            }
+                            "session/driver/release" => {
+                                let mut w = world.lock().unwrap();
+                                if let Some(d) = w.seats.get_mut(&session) {
+                                    d.external = false;
+                                    d.revision += 1;
+                                    d.token = None;
+                                }
+                                let _ = tx.send(ok(json!({"mode": "internal", "recovery": "none"})));
                             }
                             "turn/state/get" => {
                                 let turn = p["turn_id"].as_str().unwrap_or("").to_owned();
@@ -209,6 +257,14 @@ impl Core {
         if let Some(tx) = self.push.lock().unwrap().as_ref() {
             let _ = tx.send(note(method, params));
         }
+    }
+
+    /// Another client holds `session`'s driver seat.
+    fn hold_seat(&self, session: &str) {
+        self.world.lock().unwrap().seats.insert(
+            session.to_owned(),
+            Seat { external: true, driver: "octos-tui".into(), epoch: 2, revision: 7, token: None },
+        );
     }
 
     fn hold_history(&self, session: &str) {
@@ -513,5 +569,34 @@ async fn the_approval_keys_answer_only_the_approval_of_the_session_on_screen() {
     let sent = core.params_of("approval/respond");
     assert_eq!(sent.len(), 1, "exactly the one decision made in X: {sent:?}");
     assert_eq!(sent[0]["session_id"], json!(x));
+    quit(&conv);
+}
+
+/// Take over (A22 audit): tapped on X's held banner and run after the window
+/// moved to Y, it takes over X — X's seat, X's revision — and never sends
+/// the composer's text (now Y's draft) into X.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn take_over_acts_on_the_session_whose_banner_was_tapped() {
+    let core = Core::start().await;
+    let conv = launch(&core).await;
+    let x = conv.session_id();
+    let y = "a22:api:y";
+    core.hold_seat(&x);
+    conv.refresh_seat(&x).await;
+    assert!(octoscode_module::chrome::held_by_other(&conv.store).is_some(), "X shows the held banner");
+    let starts_before = core.params_of("turn/start").len();
+    // The banner is tapped in X; the window is on Y (with Y's own draft)
+    // when the Take over runs.
+    open(&conv, y).await;
+    conv.set_draft("Y's own text");
+    conv.resume_chat_in(&x).await;
+    let acquired = core.params_of("session/driver/acquire");
+    assert_eq!(acquired.len(), 1, "{acquired:?}");
+    assert_eq!((acquired[0]["session_id"].clone(), acquired[0]["expected_revision"].clone()), (json!(x), json!(7)));
+    let released = core.params_of("session/driver/release");
+    assert_eq!(released.len(), 1);
+    assert_eq!((released[0]["session_id"].clone(), released[0]["next"].clone()), (json!(x), json!("internal")));
+    assert_eq!(core.params_of("turn/start").len(), starts_before, "Y's draft never went into X (nor anywhere)");
+    assert_eq!(conv.ui().lock().unwrap().draft(), "Y's own text", "Y's draft stays in Y's composer");
     quit(&conv);
 }

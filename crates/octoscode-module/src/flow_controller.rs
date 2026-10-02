@@ -318,6 +318,16 @@ impl Conversation {
     /// ordinary submit. Nothing is sent on any refused step; the draft stays.
     pub async fn resume_chat(&self) {
         let session = self.session_id();
+        self.resume_chat_in(&session).await
+    }
+
+    /// A22 audit — Take over for `session`, the Session whose banner was
+    /// tapped (the window may have moved on before this runs): the seat
+    /// steps act on THAT Session, and the composer's draft is sent only
+    /// while that Session is still on screen — else the composer holds
+    /// another Session's draft, which never goes into this one.
+    pub async fn resume_chat_in(&self, session: &str) {
+        let session = session.to_owned();
         let revision = |s: &str| {
             seat::observed(s)
                 .filter(|d| d.external)
@@ -359,6 +369,12 @@ impl Conversation {
         }
         seat::set_status(&session, None);
         makepad_widgets::SignalToUI::set_ui_signal();
+        if self.session_id() != session {
+            makepad_widgets::log!(
+                "[octoscode] seat: took over {session}; the window moved on — its draft is not sent from another Session"
+            );
+            return;
+        }
         if self.ui.lock().unwrap().draft().trim().is_empty() {
             return;
         }
