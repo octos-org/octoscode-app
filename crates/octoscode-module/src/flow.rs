@@ -1602,15 +1602,42 @@ impl Conversation {
             .map(|e| (e.cursor.as_ref().map(|c| c.seq).unwrap_or(e.seq), e))
             .collect();
         terminals.sort_by_key(|(seq, _)| *seq);
+        // A18 — a retained terminal notes a turn of THIS transcript only. The
+        // replay window is Core's ledger and can outlive the durable rows (a
+        // reset session store — the live serve's copied data — or a
+        // rollback). A completed turn always persists its rows, so a
+        // completed terminal of a turn the transcript does not hold proves
+        // that part of the window was discarded, and a stop that follows it
+        // with no held turn in between belongs to that discarded part. The
+        // live smoke's second "Turn stopped" was exactly this: the startup
+        // hydrate returned no rows while the window still held an earlier
+        // run's four completed turns and its stop, so one Stop showed two
+        // notices. A held turn's notice, and a stop with nothing discarded
+        // before it (a Session whose first turn was stopped), are restored as
+        // before.
+        let mut discarded = false;
         for (k, (_, env)) in terminals.iter().enumerate() {
             let PayloadV2::TurnTerminal { outcome, error, .. } = &env.payload else { continue };
             use octos_core::ui_protocol::TurnTerminalOutcome as O;
+            let holds = held.contains(env.turn_id.as_str());
             let name = match outcome {
-                O::Completed => continue,
+                O::Completed => {
+                    discarded = !holds;
+                    continue;
+                }
                 O::Errored => "errored",
                 O::Interrupted => "interrupted",
                 O::RateLimited => "rate_limited",
             };
+            if holds {
+                discarded = false;
+            } else if discarded {
+                ::log::info!(
+                    "octoscode: hydrate: the {name} terminal of {} is not noted — the rows of its part of the window are gone",
+                    env.turn_id
+                );
+                continue;
+            }
             let before = timeline.len(session);
             let err = error.as_ref().map(|e| (e.code.as_str(), e.message.as_str()));
             octoscode_client::domains::turn::terminal_notice(&self.store, session, &env.turn_id, name, err, None);

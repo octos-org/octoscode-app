@@ -97,6 +97,10 @@ pub fn timeline_folded(store: &Arc<Store>, live: bool, folded: &[String]) -> Vec
         }
     }
     let mut any_thinking = false;
+    // A18 — one terminal notice per turn: a settled turn has ONE outcome row
+    // (the web's single `terminal:<turn>` id, `timeline/model.ts:762-790`), so
+    // should two rows ever name the same turn's outcome, the first is drawn.
+    let mut settled: std::collections::HashSet<String> = std::collections::HashSet::new();
     for e in &entries {
         let t = e.turn_id.clone().unwrap_or_default();
         if e.kind == EntryKind::REASONING && show && !e.text.trim().is_empty() {
@@ -107,6 +111,9 @@ pub fn timeline_folded(store: &Arc<Store>, live: bool, folded: &[String]) -> Vec
             let i = slot(&mut per_turn, &t);
             per_turn[i].1.files.push(e.id);
         } else if e.kind == EntryKind::SYSTEM_NOTICE {
+            if !t.is_empty() && e.data.get("outcome").is_some() && !settled.insert(t.clone()) {
+                continue;
+            }
             let i = slot(&mut per_turn, &t);
             per_turn[i].1.notices.push(e.id);
         }
@@ -595,6 +602,32 @@ mod tests {
         let last = tl.upsert_notice_data("s", Some("t-last".into()), "terminal:t-last", "interrupted".into(),
             serde_json::json!({"outcome": "interrupted"}));
         assert_eq!(timeline(&s, false).last(), Some(&TRow::Notice(last)));
+    }
+
+    /// A18 — a settled turn draws ONE outcome notice: two stored rows naming
+    /// the same turn's terminal (an older keyless one and the keyed
+    /// `terminal:<turn>` upsert) compose to the first; another turn's notice
+    /// and a non-terminal notice of the same turn are untouched.
+    #[test]
+    fn one_terminal_notice_per_turn() {
+        let s = store();
+        let tl = &s.domains.session.timeline;
+        tl.upsert_user_message("s", "t1", "write a story", serde_json::json!({}));
+        tl.append("s", Some("t1".into()), EntryKind::ASSISTANT_TEXT, "Once upon".into());
+        let first = tl.append_data("s", Some("t1".into()), EntryKind::SYSTEM_NOTICE, "interrupted".into(),
+            serde_json::json!({"outcome": "interrupted"}));
+        let keyed = tl.upsert_notice_data("s", Some("t1".into()), "terminal:t1", "interrupted".into(),
+            serde_json::json!({"outcome": "interrupted"}));
+        let warning = tl.append_data("s", Some("t1".into()), EntryKind::SYSTEM_NOTICE, "provider busy".into(),
+            serde_json::json!({"code": "provider_busy", "message": "Retry later"}));
+        s.domains.turn.set_terminal("t1", "interrupted");
+        tl.upsert_user_message("s", "t2", "again", serde_json::json!({}));
+        let other = tl.upsert_notice_data("s", Some("t2".into()), "terminal:t2", "interrupted".into(),
+            serde_json::json!({"outcome": "interrupted"}));
+        let rows = timeline(&s, false);
+        let notices: Vec<u64> = rows.iter().filter_map(|r| if let TRow::Notice(id) = r { Some(*id) } else { None }).collect();
+        assert_eq!(notices, vec![first, warning, other], "one outcome row per turn: {rows:?}");
+        assert!(!rows.contains(&TRow::Notice(keyed)));
     }
 
     /// A13 (judge: "/status is not available…" receipts piled up as
