@@ -20,6 +20,16 @@
 //!   answers `completed` (`lost forever` answers `unknown`).
 //! * `peer`     — stages a peer (`peer/staged`) whose Session is listed.
 //! * anything else — a short answer.
+//!
+//! `POST /api/upload` (the image dialog's explicit upload) answers each file
+//! after `A7_SERVE_UPLOAD_DELAY_MS` (default 2500) with a receipt in the
+//! server's handle grammar, so a walk can press Upload twice, cancel or
+//! remove while a transfer is in flight; every request is logged.
+//!
+//! `A7_SERVE_HELD=<driver id>` opens every Session in `external` driver mode,
+//! parked by that driver (the board-12 held banner): `turn/start` is refused
+//! `ExternalMasterHeld` until a `session/driver/acquire` (CAS on the revision)
+//! and a `session/driver/release {next: "internal"}` with its proof.
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
@@ -27,7 +37,8 @@ use std::time::Duration;
 
 use futures_util::{SinkExt, StreamExt};
 use serde_json::{json, Value};
-use tokio::net::TcpListener;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::mpsc;
 use tokio_tungstenite::tungstenite::Message;
 
@@ -48,12 +59,46 @@ struct StreamCtl {
     interrupted: AtomicBool,
 }
 
+/// One Session's driver record: the disclosure plus the live proof.
+#[derive(Clone)]
+struct Driver {
+    external: bool,
+    driver: String,
+    epoch: u64,
+    revision: u64,
+    lease: u64,
+    token: Option<String>,
+}
+
+impl Driver {
+    fn initial() -> Self {
+        match std::env::var("A7_SERVE_HELD").ok().filter(|v| !v.trim().is_empty()) {
+            Some(holder) => Self { external: true, driver: holder, epoch: 2, revision: 7, lease: 0, token: None },
+            None => Self { external: false, driver: String::new(), epoch: 0, revision: 0, lease: 0, token: None },
+        }
+    }
+
+    fn disclosure(&self) -> Value {
+        if !self.external {
+            return json!({"mode": "internal", "recovery": "none", "binding": null});
+        }
+        json!({"mode": "external", "recovery": "none", "binding": {
+            "driver_id": self.driver, "epoch": self.epoch, "revision": self.revision,
+            "lease_expires_at_ms": self.lease}})
+    }
+}
+
+fn now_ms() -> u64 {
+    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as u64).unwrap_or(0)
+}
+
 #[derive(Default)]
 struct World {
     sessions: Vec<(String, String)>,
     messages: HashMap<String, Vec<Value>>,
     turns: HashMap<String, Vec<(String, String)>>,
     live: HashMap<String, (String, Arc<StreamCtl>)>,
+    drivers: HashMap<String, Driver>,
     seq: u64,
 }
 
@@ -199,7 +244,8 @@ fn open_reply(session: &str) -> Value {
             "supported_methods": [
                 "session/open", "session/list", "session/hydrate", "turn/start", "turn/interrupt",
                 "turn/steer", "turn/state/get", "session/fork", "session/rollback",
-                "snapshot/list", "snapshot/restore"
+                "snapshot/list", "snapshot/restore",
+                "session/driver/get", "session/driver/acquire", "session/driver/release"
             ],
             "supported_notifications": [
                 "message/delta", "turn/started", "turn/completed", "turn/error", "turn/steer_dropped", "peer/staged"
@@ -238,10 +284,58 @@ async fn handle(world: Arc<Mutex<World>>, tx: Tx, v: Value, counter: Arc<AtomicU
             let h = world.lock().unwrap().hydrate(&session);
             reply(&tx, &id, h);
         }
+        "session/driver/get" => {
+            let d = world.lock().unwrap().drivers.entry(session.clone()).or_insert_with(Driver::initial).clone();
+            reply(&tx, &id, d.disclosure());
+        }
+        "session/driver/acquire" => {
+            let mut w = world.lock().unwrap();
+            let d = w.drivers.entry(session.clone()).or_insert_with(Driver::initial);
+            let who = p["driver_id"].as_str().unwrap_or_default().to_owned();
+            if p["expected_revision"].as_u64() != Some(d.revision) {
+                reply_err(&tx, &id, -32010, "driver_revision_conflict", None);
+            } else if d.external && d.lease > now_ms() && d.driver != who {
+                reply_err(&tx, &id, -32012, "driver_busy", None);
+            } else {
+                d.external = true;
+                d.driver = who;
+                d.epoch += 1;
+                d.revision += 1;
+                d.lease = now_ms() + p["lease_seconds"].as_u64().unwrap_or(60) * 1000;
+                let token = format!("a7-proof-{}", d.epoch);
+                d.token = Some(token.clone());
+                let binding = json!({"driver_id": d.driver, "epoch": d.epoch, "revision": d.revision,
+                    "lease_expires_at_ms": d.lease});
+                reply(&tx, &id, json!({"control_token": token, "recovery": "none", "binding": binding}));
+            }
+        }
+        "session/driver/release" => {
+            let mut w = world.lock().unwrap();
+            let d = w.drivers.entry(session.clone()).or_insert_with(Driver::initial);
+            let proven = d.token.as_deref() == p["control_token"].as_str()
+                && p["epoch"].as_u64() == Some(d.epoch)
+                && p["expected_revision"].as_u64() == Some(d.revision)
+                && p["driver_id"].as_str() == Some(d.driver.as_str());
+            if !proven || p["next"] != "internal" {
+                reply_err(&tx, &id, -32013, "driver_fence_stale", None);
+            } else {
+                d.external = false;
+                d.revision += 1;
+                d.lease = 0;
+                d.token = None;
+                reply(&tx, &id, json!({"mode": "internal", "recovery": "none"}));
+            }
+        }
         "turn/start" => {
             let turn = p["turn_id"].as_str().unwrap_or_default().to_owned();
             let text = p["input"][0]["text"].as_str().unwrap_or_default().to_owned();
             let lower = text.to_ascii_lowercase();
+            let held = world.lock().unwrap().drivers.entry(session.clone()).or_insert_with(Driver::initial).external;
+            if held {
+                // The Core refuses chat while the Session is external.
+                reply_err(&tx, &id, -32003, "turn admission refused for this session: ExternalMasterHeld", None);
+                return;
+            }
             if lower.contains("busy") {
                 // Another client holds the slot: typed collision data, then its turn runs.
                 reply_err(
@@ -367,6 +461,69 @@ async fn handle(world: Arc<Mutex<World>>, tx: Tx, v: Value, counter: Arc<AtomicU
     }
 }
 
+/// base64url without padding (the receipt grammar, media.rs
+/// `uploaded_handle_for_profile`).
+fn b64url(bytes: &[u8]) -> String {
+    const T: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    let mut out = String::new();
+    for chunk in bytes.chunks(3) {
+        let b = [chunk[0], *chunk.get(1).unwrap_or(&0), *chunk.get(2).unwrap_or(&0)];
+        let n = (b[0] as u32) << 16 | (b[1] as u32) << 8 | b[2] as u32;
+        let k = chunk.len() + 1;
+        for i in 0..k {
+            out.push(T[((n >> (18 - 6 * i)) & 63) as usize] as char);
+        }
+    }
+    out
+}
+
+/// `POST /api/upload`: read the multipart body, wait, answer one receipt.
+async fn upload(mut stream: TcpStream, counter: Arc<AtomicU64>) {
+    let mut buf = Vec::new();
+    let mut chunk = [0u8; 8192];
+    let header_end = loop {
+        let k = stream.read(&mut chunk).await.unwrap_or(0);
+        if k == 0 {
+            return;
+        }
+        buf.extend_from_slice(&chunk[..k]);
+        if let Some(i) = buf.windows(4).position(|w| w == b"\r\n\r\n") {
+            break i + 4;
+        }
+    };
+    let head = String::from_utf8_lossy(&buf[..header_end]).to_string();
+    let len = head
+        .lines()
+        .find_map(|l| l.to_ascii_lowercase().strip_prefix("content-length:").map(|v| v.trim().parse::<usize>().unwrap_or(0)))
+        .unwrap_or(0);
+    while buf.len() < header_end + len {
+        let k = stream.read(&mut chunk).await.unwrap_or(0);
+        if k == 0 {
+            break;
+        }
+        buf.extend_from_slice(&chunk[..k]);
+    }
+    let body = String::from_utf8_lossy(&buf[header_end..]).to_string();
+    let name = body
+        .split("filename=\"")
+        .nth(1)
+        .and_then(|r| r.split('"').next())
+        .unwrap_or("image.png")
+        .to_owned();
+    let n = counter.fetch_add(1, Ordering::Relaxed);
+    println!("[a7-serve] <- POST /api/upload #{n} {name} ({} bytes)", len);
+    let delay = std::env::var("A7_SERVE_UPLOAD_DELAY_MS").ok().and_then(|v| v.parse().ok()).unwrap_or(2500u64);
+    tokio::time::sleep(Duration::from_millis(delay)).await;
+    let handle = format!("up/{}/{name}", b64url(format!("{PROFILE}/uploads/{name}").as_bytes()));
+    let payload = json!([handle]).to_string();
+    let resp = format!(
+        "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{payload}",
+        payload.len()
+    );
+    let _ = stream.write_all(resp.as_bytes()).await;
+    println!("[a7-serve] -> receipt #{n} {name}");
+}
+
 #[tokio::main]
 async fn main() {
     let port: u16 = std::env::args().nth(1).and_then(|p| p.parse().ok()).unwrap_or(8427);
@@ -374,11 +531,19 @@ async fn main() {
     println!("[a7-serve] listening on ws://127.0.0.1:{port}");
     let world = Arc::new(Mutex::new(World::default()));
     let counter = Arc::new(AtomicU64::new(1));
+    let uploads = Arc::new(AtomicU64::new(1));
     loop {
         let Ok((stream, _)) = listener.accept().await else { continue };
         let world = world.clone();
         let counter = counter.clone();
+        let uploads = uploads.clone();
         tokio::spawn(async move {
+            let mut head = [0u8; 16];
+            let n = stream.peek(&mut head).await.unwrap_or(0);
+            if head[..n].starts_with(b"POST /api/upload") {
+                upload(stream, uploads).await;
+                return;
+            }
             let Ok(ws) = tokio_tungstenite::accept_async(stream).await else { return };
             println!("[a7-serve] client connected");
             let (mut sink, mut source) = ws.split();
