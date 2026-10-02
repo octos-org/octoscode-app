@@ -951,9 +951,7 @@ pub fn toggle(cx: &mut Cx) {
 /// One sync: the store's facts through the tracker (use-attention.ts:65-96).
 pub fn observe(cx: &mut Cx, store: &octoscode_store::Store, active_turn: Option<String>) {
     with_os(cx, |c, os| {
-        let identity = c.identity_for(store.is_live());
-        let obs = observation(store, active_turn, identity);
-        for n in c.observe(os, &obs) {
+        for n in sync(c, os, store, active_turn) {
             makepad_widgets::log!(
                 "[octoscode] attention: {} turn {} of {} needs attention (focused {})",
                 n.state.as_str(),
@@ -963,6 +961,22 @@ pub fn observe(cx: &mut Cx, store: &octoscode_store::Store, active_turn: Option<
             );
         }
     });
+}
+
+/// One sync of the attention model over the store (use-attention.ts:65-96):
+/// the connection identity, the turns the store holds, the tracker, the
+/// desktop notice. `live_turn` is the selected Session's live turn as the
+/// window holds it. What [`observe`] runs with the real OS; tests run it
+/// with a recording one.
+pub fn sync(
+    c: &mut Controller,
+    os: &mut dyn NotifyOs,
+    store: &octoscode_store::Store,
+    live_turn: Option<String>,
+) -> Vec<TurnSnapshot> {
+    let identity = c.identity_for(store.is_live());
+    let obs = observation(store, live_turn, identity);
+    c.observe(os, &obs)
 }
 
 /// `WindowGotFocus` / `WindowLostFocus`.
