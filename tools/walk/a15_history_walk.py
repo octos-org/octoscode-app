@@ -304,6 +304,15 @@ def walk():
     check("CLICK Permissions: the section shows", wait(lambda: shown("set_perm_readback"), 6))
     rb = text("set_perm_readback")
     check("readback: the server's selection and approval policy", rb == "Server: Write · Network allowed · asks on request", repr(rb))
+    s = snap()
+    panel, rr = rect("settings_drawer", s), rect("set_perm_readback", s)
+    if panel and rr:
+        check("layout: the readback inside the Settings panel", inside(rr, panel, 1.0), f"{rr} in {panel}")
+    hits = [rect(h, s) for h in ("perm_ask", "perm_workspace", "perm_full")]
+    check("layout: each preset row is a >= 28 px target", all(h and h[3] >= 28 for h in hits), str([h and h[3] for h in hits]))
+    helps = [w["r"] for w in s if w.get("t") in ("No network · asks before risky commands",
+                                                 "No network · never asks, refuses risky commands") and w["r"][3] > 0]
+    check("layout: the preset help is not clipped (inside the panel)", len(helps) == 2 and all(panel and inside(h, panel, 1.0) for h in helps), str(helps))
     shot("permissions-readback")
     click("set_back" if PHONE else "settings_close")
     stop_app()
