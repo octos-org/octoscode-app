@@ -167,6 +167,35 @@ pub fn weight_factor(face: Face) -> f64 {
     }
 }
 
+/// A18 — the kit's icons carry a light-theme stroke in their files (the
+/// thinking block's `b3_chevron_*_dark.svg` is #1D1D1F-ish): on a surface that
+/// follows the theme (the transcript rows), a dark palette would draw them
+/// dark-on-dark, so every icon there takes the dark secondary ink
+/// (`DrawSvg.color` replaces the geometry's colour — `components.rs`
+/// `answer_actions_ink` does the same for the answer actions). Light is the
+/// byte passthrough. The ink is declared in `screens::theme::CONTRAST_PAIRS`
+/// (a UI glyph, 3:1).
+pub const DARK_ICON_INK: &str = "#98989dff";
+
+pub fn themed_icons(dsl: &str) -> String {
+    if crate::screens::theme::resolved() != "dark" {
+        return dsl.to_owned();
+    }
+    let mut out = String::with_capacity(dsl.len() + 64);
+    for line in dsl.lines() {
+        out.push_str(line);
+        if line.contains("draw_svg.svg:") && !line.contains("draw_svg.color:") {
+            out.push_str(" draw_svg.color: ");
+            out.push_str(DARK_ICON_INK);
+        }
+        out.push('\n');
+    }
+    if !dsl.ends_with('\n') {
+        out.pop();
+    }
+    out
+}
+
 /// Truncate `s` with an ellipsis so its estimated run fits `px_budget`
 /// (per-character advances, so a CJK line is cut where it really ends).
 pub fn fit_w(s: &str, px_budget: f64, px: f64, face: Face) -> String {
@@ -494,7 +523,8 @@ impl Dsl {
 
     /// A line icon from the module's `resources/icons/`. The stroke colour is
     /// baked into each file (the module's own icons do the same), so `_color`
-    /// only documents the intent at the call site.
+    /// only documents the intent at the call site. On a surface that follows
+    /// the theme, [`themed_icons`] tints them in dark.
     pub fn icon(&mut self, id: &str, file: &str, size: f64, _color: &str) {
         let id = if id.is_empty() { self.anon() } else { id.to_owned() };
         let path = crate::design::icon_resource(file);

@@ -447,8 +447,9 @@ pub fn lower(row: &TRow, store: &Store) -> String {
     // A18 — the rows sit on the transcript's own surface, which follows the
     // theme: in dark the kit's light literals map to the dark set (the byte
     // passthrough in light). Unmapped, a dark transcript drew the notice's
-    // #1D1D1F title at 1.02:1 and its secondary body at 3.26:1.
-    crate::screens::theme::retint_dsl(&d.finish())
+    // #1D1D1F title at 1.02:1 and its secondary body at 3.26:1. Their icons
+    // (the fold chevron, the info glyph, the file glyph) take the dark ink.
+    ui::themed_icons(&crate::screens::theme::retint_dsl(&d.finish()))
 }
 
 /// A13 — a receipt's type: the web's system entry is 13 px tertiary ink
@@ -606,6 +607,34 @@ mod tests {
         let last = tl.upsert_notice_data("s", Some("t-last".into()), "terminal:t-last", "interrupted".into(),
             serde_json::json!({"outcome": "interrupted"}));
         assert_eq!(timeline(&s, false).last(), Some(&TRow::Notice(last)));
+    }
+
+    /// A18 — the rows follow the theme: in dark the notice's title is the dark
+    /// primary ink (it was the light #1D1D1F on the dark transcript, 1.02:1)
+    /// and every icon of the row takes the dark icon ink (the info glyph's
+    /// file stroke is a light-theme grey); light is byte-identical — no tint,
+    /// the kit's own literals.
+    #[test]
+    fn rows_follow_the_theme() {
+        let s = store();
+        let tl = &s.domains.session.timeline;
+        tl.upsert_user_message("s", "t1", "write a story", serde_json::json!({}));
+        let n = tl.upsert_notice_data("s", Some("t1".into()), "terminal:t1", "interrupted".into(),
+            serde_json::json!({"outcome": "interrupted", "message": "turn interrupted by client"}));
+        let (light, dark) = {
+            let _theme = crate::screens::theme::test_lock();
+            let prev = crate::screens::theme::preference();
+            crate::screens::theme::set_preference("light");
+            let light = lower(&TRow::Notice(n), &s);
+            crate::screens::theme::set_preference("dark");
+            let dark = lower(&TRow::Notice(n), &s);
+            crate::screens::theme::set_preference(&prev);
+            (light, dark)
+        };
+        assert!(light.contains(tok::TEXT) && !light.contains("draw_svg.color"), "light: the kit's literals, untinted");
+        assert!(dark.contains("#f5f5f7ff") && !dark.contains(tok::TEXT), "dark: the title takes the dark primary ink");
+        assert!(dark.contains(&format!("draw_svg.color: {}", ui::DARK_ICON_INK)), "dark: the icon takes the dark ink");
+        assert_eq!(dark.matches("draw_svg.svg:").count(), dark.matches("draw_svg.color:").count(), "every icon tinted");
     }
 
     /// A18 — a settled turn draws ONE outcome notice: two stored rows naming

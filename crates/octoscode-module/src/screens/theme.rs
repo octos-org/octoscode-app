@@ -860,6 +860,9 @@ pub const CONTRAST_PAIRS: &[ContrastPair] = &[
     pair(Themed(tok::RED_TEXT), Themed(tok::RED_BG), BODY_TEXT, "a failed task chip, a high-risk approval"),
     pair(Themed(tok::AMBER), Themed(tok::AMBER_BG), BODY_TEXT, "a medium-risk approval chip"),
     pair(Themed(tok::WHITE), Themed(tok::BLACK), BODY_TEXT, "a primary pill's label (inverted in dark)"),
+    // the rows' icons in dark (ui::themed_icons; light keeps each file's own stroke)
+    pair(Fixed(super::board3::ui::DARK_ICON_INK), Fixed("#1c1f22"), LARGE_OR_GLYPH, "a row's fold chevron / info / file glyph in dark"),
+    pair(Fixed(super::board3::ui::DARK_ICON_INK), Fixed("#1c1c1e"), LARGE_OR_GLYPH, "a thinking block's chevron on its dark card"),
     // ---- board-3 dialogs (light in both themes): the session pane, the
     //      composer's menus, Fleet, Routes, Inspector, Agents, History, …
     pair(Fixed(tok::TEXT), Fixed(tok::SURFACE), BODY_TEXT, "dialog text"),

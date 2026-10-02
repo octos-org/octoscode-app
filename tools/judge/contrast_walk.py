@@ -37,6 +37,16 @@ sys.path.insert(0, str(HERE))
 import a10_lib  # noqa: E402
 import contrast  # noqa: E402
 
+def disabled_style(theme: str) -> list:
+    """The disabled control's style (board 3's DISABLED_INK #A1A1A6, screens::theme::EXEMPT_INKS): axe skips a
+    disabled control. In light that ink is never text. In dark the tertiary text's twin reads the same grey, but
+    only on the DARK fills — on a light fill (the board-3 dialogs keep their light palette in both themes, the
+    disabled pill) #A1A1A6 is still the disabled ink."""
+    if theme == "light":
+        return [("#a1a1a6", None)]
+    return [("#a1a1a6", bg) for bg in ("#ffffff", "#f7f7f8", "#f0f0f2", "#e9e9eb")]
+
+
 PROMPTS = ["Why does main.rs print 5?", "Explain the borrow checker in one paragraph.",
            "Pick a color for the theme.", "Run the build with sudo.", "Plan the release."]
 SECTIONS = ("Permissions", "Model", "Sandbox", "Connection", "Preferences", "About")
@@ -54,10 +64,7 @@ def main() -> int:
     phone = mode == "phone"
     n = [0]
     totals: list[tuple[str, int, float]] = []
-    # A disabled control's style (board 3's DISABLED_INK, screens::theme::EXEMPT_INKS): axe skips a disabled
-    # control. In light that ink is never text; in dark the tertiary text reads the same grey, so only its
-    # disabled pill (on DISABLED_BG) is exempt there.
-    exempt = [("#a1a1a6", None)] if theme == "light" else [("#a1a1a6", "#e9e9eb")]
+    exempt = disabled_style(theme)
 
     def record(w: a10_lib.Walk, stem: str, rows: list) -> None:
         scored = [m for m in rows if m["verdict"] in ("pass", "FAIL")]
@@ -154,11 +161,11 @@ def main() -> int:
             for trigger, name in (("sb_sort", "sort-menu"), ("sb_g_more", "workspace-menu")):
                 if w.visible(trigger):
                     overlay(w, name, trigger)
-        # Settings (a centred dialog on desktop, a full sheet on the phone): each section counts what is not the
-        # conversation beneath it — every node shown before Settings opened is left out, and on desktop only the
-        # dialog's own nodes count (a sidebar row's time can change while the dialog covers it).
+        # Settings (a centred dialog on desktop, a full sheet on the phone — `settings_drawer` either way): each
+        # section counts what is not the conversation beneath it — every node shown before Settings opened is left
+        # out, and only the drawer's own nodes count (a sidebar row's time can change while the drawer covers it).
         under = keys(w)
-        inner = {} if phone else {"within": ["settings_drawer"]}
+        inner = {"within": ["settings_drawer"]}
         if w.click("settings_open_hit") or w.click("hd_settings_label"):
             w.wait(lambda: bool(w.visible("set_title")), 10)
             time.sleep(1.0)
@@ -174,10 +181,12 @@ def main() -> int:
                     time.sleep(0.8)
             for sec in SECTIONS:
                 hit = next((x for x in w.snap() if (x.get("t") or "").strip() == sec and a10_lib.Walk.shown(x)), None)
-                if hit is None:
+                # The phone sheet navigates by its icon rail (`set_rail_<section>`, no text label).
+                rail = w.visible(f"set_rail_{sec.lower()}")
+                if hit is None and not rail:
                     w.check(f"settings: the {sec} section is reachable", False, "no nav row")
                     continue
-                r = hit["r"]
+                r = hit["r"] if hit is not None else rail[0]["r"]
                 w.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
                 time.sleep(1.2)
                 measure(w, f"settings-{sec.lower()}", before=under, **inner)
