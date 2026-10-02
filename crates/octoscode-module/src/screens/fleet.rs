@@ -569,7 +569,7 @@ fn block_span(src: &str, anchor: &str) -> Option<(usize, usize)> {
 /// Mint `copy <id> { class: user-copy, en: <value> }` declarations after the
 /// card's LAST authored copy line (the L0 copy table).
 fn mint_copies(card_src: &str, minted: &[(String, String)]) -> String {
-    let mut lines: Vec<String> = card_src.lines().map(str::to_owned).collect();
+    let lines: Vec<String> = card_src.lines().map(str::to_owned).collect();
     let Some(pos) = lines.iter().rposition(|l| l.trim_start().starts_with("copy ")) else {
         return card_src.to_owned();
     };
@@ -616,13 +616,12 @@ fn put_placements(data: &mut Value, rows: &[(String, &'static str, f64, f64, f64
     }
 }
 
-/// The web's `formatElapsed` (`peer-row-view.ts:127-136`): `42s`, `1m30s`,
-/// `2h05m`.
 /// The slice row's meta line: the full waiting word for a waiting row, else
-/// elapsed (the web's `formatElapsed`) · `↓` tokens (`—` before the first).
+/// elapsed (the web's `formatElapsed`, at the dialog's minute granularity) ·
+/// `↓` tokens (`—` before the first).
 fn row_meta(p: &crate::screens::board3::fleetview::FleetRow) -> String {
     use crate::screens::board3::fleetview::Status;
-    let elapsed = crate::screens::peers::format_elapsed(p.elapsed_ms);
+    let elapsed = crate::screens::dialog::minute_granularity(&crate::screens::peers::format_elapsed(p.elapsed_ms));
     let tokens = if p.tokens > 0 { crate::screens::peers::format_tokens(p.tokens) } else { "—".to_owned() };
     match p.status {
         Status::WaitingApproval | Status::WaitingAnswer => {

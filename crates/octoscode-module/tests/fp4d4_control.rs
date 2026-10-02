@@ -10,7 +10,7 @@ use octoscode_module::flow::Conversation;
 use octoscode_module::screens::media::{
     self, AttachmentDraftStore, AttachmentScope, DraftStatus, LocalFile, TurnMedia,
 };
-use octoscode_module::screens::peers::{self, PeerActivity, PeerRowState};
+use octoscode_module::screens::peers;
 use octoscode_store::Store;
 use serde_json::{json, Value};
 use tokio::net::TcpListener;
@@ -36,14 +36,6 @@ fn load(path: &str) -> Vec<Frame> {
             }
         })
         .collect()
-}
-
-fn recorded(path: &str, method: &str) -> Value {
-    load(path)
-        .iter()
-        .find(|f| f.dir == "in" && f.method == method)
-        .map(|f| f.body.clone())
-        .unwrap_or_else(|| panic!("{method} is in the recording {path}"))
 }
 
 /// The replay server: canned replies per method, `{}` for the rest, and a log of
@@ -96,16 +88,8 @@ impl ReplayServer {
             .map(|(_, p)| p.clone())
             .unwrap_or(Value::Null)
     }
-
-    fn count(&self, method: &str) -> usize {
-        self.received.lock().unwrap().iter().filter(|(m, _)| m == method).count()
-    }
 }
 
-const R6: &str = concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/../octoscode-client/tests/fixtures/r6-peer-a6ea8505.jsonl"
-);
 const LIVE_TURN: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/../octoscode-client/tests/fixtures/live-turn-a6ea8505.jsonl"
@@ -265,114 +249,85 @@ async fn an_unready_attachment_refuses_the_turn_and_keeps_the_draft() {
 }
 
 // ------------------------------------------------------------------ peers
+//
+// A10: the peer controls route through the ONE external-driver chain
+// (`fleet_driver::row_control`: the held fence, the row's accepted operation
+// id and ADOPTED turn — `external-driver-peer-control.ts:694-703`). The old
+// `{control, session_id, slug, operation_id, turn_id}` frame was not the
+// web's wire; the exact-frame assertions live in `tests/a10_fleet.rs`
+// (against the faithful external-driver fixture). These pin the fail-closed
+// half: no seat / no row / no affordance → no frame at all.
 
-/// Rows 4+5: `peer/control` through the production client, addressed to the one
-/// row the action names, with the availability gate refusing a row that has no
-/// affordance BEFORE the wire.
+/// A row control with no held seat, or for an unknown row, never touches the
+/// wire (fail closed), and the copy is the bounded task words.
 #[tokio::test]
-async fn peer_control_is_addressed_to_the_named_row_through_the_production_client() {
-    let server = ReplayServer::start(vec![(
-        "peer/control".to_owned(),
-        json!({"ok": true, "acknowledged": "steer"}),
-    )])
-    .await;
+async fn peer_control_fails_closed_before_the_wire() {
+    use octoscode_store::domains::peer::{Activity, Origin, PeerRow, RowStatus};
+    let server = ReplayServer::start(vec![("peer/control".to_owned(), json!({}))]).await;
     let (conv, store) = connect(&server).await;
-
-    // Stage the recorded peer and give it a live, ADDRESSABLE row.
-    let staged = recorded(R6, "peer/prepare");
-    let slug = staged["peers"][0]["slug"]
-        .as_str()
-        .or_else(|| staged["slug"].as_str())
-        .unwrap_or("r6-smoke")
-        .to_owned();
-    let mut peer = octoscode_store::domains::peer::Peer::named(&slug);
-    peer.origin_session_id = Some("dsflash:main".into());
-    store.domains.peer.observe_staged(peer);
-    // The axis is EVENT-driven: a staged row alone is `idle` and has no
-    // operation id, so `steer` is correctly refused. Fold a turn-started event
-    // (the web's live-run arm) to make the row addressable.
-    peers::fold_axis_for_test(&store, &slug, &peers::PeerSessionEvent::TurnStarted {
-        turn_id: "01a0f814-5d33-70d5-8121-1da0934df3c5".into(),
-    });
-
-    let steer = peers::perform(&conv, "peer.steer", &store, Some(&slug))
+    octoscode_module::screens::fleet_driver::reset_seat();
+    let mut row = PeerRow::opening("dsflash:main#peer-r6-smoke", "r6-smoke", Origin::Dispatch, "01a0f814-5d33-70d5-8121-1da0934df3c5", 0);
+    row.status = RowStatus::Started;
+    row.activity = Activity::Live;
+    row.operation_id = Some("00000000-0000-4000-8000-0000000000f1".into());
+    store.domains.peer.stage_row(row, false);
+    let err = peers::perform(&conv, "peer.stop", &store, Some("r6-smoke"))
         .await
-        .expect("steer through the production client");
-    assert!(server.saw("peer/control"), "the wire carried the control");
-    assert_eq!(steer, "Sent", "the web's control-ack copy");
-    let sent = server.params_of("peer/control");
-    assert_eq!(sent["slug"], slug, "addressed to the ONE named row");
-    assert_eq!(sent["control"], "steer");
-    assert_eq!(sent["session_id"], "dsflash:main", "the ORIGINATING session routes");
-
-    // A row that is not addressable has NO affordance, so the control is
-    // refused before the wire (fail closed).
-    let before = server.count("peer/control");
+        .expect_err("no held seat");
+    assert_eq!(err, "Take control of this session to do this");
     let err = peers::perform(&conv, "peer.stop", &store, Some("no-such-peer"))
         .await
         .expect_err("an unknown row is refused");
     assert_eq!(err, "No peer named \"no-such-peer\".");
-    assert_eq!(
-        server.count("peer/control"),
-        before,
-        "an unknown row never touches the wire"
-    );
+    // A live row offers no Approve (nothing is pending): refused offline.
+    assert!(peers::perform(&conv, "peer.approve", &store, Some("r6-smoke")).await.is_err());
+    assert!(!server.saw("peer/control"), "nothing reached the wire");
 }
 
-/// The roster read: the collapsed tallies the ambient dock renders, from the
-/// store's real rows.
+/// The roster read: the collapsed tallies over the peer manager's rows.
 #[tokio::test]
 async fn the_roster_read_reports_the_collapsed_tallies() {
+    use octoscode_store::domains::peer::{Origin, PeerRow};
     let server = ReplayServer::start(vec![]).await;
     let (conv, store) = connect(&server).await;
-    for (slug, closed) in [("alpha", false), ("beta", false), ("gamma", true)] {
-        let mut p = octoscode_store::domains::peer::Peer::named(slug);
-        p.closed = closed;
-        store.domains.peer.observe_staged(p);
+    for slug in ["alpha", "beta", "gamma"] {
+        store
+            .domains
+            .peer
+            .stage_row(PeerRow::opening(&format!("dsflash:main#peer-{slug}"), slug, Origin::Staged, "t", 0), false);
     }
     let summary = peers::perform(&conv, "peer.roster", &store, None)
         .await
         .expect("the roster read");
-    // 3 rows, all idle (no axis events have folded), 0 landed.
     assert_eq!(summary, "3 peers — 0 live, 0 blocked, 0 done, 3 idle; 0/3 landed");
     assert!(!server.saw("peer/control"), "a roster read is not a control");
 }
 
-/// The axis projection is the store's, so a folded event is visible in the
-/// roster's own counts.
+/// The activity axis is the store's fold, so a folded event is visible in
+/// the roster's own counts (`summarizeRoster`, `fleetLanded`).
 #[tokio::test]
 async fn a_folded_axis_event_is_visible_in_the_roster_counts() {
+    use octoscode_store::domains::peer::{Origin, Outcome, PeerRow, PeerSessionEvent, RequestKind};
     let store = Store::new();
     for slug in ["live-one", "done-one", "blocked-one"] {
-        store.domains.peer.observe_staged(octoscode_store::domains::peer::Peer::named(slug));
+        store
+            .domains
+            .peer
+            .stage_row(PeerRow::opening(&format!("m#peer-{slug}"), slug, Origin::Staged, "t", 0), false);
     }
-    // The pure axis fold, over states keyed by the peer's address.
-    let mut live = PeerRowState { activity: PeerActivity::Live, ..Default::default() };
-    let done = PeerRowState {
-        activity: PeerActivity::Done,
-        finished_at_ms: Some(5),
-        ..Default::default()
-    };
-    let mut blocked = PeerRowState {
-        activity: PeerActivity::Blocked,
-        request_kind: Some(peers::AttentionRequestKind::Approval),
-        request_id: Some("r1".into()),
-        ..Default::default()
-    };
-    // the freeze: an ack never moves the axis
-    live.apply(&peers::PeerSessionEvent::ControlAck, 9);
-    assert_eq!(live.activity, PeerActivity::Live);
-    blocked.apply(&peers::PeerSessionEvent::AttentionResolved, 10);
-    assert_eq!(blocked.activity, PeerActivity::Idle, "resolving returns it to idle");
-    let entries = peers::roster(
-        &store,
-        &[
-            ("live-one".into(), live),
-            ("done-one".into(), done),
-            ("blocked-one".into(), PeerRowState { activity: PeerActivity::Blocked, request_kind: Some(peers::AttentionRequestKind::Approval), request_id: Some("r1".into()), ..Default::default() }),
-        ],
+    let fold = |id: &str, e: PeerSessionEvent| assert!(store.domains.peer.observe_session_event(id, &e, 9));
+    fold("m#peer-live-one", PeerSessionEvent::TurnStarted { turn_id: None });
+    // An ack never moves the axis.
+    fold("m#peer-live-one", PeerSessionEvent::ControlAck { interrupt: false });
+    fold("m#peer-done-one", PeerSessionEvent::TurnTerminal { outcome: Outcome::Finished, error: None });
+    fold(
+        "m#peer-blocked-one",
+        PeerSessionEvent::AttentionRequested { request_id: Some("r1".into()), kind: Some(RequestKind::Approval), detail: None },
     );
-    let counts = peers::summarize_roster(&entries);
-    assert_eq!((counts.total, counts.live, counts.done, counts.blocked, counts.idle), (3, 1, 1, 1, 0));
-    assert_eq!(peers::fleet_landed(&entries), (1, 3));
+    let rows = store.domains.peer.rows();
+    let c = peers::summarize(&rows);
+    assert_eq!((c.total, c.live, c.done, c.blocked, c.idle), (3, 1, 1, 1, 0));
+    assert_eq!(peers::fleet_landed(&rows), (1, 3));
+    fold("m#peer-blocked-one", PeerSessionEvent::AttentionResolved);
+    assert_eq!(peers::summarize(&store.domains.peer.rows()).idle, 1, "resolving returns it to idle");
 }

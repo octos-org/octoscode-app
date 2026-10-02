@@ -143,14 +143,22 @@ fn loop_rows_render_atlas_sized_text() {
 
 // ------------------------------------------------------------------- item 11
 
+/// A10: the slice's rows are the peer manager's ROSTER (the union the Fleet
+/// view reads), in staging order; `closed` = the peer finished.
 fn peers_store(rows: &[(&str, bool)]) -> Arc<Store> {
+    use octoscode_store::domains::peer::{Activity, Origin, Outcome, PeerRow, RowStatus};
     let store = Arc::new(Store::new());
     store.domains.session.set_active(Some("dsflash:main".into()));
-    for (name, closed) in rows {
-        store.domains.peer.stage((*name).to_owned());
+    let now = octoscode_module::screens::peers::now_ms();
+    for (i, (name, closed)) in rows.iter().enumerate() {
+        let mut r = PeerRow::opening(&format!("dsflash:main#peer-{name}"), name, Origin::Dispatch, "t", now);
+        r.status = RowStatus::Started;
+        r.operation_id = Some(format!("00000000-0000-4000-8000-00000000000{i}"));
+        r.activity = if *closed { Activity::Done } else { Activity::Live };
         if *closed {
-            store.domains.peer.mark_closed(name);
+            r.outcome = Some(Outcome::Finished);
         }
+        store.domains.peer.stage_row(r, false);
     }
     store
 }
@@ -246,8 +254,9 @@ fn fleet_rows_carry_the_elapsed_tokens_meta_line_and_done_is_grey() {
         src.contains("· —"),
         "the meta line shows the web's dash for token-less rows"
     );
-    // Done wears the web's terminal grey (#61666b, theme.css:82) — visible
-    // only in the fully-lowered DSL (kit tokens resolve there).
+    // The terminal word ("Finished") wears the web's terminal grey (#61666b,
+    // theme.css:82) — visible only in the fully-lowered DSL (kit tokens
+    // resolve there).
     let dsl = fleet::lower("autonomy-06", &ctx).expect("fleet lowers");
     assert!(
         dsl.contains("61666b"),
