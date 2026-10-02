@@ -1,6 +1,6 @@
 == Models: the route pills sit inside the provider card
-    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: /Users/yuechen/home/octoscode-app/.claude/worktrees/agent-acd69cc2de99fe743/design
-    log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under /Users/yuechen/home/oa.noindex/host-agent-acd69cc2de99fe743/apps/octoscode/module/resources/ux/Inter-400.ttf
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
     log: [I] apps/octoscode/module/src/lib.rs:1322:13 - [octoscode] synthetic live: board-4 seed (no transport)
     log: [I] apps/octoscode/module/src/lib.rs:3002:17 - [octoscode] composer remounted
     log: [I] apps/octoscode/module/src/lib.rs:3565:25 - [octoscode] board3 StatusRead: no connection

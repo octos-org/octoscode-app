@@ -475,6 +475,7 @@ pub fn live_visibility(store: &Store) -> Vec<(String, bool)> {
     match st.open {
         Some(Dialog::Inventory) => super::inventory::visibility(&st.inv, store),
         Some(Dialog::Resume) => super::resume::visibility(&st.resume),
+        Some(Dialog::Agents) => super::agents::visibility(&st.agents),
         _ => Vec::new(),
     }
 }

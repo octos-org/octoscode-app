@@ -249,6 +249,23 @@ async fn the_detail_and_output_viewers_fold_the_replies() {
     let dsl = lowered(&store);
     assert!(dsl.contains(&format!("Artifact — {AGENT} / artifact-1")));
     assert!(dsl.contains("<script>not executable</script>"), "content is shown as inert text");
+    // By PATH (the by-ID form's "Read artifact by path"): the other selector,
+    // alone on the wire.
+    {
+        let mut st = host::state();
+        st.agents.query_id = AGENT.into();
+        st.agents.path = "reports/result.md".into();
+    }
+    assert_eq!(
+        host::perform("b3.agents.id.read_path", 0, &store),
+        host::Outcome::Spawn(host::Job::AgentArtifactRead(AGENT.into(), None, Some("reports/result.md".into())))
+    );
+    host::run(host::Job::AgentArtifactRead(AGENT.into(), None, Some("reports/result.md".into())), &conv)
+        .await
+        .expect("artifact read by path");
+    let p = &server.sent_all("agent/artifact/read")[1];
+    assert_eq!(p["path"], "reports/result.md");
+    assert!(p.get("artifact_id").is_none(), "exactly one selector: {p}");
 
     // Read output, then Load more from the server's cursor (appends).
     host::run(host::Job::AgentOutput(AGENT.into(), false), &conv).await.expect("output");

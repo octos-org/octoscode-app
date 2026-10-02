@@ -64,6 +64,12 @@ pub struct AgentsState {
     /// "Inspect or control an agent by ID" is a closed `<details>`.
     pub by_id_open: bool,
     pub spawn_error: Option<String>,
+    /// The refusal line was edited past (hidden live until the next click).
+    pub error_hidden: bool,
+    /// Bumped when a request clears the task: the form's container id
+    /// carries it, so the mount rebuilds the inputs from their (cleared)
+    /// snapshots even when the click and the reply land between two frames.
+    pub form_gen: u64,
     /// The roster is loading (`agent/list` in flight).
     pub loading: bool,
     /// A turn is running or queued in the owning session (the spawn is
@@ -84,6 +90,8 @@ impl Default for AgentsState {
             path_snap: String::new(),
             by_id_open: false,
             spawn_error: None,
+            error_hidden: false,
+            form_gen: 0,
             loading: false,
             turn_busy: false,
         }
@@ -94,6 +102,7 @@ impl AgentsState {
     /// Freeze the live drafts into the DSL snapshots (before a remount the
     /// user asked for).
     pub fn snap(&mut self) {
+        self.error_hidden = false;
         self.count_snap = self.count.clone();
         self.task_snap = self.task.clone();
         self.query_snap = self.query_id.clone();
@@ -171,6 +180,24 @@ pub fn note_turn_busy(busy: bool) {
     }
 }
 
+/// The live gates (applied after every mount without a remount): the
+/// spawn button's primary/disabled variant, the by-ID actions (a non-blank
+/// id), "Read artifact by path" (id and path), the edited-past refusal.
+pub fn visibility(st: &AgentsState) -> Vec<(String, bool)> {
+    let ready = !st.turn_busy && compose_spawn(&st.count, &st.task).is_some();
+    let has = !st.query_id.trim().is_empty();
+    let path = has && !st.path.trim().is_empty();
+    vec![
+        ("b3_agents_spawn_on".into(), ready),
+        ("b3_agents_spawn_off".into(), !ready),
+        ("b3_agents_id_on".into(), has),
+        ("b3_agents_id_off".into(), !has),
+        ("b3_agents_path_on".into(), path),
+        ("b3_agents_path_off".into(), !path),
+        ("b3_agents_spawn_error".into(), st.spawn_error.is_some() && !st.error_hidden),
+    ]
+}
+
 // ------------------------------------------------------------------ actions
 
 /// Route one `b3.agents.*` action (`index` = the `#<row>` suffix).
@@ -243,13 +270,17 @@ pub fn perform(st: &mut AgentsState, action: &str, index: usize, store: &Store) 
 }
 
 /// A text input changed (`agents.count` / `agents.task` / `agents.id` /
-/// `agents.path`). An edit clears the spawn refusal.
+/// `agents.path`). An edit hides the spawn refusal (live, no remount; the
+/// web clears its error on edit).
 pub fn input_changed(st: &mut AgentsState, key: &str, text: &str) {
     match key {
-        "agents.count" => st.count = text.to_owned(),
+        "agents.count" => {
+            st.count = text.to_owned();
+            st.error_hidden = true;
+        }
         "agents.task" => {
             st.task = text.to_owned();
-            st.spawn_error = None;
+            st.error_hidden = true;
         }
         "agents.id" => st.query_id = text.to_owned(),
         "agents.path" => st.path = text.to_owned(),
@@ -491,6 +522,7 @@ pub async fn spawn(conv: &crate::flow::Conversation, text: String) -> Result<Str
             st.agents.task.clear();
             st.agents.task_snap.clear();
             st.agents.spawn_error = None;
+            st.agents.form_gen += 1;
             Ok(format!("queued turn {turn}"))
         }
         Err(e) => {
@@ -635,7 +667,7 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
     if caps.list && caps.turn_start {
         ui::card_open(d, "b3_agents_spawn", 10.0);
         ui::section_title(d, "b3_agents_spawn_title", "Request parallel agents");
-        let fields = d.anon();
+        let fields = format!("b3_agents_form_{}", st.form_gen);
         if compact {
             d.view(&fields, "width: Fill height: Fit flow: Down spacing: 10");
             field(d, "", "Agent count", "b3_agents_count", "agents.count", &st.count_snap, "1", false, W::Fill);
@@ -649,17 +681,16 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
         if let Some(e) = &st.spawn_error {
             d.text("b3_agents_spawn_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
         }
+        // Both variants are emitted; the live gate shows one ([`visibility`]:
+        // no remount while typing, which would rebuild the focused input).
         let foot = d.anon();
-        d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
-        let ready = !st.turn_busy && compose_spawn(&st.count, &st.task).is_some();
-        d.button(
-            "b3_agents_spawn_go",
-            "Request parallel agents",
-            "b3.agents.spawn",
-            if ready { Btn::Primary } else { Btn::Disabled },
-            W::Fit,
-            34.0,
-        );
+        d.view(&foot, "width: Fill height: Fit flow: Overlay align: Align{x: 1.0 y: 0.5}");
+        d.view("b3_agents_spawn_off", "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
+        d.button("b3_agents_spawn_disabled", "Request parallel agents", "b3.agents.spawn", Btn::Disabled, W::Fit, 34.0);
+        d.close();
+        d.view("b3_agents_spawn_on", "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
+        d.button("b3_agents_spawn_go", "Request parallel agents", "b3.agents.spawn", Btn::Primary, W::Fit, 34.0);
+        d.close();
         d.close();
         d.close();
         d.gap(W::Fill, 12.0);
@@ -705,14 +736,27 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
     if st.by_id_open {
         ui::card_open(d, "b3_agents_by_id_card", 10.0);
         field(d, "", "Agent ID", "b3_agents_query", "agents.id", &st.query_snap, "agent id", true, W::Fill);
-        let has = !st.query_id.trim().is_empty();
-        actions(d, "b3_agents_id_act", "b3.agents.id.", "", &caps, has, true);
+        // The id's actions are enabled only for a non-blank id: both rows are
+        // emitted and the live gate shows one (no remount while typing).
+        let both = d.anon();
+        d.view(&both, "width: Fill height: Fit flow: Overlay");
+        d.view("b3_agents_id_off", "width: Fill height: Fit flow: Down");
+        actions(d, "b3_agents_id_off", "b3.agents.id.", "", &caps, false, true);
+        d.close();
+        d.view("b3_agents_id_on", "width: Fill height: Fit flow: Down");
+        actions(d, "b3_agents_id_act", "b3.agents.id.", "", &caps, true, true);
+        d.close();
+        d.close();
         if caps.artifact_read {
             field(d, "", "Artifact path", "b3_agents_path", "agents.path", &st.path_snap, "path/to/artifact", true, W::Fill);
             let foot = d.anon();
-            d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
-            let ok = has && !st.path.trim().is_empty();
-            d.button("b3_agents_read_path", "Read artifact by path", "b3.agents.id.read_path", if ok { Btn::Outline } else { Btn::OutlineOff }, W::Fit, 30.0);
+            d.view(&foot, "width: Fill height: Fit flow: Overlay");
+            d.view("b3_agents_path_off", "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
+            d.button("b3_agents_read_path_disabled", "Read artifact by path", "b3.agents.id.read_path", Btn::OutlineOff, W::Fit, 30.0);
+            d.close();
+            d.view("b3_agents_path_on", "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
+            d.button("b3_agents_read_path", "Read artifact by path", "b3.agents.id.read_path", Btn::Outline, W::Fit, 30.0);
+            d.close();
             d.close();
         }
         d.close();

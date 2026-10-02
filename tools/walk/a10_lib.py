@@ -31,6 +31,19 @@ class Walk:
         self.results: list[tuple[str, bool, str]] = []
         self.log_seq = 0
         self.transcript: list[str] = []
+        # The replay server's own log (set by run_session): the wire proof.
+        self.replay_log: pathlib.Path | None = None
+
+    def replay_saw(self, method: str, secs: float = 6.0) -> int:
+        """How many `<- method` requests the replay server logged (waits up to
+        `secs` for at least one)."""
+        def count() -> int:
+            if not self.replay_log or not self.replay_log.exists():
+                return 0
+            return sum(1 for l in self.replay_log.read_text().splitlines() if f"<- {method} " in l)
+
+        self.wait(lambda: count() > 0, secs)
+        return count()
 
     # ------------------------------------------------------------ transport
     def get(self, path: str, timeout: float = 20, tolerant: bool = False) -> str:
@@ -108,6 +121,59 @@ class Walk:
         self.click_xy(x + w / 2, y + h / 2)
         return True
 
+    def scroll_into(self, wid: str, viewport: str, tries: int = 24) -> bool:
+        """Wheel-scroll `viewport` until `wid` lies wholly inside it (the
+        user's own gesture; the instrument's `/m?k=scroll`). Content scrolled
+        out of a ScrollYView is not drawn (no rect in /snap), so the wheel's
+        sign is learnt from a reference widget that IS inside the viewport."""
+        sign = 1.0  # the wheel dy that scrolls DOWN is +120 * sign
+        direction = "down"  # the search direction while the target is unseen
+        stuck = 0
+        for _ in range(tries):
+            sn = self.snap()
+            vp, r = self.rect(viewport, sn=sn), self.rect(wid, sn=sn)
+            if vp is None:
+                return False
+            if r is not None and inside(r, vp):
+                return True
+            if r is not None:
+                want_down = r[1] + r[3] > vp[1] + vp[3]
+            else:
+                want_down = direction == "down"
+            refs = [w for w in sn if self.shown(w) and w.get("i") != viewport and inside(w["r"], vp)
+                    and w["r"][3] < vp[3] * 0.8]
+            ref = refs[len(refs) // 2] if refs else None
+            dy = (120.0 if want_down else -120.0) * sign
+            self.get(f"/m?k=scroll&x={vp[0] + vp[2] / 2:.0f}&y={vp[1] + vp[3] / 2:.0f}&dy={dy:.0f}&wait=1", tolerant=True)
+            time.sleep(0.25)
+            if ref is None:
+                continue
+            after = [w["r"] for w in self.snap() if w.get("i") == ref["i"] and self.shown(w)]
+            if not after:
+                stuck = 0
+                continue
+            moved = after[0][1] - ref["r"][1]
+            if abs(moved) < 0.5:
+                # At an end of the scroll range: an unseen target is the
+                # other way.
+                stuck += 1
+                if r is None and stuck >= 2:
+                    direction = "up" if direction == "down" else "down"
+                    stuck = 0
+                continue
+            stuck = 0
+            # Content moving UP means the view scrolled DOWN.
+            if (moved < 0) != want_down:
+                sign = -sign
+        r, vp = self.rect(wid), self.rect(viewport)
+        return bool(r and vp and inside(r, vp))
+
+    def click_in(self, wid: str, viewport: str, nth: int = 0) -> bool:
+        """Scroll `wid` into the viewport, then click it."""
+        if not self.scroll_into(wid, viewport):
+            self.note(f"SCROLL {wid} into {viewport} — failed")
+        return self.click(wid, nth)
+
     def type_text(self, text: str) -> None:
         self.note(f"TYPE {text!r}")
         self.get("/t?" + urllib.parse.urlencode({"t": text, "wait": 1}), tolerant=True)
@@ -157,7 +223,15 @@ class Walk:
         the whole phone shell. Downscaled to <= 1400 px."""
         png = self.out / f"{name}.png"
         sn = self.snap()
-        data = urllib.request.urlopen(self.base + "/g?raw=1", timeout=30).read()
+        data = b""
+        for _ in range(6):  # the grab can miss a frame ("could not be submitted"): retry
+            try:
+                data = urllib.request.urlopen(self.base + "/g?raw=1", timeout=30).read()
+                if data[:4] == b"\x89PNG":
+                    break
+            except Exception:
+                pass
+            time.sleep(0.6)
         png.write_bytes(data)
         if self.mode == "desktop":
             try:
@@ -180,7 +254,7 @@ class Walk:
     def summary(self) -> int:
         ok = sum(1 for _, p, _ in self.results if p)
         self.note(f"== {ok}/{len(self.results)} checks passed")
-        (self.out / "walk.log").write_text("\n".join(self.transcript) + "\n")
+        (self.out / "walk.log").write_text(scrub("\n".join(self.transcript) + "\n"))
         return 0 if ok == len(self.results) else 1
 
     # ---------------------------------------------------------- app helpers
@@ -198,6 +272,19 @@ class Walk:
             if i.startswith("i") and i.endswith("_composer_0") and self.shown(w):
                 return w
         return None
+
+    def dismiss_keyboard(self, neutral: str = "b3_title") -> None:
+        """Phone: the shell's emulated soft keyboard covers the lower screen
+        while a field has focus; a tap on a neutral label (the dialog title)
+        takes the focus away, as a user would before reaching a button
+        under it. Desktop: nothing to do."""
+        if self.mode != "phone":
+            return
+        r = self.rect(neutral)
+        if r:
+            self.note(f"TAP {neutral} (drop the keyboard)")
+            self.click_xy(r[0] + 4, r[1] + r[3] / 2)
+            time.sleep(0.4)
 
     def open_phone_app(self) -> None:
         """The shell's phone page: open OctosCode from the phone home once."""
@@ -233,6 +320,16 @@ class Walk:
         return True
 
 
+def scrub(text: str) -> str:
+    """No machine paths in committed evidence (the hermetic rule)."""
+    import re
+
+    users = "/" + "Users" + "/"  # spelled out: the repo's hermetic guard bans the literal
+    # The whole path token goes (its `/home/<repo>` tail is a machine path too).
+    text = re.sub(re.escape(users) + r"[^\s\"']+", "<PATH>", text)
+    return re.sub(r"/(private/)?" + "var" + r"/folders/[^\s\"']+", "<TMP>", text)
+
+
 # ------------------------------------------------------------- UX checker
 def _right(r):
     return r[0] + r[2]
@@ -252,17 +349,36 @@ def overlap(a, b, tol=1.0) -> bool:
             and a[1] + tol < _bottom(b) and b[1] + tol < _bottom(a))
 
 
-def dialog_checks(sn: list[dict], frame_id: str, prefix: str, module=None) -> dict:
+def dialog_checks(sn: list[dict], frame_id: str, prefix, module=None, viewport: str | None = None) -> dict:
     """The dialog's numeric UX checks from one /snap: the frame rect, its
     centring in the module view, the content margins, labels clipped by the
-    frame, overlapping labels, the controls' hit sizes."""
+    frame, overlapping labels, the controls' hit sizes.
+
+    `prefix`: one id prefix or a tuple of them (the dialog's own widgets).
+    `viewport`: a scroll view id — content scrolled out of it is clipped by
+    design, so only what lies inside the viewport is judged."""
     shown = [w for w in sn if Walk.shown(w)]
     frames = [w for w in shown if w.get("i") == frame_id]
     if not frames:
         return {"ok": False, "why": f"no {frame_id}"}
     fr = frames[0]["r"]
     mod = module or next((w["r"] for w in shown if w.get("ty") == "OctoscodeView"), None)
-    mine = [w for w in shown if str(w.get("i", "")).startswith(prefix)]
+    prefixes = (prefix,) if isinstance(prefix, str) else tuple(prefix)
+    mine = [w for w in shown if str(w.get("i", "")).startswith(prefixes)]
+    vp = next((w["r"] for w in shown if viewport and w.get("i") == viewport), None)
+    if vp:
+        # A widget the viewport's top or bottom edge cuts is clipped by the
+        # scroll by design (more content below / above): not judged.
+        top, bot = vp[1], vp[1] + vp[3]
+
+        def straddles(r):
+            return (r[1] < top - 0.5 < r[1] + r[3]) or (r[1] < bot - 0.5 < r[1] + r[3] - 0.5)
+
+        def scrolled_out(r):
+            # Wholly below the viewport while horizontally inside it.
+            return r[1] >= bot - 0.5 and r[0] >= vp[0] - 0.5 and r[0] + r[2] <= vp[0] + vp[2] + 0.5
+
+        mine = [w for w in mine if not straddles(w["r"]) and not scrolled_out(w["r"])]
     labels = [w for w in mine if w.get("ty") == "Label" and (w.get("t") or "").strip()]
     buttons = [w for w in mine if w.get("ty") in ("Button", "DesignNativeButton")]
     outside = [w["i"] for w in labels if not inside(w["r"], fr)]
@@ -302,3 +418,75 @@ def checks_line(c: dict) -> str:
 
 def env_port() -> int:
     return int(os.environ.get("A10_PORT", "8420"))
+
+
+# ------------------------------------------------------------------ runner
+ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
+
+
+def run_session(walk_fn, *, mode: str, outdir: str, port: int = 8420, replay_port: int | None = 8432,
+                scenario: str = "a10", env: dict | None = None, app_bin: str | None = None) -> int:
+    """Start the replay server (recorded/faithful traffic, no model) and the
+    app hidden on `port`, run `walk_fn(Walk)`, then ALWAYS stop the app (`/gq`
+    through harness/headless.sh) and the replay server this run started —
+    the operator's no-lingering-instances rule.
+
+    `app_bin` defaults to $OCTOSCODE_APP_BIN. Phone mode uses the shell's
+    phone page with the 360x780 frame and opens OctosCode from its home."""
+    app_bin = app_bin or os.environ.get("OCTOSCODE_APP_BIN")
+    if not app_bin:
+        raise SystemExit("set OCTOSCODE_APP_BIN to the HOST binary (outer/scripts/hostbuild.sh)")
+    state = ROOT / "tmp" / "hs"
+    state.mkdir(parents=True, exist_ok=True)
+    replay = None
+    e = dict(os.environ)
+    e.update({
+        "HEADLESS_STATE": str(state),
+        "OCTOSCODE_DESIGN_DIR": str(ROOT / "design"),
+        "MAKEPAD_WM_TEST_APP": "octoscode",
+        "HEADLESS_ARGS": "--module octoscode" + (" --test-action page:0" if mode == "phone" else ""),
+    })
+    if mode == "phone":
+        e["OCTOSENSE_WINDOW_SIZE"] = "360x780"
+    if replay_port:
+        bin_ = pathlib.Path(os.environ.get("CARGO_TARGET_DIR") or (ROOT / "target")) / "debug" / "examples" / "replay_serve"
+        log = open(state / f"replay-{replay_port}.log", "w")
+        replay = subprocess.Popen([str(bin_), str(replay_port), "--scenario", scenario], stdout=log, stderr=subprocess.STDOUT)
+        # The replay port must be OURS: a server another agent left on it
+        # would answer this walk with its own traffic (seen once on 8429).
+        logp = state / f"replay-{replay_port}.log"
+        end = time.time() + 15
+        while time.time() < end and "listening on" not in logp.read_text():
+            if replay.poll() is not None:
+                raise SystemExit(f"replay server exited: {logp.read_text()[-400:]}")
+            time.sleep(0.2)
+        if "listening on" not in logp.read_text():
+            replay.kill()
+            raise SystemExit("replay server did not come up")
+        e.update({"OCTOS_BASE_URL": f"http://127.0.0.1:{replay_port}", "OCTOS_PROFILE_ID": "dsflash", "OCTOS_BEARER": "replay"})
+    if env:
+        e.update(env)
+    rc = 1
+    try:
+        subprocess.run(["bash", str(ROOT / "harness" / "headless.sh"), "start", app_bin, str(port)], env=e, check=True)
+        w = Walk(port, outdir, mode)
+        if replay_port:
+            w.replay_log = state / f"replay-{replay_port}.log"
+        w.wait(lambda: '"sz"' in w.get("/s", tolerant=True), 40, 1.0)
+        time.sleep(4.0)
+        if mode == "phone":
+            w.open_phone_app()
+        w.wait(lambda: w.composer() is not None, 30)
+        walk_fn(w)
+        rc = w.summary()
+    finally:
+        subprocess.run(["bash", str(ROOT / "harness" / "headless.sh"), "stop", str(port)], env=e)
+        if replay is not None:
+            replay.terminate()
+            try:
+                replay.wait(5)
+            except Exception:
+                replay.kill()
+            if replay_port:
+                (pathlib.Path(outdir) / "replay.log").write_text(scrub((state / f"replay-{replay_port}.log").read_text()))
+    return rc

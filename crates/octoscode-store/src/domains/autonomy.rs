@@ -191,6 +191,10 @@ struct Inner {
     /// authority change drops every busy/pending marker (`store.ts:222-224`).
     busy: HashMap<String, u64>,
     // ---- A10: the Agents panel viewers ----
+    /// The roster in the server's list order (`agent/list`), new ids from
+    /// `agent/updated` appended — the web keeps the list as the server sent
+    /// it (`state.agents = result.agents`).
+    agent_order: Vec<String>,
     viewer: AgentViewer,
     /// The newest detail (status / artifact list / artifact read) ticket.
     detail_gate: u64,
@@ -236,26 +240,38 @@ impl Autonomy {
     /// Replace the agent list (`agent/list`).
     pub fn set_agents(&self, agents: Vec<AgentRecord>) {
         let mut i = self.inner.lock().unwrap();
+        let mut order: Vec<String> = Vec::new();
+        for a in &agents {
+            if !order.contains(&a.agent_id) {
+                order.push(a.agent_id.clone());
+            }
+        }
+        i.agent_order = order;
         i.agents = agents.into_iter().map(|a| (a.agent_id.clone(), a)).collect();
     }
 
     /// Upsert one agent (`agent/status/read` / `agent/updated`).
     pub fn upsert_agent(&self, agent: AgentRecord) {
-        self.inner
-            .lock()
-            .unwrap()
-            .agents
-            .insert(agent.agent_id.clone(), agent);
+        let mut i = self.inner.lock().unwrap();
+        if !i.agent_order.contains(&agent.agent_id) {
+            i.agent_order.push(agent.agent_id.clone());
+        }
+        i.agents.insert(agent.agent_id.clone(), agent);
     }
 
     pub fn agent(&self, agent_id: &str) -> Option<AgentRecord> {
         self.inner.lock().unwrap().agents.get(agent_id).cloned()
     }
 
+    /// The roster in the server's order (ids never listed — a direct
+    /// `upsert_agent` before any list — follow, sorted by id).
     pub fn agents(&self) -> Vec<AgentRecord> {
         let i = self.inner.lock().unwrap();
-        let mut v: Vec<AgentRecord> = i.agents.values().cloned().collect();
-        v.sort_by(|a, b| a.agent_id.cmp(&b.agent_id));
+        let mut v: Vec<AgentRecord> = i.agent_order.iter().filter_map(|id| i.agents.get(id).cloned()).collect();
+        let mut rest: Vec<AgentRecord> =
+            i.agents.values().filter(|a| !i.agent_order.contains(&a.agent_id)).cloned().collect();
+        rest.sort_by(|a, b| a.agent_id.cmp(&b.agent_id));
+        v.extend(rest);
         v
     }
 
@@ -499,6 +515,7 @@ impl Autonomy {
             // `resetAutonomyForSession` (model.ts:101-104): a stale store must
             // never survive an identity change under the same session id.
             i.agents.clear();
+            i.agent_order.clear();
             i.loops.clear();
             i.monitors.clear();
             i.goals.clear();
@@ -518,6 +535,7 @@ impl Autonomy {
         }
         i.session_id = Some(session_id.to_owned());
         i.agents.clear();
+        i.agent_order.clear();
         i.loops.clear();
         i.monitors.clear();
         i.goals.clear();
