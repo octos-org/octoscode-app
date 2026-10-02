@@ -306,7 +306,8 @@ fn scope_line(d: Dialog, ctx: &Ctx<'_>) -> String {
             .domains
             .profile
             .current()
-            .map(|p| format!("Server Profile: {p}"))
+            // The web's `t("Server Profile:") + " "` + the id (SkillsDialog.tsx:155).
+            .map(|p| format!("{} {p}", crate::i18n::tr("Server Profile:")))
             .unwrap_or_default(),
         _ => ctx.store.active_session().unwrap_or_default(),
     }
@@ -661,30 +662,36 @@ fn segmented(b: &mut B<'_>, track: &str, segs: &[(&str, &str, &str, &str, String
 /// from source". While the Profile is busy every mutation is drawn paused
 /// and routes nothing (`disabled={busy || profileBusy}`).
 fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
+    // A31 — the dialog's own copy through `tr` (the web's keys, or the
+    // aliases of the same controls), so a Chinese dialog reads Chinese
+    // around its Background jobs section.
+    use crate::i18n::tr;
     let store = ctx.store;
-    open(b, "t_title", "Skills", &scope_line(b.dlg, ctx), notice);
+    open(b, "t_title", tr("Skills"), &scope_line(b.dlg, ctx), notice);
     let locked = dlg::profile_locked(ctx);
-    b.text("skills_warning", dlg::SKILLS_WARNING, &para(tok::MUTED));
+    b.text("skills_warning", tr(dlg::SKILLS_WARNING), &para(tok::MUTED));
     if locked {
         b.gap(6.0);
-        b.text("skills_locked", dlg::SKILLS_LOCKED, &Txt::new(12.5, Face::Medium, tok::AMBER).w(W::Fill).wrap());
+        b.text("skills_locked", tr(dlg::SKILLS_LOCKED), &Txt::new(12.5, Face::Medium, tok::AMBER).w(W::Fill).wrap());
     }
+    // A31 — the Background jobs section at the top (parity row 15).
+    skill_jobs_section(b, ctx);
     if dlg::advertises(store, "profile/skills/registry/search") {
         b.gap(12.0);
         let id = b.id("skills_query");
         let q = dlg::skills_query().unwrap_or_default();
-        b.d.input_icon(&id, &id, &q, "Search registry", "b3_search.svg", 36.0);
+        b.d.input_icon(&id, &id, &q, tr("Search registry"), "b3_search.svg", 36.0);
     }
     // ---- Installed.
     b.gap(16.0);
-    b.text("t_inst_head", "Installed", &ui::heading().w(W::Fill));
+    b.text("t_inst_head", tr("Installed"), &ui::heading().w(W::Fill));
     b.gap(8.0);
     let installed = store.domains.profile.installed_skills();
     b.list_card("card_installed");
     if installed.is_empty() {
         let r = b.d.anon();
         b.d.view(&r, "width: Fill height: Fit padding: Inset{top: 12 bottom: 12}");
-        b.text("t_name3", "No skills installed in this Profile.", &para(tok::MUTED));
+        b.text("t_name3", tr("No skills installed in this Profile."), &para(tok::MUTED));
         b.close();
     }
     let line_w = b.card_w() - 80.0;
@@ -696,8 +703,13 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         let c = b.d.anon();
         b.d.view(&c, "width: Fill height: Fit flow: Down spacing: 3");
         b.text(&format!("t_name{}", 3 + i), &ui::fit_w(&s.name, line_w, 13.5, Face::Semibold), &row_title().w(W::Fill));
-        let tools = if s.tool_count == 1 { "1 tool".to_owned() } else { format!("{} tools", s.tool_count) };
-        let mut line = format!("{} · {tools}", s.version.as_deref().unwrap_or("Version not reported"));
+        // The web's `{n} {t("tools")}` in Chinese; English keeps its singular.
+        let tools = match (s.tool_count, crate::i18n::is_zh()) {
+            (n, true) => format!("{n} {}", tr("tools")),
+            (1, false) => "1 tool".to_owned(),
+            (n, false) => format!("{n} tools"),
+        };
+        let mut line = format!("{} · {tools}", s.version.as_deref().unwrap_or(tr("Version not reported")));
         if let Some(repo) = s.source_repo.as_deref().filter(|r| !r.is_empty()) {
             line = format!("{line} · {repo}");
         }
@@ -711,7 +723,7 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
             &format!("{label}_box"),
             &label,
             &tap,
-            "Remove",
+            tr("Remove"),
             (!locked).then_some(ev.as_str()),
             12.5,
             if locked { tok::DISABLED_INK } else { tok::RED_TEXT },
@@ -726,13 +738,13 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     let searched = dlg::skills_query().is_some();
     if !packages.is_empty() || searched {
         b.gap(18.0);
-        b.text("t_reg_head", "Registry", &ui::heading().w(W::Fill));
+        b.text("t_reg_head", tr("Registry"), &ui::heading().w(W::Fill));
         b.gap(8.0);
         b.list_card("card_registry");
         if packages.is_empty() {
             let r = b.d.anon();
             b.d.view(&r, "width: Fill height: Fit padding: Inset{top: 12 bottom: 12}");
-            b.text("t_name10", "No matching skill packages.", &para(tok::MUTED));
+            b.text("t_name10", tr("No matching skill packages."), &para(tok::MUTED));
             b.close();
         }
         let text_w = b.card_w() - if install_ok && !b.compact { pill_w("Install") + 8.0 } else { 0.0 };
@@ -757,16 +769,16 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
             if !p.repo.trim().is_empty() {
                 b.text(&format!("{rid}_repo"), &ui::fit_w(&p.repo, text_w, 12.0, Face::Mono), &Txt::new(12.0, Face::Mono, tok::MUTED).w(W::Fill));
             }
-            let kind = if p.provides_tools { "Provides executable tools" } else { "Instruction skills" };
-            let licence = p.license.clone().unwrap_or_else(|| "License not reported".to_owned());
+            let kind = tr(if p.provides_tools { "Provides executable tools" } else { "Instruction skills" });
+            let licence = p.license.clone().unwrap_or_else(|| tr("License not reported").to_owned());
             b.text(&format!("{rid}_kind"), &format!("{kind} · {licence}"), &para(tok::MUTED));
             if !p.requires.is_empty() {
-                b.text(&format!("{rid}_requires"), &format!("Requires: {}", p.requires.join(", ")), &para(tok::MUTED));
+                b.text(&format!("{rid}_requires"), &format!("{} {}", tr("Requires:"), p.requires.join(", ")), &para(tok::MUTED));
             }
             if p.installed {
                 b.text(
                     &format!("{rid}_installed"),
-                    &format!("Installed: {}", p.installed_skills.join(", ")),
+                    &format!("{} {}", tr("Installed:"), p.installed_skills.join(", ")),
                     &Txt::new(12.5, Face::Regular, tok::GREEN_TEXT).w(W::Fill).wrap(),
                 );
             }
@@ -774,7 +786,7 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
             if install_ok {
                 let ev = format!("{}skills.install_{}", dlg::ACTION_ASK, j + 3);
                 let kind = if locked { Btn::OutlineOff } else { Btn::Outline };
-                b.pill(&format!("{rid}_install"), "Install", &ev, kind, W::Fit);
+                b.pill(&format!("{rid}_install"), tr("Install"), &ev, kind, W::Fit);
             }
             b.close();
         }
@@ -783,7 +795,7 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     // ---- Install from source (only when install is advertised).
     if install_ok {
         b.gap(18.0);
-        b.text("src_head", "Install from source", &ui::heading().w(W::Fill));
+        b.text("src_head", tr("Install from source"), &ui::heading().w(W::Fill));
         b.gap(8.0);
         b.card("card_source", 6.0);
         let (repo, branch) = dlg::skills_source();
@@ -800,12 +812,126 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         let kind = if locked { Btn::OutlineOff } else { Btn::Outline };
         actions(
             b,
-            &[("src_review", "Review installation", format!("{}skills.install_source", dlg::ACTION_ASK), kind)],
+            &[("src_review", tr("Review installation"), format!("{}skills.install_source", dlg::ACTION_ASK), kind)],
             avail,
         );
         b.close();
     }
     finish(b);
+}
+
+/// A31 — "Background jobs" (board 4 region 3, `screens::skill_jobs`): the
+/// heading with the active-job count on its right, the no-feature note, a
+/// list failure, then one row per job, newest first — the skill and action
+/// (mono), the file with its status chip and its time, and the message
+/// line(s) of a finished, failed or abandoned job.
+fn skill_jobs_section(b: &mut B<'_>, ctx: &Ctx<'_>) {
+    use crate::i18n::{tr, tr1, tr_with};
+    use crate::screens::skill_jobs as sj;
+    use octoscode_store::domains::skill_jobs::ListState;
+    let Some(sec) = sj::section(ctx.store, ui::now_ms()) else {
+        return;
+    };
+    b.gap(16.0);
+    let hr = b.d.anon();
+    b.d.view(&hr, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
+    b.text("jobs_head", tr(sj::HEADING), &ui::heading().w(W::Fill));
+    let mut count = Vec::new();
+    if sec.running > 0 {
+        count.push(tr_with(sj::RUNNING_COUNT, &[("count", &sec.running.to_string())]));
+    }
+    if sec.queued > 0 {
+        count.push(tr1(sj::QUEUED_COUNT, &sec.queued.to_string()));
+    }
+    if !count.is_empty() {
+        b.text("jobs_count", &count.join(" · "), &ui::meta());
+    }
+    b.close();
+    if sec.announced_only {
+        b.gap(4.0);
+        b.text("jobs_note", tr(sj::ANNOUNCED_ONLY), &para(tok::MUTED));
+    }
+    if let ListState::Failed(e) = &sec.state {
+        b.gap(6.0);
+        let id = b.id("jobs_error");
+        ui::failure(b.d, &id, sj::LOAD_FAILED, &dlg::display_error(e));
+    }
+    if sec.rows.is_empty() && matches!(sec.state, ListState::Failed(_)) {
+        // The failure says it; "no jobs" would be a guess.
+        return;
+    }
+    b.gap(8.0);
+    b.list_card("card_jobs");
+    if sec.rows.is_empty() {
+        let r = b.d.anon();
+        b.d.view(&r, "width: Fill height: Fit padding: Inset{top: 12 bottom: 12}");
+        let empty = if sec.state == ListState::Loading { sj::LOADING } else { sj::EMPTY };
+        b.text("jobs_empty", tr(empty), &para(tok::MUTED));
+        b.close();
+    }
+    let w = b.card_w();
+    for (i, row) in sec.rows.iter().enumerate() {
+        if i > 0 {
+            b.d.hairline();
+        }
+        let rid = format!("job_{i}");
+        b.view(&rid, "width: Fill height: Fit flow: Down spacing: 4 padding: Inset{top: 10 bottom: 10}");
+        // The skill and its action (mono), as the board's first line.
+        let l1 = b.d.anon();
+        b.d.view(&l1, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 6");
+        let skill = ui::fit_w(&row.skill, w * 0.5, 12.0, Face::Mono);
+        let action_room = (w - ui::text_w(&skill, 12.0, Face::Mono) - 6.0).max(40.0);
+        b.text(&format!("{rid}_skill"), &skill, &Txt::new(12.0, Face::Mono, tok::TEXT));
+        b.text(
+            &format!("{rid}_action"),
+            &ui::fit_w(&format!("· {}", row.action), action_room, 12.0, Face::Mono),
+            &Txt::new(12.0, Face::Mono, tok::MUTED),
+        );
+        b.close();
+        // The file, its status chip, the time since its last change.
+        let l2 = b.d.anon();
+        b.d.view(&l2, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
+        let chip = format!("{} {}", row.chip.glyph, tr(row.chip.word));
+        let (chip_w, time_w) = (ui::text_w(&chip, 11.0, Face::Medium) + 14.0, 36.0);
+        let name_w = (w - chip_w - time_w - 20.0).max(48.0);
+        b.text(&format!("{rid}_name"), &ui::fit_w(&row.name, name_w, 13.5, Face::Semibold), &row_title().w(W::Fill));
+        b.chip(&format!("{rid}_state"), &chip, (row.chip.fg, row.chip.bg));
+        let tb = b.d.anon();
+        b.d.view(&tb, &format!("width: {time_w} height: Fit flow: Right align: Align{{x: 1.0 y: 0.5}}"));
+        b.text(&format!("{rid}_time"), &row.time, &ui::meta());
+        b.close();
+        b.close();
+        // The message: at most two lines (a long output or error is cut).
+        let two = (w * 1.7).max(80.0);
+        match &row.message {
+            sj::Message::None => {}
+            sj::Message::Output(s) => {
+                b.text(&format!("{rid}_msg"), &ui::fit_w(s, two, 12.5, Face::Regular), &para(tok::MUTED));
+            }
+            sj::Message::Failure { lead, cause } => {
+                b.text(&format!("{rid}_msg"), tr(lead), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+                if !cause.is_empty() {
+                    b.text(
+                        &format!("{rid}_cause"),
+                        &ui::fit_w(cause, two, 12.0, Face::Mono),
+                        &Txt::new(12.0, Face::Mono, tok::MUTED).w(W::Fill).wrap(),
+                    );
+                }
+            }
+            sj::Message::Note(s) => {
+                b.text(&format!("{rid}_msg"), tr(s), &para(tok::MUTED));
+            }
+        }
+        b.close();
+    }
+    if sec.omitted > 0 {
+        b.d.hairline();
+        let r = b.d.anon();
+        b.d.view(&r, "width: Fill height: Fit padding: Inset{top: 8 bottom: 8}");
+        b.text("jobs_omitted", &tr1(sj::OMITTED, &sec.omitted.to_string()), &ui::meta());
+        b.close();
+    }
+    b.close();
 }
 
 // -------------------------------------------------------------------- Goal

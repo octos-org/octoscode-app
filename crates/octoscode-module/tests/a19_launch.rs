@@ -480,6 +480,8 @@ fn lock(name: &str) -> (std::sync::MutexGuard<'static, ()>, std::path::PathBuf) 
     std::env::set_var("OCTOSCODE_CREDENTIALS_DIR", dir.join("cred"));
     std::env::set_var("OCTOSCODE_RECENTS_DIR", dir.join("recents"));
     std::env::set_var("OCTOSCODE_SHOW_THINKING_FILE", dir.join("show-thinking.json"));
+    // A21: Forget clears the tab drafts too — this test's own file.
+    std::env::set_var("OCTOSCODE_DRAFTS_FILE", dir.join("composer-drafts.json"));
     std::env::remove_var("OCTOS_PROFILE_ID");
     std::env::remove_var("OCTOS_CREATE_PROFILE");
     remembered::set_legacy_for_test(None);
