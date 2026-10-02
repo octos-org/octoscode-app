@@ -1,0 +1,48 @@
+[replay-serve] scenario=activity fixture=r4-task-a6ea8505.jsonl: 26 frames; recorded session `octoscode2391:main`; 1 recorded turns ["01920000-0000-7000-8000-0000000000f4"]; 11 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8514/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- session/hydrate (id=2)
+[replay-serve] <- session/list (id=3)
+[replay-serve] <- session/hydrate (id=4)
+[replay-serve] <- permission/profile/list (id=5)
+[replay-serve] <- profile/llm/list (id=6)
+[replay-serve] <- profile/skills/list (id=7)
+[replay-serve] <- profile/sub_providers/list (id=8)
+[replay-serve] <- session/status/read (id=9)
+[replay-serve] <- turn/start (id=10)
+[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdd2-3b9a-770e-8cca-1706ccb03366 (5 recorded frames)
+[replay-serve] <- session/list (id=11)
+[replay-serve] <- session/list (id=12)
+[replay-serve] <- session/open (id=13)
+[replay-serve] <- session/list (id=14)
+[replay-serve] holding the switch's session/list for 6 s
+[replay-serve] <- permission/profile/list (id=15)
+[replay-serve] <- session/status/read (id=16)
+[replay-serve] <- session/hydrate (id=17)
+[replay-serve] <- session/list (id=18)
+[replay-serve] holding the switch's session/list for 6 s
+[replay-serve] <- session/hydrate (id=19)
+[replay-serve] <- session/open (id=20)
+[replay-serve] <- session/list (id=21)
+[replay-serve] holding the switch's session/list for 6 s
+[replay-serve] <- permission/profile/list (id=22)
+[replay-serve] <- session/status/read (id=23)
+[replay-serve] <- session/hydrate (id=24)
+[replay-serve] <- session/list (id=25)
+[replay-serve] holding the switch's session/list for 6 s
+[replay-serve] <- session/hydrate (id=26)
+[replay-serve] <- turn/start (id=27)
+[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdd2-4d9b-7407-a458-71d6a283fb35 (5 recorded frames)
+[replay-serve] <- session/list (id=28)
+[replay-serve] holding the switch's session/list for 6 s
+[replay-serve] <- session/list (id=29)
+[replay-serve] holding the switch's session/list for 6 s
+[replay-serve] <- turn/start (id=30)
+[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdd2-693a-7664-8095-888dfeeff7ad (5 recorded frames)
+[replay-serve] <- session/list (id=31)
+[replay-serve] holding the switch's session/list for 6 s
+[replay-serve] <- session/list (id=32)
+[replay-serve] holding the switch's session/list for 6 s

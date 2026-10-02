@@ -361,7 +361,6 @@ pub struct SettingsState {
     /// A preset send in flight.
     pub saving: Option<Preset>,
     pub last_error: Option<String>,
-    pub notifications: bool,
     pub sandbox: SandboxDefaults,
     pub last_ui_action: Option<String>,
 }
@@ -377,10 +376,6 @@ impl Default for SettingsState {
             permission: None,
             saving: None,
             last_error: None,
-            // A7 — consent (`desktop-notifications.ts:27-44`): OFF until the
-            // Settings action is used, whatever the OS would allow; the
-            // explicit opt-in is remembered across restarts.
-            notifications: notification_consent(),
             sandbox: SandboxDefaults::default(),
             last_ui_action: None,
         }
@@ -460,6 +455,8 @@ pub enum UiEffect {
     Thinking(Thinking),
     /// "Take over": claim the session from the other client.
     TakeOver,
+    /// A25 — the Desktop notifications toggle (`crate::attention::toggle`).
+    NotificationsToggle,
 }
 
 /// Apply a UI-local action (or mark an RPC one as sending) and say what the
@@ -525,12 +522,10 @@ pub fn apply_ui(action: &str) -> UiEffect {
             st.sandbox = SandboxDefaults::of(&live.value);
             UiEffect::None
         }
-        "notifications_toggle.toggle" => {
-            st.notifications = !st.notifications;
-            // A7 — the explicit opt-in (or opt-out) is the ONLY consent.
-            save_notification_consent(st.notifications);
-            UiEffect::None
-        }
+        // A25 — the Desktop notifications row: the host performs it through
+        // the attention model (`crate::attention`), which asks the OS for the
+        // permission (asynchronously) and keeps the A7 opt-in below.
+        "notifications_toggle.toggle" => UiEffect::NotificationsToggle,
         "settings.thinking.off" => UiEffect::Thinking(Thinking::Off),
         "settings.thinking.on" => UiEffect::Thinking(Thinking::On),
         "settings.thinking.high" => UiEffect::Thinking(Thinking::High),
@@ -767,7 +762,10 @@ mod tests {
     }
 
     // ---- A7: desktop-notifications.test.ts:22 "does not prompt or notify
-    // ---- without explicit opt-in even with existing permission".
+    // ---- without explicit opt-in even with existing permission". A25: the
+    // ---- toggle routes to the attention model (it asks the OS); the opt-in
+    // ---- it saves is this file (crate::attention's tests drive the whole
+    // ---- round trip through it).
     #[test]
     fn notifications_stay_off_until_the_settings_toggle_opts_in() {
         let _g = lock();
@@ -777,14 +775,15 @@ mod tests {
         let _ = std::fs::remove_file(&file);
         std::env::set_var("OCTOSCODE_NOTIFICATIONS_FILE", &file);
         reset_state();
-        assert!(!snapshot().notifications, "no opt-in yet: no notice can fire, so no OS prompt");
-        apply_ui("notifications_toggle.toggle");
-        assert!(snapshot().notifications);
+        assert!(!notification_consent(), "no opt-in yet: no notice can fire, so no OS prompt");
+        assert_eq!(apply_ui("notifications_toggle.toggle"), UiEffect::NotificationsToggle);
+        assert!(!notification_consent(), "routing alone opts nothing in: only a granted request does");
+        save_notification_consent(true);
         reset_state();
-        assert!(snapshot().notifications, "the explicit opt-in survives a restart");
-        apply_ui("notifications_toggle.toggle");
+        assert!(notification_consent(), "the explicit opt-in survives a restart");
+        save_notification_consent(false);
         reset_state();
-        assert!(!snapshot().notifications, "and so does the opt-out");
+        assert!(!notification_consent(), "and so does the opt-out");
         std::env::remove_var("OCTOSCODE_NOTIFICATIONS_FILE");
         reset_state();
     }

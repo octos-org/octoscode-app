@@ -31,6 +31,9 @@ use std::sync::{Arc, Mutex};
 use octoscode_store::Store;
 
 pub mod actions;
+// A25 — attention: desktop/phone notices, focus acknowledgement, the
+// Settings row's states (the web's features/attention).
+pub mod attention;
 // A9 — the host half of the A9 surfaces (Activity, …): mount + routing.
 pub mod a9_host;
 // A12 — the outage host: the connection banner's mount/taps and the offline
@@ -1901,6 +1904,9 @@ impl OctoscodeView {
                         screens::settings::note_failed(action, "not connected");
                     }
                 }
+                // A25 — the Desktop notifications row (asks the OS; the
+                // answer arrives as an action, `attention::handle_actions`).
+                UiEffect::NotificationsToggle => attention::toggle(cx),
                 UiEffect::TakeOver => {
                     // Board 12: claim the session's driver seat — the
                     // external-driver seat API (`session/driver/acquire`,
@@ -3448,31 +3454,17 @@ impl OctoscodeView {
                 }
             }
         }
-        // A3: desktop notifications (General > Desktop notifications): a
-        // settled turn or a new wait on the active session, while the window
-        // is in the background, posts one OS notice (`Cx::show_notification`).
+        // A25: attention (use-attention.ts:65-96) — the selected Session's
+        // turns through the tracker; a turn that needs the person while the
+        // window is not focused posts one OS notice (General > Desktop
+        // notifications opted in), replacing the previous one.
         {
-            let store = { self.bridge.lock().unwrap().store.clone() };
-            if let Some(now) = chrome::Attention::of(&store) {
-                let title = store
-                    .sessions()
-                    .into_iter()
-                    .find(|s| s.id == now.session)
-                    .and_then(|s| s.label_stem())
-                    .unwrap_or_else(|| "Your chat".to_owned());
-                let notice = chrome::attention_notice(
-                    self.chrome.attention.as_ref(),
-                    &now,
-                    &title,
-                    screens::settings::snapshot().notifications,
-                    self.chrome.unfocused,
-                );
-                if let Some((t, body)) = notice {
-                    makepad_widgets::log!("[octoscode] notify: {t} — {body}");
-                    cx.show_notification(&t, &body);
-                }
-                self.chrome.attention = Some(now);
-            }
+            let (store, ui) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone())
+            };
+            let active_turn = ui.lock().ok().and_then(|u| u.active_turn());
+            attention::observe(cx, &store, active_turn);
         }
         // A3: `+ Add workspace` opens the workspace picker (the web's
         // "Add workspace", ProductSidebar.tsx:578 -> App.tsx onAddWorkspace ->
@@ -4210,6 +4202,26 @@ impl OctoscodeView {
     /// A3 (board 2): perform the chrome's click intents through the one-owner
     /// tables (`screens::sidebar`, `screens::settings`, the router), one log
     /// line each — the click walk's receipts.
+    /// A25 — a clicked notice names its Session: open it through the
+    /// sidebar's own `thread.open` (its store index), unless it is already
+    /// the open one. The platform has already brought the app forward.
+    fn open_attention_session(&mut self, cx: &mut Cx, session: &str) {
+        let store = { self.bridge.lock().unwrap().store.clone() };
+        if store.active_session().as_deref() == Some(session) {
+            makepad_widgets::log!("[octoscode] attention: notice click -> {session} (already open)");
+            return;
+        }
+        match store.sessions().iter().position(|s| s.id == session) {
+            Some(index) => {
+                makepad_widgets::log!("[octoscode] attention: notice click -> open {session} (row {index})");
+                self.perform_action(cx, "thread.open", index);
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+            }
+            None => makepad_widgets::log!("[octoscode] attention: notice click -> {session} is not listed"),
+        }
+    }
+
     fn handle_chrome(&mut self, cx: &mut Cx, actions: &Actions) {
         let (store, settings_open) = {
             let b = self.bridge.lock().unwrap();
@@ -5160,6 +5172,8 @@ impl OctoscodeView {
         if !self.started {
             self.started = true;
             self.start(cx);
+            // A25: read the notification permission and the window's focus.
+            attention::start(cx);
             self.sync_labels(cx);
         }
         match event {
@@ -5190,9 +5204,21 @@ impl OctoscodeView {
                 self.window_h = ev.new_geom.inner_size.y;
                 self.sync_chrome(cx);
             }
-            // A3: desktop notifications fire only while in the background.
-            Event::WindowLostFocus(_) => self.chrome.unfocused = true,
-            Event::WindowGotFocus(_) => self.chrome.unfocused = false,
+            // A25: a notice fires only while the window is not focused, and
+            // focus acknowledges (use-attention.ts:49-55).
+            Event::WindowLostFocus(_) => attention::focus(cx, false),
+            Event::WindowGotFocus(_) => {
+                attention::focus(cx, true);
+                self.view.redraw(cx);
+            }
+            // A25: the click walks' hooks (the instrument's /event?data=).
+            Event::Custom(data) => {
+                if attention::test_hook(cx, data) {
+                    self.view.redraw(cx);
+                }
+            }
+            // A25 (use-attention.ts:60): withdraw the notice on the way out.
+            Event::Shutdown => attention::dispose(cx),
             // A7: the code block's "Copied" second is over — redraw so the
             // row re-lowers with "Copy".
             Event::Timer(te) if self.code_copy_timer.is_timer(te).is_some() => {
@@ -5201,6 +5227,12 @@ impl OctoscodeView {
             // A26: a toast is due to leave.
             Event::Timer(_) if self.toast_timer_fired(cx, event) => {}
             Event::Actions(actions) => {
+                // A25: the OS's notification answers (makepad posts them as
+                // actions): the permission, a failed post, and a click — the
+                // platform brought the app forward; open the notice's Session.
+                if let Some(session) = attention::handle_actions(cx, actions) {
+                    self.open_attention_session(cx, &session);
+                }
                 // A7: a markdown link press opens ONLY an absolute http(s) /
                 // mailto URL (`MarkdownBody.tsx:20-37` `safeUrlTransform`;
                 // the display pass already turned every other link into
