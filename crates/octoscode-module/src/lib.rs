@@ -3343,6 +3343,12 @@ impl OctoscodeView {
                     // never carry over (the web's resetIdentity) and the tab
                     // drafts follow this connection's identity.
                     screens::drafts::on_new_connection(&conv);
+                    // A21 — and its per-connection reads run again: a Connect
+                    // after a Disconnect (another identity) is a new store
+                    // with no model list and no driver record (the model
+                    // seat read "Select a model" after a reconnect).
+                    self.chrome.models_requested = false;
+                    self.chrome.driver_probe = None;
                     if let Some(rt) = self.runtime.as_ref() {
                         let c = conv.clone();
                         rt.spawn(async move {
