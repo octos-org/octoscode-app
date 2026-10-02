@@ -407,9 +407,7 @@ mod tests {
     /// echoed (whole, or its first / last 8 characters) in a result or error.
     #[test]
     fn a_registered_provider_key_never_reaches_the_trace_file() {
-        // Spelled in two halves: the repo's hermetic guard rejects any
-        // key-shaped literal in tracked source (repo_hermetic.rs:114-116).
-        const SENTINEL: &str = concat!("sk", "-SENTINEL-0123456789abcdefTRACE");
+        const SENTINEL: &str = "SENTINEL-provider-key-0123456789TRACE";
         register_secret(SENTINEL);
         let path = std::env::temp_dir().join(format!("octoscode-trace-sentinel-{}", std::process::id()));
         let _ = std::fs::remove_file(&path);
