@@ -191,6 +191,60 @@ pub fn resolve(
     }
 }
 
+/// A7 — the §8 suppression facts (`composer/shortcut-suppression.ts:13-24`),
+/// read STRUCTURALLY from the widget tree by the host: whether the key focus
+/// sits in a text-entry control (a `TextInput`), and whether a modal dialog
+/// is open (the board-1 / board-3 / A5 dialogs, Settings, the palette).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct ShortcutFacts {
+    pub target_is_text_input: bool,
+    pub in_dialog: bool,
+}
+
+/// `shortcutSuppressed` (`shortcut-suppression.ts:21-23`): a parity chord must
+/// NOT fire while either fact holds (no action, no focus steal — the text
+/// control or the dialog owns the key).
+pub fn shortcut_suppressed(f: ShortcutFacts) -> bool {
+    f.target_is_text_input || f.in_dialog
+}
+
+/// The web's keyboard parity chords (`commands/registry.ts:611-623`
+/// `KEYBOARD_PARITY_SHORTCUTS`): Alt REQUIRED, Ctrl/Meta rejected (`:633`),
+/// matched on the physical key.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ParityShortcut {
+    /// Alt+A — reveal the waiting approval.
+    ShowApproval,
+    /// Alt+P — fold/unfold the peer dock.
+    TogglePeerDock,
+    /// Alt+D — open Fleet and focus its dispatch entry.
+    FocusDispatch,
+}
+
+/// `matchKeyboardParityShortcut` (`registry.ts:629-640`).
+pub fn match_parity_shortcut(key_code: KeyCode, ctrl: bool, alt: bool, logo: bool) -> Option<ParityShortcut> {
+    if !alt || ctrl || logo {
+        return None;
+    }
+    match key_code {
+        KeyCode::KeyA => Some(ParityShortcut::ShowApproval),
+        KeyCode::KeyP => Some(ParityShortcut::TogglePeerDock),
+        KeyCode::KeyD => Some(ParityShortcut::FocusDispatch),
+        _ => None,
+    }
+}
+
+/// Whether a parity chord is suppressed for these facts. Show-approval's own
+/// target is the approval surface, so focus already inside it is not a steal
+/// (`App.tsx:1059-1076`): that chord waives the DIALOG half when the dialog
+/// is the approval surface, never the text half.
+pub fn parity_suppressed(shortcut: ParityShortcut, f: ShortcutFacts, inside_approval: bool) -> bool {
+    match shortcut {
+        ParityShortcut::ShowApproval if inside_approval => f.target_is_text_input,
+        _ => shortcut_suppressed(f),
+    }
+}
+
 /// The oldest actionable pending approval's id — the id a keyboard decision
 /// answers (the web decides the card that is showing; natively the store's
 /// pending list is FIFO, `domains/approval.rs:79`).
@@ -233,4 +287,42 @@ pub fn respond_body(
         "decision": decision,
         "approval_scope": scope,
     }))
+}
+
+#[cfg(test)]
+mod a7_suppression_tests {
+    use super::*;
+
+    // ---- shortcut-suppression.ts:21 + e2e keyboard-parity.spec.ts:379
+    // ---- "Alt+D focuses Fleet's capability notice; suppressed inside inputs"
+    #[test]
+    fn a_parity_chord_is_suppressed_inside_a_text_input_or_dialog() {
+        let none = ShortcutFacts::default();
+        let input = ShortcutFacts { target_is_text_input: true, in_dialog: false };
+        let dialog = ShortcutFacts { target_is_text_input: false, in_dialog: true };
+        assert!(!shortcut_suppressed(none));
+        assert!(shortcut_suppressed(input));
+        assert!(shortcut_suppressed(dialog));
+        for s in [ParityShortcut::FocusDispatch, ParityShortcut::TogglePeerDock] {
+            assert!(parity_suppressed(s, input, false));
+            assert!(parity_suppressed(s, dialog, false));
+            assert!(!parity_suppressed(s, none, false));
+        }
+        // Alt+A inside its own approval surface is not a steal — but the text
+        // half still holds there.
+        assert!(!parity_suppressed(ParityShortcut::ShowApproval, dialog, true));
+        assert!(parity_suppressed(ParityShortcut::ShowApproval, input, true));
+        assert!(parity_suppressed(ParityShortcut::ShowApproval, dialog, false));
+    }
+
+    #[test]
+    fn parity_chords_need_alt_and_reject_ctrl_or_meta() {
+        assert_eq!(match_parity_shortcut(KeyCode::KeyD, false, true, false), Some(ParityShortcut::FocusDispatch));
+        assert_eq!(match_parity_shortcut(KeyCode::KeyP, false, true, false), Some(ParityShortcut::TogglePeerDock));
+        assert_eq!(match_parity_shortcut(KeyCode::KeyA, false, true, false), Some(ParityShortcut::ShowApproval));
+        assert_eq!(match_parity_shortcut(KeyCode::KeyD, false, false, false), None, "Alt is required");
+        assert_eq!(match_parity_shortcut(KeyCode::KeyD, true, true, false), None, "AltGr / Ctrl+Alt stays inert");
+        assert_eq!(match_parity_shortcut(KeyCode::KeyD, false, true, true), None, "Cmd+Alt stays inert");
+        assert_eq!(match_parity_shortcut(KeyCode::KeyX, false, true, false), None);
+    }
 }

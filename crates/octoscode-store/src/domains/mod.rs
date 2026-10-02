@@ -5,6 +5,8 @@
 //! its domain with one `pub mod` line above and one field in [`State`].
 pub mod approval;
 pub mod autonomy;
+// A7: the composer's prompt queue + turn controller state.
+pub mod composer;
 pub mod config;
 pub mod media;
 pub mod models;
@@ -36,6 +38,7 @@ pub struct State {
     /// A10 — the per-Session model-selection notice boards.
     pub models: models::ModelNotices,
     pub config: config::Config,
+    pub composer: composer::Composer,
 }
 
 impl State {

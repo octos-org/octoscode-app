@@ -530,9 +530,56 @@ pub fn item_copies(
             out.push((WORKED_TOOLS.to_owned(), n.to_string()));
             out.push((WORKED_OPEN.to_owned(), if folded { "0" } else { "1" }.to_owned()));
         }
+        // A7 — the answer's display mode (streaming: fence closed for display,
+        // math and highlighting wait) and which code block reads "Copied".
+        ItemKind::AssistantProse => {
+            out.push((PROSE_STREAMING.to_owned(), if prose_streaming(ctx, turn) { "1" } else { "0" }.to_owned()));
+            let copied = ctx.ui.lock().unwrap().code_copied(&prose_row_key(index, turn));
+            out.push((PROSE_COPIED.to_owned(), copied.map(|k| k.to_string()).unwrap_or_default()));
+        }
         _ => {}
     }
     Ok(out)
+}
+
+/// A7 pseudo-copies of the answer row (the cache keys on them).
+pub const PROSE_STREAMING: &str = "@prose.streaming";
+pub const PROSE_COPIED: &str = "@prose.copied";
+
+/// A7 — the answer row's key for its UI-local state (the timeline entry
+/// index and its turn).
+pub fn prose_row_key(index: usize, turn: Option<&str>) -> String {
+    format!("{}:{index}", turn.unwrap_or(""))
+}
+
+/// A7 — is `turn`'s reply still being written? A turn with no terminal that
+/// is the flow's live turn or still in flight in the store (the web passes
+/// `streaming` while the turn is running, `Timeline.tsx`).
+pub fn prose_streaming(ctx: &bindings::Ctx<'_>, turn: Option<&str>) -> bool {
+    let Some(t) = turn else { return false };
+    if ctx.store.domains.turn.terminal(t).is_some() {
+        return false;
+    }
+    ctx.ui.lock().unwrap().active_turn().as_deref() == Some(t) || ctx.store.domains.turn.is_in_flight(t)
+}
+
+/// A7 — the answer row's code blocks: (segment index, the text its Copy
+/// control writes — `CodeBlock.tsx:45`, the trimmed code). The host routes a
+/// `code_copy_<k>` press through this, so the clipboard gets exactly the code
+/// the row displays.
+pub fn prose_code_blocks(ctx: &bindings::Ctx<'_>, index: usize, turn: Option<&str>) -> Vec<(usize, String)> {
+    let Some(session) = ctx.store.active_session() else { return Vec::new() };
+    let entries = ctx.store.domains.session.timeline.entries(&session);
+    let Some(entry) = entries.get(index) else { return Vec::new() };
+    let d = crate::markdown::display(&entry.text, prose_streaming(ctx, turn));
+    d.segments
+        .iter()
+        .enumerate()
+        .filter_map(|(k, seg)| match seg {
+            crate::markdown::Segment::Code { code, .. } => Some((k, crate::markdown::copy_text(code))),
+            _ => None,
+        })
+        .collect()
 }
 
 /// A1 — three tool calls on `turn` (list the root, list `.octos`, read the
@@ -776,7 +823,10 @@ fn lower_fluid(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Opti
     let dark = crate::screens::theme::resolved() == "dark";
     let ui = match kind {
         ItemKind::UserBubble => crate::fluid::user_bubble(token, &get("t01_text"), &m, dark),
-        ItemKind::AssistantProse => crate::fluid::assistant_prose(token, &get("answer_md_text"), &m),
+        ItemKind::AssistantProse => {
+            let d = crate::markdown::display(&get("answer_md_text"), get(PROSE_STREAMING) == "1");
+            crate::fluid::assistant_answer(token, &d, get(PROSE_COPIED).parse().ok(), &m)
+        }
         ItemKind::ToolCell => {
             let view = crate::fluid::ToolView {
                 title: get(TOOL_TITLE),

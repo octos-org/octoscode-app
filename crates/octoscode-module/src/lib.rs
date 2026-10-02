@@ -33,16 +33,25 @@ use octoscode_store::Store;
 pub mod actions;
 pub mod bindings;
 pub mod cards;
+// A7: the highlighted code block body widget.
+pub mod code_view;
 // A3: the board-2 chrome (sidebar body, header, Settings, Stop confirm).
 pub mod chrome;
 pub mod components;
 pub mod conv_layout;
 pub mod credentials;
 pub mod design;
+// A7: composer draft recovery across restarts.
+pub mod drafts;
 pub mod fallback;
 pub mod fluid;
 pub mod l0_host;
 pub mod flow;
+// A7: the answer's markdown display rules + code-block colouring.
+pub mod highlight;
+pub mod markdown;
+// A7: the driver-seat handover before one send (composer-seat-handover.ts).
+pub mod seat;
 pub mod mount;
 pub mod screen;
 pub mod screens;
@@ -210,6 +219,11 @@ script_mod! {
                     // permissions) above the composer (SessionStatusStrip.tsx,
                     // the web's composer footer, App.tsx:2963-2982).
                     strip_splash := Splash { width: Fill height: Fit }
+                    // A7 — above the composer card: the turn recovery notice,
+                    // the queued chip (conversation-08 `1 queued · Steer now
+                    // · ✕`) and the read-only peer row (fluid.rs
+                    // `composer_extras`).
+                    queue_splash := Splash { width: Fill height: Fit }
                     composer_row := View {
                         width: Fill height: Fit flow: Down
                         composer_splash := Splash { width: Fill height: Fit }
@@ -1234,6 +1248,13 @@ pub struct OctoscodeView {
     /// A3: the window's inner height (the settings frame's max height).
     #[rust]
     window_h: f64,
+    /// A7 — fires one second after a code block's Copy, so its "Copied"
+    /// label returns to "Copy" (`CodeBlock.tsx:75-79`).
+    #[rust]
+    code_copy_timer: Timer,
+    /// A7 — the Session whose saved unsent draft was offered to the composer.
+    #[rust]
+    drafts_restored_for: Option<String>,
 }
 
 impl OctoscodeView {
@@ -1372,6 +1393,8 @@ impl OctoscodeView {
         };
         screens::recents::set_connected_endpoint(&base);
         let conv = Arc::new(conv);
+        // A7: the turn controller starts queued prompts on the runtime.
+        conv.attach();
 
         {
             let mut b = self.bridge.lock().unwrap();
@@ -1673,17 +1696,12 @@ impl OctoscodeView {
                     // web external-driver.ts:727-758; CAS on the revision the
                     // last `session/driver/get` reported). The server decides;
                     // a refusal leaves the banner up and is logged.
-                    let session = store.active_session().unwrap_or_default();
+                    // A7 (§5.2 case 3): Take over is the web's Resume chat —
+                    // acquire → release(next: internal) with that proof →
+                    // send the composer's draft once (`resume_chat`).
                     if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                         rt.spawn(async move {
-                            let params = chrome::take_over_params(&session);
-                            match conv.client().request("session/driver/acquire", params).await {
-                                Ok(_) => {
-                                    chrome::set_held(&session, None);
-                                    makepad_widgets::log!("[octoscode] take over: seat acquired");
-                                }
-                                Err(e) => makepad_widgets::log!("[octoscode] take over refused: {e}"),
-                            }
+                            conv.resume_chat().await;
                             SignalToUI::set_ui_signal();
                         });
                     }
@@ -1942,6 +1960,8 @@ impl OctoscodeView {
             match connected {
                 Ok((conv, mut evt_rx)) => {
                     let conv = Arc::new(conv);
+        // A7: the turn controller starts queued prompts on the runtime.
+        conv.attach();
                     {
                         let mut b = bridge.lock().unwrap();
                         b.store = conv.store.clone();
@@ -2745,6 +2765,8 @@ impl OctoscodeView {
                     Ok((conv, evt_rx)) => {
                         screens::recents::set_connected_endpoint(&server);
                         let conv = Arc::new(conv);
+        // A7: the turn controller starts queued prompts on the runtime.
+        conv.attach();
                         let mut evt_rx = evt_rx;
                         if let Ok(mut b) = bridge.lock() {
                             // #32h: swap ALL THREE, mirroring the start()
@@ -3095,18 +3117,9 @@ impl OctoscodeView {
                 if let (true, Some(rt), Some(conv), Some(sid)) =
                     (advertised, self.runtime.as_ref(), conv, active)
                 {
-                    rt.spawn(async move {
-                        let params = serde_json::json!({ "session_id": sid });
-                        match conv.client().request("session/driver/get", params).await {
-                            Ok(v) => {
-                                let held = chrome::foreign_holder(&v, chrome::NATIVE_DRIVER_ID);
-                                makepad_widgets::log!("[octoscode] driver/get {sid}: held={held:?}");
-                                chrome::set_held(&sid, held);
-                            }
-                            Err(e) => makepad_widgets::log!("[octoscode] driver/get {sid}: {e}"),
-                        }
-                        SignalToUI::set_ui_signal();
-                    });
+                    // A7: the same read also records the seat plan's
+                    // observation (`Conversation::refresh_seat`).
+                    rt.spawn(async move { conv.refresh_seat(&sid).await });
                 }
             }
         }
@@ -3350,6 +3363,8 @@ impl OctoscodeView {
         // the module's own laid-out rect, so the dialog sizes like the web's
         // `min(<max>px, 100%)` card on the desktop window AND a phone.
         self.sync_board3(cx);
+        // A7: the queued chip / recovery notice / peer row + draft recovery.
+        self.sync_composer_extras(cx);
         // #28e4 item 2: the first-run card area mounts the REAL board-2
         // Connect screen (setup-01, #29a) — `screens::connect::lower_screen`
         // lowers the authored Stage B card with the ConnectUi copies applied,
@@ -3388,6 +3403,141 @@ impl OctoscodeView {
     /// A4 — mount the open board-3 dialog into `board3_splash` (the mount
     /// cache dedupes an unchanged DSL), publish its taps through the shared
     /// `taps::wired_taps` path, and apply the inputs' live visibility.
+    /// A7 — the composer dock's extras from the turn controller (the queued
+    /// chip, the recovery notice, the read-only peer row), and draft
+    /// recovery: parked not-sent text, else the Session's saved unsent text,
+    /// enters an EMPTY composer (never dispatched).
+    fn sync_composer_extras(&mut self, cx: &mut Cx) {
+        let (store, ui, conv) = {
+            let b = self.bridge.lock().unwrap();
+            (b.store.clone(), b.ui.clone(), b.conv.clone())
+        };
+        let session = store.active_session().filter(|_| store.is_live());
+        let extras = match &session {
+            None => fluid::ComposerExtras::default(),
+            Some(session) => {
+                {
+                    let mut u = ui.lock().unwrap();
+                    if u.draft().trim().is_empty() {
+                        if let Some(text) = u.take_parked_restore(session) {
+                            makepad_widgets::log!("[octoscode] composer: not-sent text returned ({} chars)", text.chars().count());
+                            u.set_draft_inner(text);
+                        } else if self.drafts_restored_for.as_deref() != Some(session.as_str()) {
+                            if let Some(text) = drafts::load(session) {
+                                makepad_widgets::log!(
+                                    "[octoscode] composer: unsent draft restored ({} chars, not sent)",
+                                    text.chars().count()
+                                );
+                                u.set_draft_inner(text);
+                            }
+                        }
+                    }
+                }
+                self.drafts_restored_for = Some(session.clone());
+                let composer = &store.domains.composer;
+                let snap = composer.snapshot(session);
+                use octoscode_store::domains::composer::RecoveryPhase;
+                fluid::ComposerExtras {
+                    queued: snap.pending.len(),
+                    steer: conv.as_ref().is_some_and(|c| c.can_steer()) && composer.can_steer_now(session),
+                    recovery: composer.recovery(session).map(|r| {
+                        match r.phase {
+                            RecoveryPhase::Checking => "checking",
+                            RecoveryPhase::Unknown => "unknown",
+                            RecoveryPhase::Unavailable => "unavailable",
+                            RecoveryPhase::Error(_) => "error",
+                        }
+                        .to_owned()
+                    }),
+                    peer_readonly: screens::peers::readonly_slug(&store, session),
+                    seat_status: seat::status(session),
+                }
+            }
+        };
+        let dsl = screens::theme::retint_dsl(&fluid::composer_extras(&extras, &conv_layout::current()));
+        let splash = self.view.splash(cx, ids!(queue_splash));
+        match self.mounts.mount(cx, &splash, &dsl) {
+            Err(e) => makepad_widgets::log!("[octoscode] composer extras mount: {e}"),
+            Ok(true) => makepad_widgets::log!(
+                "[octoscode] composer extras: {} queued, steer={}, recovery={:?}, peer={:?}",
+                extras.queued,
+                extras.steer,
+                extras.recovery,
+                extras.peer_readonly
+            ),
+            Ok(false) => {}
+        }
+        // A focused peer is a read-only watch surface: the editable composer
+        // is replaced by the status row (`ComposerInput.tsx:255-265`).
+        self.view
+            .widget(cx, ids!(composer_row))
+            .set_visible(cx, extras.peer_readonly.is_none());
+    }
+
+    /// A7 — the §8 facts, read structurally from the live tree: the key focus
+    /// sits in one of the app's text-entry controls (the composer, the
+    /// palette search, a mounted card's or dialog's field), and whether a
+    /// modal surface is open (board 1 / board 3 / the A5 dialogs, Settings,
+    /// the command palette).
+    fn shortcut_facts(&mut self, cx: &mut Cx) -> screens::keys::ShortcutFacts {
+        let mut inputs: Vec<WidgetRef> = vec![
+            self.view.widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_0)]),
+            self.view.widget(cx, ids!(palette_search)),
+        ];
+        for (id, _) in self.b3_inputs.clone() {
+            inputs.push(self.view.widget(cx, &[live_id!(board3_splash), id]));
+        }
+        for (id, _) in self.connect_inputs.clone() {
+            inputs.push(self.view.widget(cx, &[live_id!(screen_splash), id]));
+        }
+        let target_is_text_input = inputs.iter().any(|w| !w.is_empty() && w.key_focus(cx));
+        let (settings, palette) = {
+            let b = self.bridge.lock().unwrap();
+            let u = b.ui.lock().unwrap();
+            (u.settings_open(), u.palette_open())
+        };
+        let in_dialog = screens::board1::is_open()
+            || screens::board3::host::is_open()
+            || screens::dialog::current().is_some()
+            || settings
+            || palette;
+        screens::keys::ShortcutFacts { target_is_text_input, in_dialog }
+    }
+
+    /// A7 — one of the composer extras' controls (fluid.rs `composer_extras`).
+    fn composer_extra_tap(&mut self, which: &str) {
+        let (store, conv) = {
+            let b = self.bridge.lock().unwrap();
+            (b.store.clone(), b.conv.clone())
+        };
+        let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) else { return };
+        let session = conv.session_id();
+        makepad_widgets::log!("[octoscode] composer extra: {which}");
+        match which {
+            "steer" => {
+                rt.spawn(async move {
+                    let steered = conv.steer_queued_head().await;
+                    makepad_widgets::log!("[octoscode] steer now: {}", if steered { "sent" } else { "not admitted" });
+                    SignalToUI::set_ui_signal();
+                });
+            }
+            "remove" => {
+                if let Some(head) = store.domains.composer.snapshot(&session).pending.first() {
+                    let removed = conv.remove_queued(&head.turn_id);
+                    makepad_widgets::log!("[octoscode] queued prompt {} removed: {removed}", head.turn_id);
+                }
+            }
+            "check" => {
+                rt.spawn(async move {
+                    conv.check_turn_state().await;
+                    SignalToUI::set_ui_signal();
+                });
+            }
+            "continue" => conv.continue_without_turn(),
+            _ => {}
+        }
+    }
+
     fn sync_board3(&mut self, cx: &mut Cx) {
         let rect = self.view.area().rect(cx);
         screens::board3::host::set_frame(rect.size.x, rect.size.y);
@@ -4546,7 +4696,29 @@ impl Widget for OctoscodeView {
             // A3: desktop notifications fire only while in the background.
             Event::WindowLostFocus(_) => self.chrome.unfocused = true,
             Event::WindowGotFocus(_) => self.chrome.unfocused = false,
+            // A7: the code block's "Copied" second is over — redraw so the
+            // row re-lowers with "Copy".
+            Event::Timer(te) if self.code_copy_timer.is_timer(te).is_some() => {
+                self.view.redraw(cx);
+            }
             Event::Actions(actions) => {
+                // A7: a markdown link press opens ONLY an absolute http(s) /
+                // mailto URL (`MarkdownBody.tsx:20-37` `safeUrlTransform`;
+                // the display pass already turned every other link into
+                // text, this is the second fence at the navigation itself).
+                for action in actions.iter() {
+                    if let Some(wa) = action.as_widget_action() {
+                        if let MarkdownAction::LinkNavigated { url, .. } = wa.cast() {
+                            match markdown::safe_link_url(&url) {
+                                Some(safe) => {
+                                    makepad_widgets::log!("[octoscode] link: open {safe}");
+                                    cx.open_url(&safe, OpenUrlInPlace::No);
+                                }
+                                None => makepad_widgets::log!("[octoscode] link refused (not http/https/mailto)"),
+                            }
+                        }
+                    }
+                }
                 // #A2: board 1's events — the dock's controls and inputs, the
                 // always-mounted entries (the Connect screen's pairing link,
                 // the Settings rows) and the platform's QR answer.
@@ -4610,6 +4782,10 @@ impl Widget for OctoscodeView {
                         }
                     }
                     self.bridge.lock().unwrap().ui.lock().unwrap().set_draft_inner(text.clone());
+                    // A7: the unsent text survives a restart (drafts.rs).
+                    if let Some(session) = { self.bridge.lock().unwrap().store.active_session() } {
+                        drafts::save(&session, &text);
+                    }
                     // The widget is the source here: remember what it holds
                     // so the external-sync below never writes back over it.
                     self.composer_synced = Some(text.clone());
@@ -4803,6 +4979,19 @@ impl Widget for OctoscodeView {
                     let store = { self.bridge.lock().unwrap().store.clone() };
                     self.board3_visibility(cx, &store);
                 }
+                // A7 — the composer extras' controls (fluid.rs
+                // `composer_extras`): Steer now / remove the queued prompt,
+                // Check status / Continue without it.
+                for (id, which) in [
+                    (live_id!(queue_steer_hit), "steer"),
+                    (live_id!(queue_remove_hit), "remove"),
+                    (live_id!(recovery_check_hit), "check"),
+                    (live_id!(recovery_continue_hit), "continue"),
+                ] {
+                    if self.view.button(cx, &[live_id!(queue_splash), id]).clicked(actions) {
+                        self.composer_extra_tap(which);
+                    }
+                }
                 // A4 — the session strip opens the Session settings pane.
                 if self
                     .view
@@ -4970,6 +5159,40 @@ impl Widget for OctoscodeView {
                         );
                         continue;
                     }
+                    // A7: a code block's Copy (`code_copy_<k>`, fluid.rs
+                    // `code_block`) writes THAT block's trimmed code
+                    // (`CodeBlock.tsx:45`) and reads "Copied" for a second.
+                    if row.kind == components::ItemKind::AssistantProse {
+                        let blocks = {
+                            let b = self.bridge.lock().unwrap();
+                            let ctx = bindings::Ctx::new(&b.store, &b.ui);
+                            components::prose_code_blocks(&ctx, row.index, row.turn.as_deref())
+                        };
+                        let mut copied = false;
+                        for (k, text) in blocks {
+                            if item.button(cx, &[LiveId::from_str(&format!("code_copy_{k}"))]).clicked(actions) {
+                                cx.copy_to_clipboard(&text);
+                                {
+                                    let b = self.bridge.lock().unwrap();
+                                    let key = components::prose_row_key(row.index, row.turn.as_deref());
+                                    b.ui.lock().unwrap().note_code_copied(&key, k);
+                                }
+                                makepad_widgets::log!(
+                                    "[octoscode] code.copy: block {k} of row {}: {} chars to the clipboard",
+                                    row.index,
+                                    text.chars().count()
+                                );
+                                self.code_copy_timer = cx.start_timeout(
+                                    flow::FlowUi::CODE_COPIED_FOR.as_secs_f64() + 0.05,
+                                );
+                                copied = true;
+                            }
+                        }
+                        if copied {
+                            self.view.redraw(cx);
+                            continue;
+                        }
+                    }
                     // A1: each clickable row's own header hit (fluid.rs).
                     let clicked = match row.kind {
                         components::ItemKind::WorkedFor => item.button(cx, ids!(worked_hit)).clicked(actions),
@@ -5136,6 +5359,38 @@ impl Widget for OctoscodeView {
             Event::KeyDown(e) if self.board3_vim_key(cx, e) => {}
             Event::TextInput(te) if te.was_paste && self.board3_vim_paste(cx, te) => {}
             Event::KeyDown(e) => {
+                // A7 — §8 shortcut suppression (`shortcut-suppression.ts`):
+                // a parity chord (Alt+A / Alt+P / Alt+D) never fires while the
+                // key focus is in a text input or a dialog is open — the
+                // control keeps its key (no action, no focus steal).
+                if let Some(chord) = screens::keys::match_parity_shortcut(
+                    e.key_code,
+                    e.modifiers.control,
+                    e.modifiers.alt,
+                    e.modifiers.logo,
+                ) {
+                    let facts = self.shortcut_facts(cx);
+                    if screens::keys::parity_suppressed(chord, facts, false) {
+                        makepad_widgets::log!("[octoscode] shortcut {chord:?} suppressed ({facts:?})");
+                        return;
+                    }
+                    match chord {
+                        // `App.tsx:1110-1125`: Alt+D opens Fleet (its
+                        // dispatch / availability notice).
+                        screens::keys::ParityShortcut::FocusDispatch => {
+                            makepad_widgets::log!("[octoscode] shortcut Alt+D -> fleet");
+                            self.perform_action(cx, "b3.open.fleet", 0);
+                            self.sync_labels(cx);
+                            return;
+                        }
+                        // No native peer dock to fold: the chord is inert.
+                        screens::keys::ParityShortcut::TogglePeerDock => {
+                            makepad_widgets::log!("[octoscode] shortcut Alt+P: no peer dock");
+                            return;
+                        }
+                        screens::keys::ParityShortcut::ShowApproval => {}
+                    }
+                }
                 // A3: Escape closes the top-most chrome surface first.
                 if e.key_code == KeyCode::Escape && self.escape_chrome(cx) {
                     return;
@@ -5392,6 +5647,8 @@ impl AppModule for OctoscodeModule {
         // A3: the board-2 chrome templates (`mod.widgets.Oc*`) must exist
         // before the shell's own DSL below instantiates them.
         chrome::script_mod(vm);
+        // A7: `A7CodeLines` (the highlighted code body) before any row names it.
+        code_view::script_mod(vm);
         script_mod(vm);
         // Card #21b: the design/kit vocabulary every lowered #16 component names
         // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the

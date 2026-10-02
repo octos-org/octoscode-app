@@ -636,13 +636,15 @@ pub async fn run_onboarding(
 }
 
 /// `H:MM AM/PM` wall clock for the "Last tried" row (`setup-02`'s authored
-/// copy shows a 12-hour time; the lane runs UTC+8, stated in the report).
+/// copy shows a 12-hour time), in the platform's local time zone.
 pub fn clock_12h() -> String {
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs())
         .unwrap_or(0);
-    let sod = (now + 8 * 3600) % 86_400;
+    // Local wall clock (was a hard-coded UTC+8: the lane's own zone).
+    let off = crate::flow::local_offset_secs(std::time::SystemTime::now());
+    let sod = (now as i64 + off).rem_euclid(86_400) as u64;
     let (h24, m) = (sod / 3600, (sod % 3600) / 60);
     let ampm = if h24 < 12 { "AM" } else { "PM" };
     let h12 = match h24 % 12 {

@@ -82,16 +82,24 @@ pub async fn upload(conv: &crate::flow::Conversation) -> Result<String, String> 
     if ids.is_empty() {
         return Ok("nothing to upload".into());
     }
+    // A7 — `uploadSelected` (`attachment-drafts.ts:169-178`): every selected
+    // or failed entry is CLAIMED up front, so a same-tick second Upload finds
+    // nothing left to start (an entry already in flight is skipped silently,
+    // `#upload`: `if (!file || this.#uploads.has(id)) return`) and no image
+    // is ever sent twice.
+    let claims: Vec<_> = ids
+        .into_iter()
+        .filter_map(|id| drafts.begin_upload(&id).ok().map(|claim| (id, claim)))
+        .collect();
+    if claims.is_empty() {
+        return Ok("already uploading".into());
+    }
+    super::host::wake();
     let mut ok = 0usize;
-    for id in ids {
-        let (file, _key, abort) = match drafts.begin_upload(&id) {
-            Ok(x) => x,
-            Err(e) => {
-                super::host::state().img.error = Some(e);
-                continue;
-            }
-        };
-        super::host::wake();
+    for (id, (file, _key, abort)) in claims {
+        if abort.load(std::sync::atomic::Ordering::SeqCst) {
+            continue; // removed or cancelled before its transfer began
+        }
         match conv.upload_file(&file.name, &file.mime, (*file.content).clone()).await {
             Ok(handle) => {
                 if abort.load(std::sync::atomic::Ordering::SeqCst) {
@@ -108,6 +116,9 @@ pub async fn upload(conv: &crate::flow::Conversation) -> Result<String, String> 
                 }
             }
             Err(e) => {
+                if abort.load(std::sync::atomic::Ordering::SeqCst) {
+                    continue; // a cancelled/removed transfer's late failure changes nothing
+                }
                 drafts.fail_upload(&id, "Upload was not confirmed. Retry explicitly; the server may retain an earlier upload.");
                 super::host::state().img.error = Some(e);
             }
