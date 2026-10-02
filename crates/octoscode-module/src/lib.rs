@@ -2603,6 +2603,8 @@ impl OctoscodeView {
                 screens::dialog::Effect::RefreshFleet => {
                     screens::fleet::refresh(&conv, &conv.store).await.map(|n| format!("{n} reads"))
                 }
+                // A31 — the Skills dialog's Background jobs (parity row 15).
+                screens::dialog::Effect::RefreshSkillJobs => screens::skill_jobs::refresh(&conv, &conv.store).await,
                 _ => Ok(String::new()),
             };
             match out {

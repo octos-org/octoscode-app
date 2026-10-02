@@ -133,7 +133,10 @@ impl Dialog {
     /// status read, the fleet's `peer/gather`). Every id has one owner.
     pub fn on_open(self) -> &'static [&'static str] {
         match self {
-            Dialog::Models | Dialog::Skills => &[ACTION_REFRESH_PROFILE],
+            Dialog::Models => &[ACTION_REFRESH_PROFILE],
+            // A31 — and the Background jobs section's list for the dialog's
+            // Profile + Session (`skill/action/job/list`, when advertised).
+            Dialog::Skills => &[ACTION_REFRESH_PROFILE, ACTION_REFRESH_SKILL_JOBS],
             Dialog::Context => &[ACTION_REFRESH_CONTEXT],
             Dialog::Goal => &["goal.refresh"],
             Dialog::Loops | Dialog::Monitors => &["loops.refresh"],
@@ -643,6 +646,7 @@ pub fn resolve(id: &str) -> Effect {
         ACTION_REFRESH_PROFILE => Effect::RefreshProfile,
         ACTION_REFRESH_CONTEXT => Effect::RefreshContext,
         ACTION_REFRESH_FLEET => Effect::RefreshFleet,
+        ACTION_REFRESH_SKILL_JOBS => Effect::RefreshSkillJobs,
         other => Effect::Unhandled(other.to_owned()),
     }
 }
