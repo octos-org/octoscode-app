@@ -424,14 +424,26 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     // long path is broken by characters, the web's `overflow-wrap`).
     let pad = ui::dialog_pad(frame, width);
     let card_chars = mono_chars(width - 2.0 * pad - 28.0 - 10.0, 12.5);
-    let alert_chars = mono_chars(width - 2.0 * pad - 24.0 - 26.0 - 10.0, 12.0);
+    let alert_chars = mono_chars(width - 2.0 * pad - 10.0 - 24.0 - 26.0, 12.0);
     // `role="alert"` — the refusal stays in view above the body (the body is
     // height-capped and scrolls; an alert scrolled out of sight is unread).
     if let Some(e) = &st.error {
+        // The body's scroll-bar gutter (10 px, `ui::body_open_id`) on its
+        // right too, so the alert and the cards share one right edge.
+        let wrap = d.anon();
+        d.view(&wrap, "width: Fill height: Fit flow: Down padding: Inset{left: 0 top: 0 right: 10 bottom: 0}");
         alert(d, e, alert_chars);
+        d.close();
         d.gap(W::Fill, 10.0);
     }
-    ui::body_open(d, frame, width, if st.error.is_some() { 300.0 } else { 190.0 });
+    // The chrome around the body (header, description, footer; + the alert):
+    // the body takes what is left of the frame's max height and scrolls.
+    let alert_h = match &st.error {
+        Some(_) if frame.compact(width) => 170.0,
+        Some(_) => 130.0,
+        None => 0.0,
+    };
+    ui::body_open(d, frame, width, 160.0 + alert_h);
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 10");
     ui::card_open(d, "b3_link_dest", 8.0);
