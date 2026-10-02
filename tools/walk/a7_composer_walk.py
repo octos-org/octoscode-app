@@ -47,6 +47,7 @@ import time
 import urllib.parse
 import urllib.request
 import zlib
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 # A11: the walk aggregator's convention (tools/walk/native.py; never imported).
 # Four runs on one isolated state: an unsent draft, an app restart that must

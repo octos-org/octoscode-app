@@ -37,6 +37,8 @@ EVIDENCE="${HEADLESS_EVIDENCE:-}"
 TIMEOUT="${HEADLESS_TIMEOUT:-30}"
 STOP_TIMEOUT="${HEADLESS_STOP_TIMEOUT:-15}"
 HOST=127.0.0.1
+# D10c: every bridge request carries the per-launch token (harness/bcurl reads it by port).
+BCURL="$(cd "$(dirname "$0")" && pwd)/bcurl"
 mkdir -p "$STATE"
 [ -n "$EVIDENCE" ] && mkdir -p "$EVIDENCE"
 
@@ -50,7 +52,7 @@ port_pid() { [ -f "$STATE/port-$1.pid" ] && cat "$STATE/port-$1.pid" || true; }
 # 0 when 127.0.0.1:port answers something that looks like the Makepad remote bridge.
 bridge_up() {
   local port="$1"
-  curl -s --max-time 2 "http://$HOST:$port/s" 2>/dev/null | grep -q '"pid"'
+  "$BCURL" -s --max-time 2 "http://$HOST:$port/s" 2>/dev/null | grep -q '"pid"'
 }
 
 # The pid holding a LISTEN socket on the port (best effort, for a clear refusal message).
@@ -109,7 +111,7 @@ cmd_start() {
   local line; line="$(wait_listening "$port" "$log" "$pid")"
   echo "$line"
   echo "[headless] up: pid $pid  port $port  log $log"
-  echo "[headless] drive it:  curl -s http://$HOST:$port/snap?q=Button   |   harness/headless.sh shot $port out.png"
+  echo "[headless] drive it:  "$BCURL" -s http://$HOST:$port/snap?q=Button   |   harness/headless.sh shot $port out.png"
   [ -n "$EVIDENCE" ] && { cp "$STATE/port-$port.log" "$EVIDENCE/start-$port.log" 2>/dev/null || true; }
   return 0
 }
@@ -118,7 +120,7 @@ cmd_snap() {
   local port="${1:-}" q="${2:-}"
   [ -n "$port" ] || die "usage: headless.sh snap <port> [query]"
   local url="http://$HOST:$port/snap"; [ -n "$q" ] && url="$url?q=$(printf %s "$q" | python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.stdin.read()))')"
-  local out; out="$(curl -s --max-time 10 "$url")"
+  local out; out="$("$BCURL" -s --max-time 10 "$url")"
   echo "$out"
   if [ -n "$EVIDENCE" ]; then local n; n="$(seq_next)"; printf '%s\n' "$out" > "$EVIDENCE/snap-$port-$n.json"; fi
 }
@@ -126,7 +128,7 @@ cmd_snap() {
 cmd_click() {
   local port="${1:-}" x="${2:-}" y="${3:-}"
   [ -n "$port" ] && [ -n "$x" ] && [ -n "$y" ] || die "usage: headless.sh click <port> <x> <y>"
-  local out; out="$(curl -s --max-time 10 "http://$HOST:$port/click?x=$x&y=$y&wait=1")"
+  local out; out="$("$BCURL" -s --max-time 10 "http://$HOST:$port/click?x=$x&y=$y&wait=1")"
   echo "$out"
   if [ -n "$EVIDENCE" ]; then printf 'click x=%s y=%s -> %s\n' "$x" "$y" "$out" >> "$EVIDENCE/actions-$port.log"; fi
 }
@@ -134,7 +136,7 @@ cmd_click() {
 cmd_type() {
   local port="${1:-}" text="${2:-}"
   [ -n "$port" ] && [ -n "$text" ] || die "usage: headless.sh type <port> <text>"
-  local out; out="$(curl -s --max-time 10 --get "http://$HOST:$port/t" --data-urlencode "t=$text" --data 'wait=1')"
+  local out; out="$("$BCURL" -s --max-time 10 --get "http://$HOST:$port/t" --data-urlencode "t=$text" --data 'wait=1')"
   echo "$out"
   if [ -n "$EVIDENCE" ]; then printf 'type %q -> %s\n' "$text" "$out" >> "$EVIDENCE/actions-$port.log"; fi
 }
@@ -143,7 +145,7 @@ cmd_shot() {
   local port="${1:-}" png="${2:-}"
   [ -n "$port" ] && [ -n "$png" ] || die "usage: headless.sh shot <port> <out.png>"
   mkdir -p "$(dirname "$png")"
-  curl -s --max-time 20 -o "$png" "http://$HOST:$port/g?raw=1"
+  "$BCURL" -s --max-time 20 -o "$png" "http://$HOST:$port/g?raw=1"
   # PNG magic, whitespace-independent (BSD od pads bytes with two spaces, GNU with one)
   [ "$(head -c 4 "$png" | od -An -tx1 | tr -d ' \n')" = "89504e47" ] || die "'$png' is not a PNG (is the app up on $port?)"
   local bytes; bytes="$(wc -c < "$png" | tr -d ' ')"
@@ -154,7 +156,7 @@ cmd_shot() {
 cmd_stop() {
   local port="${1:-}"
   [ -n "$port" ] || die "usage: headless.sh stop <port>"
-  local gq; gq="$(curl -s --max-time 10 "http://$HOST:$port/gq")"
+  local gq; gq="$("$BCURL" -s --max-time 10 "http://$HOST:$port/gq")"
   echo "gq: $gq"
   local pid; pid="$(port_pid "$port")"
   [ -n "$pid" ] || pid="$(listener_pid "$port")"
@@ -179,7 +181,7 @@ cmd_stop() {
 
 cmd_status() {
   local port="${1:-}"; [ -n "$port" ] || die "usage: headless.sh status <port>"
-  if bridge_up "$port"; then echo "port $port UP — $(curl -s --max-time 2 "http://$HOST:$port/s")"; else echo "port $port down"; fi
+  if bridge_up "$port"; then echo "port $port UP — $("$BCURL" -s --max-time 2 "http://$HOST:$port/s")"; else echo "port $port down"; fi
 }
 
 cmd_ports() {

@@ -11,6 +11,8 @@ printed, logged or saved. No /snap JSON is written to disk (the instrument repor
 PNG captures, <outdir>/checks.txt and the app's protocol trace <outdir>/trace.jsonl. About six model turns.
 """
 import json, os, subprocess, sys, time, urllib.parse, urllib.request
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../walk"))  # noqa: E402
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
 
 BIN, PORT, SERVE, OUT = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4]
 MODE = sys.argv[5] if len(sys.argv) > 5 else "desktop"
