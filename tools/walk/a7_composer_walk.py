@@ -710,6 +710,19 @@ def images_walk():
     check("media: the picker is available again", is_shown("b3_img_choose"))
     click("b3_img_close_btn") or key("Escape")
     wait(lambda: not is_shown("b3_img_slot_0"), 4)
+    # The composer's + opens the same surface for this Session (it was a dead
+    # control until the judge's 2026-10-02 tour); a typed draft stays put.
+    focus_composer()
+    type_text("keep this draft")
+    dismiss_keyboard()  # phone: the shell's soft keyboard covers the composer row
+    log_since()
+    click("plus_hit")
+    check("media: the composer + opens Turn images", wait(lambda: is_shown("b3_img_slot_0"), 6))
+    check("media: + routes through the /images command arm", logged("composer plus clicked"))
+    click("b3_img_close_btn") or key("Escape")
+    wait(lambda: not is_shown("b3_img_slot_0"), 4)
+    check("media: the draft survives +", composer_text() == "keep this draft", repr(composer_text()))
+    clear_composer()
 
 
 def seat_walk():

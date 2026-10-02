@@ -5708,9 +5708,20 @@ impl OctoscodeView {
                     let out = screens::board3::host::open(screens::board3::host::Dialog::ModelMenu);
                     self.board3_outcome(cx, out);
                 }
-                // `+` (attach) and the mic are not wired to a protocol method
-                // yet; they are present as hit targets so the component's own
-                // chrome stays clickable and the ids exist for a later card.
+                // The composer's `+` opens Turn images (board 3 screen 10) for
+                // this Session through the same command arm `/images` takes
+                // (board3::host::command), never touching the draft; offline
+                // it is refused like the palette row. The mic is not wired to
+                // a protocol method yet; it stays a hit target.
+                if self.view.button(cx, ids!(plus_hit)).clicked(actions) {
+                    makepad_widgets::log!("[octoscode] composer plus clicked: turn images");
+                    if !self.refuse_palette_offline(cx, "/images") {
+                        let conv = { self.bridge.lock().unwrap().conv.clone() };
+                        if let Some(out) = conv.and_then(|conv| screens::board3::host::command("images", "", &conv)) {
+                            self.board3_outcome(cx, out);
+                        }
+                    }
+                }
                 // Card #21 §3 — the per-item controls. A row click is routed
                 // WITH its item id (the same `items_with_actions` contract the
                 // makepad examples use).
