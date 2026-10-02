@@ -22,14 +22,15 @@
 //! * anything else — a short answer.
 //!
 //! `POST /api/upload` (the image dialog's explicit upload) answers each file
-//! after `A7_SERVE_UPLOAD_DELAY_MS` (default 2500) with a receipt in the
+//! after `A7_SERVE_UPLOAD_DELAY_MS` (default 4000) with a receipt in the
 //! server's handle grammar, so a walk can press Upload twice, cancel or
 //! remove while a transfer is in flight; every request is logged.
 //!
 //! `A7_SERVE_HELD=<driver id>` opens every Session in `external` driver mode,
 //! parked by that driver (the board-12 held banner): `turn/start` is refused
 //! `ExternalMasterHeld` until a `session/driver/acquire` (CAS on the revision)
-//! and a `session/driver/release {next: "internal"}` with its proof.
+//! and a `session/driver/release {next: "internal"}` with its proof
+//! (`A7_SERVE_RELEASE_DELAY_MS` holds the release reply).
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
@@ -310,6 +311,10 @@ async fn handle(world: Arc<Mutex<World>>, tx: Tx, v: Value, counter: Arc<AtomicU
             }
         }
         "session/driver/release" => {
+            // `A7_SERVE_RELEASE_DELAY_MS`: hold the handback so a walk can
+            // see the composer's "Resuming chat…" / "Handing back control…".
+            let delay = std::env::var("A7_SERVE_RELEASE_DELAY_MS").ok().and_then(|v| v.parse().ok()).unwrap_or(0u64);
+            tokio::time::sleep(Duration::from_millis(delay)).await;
             let mut w = world.lock().unwrap();
             let d = w.drivers.entry(session.clone()).or_insert_with(Driver::initial);
             let proven = d.token.as_deref() == p["control_token"].as_str()
@@ -512,7 +517,7 @@ async fn upload(mut stream: TcpStream, counter: Arc<AtomicU64>) {
         .to_owned();
     let n = counter.fetch_add(1, Ordering::Relaxed);
     println!("[a7-serve] <- POST /api/upload #{n} {name} ({} bytes)", len);
-    let delay = std::env::var("A7_SERVE_UPLOAD_DELAY_MS").ok().and_then(|v| v.parse().ok()).unwrap_or(2500u64);
+    let delay = std::env::var("A7_SERVE_UPLOAD_DELAY_MS").ok().and_then(|v| v.parse().ok()).unwrap_or(4000u64);
     tokio::time::sleep(Duration::from_millis(delay)).await;
     let handle = format!("up/{}/{name}", b64url(format!("{PROFILE}/uploads/{name}").as_bytes()));
     let payload = json!([handle]).to_string();

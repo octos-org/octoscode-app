@@ -89,7 +89,15 @@ impl CkState {
     /// A7 — fork: the typed name is a valid conversation name (the web's
     /// `validForkChatId`, `packages/client/src/history.ts:54-61`).
     pub fn fork_armed(&self) -> bool {
-        !self.applying && !self.completed && self.blocked.is_none() && history::valid_fork_chat_id(&self.fork_name)
+        self.fork_armed_with(&self.fork_name)
+    }
+
+    /// The armed state for a given name. The dialog's DSL is built from the
+    /// field SNAPSHOT (`fork_name_snap`), so typing never changes the DSL
+    /// (a remount would reset the field under the cursor); the live state
+    /// toggles the two variants through [`visibility`].
+    fn fork_armed_with(&self, name: &str) -> bool {
+        !self.applying && !self.completed && self.blocked.is_none() && history::valid_fork_chat_id(name)
     }
 }
 
@@ -399,6 +407,9 @@ pub fn perform(st: &mut CkState, action: &str, index: usize) -> Outcome {
             if !st.fork_armed() {
                 return Outcome::Done;
             }
+            // The DSL changes now (Creating…, the notice): rebuild the field
+            // from the typed name, not the empty snapshot.
+            st.fork_name_snap = st.fork_name.clone();
             st.applying = true;
             st.error = None;
             Outcome::Spawn(super::host::Job::Fork(st.fork_name.clone()))
@@ -526,7 +537,7 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
             d.gap(W::Fill, 12.0);
             // Both variants are emitted; the live gate shows one (no remount
             // while typing — `visibility`).
-            let armed = st.fork_armed();
+            let armed = st.fork_armed_with(&st.fork_name_snap);
             let label = if st.applying { "Creating…" } else { "Create conversation fork" };
             d.view("b3_ck_fork_off", &format!("width: Fit height: Fit flow: Down visible: {}", !armed));
             d.button("b3_ck_fork_disabled", label, "b3.ck.fork", Btn::Disabled, W::Fit, 36.0);
