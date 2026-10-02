@@ -479,6 +479,35 @@ impl FlowUi {
     }
 }
 
+/// A8 — the turn ids THIS client dispatched (`turn/start`), newest last,
+/// bounded. The strip's "Another client is working in this session" word
+/// is a live turn this client never sent (the web's
+/// `queue.active.origin === "adopted"`, `App.tsx:2063-2072`).
+static OWN_TURNS: Mutex<Vec<String>> = Mutex::new(Vec::new());
+const OWN_TURNS_MAX: usize = 64;
+
+/// Record a turn id this client dispatched.
+pub fn note_own_turn(turn_id: &str) {
+    let mut g = OWN_TURNS.lock().unwrap_or_else(|p| p.into_inner());
+    if !g.iter().any(|t| t == turn_id) {
+        g.push(turn_id.to_owned());
+        let n = g.len();
+        if n > OWN_TURNS_MAX {
+            g.drain(..n - OWN_TURNS_MAX);
+        }
+    }
+}
+
+/// Whether this client dispatched `turn_id`.
+pub fn is_own_turn(turn_id: &str) -> bool {
+    OWN_TURNS.lock().unwrap_or_else(|p| p.into_inner()).iter().any(|t| t == turn_id)
+}
+
+/// Test seam.
+pub fn forget_own_turns() {
+    OWN_TURNS.lock().unwrap_or_else(|p| p.into_inner()).clear();
+}
+
 /// What one drained event did, for a test or a log.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FlowEvent {
@@ -527,6 +556,10 @@ pub struct Conversation {
     /// `workspace_root` (the web's `requireExactWorkspace` resume path,
     /// `candidate-session.ts:230-243`).
     pending_open_cwd: Mutex<Option<String>>,
+    /// A8 — the new-session defaults armed by `new_chat` for the FRESH id
+    /// only; the open reply for exactly that id takes them once
+    /// (`App.tsx:649` `appliedDefaultsForSession`).
+    creation_defaults: Arc<crate::screens::session_defaults::Pending>,
     /// #P4e1b row 4: bumped by every `session/open`, so each open presents a
     /// NEW commands identity to the autonomy fence and retires the previous
     /// one (web `autonomy/store.ts:208-213`: a new object for the same
@@ -705,6 +738,7 @@ impl Conversation {
                 session_id: Mutex::new(format!("{profile}:main")),
                 workspace_opened: Mutex::new(false),
                 pending_open_cwd: Mutex::new(None),
+                creation_defaults: crate::screens::session_defaults::Pending::new(),
                 open_seq: Mutex::new(0),
                 started: Instant::now(),
                 http_base: http_base_of(base),
@@ -858,6 +892,18 @@ impl Conversation {
         id: &str,
         cwd: Option<String>,
     ) -> Result<String, String> {
+        self.open_workspace_with(id, cwd, None).await
+    }
+
+    /// The open with an optional session-scoped sandbox (A8: a CREATED
+    /// session's new-session default, `App.tsx:1922-1932`; a re-open never
+    /// carries one).
+    pub async fn open_workspace_with(
+        &self,
+        id: &str,
+        cwd: Option<String>,
+        sandbox: Option<octos_core::ui_protocol::SessionSandboxParams>,
+    ) -> Result<String, String> {
         let session_id = octos_core::SessionKey(id.to_owned());
         // #P4e1b row 4: retire the previous commands identity BEFORE the open
         // goes out, so the reply arm binds the NEW one and any result captured
@@ -876,6 +922,7 @@ impl Conversation {
                 "session_id": session_id.0,
                 "profile_id": self.profile(),
                 "cwd": cwd,
+                "sandbox": sandbox,
             }),
         );
         let params = SessionOpenParams {
@@ -883,7 +930,7 @@ impl Conversation {
             topic: None,
             profile_id: Some(self.profile()),
             cwd,
-            sandbox: None,
+            sandbox,
             after: None,
             client_commands: None,
         };
@@ -957,6 +1004,7 @@ impl Conversation {
             None,
             Some(format!("turn={turn_id}")),
         );
+        note_own_turn(&turn_id);
         // The optimistic row is the same as a text-only send.
         self.store.domains.session.timeline.upsert_user_message(
             &self.session_id(),
@@ -1016,6 +1064,7 @@ impl Conversation {
             None,
             Some(format!("turn={turn_id}")),
         );
+        note_own_turn(&turn_id);
         // Card #26 §1: insert the user's row NOW, keyed by the turn id, so the
         // prompt shows immediately — and still shows for an INTERRUPTED turn,
         // whose server `user_message` envelope never arrives (live-gate turn 2).
@@ -1179,7 +1228,56 @@ impl Conversation {
     pub async fn new_chat(&self, cwd: Option<String>) -> Result<String, String> {
         let id = Self::fresh_session_id_for(&self.profile());
         ::log::info!("octoscode: new chat -> {id}");
-        self.open_workspace_as(&id, cwd).await
+        // A8 — the new-session defaults apply at CREATION only
+        // (`session-defaults.ts:4-9`): the sandbox rides this open; the
+        // permission mode + network go out once the open for THIS id lands.
+        let defaults = crate::screens::session_defaults::current();
+        if defaults.stored {
+            self.creation_defaults.arm(&id, defaults.value.clone());
+        }
+        let advertised = self
+            .store
+            .capabilities()
+            .iter()
+            .any(|f| f == crate::screens::session_defaults::SANDBOX_FEATURE);
+        let sandbox = crate::screens::session_defaults::open_sandbox(&defaults.value, advertised);
+        self.open_workspace_with(&id, cwd, sandbox).await
+    }
+
+    /// The created ids whose new-session defaults were applied (test seam).
+    pub fn defaults_applied(&self) -> Vec<String> {
+        self.creation_defaults.applied()
+    }
+
+    /// Send the creation-time permission default for `session` off the event
+    /// path (the reply arm cannot await). Unadvertised = surfaced failure.
+    fn apply_permission_default(
+        &self,
+        session: &str,
+        defaults: &crate::screens::session_defaults::SessionDefaults,
+        methods: &[String],
+    ) {
+        use crate::screens::session_defaults as sd;
+        if !methods.iter().any(|m| m == "permission/profile/set") {
+            sd::note_apply_result(Err("permission/profile/set is not advertised".into()));
+            return;
+        }
+        let params = sd::permission_params(session, defaults);
+        let client = self.client.clone();
+        let Ok(handle) = tokio::runtime::Handle::try_current() else {
+            ::log::warn!("octoscode: new-session permission default: no runtime");
+            return;
+        };
+        let session = session.to_owned();
+        handle.spawn(async move {
+            let r = client.request("permission/profile/set", params).await;
+            makepad_widgets::log!(
+                "[octoscode] new-session permission default for {session}: {}",
+                if r.is_ok() { "applied" } else { "failed" }
+            );
+            sd::note_apply_result(r.map(|_| ()).map_err(|e| e.to_string()));
+            makepad_widgets::SignalToUI::set_ui_signal();
+        });
     }
 
     /// `session/list` — re-ask for the session rows and fold them into the
@@ -1514,6 +1612,12 @@ impl Conversation {
                     .domains
                     .config
                     .set_supported_methods(caps.supported_methods.clone());
+                // A8 — the ONE creation-time `permission/profile/set` for a
+                // session `new_chat` created (`App.tsx:1936-1975`): only the
+                // armed fresh id, once; a failure is surfaced, never retried.
+                if let Some(defaults) = self.creation_defaults.take(&r.opened.session_id.0) {
+                    self.apply_permission_default(&r.opened.session_id.0, &defaults, &caps.supported_methods);
+                }
                 self.store.domains.config.set_coding_gate(
                     octoscode_client::features::missing_coding_session_requirements(
                         &caps.supported_methods,

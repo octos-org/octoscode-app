@@ -1069,20 +1069,20 @@ script_mod! {
                         width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
                         View{
                             width: Fill height: 32 flow: Overlay
-                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Read outside workspace"}}
+                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Sandbox"}}
                             View{width: Fill height: Fill align: Align{x: 1.0 y: 0.5} tg_sb_read := OcToggle{}}
                         }
                         // Help text wraps only as a direct child of a Down
                         // flow (inside a Right/Overlay row it stays one line).
                         View{
                             width: Fill height: Fit flow: Down padding: Inset{right: 64}
-                            OcRowHelp{text: "Allow reading files outside the workspace"}
+                            OcRowHelp{text: "Open new chats in the server's session sandbox"}
                         }
                     }
                     OcRule{}
                     View{
                         width: Fill height: Fit padding: Inset{top: 16}
-                        OcMuted{width: Fill text: "Applies to new chats. A chat keeps the sandbox it was opened with."}
+                        OcMuted{width: Fill text: "Re-opening a session never re-applies these defaults. They apply once, when the session is created."}
                     }
                 }
 

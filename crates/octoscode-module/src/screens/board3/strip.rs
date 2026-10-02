@@ -32,6 +32,11 @@ pub struct StripState {
     pub handover: Option<String>,
     /// The composer's measured width (the strip aligns to it).
     pub width: Option<f64>,
+    /// A8 — a peer THIS app started holds the session's seat
+    /// (`seatHolderKind` SELF, `seat-holder.ts:18-29`): its turn is never
+    /// "another client", and with no peer row it still reads
+    /// "Peers running (1)" (`App.tsx:2084-2086`).
+    pub self_held: bool,
 }
 
 /// The permission label (`App.tsx:2037-2045`).
@@ -68,9 +73,23 @@ pub fn activity_word(store: &Store, session: &str, turn: &str) -> Option<String>
     }
 }
 
-/// The state word by the web's precedence.
+/// The state word by the web's precedence (`App.tsx:2047-2088`, words
+/// `SessionStatusStrip.tsx:62-82`): not connected or an unhealthy recovery ->
+/// Reconnecting; a seat handover; a pending approval; a pending question; a
+/// FOREIGN seat holder; the live turn (another client's turn ->
+/// "Another client is working in this session", our own -> its live
+/// activity word, else Responding); running peers; our own held seat; Ready.
 pub fn state_word(store: &Store, active_turn: Option<&str>, handover: Option<&str>) -> String {
+    state_word_held(store, active_turn, handover, false)
+}
+
+/// [`state_word`] with the self-held fact (`StripState::self_held`).
+pub fn state_word_held(store: &Store, active_turn: Option<&str>, handover: Option<&str>, self_held: bool) -> String {
     if !store.is_live() {
+        return "Reconnecting".into();
+    }
+    let session = store.active_session().unwrap_or_default();
+    if store.domains.config.recovery(&session).phase != octoscode_store::domains::config::LossyPhase::Healthy {
         return "Reconnecting".into();
     }
     if let Some(h) = handover {
@@ -79,13 +98,26 @@ pub fn state_word(store: &Store, active_turn: Option<&str>, handover: Option<&st
     if !store.domains.approval.pending().is_empty() {
         return "Waiting for your approval".into();
     }
-    let session = store.active_session().unwrap_or_default();
+    if store.domains.approval.question().is_some() {
+        return "Waiting for your answer".into();
+    }
+    if crate::chrome::held_by_other(store).is_some() {
+        return "Another app is using this session".into();
+    }
     if let Some(turn) = active_turn {
+        // `origin === "adopted" && !selfSeatHeld`: a turn this client never
+        // dispatched belongs to another attached client.
+        if !crate::flow::is_own_turn(turn) && !self_held {
+            return "Another client is working in this session".into();
+        }
         return activity_word(store, &session, turn).unwrap_or_else(|| "Responding".into());
     }
     let peers = store.domains.peer.list().into_iter().filter(|p| !p.closed).count();
     if peers > 0 {
         return format!("Peers running ({peers})");
+    }
+    if self_held {
+        return "Peers running (1)".into();
     }
     "Ready".into()
 }
@@ -117,7 +149,7 @@ pub fn facts(store: &Store, st: &StripState, active_turn: Option<&str>, mode: Op
         .or_else(|| permission_label(mode))
         .unwrap_or("Permissions not reported")
         .to_owned();
-    (model, state_word(store, active_turn, st.handover.as_deref()), perm)
+    (model, state_word_held(store, active_turn, st.handover.as_deref(), st.self_held), perm)
 }
 
 /// `session/status/read` -> the model label for the active Session.
@@ -248,11 +280,15 @@ mod tests {
 
     #[test]
     fn the_state_word_follows_the_precedence_table() {
+        crate::flow::forget_own_turns();
         let s = Store::new();
         assert_eq!(state_word(&s, None, None), "Reconnecting", "not connected first");
         let s = live_store();
         assert_eq!(state_word(&s, None, Some("Resuming chat…")), "Resuming chat…");
         s.domains.session.timeline.append("s", Some("t".into()), EntryKind::REASONING, "hmm".into());
+        assert_eq!(state_word(&s, Some("t"), None), "Another client is working in this session", "not dispatched here");
+        crate::flow::note_own_turn("t");
+        crate::flow::note_own_turn("other");
         assert_eq!(state_word(&s, Some("t"), None), "Thinking…");
         s.domains.session.timeline.append("s", Some("t".into()), EntryKind::ASSISTANT_TEXT, "ok".into());
         assert_eq!(state_word(&s, Some("t"), None), "Writing…");

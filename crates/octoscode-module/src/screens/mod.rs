@@ -14,6 +14,8 @@ pub mod connect;
 // A5: the dialog host — the Stage-B screens reachable from the palette and
 // the sidebar, lowered slot-relative, wired by node id.
 pub mod dialog;
+// A8: the external-driver disclosure walk (session/driver/get operations chain).
+pub mod driver_discovery;
 pub mod fleet;
 pub mod history;
 pub mod keys;
@@ -36,6 +38,8 @@ pub mod sidebar;
 // #D2b / A3: board 2's settings half (screens 6-12) — one owner for the
 // settings cards' ids AND the native Settings chrome's.
 pub mod settings;
+// A8: the new-session defaults (persisted per endpoint, applied at creation only).
+pub mod session_defaults;
 // #35b item 1: the ONE card-tap wiring every docked screen shares (connect.rs
 // delegates here; the palette/theme mount paths call it directly).
 pub mod taps;

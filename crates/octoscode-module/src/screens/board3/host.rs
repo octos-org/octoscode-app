@@ -40,6 +40,8 @@ pub enum Dialog {
     Fleet,
     /// Screen 12 (right) — the Vim key legend (`?` in Normal mode).
     Vim,
+    /// A8 — the Session settings pane (the strip's click, `App.tsx:3139`).
+    SessionPane,
 }
 
 impl Dialog {
@@ -54,6 +56,7 @@ impl Dialog {
             "switcher" | "sessions" => Dialog::Switcher,
             "fleet" => Dialog::Fleet,
             "vim" => Dialog::Vim,
+            "session-settings" | "session_pane" => Dialog::SessionPane,
             _ => return None,
         })
     }
@@ -74,6 +77,8 @@ pub struct State {
     pub strip: super::strip::StripState,
     /// The composer's Vim preference + mode (screen 12).
     pub vim: super::vim::VimState,
+    /// A8 — the Session settings pane.
+    pub pane: super::session_pane::PaneState,
     /// Text a finished job wants on the clipboard (the host writes it on the
     /// UI thread, where `cx` lives).
     pub pending_clipboard: Option<String>,
@@ -93,6 +98,7 @@ impl Default for State {
             fleet: Default::default(),
             strip: Default::default(),
             vim: Default::default(),
+            pane: Default::default(),
             pending_clipboard: None,
         }
     }
@@ -208,6 +214,7 @@ pub fn lower_open(store: &Store) -> Option<Lowered> {
         Dialog::History => super::checkpoints::build(&mut d, &st.ck, &st.frame, store),
         Dialog::Switcher => super::switcher::build(&mut d, &st.switch, &st.frame, store, &st.vim),
         Dialog::Vim => super::vim::build_help(&mut d, &st.vim, &st.frame),
+        Dialog::SessionPane => super::session_pane::build(&mut d, &st.pane, &st.frame, store),
         Dialog::Images => {
             let session = store.domains.session.active().unwrap_or_default();
             let drafts = crate::screens::media::drafts_for_session(&session);
@@ -251,6 +258,15 @@ pub enum Job {
     StatusRead,
     /// `GET /api/files` for a delivered file (entry id, preview?).
     FileFetch(u64, bool),
+    /// A8 — the Session settings pane's reads (status stamp, permission
+    /// presets, model list, driver disclosure).
+    PaneLoad,
+    /// A8 — `profile/llm/select` for the pane's model row.
+    PaneModel(usize),
+    /// A8 — `permission/profile/set` (a preset or the approval policy).
+    PanePerm(super::session_pane::PermIntent),
+    /// A8 — Resume chat: acquire -> release(internal) -> send once.
+    PaneResumeChat,
 }
 
 /// What a routed action asks of the host.
@@ -322,6 +338,7 @@ pub fn open(dialog: Dialog) -> Outcome {
             Outcome::Spawn(Job::FleetLanes)
         }
         Dialog::Vim => Outcome::Done,
+        Dialog::SessionPane => super::session_pane::on_open(&mut st.pane),
     }
 }
 
@@ -373,8 +390,9 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
         return super::thinking::perform(store, &session, action);
     }
     match action {
-        // The strip opens the Session settings pane (`App.tsx:3139-3156`).
-        "b3.strip.settings" => return Outcome::Action("settings.toggle".into()),
+        // A8 — the strip opens the Session settings pane
+        // (`App.tsx:3139-3156`), not the app's Settings.
+        "b3.strip.settings" => return open(Dialog::SessionPane),
         "b3.file.download" => return Outcome::Spawn(Job::FileFetch(index as u64, false)),
         "b3.file.preview" => return Outcome::Spawn(Job::FileFetch(index as u64, true)),
         // Screen 12: the legend's help line, and the legend's way out.
@@ -407,6 +425,9 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
     }
     if action.starts_with("b3.fleet.") {
         return super::fleetview::perform(&mut st.fleet, action, index, store);
+    }
+    if action.starts_with("b3.sc.") {
+        return super::session_pane::perform(&mut st.pane, action, index, store);
     }
     Outcome::Unrouted
 }
@@ -567,6 +588,21 @@ pub fn job_unavailable(job: &Job) {
             st.fleet.start_error = Some(msg);
         }
         Job::StatusRead => {}
+        Job::PaneLoad => {
+            st.pane.loading = false;
+            st.pane.driver = crate::screens::driver_discovery::Inventory::Unavailable;
+        }
+        Job::PaneModel(_) => {
+            st.pane.model_saving = false;
+            st.pane.model_notice = Some("Couldn't save: the server is not connected".into());
+        }
+        Job::PanePerm(_) => {
+            st.pane.perm_save = Some(super::session_pane::SaveState::Failed(msg));
+        }
+        Job::PaneResumeChat => {
+            st.pane.resume_busy = false;
+            st.pane.resume_notice = Some("Couldn't resume chat — nothing was sent".into());
+        }
         Job::FileFetch(id, _) => {
             drop(st);
             let mut f = super::rows::file_state();
@@ -583,7 +619,9 @@ pub fn lower_strip(store: &Store, active_turn: Option<&str>, mode: Option<&str>)
     if store.active_session().is_none() {
         return String::new();
     }
-    let st = state();
+    let mut st = state();
+    // A8 — a peer this app started holds the seat (the pane's disclosure).
+    st.strip.self_held = super::session_pane::own_held(&st.pane);
     let note = st.vim.enabled.then(|| super::vim::note(&st.vim));
     super::strip::lower(store, &st.strip, active_turn, mode, note)
 }
@@ -623,6 +661,12 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         Job::FleetSteer(op, text) => super::fleetview::steer(conv, op, text).await,
         Job::StatusRead => super::strip::load_status(conv).await,
         Job::FileFetch(id, preview) => super::rows::fetch(conv, id, preview).await,
+        Job::PaneLoad => super::session_pane::load(conv).await,
+        Job::PaneModel(i) => super::session_pane::select_model(conv, i).await,
+        Job::PanePerm(intent) => super::session_pane::set_permission(conv, intent).await,
+        // Boxed: resume chat sends the prompt through `submit_draft`, which
+        // itself routes slash commands back into this function.
+        Job::PaneResumeChat => Box::pin(super::session_pane::resume_chat(conv)).await,
     }
 }
 
