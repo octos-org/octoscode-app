@@ -182,6 +182,7 @@ pub fn perform(st: &mut FleetState, rest: &str, index: usize, store: &Store) -> 
                 return HostOutcome::Done;
             }
             st.console.outcome = ConsoleOutcome::Sending;
+            super::host::request_blur();
             let title = st.console.title.trim().to_owned();
             HostOutcome::Spawn(Job::FleetConsoleDispatch {
                 lane,

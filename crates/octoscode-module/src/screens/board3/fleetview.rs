@@ -711,6 +711,7 @@ pub fn perform(st: &mut FleetState, action: &str, index: usize, store: &Store) -
             st.start = StartState::Requesting { lane: lane.clone(), brief: brief.clone(), operation_id: operation_id.clone() };
             st.staged = None;
             st.start_dismissed = false;
+            super::host::request_blur();
             HostOutcome::Spawn(Job::FleetStart { operation_id, lane, brief })
         }
         "b3.fleet.retry" => {
@@ -759,6 +760,9 @@ pub fn perform(st: &mut FleetState, action: &str, index: usize, store: &Store) -
                 return HostOutcome::Done;
             };
             st.row_note.remove(&row.key);
+            if act == RowAction::Steer {
+                super::host::request_blur();
+            }
             HostOutcome::Spawn(Job::FleetRow { key: row.key.clone(), identity, action: act, text: steer })
         }
         _ => HostOutcome::Unrouted,

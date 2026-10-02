@@ -168,6 +168,19 @@ pub fn take_clipboard() -> Option<String> {
     state().pending_clipboard.take()
 }
 
+/// A10 — a submit asked the host to take the key focus from its field.
+static BLUR: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Ask the host to drop the key focus after this action (a form submit).
+pub fn request_blur() {
+    BLUR.store(true, std::sync::atomic::Ordering::SeqCst);
+}
+
+/// Whether an action asked for the focus to drop (clears the request).
+pub fn take_blur() -> bool {
+    BLUR.swap(false, std::sync::atomic::Ordering::SeqCst)
+}
+
 /// What the host mounts: the DSL, its tap targets (also recoverable with
 /// `taps::wired_taps`) and its text inputs (widget id, input key).
 #[derive(Debug, Clone)]

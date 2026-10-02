@@ -96,13 +96,20 @@ def click_logged(W: Walk, wid: str, needle: str, expect=None, secs: float = 8.0)
     return ok and logged and seen
 
 
-def type_into(W: Walk, wid: str, text: str) -> None:
+def type_into(W: Walk, wid: str, text: str, neutral: str = "b3_title") -> None:
+    """Focus `wid`, type, then (phone) drop the shell's soft keyboard by a
+    tap on a neutral label NEAR the field — the keyboard covers the lower
+    screen, and a label scrolled out of view cannot be tapped."""
     seek(W, wid)
     r = W.rect(wid)
     if r:
         W.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
         W.type_text(text)
-        W.dismiss_keyboard()
+        if W.mode == "phone":
+            if not W.visible(neutral):
+                seek(W, neutral)
+            W.dismiss_keyboard(neutral)
+            time.sleep(0.4)
 
 
 def replay_lines(W: Walk, needle: str) -> list[str]:
@@ -192,7 +199,7 @@ def walk(W: Walk) -> None:
             and W.text("b3_fleet_lane_title") == "openai/gpt-5.4", f"lane={W.text('b3_fleet_lane_title')!r}")
 
     W.note("== 3. Start = acquire (CAS) -> prepare -> ONE dispatch; the adopted row works, then waits for approval")
-    type_into(W, "b3_fleet_brief", "Review the reconnect diff")
+    type_into(W, "b3_fleet_brief", "Review the reconnect diff", "b3_fleet_brief_label")
     W.check("fleet: Start CLICK -> FleetStart job", click_logged(W, "b3_fleet_start", "b3.fleet.start"))
     W.check("fleet: the wire was acquire -> prepare -> ONE dispatch, the CAS on the walked revision 42",
             W.wait(lambda: len(replay_lines(W, "<- peer/dispatch")) == 1, 8)
@@ -223,7 +230,7 @@ def walk(W: Walk) -> None:
 
     W.note("== 5. Steer the working peer")
     r2 = row_of(W, "Peer 2") or 0
-    type_into(W, f"b3_fleet_row_{r2}_steer", "Focus on the reconnect tests")
+    type_into(W, f"b3_fleet_row_{r2}_steer", "Focus on the reconnect tests", f"b3_fleet_row_{r2}_title")
     W.check("fleet: Steer CLICK -> ONE peer/control(steer)",
             click_logged(W, f"b3_fleet_row_{r2}_steer_btn", "b3.fleet.steer",
                          lambda: any("command=steer" in l for l in replay_lines(W, "-> peer/control")), 10),
@@ -234,7 +241,7 @@ def walk(W: Walk) -> None:
     W.click("b3_fleet_model_tap")
     W.wait_shown("b3_fleet_opt_1", 6)
     click_logged(W, "b3_fleet_opt_1", "b3.fleet.lane", lambda: W.text("b3_fleet_model_value") == "lane-review")
-    type_into(W, "b3_fleet_brief", "Run the full test suite")
+    type_into(W, "b3_fleet_brief", "Run the full test suite", "b3_fleet_brief_label")
     W.check("fleet: Start on lane-review -> the typed refusal -> 'Couldn't start: That model is not configured on this server'",
             click_logged(W, "b3_fleet_start", "b3.fleet.start", lambda: "not configured" in W.text("b3_fleet_error"), 10)
             and W.text("b3_fleet_brief") == "Run the full test suite",
@@ -309,14 +316,17 @@ def walk(W: Walk) -> None:
 
     W.note("== 10. the control seat (PeerControlPanel): a live master turn + the held seat's pending work")
     W.check("fleet: Back closes the pane", click_logged(W, "b3_fleet_back", "b3.close", lambda: not W.visible("b3_fleet_panel")))
+    W.wait(lambda: W.composer() is not None, 8)
     c = W.composer()
     if c:
         r = c["r"]
         W.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
         W.type_text("Coordinate the fleet")
-        W.key("Return")
+        W.wait_shown("send_hit", 4)
+        W.click("send_hit")  # the composer's own Send (Return is a newline on a phone)
     W.check("fleet: a composer turn goes out (the master's live turn)",
-            W.wait(lambda: len(replay_lines(W, "<- turn/start")) == before + 2, 8))
+            W.wait(lambda: len(replay_lines(W, "<- turn/start")) == before + 2, 8),
+            f"turn/start x{len(replay_lines(W, '<- turn/start'))}")
     W.check("fleet: Fleet entry CLICK reopens the pane", open_fleet(W))
     if not seek(W, "b3_fleet_disclosure_mode"):
         click_logged(W, "b3_fleet_advanced", "b3.fleet.advanced", lambda: shown(W, "b3_fleet_disclosure_mode"))

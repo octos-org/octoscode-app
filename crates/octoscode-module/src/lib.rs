@@ -1491,6 +1491,12 @@ impl OctoscodeView {
             let store = { self.bridge.lock().unwrap().store.clone() };
             let outcome = screens::board3::host::perform(action, index, &store);
             makepad_widgets::log!("[octoscode] board3 action {action} #{index} -> {outcome:?}");
+            // A10 — a form submit takes the focus from its field, so the
+            // remount that settles it does not hand the focus (and a phone's
+            // on-screen keyboard) back to the rebuilt input.
+            if screens::board3::host::take_blur() {
+                cx.set_key_focus(Area::Empty);
+            }
             self.board3_outcome(cx, outcome);
             return;
         }
