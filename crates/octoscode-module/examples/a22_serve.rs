@@ -18,6 +18,9 @@
 //!   containing `[refuse]` is refused (`-32000`), `[busy]` runs ~18 s.
 //! * **row 236** — prompts drive background work: `[slow]` a ~20 s turn,
 //!   `[fail]` a turn that errors after 3 s, `[ask]` a user question after 4 s.
+//! * **"Reopen it from the sidebar"** — "History hiccup" (`a22:api:hiccup`):
+//!   its first two history reads are refused ("history store busy", then
+//!   "history store still busy"), the third is answered with its history.
 //!
 //! Every request is appended to `--log <file>` as one JSON line
 //! `{"method", "params"}`, and every notification the server pushes as
@@ -41,6 +44,7 @@ use tokio_tungstenite::tungstenite::Message;
 
 const PROFILE: &str = "a22";
 const HISTORY: &str = "a22:api:history";
+const HICCUP: &str = "a22:api:hiccup";
 /// T1/T2: the history Session's persisted turns; T3: another client's live turn.
 const T1: &str = "01920000-0000-7000-8000-000000022a01";
 const T2: &str = "01920000-0000-7000-8000-000000022a02";
@@ -54,6 +58,7 @@ const CATALOG: &[(&str, &str, u64)] = &[
     ("a22:api:build", "Build the release", 20),
     ("a22:api:tests", "Run the test suite", 40),
     ("a22:api:ask", "Pick a branch", 90),
+    (HICCUP, "History hiccup", 150),
     ("other:api:foreign", "Foreign profile row", 2),
     ("bare", "Bare id row", 3),
     ("a22:legacy", "Legacy row", 4),
@@ -69,6 +74,8 @@ struct World {
     cursor: HashMap<String, u64>,
     /// Sessions whose first history read was answered (the race is played once).
     raced: std::collections::HashSet<String>,
+    /// The history reads of `HICCUP` so far (the first two are refused).
+    hiccup_reads: u32,
 }
 
 impl World {
@@ -142,6 +149,11 @@ async fn main() {
     w.persist(HISTORY, T2, "assistant", "The hydrate cursor is adopted max-wins.");
     w.threads.entry(HISTORY.into()).or_default().extend([(T1.to_owned(), 4u64), (T2.to_owned(), 4u64)]);
     w.cursor.insert(HISTORY.into(), 14);
+    // "History hiccup": one persisted turn, read on the third try.
+    w.persist(HICCUP, T1, "user", "Why did the history read fail?");
+    w.persist(HICCUP, T1, "assistant", "The history store was busy; reading it again worked.");
+    w.threads.entry(HICCUP.into()).or_default().insert(T1.to_owned(), 2);
+    w.cursor.insert(HICCUP.into(), 12);
     let world = Arc::new(Mutex::new(w));
     let listener = TcpListener::bind(("127.0.0.1", port)).await.expect("bind");
     println!("[a22-serve] listening on 127.0.0.1:{port}");
@@ -329,6 +341,24 @@ async fn ws(stream: TcpStream, cfg: Cfg, world: Arc<Mutex<World>>) {
                 let _ = out.send(reply(opened(&session, &cwd)));
             }
             "session/hydrate" => {
+                // The transport's own history read (messages) — not the
+                // parked-interaction read (`include: ["pending_approvals"]`).
+                let messages_read =
+                    !params["include"].as_array().is_some_and(|a| a.iter().any(|x| x == "pending_approvals"));
+                if session == HICCUP && messages_read {
+                    let n = {
+                        let mut w = world.lock().unwrap();
+                        w.hiccup_reads += 1;
+                        w.hiccup_reads
+                    };
+                    if n <= 2 {
+                        let message = if n == 1 { "history store busy" } else { "history store still busy" };
+                        log(&cfg, json!({"reply": "session/hydrate", "session": HICCUP, "refused": message}));
+                        let _ = out.send(json!({"jsonrpc": "2.0", "id": id, "error": {"code": -32603, "message": message,
+                            "data": {"session_id": HICCUP}}}).to_string());
+                        continue;
+                    }
+                }
                 let first = world.lock().unwrap().raced.insert(session.clone());
                 if session == HISTORY && first {
                     tokio::spawn(race_history(out.clone(), cfg.clone(), world.clone(), id.clone()));

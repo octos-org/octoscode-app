@@ -252,9 +252,11 @@ def probe():
         print(f"  {i!r:40} {t[:60]!r:64} {r}")
 
 
-CATALOG = ["Startup chat", "Review the hydrate path", "Build the release", "Run the test suite", "Pick a branch"]
+CATALOG = ["Startup chat", "Review the hydrate path", "Build the release", "Run the test suite", "Pick a branch",
+           "History hiccup"]
 NEVER = ["Foreign profile row", "Bare id row", "Legacy row"]
 HISTORY = "a22:api:history"
+HICCUP = "a22:api:hiccup"
 BUILD = "a22:api:build"
 
 
@@ -558,11 +560,71 @@ def phase_236():
     close_sidebar()
 
 
+def history_reads(session):
+    """The transport's own history reads of `session` (not the parked-interaction read)."""
+    return [p for p in requests("session/hydrate", session) if "pending_approvals" not in (p.get("include") or [])]
+
+
+def click_row(title):
+    """CLICK `title`'s sidebar row, whatever is on screen (the row may be the selected one)."""
+    open_sidebar()
+    hit = row_of(title)
+    if not hit:
+        return False
+    click_rect(hit[1])
+    time.sleep(0.6)
+    close_sidebar()
+    return True
+
+
+def phase_reopen():
+    """'Reopen it from the sidebar to try again' — A19b's notice — on the row that is ALREADY selected."""
+    n_open, n_read = len(requests("session/open", HICCUP)), len(history_reads(HICCUP))
+    check("reopen: CLICK 'History hiccup'", open_row("History hiccup"))
+    close_sidebar()
+    failed = wait(lambda: text("history_title") == "Session recovery required"
+                  and "history store busy" in (text("history_hint") or ""), 8)
+    s = snap()
+    check("reopen: its history could not be read — the notice says so, with the server's reason", failed,
+          repr(text("history_hint", s)))
+    shot("reopen-failed", s)
+    open_sidebar()
+    hit = row_of("History hiccup")
+    check("reopen: its row is the selected one",
+          hit is not None and any(inside(x["r"], hit[1], 2.0) for x in visible("sb_r_sel")))
+    check("reopen: CLICK the selected row", click_row("History hiccup"))
+    check("reopen wire: the Session is opened again", wait(lambda: len(requests("session/open", HICCUP)) == n_open + 2, 8),
+          str(len(requests("session/open", HICCUP)) - n_open))
+    check("reopen wire: and its history read again", wait(lambda: len(history_reads(HICCUP)) == n_read + 2, 8),
+          str(len(history_reads(HICCUP)) - n_read))
+    restated = wait(lambda: text("history_title") == "Session recovery required"
+                    and "history store still busy" in (text("history_hint") or ""), 8)
+    s = snap()
+    check("reopen: that read is refused too — the notice re-states, with the new reason", restated,
+          repr(text("history_hint", s)))
+    shot("reopen-restated", s)
+    check("reopen: CLICK the selected row again", click_row("History hiccup"))
+    check("reopen wire: read a third time", wait(lambda: len(history_reads(HICCUP)) == n_read + 3, 8),
+          str(len(history_reads(HICCUP)) - n_read))
+    arrived = wait(lambda: any("reading it again worked" in t for _, t, _ in texts()) and not shown("history_title"), 8)
+    s = snap()
+    check("reopen: answered — the history arrives, the notice is gone", arrived,
+          str([t for _, t, _ in texts(s) if "history" in t.lower()][:4]))
+    shot("reopen-history", s)
+    # With its history on screen, a CLICK on the selected row does nothing (#34a row 190).
+    opens = len(requests("session/open", HICCUP))
+    check("reopen: CLICK the selected row once its history is shown", click_row("History hiccup"))
+    time.sleep(1.0)
+    check("reopen wire: no re-open of a Session whose history is shown", len(requests("session/open", HICCUP)) == opens,
+          str(len(requests("session/open", HICCUP)) - opens))
+
+
 def walk():
     phase_228()
     phase_203()
     phase_216()
     phase_236()
+    phase_reopen()
     stop_app()
 
 
