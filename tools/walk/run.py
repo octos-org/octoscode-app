@@ -2349,7 +2349,16 @@ def vp_width(app):
     w_req = float(m.group(1))
     d = app.wait_for(lambda s: (app.rect(s, "base") or [0, 0, 0, 0])[2] > 0,
                     timeout=20, what="the module to mount at the requested width")
-    win = app.rect(d, "base")
+    # The shell's maximize animates: on a loaded machine the first laid-out
+    # frame can be caught mid-way (the official run on 9c4fb794 read 1275 at
+    # 1280; alone it reads 1280). Let the frame settle on the request; one that
+    # never gets there still fails below with the width it did reach.
+    try:
+        d = app.wait_for(lambda s: abs((app.rect(s, "base") or [0, 0, 0, 0])[2] - w_req) < 1.0,
+                        timeout=10, what="the module frame to settle on the requested width")
+    except Exception:  # noqa: BLE001 — measured as it stands; honoured=False
+        d = app.snap()
+    win = app.rect(d, "base") or [0, 0, 0, 0]
     got = float(win[2])
     honoured = abs(got - w_req) < 1.0
     # The branch: at >= 1260 the sidebar column is laid out; below 760 it is

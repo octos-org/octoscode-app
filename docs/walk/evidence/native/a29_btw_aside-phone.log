@@ -26,18 +26,18 @@ PASS CLICK Y's row while X's aside answers
 PASS Y is on screen (the header names Y) — 'Why is hydrate slow?'
 PASS Y: no aside (Y holds none)
 CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
-PASS X's row marks its answering aside (blue dot) — chip=[222, 307, 46, 18] run=True
+PASS X's row marks its answering aside (blue dot) — chip=[218, 339, 46, 18] run=True
 PASS Y's row carries no marker — None
-PASS layout: Fix steer queu…'s marker sits on its row (centred, after the title, before the time) — chip=[222, 307, 46, 18] title=[38, 308, 178, 17] time=[[275, 309, 19, 15]]
+PASS layout: Fix steer queu…'s marker sits on its row (centred, after the title, before the time) — chip=[218, 339, 46, 18] title=[38, 340, 174, 17] time=[[270, 341, 24, 15]]
 SHOT phone-2-switched-marker
 CLICK drawer_close r=[270, 87, 32, 32] at (286,103)
 PASS wire: session/btw #1 answered (X's id echoed) — [replay-serve] -> session/btw #1 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main
 PASS the answer never shows in Y
 CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
-PASS X's row marks an answered aside (no dot) — chip=[232, 307, 36, 18] run=False
-PASS layout: Fix steer queu…'s marker sits on its row (centred, after the title, before the time) — chip=[232, 307, 36, 18] title=[38, 308, 188, 17] time=[[275, 309, 19, 15]]
+PASS X's row marks an answered aside (no dot) — chip=[228, 339, 36, 18] run=False
+PASS layout: Fix steer queu…'s marker sits on its row (centred, after the title, before the time) — chip=[228, 339, 36, 18] title=[38, 340, 184, 17] time=[[270, 341, 24, 15]]
 SHOT phone-3-answered-in-x-marker
-CLICK row 'Fix steer queue drop on reconnect' r=[38, 308, 188, 17]
+CLICK row 'Fix steer queue drop on reconnect' r=[38, 340, 184, 17]
 PASS CLICK X's row
 PASS back on X: the whole answer — 'Draining first keeps the order stable: `redeliver` resends from a snapshot, so a message that arrives mid-resend waits 
 PASS back on X: no Answering… once answered
@@ -136,7 +136,7 @@ SHOT phone-11-zh-folded
 [replay-serve] session/btw #5 asked: session_id=dsflash:main question="which test covers redeliver?"
 [replay-serve] -> session/btw #5 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main
 [replay-serve] <- turn/start (id=36)
-[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 as 01a0feb7-e077-764b-90d6-cfb008f02a98 (163 recorded frames)
+[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 as 01a0ffb1-28d5-7370-b036-d5a67f36afad (163 recorded frames)
 [replay-serve] <- session/list (id=37)
 [replay-serve] <- session/btw (id=38)
 [replay-serve] session/btw #6 asked: session_id=dsflash:main question="为什么要先排空队列？"

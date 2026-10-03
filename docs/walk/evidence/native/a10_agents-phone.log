@@ -1,9 +1,9 @@
 == native walk a10_agents [phone] (tools/walk/a10_agents.py)
--- run 1: exit 0 in 38 s
+-- run 1: exit 1 in 44 s
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=94863 app=octosense grabs=<abs>/octosense-94863
-[headless] up: pid 94863  port 8421  log <repo>/tmp/hs/port-8421.log
-[headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+[makepad-remote] listening on 127.0.0.1:8421 pid=21002 app=octosense grabs=<abs>/octosense-21002 token_file=<abs>/port-8421.token
+[headless] up: pid 21002  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
 == 1. /agents palette row CLICK opens the Agents panel; the roster loads (agent/list)
 CLICK composer r=[28, 743, 304, 29]
 TYPE '/'
@@ -47,9 +47,9 @@ SHOT 06-by-id-close-phone
 TYPE 'audit the parser'
 TAP the keyboard's hide chevron (337,513)
 CLICK b3_agents_spawn_go r=[125, 263, 179, 34] at (214,280)
-PASS agents: Request parallel agents CLICK -> AgentsSpawn queued; the task field clears (the count stays)
+FAIL agents: Request parallel agents CLICK -> AgentsSpawn queued; the task field clears (the count stays)
 PASS agents: exactly one ordinary turn/start reached the wire (replay log) — turn/start x1
-PASS final: dialog numeric checks — frame=328x745 centre_dx=0.0 margins L=16 R=16 labels=19 outside=0 overlaps=0 controls=5 under28=0
+PASS final: dialog numeric checks — frame=328x745 centre_dx=0.0 margins L=16 R=16 labels=23 outside=0 overlaps=0 controls=8 under28=0
 SHOT 07-spawned-phone
 == 8. the wire: every click's method reached the replay server
 PASS wire: agent/list x1 — replay log: 1
@@ -61,7 +61,7 @@ PASS wire: agent/interrupt x1 — replay log: 1
 PASS wire: agent/close x1 — replay log: 1
 CLICK b3_close r=[300, 109, 28, 28] at (314,123)
 PASS agents: the close glyph CLICK closes the panel
-== 24/24 checks passed
+== 23/24 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 94863 exited after /gq
+[headless] pid 21002 exited after /gq
 [headless] port 8421 free

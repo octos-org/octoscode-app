@@ -1,5 +1,5 @@
 == native walk a8_session [desktop] (tools/walk/a8_session_walk.py)
--- run 1: exit 0 in 27 s
+-- run 1: exit 0 in 28 s
 PASS strip is laid out
 PASS strip: three equal cells — [[359, 506, 219, 32], [579, 497, 219, 51], [799, 506, 219, 32]]
 PASS strip: the foreign holder is the state word — Another app is using this session
@@ -38,7 +38,7 @@ PASS advanced: the pane sits inside the window with equal side margins — modul
 PASS advanced: section cards share one left edge and width — [[289, 173, 510, 28], [289, 213, 510, 57]]
 PASS advanced: every pane tap target is >= 28 px high — []
 PASS advanced: no pane label runs past its card — []
-PASS wire: session/driver/acquire at the observed revision — [{'driver_id': 'octoscode-native:45fc5edc-a904-4949-ac0a-08b4cd60ca0a', 'expected_revision': 9, 'lease_seconds': 60, 'session_id': 'a8:main'}]
+PASS wire: session/driver/acquire at the observed revision — [{'driver_id': 'octoscode-native:10606741-1f67-45e3-9e08-8664629901af', 'expected_revision': 9, 'lease_seconds': 60, 'session_id': 'a8:main'}]
 PASS wire: session/driver/release next=internal
 PASS resume chat: the holder banner is gone
 PASS resume chat: 'This app' controls the session now — This app
@@ -49,7 +49,7 @@ PASS header copy: 'Copied' — Copied
 PASS wire: the copy read the canonical history (session/hydrate)
 PASS header copy: the result resets after 2.5 s — Copy as Markdown
 PASS /permissions opens 'Remembered approvals' — Remembered approvals
-PASS inspector: the scope line names the Session — Session: a8:main
+PASS inspector: the scope line names the Session — None
 PASS inspector: 'Reading…' settles to 'Refresh' — Refresh
 PASS inspector: Refresh re-reads the snapshot — 1 -> 2
 PASS inspector: 'Conversation link copied.'
@@ -61,13 +61,11 @@ PASS the third switch is the web's 'Sandbox'
 PASS the defaults persisted per endpoint — {'network': 'deny', 'permissionMode': 'read_only', 'sandbox': {'enabled': True, 'networkAccess': False, 'readAllowPaths': []}, 'version': 1}
 PASS Settings closes
 PASS New chat clicked
-PASS wire: the created open carries the sandbox default — [{'profile_id': 'a8', 'sandbox': {'enabled': True, 'network_access': False}, 'session_id': 'a8:api:01a0fc55-07aa-7799-a996-e5698fb04f6b'}]
-PASS wire: ONE permission/profile/set for the created id — [{'session_id': 'a8:api:01a0fc55-07aa-7799-a996-e5698fb04f6b', 'update': {'mode': 'read_only', 'network': 'deny'}}]
+PASS wire: the created open carries the sandbox default — [{'profile_id': 'a8', 'sandbox': {'enabled': True, 'network_access': False}, 'session_id': 'a8:api:01a0ffc2-2395-72e7-bd50-ff07848edcbd'}]
+PASS wire: ONE permission/profile/set for the created id — [{'session_id': 'a8:api:01a0ffc2-2395-72e7-bd50-ff07848edcbd', 'update': {'mode': 'read_only', 'network': 'deny'}}]
 
 63/63 passed
 -- fixture log tail:
-[a8-serve] <- session/driver/acquire
-[a8-serve] <- session/driver/release
 [a8-serve] <- session/driver/get
 [a8-serve] <- session/hydrate
 [a8-serve] <- thread/graph/get
@@ -77,6 +75,8 @@ PASS wire: ONE permission/profile/set for the created id — [{'session_id': 'a8
 [a8-serve] <- session/open
 [a8-serve] <- session/list
 [a8-serve] <- session/driver/get
+[a8-serve] <- session/hydrate
+[a8-serve] <- session/list
 [a8-serve] <- permission/profile/set
 [a8-serve] <- session/status/read
 [a8-serve] <- permission/profile/list

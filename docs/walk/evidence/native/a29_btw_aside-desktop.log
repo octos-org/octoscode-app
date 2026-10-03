@@ -20,16 +20,16 @@ CLICK row 'Why is hydrate slow?' r=[92, 332, 199, 17]
 PASS CLICK Y's row while X's aside answers
 PASS Y is on screen (the header names Y) — 'Why is hydrate slow?'
 PASS Y: no aside (Y holds none)
-PASS X's row marks its answering aside (blue dot) — chip=[244, 299, 46, 18] run=True
+PASS X's row marks its answering aside (blue dot) — chip=[240, 331, 46, 18] run=True
 PASS Y's row carries no marker — None
-PASS layout: Fix steer queu…'s marker sits on its row (centred, after the title, before the time) — chip=[244, 299, 46, 18] title=[92, 300, 146, 17] time=[[297, 301, 19, 15]]
+PASS layout: Fix steer queu…'s marker sits on its row (centred, after the title, before the time) — chip=[240, 331, 46, 18] title=[92, 332, 142, 17] time=[[292, 333, 24, 15]]
 SHOT desktop-2-switched-marker
 PASS wire: session/btw #1 answered (X's id echoed) — [replay-serve] -> session/btw #1 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main
 PASS the answer never shows in Y
-PASS X's row marks an answered aside (no dot) — chip=[254, 299, 36, 18] run=False
-PASS layout: Fix steer queu…'s marker sits on its row (centred, after the title, before the time) — chip=[254, 299, 36, 18] title=[92, 300, 156, 17] time=[[297, 301, 19, 15]]
+PASS X's row marks an answered aside (no dot) — chip=[250, 331, 36, 18] run=False
+PASS layout: Fix steer queu…'s marker sits on its row (centred, after the title, before the time) — chip=[250, 331, 36, 18] title=[92, 332, 152, 17] time=[[292, 333, 24, 15]]
 SHOT desktop-3-answered-in-x-marker
-CLICK row 'Fix steer queue drop on reconnect' r=[92, 300, 156, 17]
+CLICK row 'Fix steer queue drop on reconnect' r=[92, 332, 152, 17]
 PASS CLICK X's row
 PASS back on X: the whole answer — 'Draining first keeps the order stable: `redeliver` resends from a snapshot, so a message that arrives mid-resend waits 
 PASS back on X: no Answering… once answered
@@ -118,7 +118,7 @@ SHOT desktop-11-zh-folded
 [replay-serve] session/btw #5 asked: session_id=dsflash:main question="which test covers redeliver?"
 [replay-serve] -> session/btw #5 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main
 [replay-serve] <- turn/start (id=36)
-[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 as 01a0feb6-7458-7185-98b3-6ab619e347a4 (163 recorded frames)
+[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 as 01a0ffaf-ba23-7011-941d-e4dfc426f098 (163 recorded frames)
 [replay-serve] <- session/list (id=37)
 [replay-serve] <- session/list (id=38)
 [replay-serve] <- session/btw (id=39)

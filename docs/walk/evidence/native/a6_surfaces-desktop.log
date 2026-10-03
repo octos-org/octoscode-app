@@ -1,6 +1,6 @@
 == native walk a6_surfaces [desktop] (tools/walk/a6_surfaces_walk.py)
--- run 1: exit 0 in 58 s
-== A6 surfaces walk (desktop) — app :8421, replay :8503
+-- run 1: exit 0 in 59 s
+== A6 surfaces walk (desktop) — app :8421, replay :8516
 PASS window open — size [1400, 900]
 PASS module up: the composer is shown
 PASS connected: the Chat / Trajectory tabs show (capabilities advertised) — 'Chat' / 'Trajectory'
@@ -16,7 +16,7 @@ PASS CLICK again -> folded
 PASS turn 2: CLICK composer + type + Return -> turn/start
 PASS turn 2: delivered files are attachment rows — ['b3_tl_file_download_6', 'b3_tl_file_download_7']
 PASS files: r23-report.pdf (2 KiB) and coverage.png — ['r23-report.pdf', 'coverage.png'] ['2 KiB', '96 KiB']
-PASS CLICK the tool row -> its output discloses — ['08:29 - [octoscode] tool.toggle: call_00_1nHw0JiGHc6HQdxNySqu4250 open']
+PASS CLICK the tool row -> its output discloses — ['99:29 - [octoscode] tool.toggle: call_00_1nHw0JiGHc6HQdxNySqu4250 open']
   shot tmp/walk/native/a6_surfaces-desktop/out/desktop-03-tool-expanded.png
 PASS CLICK Download -> GET /api/files on the wire, saved to the download dir — saved=True wire=True
 PASS CLICK Preview -> the image shows in its row — b3_tl_file_img_7
@@ -50,7 +50,7 @@ PASS CLICK Other + type -> the text stays (no remount) — 'teal'
 PASS Return (inside the Other field) -> user_question/respond on the wire, card settles
 PASS next: a multi-select question — 'Which accents should the theme use?'
 PASS multi-select: its rule hint
-PASS keys: ArrowDown / Space toggle options in the group — ['1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)', 'ost.rs:341:17 - [octoscode] surfaces key Space -> cv.q.opt#3', 'rs:1674:13 - [octoscode] surfaces action cv.q.opt #3 -> Done', '1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)']
+PASS keys: ArrowDown / Space toggle options in the group — ['1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)', 'ost.rs:341:17 - [octoscode] surfaces key Space -> cv.q.opt#3', 'rs:1805:13 - [octoscode] surfaces action cv.q.opt #3 -> Done', '1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)']
   shot tmp/walk/native/a6_surfaces-desktop/out/desktop-09-question-multi.png
 PASS CLICK Submit answer -> user_question/respond on the wire
 PASS next: a third question

@@ -1,8 +1,8 @@
 == native walk a9_activity [desktop] (tools/walk/a9_activity_walk.py)
--- run 1: exit 0 in 20 s
+-- run 1: exit 0 in 21 s
 PASS palette /activity opens Activity
 PASS the catalog reads arrive (3 rows) — 3 rows
-PASS one task/list per confirmed session, nothing opened — ['[replay-serve] -> task/list a9walk:review', '[replay-serve] -> task/list a9walk:main', '[replay-serve] -> task/list a9walk:fork', '[replay-serve] -> task/list a9walk:bump', '[replay-serve] -> task/list a9walk:hydrate']
+PASS one task/list per confirmed session, nothing opened — ['[replay-serve] -> task/list a9walk:api:review', '[replay-serve] -> task/list a9walk:main', '[replay-serve] -> task/list a9walk:api:fork', '[replay-serve] -> task/list a9walk:api:bump', '[replay-serve] -> task/list a9walk:api:hydrate']
 PASS status filters carry the counts — ['All 3', 'Running 1', 'Failed 1', 'Done 1']
 PASS the failed reads fail closed into the status line — '2 Session task snapshots unavailable'
 PASS footer names the refresh
@@ -40,18 +40,18 @@ PASS Activity reopens
 PASS Escape closes Activity
 == WALK a9 activity desktop: 35/35 passed
 -- fixture log tail:
-[replay-serve] -> task/list a9walk:fork
-[replay-serve] <- task/list (id=33)
-[replay-serve] -> task/list a9walk:bump
-[replay-serve] <- task/list (id=34)
-[replay-serve] -> task/list a9walk:hydrate
-[replay-serve] <- task/list (id=35)
-[replay-serve] -> task/list a9walk:review
-[replay-serve] <- task/list (id=36)
-[replay-serve] -> task/list a9walk:main
+[replay-serve] -> task/list a9walk:api:fork
 [replay-serve] <- task/list (id=37)
-[replay-serve] -> task/list a9walk:fork
+[replay-serve] -> task/list a9walk:api:bump
 [replay-serve] <- task/list (id=38)
-[replay-serve] -> task/list a9walk:bump
+[replay-serve] -> task/list a9walk:api:hydrate
 [replay-serve] <- task/list (id=39)
-[replay-serve] -> task/list a9walk:hydrate
+[replay-serve] -> task/list a9walk:api:review
+[replay-serve] <- task/list (id=40)
+[replay-serve] -> task/list a9walk:main
+[replay-serve] <- task/list (id=41)
+[replay-serve] -> task/list a9walk:api:fork
+[replay-serve] <- task/list (id=42)
+[replay-serve] -> task/list a9walk:api:bump
+[replay-serve] <- task/list (id=43)
+[replay-serve] -> task/list a9walk:api:hydrate

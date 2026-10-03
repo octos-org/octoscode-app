@@ -139,10 +139,15 @@ def walk(W: Walk) -> None:
         W.type_text("audit the parser")
         W.dismiss_keyboard()
     before = W.replay_saw("turn/start", 0)
+    spawned = click_logged(W, "b3_agents_spawn_go", "AgentsSpawn",
+                           lambda: W.text("b3_agents_task") in ("", "Describe the task for the agents"), 10)
+    # The spawn remounts the dialog; on a loaded machine the count field can be
+    # left scrolled out of the viewport, and a field off screen reads "" (the
+    # official run on 9c4fb794: one turn/start, the task cleared, the count '1'
+    # but off screen). Bring it into view before reading it.
+    W.scroll_into("b3_agents_count", "b3_scroll")
     W.check("agents: Request parallel agents CLICK -> AgentsSpawn queued; the task field clears (the count stays)",
-            click_logged(W, "b3_agents_spawn_go", "AgentsSpawn",
-                         lambda: W.text("b3_agents_task") in ("", "Describe the task for the agents"), 10)
-            and W.wait(lambda: W.text("b3_agents_count") == "1", 6))
+            spawned and W.wait(lambda: W.text("b3_agents_count") == "1", 6))
     W.check("agents: exactly one ordinary turn/start reached the wire (replay log)",
             W.wait(lambda: W.replay_saw("turn/start", 0) == before + 1, 8), f"turn/start x{W.replay_saw('turn/start', 0)}")
     W.wait(lambda: bool(W.visible("b3_dialog")), 6)

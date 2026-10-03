@@ -1,0 +1,83 @@
+PASS the sidebar lists Session X and Session Y — ['Main', 'Session Y — release notes', 'Session X — clean the scratch dir']
+CLICK sb_r_title 'Session X — clean the scratch dir' r=[92, 332, 199, 17]
+PASS CLICK row 'Session X' -> session/open X
+TYPE 'please run rm -rf scratch_dir in this repo'
+KEY Return
+PASS wire: X's turn/start
+PASS X: the approval takes X's composer over — 'rm -rf scratch_dir'
+PASS X's approval card: layout frame=661x173 centre_dx=140.5 margins L=18 R=18 labels=8 outside=0 overlaps=0 controls=3 under28=0 gutters>=12=True — {"ok": true, "frame": [359, 489, 661, 173], "centre_dx": 140.5, "margins": [18, 18], "labels": 8, "outside": [], "overlaps": [], "controls": 3, "under28": []}
+SHOT desktop-01-x-approval
+CLICK sb_r_title 'Session Y — release notes' r=[92, 364, 199, 17]
+PASS CLICK row 'Session Y' -> session/open Y
+PASS Y: no card (X's approval is not Y's)
+SHOT desktop-02-y-no-card
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:413:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:1412:9 - [octoscode] a24 language at launch: en
+    log: [I] apps/octoscode/module/src/screens/bootstrap.rs:169:5 - [octoscode] bootstrap: Harness(http://127.0.0.1:8485, token: true) (remembered server: false, saved token: false, restore target: false, auto-connect: None)
+    log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+    log: [I] apps/octoscode/module/src/attention.rs:1032:9 - [octoscode] attention: start (platform api true, focused false)
+    log: [I] apps/octoscode/module/src/lib.rs:3476:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session a20:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3923:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:3981:17 - [octoscode] aside panel: hidden
+    log: [I] apps/octoscode/module/src/screens/drafts.rs:338:5 - [octoscode] drafts: the principal's scope is bound (0 stored, nothing restored)
+    log: [I] apps/octoscode/module/src/lib.rs:1687:13 - [octoscode] startup: Explicit("a20:main")
+    log: [I] apps/octoscode/module/src/lib.rs:3580:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4357:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/attention.rs:1092:9 - [octoscode] attention: os Authorization { status: Unavailable, requested: false, error: None }
+    log: [I] apps/octoscode/module/src/lib.rs:4444:13 - [octoscode] chrome: Action("session.open", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2040:21 - [octoscode] sidebar action: session.open row 0
+    log: [I] apps/octoscode/module/src/lib.rs:4357:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session a20:api:xray restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:5605:21 - [octoscode] draft synced: 42 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6323:17 - [octoscode] key ReturnKey -> ComposerSubmit
+    log: [I] apps/octoscode/module/src/flow_controller.rs:205:9 - [octoscode] turn/start 01a0ffa0-19ce-772c-8096-695297fb67fe: Accepted
+    log: [I] apps/octoscode/module/src/flow.rs:3124:43 - [octoscode] turn started: 01a0ffa0-19ce-772c-8096-695297fb67fe
+    log: [I] apps/octoscode/module/src/attention.rs:1049:13 - [octoscode] attention: waiting turn 01a0ffa0-19ce-772c-8096-695297fb67fe of a20:api:xray needs attention (focused false)
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:110:17 - [octoscode] takeover mounted Some(Approval("01a0e773-f844-7d50-a20a-000000000001")): 3 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4444:13 - [octoscode] chrome: Action("session.open", 1)
+    log: [I] apps/octoscode/module/src/lib.rs:2040:21 - [octoscode] sidebar action: session.open row 1
+    log: [I] apps/octoscode/module/src/lib.rs:4357:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session a20:api:yankee restored (following)
+KEY y
+KEY s
+KEY n
+PASS Y: the keyboard sends nothing (Y / S / N resolve to typing) — []
+    log: [I] apps/octoscode/module/src/lib.rs:6323:17 - [octoscode] key KeyY -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6323:17 - [octoscode] key KeyS -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6323:17 - [octoscode] key KeyN -> Ignore
+PASS log: Y's bare Y resolves to Ignore
+PASS X's row waits (its own approval)
+PASS Y's row does not wait on X's approval
+PASS layout: X's Waiting dot is centred on X's row, left of its title — dot=[[75, 337, 7, 7]] title=[92, 332, 194, 17]
+SHOT desktop-03-sidebar-x-waits
+TYPE 'ask me which color to use'
+KEY Return
+PASS wire: Y's turn/start
+PASS Y: its own question takes Y's composer over
+PASS Y's question card: layout frame=661x343 centre_dx=140.5 margins L=18 R=18 labels=13 outside=0 overlaps=0 controls=3 under28=0 gutters>=12=True — {"ok": true, "frame": [359, 320, 661, 343], "centre_dx": 140.5, "margins": [18, 18], "labels": 13, "outside": [], "overlaps": [], "controls": 3, "under28": []}
+SHOT desktop-04-y-question
+CLICK sb_r_title 'Session X — clean the scratch dir' r=[92, 332, 194, 17]
+PASS CLICK row 'Session X' -> session/open X again
+PASS wire: X's canonical hydrate read its parked interactions
+PASS X: its approval again, never Y's question
+PASS X's restored approval card: layout frame=661x173 centre_dx=140.5 margins L=18 R=18 labels=8 outside=0 overlaps=0 controls=3 under28=0 gutters>=12=True — {"ok": true, "frame": [359, 489, 661, 173], "centre_dx": 140.5, "margins": [18, 18], "labels": 8, "outside": [], "overlaps": [], "controls": 3, "under28": []}
+SHOT desktop-05-x-approval-again
+CLICK cv_ap_once r=[884, 615, 118, 34] at (943,632)
+PASS CLICK Approve once
+PASS wire: exactly one approval/respond, to X with X's ids — [{'approval_id': '01a0e773-f844-7d50-a20a-000000000001', 'approval_scope': 'request', 'decision': 'approve', 'session_id': 'a20:api:xray'}]
+PASS X: decided, the composer is back
+CLICK sb_r_title 'Session Y — release notes' r=[92, 332, 194, 17]
+PASS CLICK row 'Session Y' -> session/open Y again
+PASS Y: its question survived X's approval
+CLICK cv_q_0_opt_1 r=[377, 484, 621, 49] at (688,508)
+PASS CLICK option 'Green'
+PASS the primary is live
+CLICK cv_q_submit r=[852, 611, 150, 38] at (927,630)
+PASS CLICK Submit answer
+PASS wire: user_question/respond to Y with Y's ids — [{'answers': [{'selected_labels': ['Green']}], 'question_id': '01a0e773-f844-7d50-a20b-000000000002', 'session_id': 'a20:api:yankee'}]
+PASS Y: answered, the composer is back
+SHOT desktop-06-y-answered
+PASS wire: nothing was ever answered on Y for X
+== 30/30 checks passed

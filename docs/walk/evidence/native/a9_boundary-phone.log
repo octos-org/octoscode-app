@@ -32,8 +32,8 @@ PASS the rest of the app still works (Settings opens)
 PASS connected
 PASS the Fleet pane fails under its own boundary
 PASS an inline section (no backdrop)
-PASS …placed in the conversation column — [24, 198, 312, 226] in [0, 74, 360, 776]
-PASS …under its header (Review / Settings stay reachable) — [24, 198, 312, 226] under [0, 74, 360, 100]
+PASS …placed in the conversation column — [24, 151, 312, 226] in [0, 74, 360, 776]
+PASS …under its header (Review / Settings stay reachable) — [24, 151, 312, 226] under [0, 74, 360, 53]
 SHOT <repo>/tmp/walk/native/a9_boundary-phone/out/phone-unavailable-inline.png
 PASS the sidebar still works beside it (New chat routes)
 PASS Close dismisses it
@@ -50,18 +50,18 @@ PASS a cancelled load never opens afterwards
 PASS left alone, it opens when the read lands
 == WALK a9 boundary loading phone: 7/7 passed
 -- fixture log tail:
-[replay-serve] -> task/list a9walk:fork
-[replay-serve] <- task/list (id=11)
-[replay-serve] -> task/list a9walk:bump
-[replay-serve] <- task/list (id=12)
-[replay-serve] -> task/list a9walk:hydrate
+[replay-serve] -> task/list a9walk:api:fork
 [replay-serve] <- task/list (id=13)
-[replay-serve] -> task/list a9walk:review
+[replay-serve] -> task/list a9walk:api:bump
 [replay-serve] <- task/list (id=14)
-[replay-serve] -> task/list a9walk:main
+[replay-serve] -> task/list a9walk:api:hydrate
 [replay-serve] <- task/list (id=15)
-[replay-serve] -> task/list a9walk:fork
+[replay-serve] -> task/list a9walk:api:review
 [replay-serve] <- task/list (id=16)
-[replay-serve] -> task/list a9walk:bump
+[replay-serve] -> task/list a9walk:main
 [replay-serve] <- task/list (id=17)
-[replay-serve] -> task/list a9walk:hydrate
+[replay-serve] -> task/list a9walk:api:fork
+[replay-serve] <- task/list (id=18)
+[replay-serve] -> task/list a9walk:api:bump
+[replay-serve] <- task/list (id=19)
+[replay-serve] -> task/list a9walk:api:hydrate

@@ -13,7 +13,7 @@
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
 {"method":"session/hydrate","params":{"include":["pending_approvals"],"session_id":"a20:api:xray"}}
 {"method":"session/status/read","params":{"profile_id":"a20","session_id":"a20:api:xray"}}
-{"method":"turn/start","params":{"input":[{"kind":"text","text":"please run rm -rf scratch_dir in this repo"}],"session_id":"a20:api:xray","turn_id":"01a0fdd5-de2c-76fe-8635-ce4040c57819"}}
+{"method":"turn/start","params":{"input":[{"kind":"text","text":"please run rm -rf scratch_dir in this repo"}],"session_id":"a20:api:xray","turn_id":"01a0ffa0-19ce-772c-8096-695297fb67fe"}}
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
 {"method":"session/open","params":{"cwd":"/home/user/a20-ws","profile_id":"a20","session_id":"a20:api:yankee"}}
 {"method":"session/list","params":{}}
@@ -21,7 +21,7 @@
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
 {"method":"session/hydrate","params":{"include":["pending_approvals"],"session_id":"a20:api:yankee"}}
 {"method":"session/status/read","params":{"profile_id":"a20","session_id":"a20:api:yankee"}}
-{"method":"turn/start","params":{"input":[{"kind":"text","text":"ask me which color to use"}],"session_id":"a20:api:yankee","turn_id":"01a0fdd5-fbfe-73dd-9a38-92b2382d01c3"}}
+{"method":"turn/start","params":{"input":[{"kind":"text","text":"ask me which color to use"}],"session_id":"a20:api:yankee","turn_id":"01a0ffa0-393c-7144-a6d0-7205ca813fb9"}}
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
 {"method":"session/open","params":{"after":{"seq":101,"stream":"a20:api:xray"},"cwd":"/home/user/a20-ws","profile_id":"a20","session_id":"a20:api:xray"}}
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
@@ -36,6 +36,5 @@
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
 {"method":"session/hydrate","params":{"include":["pending_approvals"],"session_id":"a20:api:yankee"}}
 {"method":"session/status/read","params":{"profile_id":"a20","session_id":"a20:api:yankee"}}
-{"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
 {"method":"user_question/respond","params":{"answers":[{"selected_labels":["Green"]}],"question_id":"01a0e773-f844-7d50-a20b-000000000002","session_id":"a20:api:yankee"}}
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}

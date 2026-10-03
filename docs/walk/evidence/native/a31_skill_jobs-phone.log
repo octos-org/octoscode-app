@@ -1,0 +1,123 @@
+== native walk a31_skill_jobs [phone] (tools/walk/a31_skill_jobs.py)
+-- run 1: exit 0 in 15 s
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=7478 app=octosense grabs=<abs>/octosense-7478 token_file=<abs>/port-8421.token
+[headless] up: pid 7478  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+== seeded 1. /skills: the dialog reads its jobs for its Profile + Session
+CLICK composer r=[28, 743, 304, 29]
+TYPE '/'
+TYPE 'ski'
+CLICK palette_row_name '/skills' r=[30, 260, 54, 28]
+PASS seeded: the /skills palette row CLICK opens Skills with its Background jobs
+PASS seeded: the host ran the on-open job read (log)
+PASS seeded: wire: skill/action/job/list names the dialog's Profile and Session — [{'profile_id': 'dsflash', 'session_id': 'dsflash:main'}]
+PASS seeded: wire: the server sent two newer updates BEFORE the list reply (the race)
+PASS seeded: the rows arrive (report.pdf first, q3-review Done) — 'report.pdf' '✓ Done'
+PASS seeded: the heading and the active count — 'Background jobs' · '1 running · 1 queued'
+PASS seeded: no note (this server seeds the section)
+PASS seeded: the section is at the top, above Installed — card=[32, 276, 286, 448] installed=[32, 788, 286, 16]
+PASS seeded open: numeric checks — frame=328x746 centre_dx=0.0 margins L=16 R=16 labels=39 outside=0 overlaps=0 controls=0 under28=0
+SHOT 01-seeded-phone
+PASS seeded: newest first — ['report.pdf', 'notes.md', 'q3-review.pdf', 'scan-007.pdf', 'q3-board.pptx', 'archive.zip']
+PASS seeded: every status's chip: queued, running, succeeded, failed, cancelled, abandoned — ['● Running', '○ Queued', '✓ Done', '✕ Failed', '✕ Stopped', '✕ Stopped']
+PASS seeded: Done shows the job's output — ('Imported 14 pages', None)
+PASS seeded: Failed shows the lead, then the error as a muted cause — ("Couldn't finish this job.", 'pdftotext exited with status 1')
+PASS seeded: abandoned reads Stopped with the restart cause — ('The server restarted before this job finished.', None)
+PASS seeded: queued, running and cancelled rows carry no message — [(None, None), (None, None), (None, None)]
+PASS seeded: the skill and action line (mono) — source-skill · source.import
+PASS seeded: the times (since each job's last change) — ['now', 'now', '2m', '5m', '20m', '1h']
+PASS race: the stale list (q3-review still running there) did not regress the newer update
+PASS race: notes.md, announced before the reply and absent from it, survived it
+PASS seeded: every row's labels inside the row; name clear of the chip, chip clear of the time; no cut name — []
+PASS seeded: the chips and the times form two right-aligned columns (within 1.5 px) — chip right edges [258], time right edges [304]
+PASS seeded: another Session's job and another Profile's never show — []
+PASS seeded scrolled to Installed: numeric checks — frame=328x746 centre_dx=0.0 margins L=16 R=16 labels=43 outside=0 overlaps=0 controls=2 under28=0
+PASS seeded: Installed follows with the Profile's two skills — 'source-skill' 'deck-skill'
+SHOT 02-seeded-installed-phone
+== seeded 2. a live update while the dialog is open
+PASS live: notes.md starts and report.pdf finishes, without reopening — notes.md ● Running / report.pdf ✓ Done
+PASS live: the finished job shows its output — 'Imported 9 pages'
+PASS live: the count follows (1 running) — '1 running'
+PASS live: numeric checks — frame=328x746 centre_dx=0.0 margins L=16 R=16 labels=39 outside=0 overlaps=0 controls=0 under28=0
+SHOT 03-live-phone
+CLICK dialog_close r=[300, 109, 28, 28] at (314,123)
+== seeded 3. the Session scope: the other Session's row CLICK, /skills again
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK sb_r_title 'Import the Q3 reports' r=[38, 340, 227, 17]
+PASS scope: the other Session's sidebar row CLICK switches to it — 'Import the Q3 reports'
+CLICK composer r=[28, 743, 304, 29]
+TYPE '/'
+TYPE 'ski'
+CLICK palette_row_name '/skills' r=[30, 260, 54, 28]
+PASS scope: the /skills palette row CLICK opens Skills with its Background jobs
+PASS scope: wire: the list names the other Session — [{'profile_id': 'dsflash', 'session_id': 'dsflash:main'}, {'profile_id': 'dsflash', 'session_id': 'dsflash:api:imports'}]
+PASS scope: the other Session's dialog shows its own jobs (invoice.pdf running, statement.pdf done) — 'invoice.pdf' 'statement.pdf'
+PASS scope: none of the first Session's jobs (nor the other Profile's) show — []
+PASS scope: the count is this Session's (1 running) — '1 running'
+PASS other Session: numeric checks — frame=328x746 centre_dx=0.0 margins L=16 R=16 labels=25 outside=0 overlaps=0 controls=2 under28=0
+SHOT 04-other-session-phone
+CLICK dialog_close r=[300, 109, 28, 28] at (314,123)
+== 35/35 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 7478 exited after /gq
+[headless] port 8421 free
+-- run 2: exit 0 in 12 s
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=11064 app=octosense grabs=<abs>/octosense-11064 token_file=<abs>/port-8421.token
+[headless] up: pid 11064  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+== announced 1. no skill.action_jobs.v1: the jobs announced since connecting, and the note
+CLICK composer r=[28, 743, 304, 29]
+TYPE '/'
+TYPE 'ski'
+CLICK palette_row_name '/skills' r=[30, 260, 54, 28]
+PASS announced: the /skills palette row CLICK opens Skills with its Background jobs
+PASS announced: the rows are the announced jobs, newest first — 'report.pdf' 'scan-007.pdf'
+PASS announced: the muted note says only announced jobs show — "Only jobs announced since the app connected are shown; this server doesn't list earlier jobs."
+PASS announced: wire: no skill/action/job/list is read — []
+PASS announced: chips and count — ● Running ✕ Failed 1 running
+PASS announced: another Session's job and another Profile's never show — []
+PASS announced: numeric checks — frame=328x746 centre_dx=0.0 margins L=16 R=16 labels=27 outside=0 overlaps=0 controls=2 under28=0
+SHOT 05-announced-phone
+== announced 2. a live update still applies
+PASS announced: live: notes.md starts, report.pdf finishes — 'notes.md' '✓ Done'
+PASS announced live: numeric checks — frame=328x746 centre_dx=0.0 margins L=16 R=16 labels=32 outside=0 overlaps=0 controls=2 under28=0
+SHOT 06-announced-live-phone
+CLICK dialog_close r=[300, 109, 28, 28] at (314,123)
+== 9/9 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 11064 exited after /gq
+[headless] port 8421 free
+-- run 3: exit 0 in 9 s
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=13874 app=octosense grabs=<abs>/octosense-13874 token_file=<abs>/port-8421.token
+[headless] up: pid 13874  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+== zh 1. /skills: the dialog reads its jobs for its Profile + Session
+CLICK composer r=[28, 743, 304, 29]
+TYPE '/'
+TYPE 'ski'
+CLICK palette_row_name '/skills' r=[30, 260, 54, 28]
+PASS zh: the /skills palette row CLICK opens Skills with its Background jobs
+PASS zh: the host ran the on-open job read (log)
+PASS zh: wire: skill/action/job/list names the dialog's Profile and Session — [{'profile_id': 'dsflash', 'session_id': 'dsflash:main'}]
+PASS zh: wire: the server sent two newer updates BEFORE the list reply (the race)
+PASS zh: the rows arrive (report.pdf first, q3-review Done) — 'report.pdf' '✓ 已完成'
+PASS zh: the heading and the active count — '后台作业' · '1 个运行中 · 1 个排队中'
+PASS zh: the dialog title is the web's 配置档案技能 — '配置档案技能'
+PASS zh: no note (this server seeds the section)
+PASS zh: the section is at the top, above Installed — card=[32, 257, 286, 430] installed=[32, 750, 286, 16]
+PASS zh open: numeric checks — frame=328x746 centre_dx=0.0 margins L=16 R=16 labels=41 outside=0 overlaps=0 controls=1 under28=0
+SHOT 07-zh-phone
+PASS zh: newest first — ['report.pdf', 'notes.md', 'q3-review.pdf', 'scan-007.pdf', 'q3-board.pptx', 'archive.zip']
+PASS zh: every status's chip: queued, running, succeeded, failed, cancelled, abandoned — ['● 运行中', '○ 排队中', '✓ 已完成', '✕ 已失败', '✕ 已停止', '✕ 已停止']
+PASS zh: the failure lead reads Chinese — '无法完成此作业。'
+PASS zh: the abandoned cause reads Chinese — '服务器在此作业完成前已重启。'
+PASS zh: every row's labels inside the row; name clear of the chip, chip clear of the time; no cut name — []
+PASS zh: the chips and the times form two right-aligned columns (within 1.5 px) — chip right edges [238], time right edges [304]
+PASS zh: another Session's job and another Profile's never show — []
+== 17/17 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 13874 exited after /gq
+[headless] port 8421 free

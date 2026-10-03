@@ -6,16 +6,17 @@ PASS Settings opens
 PASS Preferences shows
 PASS the toggle reads the current Vim editing — on=False
 PASS Preferences controls are >= 28 px targets — []
-PASS tg_vim inside the body — [881, 213, 44, 32]
-PASS prefs_save inside the body — [362, 339, 148, 36]
-PASS prefs_status inside the body — [522, 350, 403, 16]
+PASS tg_vim inside the body — [881, 460, 44, 32]
+PASS prefs_save inside the fixed footer — [362, 569, 148, 36]
+PASS prefs_status inside the fixed footer — [522, 579, 403, 16]
+PASS the footer sits below the body — body=[338, 199, 611, 313] footer=[338, 512, 611, 101]
 PASS the toggle flips Vim editing at once — 'Vim · Insert'
 PASS …and the change is unsaved — 'Unsaved preferences.'
 SHOT <repo>/tmp/walk/native/a9_prefs-desktop/out/desktop-prefs-save-unsaved.png
 PASS Save -> 'Preferences saved.' — 'Preferences saved.'
 PASS the file holds exactly the display whitelist — {'language': 'en', 'theme': 'terminal', 'version': 1, 'vimMode': True}
 SHOT <repo>/tmp/walk/native/a9_prefs-desktop/out/desktop-prefs-save-saved.png
-== WALK a9 prefs save desktop: 13/13 passed
+== WALK a9 prefs save desktop: 14/14 passed
 -- app restart (state kept)
 -- run 2: exit 0 in 3 s
 PASS connected
@@ -24,29 +25,30 @@ PASS Settings opens
 PASS Preferences shows
 PASS the toggle reads the current Vim editing — on=True
 PASS Preferences controls are >= 28 px targets — []
-PASS tg_vim inside the body — [881, 213, 44, 32]
-PASS prefs_save inside the body — [362, 339, 148, 36]
-PASS prefs_status inside the body — [522, 350, 403, 16]
+PASS tg_vim inside the body — [881, 460, 44, 32]
+PASS prefs_save inside the fixed footer — [362, 569, 148, 36]
+PASS prefs_status inside the fixed footer — [522, 579, 403, 16]
+PASS the footer sits below the body — body=[338, 199, 611, 313] footer=[338, 512, 611, 101]
 PASS the toggle flips Vim editing at once — None
 PASS …and the change is unsaved — 'Unsaved preferences.'
 SHOT <repo>/tmp/walk/native/a9_prefs-desktop/out/desktop-prefs-relaunch-unsaved.png
 PASS Save -> 'Preferences saved.' — 'Preferences saved.'
 PASS the file holds exactly the display whitelist — {'language': 'en', 'theme': 'terminal', 'version': 1, 'vimMode': False}
 SHOT <repo>/tmp/walk/native/a9_prefs-desktop/out/desktop-prefs-relaunch-saved.png
-== WALK a9 prefs relaunch desktop: 13/13 passed
+== WALK a9 prefs relaunch desktop: 14/14 passed
 -- fixture log tail:
-[replay-serve] <- permission/profile/list (id=3)
-[replay-serve] <- profile/llm/list (id=4)
-[replay-serve] <- profile/skills/list (id=5)
-[replay-serve] <- profile/sub_providers/list (id=6)
-[replay-serve] <- session/status/read (id=7)
+[replay-serve] <- profile/skills/list (id=7)
+[replay-serve] <- profile/sub_providers/list (id=8)
+[replay-serve] <- session/status/read (id=9)
 [replay-serve] client connected
 [replay-serve] client connected
 [replay-serve] <- session/open (id=0)
 [replay-serve] <- session/list (id=1)
 [replay-serve] <- session/hydrate (id=2)
-[replay-serve] <- permission/profile/list (id=3)
-[replay-serve] <- profile/llm/list (id=4)
-[replay-serve] <- profile/skills/list (id=5)
-[replay-serve] <- profile/sub_providers/list (id=6)
-[replay-serve] <- session/status/read (id=7)
+[replay-serve] <- session/list (id=3)
+[replay-serve] <- session/hydrate (id=4)
+[replay-serve] <- permission/profile/list (id=5)
+[replay-serve] <- profile/llm/list (id=6)
+[replay-serve] <- profile/skills/list (id=7)
+[replay-serve] <- profile/sub_providers/list (id=8)
+[replay-serve] <- session/status/read (id=9)

@@ -1,0 +1,191 @@
+== native walk a25_notifications [phone] (tools/walk/a25_notifications.py)
+-- run 1: exit 0 in 96 s
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=34200 app=octosense grabs=<abs>/octosense-34200 token_file=<abs>/port-8421.token
+[headless] up: pid 34200  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+PASS real: the platform layer reported this process unavailable — macOS UNUserNotificationCenter needs an .app bundle
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+PASS real: Settings > General shows the Desktop notifications row
+PASS real: the row reads Unavailable, no toggle to press (the web's disabled button) — {"toggle": false, "on": false, "state": "Unavailable", "help": "Desktop notifications are unavailable here.", "alert": ""}
+PASS real: the message says so — Desktop notifications are unavailable here.
+PASS real: clicking there asks nothing
+SHOT row-unavailable
+PASS ux row-unavailable: 9/9 numeric checks — failed=[] rects={'row': [81, 135, 255, 94], 'title': [81, 152, 150, 18], 'control': [259, 153, 77, 17], 'message': [81, 179, 191, 36]}
+== 6/6 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 34200 exited after /gq
+[headless] port 8421 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=37869 app=octosense grabs=<abs>/octosense-37869 token_file=<abs>/port-8421.token
+[headless] up: pid 37869  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+PASS granted: Settings > General shows the row
+PASS granted: off until the Settings action (no prompt yet) — {"toggle": true, "on": false, "state": "", "help": "Notify when a turn needs you or finishes while OctosCode is in the background", "alert": ""}
+SHOT row-off
+PASS ux row-off: 9/9 numeric checks — failed=[] rects={'row': [81, 135, 255, 115], 'title': [81, 152, 150, 18], 'control': [292, 145, 44, 32], 'message': [81, 179, 191, 57]}
+CLICK tg_notify r=[292, 145, 44, 32] at (314,161)
+PASS granted: the toggle asks the OS once and turns on (aria-pressed) — {"toggle": true, "on": true, "state": "", "help": "Desktop notifications are on.", "alert": ""}
+PASS granted: the opt-in is persisted
+SHOT row-on
+PASS ux row-on: 9/9 numeric checks — failed=[] rects={'row': [81, 135, 255, 74], 'title': [81, 152, 150, 18], 'control': [292, 145, 44, 32], 'message': [81, 179, 191, 16]}
+CLICK tg_notify r=[292, 145, 44, 32] at (314,161)
+PASS granted: off again without asking the OS — {"toggle": true, "on": false, "state": "", "help": "Notify when a turn needs you or finishes while OctosCode is in the background", "alert": ""}
+PASS granted: turning it off persists too
+== 8/8 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 37869 exited after /gq
+[headless] port 8421 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=40724 app=octosense grabs=<abs>/octosense-40724 token_file=<abs>/port-8421.token
+[headless] up: pid 40724  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+PASS pending: Settings > General shows the row
+CLICK tg_notify r=[292, 145, 44, 32] at (314,161)
+PASS pending: 'Enabling…' while the OS prompt waits, no toggle to press twice — {"toggle": false, "on": false, "state": "Enabling\u2026", "help": "Notify when a turn needs you or finishes while OctosCode is in the background", "alert": ""}
+PASS pending: a second click asks nothing
+SHOT row-pending
+PASS ux row-pending: 9/9 numeric checks — failed=[] rects={'row': [81, 135, 255, 115], 'title': [81, 152, 150, 18], 'control': [267, 153, 69, 17], 'message': [81, 179, 191, 57]}
+== 4/4 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 40724 exited after /gq
+[headless] port 8421 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=43727 app=octosense grabs=<abs>/octosense-43727 token_file=<abs>/port-8421.token
+[headless] up: pid 43727  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+PASS denied: Settings > General shows the row
+CLICK tg_notify r=[292, 145, 44, 32] at (314,161)
+PASS denied: the toggle stays off and the message is an alert — {"toggle": true, "on": false, "state": "", "help": "", "alert": "Notifications are blocked. Allow OctosCode in System Settings \u203a Notifications."}
+PASS denied: one request
+SHOT row-denied
+PASS ux row-denied: 10/10 numeric checks — failed=[] rects={'row': [81, 135, 255, 115], 'title': [81, 152, 150, 18], 'control': [292, 145, 44, 32], 'message': [81, 179, 191, 57]}
+== 4/4 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 43727 exited after /gq
+[headless] port 8421 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=45080 app=octosense grabs=<abs>/octosense-45080 token_file=<abs>/port-8421.token
+[headless] up: pid 45080  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+PASS error: Settings > General shows the row
+CLICK tg_notify r=[292, 145, 44, 32] at (314,161)
+PASS error: the toggle stays off and the message is an alert — {"toggle": true, "on": false, "state": "", "help": "", "alert": "Could not enable desktop notifications. Try again when permissions allow."}
+PASS error: one request
+SHOT row-error
+PASS ux row-error: 10/10 numeric checks — failed=[] rects={'row': [81, 135, 255, 115], 'title': [81, 152, 150, 18], 'control': [292, 145, 44, 32], 'message': [81, 179, 191, 57]}
+== 4/4 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 45080 exited after /gq
+[headless] port 8421 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=46282 app=octosense grabs=<abs>/octosense-46282 token_file=<abs>/port-8421.token
+[headless] up: pid 46282  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+PASS dismissed: Settings > General shows the row
+CLICK tg_notify r=[292, 145, 44, 32] at (314,161)
+PASS dismissed: the toggle stays off and the message is an alert — {"toggle": true, "on": false, "state": "", "help": "", "alert": "Permission was not granted. You can enable notifications later."}
+PASS dismissed: one request
+SHOT row-dismissed
+PASS ux row-dismissed: 10/10 numeric checks — failed=[] rects={'row': [81, 135, 255, 115], 'title': [81, 152, 150, 18], 'control': [292, 145, 44, 32], 'message': [81, 179, 191, 57]}
+== 4/4 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] no owned pid for port 8421 (already gone?)
+[headless] port 8421 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=47976 app=octosense grabs=<abs>/octosense-47976 token_file=<abs>/port-8421.token
+[headless] up: pid 47976  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+PASS click: the app starts unfocused (a hidden window never gains focus)
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+CLICK tg_notify r=[292, 145, 44, 32] at (314,161)
+PASS click: notifications opted in
+CLICK set_back r=[8, 84, 40, 40] at (28,104)
+CLICK i0_composer_0 r=[28, 743, 304, 29] at (180,758)
+TYPE 'Summarize the task list'
+KEY Return
+PASS click: the finished turn posted ONE notice for its Session (title = the Session, the web's body) — ention(fake os): posted octoscode-attention:dsflash:main | Fix steer queue drop on reconnect | A background response finished. Return to OctosCode to review it.
+PASS click: posting never focused the app
+PASS click: later syncs cannot notify twice
+SHOT notice-posted
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK the 'Add session fork' row at (156,348)
+PASS click: switched to another Session by its sidebar row — header='Add session fork'
+PASS click: the notice was not withdrawn by the switch
+HOOK /event?data=octoscode.attention.click:octoscode-attention:dsflash:main
+PASS click: the click opened the notice's Session — header='Fix steer queue drop on reconnect'
+PASS click: the clicked notice was withdrawn
+SHOT click-routed
+HOOK /event?data=octoscode.attention.focus:1
+PASS click: window focus acknowledges
+CLICK i0_composer_0 r=[28, 743, 304, 29] at (180,758)
+TYPE 'And now the follow-up'
+KEY Return
+PASS click: a focused window never notifies for the Session it shows — turn/start sent 2x (the turn played)
+HOOK /event?data=octoscode.attention.focus:0
+CLICK i0_composer_0 r=[28, 743, 304, 29] at (180,758)
+TYPE 'One more'
+KEY Return
+PASS click: unfocused again, the next finished turn notifies
+HOOK /event?data=octoscode.attention.focus:1
+PASS click: returning (focus) withdraws the notice
+== 13/13 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 47976 exited after /gq
+[headless] port 8421 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=52266 app=octosense grabs=<abs>/octosense-52266 token_file=<abs>/port-8421.token
+[headless] up: pid 52266  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+PASS background: Settings > General shows the row
+CLICK tg_notify r=[292, 145, 44, 32] at (314,161)
+PASS background: notifications opted in
+CLICK set_back r=[8, 84, 40, 40] at (28,104)
+HOOK /event?data=octoscode.attention.focus:1
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK the 'Build the release' row at (156,380)
+PASS background: CLICK 'Build the release'
+CLICK i0_composer_0 r=[28, 743, 304, 29] at (180,758)
+TYPE '[slow] build the release'
+KEY Return
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK the 'Run the test suite' row at (156,412)
+PASS background: CLICK 'Run the test suite'
+CLICK i0_composer_0 r=[28, 743, 304, 29] at (180,758)
+TYPE '[stop] try the refactor'
+KEY Return
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK the 'Pick a branch' row at (156,444)
+PASS background: CLICK 'Pick a branch'
+CLICK i0_composer_0 r=[28, 743, 304, 29] at (180,758)
+TYPE '[limit] summarize the logs'
+KEY Return
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK the 'Startup chat' row at (156,412)
+PASS background: CLICK 'Startup chat' — the work goes on in the background
+PASS background: a stopped or a rate-limited turn never notifies — []
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+PASS background: its row reads 'Completed in background' (the done mark) — dot=done
+PASS background: the Session on screen is still 'Startup chat' — 'Startup chat'
+PASS background: ONE notice, naming THAT Session (though the window is focused: it is not the one read) — s:988:9 - [octoscode] attention(fake os): posted octoscode-attention:a22:api:build | Build the release | A background response finished. Return to OctosCode to review it.
+PASS ux background-done: 5/5 numeric checks — {'row': [10, 396, 292, 32], 'mark': [18, 406, 13, 13], 'title': [38, 404, 226, 17]}
+SHOT background-done
+CLICK drawer_close r=[270, 87, 32, 32] at (286,103)
+PASS background: later syncs do not repeat it
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK the 'Build the release' row at (156,412)
+PASS background: CLICK 'Build the release'
+PASS background: selecting it acknowledges it — the notice is withdrawn
+PASS background: no new notice after the acknowledgement
+SHOT background-acknowledged
+== 15/15 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 52266 exited after /gq
+[headless] port 8421 free
+ALL PASS
