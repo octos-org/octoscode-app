@@ -261,6 +261,33 @@
    ]
   }
  },
+ "desktop/background": {
+  "mark inside its row": true,
+  "mark left of the title": true,
+  "mark centred on the row (\u00b12.5 px)": true,
+  "title inside its row (not clipped)": true,
+  "row >= 28 px high": true,
+  "_rects": {
+   "row": [
+    64,
+    388,
+    260,
+    32
+   ],
+   "mark": [
+    72,
+    398,
+    13,
+    13
+   ],
+   "title": [
+    92,
+    396,
+    194,
+    17
+   ]
+  }
+ },
  "phone/unavailable": {
   "title inside row": true,
   "control inside row": true,
@@ -520,6 +547,33 @@
     179,
     191,
     57
+   ]
+  }
+ },
+ "phone/background": {
+  "mark inside its row": true,
+  "mark left of the title": true,
+  "mark centred on the row (\u00b12.5 px)": true,
+  "title inside its row (not clipped)": true,
+  "row >= 28 px high": true,
+  "_rects": {
+   "row": [
+    10,
+    396,
+    292,
+    32
+   ],
+   "mark": [
+    18,
+    406,
+    13,
+    13
+   ],
+   "title": [
+    38,
+    404,
+    226,
+    17
    ]
   }
  }

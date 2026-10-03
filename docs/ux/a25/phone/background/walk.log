@@ -1,0 +1,118 @@
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+PASS background: Settings > General shows the row
+CLICK tg_notify r=[292, 145, 44, 32] at (314,161)
+PASS background: notifications opted in
+CLICK set_back r=[8, 84, 40, 40] at (28,104)
+HOOK /event?data=octoscode.attention.focus:1
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:413:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:1412:9 - [octoscode] a24 language at launch: en
+    log: [I] apps/octoscode/module/src/screens/bootstrap.rs:169:5 - [octoscode] bootstrap: Harness(http://127.0.0.1:8524, token: true) (remembered server: false, saved token: false, restore target: false, auto-connect: None)
+    log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+    log: [I] apps/octoscode/module/src/attention.rs:1032:9 - [octoscode] attention: start (platform api true, focused false)
+    log: [I] apps/octoscode/module/src/attention.rs:952:9 - [octoscode] attention(fake os): authorization not-determined requested=false
+    log: [I] apps/octoscode/module/src/lib.rs:3481:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session a22:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3928:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:3986:17 - [octoscode] aside panel: hidden
+    log: [I] apps/octoscode/module/src/screens/drafts.rs:338:5 - [octoscode] drafts: the principal's scope is bound (0 stored, nothing restored)
+    log: [I] apps/octoscode/module/src/lib.rs:1687:13 - [octoscode] startup: Explicit("a22:main")
+    log: [I] apps/octoscode/module/src/lib.rs:3585:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4363:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+    log: [I] apps/octoscode/module/src/attention.rs:1092:9 - [octoscode] attention: os Authorization { status: NotDetermined, requested: false, error: None }
+    log: [I] apps/octoscode/module/src/lib.rs:3481:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: OpenSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1922:13 - [octoscode] settings action: settings.panel.open
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: Action("notifications_toggle.toggle", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1922:13 - [octoscode] settings action: notifications_toggle.toggle
+    log: [I] apps/octoscode/module/src/attention.rs:952:9 - [octoscode] attention(fake os): authorization granted requested=true
+    log: [I] apps/octoscode/module/src/attention.rs:1092:9 - [octoscode] attention: os Authorization { status: Granted, requested: true, error: None }
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: CloseSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1922:13 - [octoscode] settings action: settings.panel.close
+    log: [I] apps/octoscode/module/src/attention.rs:1080:13 - [octoscode] attention: window focused — acknowledged
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK the 'Build the release' row at (156,380)
+PASS background: CLICK 'Build the release'
+CLICK i0_composer_0 r=[28, 743, 304, 29] at (180,758)
+TYPE '[slow] build the release'
+KEY Return
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK the 'Run the test suite' row at (156,412)
+PASS background: CLICK 'Run the test suite'
+CLICK i0_composer_0 r=[28, 743, 304, 29] at (180,758)
+TYPE '[stop] try the refactor'
+KEY Return
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK the 'Pick a branch' row at (156,444)
+PASS background: CLICK 'Pick a branch'
+CLICK i0_composer_0 r=[28, 743, 304, 29] at (180,758)
+TYPE '[limit] summarize the logs'
+KEY Return
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK the 'Startup chat' row at (156,412)
+PASS background: CLICK 'Startup chat' — the work goes on in the background
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: Action("drawer.open", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2031:21 - [octoscode] sidebar action: drawer.open
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: Action("session.open", 2)
+    log: [I] apps/octoscode/module/src/lib.rs:2040:21 - [octoscode] sidebar action: session.open row 2
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session a22:api:build restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:4363:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+    log: [I] apps/octoscode/module/src/lib.rs:5580:21 - [octoscode] draft synced: 24 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6289:17 - [octoscode] key ReturnKey -> ComposerSubmit
+    log: [I] apps/octoscode/module/src/flow_controller.rs:205:9 - [octoscode] turn/start 01a0ff1f-28c9-7162-99eb-70cfe848d8fd: Accepted
+    log: [I] apps/octoscode/module/src/flow.rs:3005:43 - [octoscode] turn started: 01a0ff1f-28c9-7162-99eb-70cfe848d8fd
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: Action("drawer.open", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2031:21 - [octoscode] sidebar action: drawer.open
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: Action("session.open", 3)
+    log: [I] apps/octoscode/module/src/lib.rs:2040:21 - [octoscode] sidebar action: session.open row 3
+    log: [I] apps/octoscode/module/src/lib.rs:4363:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session a22:api:tests restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:5580:21 - [octoscode] draft synced: 23 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6289:17 - [octoscode] key ReturnKey -> ComposerSubmit
+    log: [I] apps/octoscode/module/src/flow_controller.rs:205:9 - [octoscode] turn/start 01a0ff1f-2fa7-759b-ba52-de2ec54f4e0d: Accepted
+    log: [I] apps/octoscode/module/src/flow.rs:3005:43 - [octoscode] turn started: 01a0ff1f-2fa7-759b-ba52-de2ec54f4e0d
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: Action("drawer.open", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2031:21 - [octoscode] sidebar action: drawer.open
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: Action("session.open", 4)
+    log: [I] apps/octoscode/module/src/lib.rs:2040:21 - [octoscode] sidebar action: session.open row 4
+    log: [I] apps/octoscode/module/src/lib.rs:4363:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session a22:api:ask restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:5580:21 - [octoscode] draft synced: 26 chars
+    log: [I] apps/octoscode/module/src/lib.rs:6289:17 - [octoscode] key ReturnKey -> ComposerSubmit
+    log: [I] apps/octoscode/module/src/flow_controller.rs:205:9 - [octoscode] turn/start 01a0ff1f-3692-7639-bfa8-babf9ea63b96: Accepted
+    log: [I] apps/octoscode/module/src/flow.rs:3005:43 - [octoscode] turn started: 01a0ff1f-3692-7639-bfa8-babf9ea63b96
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: Action("drawer.open", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2031:21 - [octoscode] sidebar action: drawer.open
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: Action("session.open", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2040:21 - [octoscode] sidebar action: session.open row 0
+    log: [I] apps/octoscode/module/src/lib.rs:4363:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session a22:main restored (row 0 at 0)
+PASS background: a stopped or a rate-limited turn never notifies — []
+    log: [I] apps/octoscode/module/src/attention.rs:988:9 - [octoscode] attention(fake os): posted octoscode-attention:a22:api:build | Build the release | A background response finished. Return to OctosCode to review it.
+    log: [I] apps/octoscode/module/src/attention.rs:1049:13 - [octoscode] attention: completed turn 01a0ff1f-28c9-7162-99eb-70cfe848d8fd of a22:api:build needs attention (focused true)
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+PASS background: its row reads 'Completed in background' (the done mark) — dot=done
+PASS background: the Session on screen is still 'Startup chat' — 'Startup chat'
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: Action("drawer.open", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2031:21 - [octoscode] sidebar action: drawer.open
+PASS background: ONE notice, naming THAT Session (though the window is focused: it is not the one read) — s:988:9 - [octoscode] attention(fake os): posted octoscode-attention:a22:api:build | Build the release | A background response finished. Return to OctosCode to review it.
+PASS ux background-done: 5/5 numeric checks — {'row': [10, 396, 292, 32], 'mark': [18, 406, 13, 13], 'title': [38, 404, 226, 17]}
+SHOT background-done
+CLICK drawer_close r=[270, 87, 32, 32] at (286,103)
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: Action("drawer.close", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2031:21 - [octoscode] sidebar action: drawer.close
+PASS background: later syncs do not repeat it
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK the 'Build the release' row at (156,412)
+PASS background: CLICK 'Build the release'
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: Action("drawer.open", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2031:21 - [octoscode] sidebar action: drawer.open
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: Action("session.open", 2)
+    log: [I] apps/octoscode/module/src/lib.rs:2040:21 - [octoscode] sidebar action: session.open row 2
+    log: [I] apps/octoscode/module/src/attention.rs:991:9 - [octoscode] attention(fake os): closed octoscode-attention:a22:api:build
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session a22:api:build restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:4363:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+PASS background: selecting it acknowledges it — the notice is withdrawn
+PASS background: no new notice after the acknowledgement
+SHOT background-acknowledged
+== 15/15 checks passed

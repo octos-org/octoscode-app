@@ -1,5 +1,5 @@
 [replay-serve] scenario=activity fixture=r4-task-a6ea8505.jsonl: 26 frames; recorded session `octoscode2391:main`; 1 recorded turns ["01920000-0000-7000-8000-0000000000f4"]; 11 standalone notifications
-[replay-serve] listening on ws://127.0.0.1:8514/api/ui-protocol/ws (delay 2ms)
+[replay-serve] listening on ws://127.0.0.1:8524/api/ui-protocol/ws (delay 2ms)
 [replay-serve] client connected
 [replay-serve] client connected
 [replay-serve] <- session/open (id=0)
@@ -13,7 +13,7 @@
 [replay-serve] <- profile/sub_providers/list (id=8)
 [replay-serve] <- session/status/read (id=9)
 [replay-serve] <- turn/start (id=10)
-[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdd2-3b9a-770e-8cca-1706ccb03366 (5 recorded frames)
+[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0ff1e-d635-73ee-b720-f6b8e0d4e1f2 (5 recorded frames)
 [replay-serve] <- session/list (id=11)
 [replay-serve] <- session/list (id=12)
 [replay-serve] <- session/open (id=13)
@@ -35,13 +35,13 @@
 [replay-serve] holding the switch's session/list for 6 s
 [replay-serve] <- session/hydrate (id=26)
 [replay-serve] <- turn/start (id=27)
-[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdd2-4d9b-7407-a458-71d6a283fb35 (5 recorded frames)
+[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0ff1e-e868-7569-99ff-52da19a19d4b (5 recorded frames)
 [replay-serve] <- session/list (id=28)
 [replay-serve] holding the switch's session/list for 6 s
 [replay-serve] <- session/list (id=29)
 [replay-serve] holding the switch's session/list for 6 s
 [replay-serve] <- turn/start (id=30)
-[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdd2-693a-7664-8095-888dfeeff7ad (5 recorded frames)
+[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0ff1f-040f-7390-a763-d377e539cd56 (5 recorded frames)
 [replay-serve] <- session/list (id=31)
 [replay-serve] holding the switch's session/list for 6 s
 [replay-serve] <- session/list (id=32)
