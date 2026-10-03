@@ -1,6 +1,6 @@
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <home> --remote 8494 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8494 pid=51523 app=octosense grabs=<tmp> token_file=<tmp>
-[headless] up: pid 51523  port 8494  log <home>
+[makepad-remote] listening on 127.0.0.1:8494 pid=64603 app=octosense grabs=<tmp> token_file=<tmp>
+[headless] up: pid 64603  port 8494  log <home>
 [headless] drive it:  <home> -s http://127.0.0.1:8494/snap?q=Button   |   harness/headless.sh shot 8494 out.png
 == 1. no peers: the dock is hidden (the web renders nothing)
 CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
@@ -46,7 +46,7 @@ PASS rows: only the approval-blocked rows grow the threaded card
 PASS card: 'asks to run shell' + the target, Approve once / Deny / Stop + Approve for session — asks='asks to run shell' target='cargo test -p octos-cli'
 == 4. Approve once on Peer 1: ONE frame bound to Peer 1's own ids
 CLICK pd_row_0_approve r=[36, 438, 99, 30] at (86,453)
-PASS Approve once CLICK -> exactly ONE peer/control approval_respond with Peer 1's approval id, operation and adopted turn (never Peer 2's) — [{'operation_id': '52791996-4dd8-48d3-b92a-1c29edba2ac0', 'target_operation_id': 'b234956d-c727-4b1a-b0f8-b51ff2e9fc1c', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d2', 'command': 'approval_respond', 'approval_id': '01a0eb92-9444-7101-aa6f-000000010001', 'decision': 'approve'}] p1_ask=['01a0eb92-9444-7101-aa6f-000000010001'] p2_ask=['01a0eb92-9444-7101-aa6f-000000020001']
+PASS Approve once CLICK -> exactly ONE peer/control approval_respond with Peer 1's approval id, operation and adopted turn (never Peer 2's) — [{'operation_id': 'a200ffcf-042b-4067-9f0e-c85b557692fd', 'target_operation_id': '1bca5200-73c3-4f28-ae1b-630dd5cdd66d', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d2', 'command': 'approval_respond', 'approval_id': '01a0eb92-9444-7101-aa6f-000000010001', 'decision': 'approve'}] p1_ask=['01a0eb92-9444-7101-aa6f-000000010001'] p2_ask=['01a0eb92-9444-7101-aa6f-000000020001']
 PASS Peer 1 -> Working · ↓ 12.4k · Sent (the acknowledgment, the card gone) — 'Working' ' · ↓ 12.4k · Sent'
 == 5. the board's state: Peer 1 working, Peer 2 waiting (threaded card), Peer 3 finished
 PASS rows: the elapsed clock ticks in place for a working peer (and stays frozen for a finished one) — Peer 1 18s -> 21s, Peer 3 2s -> 2s
@@ -73,11 +73,11 @@ KEY Alt+KeyP
 PASS Alt+P again -> expanded
 == 7. Deny on Peer 2: ONE frame with Peer 2's pending id; Peer 2 asks again
 CLICK pd_row_1_deny r=[141, 588, 50, 30] at (166,603)
-PASS Deny CLICK -> exactly ONE approval_respond deny with Peer 2's approval id, operation and turn — [{'operation_id': '7da73d9b-3c01-44b3-b373-66836f700001', 'target_operation_id': '8b637063-29bb-47ad-8614-5866f213073b', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d3', 'command': 'approval_respond', 'approval_id': '01a0eb92-9444-7101-aa6f-000000020001', 'decision': 'deny'}] p2_ask=['01a0eb92-9444-7101-aa6f-000000020001']
+PASS Deny CLICK -> exactly ONE approval_respond deny with Peer 2's approval id, operation and turn — [{'operation_id': '87c06676-520c-463f-a74b-ac40bf8f9690', 'target_operation_id': '0a8259b6-5381-4c5c-9254-0d40c4b5b9cc', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d3', 'command': 'approval_respond', 'approval_id': '01a0eb92-9444-7101-aa6f-000000020001', 'decision': 'deny'}] p2_ask=['01a0eb92-9444-7101-aa6f-000000020001']
 PASS Peer 2 asks again (a NEW approval id, a new target on its card) — ['01a0eb92-9444-7101-aa6f-000000020001', '01a0eb92-9444-7101-aa6f-000000020002']
 == 8. Approve for session on Peer 2: ONE frame with the session scope
 CLICK pd_row_1_session r=[36, 623, 126, 28] at (99,637)
-PASS Approve for session CLICK -> exactly ONE approval_respond approve + approval_scope=session on Peer 2's new id — [{'operation_id': '01ae8e28-da5e-43d4-853e-3cd4b09a6f10', 'target_operation_id': '8b637063-29bb-47ad-8614-5866f213073b', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d3', 'command': 'approval_respond', 'approval_id': '01a0eb92-9444-7101-aa6f-000000020002', 'decision': 'approve', 'approval_scope': 'session'}]
+PASS Approve for session CLICK -> exactly ONE approval_respond approve + approval_scope=session on Peer 2's new id — [{'operation_id': '7d0a1a30-7e7c-49f4-98e6-454eac834903', 'target_operation_id': '0a8259b6-5381-4c5c-9254-0d40c4b5b9cc', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d3', 'command': 'approval_respond', 'approval_id': '01a0eb92-9444-7101-aa6f-000000020002', 'decision': 'approve', 'approval_scope': 'session'}]
 PASS Peer 2 asks a third time
 == 9. Alt+Y / Alt+N act on the FOCUSED row only
 CLICK pd_row_0_focus r=[10, 445, 292, 40] at (156,465)
@@ -87,12 +87,12 @@ PASS Alt+Y on the focused Peer 1 (no pending approval) sends NOTHING — []
 CLICK pd_row_1_focus r=[10, 487, 292, 40] at (156,507)
 PASS focus: Peer 2's row CLICK draws the ring around the row ⌥Y / ⌥N will answer
 KEY Alt+KeyN
-PASS Alt+N on the focused Peer 2 -> exactly ONE deny on Peer 2's pending id — [{'operation_id': '3993a97b-b66f-481a-a75e-03aea6be5c8a', 'target_operation_id': '8b637063-29bb-47ad-8614-5866f213073b', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d3', 'command': 'approval_respond', 'approval_id': '01a0eb92-9444-7101-aa6f-000000020003', 'decision': 'deny'}]
+PASS Alt+N on the focused Peer 2 -> exactly ONE deny on Peer 2's pending id — [{'operation_id': 'bf4fbc18-e2cd-445f-a542-ad3a31776aba', 'target_operation_id': '0a8259b6-5381-4c5c-9254-0d40c4b5b9cc', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d3', 'command': 'approval_respond', 'approval_id': '01a0eb92-9444-7101-aa6f-000000020003', 'decision': 'deny'}]
 == 10. Stop on Peer 2: ONE interrupt bound to Peer 2's operation and turn
 CLICK pd_row_1_stop r=[197, 588, 47, 30] at (220,603)
-PASS Stop CLICK -> exactly ONE peer/control interrupt on Peer 2's operation + adopted turn — [{'operation_id': 'b912be2d-94ec-4c60-9a7e-9d040244e69a', 'target_operation_id': '8b637063-29bb-47ad-8614-5866f213073b', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d3', 'command': 'interrupt'}]
+PASS Stop CLICK -> exactly ONE peer/control interrupt on Peer 2's operation + adopted turn — [{'operation_id': 'b18abdf5-a9b9-46b5-bf94-f38d9664b368', 'target_operation_id': '0a8259b6-5381-4c5c-9254-0d40c4b5b9cc', 'expected_turn_id': '00000000-0000-4000-8000-0000000000d3', 'command': 'interrupt'}]
 PASS Peer 2 -> Stopped (the turn's own terminal) — 'Stopped'
-PASS wire: every peer/control so far went to the row clicked (Peer 1 x1, Peer 2 x4) — ['b234956d-c727-4b1a-b0f8-b51ff2e9fc1c', '8b637063-29bb-47ad-8614-5866f213073b', '8b637063-29bb-47ad-8614-5866f213073b', '8b637063-29bb-47ad-8614-5866f213073b', '8b637063-29bb-47ad-8614-5866f213073b']
+PASS wire: every peer/control so far went to the row clicked (Peer 1 x1, Peer 2 x4) — ['1bca5200-73c3-4f28-ae1b-630dd5cdd66d', '0a8259b6-5381-4c5c-9254-0d40c4b5b9cc', '0a8259b6-5381-4c5c-9254-0d40c4b5b9cc', '0a8259b6-5381-4c5c-9254-0d40c4b5b9cc', '0a8259b6-5381-4c5c-9254-0d40c4b5b9cc']
 == 11. Hide peers / the pill toggle the fold
 CLICK pd_hide r=[226, 549, 68, 28] at (260,563)
 PASS 'Hide peers' CLICK folds
@@ -124,6 +124,6 @@ PASS zh: English restores
 CLICK set_back r=[8, 84, 40, 40] at (28,104)
 == 48/48 checks passed
 gq: {"png":["<tmp>"],"quit":1}
-[headless] pid 51523 exited after /gq
+[headless] pid 64603 exited after /gq
 [headless] port 8494 free
 == WALK a30 peer dock phone: PASS

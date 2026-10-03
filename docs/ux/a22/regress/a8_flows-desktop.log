@@ -1,5 +1,5 @@
 == native walk a8_flows [desktop] (tools/walk/a8_flows_walk.py)
--- run 1: exit 0 in 23 s
+-- run 1: exit 0 in 24 s
 PASS app is up with the strip
 PASS /resume opens 'Resume chat' — Resume chat
 PASS resume: the catalog was read scoped (session/list {cwd, profile_id})
@@ -43,7 +43,7 @@ PASS nothing opened before the choice
 PASS wire: the chosen profile opens the new Session
 PASS the panel closes
 PASS the draft moved with the committed launch — 'unsent words'
-PASS wire: one turn/start for the sent text — [{'input': [{'kind': 'text', 'text': 'unsent words'}], 'session_id': 'glm-coder:api:01a0fee8-433c-7747-80ea-a06007f5f60e', 'turn_id': '01a0fee8-45e9-7651-9e52-8bd6dd32da31'}]
+PASS wire: one turn/start for the sent text — [{'input': [{'kind': 'text', 'text': 'unsent words'}], 'session_id': 'glm-coder:api:01a0ff2b-1d45-7495-a703-65dda8a1afc4', 'turn_id': '01a0ff2b-1ff7-7129-8d95-cf948e71d3d2'}]
 PASS strip: the live word follows the turn (Thinking… -> Running shell… -> Thinking… -> Writing…) — ['Responding', 'Thinking…', 'Running shell…', 'Thinking…', 'Writing…', 'Ready']
 PASS strip: back to 'Ready' when the turn completes — ['Responding', 'Thinking…', 'Running shell…', 'Thinking…', 'Writing…', 'Ready']
 PASS parked: opening the Session read its parked interactions (session/hydrate include pending_approvals)

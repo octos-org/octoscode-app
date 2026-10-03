@@ -12,10 +12,10 @@ PASS 203: the live turn is NOT drawn before its history (buffered)
   shot docs/ux/a22/phone-02-203-loading.png
 PASS 203: the live answer completes after the history
 PASS 203: history first, then the live turn — each prompt once — ['First prompt: where does the hydrate start?', 'Second prompt: and the cursor?', 'Third prompt: live from another client'] twice=[]
-PASS 203: the replayed answer the history holds is drawn once — ['The live answer arrived after the history.', 'The hydrate cursor is adopted max-wins.', 'It starts in the open reply arm.']
-PASS 203 wire: the live events went out BEFORE the history reply — push@15 reply@19
+PASS 203: the replayed answer the history holds is drawn once — ['The hydrate cursor is adopted max-wins.', 'It starts in the open reply arm.', 'The live answer arrived after the history.']
+PASS 203 wire: the live events went out BEFORE the history reply — push@14 reply@19
 PASS 203 wire: one open, one history read for the Session — opens 1, history reads 1
-PASS 203 layout: transcript rows inside the conversation column — [[16, 584, 328, 19], [146, 300, 182, 44], [16, 374, 328, 19]]
+PASS 203 layout: transcript rows inside the conversation column — [[110, 127, 218, 43], [16, 374, 328, 19], [146, 300, 182, 44]]
   shot docs/ux/a22/phone-03-203-history-then-live.png
 PASS 216: back to 'Startup chat' (CLICK)
 PASS 216: /thinking opens Thinking effort
