@@ -368,6 +368,12 @@ def layout(name, card_id, buttons, labels, frame_id=None):
     return card
 
 
+# Validation 330786aa: the first prompt is typed at launch, inside this hold
+# of the chrome's start-up profile reads (boot, send_prompt).
+EARLY_HOLD_MS = 3000
+EARLY = {"typed": None, "reads_before": False, "before": []}
+
+
 def clear_composer():
     """Empty the composer: it may hold a RESTORED prompt (an interrupted turn's
     text comes back, like the web), so a new prompt must not be typed into it
@@ -385,10 +391,15 @@ def send_prompt(n):
     composer = "i0_composer_0"
     if not wait(lambda: shown(composer), 20):
         return check(f"turn {n + 1}: composer shown", False)
-    click(composer)
-    clear_composer()
-    type_text(PROMPTS[n])
-    key("return")
+    if n == 0 and EARLY["typed"]:
+        # The prompt typed at launch (boot): Return with NO new click — the
+        # focus must have survived the start-up reads as well as the text.
+        key("return")
+    else:
+        click(composer)
+        clear_composer()
+        type_text(PROMPTS[n])
+        key("return")
     started = wait(lambda: any("ComposerSubmit" in l for l in app_logs()), 10)
     return check(f"turn {n + 1}: CLICK composer + type + Return -> turn/start", started)
 
@@ -455,9 +466,36 @@ def boot():
         get("/click?x=153&y=363&wait=1")  # the OctosCode icon on the phone home
     ok = wait(lambda: shown("i0_composer_0"), 40)
     check("module up: the composer is shown", ok)
+    # Validation 330786aa: someone types their first prompt AT ONCE, while the
+    # start-up reads are still in flight (the replay server holds the
+    # chrome's profile reads EARLY_HOLD_MS). While the seat labels rode the
+    # composer's DSL, a start-up read's landing re-mounted the composer and
+    # the typing vanished (focus, caret and text).
+    if ok and click("i0_composer_0"):
+        before = app_logs()  # drained: what landed before the typing
+        type_text(PROMPTS[0])
+        EARLY["typed"] = PROMPTS[0]
+        EARLY["reads_before"] = any("profile reads folded" in l for l in before)
+        EARLY["before"] = before
     tabs = wait(lambda: shown("hd_tab_chat_hit") and shown("hd_tab_traj_hit"), 30)
     check("connected: the Chat / Trajectory tabs show (capabilities advertised)", tabs,
           f"{text('hd_tab_chat_on')!r} / {text('hd_tab_traj_off')!r}")
+    if EARLY["typed"]:
+        seen = []
+        landed = not EARLY["reads_before"] and wait(
+            lambda: seen.extend(app_logs()) or any("profile reads folded" in l for l in seen),
+            EARLY_HOLD_MS / 1000 + 10)
+        remounts = [l.split("composer remounted", 1)[1][:120] for l in seen if "composer remounted" in l]
+        check("start-up: the profile reads landed AFTER the first prompt was typed", bool(landed),
+              "already folded before the typing" if EARLY["reads_before"] else "")
+        check("start-up: the prompt typed at launch survived the start-up reads",
+              text("i0_composer_0") == EARLY["typed"], f"{text('i0_composer_0')!r} re-mounts {remounts}")
+        # Deterministic whatever the typing's timing: ONE composer mount from
+        # launch to the settled start-up (any re-mount replaces the TextInput).
+        mounts = [l.split("composer remounted", 1)[1][:120] for l in EARLY["before"] + seen
+                  if "composer remounted" in l]
+        check("start-up: the composer mounted once (no re-mount from launch to the settled start-up)",
+              len(mounts) == 1, f"{len(mounts)} mounts {mounts}")
     return ok
 
 
@@ -905,7 +943,8 @@ def main():
         f.unlink()
     DOWNLOADS[0] = work / "downloads"
     replay = ROOT / "target" / "debug" / "examples" / "replay_serve"
-    serve = subprocess.Popen([str(replay), str(RPORT), "--scenario", "surfaces"],
+    serve = subprocess.Popen([str(replay), str(RPORT), "--scenario", "surfaces",
+                              "--slow", f"profile/llm/list={EARLY_HOLD_MS}"],
                              stdout=open(OUT / f"replay-{MODE}.log", "w"), stderr=subprocess.STDOUT)
     time.sleep(1.5)
     env = os.environ.copy()

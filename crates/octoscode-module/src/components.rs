@@ -870,7 +870,6 @@ fn lower_fluid(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Opti
         ItemKind::AnswerActions => crate::fluid::answer_actions(token, &get("t11_text"), &m),
         ItemKind::Composer => {
             let placeholder = get("composer_idle_input_placeholder");
-            let approval = get("pill1_t_text");
             crate::fluid::composer(
                 &crate::fluid::ComposerView {
                     placeholder: if placeholder.is_empty() {
@@ -878,21 +877,16 @@ fn lower_fluid(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Opti
                     } else {
                         placeholder
                     },
-                    // The seat before a permission read (the board's pill copy).
-                    approval: if approval.is_empty() {
-                        crate::i18n::tr("Ask for approval").to_owned()
-                    } else {
-                        approval
-                    },
-                    // A10 — the model seat's label (`composer.model`).
-                    model: {
-                        let m = get("t04_text");
-                        if m.is_empty() {
-                            crate::screens::board3::seats::MODEL_SELECT.to_owned()
-                        } else {
-                            m
-                        }
-                    },
+                    // The two seats' LIVE labels (`composer.permission`, the
+                    // A10 `composer.model`) are not in the DSL: the reads that
+                    // carry them land just after connecting, and while they
+                    // rode the mount string each landing re-mounted the
+                    // composer under someone already typing (validation
+                    // 330786aa: the first prompt after launch vanished). The
+                    // DSL keeps the authored copy they replace; the host sets
+                    // the live text in place (lib.rs `sync_composer_seats`).
+                    approval: crate::i18n::tr("Ask for approval").to_owned(),
+                    model: crate::i18n::tr(crate::screens::board3::seats::MODEL_SELECT).to_owned(),
                 },
                 &m,
             )

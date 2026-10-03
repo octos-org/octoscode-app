@@ -1295,6 +1295,14 @@ pub struct OctoscodeView {
     /// character).
     #[rust]
     composer_synced: Option<String>,
+    /// The composer seats' live labels as last set in place (approval pill,
+    /// model seat) — see `sync_composer_seats`.
+    #[rust]
+    composer_seats: Option<(String, String)>,
+    /// A re-mount took the composer from someone typing: the caret to give
+    /// back with the focus once the new TextInput has been drawn.
+    #[rust]
+    composer_refocus: Option<(makepad_widgets::text::selection::Cursor, std::time::Instant)>,
     /// The memoised per-item lowerings (a `PortalList` re-instantiates its
     /// visible rows every frame; without this the CPU re-lowers them each
     /// frame). See [`screen::Cache`].
@@ -3453,38 +3461,69 @@ impl OctoscodeView {
                 self.composer_synced = Some(store_draft);
             }
         }
-        let composer = {
-            let mut cache = std::mem::take(&mut self.cache);
-            let c = cache
-                .lower(&bridge, components::ItemKind::Composer, 0, None)
-                .unwrap_or_default();
-            self.cache = cache;
-            c
-        };
-        // Card #21f item 1b: while a turn runs the SAME dock is the STOP control
-        // (atlas conversation-08 `stop2`, a white 12×12 rounded square on the flat
-        // black disc). A1: the fluid composer carries BOTH glyphs and the host
-        // shows one — the old DSL swap (send.svg -> stop.svg) changed the mount
-        // string, so every turn start/end REMOUNTED the composer and replaced
-        // the TextInput the person was typing in.
-        let composer_splash = self.view.splash(cx, ids!(composer_splash));
-        match self.mounts.mount(cx, &composer_splash, &composer) {
-            Err(e) => makepad_widgets::log!("[octoscode] composer mount: {e}"),
-            // #32h TOP: one line per REAL remount — the per-key typing test
-            // asserts this fires only at the initial mount, never per char.
-            Ok(true) => {
-                makepad_widgets::log!("[octoscode] composer remounted");
-                // A1: a remount (density or theme) replaces the TextInput —
-                // carry the draft it held over, and re-apply the label fit.
-                let draft = self.composer_synced.clone().unwrap_or_default();
-                if !draft.is_empty() {
-                    self.view
-                        .text_input(cx, &[live_id!(composer_splash), live_id!(i0_composer_0)])
-                        .set_text(cx, &draft);
+        // Validation 330786aa: the composer mounts only once a layout has
+        // measured the module — against the default desktop geometry a phone's
+        // first layout (desktop -> phone density) re-mounted it, and the
+        // first prompt typed after launch vanished.
+        if conv_layout::measured() {
+            let composer = {
+                let mut cache = std::mem::take(&mut self.cache);
+                let c = cache
+                    .lower(&bridge, components::ItemKind::Composer, 0, None)
+                    .unwrap_or_default();
+                self.cache = cache;
+                c
+            };
+            // Card #21f item 1b: while a turn runs the SAME dock is the STOP control
+            // (atlas conversation-08 `stop2`, a white 12×12 rounded square on the flat
+            // black disc). A1: the fluid composer carries BOTH glyphs and the host
+            // shows one — the old DSL swap (send.svg -> stop.svg) changed the mount
+            // string, so every turn start/end REMOUNTED the composer and replaced
+            // the TextInput the person was typing in.
+            let composer_splash = self.view.splash(cx, ids!(composer_splash));
+            // What a re-mount would take from someone typing: the TextInput's
+            // own text (ahead of the synced draft by any keystroke this frame),
+            // its caret and the focus.
+            let held = {
+                let input = self.view.text_input(cx, &[live_id!(composer_splash), live_id!(i0_composer_0)]);
+                (input.text(), input.cursor(), input.key_focus(cx))
+            };
+            let before = self.mounts.mounted_dsl(&composer_splash);
+            let mounted = self.mounts.mount(cx, &composer_splash, &composer);
+            match &mounted {
+                Err(e) => makepad_widgets::log!("[octoscode] composer mount: {e}"),
+                // #32h TOP: one line per REAL remount — the per-key typing test
+                // asserts this fires only at the initial mount, never per char.
+                Ok(true) => {
+                    match before {
+                        // Validation 330786aa: name what changed (the seats'
+                        // labels once re-mounted it under someone typing).
+                        Some(old) => makepad_widgets::log!(
+                            "[octoscode] composer remounted: {}",
+                            mount::first_difference(&old, &composer)
+                        ),
+                        None => makepad_widgets::log!("[octoscode] composer remounted"),
+                    }
+                    // A1: a remount (density, theme, language) replaces the
+                    // TextInput — carry what it held over: the text, then the
+                    // focus and the caret once the new one is drawn (validation
+                    // 330786aa: the first prompt typed after launch vanished).
+                    let (text, cursor, focused) = held;
+                    let draft = if text.is_empty() { self.composer_synced.clone().unwrap_or_default() } else { text };
+                    if !draft.is_empty() {
+                        self.view
+                            .text_input(cx, &[live_id!(composer_splash), live_id!(i0_composer_0)])
+                            .set_text(cx, &draft);
+                    }
+                    if focused {
+                        self.composer_refocus = Some((cursor, std::time::Instant::now()));
+                        SignalToUI::set_ui_signal();
+                    }
                 }
-                self.apply_composer_fit(cx);
+                Ok(false) => {}
             }
-            Ok(false) => {}
+            self.sync_composer_seats(cx, matches!(mounted, Ok(true)));
+            self.composer_refocus_tick(cx);
         }
         // A10 — the web's `TurnStopButton` states on the same control:
         // Stop (black), Starting… / Stopping… (inert, greyed), no Stop when
@@ -4747,6 +4786,58 @@ impl OctoscodeView {
         }
     }
 
+    /// The composer seats' LIVE labels, set in place (validation 330786aa):
+    /// the permission read-back and the selected model land just after
+    /// connecting, and while they rode the composer's DSL each landing
+    /// re-mounted it — the TextInput someone had clicked into was replaced
+    /// and their first message vanished. Same values as the bindings
+    /// (`composer.permission`, `composer.model`); the phone keeps the mode
+    /// word alone (`fluid::compact_permission_label`).
+    fn sync_composer_seats(&mut self, cx: &mut Cx, remounted: bool) {
+        let (approval, model) = {
+            let b = self.bridge.lock().unwrap();
+            (
+                screens::board3::seats::permission_seat_label(&b.store),
+                screens::board3::seats::model_seat_label(&b.store),
+            )
+        };
+        let approval = approval.unwrap_or_else(|| crate::i18n::tr("Ask for approval").to_owned());
+        let approval = match conv_layout::current().density {
+            conv_layout::Density::Phone => fluid::compact_permission_label(&approval).to_owned(),
+            conv_layout::Density::Desktop => approval,
+        };
+        let want = (approval, model);
+        if !remounted && self.composer_seats.as_ref() == Some(&want) {
+            return;
+        }
+        self.view
+            .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_2_0)])
+            .set_text(cx, &want.0);
+        self.view
+            .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_4)])
+            .set_text(cx, &want.1);
+        self.composer_seats = Some(want);
+        // A13: the room splits by what the two live labels need.
+        self.apply_composer_fit(cx);
+    }
+
+    /// Give the focus and the caret back to a re-mounted composer once its
+    /// new TextInput has been drawn (focusing an undrawn widget does not
+    /// hold — the Connect card's token focus waits the same way).
+    fn composer_refocus_tick(&mut self, cx: &mut Cx) {
+        let Some((cursor, at)) = self.composer_refocus else { return };
+        if at.elapsed() < std::time::Duration::from_millis(60) {
+            SignalToUI::set_ui_signal();
+            return;
+        }
+        self.composer_refocus = None;
+        let input = self.view.text_input(cx, &[live_id!(composer_splash), live_id!(i0_composer_0)]);
+        input.take_key_focus(cx);
+        let index = cursor.index.min(input.text().len());
+        input.set_cursor(cx, makepad_widgets::text::selection::Cursor { index, ..cursor }, false);
+        makepad_widgets::log!("[octoscode] composer re-mount gave the focus back (caret {index})");
+    }
+
     fn apply_composer_fit(&mut self, cx: &mut Cx) {
         let mut approval = self
             .view
@@ -4834,6 +4925,11 @@ impl OctoscodeView {
             win_w
         };
         let changed = conv_layout::set_geometry(win_w, pane_w);
+        if changed {
+            // The composer mounts only against a measured geometry
+            // (`sync_labels`, event side): wake it once this lands.
+            SignalToUI::set_ui_signal();
+        }
         let m = conv_layout::current();
         if !changed && !dock_changed && self.applied_metrics == Some(m) {
             return;

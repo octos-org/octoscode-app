@@ -146,6 +146,14 @@ pub fn set_geometry(window_w: f64, pane_w: f64) -> bool {
     true
 }
 
+/// Whether a layout has reported the geometry yet: before it, [`current`]
+/// is the default desktop — a phone's composer lowered then was re-mounted
+/// by the first layout (desktop -> phone density) under someone already
+/// typing (validation 330786aa), so the composer waits for this.
+pub fn measured() -> bool {
+    f64::from_bits(WINDOW_W_BITS.load(Ordering::Relaxed)) > 0.0
+}
+
 /// The current geometry (the default desktop before any layout reported).
 pub fn current() -> Metrics {
     let w = f64::from_bits(WINDOW_W_BITS.load(Ordering::Relaxed));

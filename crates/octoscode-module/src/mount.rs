@@ -84,6 +84,12 @@ impl MountCache {
     /// Returns `Ok(true)` when a mount happened, `Ok(false)` when the widget was
     /// already mounted from the same DSL (the steady-state case a `PortalList`
     /// hits every frame).
+    /// The DSL a Splash was last mounted with (a re-mount's diagnostics).
+    pub fn mounted_dsl(&self, splash: &SplashRef) -> Option<String> {
+        let uid = splash.borrow()?.widget_uid().0;
+        self.slots.get(&uid).map(|s| s.dsl.clone())
+    }
+
     pub fn mount(&mut self, cx: &mut Cx, splash: &SplashRef, ui: &str) -> Result<bool, String> {
         let (uid, source) = {
             let inner = splash.borrow().ok_or("mount: the Splash is not live")?;
@@ -545,4 +551,18 @@ mod tests {
         assert!(code.ends_with("}}"));
         assert!(code.contains("width:Fill height:Fit flow:Down"));
     }
+}
+
+/// Where two mount strings first differ, a short window of each side (a
+/// re-mount's log line names what changed).
+pub fn first_difference(old: &str, new: &str) -> String {
+    let at = old
+        .char_indices()
+        .zip(new.chars())
+        .find(|((_, a), b)| a != b)
+        .map(|((i, _), _)| i)
+        .unwrap_or_else(|| old.len().min(new.len()));
+    let start = (0..=at.saturating_sub(24)).rev().find(|&i| old.is_char_boundary(i) && new.is_char_boundary(i)).unwrap_or(0);
+    let cut = |s: &str| s[start..].chars().take(72).collect::<String>().replace('\n', " ");
+    format!("{:?} -> {:?}", cut(old), cut(new))
 }

@@ -16,9 +16,12 @@ use serde_json::{json, Value};
 use tokio::net::TcpListener;
 use tokio_tungstenite::tungstenite::Message;
 
+use octoscode_module::bindings::Ctx;
+use octoscode_module::components::{self, ItemKind};
 use octoscode_module::flow::Conversation;
 use octoscode_module::screens::board3::host::{self, Dialog, Job, Outcome};
 use octoscode_module::screens::board3::seats;
+use octoscode_module::screens::models;
 use octoscode_store::domains::models::Disposition;
 
 fn frames(name: &str) -> Vec<Value> {
@@ -358,5 +361,52 @@ async fn the_seats_follow_the_capabilities() {
         .collect();
     store.domains.config.set_supported_methods(methods);
     assert!(!seats::permission_seat(&store) && !seats::model_seat(&store), "a missing capability removes its seat");
+    tokio::time::sleep(Duration::from_millis(10)).await;
+}
+
+/// Validation 330786aa (A6 phone 6/15): the reads that land just after
+/// connecting — the profile's model list (the chrome's profile reads) and the
+/// permission seat's load — changed the composer's lowered DSL. The mount
+/// cache compares strings, so the composer REMOUNTED and replaced the
+/// TextInput someone had already clicked into: their first message after
+/// launch vanished (the focus, the caret and the typed text). Those reads must
+/// not change the DSL; the host sets the two seat labels in place
+/// (lib.rs `sync_composer_seats`), so the live values still reach the screen.
+#[tokio::test]
+async fn the_startup_reads_never_change_the_composer_dsl() {
+    let _s = serial();
+    let mut canned = base();
+    // The recorded profile-level list (`primary` + `fallbacks`), what the chrome's read folds.
+    canned.push(("profile/llm/list".into(), dir(R2, "in", "profile/llm/list").remove(0)));
+    canned.push(("permission/profile/list".into(), dir(R2, "in", "permission/profile/list").remove(0)));
+    let server = Server::start(canned).await;
+    let conv = connect(&server).await;
+    let store = conv.store.clone();
+    let ui = conv.ui();
+    let composer = || {
+        let ctx = Ctx::new(&store, &ui);
+        let copies = components::item_copies(ItemKind::Composer, &ctx, 0, None).expect("copies");
+        (components::lower(ItemKind::Composer, "0", &copies).expect("lowered"), copies)
+    };
+    let (before, _) = composer();
+    assert_eq!(seats::model_seat_label(&store), seats::MODEL_SELECT, "no model read yet");
+    assert_eq!(seats::permission_seat_label(&store), None, "no permission read yet");
+    // What the host runs once connected (lib.rs): the chrome's profile reads,
+    // then the permission seat's load.
+    models::refresh(&conv, &store).await.expect("the profile reads");
+    host::run(Job::PermissionLoad, &conv).await.expect("the permission list");
+    let model = seats::model_seat_label(&store);
+    let permission = seats::permission_seat_label(&store).expect("the permission read landed");
+    assert_ne!(model, seats::MODEL_SELECT, "the model read landed");
+    let (after, copies) = composer();
+    assert!(
+        before == after,
+        "a startup read changed the composer DSL, so the composer remounts and drops the focus, the caret \
+         and what is being typed (model {model:?}, permission {permission:?})"
+    );
+    // The live labels still reach the host, which sets them in place.
+    let copy = |id: &str| copies.iter().find(|(c, _)| c == id).map(|(_, v)| v.clone()).unwrap_or_default();
+    assert_eq!(copy("t04_text"), model);
+    assert_eq!(copy("pill1_t_text"), permission);
     tokio::time::sleep(Duration::from_millis(10)).await;
 }

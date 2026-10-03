@@ -3188,18 +3188,32 @@ async fn main() {
                     }
                     // A5 — the `screens` scenario: the recorded reply for
                     // this method, re-pointed at the session the app opened.
-                    m if replies.contains_key(m) => {
-                        let (mut body, from) = replies[m].clone();
-                        rewrite_session(&mut body, &from, &active_session);
-                        println!("[replay-serve] -> {m} (recorded reply)");
-                        send(&tx, serde_json::json!({
-                            "jsonrpc": "2.0", "id": id, "result": body
-                        })).await;
-                    }
-                    _ => {
-                        send(&tx, serde_json::json!({
-                            "jsonrpc": "2.0", "id": id, "result": {}
-                        })).await;
+                    m => {
+                        let body = match replies.get(m) {
+                            Some((body, from)) => {
+                                let mut body = body.clone();
+                                rewrite_session(&mut body, from, &active_session);
+                                println!("[replay-serve] -> {m} (recorded reply)");
+                                body
+                            }
+                            None => serde_json::json!({}),
+                        };
+                        let frame = serde_json::json!({"jsonrpc": "2.0", "id": id, "result": body});
+                        // `--slow <method>=<ms>` here too: the start-up reads
+                        // (validation 330786aa: `permission/profile/list` held
+                        // so the A6 walk types its first prompt BEFORE the seat
+                        // labels land) answer late without holding the others.
+                        match slow.get(m).copied() {
+                            Some(ms) => {
+                                println!("[replay-serve] -> {m} held {ms} ms (--slow)");
+                                let tx2 = tx.clone();
+                                tokio::spawn(async move {
+                                    tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                                    let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                });
+                            }
+                            None => send(&tx, frame).await,
+                        }
                     }
                 }
             }
