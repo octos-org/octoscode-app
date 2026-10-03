@@ -1649,6 +1649,13 @@ impl Conversation {
         *self.open_seq.lock().unwrap()
     }
 
+    /// D10d — what the [`HISTORY_WAIT`] wake does with a history read that
+    /// has had no reply for `older_than`: nothing yet (the failure shows);
+    /// returns the Sessions opened again.
+    pub fn resync_lost_history_reads(&self, _older_than: std::time::Duration) -> Vec<String> {
+        Vec::new()
+    }
+
     /// The history reads of `session` still waiting for their reply — the
     /// per-Session history-read queue (A15: one socket answers in order, so
     /// each reply is judged by the oldest read in it). 0 once every read was

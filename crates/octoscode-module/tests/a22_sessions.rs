@@ -56,6 +56,8 @@ enum Reply {
     /// Frames now, the result `delay_ms` later (a history read that settles
     /// after the person moved on).
     Late { before: Vec<Value>, delay_ms: u64, result: Value },
+    /// No reply at all (a request the server never answers).
+    Never,
 }
 
 type Script = Arc<dyn Fn(&str, &Value) -> Reply + Send + Sync>;
@@ -119,6 +121,7 @@ impl Core {
                                     let _ = tx.send(f.to_string());
                                 }
                             }
+                            Reply::Never => {}
                             Reply::Late { before, delay_ms, result } => {
                                 for f in before {
                                     let _ = tx.send(f.to_string());
@@ -1045,5 +1048,56 @@ async fn every_history_reply_arrives_in_order_behind_a_flood_of_live_events() {
     for id in [a.as_str(), b, c] {
         assert_eq!(conv.history_reads_in_flight(id), 0, "{id}'s history-read queue");
     }
+    quit(&conv);
+}
+
+/// D10d — a history read that never gets its reply (a server that does not
+/// answer, a read that could not be sent, any loss outside the transport) is
+/// LOUD and forces a resync. When the HISTORY_WAIT wake finds it (here the
+/// wake's own call, without the 20 s), the Session's history-read queue is
+/// reset — the lost read no longer stands in front of the next one, which
+/// A15 would judge by it — and the Session is opened again, which reads its
+/// history again: the history arrives. Once per Session until its history
+/// settles.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_history_read_with_no_reply_is_said_reset_and_asked_again() {
+    use octoscode_module::flow::History;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    let _g = lock();
+    let b = "a22:api:silent";
+    let reads = Arc::new(AtomicUsize::new(0));
+    let r2 = reads.clone();
+    let core = Core::start(Arc::new(move |method, p| {
+        let session = p["session_id"].as_str().unwrap_or("").to_owned();
+        match method {
+            "session/open" => Reply::Ok(opened(&session, p["cwd"].as_str().unwrap_or(CWD), None)),
+            // B's first history read is never answered; a later one is.
+            "session/hydrate" if session == b && messages_read(p) && r2.fetch_add(1, Ordering::SeqCst) == 0 => Reply::Never,
+            "session/hydrate" if session == b && messages_read(p) => {
+                Reply::Ok(hydrated(b, 3, vec![row(1, "user", "the history of B", T1)], &[(T1, 1)]))
+            }
+            "session/hydrate" => Reply::Ok(empty_history(&session)),
+            "session/list" => Reply::Ok(json!({"sessions": [], "workspace_root": CWD, "profile_id": PROFILE})),
+            _ => Reply::Ok(json!({})),
+        }
+    }))
+    .await;
+    let conv = launch(&core).await;
+    let opens_of_b = || core.params_of("session/open").iter().filter(|p| p["session_id"] == json!(b)).count();
+    let reads_of_b =
+        || core.params_of("session/hydrate").iter().filter(|p| p["session_id"] == json!(b) && messages_read(p)).count();
+    conv.open_session(b, Some(CWD.to_owned())).await.expect("open B");
+    until("B's first history read went out", || reads_of_b() == 1).await;
+    quiet().await;
+    assert_eq!(conv.history(b), History::Loading, "no reply: B is still loading");
+    assert_eq!(conv.history_reads_in_flight(b), 1, "the unanswered read is queued");
+    let opens = opens_of_b();
+    // The HISTORY_WAIT wake (its own call, without waiting the 20 s).
+    assert_eq!(conv.resync_lost_history_reads(Duration::ZERO), vec![b.to_owned()], "B's lost read is resynced");
+    until("B is opened again", || opens_of_b() == opens + 1).await;
+    until("and its history read again", || reads_of_b() == 2).await;
+    until("B's history arrives", || conv.history(b) == History::Ready).await;
+    assert_eq!(conv.history_reads_in_flight(b), 0, "the lost read no longer stands in front of the next one");
+    assert!(conv.resync_lost_history_reads(Duration::ZERO).is_empty(), "nothing left to resync");
     quit(&conv);
 }
