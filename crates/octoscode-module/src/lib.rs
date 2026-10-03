@@ -440,6 +440,13 @@ script_mod! {
             }
         }
 
+        sidebar_resize := SolidView {
+            width: 8 height: Fill
+            margin: Inset{left: 277}
+            visible: false
+            draw_bg.color: #00000000
+        }
+
         // Card #28e item 5 (board 4 frame 3): a dimmer between the base chrome
         // and the floating palette (the "conversation dimmed slightly" layer).
         dimmer := SolidView {
@@ -1232,6 +1239,8 @@ pub struct OctoscodeView {
     runtime: Option<tokio::runtime::Runtime>,
     #[rust]
     started: bool,
+    #[rust]
+    sidebar_drag: Option<f64>,
     /// #32h item 1: the mounted card's tap wiring — (widget id, action id)
     /// pairs from the lowered card's wired DesignNativeButton blocks. The
     /// Event::Actions loop routes their clicks into the screens' tables
@@ -1411,6 +1420,35 @@ pub struct OctoscodeView {
 }
 
 impl OctoscodeView {
+    fn handle_sidebar_resize(&mut self, cx: &mut Cx, event: &Event) {
+        let grip = self.view.view(cx, ids!(sidebar_resize));
+        if !grip.visible() {
+            self.sidebar_drag = None;
+            return;
+        }
+        match event.hits(cx, grip.area()) {
+            Hit::FingerHoverIn(_) => cx.set_cursor(MouseCursor::ColResize),
+            Hit::FingerHoverOut(_) if self.sidebar_drag.is_none() => {
+                cx.set_cursor(MouseCursor::Default);
+            }
+            Hit::FingerDown(e) if e.is_primary_hit() => {
+                self.sidebar_drag = Some(self.view.view(cx, ids!(threads_column)).area().rect(cx).size.x);
+                cx.set_cursor(MouseCursor::ColResize);
+            }
+            Hit::FingerMove(e) => {
+                if let Some(start) = self.sidebar_drag {
+                    let width = start + e.abs.x - e.abs_start.x;
+                    screens::sidebar::resize(width, self.view.area().rect(cx).size.x);
+                    self.sync_chrome(cx);
+                    self.view.redraw(cx);
+                    cx.set_cursor(MouseCursor::ColResize);
+                }
+            }
+            Hit::FingerUp(_) => { self.sidebar_drag = None; }
+            _ => {}
+        }
+    }
+
     // #28e4 merge: the #28e2 signature (cx — the palette search field is
     // pre-filled through it) carries main's #29d error-screen seed.
     fn start(&mut self, cx: &mut Cx) {
@@ -5527,6 +5565,7 @@ impl OctoscodeView {
                 }
             });
         }
+        self.handle_sidebar_resize(cx, event);
         self.view.handle_event(cx, event, scope);
         // A29 — a scroll in the transcript, or a press inside it, ends the
         // aside's tail hold (the person is reading back or opening a row).

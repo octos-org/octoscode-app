@@ -2008,15 +2008,16 @@ impl ChromeRuntime {
         show(cx, view, ids!(drawer_close_slot), drawer);
         show(cx, view, ids!(hd_menu), compact);
         // The drawer is min(320, w - 48) wide (NavigationSurface.module.css
-        // .drawer); the column is the web's 280, its collapsed rail 56.
+        // .drawer); the desktop column is resizable, its collapsed rail 56.
         let rail = sb.rail && !compact;
         let sidebar_w = if compact {
             (window_w - 48.0).min(320.0).max(240.0)
         } else if rail {
             56.0
         } else {
-            280.0
+            sidebar::bounded_width(sb.width, window_w.max(COMPACT_MAX))
         };
+        show(cx, view, ids!(sidebar_resize), live && !compact && !rail && !settings_open);
         show(cx, view, ids!(oc_sidebar_rail), rail);
         show(cx, view, ids!(oc_sidebar_body), !rail);
         show(cx, view, ids!(oc_sidebar_foot), !rail);
@@ -2069,6 +2070,9 @@ impl ChromeRuntime {
             let spacer_w = sidebar_w + 1.0;
             let mut spacer = view.widget(cx, ids!(sidebar_spacer));
             script_apply_eval!(cx, spacer, { width: #(spacer_w) });
+            let mut grip = view.widget(cx, ids!(sidebar_resize));
+            let grip_margin = Inset { left: sidebar_w - 3.0, ..Default::default() };
+            script_apply_eval!(cx, grip, { margin: #(grip_margin) });
             let mut frame = view.widget(cx, ids!(settings_frame));
             script_apply_eval!(cx, frame, {
                 margin: #(frame_margin)
