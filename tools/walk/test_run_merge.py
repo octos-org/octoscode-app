@@ -432,6 +432,12 @@ class CompleteRunRegenerates(Case):
         self.assertEqual(rows[DEMOTABLE]["status"], "not-yet-implemented", "a full run re-reads the parity")
         self.assertEqual((rows[NEWLY_MAPPED]["status"], rows[NEWLY_MAPPED]["depth"]), ("pass", "native"))
         self.assertEqual(rows[TEMPLATE]["status"], "pass")
+        # the check lines are the native merge's: a native row's run.py checks
+        # are dropped, a partial row keeps run.py's targeted one
+        self.assertEqual([c["check"] for c in self.world.checks_of(NATIVE_CONV)], ["w1: alpha [desktop]"])
+        self.assertEqual([c["check"] for c in self.world.checks_of(PARTIAL)],
+                         ["peer targeted", "w1: beta [desktop]", "w2: gamma [desktop]"])
+        self.assertEqual({c["run_sha"] for i in rows for c in self.world.checks_of(i)}, {NEW_SHA})
 
 
 class OtherSnapshotsNeverTouchTheTable(Case):

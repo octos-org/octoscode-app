@@ -3125,7 +3125,7 @@ def official_table(rows: list, out_rows: list, check_rows: list, ran: set, resul
     parity = load_parity()
     stamp = {"run_sha": prov["run_sha"], "run_at": prov["run_at"]}
     if complete:
-        merge_native(out_rows, check_rows, native.row_verdicts(results, specs))
+        out_rows, check_rows = merge_native(out_rows, check_rows, native.row_verdicts(results, specs))
         relabel_unwalked(out_rows, rows, parity)
         demote_unbuilt(out_rows, rows, parity)
         for r in out_rows:
@@ -3145,9 +3145,9 @@ def official_table(rows: list, out_rows: list, check_rows: list, ran: set, resul
     old_by_row = _by_row(old_lines)
     fresh_rows = {r["row_id"]: r for r in out_rows}
     fresh_by_row = _by_row(check_rows)
-    walked = native_scope(results, specs)
-    scope = set(ran) | walked
     ids = sorted(set(old_rows) | set(fresh_rows))
+    walked = native_scope(results, specs) & set(ids)   # a spec mapping no table row decides nothing
+    scope = set(ran) | walked
     # The table as this run sees it before the native merge: run.py's fresh
     # verdicts where its checks ran, the committed lines elsewhere.
     pre = {i: dict(fresh_rows[i] if (i in ran or i not in old_rows) else old_rows[i]) for i in ids}
