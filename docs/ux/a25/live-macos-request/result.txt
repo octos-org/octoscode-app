@@ -1,0 +1,12 @@
+bundle: OctosCode Banner Test.app (dev.octoscode.desktop.bannertest), ad-hoc signed
+PASS private octos serve is up
+PASS the bundled app is up (hidden)
+PASS the app runs with the platform notification API and is not focused — /src/attention.rs:1032:9 - [octoscode] attention: start (platform api true, focused false)
+macOS authorization for dev.octoscode.desktop.bannertest: NotDetermined
+PASS request: the row reads Enabling… while macOS asks — Enabling…
+the permission prompt on screen: [{"x": 1368.0, "y": 49.0, "w": 344.0, "h": 73.0}]
+waiting up to 14400s for the operator to answer the prompt
+answered: [I] apps/octoscode/module/src/attention.rs:1092:9 - [octoscode] attention: os Authorization { status: Granted, requested: true, error: None }
+app stopped
+serve stopped, the data copy deleted
+PASS no saved file carries the token

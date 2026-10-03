@@ -1,11 +1,23 @@
-bundle: OctosCode A25.app (dev.octoscode.desktop.a25), ad-hoc signed
+bundle: OctosCode Banner Test.app (dev.octoscode.desktop.bannertest), ad-hoc signed
 PASS private octos serve is up
 PASS the bundled app is up (hidden)
-PASS the app runs with the platform notification API and is not focused — e/src/attention.rs:936:9 - [octoscode] attention: start (platform api true, focused false)
-macOS authorization for dev.octoscode.desktop.a25: NotDetermined
-PASS request: the row reads Enabling… while macOS asks — Enabling…
-the permission prompt on screen: [{"x": 1368.0, "y": 49.0, "w": 344.0, "h": 73.0}]
-PERMISSION PROMPT SHOWN — the operator must allow "OctosCode A25" (the prompt, or System Settings > Notifications > OctosCode A25), then re-run this script.
+PASS the app runs with the platform notification API and is not focused — /src/attention.rs:1032:9 - [octoscode] attention: start (platform api true, focused false)
+macOS authorization for dev.octoscode.desktop.bannertest: Granted
+PASS granted: the toggle opts in at once (no prompt: already allowed)
+PASS granted: the composer is ready
+background: left 'New chat' for a New chat while its turn runs
+no banner within 10 s; Notification Center opened
+PASS granted: the finished turn posted the notice (window unfocused) — s:916:9 - [octoscode] attention: notice octoscode-attention:dsflash:main — Write five short numbered sentences about the colour blue.: A background response finished. Return to OctosCode to review it.
+PASS granted: macOS shows the notice (listed in Notification Center) — [{"x": 1368.0, "y": 150.0, "w": 344.0, "h": 89.0}]
+PASS granted: the notice captured (its own frame only)
+PASS background: the notice names the Session that was left (another one is on screen) — on screen 'New chat', the notice's Session 'Write five short numbered sentences about the colour blue.'
+PASS granted: macOS accepted it (no add error)
+header before the click: 'New chat' (the notice names 'Write five short numbered sentences about the colour blue.')
+PASS granted: the notice was clicked (listed in Notification Center: a pointer click on our notice) — {"clicked": true, "x": 1368.0, "y": 150.0, "w": 344.0, "h": 89.0}
+PASS granted: the platform delivered the click (UNUserNotificationCenter delegate) — [I] .sources/makepad/platform/src/os/apple/macos/macos_notifications.rs:249:13 - notifications: "octoscode-attention:dsflash:main" clicked
+PASS granted: the app opened the notice's Session — [I] apps/octoscode/module/src/lib.rs:4421:17 - [octoscode] attention: notice click -> open dsflash:main (row 0) header='Write five short numbered sentences about the colo'
+FAIL granted: the app was brought forward — [{"front": "com.apple.Terminal", "active": false, "hidden": false, "policy": "prohibited"}]
+notice id: octoscode-attention:dsflash:main
 app stopped
 serve stopped, the data copy deleted
 PASS no saved file carries the token

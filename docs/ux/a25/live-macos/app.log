@@ -1,17 +1,40 @@
 [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
-[I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
+[I] apps/octoscode/module/src/design.rs:413:9 - [octoscode] font faces resolve under <PATH>
+[I] apps/octoscode/module/src/lib.rs:1412:9 - [octoscode] a24 language at launch: en
+[I] apps/octoscode/module/src/screens/bootstrap.rs:169:5 - [octoscode] bootstrap: Harness(http://127.0.0.1:8652, token: true) (remembered server: false, saved token: false, restore target: false, auto-connect: None)
 [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
-[I] apps/octoscode/module/src/attention.rs:936:9 - [octoscode] attention: start (platform api true, focused false)
-[I] apps/octoscode/module/src/lib.rs:3289:17 - [octoscode] composer remounted
+[I] apps/octoscode/module/src/attention.rs:1032:9 - [octoscode] attention: start (platform api true, focused false)
+[I] apps/octoscode/module/src/lib.rs:3476:17 - [octoscode] composer remounted
 [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
-[I] apps/octoscode/module/src/lib.rs:3704:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
-[I] apps/octoscode/module/src/lib.rs:1585:13 - [octoscode] startup: Explicit("dsflash:main")
-[I] apps/octoscode/module/src/lib.rs:4088:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
-[I] apps/octoscode/module/src/lib.rs:3387:38 - [octoscode] chrome: 3 profile reads folded
-[I] apps/octoscode/module/src/attention.rs:982:9 - [octoscode] attention: os Authorization { status: NotDetermined, requested: false, error: None }
-[I] apps/octoscode/module/src/lib.rs:3289:17 - [octoscode] composer remounted
-[I] apps/octoscode/module/src/lib.rs:4088:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
-[I] apps/octoscode/module/src/lib.rs:4175:13 - [octoscode] chrome: OpenSettings
-[I] apps/octoscode/module/src/lib.rs:1806:13 - [octoscode] settings action: settings.panel.open
-[I] apps/octoscode/module/src/lib.rs:4175:13 - [octoscode] chrome: Action("notifications_toggle.toggle", 0)
-[I] apps/octoscode/module/src/lib.rs:1806:13 - [octoscode] settings action: notifications_toggle.toggle
+[I] apps/octoscode/module/src/lib.rs:3923:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+[I] apps/octoscode/module/src/screens/drafts.rs:338:5 - [octoscode] drafts: the principal's scope is bound (0 stored, nothing restored)
+[I] apps/octoscode/module/src/lib.rs:3981:17 - [octoscode] aside panel: hidden
+[I] apps/octoscode/module/src/lib.rs:1687:13 - [octoscode] startup: Explicit("dsflash:main")
+[I] apps/octoscode/module/src/lib.rs:4357:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+[I] apps/octoscode/module/src/lib.rs:3580:38 - [octoscode] chrome: 3 profile reads folded
+[I] apps/octoscode/module/src/attention.rs:1092:9 - [octoscode] attention: os Authorization { status: Granted, requested: false, error: None }
+[I] apps/octoscode/module/src/lib.rs:3476:17 - [octoscode] composer remounted
+[I] apps/octoscode/module/src/lib.rs:4357:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+[I] apps/octoscode/module/src/lib.rs:4444:13 - [octoscode] chrome: OpenSettings
+[I] apps/octoscode/module/src/lib.rs:1922:13 - [octoscode] settings action: settings.panel.open
+[I] apps/octoscode/module/src/lib.rs:4444:13 - [octoscode] chrome: Action("notifications_toggle.toggle", 0)
+[I] apps/octoscode/module/src/lib.rs:1922:13 - [octoscode] settings action: notifications_toggle.toggle
+[I] apps/octoscode/module/src/attention.rs:1092:9 - [octoscode] attention: os Authorization { status: Granted, requested: true, error: None }
+[I] apps/octoscode/module/src/lib.rs:4444:13 - [octoscode] chrome: CloseSettings
+[I] apps/octoscode/module/src/lib.rs:1922:13 - [octoscode] settings action: settings.panel.close
+[I] apps/octoscode/module/src/lib.rs:5605:21 - [octoscode] draft synced: 58 chars
+[I] apps/octoscode/module/src/lib.rs:6323:17 - [octoscode] key ReturnKey -> ComposerSubmit
+[I] apps/octoscode/module/src/flow_controller.rs:205:9 - [octoscode] turn/start 01a1000b-f5ea-71ac-b164-4a13dff98dbd: Accepted
+[I] apps/octoscode/module/src/flow.rs:3124:43 - [octoscode] turn started: 01a1000b-f5ea-71ac-b164-4a13dff98dbd
+[I] apps/octoscode/module/src/lib.rs:4444:13 - [octoscode] chrome: Action("new_chat", 0)
+[I] apps/octoscode/module/src/lib.rs:2035:21 - [octoscode] sidebar action: new_chat
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:api:01a1000b-f9f9-7178-b88e-f137e1e1a8ba restored (following)
+[I] apps/octoscode/module/src/lib.rs:4357:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+[I] apps/octoscode/module/src/attention.rs:916:9 - [octoscode] attention: notice octoscode-attention:dsflash:main — Write five short numbered sentences about the colour blue.: A background response finished. Return to OctosCode to review it.
+[I] apps/octoscode/module/src/attention.rs:1049:13 - [octoscode] attention: completed turn 01a1000b-f5ea-71ac-b164-4a13dff98dbd of dsflash:main needs attention (focused false)
+[I] .sources/makepad/platform/src/os/apple/macos/macos_notifications.rs:249:13 - notifications: "octoscode-attention:dsflash:main" clicked
+[I] apps/octoscode/module/src/attention.rs:1092:9 - [octoscode] attention: os Clicked { id: "octoscode-attention:dsflash:main" }
+[I] apps/octoscode/module/src/attention.rs:920:9 - [octoscode] attention: notice octoscode-attention:dsflash:main withdrawn
+[I] apps/octoscode/module/src/lib.rs:4421:17 - [octoscode] attention: notice click -> open dsflash:main (row 0)
+[I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+[I] apps/octoscode/module/src/lib.rs:4357:42 - [octoscode] board3 StatusRead: deepseek-v4-flash

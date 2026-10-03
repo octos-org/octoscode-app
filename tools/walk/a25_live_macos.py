@@ -20,13 +20,22 @@
    permission prompt — the run captures the prompt (read through
    Accessibility, never pressed) and STOPS: the operator must allow
    "OctosCode A25" (in the prompt, or System Settings > Notifications).
-   Exit 3. Without --request it only reports the state.
+   Exit 3. Without --request it only reports the state. macOS records a prompt
+   still open when the app quits as Denied (seen on macOS 26: unanswered for 10
+   minutes, the next start read Denied), so the run keeps the app up until the
+   operator answers: A25_ANSWER_WAIT seconds, default 3600 (exit 0 allowed, 4
+   refused, 3 no answer). A Denied identity is never asked again:
+   A25_APP_NAME / A25_BUNDLE_ID give the bundle a fresh one.
 5. Granted: opts in, sends ONE short prompt; the turn finishes while the
    window is unfocused (a hidden window is never focused) and macOS shows the
    banner — captured (the banner's own frame only, nothing else on the
    screen). A New chat is opened, then the banner is CLICKED for real
-   (Accessibility AXPress on the element carrying our notice text): the app
+   (a pointer click, hit-tested onto the element carrying our notice text;
+   macOS lets an app come forward only for user input): the app
    is brought forward and the notice's Session reopens. Exit 0 on success.
+   While the display is shared or mirrored macOS presents no banner (its
+   default) but still lists the notice in Notification Center: the run then
+   opens Notification Center and captures and clicks the same notice there.
    With --background the person leaves the prompted Session for a New chat
    one second after sending (a prompt that takes a few seconds), so its turn
    finishes in the BACKGROUND (e2e/attention.spec.ts:231-269): the banner
@@ -65,8 +74,12 @@ OUT = pathlib.Path(sys.argv[2]) if len(sys.argv) > 2 else ROOT / "docs" / "ux" /
 REQUEST = "--request" in sys.argv
 BACKGROUND = "--background" in sys.argv
 WORK = ROOT / "tmp" / "a25-macos"
-APP = WORK / "OctosCode A25.app"
-BUNDLE_ID = "dev.octoscode.desktop.a25"
+# A fresh identity gets a fresh macOS permission prompt (a Denied one never prompts again).
+APP_NAME = os.environ.get("A25_APP_NAME", "OctosCode A25")
+APP = WORK / f"{APP_NAME}.app"
+BUNDLE_ID = os.environ.get("A25_BUNDLE_ID", "dev.octoscode.desktop.a25")
+# --request: keep the app (and its prompt) up this long for the operator's answer; quitting earlier records Denied.
+ANSWER_WAIT = float(os.environ.get("A25_ANSWER_WAIT", "3600"))
 APP_PORT = int(os.environ.get("A25_PORT", "8512"))
 SERVE_PORT = int(os.environ.get("A25_SERVE_PORT", "8514"))
 HOME = pathlib.Path(os.path.expanduser("~"))
@@ -99,8 +112,8 @@ def make_bundle(bin_path: pathlib.Path) -> None:
     macos.mkdir(parents=True)
     shutil.copy2(bin_path, macos / "octosense")
     info = {
-        "CFBundleName": "OctosCode A25",
-        "CFBundleDisplayName": "OctosCode A25",
+        "CFBundleName": APP_NAME,
+        "CFBundleDisplayName": APP_NAME,
         "CFBundleIdentifier": BUNDLE_ID,
         "CFBundleVersion": "0.1.0",
         "CFBundleShortVersionString": "0.1.0",
@@ -113,7 +126,7 @@ def make_bundle(bin_path: pathlib.Path) -> None:
     with open(APP / "Contents" / "Info.plist", "wb") as f:
         plistlib.dump(info, f)
     subprocess.run(["codesign", "-s", "-", "--force", str(APP)], capture_output=True)
-    note(f"bundle: OctosCode A25.app ({BUNDLE_ID}), ad-hoc signed")
+    note(f"bundle: {APP_NAME}.app ({BUNDLE_ID}), ad-hoc signed")
 
 
 # ----------------------------------------------------------- the serve
@@ -390,34 +403,80 @@ def run_granted() -> None:
         click("sb_new_chat_hit")
         note(f"background: left {title_a!r} for a New chat while its turn runs")
     posted = wait_log("attention: notice octoscode-attention:", 120, mark)
+    # Look for the banner AT ONCE: macOS takes a temporary banner off the screen after about 5 s.
+    frames = []
+    look_until = time.time() + 10
+    while posted and not frames and time.time() < look_until:
+        frames = nc("find", NOTICE_TEXT) or []
+    where = "a banner"
+    if frames:
+        captured = capture_region(frames[0], "banner")
+    elif posted:
+        # macOS presents no banner while the display is shared or mirrored (its default) or under a
+        # Focus, but still delivers the notice to Notification Center, where the same click opens it.
+        opened = (nc("center", "open") or {}).get("open")
+        note(f"no banner within 10 s; Notification Center {'opened' if opened else 'did not open'}")
+        where = "listed in Notification Center"
+        look_until = time.time() + 6
+        while not frames and time.time() < look_until:
+            frames = nc("find", NOTICE_TEXT) or []
+        if frames:
+            time.sleep(0.6)  # the panel slides in: capture where the notice settled
+            frames = nc("find", NOTICE_TEXT) or frames
+            captured = capture_region(frames[0], "center-notice")
     check("granted: the finished turn posted the notice (window unfocused)", bool(posted),
           scrub_paths(posted or "")[-200:])
+    check(f"granted: macOS shows the notice ({where})", bool(frames), json.dumps(frames))
+    if frames:
+        check("granted: the notice captured (its own frame only)", captured)
+    # The notice names its Session by title (a new Session's header read "New chat" when it was sent).
+    session_a = re.search(r"notice (octoscode-attention:\S+) — (.*?): A background response", posted or "")
+    notice_title = session_a.group(2) if session_a else ""
+    sent = PROMPT_BG if BACKGROUND else PROMPT_A
     if BACKGROUND:
         check("background: the notice names the Session that was left (another one is on screen)",
-              bool(posted) and header() != title_a, f"on screen {header()!r}, the notice's Session {title_a!r}")
-    session_a = re.search(r"notice (octoscode-attention:\S+)", posted or "")
-    failed = wait_log("was not shown", 3, mark)
+              notice_title[:24] == sent[:24] and header() != notice_title,
+              f"on screen {header()!r}, the notice's Session {notice_title!r}")
+    failed = wait_log("was not shown", 0.5, mark)
     check("granted: macOS accepted it (no add error)", failed is None, scrub_paths(failed or ""))
-    time.sleep(1.5)
-    frames = nc("find", NOTICE_TEXT) or []
-    check("granted: the banner is on screen (Notification Center)", bool(frames), json.dumps(frames))
-    if frames:
-        check("granted: banner captured (its own frame only)", capture_region(frames[0], "banner"))
     if not BACKGROUND:
         # Another Session in front, so the click must route.
         click("sb_new_chat_hit")
         time.sleep(3)
-    note(f"header before the click: {header()!r} (the notice names {title_a!r})")
+    note(f"header before the click: {header()!r} (the notice names {notice_title!r})")
     mark = len(LOG)
-    pressed = nc("press", NOTICE_TEXT)
-    check("granted: the banner was clicked (AXPress on our notice)", bool(pressed and pressed.get("pressed")), json.dumps(pressed))
+    # A real pointer click (hit-tested onto our notice): macOS lets an app come forward only for user
+    # input, so an AXPress would deliver the click but never bring the app forward.
+    pressed = nc("click", NOTICE_TEXT) or {}
+    how = "a pointer click on our notice"
+    if not pressed.get("clicked"):
+        note(f"pointer click refused: {json.dumps(pressed)}; AXPress instead")
+        pressed = nc("press", NOTICE_TEXT) or {}
+        how = "AXPress on our notice"
+    check(f"granted: the notice was clicked ({where}: {how})",
+          bool(pressed.get("clicked") or pressed.get("pressed")), json.dumps(pressed))
     clicked = wait_log("clicked", 8, mark)
     check("granted: the platform delivered the click (UNUserNotificationCenter delegate)", bool(clicked),
           scrub_paths(clicked or ""))
     routed = wait_log("notice click ->", 8, mark)
-    check("granted: the app opened the notice's Session", bool(routed) and (header() == title_a),
-          f"{scrub_paths(routed or '')[-120:]} header={header()!r}")
-    check("granted: the app was brought forward", frontmost_bundle() == BUNDLE_ID, frontmost_bundle())
+    shown = header()
+    check("granted: the app opened the notice's Session",
+          bool(routed) and bool(notice_title) and notice_title.startswith(shown.rstrip("…")) and len(shown) > 3,
+          f"{scrub_paths(routed or '')[-120:]} header={shown!r}")
+    # Activation can land a moment after the click (and the panel closing can hand the front back).
+    states = []
+    until = time.time() + 4
+    while time.time() < until:
+        st = nc("front", BUNDLE_ID) or {}
+        if not states or st != states[-1]:
+            states.append(st)
+        if st.get("front") == BUNDLE_ID:
+            break
+        time.sleep(0.25)
+    check("granted: the app was brought forward", bool(states) and states[-1].get("front") == BUNDLE_ID,
+          json.dumps(states))
+    if (nc("center", "state") or {}).get("open"):
+        nc("center", "close")
     grab("after-click")
     if session_a:
         note(f"notice id: {session_a.group(1)}")
@@ -456,18 +515,20 @@ def main() -> int:
                 state = (find("notify_state") or {}).get("t", "")
                 check("request: the row reads Enabling… while macOS asks", state == "Enabling…", state)
                 time.sleep(3.0)
-                frames = nc("find", "OctosCode A25") or []
+                frames = nc("find", APP_NAME) or []
                 note(f"the permission prompt on screen: {json.dumps(frames)}")
                 if frames:
                     capture_region(frames[0], "permission-prompt")
-                answered = wait_log("requested: true", 2)
-                note("PERMISSION PROMPT SHOWN — the operator must allow \"OctosCode A25\" (the prompt, or System "
-                     "Settings > Notifications > OctosCode A25), then re-run this script."
-                     if not answered else f"answered: {scrub_paths(answered)}")
                 grab("enabling")
-                rc = 3
+                if ANSWER_WAIT:
+                    note(f"waiting up to {ANSWER_WAIT:.0f}s for the operator to answer the prompt")
+                answered = wait_log("requested: true", max(2.0, ANSWER_WAIT))
+                note(f"PERMISSION PROMPT SHOWN — the operator must allow \"{APP_NAME}\" (the prompt, or System "
+                     f"Settings > Notifications > {APP_NAME}), then re-run this script."
+                     if not answered else f"answered: {scrub_paths(answered)}")
+                rc = 0 if answered and "status: Granted" in answered else 4 if answered else 3
         elif status == "Denied":
-            note("denied: allow \"OctosCode A25\" in System Settings > Notifications, then re-run")
+            note(f"denied: allow \"{APP_NAME}\" in System Settings > Notifications, then re-run")
             if REQUEST:
                 # A decided permission is never asked again: the request
                 # answers at once (the real completion handler) with no UI.
@@ -478,7 +539,7 @@ def main() -> int:
                 check("denied: the request answers at once from the real center",
                       bool(answered) and "status: Denied" in answered, scrub_paths(answered or ""))
                 time.sleep(1.0)
-                frames = nc("find", "OctosCode A25") or []
+                frames = nc("find", APP_NAME) or []
                 check("denied: macOS showed no prompt", not frames, json.dumps(frames))
                 alert = (find("notify_alert") or {}).get("t", "")
                 check("denied: the row reads the blocked alert, the toggle stays off",
