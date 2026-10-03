@@ -16,7 +16,9 @@
 #              framework sources via OctoSense's own tools/setup.py, our makepad patches on them
 #              (scripts/apply-makepad-patches.sh), the octoscode crates and design/ vendored into apps/
 #              (as outer/scripts/hostbuild.sh does), then
-#              cargo build -p octosense --features app-octoscode,octoscode-module/octosense-module -> <work>/octosense-host/target/debug/octosense
+#              cargo build -p octosense --features app-octoscode,octoscode-module/octosense-module
+#              -> <work>/octosense-host/target/debug/octosense (or target/release with --release)
+# --release    optimized builds of both the standalone app and the optional OctoSense host
 #
 # Prerequisites: macOS with the Xcode Command Line Tools, git, python3, rustup (stable toolchain).
 # IDEMPOTENT: every step is a no-op when its result is already there; re-run it to update after a pull.
@@ -106,7 +108,7 @@ fi
 
 HOST_BIN=""
 if [ "$OCTOSENSE" = 1 ]; then
-  step "3/3 the OctoSense-hosted variant"
+  step "3/3 the OctoSense-hosted variant ($PROFILE)"
   HOST="$WORK/octosense-host"
   bash "$HERE/prepare-octosense-fork.sh" "$HOST"
   # The renderer fork must sit BESIDE the host tree: patch 0003's [patch] and the vendored
@@ -134,8 +136,12 @@ if [ "$OCTOSENSE" = 1 ]; then
   rsync -a --delete "$REPO/design/" "$HOST/apps/design/"
   echo "$(git -C "$REPO" rev-parse --short HEAD) $(date +%Y-%m-%dT%H:%M:%S)" > "$HOST/apps/octoscode/BUILT_FROM"
   started=$(date +%s)
-  (cd "$HOST" && cargo build -p octosense --features app-octoscode,octoscode-module/octosense-module)
-  HOST_BIN="$HOST/target/debug/octosense"
+  if [ "$PROFILE" = release ]; then
+    (cd "$HOST" && cargo build --release -p octosense --features app-octoscode,octoscode-module/octosense-module)
+  else
+    (cd "$HOST" && cargo build -p octosense --features app-octoscode,octoscode-module/octosense-module)
+  fi
+  HOST_BIN="$HOST/target/$PROFILE/octosense"
   [ -x "$HOST_BIN" ] || die "the host build finished but $HOST_BIN is missing"
   echo "build-macos: OctoSense host built in $(( $(date +%s) - started )) s: $HOST_BIN"
 fi

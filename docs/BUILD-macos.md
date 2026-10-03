@@ -50,7 +50,7 @@ git clone https://github.com/octos-org/octoscode-app.git
 cd octoscode-app
 tools/build-macos.sh              # the standalone app: target/debug/octoscode
 tools/build-macos.sh --package    # + the self-contained OctosCode.app and its zip in target/macos-app/
-tools/build-macos.sh --octosense  # + the OctoSense-hosted variant in .forks/octosense-host/
+tools/build-macos.sh --octosense --release  # optimized standalone + OctoSense-hosted variant
 ```
 
 What it does (every step is a no-op when already done, so re-run it after a `git pull`):
@@ -67,6 +67,8 @@ What it does (every step is a no-op when already done, so re-run it after a `git
    into the shell), its framework sources from OctoSense's own `tools/setup.py`, our makepad patches on them, the
    octoscode crates and `design/` vendored into `apps/`, then
    `cargo build -p octosense --features app-octoscode,octoscode-module/octosense-module`.
+   `--release` applies to both the standalone app and the OctoSense host; without it, both use debug builds.
+   The packaged `.app` always uses the optimized `app-bundle` profile.
 
 From a fresh clone with an empty cargo cache it took 10 minutes and 10 GB here (4.5 minutes and about 6 GB without
 `--octosense`); section 6 has the breakdown. To repeat that check on any Mac without touching your own setup:
@@ -81,11 +83,13 @@ target/debug/octoscode --remote 8411        # + the instrument bridge (only when
 OCTOSCODE_WINDOW_SIZE=360x780 target/debug/octoscode   # the phone's shape
 ```
 
-The OctoSense-hosted variant:
+The OctoSense-hosted variant, built with `--octosense --release`:
 
 ```sh
-MAKEPAD_WM_TEST_APP=octoscode OCTOSCODE_DESIGN_DIR=$PWD/design .forks/octosense-host/target/debug/octosense --module octoscode
+MAKEPAD_WM_TEST_APP=octoscode OCTOSCODE_DESIGN_DIR=$PWD/design .forks/octosense-host/target/release/octosense --module octoscode
 ```
+
+Use `target/debug/octosense` instead when building without `--release`.
 
 ## 4. Connect it to an octos server
 
