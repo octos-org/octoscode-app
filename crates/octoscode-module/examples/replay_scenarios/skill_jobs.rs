@@ -55,10 +55,12 @@ pub fn advertise(open: &mut Value) {
     }
 }
 
-/// The second Session (the walk switches to it).
+/// The second Session (the walk switches to it). A FULL id
+/// (`<profile>:<channel>:<chat>`): A22's row-228 projection lists only full
+/// Sessions of the profile.
 pub fn other_session(home: &str) -> String {
     let profile = home.split(':').next().unwrap_or("dsflash");
-    format!("{profile}:imports")
+    format!("{profile}:api:imports")
 }
 
 struct Spec {

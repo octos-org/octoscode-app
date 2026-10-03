@@ -2838,7 +2838,13 @@ async fn main() {
                     }
                     "session/list" if label == "skill-jobs" => {
                         let home = jobs_home.clone().unwrap_or_else(|| active_session.clone());
-                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": skill_jobs::sessions(&home)})).await;
+                        let mut result = skill_jobs::sessions(&home);
+                        // A22 row 228: a `{cwd, profile_id}` read is ATTESTED.
+                        if let (Some(cwd), Some(p)) = (v["params"]["cwd"].as_str(), v["params"]["profile_id"].as_str()) {
+                            result["workspace_root"] = serde_json::json!(cwd);
+                            result["profile_id"] = serde_json::json!(p);
+                        }
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": result})).await;
                     }
                     // A9 — the activity scenario's session catalog.
                     "session/list" if activity => {

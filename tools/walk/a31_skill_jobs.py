@@ -64,7 +64,7 @@ OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a31/{MODE}"
 PHASE = os.environ.get("A31_PHASE", "")
 VP = "dialog_scroll"
 P = "dlg_skills_"
-HOME, OTHER, PROFILE = "dsflash:main", "dsflash:imports", "dsflash"
+HOME, OTHER, PROFILE = "dsflash:main", "dsflash:api:imports", "dsflash"
 NOTE = "Only jobs announced since the app connected are shown; this server doesn't list earlier jobs."
 
 SEEDED = [
