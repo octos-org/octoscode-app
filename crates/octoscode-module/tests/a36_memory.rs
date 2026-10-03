@@ -459,6 +459,29 @@ async fn an_entity_row_opens_its_page() {
     assert_eq!(host::state().mem.page, Page::Overview);
 }
 
+/// Memory is read here, never navigated from: a link keeps its text, an
+/// autolink its address — and every other `>` (a quote, a comparison) stays.
+#[tokio::test]
+async fn a_page_keeps_its_text_but_not_its_links() {
+    let _g = serial();
+    let mut page = proposal_entity("steer-queue");
+    page["content"] = json!("# steer-queue\n\n> Order matters: 2 > 1.\n\n- see <https://example.com/x>\n- [the docs](https://example.com/docs)\n");
+    let server = Server::start(vec![
+        ("session/open", json!({"opened": recorded_open()})),
+        ("memory/overview", proposal_overview()),
+        ("memory/entity", page),
+    ])
+    .await;
+    let conv = connect(&server, ALL_MEMORY).await;
+    open_memory(&conv).await;
+    run(&conv, host::perform("b3.mem.entity", 2, &conv.store)).await.ok();
+    let d = dsl(&conv.store);
+    let body = d.split("b3_mem_ent_md := Markdown{").nth(1).expect("the page").split("\n").nth(1).unwrap_or("").to_owned();
+    assert!(body.contains("> Order matters: 2 > 1."), "quotes and comparisons keep their `>`: {body}");
+    assert!(body.contains("see https://example.com/x") && !body.contains("<https"), "an autolink is its address: {body}");
+    assert!(body.contains("the docs") && !body.contains("](https://example.com/docs)"), "a link is its text: {body}");
+}
+
 #[tokio::test]
 async fn show_all_opens_long_term_memory_and_says_when_the_server_cut_it() {
     let _g = serial();

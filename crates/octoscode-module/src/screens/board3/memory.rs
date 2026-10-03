@@ -1415,15 +1415,19 @@ fn link_text(md: &str) -> String {
     let mut out = String::with_capacity(md.len());
     let mut rest = md;
     while let Some(open) = rest.find('[') {
+        // `![alt](src)` is an image: `sanitize` reduces it to its alt text.
+        let image = open > 0 && rest.as_bytes()[open - 1] == b'!';
         let (head, tail) = rest.split_at(open);
         out.push_str(head);
-        // `![alt](src)` is an image: `sanitize` keeps its alt text.
-        if let Some(close) = tail.find("](") {
-            if let Some(end) = tail[close + 2..].find(')') {
-                if !tail[1..close].contains('\n') {
-                    out.push_str(&tail[1..close]);
-                    rest = &tail[close + 2 + end + 1..];
-                    continue;
+        if !image {
+            if let Some(close) = tail.find("](") {
+                let label = &tail[1..close];
+                if !label.contains(['\n', '[']) {
+                    if let Some(end) = tail[close + 2..].find(')') {
+                        out.push_str(label);
+                        rest = &tail[close + 2 + end + 1..];
+                        continue;
+                    }
                 }
             }
         }
@@ -1431,7 +1435,24 @@ fn link_text(md: &str) -> String {
         rest = &tail[1..];
     }
     out.push_str(rest);
-    out.replace("<http", "http").replace(">", "")
+    // An autolink `<http…>` is its address as text; every other `>` (a
+    // quote, a comparison) stays.
+    let mut text = String::with_capacity(out.len());
+    let mut rest = out.as_str();
+    while let Some(i) = rest.find("<http") {
+        let Some(j) = rest[i..].find('>') else { break };
+        let address = &rest[i + 1..i + j];
+        if address.contains(char::is_whitespace) {
+            text.push_str(&rest[..=i]);
+            rest = &rest[i + 1..];
+            continue;
+        }
+        text.push_str(&rest[..i]);
+        text.push_str(address);
+        rest = &rest[i + j + 1..];
+    }
+    text.push_str(rest);
+    text
 }
 
 /// The overview card's preview of `MEMORY.md`: its first two sections or
