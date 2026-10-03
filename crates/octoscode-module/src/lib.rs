@@ -20,11 +20,10 @@
 //! which drains events into the store and re-reads bindings into widgets.
 pub use makepad_widgets;
 
-use makepad_app_module::{
-    makepad_ai_services::wire::{ServiceCall, ServiceManifest, ToolResult},
-    AppModule, ExecOutcome, InstanceHandles, InstanceParts, OpenSchema, ServiceExecutor,
-    ValidatedOpen,
-};
+#[cfg(feature = "octosense-module")]
+mod octosense;
+#[cfg(feature = "octosense-module")]
+pub use octosense::{OctoscodeModule, OCTOSCODE_MODULE};
 use makepad_widgets::*;
 use std::sync::{Arc, Mutex};
 
@@ -6647,129 +6646,86 @@ fn screen_owned(action: &str) -> bool {
     screens::owned_after_router(action)
 }
 
-pub struct OctoscodeModule;
-pub static OCTOSCODE_MODULE: OctoscodeModule = OctoscodeModule;
-
-impl AppModule for OctoscodeModule {
-    fn id(&self) -> &'static str {
-        "octoscode"
-    }
-    fn label(&self) -> &'static str {
-        "OctosCode"
-    }
-    fn register(&self, vm: &mut ScriptVm) {
-        // #32f: seed the design root from the host's files dir BEFORE any
-        // design read — register() itself reads the component ledger below
-        // (`components::log_resolutions`), and on the phone root() would
-        // otherwise bake the unwritable temp fallback into the OnceLock
-        // (the device log: "no HOME and no host files dir — falling back").
-        // Same source OctoSense's ai-host uses (`Host::platform(
-        // cx.get_data_dir())` -> /data/user/0/<pkg>/files/octos-home).
-        crate::design::set_host_dir(vm.cx_mut().get_data_dir());
-        // A33: a host that loads its resources from an app package (the
-        // standalone OctosCode.app, the phone) never reads the build
-        // machine's checkout: the design tree and the faces come from the
-        // embed only.
-        crate::design::set_packaged(vm.cx_mut().package_root.is_some());
-        // #32h item 1: the lowered cards' buttons emit `on_click: || { NAV(t:
-        // "…") }` (fork lib.rs:450) and NAV is "a global the host registers"
-        // (fork lib.rs:359) — nobody did. An unregistered global evaluates to
-        // NIL (kit.rs:141-143), so every card tap silently did nothing: no
-        // connection, no log (the phone symptom). The callback runs on the
-        // eval thread: log + enqueue + wake; the Event::Signal arm drains
-        // into the SAME router the native chrome taps use.
-        let nav = octoscript_render::add_global_fn(
-            vm,
-            &[(live_id!(t), makepad_widgets::ScriptValue::NIL)],
-            |vm, a| {
-                let t = octoscript_render::string_prop(vm, a, live_id!(t)).unwrap_or_default();
-                makepad_widgets::log!("[octoscode] nav tap: {t}");
-                NAV_QUEUE.lock().unwrap().push(t);
-                SignalToUI::set_ui_signal();
-                makepad_widgets::ScriptValue::NIL
-            },
-        );
-        vm.set_injected_global(live_id!(NAV), nav);
-        // #M1: the recents store is installed from RUST, before the DSL is
-        // evaluated — see `init_recents_persistence` for why it cannot live in
-        // the `script_mod!` body (it is not DSL, and `#{ … }` fails too because
-        // `script_mod!` splices a script expression, not a unit block).
-        init_recents_persistence();
-        // A3: the board-2 chrome templates (`mod.widgets.Oc*`) must exist
-        // before the shell's own DSL below instantiates them.
-        chrome::script_mod(vm);
-        // A7: `A7CodeLines` (the highlighted code body) before any row names it.
-        code_view::script_mod(vm);
-        // A28: the diff review's code-run templates (`B3DiffCode`, `B3DiffNum`).
-        screens::board3::diff_review::script_mod(vm);
-        script_mod(vm);
-        // Card #21b: the design/kit vocabulary every lowered #16 component names
-        // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the
-        // shell hosts the module in (`module_host.rs:133` allocates it, then
-        // calls `register(vm)`/`create(vm, ..)` inside it). `register_vocabulary`
-        // below uses `register_splash_isolate_mod`, which only reaches isolates
-        // allocated AFTER it, so it cannot reach ours; register directly, exactly
-        // as `beauty-host` does in the App's own `script_mod`
-        // (`beauty.rs:356-364`).
-        octoscript_widgets::design::script_mod(vm);
-        octoscript_widgets::kit::script_mod(vm);
-        // Card #15b: the same vocabulary, process-wide, for any OTHER isolate
-        // (the tests and the card probes lower there).
-        l0_host::register_vocabulary();
-        // Card #21b: log what the RUNNING app resolves at startup
-        // (`id -> path -> on-disk|placeholder`), so a capture's `/log` proves
-        // which components root the launched process used — the test harness
-        // passing from the repo root proved nothing.
-        components::log_resolutions();
-    }
-    fn open_schema(&self) -> OpenSchema {
-        OpenSchema::new(1)
-    }
-    fn capabilities(&self) -> &'static [&'static str] {
-        // The host honours these as grants (AppCard declares the same pair,
-        // apps/appcard/module/src/lib.rs): the module holds the WebSocket to
-        // the octos serve (net), and its state — sessions, settings, the
-        // trace — lives on disk under the instance's storage jail (storage).
-        &["storage", "net"]
-    }
-    fn create(
-        &self,
-        vm: &mut ScriptVm,
-        _open: ValidatedOpen,
-        _handles: InstanceHandles,
-    ) -> InstanceParts {
-        let value = script_eval!(vm, {
-            use mod.widgets.*
-            OctoscodeView {}
-        });
-        let root = WidgetRef::script_from_value(vm, value);
-        // Inject the bridge into the widget's `#[rust]` field.
-        let bridge = Arc::new(Mutex::new(Bridge {
-            conv: None,
-            store: Arc::new(Store::new()),
-            ui: Arc::new(Mutex::new(FlowUi::default())),
-            screens: Arc::new(Mutex::new(screens::connect::ConnectUi::default())),
-        }));
-        if let Some(mut view) = root.borrow_mut::<OctoscodeView>() {
-            view.bridge = bridge;
-        }
-        InstanceParts {
-            root,
-            executor: Box::new(OctoscodeExecutor),
-            shutdown: Box::new(|_| {}),
-        }
-    }
+/// Register the native UI without a shell or AppModule host.
+pub fn register_widgets(vm: &mut ScriptVm) {
+    // #32f: seed the design root from the host's files dir BEFORE any
+    // design read — register() itself reads the component ledger below
+    // (`components::log_resolutions`), and on the phone root() would
+    // otherwise bake the unwritable temp fallback into the OnceLock
+    // (the device log: "no HOME and no host files dir — falling back").
+    // Same source OctoSense's ai-host uses (`Host::platform(
+    // cx.get_data_dir())` -> /data/user/0/<pkg>/files/octos-home).
+    crate::design::set_host_dir(vm.cx_mut().get_data_dir());
+    // Bundled apps resolve their design tree and faces from the embedded files.
+    crate::design::set_packaged(vm.cx_mut().package_root.is_some());
+    // #32h item 1: the lowered cards' buttons emit `on_click: || { NAV(t:
+    // "…") }` (fork lib.rs:450) and NAV is "a global the host registers"
+    // (fork lib.rs:359) — nobody did. An unregistered global evaluates to
+    // NIL (kit.rs:141-143), so every card tap silently did nothing: no
+    // connection, no log (the phone symptom). The callback runs on the
+    // eval thread: log + enqueue + wake; the Event::Signal arm drains
+    // into the SAME router the native chrome taps use.
+    let nav = octoscript_render::add_global_fn(
+        vm,
+        &[(live_id!(t), makepad_widgets::ScriptValue::NIL)],
+        |vm, a| {
+            let t = octoscript_render::string_prop(vm, a, live_id!(t)).unwrap_or_default();
+            makepad_widgets::log!("[octoscode] nav tap: {t}");
+            NAV_QUEUE.lock().unwrap().push(t);
+            SignalToUI::set_ui_signal();
+            makepad_widgets::ScriptValue::NIL
+        },
+    );
+    vm.set_injected_global(live_id!(NAV), nav);
+    // #M1: the recents store is installed from RUST, before the DSL is
+    // evaluated — see `init_recents_persistence` for why it cannot live in
+    // the `script_mod!` body (it is not DSL, and `#{ … }` fails too because
+    // `script_mod!` splices a script expression, not a unit block).
+    init_recents_persistence();
+    // A3: the board-2 chrome templates (`mod.widgets.Oc*`) must exist
+    // before the shell's own DSL below instantiates them.
+    chrome::script_mod(vm);
+    // A7: `A7CodeLines` (the highlighted code body) before any row names it.
+    code_view::script_mod(vm);
+    // A28: the diff review's code-run templates (`B3DiffCode`, `B3DiffNum`).
+    screens::board3::diff_review::script_mod(vm);
+    script_mod(vm);
+    // Card #21b: the design/kit vocabulary every lowered #16 component names
+    // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the
+    // shell hosts the module in (`module_host.rs:133` allocates it, then
+    // calls `register(vm)`/`create(vm, ..)` inside it). `register_vocabulary`
+    // below uses `register_splash_isolate_mod`, which only reaches isolates
+    // allocated AFTER it, so it cannot reach ours; register directly, exactly
+    // as `beauty-host` does in the App's own `script_mod`
+    // (`beauty.rs:356-364`).
+    octoscript_widgets::design::script_mod(vm);
+    octoscript_widgets::kit::script_mod(vm);
+    // Card #15b: the same vocabulary, process-wide, for any OTHER isolate
+    // (the tests and the card probes lower there).
+    l0_host::register_vocabulary();
+    // Card #21b: log what the RUNNING app resolves at startup
+    // (`id -> path -> on-disk|placeholder`), so a capture's `/log` proves
+    // which components root the launched process used — the test harness
+    // passing from the repo root proved nothing.
+    components::log_resolutions();
 }
 
-struct OctoscodeExecutor;
-impl ServiceExecutor for OctoscodeExecutor {
-    fn manifest(&self) -> ServiceManifest {
-        ServiceManifest::new("octoscode", "OctosCode", "Native octoscode app (AppModule).")
+/// Create the standalone root view and its conversation state.
+pub fn create_view(vm: &mut ScriptVm) -> WidgetRef {
+    let value = script_eval!(vm, {
+        use mod.widgets.*
+        OctoscodeView {}
+    });
+    let root = WidgetRef::script_from_value(vm, value);
+    // Inject the bridge into the widget's `#[rust]` field.
+    let bridge = Arc::new(Mutex::new(Bridge {
+        conv: None,
+        store: Arc::new(Store::new()),
+        ui: Arc::new(Mutex::new(FlowUi::default())),
+        screens: Arc::new(Mutex::new(screens::connect::ConnectUi::default())),
+    }));
+    if let Some(mut view) = root.borrow_mut::<OctoscodeView>() {
+        view.bridge = bridge;
     }
-    fn execute(&mut self, _cx: &mut Cx, call: &ServiceCall) -> ExecOutcome {
-        ExecOutcome::Done(ToolResult::unavailable(
-            &call.call_id,
-            "OctosCode (native module) has no tools",
-        ))
-    }
+    root
 }

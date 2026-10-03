@@ -4,7 +4,7 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish.workspace = true
-description = "OctosCode as a standalone desktop app: a plain makepad window hosting the octoscode module (no OctoSense shell)"
+description = "Standalone native OctosCode desktop app"
 
 [[bin]]
 name = "octoscode"
@@ -12,7 +12,4 @@ path = "src/main.rs"
 
 [dependencies]
 makepad-widgets = { workspace = true }
-# The module contract the OctoSense shell hosts the module through; the
-# standalone host plays the shell's part (crates/shell module_host.rs).
-makepad-app-module = { workspace = true }
 octoscode-module = { workspace = true }

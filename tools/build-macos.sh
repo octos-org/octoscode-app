@@ -5,10 +5,9 @@
 #   tools/build-macos.sh [--package] [--octosense] [--release] [--work <dir>]
 #
 # Default: the STANDALONE desktop app (crates/octoscode-desktop, binary `octoscode`):
-#   1. prepares the three forks the root Cargo.toml [patch]es, in <work> (default
+#   1. prepares the two renderer forks the root Cargo.toml [patch]es, in <work> (default
 #      <repo>/.forks; a fork kept elsewhere is symlinked into .forks/):
 #        makepad-fork             OctoSense-org/makepad@6cf03859 + patches/makepad/*      (tools/prepare-makepad-fork.sh)
-#        octosense-fork           OctoSense-org/OctoSense@6e9bfd40 + patches/octosense/*  (tools/prepare-octosense-fork.sh)
 #        octoscript-makepad-fork  Octoscript-Makepad@6881fb6c + patches/octoscript-makepad/* (tools/prepare-octoscript-makepad-fork.sh)
 #   2. cargo build -p octoscode-desktop                 -> target/debug/octoscode (or target/release with --release)
 # --package    also tools/package-macos.sh              -> target/macos-app/OctosCode.app + OctosCode-macos-<arch>.zip
@@ -17,7 +16,7 @@
 #              framework sources via OctoSense's own tools/setup.py, our makepad patches on them
 #              (scripts/apply-makepad-patches.sh), the octoscode crates and design/ vendored into apps/
 #              (as outer/scripts/hostbuild.sh does), then
-#              cargo build -p octosense --features app-octoscode -> <work>/octosense-host/target/debug/octosense
+#              cargo build -p octosense --features app-octoscode,octoscode-module/octosense-module -> <work>/octosense-host/target/debug/octosense
 #
 # Prerequisites: macOS with the Xcode Command Line Tools, git, python3, rustup (stable toolchain).
 # IDEMPOTENT: every step is a no-op when its result is already there; re-run it to update after a pull.
@@ -85,10 +84,8 @@ fork_path() {
 step "1/3 forks"
 # (assignments, so a refusal inside fork_path stops the script under set -e)
 MAKEPAD_FORK="$(fork_path makepad-fork)"
-TRANSPORT_FORK="$(fork_path octosense-fork)"
 RENDERER_FORK="$(fork_path octoscript-makepad-fork)"
 bash "$HERE/prepare-makepad-fork.sh" "$MAKEPAD_FORK"
-bash "$HERE/prepare-octosense-fork.sh" "$TRANSPORT_FORK"
 bash "$HERE/prepare-octoscript-makepad-fork.sh" "$RENDERER_FORK"
 
 step "2/3 the standalone app (cargo build -p octoscode-desktop, $PROFILE)"
@@ -137,7 +134,7 @@ if [ "$OCTOSENSE" = 1 ]; then
   rsync -a --delete "$REPO/design/" "$HOST/apps/design/"
   echo "$(git -C "$REPO" rev-parse --short HEAD) $(date +%Y-%m-%dT%H:%M:%S)" > "$HOST/apps/octoscode/BUILT_FROM"
   started=$(date +%s)
-  (cd "$HOST" && cargo build -p octosense --features app-octoscode)
+  (cd "$HOST" && cargo build -p octosense --features app-octoscode,octoscode-module/octosense-module)
   HOST_BIN="$HOST/target/debug/octosense"
   [ -x "$HOST_BIN" ] || die "the host build finished but $HOST_BIN is missing"
   echo "build-macos: OctoSense host built in $(( $(date +%s) - started )) s: $HOST_BIN"

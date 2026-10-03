@@ -1,11 +1,12 @@
 # OctosCode on macOS: run it on another Mac
 
-OctosCode is the native octos client of this repository. It runs two ways, from the same module code
+OctosCode is the native octos client of this repository. It runs two ways, from the same UI code
 (`crates/octoscode-module`):
 
 - **standalone**: its own app, `OctosCode.app` (crate `crates/octoscode-desktop`, binary `octoscode`). One window,
-  titled OctosCode, nothing else. This is the one to give someone.
-- **inside OctoSense**: a window of the OctoSense desktop (`--octosense` below), for the OctoSense integration.
+  titled OctosCode. Its WebSocket transport lives in this repository; the app does not link the OctoSense
+  kernel, configuration library, shell, or module host. This is the one to give someone.
+- **inside OctoSense**: an optional adapter, enabled by the `octosense-module` feature (`--octosense` below).
 
 Either way it is a client: it needs an **octos server** (`octos serve`) to talk to (section 4).
 
@@ -40,7 +41,7 @@ Prerequisites:
 | Rust, stable toolchain (built here with 1.95.0) | install rustup from https://rustup.rs, then `rustup default stable` | yes |
 | Python 3 | ships with the Command Line Tools | yes |
 | Disk | about 8 GB free for the standalone app; about 25 GB more for `--octosense` | warns below 8 GB |
-| Network, the first time | GitHub (OctoSense, makepad, Octoscript, Octoscript-Makepad, octos) and crates.io | |
+| Network, the first time | GitHub (makepad, Octoscript, Octoscript-Makepad, octos; OctoSense only with `--octosense`) and crates.io | |
 
 Then, in a clone of this repository:
 
@@ -54,19 +55,18 @@ tools/build-macos.sh --octosense  # + the OctoSense-hosted variant in .forks/oct
 
 What it does (every step is a no-op when already done, so re-run it after a `git pull`):
 
-1. Prepares the three forks the root `Cargo.toml` `[patch]`es, in `.forks/` (or `--work <dir>`, linked into `.forks/`):
+1. Prepares the two renderer forks the root `Cargo.toml` `[patch]`es, in `.forks/` (or `--work <dir>`, linked into `.forks/`):
    - `makepad-fork`: OctoSense-org/makepad at `6cf03859` + `patches/makepad/*.patch` (`tools/prepare-makepad-fork.sh`);
-   - `octosense-fork`: OctoSense-org/OctoSense at `6e9bfd40` + `patches/octosense/0001-0003` (`tools/prepare-octosense-fork.sh`),
-     for the transport crates;
    - `octoscript-makepad-fork`: Octoscript-Makepad at `6881fb6c` + `patches/octoscript-makepad/*` (`tools/prepare-octoscript-makepad-fork.sh`).
 2. `cargo build -p octoscode-desktop` (`--release` for an optimized build).
 3. `--package`: `tools/package-macos.sh` builds the `app-bundle` profile with makepad's packaged resource loading
    (`MAKEPAD=apple_bundle MAKEPAD_PACKAGE_DIR=makepad`), copies every crate's `resources/` into
    `OctosCode.app/Contents/Resources/makepad/`, writes the Info.plist (name OctosCode, id `org.octos.octoscode`),
    signs ad hoc and zips with `ditto`.
-4. `--octosense`: a second OctoSense checkout, `.forks/octosense-host`, at the pin + 0001-0003 (0003 wires the module
+4. `--octosense`: an optional OctoSense checkout, `.forks/octosense-host`, at the pin + 0001-0003 (0003 wires the module
    into the shell), its framework sources from OctoSense's own `tools/setup.py`, our makepad patches on them, the
-   octoscode crates and `design/` vendored into `apps/`, then `cargo build -p octosense --features app-octoscode`.
+   octoscode crates and `design/` vendored into `apps/`, then
+   `cargo build -p octosense --features app-octoscode,octoscode-module/octosense-module`.
 
 From a fresh clone with an empty cargo cache it took 10 minutes and 10 GB here (4.5 minutes and about 6 GB without
 `--octosense`); section 6 has the breakdown. To repeat that check on any Mac without touching your own setup:
@@ -78,7 +78,7 @@ From a fresh clone with an empty cargo cache it took 10 minutes and 10 GB here (
 ```sh
 target/debug/octoscode                      # or open target/macos-app/OctosCode.app
 target/debug/octoscode --remote 8411        # + the instrument bridge (only when asked; harness/bcurl sends its token)
-OCTOSENSE_WINDOW_SIZE=360x780 target/debug/octoscode   # the phone's shape
+OCTOSCODE_WINDOW_SIZE=360x780 target/debug/octoscode   # the phone's shape
 ```
 
 The OctoSense-hosted variant:

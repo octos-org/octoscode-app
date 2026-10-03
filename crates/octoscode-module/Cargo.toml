@@ -4,15 +4,20 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish.workspace = true
-description = "The octoscode AppModule: renders connection state + session count from the store, and the L0 binding table"
+description = "Native OctosCode UI with optional OctoSense module integration"
+
+[features]
+default = []
+octosense-module = ["dep:makepad-app-module"]
 
 [dependencies]
 # The Makepad AppModule surface (re-homed from the D9 shape-(i) spike).
 makepad-widgets = { workspace = true }
-makepad-app-module = { workspace = true }
+makepad-app-module = { workspace = true, optional = true }
 # Our crates.
 octoscode-client = { workspace = true }
 octoscode-store = { workspace = true }
+
 octos-core = { workspace = true }
 octos-app-transport = { workspace = true }
 # #32h: the solo-profile discovery POST (api/auth/solo) before the WS upgrade.
@@ -46,3 +51,7 @@ tokio-tungstenite = "0.24"
 futures-util = "0.3"
 # The replay test (card #13 §5) builds a store directly.
 octoscode-store = { workspace = true }
+
+[[test]]
+name = "f32a_register"
+required-features = ["octosense-module"]

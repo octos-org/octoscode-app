@@ -21,9 +21,6 @@
 //! ```
 use makepad_widgets::*;
 
-// The AppModule trait (`register`) — the module's own import path.
-use makepad_app_module::AppModule;
-
 pub use makepad_widgets;
 
 use futures_util::{SinkExt, StreamExt};
@@ -240,7 +237,7 @@ impl AppMain for App {
         // host's own script. The first run panicked in
         // script/traits.rs:585 with the module registered first.
         crate::makepad_widgets::script_mod(vm);
-        octoscode_module::OCTOSCODE_MODULE.register(vm);
+        octoscode_module::register_widgets(vm);
         self::script_mod(vm)
     }
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
