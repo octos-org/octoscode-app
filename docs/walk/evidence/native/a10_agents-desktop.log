@@ -1,9 +1,9 @@
 == native walk a10_agents [desktop] (tools/walk/a10_agents.py)
--- run 1: exit 0 in 40 s
+-- run 1: exit 0 in 41 s
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=90589 app=octosense grabs=<abs>/octosense-90589
-[headless] up: pid 90589  port 8421  log <repo>/tmp/hs/port-8421.log
-[headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+[makepad-remote] listening on 127.0.0.1:8421 pid=12481 app=octosense grabs=<abs>/octosense-12481 token_file=<abs>/port-8421.token
+[headless] up: pid 12481  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
 == 1. /agents palette row CLICK opens the Agents panel; the roster loads (agent/list)
 CLICK composer r=[375, 585, 629, 28]
 TYPE '/'
@@ -61,5 +61,5 @@ CLICK b3_close r=[861, 116, 28, 28] at (875,130)
 PASS agents: the close glyph CLICK closes the panel
 == 24/24 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 90589 exited after /gq
+[headless] pid 12481 exited after /gq
 [headless] port 8421 free

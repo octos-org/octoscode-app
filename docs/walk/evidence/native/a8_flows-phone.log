@@ -1,5 +1,5 @@
 == native walk a8_flows [phone] (tools/walk/a8_flows_walk.py)
--- run 1: exit 0 in 29 s
+-- run 1: exit 0 in 21 s
 PASS app is up with the strip
 PASS /resume opens 'Resume chat' — Resume chat
 PASS resume: the catalog was read scoped (session/list {cwd, profile_id})
@@ -23,17 +23,17 @@ PASS switcher: the open Session offers no delete
 PASS draft typed in 'Add session fork' — unsent words
 PASS another Session shows its own (empty) draft — ''
 PASS back: the draft returns to its Session — 'unsent words'
-PASS reconnect: the outage is seen (the transport left Live) — conn: Reconnecting { attempt: 7 }   sessions: 5
+PASS reconnect: the outage is seen (the transport left Live) — conn: Reconnecting { attempt: 5 }   sessions: 4
 PASS reconnect: the active Session is re-opened — a8:api:alpha
 PASS reconnect: and hydrated canonically
-PASS reconnect: Live again — conn: Live   sessions: 5
+PASS reconnect: Live again — conn: Live   sessions: 6
 PASS strip: back to 'Ready' — Ready
 PASS header: the re-opened Session is the one shown — Add session fork
 PASS the unsent draft survived the outage — 'unsent words'
 
 30/30 passed (phase1)
 -- app restart (state kept)
--- run 2: exit 0 in 13 s
+-- run 2: exit 0 in 14 s
 PASS app is up again
 PASS restart: the unsent draft is restored, never sent — 'unsent words'
 PASS + Add workspace opens the picker
@@ -43,7 +43,7 @@ PASS nothing opened before the choice
 PASS wire: the chosen profile opens the new Session
 PASS the panel closes
 PASS the draft moved with the committed launch — 'unsent words'
-PASS wire: one turn/start for the sent text — [{'input': [{'kind': 'text', 'text': 'unsent words'}], 'session_id': 'glm-coder:api:01a0fc54-63db-75af-a66d-e22f8fac5243', 'turn_id': '01a0fc54-667d-74cc-8c46-a57c9a0d97ca'}]
+PASS wire: one turn/start for the sent text — [{'input': [{'kind': 'text', 'text': 'unsent words'}], 'session_id': 'glm-coder:api:01a0ffc1-7c22-72d8-8719-6c8f9d0e7a36', 'turn_id': '01a0ffc1-7ed2-772b-beb9-fb692e8700e8'}]
 PASS strip: the live word follows the turn (Thinking… -> Running shell… -> Thinking… -> Writing…) — ['Responding', 'Thinking…', 'Running shell…', 'Thinking…', 'Writing…', 'Ready']
 PASS strip: back to 'Ready' when the turn completes — ['Responding', 'Thinking…', 'Running shell…', 'Thinking…', 'Writing…', 'Ready']
 PASS parked: opening the Session read its parked interactions (session/hydrate include pending_approvals)
@@ -53,14 +53,12 @@ PASS parked: the strip, when shown, waits for the approval — None
 
 16/16 passed (phase2)
 -- fixture log tail:
+[a8-serve] <- session/delete
+[a8-serve] <- session/open
+[a8-serve] <- session/list
+[a8-serve] <- session/driver/get
 [a8-serve] <- session/hydrate
-[a8-serve] <- permission/profile/list
 [a8-serve] <- session/list
-[a8-serve] <- session/delete
-[a8-serve] <- session/delete
-[a8-serve] <- session/open
-[a8-serve] <- session/list
-[a8-serve] <- session/driver/get
 [a8-serve] <- session/status/read
 [a8-serve] <- permission/profile/list
 [a8-serve] <- session/open
@@ -68,3 +66,5 @@ PASS parked: the strip, when shown, waits for the approval — None
 [a8-serve] <- session/driver/get
 [a8-serve] <- session/status/read
 [a8-serve] <- permission/profile/list
+[a8-serve] <- session/hydrate
+[a8-serve] <- session/list

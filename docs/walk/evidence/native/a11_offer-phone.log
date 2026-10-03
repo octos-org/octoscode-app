@@ -12,8 +12,8 @@ PASS [111] a link to another computer is refused without a request, not prefille
   shot 02-p4-03-foreign
 PASS [109] a used link says so and the form keeps the origin
 PASS [108] a good link connects with no token box (live)
-PASS [114] connecting remembers the server — ['687474703a2f2f3132372e302e302e313a38343937.token', 'last-server']
-PASS [112] the paired credential is kept for the next start (one token file, owner-only) — ['687474703a2f2f3132372e302e302e313a38343937.token', 'last-server']
+PASS [114] connecting remembers the server — ['687474703a2f2f3132372e302e302e313a38343937.token', 'auto-connect', 'last-server']
+PASS [112] the paired credential is kept for the next start (one token file, owner-only) — ['687474703a2f2f3132372e302e302e313a38343937.token', 'auto-connect', 'last-server']
 PASS [112][114] Settings > Connection > Forget this device: the Connect card is back, no dialog or dimmer left
 PASS [112][114] seen, no credential: the server stays remembered, its token is gone, the field is empty — token files 0, token field empty
   shot 03-forgotten

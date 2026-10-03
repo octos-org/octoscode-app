@@ -5,8 +5,8 @@ PASS a tool header opens its output — clicked tool_hit#0=True log~'tool.toggle
 PASS …and closes it — clicked tool_hit#0=True log~'tool.toggle'
 PASS Worked for folds the turn's calls — clicked worked_hit#0=True log~'answer.expand'
 PASS …and shows them again — clicked worked_hit#0=True log~'answer.expand'
-PASS layout (top, tool card) — SUMMARY 13/13 pass; column 661=661; gutters 24/24; composer 661=661; composer text dx 16; text 29/29 inside; 7 controls>=28; 7 rows no overlap
+PASS layout (top, tool card) — SUMMARY 13/13 pass; column 661=661; gutters 24/24; composer 661=661; composer text dx 16; text 28/28 inside; 7 controls>=28; 7 rows no overlap
 PASS the session row reopens the conversation — clicked sb_r_open#0=True log~'session.open'
 PASS the GFM answer renders in ONE native Markdown region — 1 region(s) carry the sample
-PASS layout (bottom, GFM answer) — SUMMARY 7/7 pass; composer 661=661; text 15/15 inside; 4 controls>=28; 2 rows no overlap
+PASS layout (bottom, GFM answer) — SUMMARY 7/7 pass; composer 661=661; text 14/14 inside; 4 controls>=28; 2 rows no overlap
 == WALK conversation: 9/9 passed

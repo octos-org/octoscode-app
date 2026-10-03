@@ -1,0 +1,292 @@
+== native walk a24_language [desktop] (tools/walk/a24_language.py)
+-- run 1: exit 0 in 124 s
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=55938 app=octosense grabs=<abs>/octosense-55938 token_file=<abs>/port-8421.token
+[headless] up: pid 55938  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+PASS connected
+PASS start: English (the device default here) — ['Fix steer queue drop on reconnect', '/home/user/src/octos', 'Chat', 'Trajectory', 'Copy as Markdown', 'Review', 'Settings', 'Session recovery required', 'The conversation history could not be loaded: session/hydrate returned an invalid result: missing field `session_id`. Reopen it from the sidebar to try again.', 'Model not reported', 'Ready', 'Permissions not reported']
+CLICK settings_open_hit r=[935, 87, 92, 30] at (981,102)
+PASS Settings opens (CLICK)
+CLICK nv_hit r=[161, 417, 164, 40] at (243,437)
+PASS Preferences shows (CLICK)
+PASS Language: the control shows English | 简体中文, English selected — en=[755, 211, 84, 28] zh=[839, 211, 84, 28] on='English'
+PASS Language: both segments are >= 28 px targets — en=[755, 211, 84, 28] zh=[839, 211, 84, 28]
+SHOT en-settings-preferences
+CLICK lang_zh r=[839, 211, 84, 28]
+PASS switch: 简体中文 CLICK
+PASS switch: the Settings sheet reads Chinese — ['聊天', '轨迹', '复制为 Markdown', '审查更改', '设置', '需要恢复会话', '无法加载对话历史：session/hydrate returned an invalid result: missing field `session_id`。请从侧栏重新打开以重试。', '模型未报告', '就绪', '权限未报告']
+PASS switch: 简体中文 reads selected — '简体中文'
+PASS switch: the status line says the change is unsaved — 偏好设置尚未保存。
+PASS Settings > Preferences: no clipped or overflowing Chinese label (zh-settings-preferences) — cjk=19 outside=0 overflow=0 truncated=0 overlaps=0 controls=17 under28=0
+SHOT zh-settings-preferences
+CLICK nv_hit r=[161, 197, 164, 40] at (243,217)
+PASS Settings > General: no clipped or overflowing Chinese label (zh-settings-general) — cjk=21 outside=0 overflow=0 truncated=0 overlaps=0 controls=10 under28=0
+SHOT zh-settings-general
+CLICK nv_hit r=[161, 241, 164, 40] at (243,261)
+PASS Settings > Permissions: no clipped or overflowing Chinese label (zh-settings-permissions) — cjk=17 outside=0 overflow=0 truncated=0 overlaps=0 controls=12 under28=0
+SHOT zh-settings-permissions
+CLICK nv_hit r=[161, 285, 164, 40] at (243,305)
+PASS Settings > Model: no clipped or overflowing Chinese label (zh-settings-model) — cjk=22 outside=0 overflow=0 truncated=0 overlaps=0 controls=14 under28=0
+SHOT zh-settings-model
+CLICK nv_hit r=[161, 329, 164, 40] at (243,349)
+PASS Settings > Sandbox: no clipped or overflowing Chinese label (zh-settings-sandbox) — cjk=16 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0
+SHOT zh-settings-sandbox
+CLICK nv_hit r=[161, 373, 164, 40] at (243,393)
+PASS Settings > Connection: no clipped or overflowing Chinese label (zh-settings-connection) — cjk=18 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0
+SHOT zh-settings-connection
+CLICK nv_hit r=[161, 461, 164, 40] at (243,481)
+PASS Settings > About: no clipped or overflowing Chinese label (zh-settings-about) — cjk=12 outside=0 overflow=0 truncated=0 overlaps=0 controls=8 under28=0
+SHOT zh-settings-about
+CLICK settings_close r=[905, 154, 32, 32] at (921,170)
+PASS shell: the header reads Chinese — ['聊天', '轨迹', '复制为 Markdown', '审查更改', '设置', '需要恢复会话', '无法加载对话历史：session/hydrate returned an invalid result: missing field `session_id`。请从侧栏重新打开以重试。', '模型未报告', '就绪', '权限未报告', '模型、权限、沙箱', '向 Octos 提出任何问题']
+PASS shell: the status strip reads Chinese — '模型、权限、沙箱' '就绪'
+PASS shell: the sidebar reads Chinese — ['聊天', '轨迹', '复制为 Markdown', '审查更改', '设置', '需要恢复会话', '无法加载对话历史：session/hydrate returned an invalid result: missing field `session_id`。请从侧栏重新打开以重试。', '模型未报告', '就绪', '权限未报告', '模型、权限、沙箱', '向 Octos 提出任何问题']
+PASS shell (sidebar, header, composer, strip): no clipped or overflowing Chinese label (zh-shell) — cjk=26 outside=0 overflow=0 truncated=0 overlaps=0 controls=27 under28=0
+SHOT zh-shell
+CLICK approval_pill_hit r=[407, 622, 76, 30] at (445,637)
+PASS seats: the permission menu reads Chinese — '权限'
+PASS composer permission menu: no clipped or overflowing Chinese label (zh-permission-menu) — cjk=2 outside=0 overflow=0 truncated=0 overlaps=0 controls=1 under28=0
+SHOT zh-permission-menu
+CLICK hd_title r=[347, 87, 217, 16] at (456,95)
+PASS seats: an outside press closes the menu
+TYPE '/'
+PASS slash menu: the descriptions read Chinese — ['显示运行时模型和配置档案模型设置', '检查和管理会话监视器', '更改权限', '检查上下文、缓存和压缩控制']
+PASS slash menu: no clipped or overflowing Chinese label (zh-slash-menu) — cjk=9 outside=0 overflow=0 truncated=0 overlaps=0 controls=6 under28=0
+SHOT zh-slash-menu
+KEY Escape
+CLICK settings_open_hit r=[960, 87, 68, 30] at (994,102)
+CLICK nv_hit r=[161, 373, 164, 40] at (243,393)
+CLICK settings_disconnect r=[362, 333, 112, 36] at (418,351)
+PASS board 1: Disconnect CLICK
+PASS board 1: the Connect card returns
+PASS board 1: the Connect card reads Chinese — '连接 Octos'
+PASS Connect card (board 1): no clipped or overflowing Chinese label (zh-connect) — cjk=7 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0
+SHOT zh-connect
+CLICK b1_connect_pair r=[637, 482, 84, 32] at (679,498)
+PASS Pair with Octos (board 1 p4-01): no clipped or overflowing Chinese label (zh-pairing) — cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0
+SHOT zh-pairing
+CLICK b1_pair_back r=[357, 142, 28, 32] at (371,158)
+CLICK connect_btn r=[471, 426, 416, 44] at (679,448)
+PASS board 1: Connect reconnects
+CLICK settings_open_hit r=[960, 87, 68, 30] at (994,102)
+CLICK nv_hit r=[161, 417, 164, 40] at (243,437)
+CLICK lang_en r=[755, 211, 84, 28]
+PASS restore: English CLICK
+PASS restore: the sheet reads English again — ['简体中文']
+PASS restore: no Chinese left on the sheet — ['简体中文']
+SHOT en-restored
+CLICK lang_zh r=[839, 211, 84, 28]
+CLICK prefs_save r=[362, 569, 148, 36] at (436,587)
+PASS save: the file holds language zh — {'language': 'zh', 'theme': 'terminal', 'version': 1, 'vimMode': False}
+CLICK settings_close r=[905, 154, 32, 32] at (921,170)
+== 36/36 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 55938 exited after /gq
+[headless] port 8421 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=61697 app=octosense grabs=<abs>/octosense-61697 token_file=<abs>/port-8421.token
+[headless] up: pid 61697  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+PASS relaunch: connected
+PASS relaunch: the first frame is Chinese — ['聊天', '轨迹', '复制为 Markdown', '审查更改', '设置', '需要恢复会话', '无法加载对话历史：session/hydrate returned an invalid result: missing field `session_id`。请从侧栏重新打开以重试。', '模型未报告']
+PASS relaunch: adopted at launch (log)
+CLICK settings_open_hit r=[960, 87, 68, 30] at (994,102)
+CLICK nv_hit r=[161, 417, 164, 40] at (243,437)
+PASS relaunch: 简体中文 reads selected — '简体中文'
+CLICK lang_en r=[755, 211, 84, 28]
+CLICK prefs_save r=[362, 569, 148, 36] at (436,587)
+PASS relaunch: English saved back — {'language': 'en', 'theme': 'terminal', 'version': 1, 'vimMode': False}
+CLICK settings_close r=[905, 154, 32, 32] at (921,170)
+== 5/5 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 61697 exited after /gq
+[headless] port 8421 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=63179 app=octosense grabs=<abs>/octosense-63179 token_file=<abs>/port-8421.token
+[headless] up: pid 63179  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+PASS surfaces: connected
+PASS surfaces: launched in Chinese (log)
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'revi'
+CLICK palette_row_name '/review' r=[286, 252, 66, 28]
+PASS review: /review CLICK opens the dialog
+PASS Code review dialog: no clipped or overflowing Chinese label (zh-review) — cjk=6 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0
+SHOT zh-review
+PASS Code review dialog: no English copy left (zh-review) — []
+CLICK dialog_close r=[821, 215, 28, 28] at (835,229)
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'thin'
+CLICK palette_row_name '/thinking' r=[286, 252, 77, 28]
+PASS thinking: /thinking CLICK opens the dialog
+PASS thinking: the dialog reads Chinese — '思考强度'
+PASS Thinking effort: no clipped or overflowing Chinese label (zh-thinking) — cjk=11 outside=0 overflow=0 truncated=0 overlaps=0 controls=7 under28=0
+SHOT zh-thinking
+PASS Thinking effort: no English copy left (zh-thinking) — []
+CLICK b3_close r=[801, 245, 28, 28] at (815,259)
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'thre'
+CLICK palette_row_name '/threads' r=[286, 252, 74, 28]
+PASS inspector: /threads CLICK opens the inspector
+PASS inspector: the inspector reads Chinese — '线程图'
+PASS Inspector (/threads): no clipped or overflowing Chinese label (zh-inspector) — cjk=12 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0
+SHOT zh-inspector
+PASS Inspector (/threads): no English copy left (zh-inspector) — []
+CLICK b3_close r=[901, 159, 28, 28] at (915,173)
+CLICK fleet_nav_hit r=[64, 569, 260, 34] at (194,586)
+PASS fleet: the footer's Fleet CLICK
+PASS fleet: the Fleet reads Chinese — '舰队' '返回'
+PASS Fleet: no clipped or overflowing Chinese label (zh-fleet) — cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0
+SHOT zh-fleet
+PASS Fleet: no English copy left (zh-fleet) — []
+KEY Escape
+PASS fleet: Escape closes the pane
+PASS fleet: ...and the app stays in front (the composer is back)
+CLICK b3_strip_tap r=[359, 516, 660, 32] at (689,532)
+PASS pane: the strip CLICK opens Session settings
+PASS pane: the pane reads Chinese — '会话设置'
+PASS Session settings: no clipped or overflowing Chinese label (zh-session-settings) — cjk=10 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0
+SHOT zh-session-settings
+PASS Session settings: no English copy left (zh-session-settings) — []
+CLICK b3_close r=[781, 118, 28, 28] at (795,132)
+CLICK hd_tab_traj_hit r=[618, 76, 46, 52] at (641,102)
+PASS trajectory: the tab CLICK shows the pane
+PASS trajectory: the pane reads Chinese — '轨迹'
+PASS Trajectory: no clipped or overflowing Chinese label (zh-trajectory) — cjk=11 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0
+SHOT zh-trajectory
+PASS Trajectory: no English copy left (zh-trajectory) — []
+CLICK hd_tab_chat_hit r=[570, 76, 46, 52] at (593,102)
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'mo'
+CLICK palette_row_name '/model' r=[286, 252, 63, 28]
+PASS models: /model CLICK opens the Models dialog
+PASS Models dialog: no clipped or overflowing Chinese label (zh-models) — cjk=7 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0
+SHOT zh-models
+PASS Models dialog: no English copy left (zh-models) — []
+CLICK dlg_models_manage_providers_control r=[720, 500, 99, 32] at (770,516)
+PASS providers: the 管理提供商 CLICK opens 模型提供商 — '模型提供商'
+PASS Model providers: no clipped or overflowing Chinese label (zh-providers) — cjk=14 outside=0 overflow=0 truncated=0 overlaps=0 controls=9 under28=0
+SHOT zh-providers
+PASS Model providers: no English copy left (zh-providers) — []
+CLICK b3_routes_add_provider r=[740, 197, 99, 32] at (790,213)
+PASS provider editor: the 添加提供商 CLICK opens the board-1 editor — '添加提供商'
+PASS Provider editor (board 1): no clipped or overflowing Chinese label (zh-provider-editor) — cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=10 under28=0
+SHOT zh-provider-editor
+PASS Provider editor (board 1): no English copy left (zh-provider-editor) — []
+KEY Escape
+PASS provider editor: Escape steps back to 模型提供商 — '模型提供商'
+CLICK b3_close r=[821, 144, 28, 28] at (835,158)
+== 37/37 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 63179 exited after /gq
+[headless] port 8421 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=69028 app=octosense grabs=<abs>/octosense-69028 token_file=<abs>/port-8421.token
+[headless] up: pid 69028  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+PASS skills: connected
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'ski'
+CLICK palette_row_name '/skills' r=[286, 252, 54, 28]
+PASS skills: the /skills CLICK opens Skills with its 后台作业 — '后台作业'
+PASS skills: the job rows arrive
+PASS skills: every job's time reads Chinese (刚刚 / N 分钟前 / N 小时前), never now / 2m / 1h — ['刚刚', '刚刚', '2 分钟前', '5 分钟前', '20 分钟前', '1 小时前']
+PASS skills: every shown time is whole (its box holds its words) — []
+PASS Skills > Background jobs: no clipped or overflowing Chinese label (zh-skills-jobs) — cjk=19 outside=0 overflow=0 truncated=0 overlaps=0 controls=1 under28=0
+SHOT zh-skills-jobs
+PASS Skills > Background jobs: no English copy left (zh-skills-jobs) — []
+CLICK dialog_close r=[861, 115, 28, 28] at (875,129)
+== 7/7 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 69028 exited after /gq
+[headless] port 8421 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=71512 app=octosense grabs=<abs>/octosense-71512 token_file=<abs>/port-8421.token
+[headless] up: pid 71512  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+PASS diff: connected
+KEY End
+TYPE '重试 steer 队列'
+KEY Return
+PASS diff: a prompt + Return starts the approvals turn
+PASS diff: the command approval takes the composer over
+CLICK cv_ap_deny r=[689, 615, 59, 34] at (718,632)
+PASS diff: 拒绝 -> the diff approval with 审查差异
+PASS Diff approval card: no clipped or overflowing Chinese label (zh-approval-diff) — cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0
+SHOT zh-approval-diff
+PASS Diff approval card: no English copy left (zh-approval-diff) — []
+CLICK cv_ap_diff r=[595, 615, 86, 34] at (638,632)
+PASS diff: the 审查差异 CLICK opens the diff review
+PASS Diff review: no clipped or overflowing Chinese label (zh-diff-review) — cjk=2 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0
+SHOT zh-diff-review
+PASS Diff review: no English copy left (zh-diff-review) — []
+CLICK b3_close r=[975, 120, 28, 28] at (989,134)
+== 9/9 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 71512 exited after /gq
+[headless] port 8421 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=73645 app=octosense grabs=<abs>/octosense-73645 token_file=<abs>/port-8421.token
+[headless] up: pid 73645  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+PASS btw: connected
+KEY End
+TYPE '/btw 为什么要先排空队列？'
+KEY Return
+PASS btw: 旁问 — /btw · 正在回答… — '旁问 — /btw' '正在回答…'
+PASS /btw aside (answering): no clipped or overflowing Chinese label (zh-btw-answering) — cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0
+SHOT zh-btw-answering
+PASS /btw aside (answering): no English copy left (zh-btw-answering) — []
+PASS btw: the answer arrives
+PASS /btw aside (answered): no clipped or overflowing Chinese label (zh-btw-answered) — cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0
+SHOT zh-btw-answered
+PASS /btw aside (answered): no English copy left (zh-btw-answered) — []
+CLICK btw_aside_close_hit r=[958, 351, 50, 32] at (983,367)
+== 7/7 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 73645 exited after /gq
+[headless] port 8421 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=76921 app=octosense grabs=<abs>/octosense-76921 token_file=<abs>/port-8421.token
+[headless] up: pid 76921  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+PASS dock: connected
+CLICK fleet_nav_hit r=[64, 569, 260, 34] at (194,586)
+PASS fleet: the footer's Fleet CLICK
+PASS dock: the Fleet's start form reads Chinese — '启动一个同侪'
+CLICK b3_fleet_model_tap r=[365, 196, 648, 36] at (689,214)
+CLICK b3_fleet_opt_0 r=[369, 244, 640, 32] at (689,260)
+TYPE '修复重连时 steer 队列丢失'
+TYPE '修复重连时 steer 队列丢失'
+CLICK b3_fleet_start r=[954, 409, 59, 34] at (984,426)
+PASS dock: 启动 CLICK -> one peer/dispatch
+PASS dock: the Fleet shows the peer's row
+PASS Fleet (one peer): no clipped or overflowing Chinese label (zh-fleet-peer) — cjk=17 outside=0 overflow=0 truncated=0 overlaps=0 controls=6 under28=0
+SHOT zh-fleet-peer
+PASS Fleet (one peer): no English copy left (zh-fleet-peer) — []
+KEY Escape
+PASS fleet: Escape closes the pane
+PASS fleet: ...and the app stays in front (the composer is back)
+PASS dock: the dock shows the peer's row
+PASS dock: the dock reads Chinese (同侪, 隐藏同侪) — '同侪 1 · glm-4.6'
+PASS Peer dock (sidebar): no clipped or overflowing Chinese label (zh-peer-dock) — cjk=8 outside=0 overflow=0 truncated=0 overlaps=0 controls=7 under28=0
+SHOT zh-peer-dock
+PASS Peer dock (sidebar): no English copy left (zh-peer-dock) — []
+CLICK fleet_nav_hit r=[64, 569, 260, 34] at (194,586)
+PASS fleet: the footer's Fleet CLICK
+PASS dock: the dock's status word is the Fleet chip's (row 117) — dock='等待你的批准' fleet='⚠ 等待你的批准'
+PASS dock: the dock names the peer as the Fleet does (同侪 1 · glm-4.6) — dock='同侪 1 · glm-4.6' fleet='同侪 1 · glm-4.6'
+KEY Escape
+PASS fleet: Escape closes the pane
+PASS fleet: ...and the app stays in front (the composer is back)
+== 18/18 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 76921 exited after /gq
+[headless] port 8421 free
+== WALK a24 language desktop: PASS

@@ -1,0 +1,35 @@
+== native walk a21_drafts [desktop] (tools/walk/a21_drafts_walk.py)
+-- run 1: exit 0 in 72 s
+PASS first launch: the Connect card (nothing remembered)
+PASS Connect as alice (a click) goes live
+PASS …alice's principal is resolved and her scope bound
+PASS 'Add session fork' opens from the sidebar with an empty composer — ''
+PASS the draft sits unsent in alice's composer — "alice's unsent words"
+PASS Settings > Disconnect (the unsaved-input confirmation confirmed) returns the Connect card
+PASS Connect as bob (another principal) goes live
+PASS …bob's scope is bound with nothing restored — [I] apps/octoscode/module/src/screens/drafts.rs:338:5 - [octoscode] drafts: the principal's scope is bound (0 stored, nothing restored)
+PASS [196] bob opens the SAME Session: an empty composer — never alice's draft — ''
+PASS UX another principal: the composer by numbers — composer=[375, 585, 629, 28] row=[359, 571, 661, 92] column=[335, 76, 709, 603]
+SHOT 01-another-principal-empty-desktop
+PASS Settings > Disconnect returns the Connect card
+PASS Connect as alice with a rotated token goes live
+PASS [196] the same principal (a rotated token) gets her draft back in that Session — "alice's unsent words"
+PASS …restored, never sent (no turn/start)
+PASS UX the same principal: the composer by numbers — composer=[375, 585, 629, 28] row=[359, 571, 661, 92] column=[335, 76, 709, 603]
+SHOT 02-same-principal-restored-desktop
+PASS Settings > Forget server (the unsaved-input confirmation confirmed) returns the Connect card
+PASS …the composer's text is gone with the identity
+PASS Connect as alice again goes live
+PASS [196] after Forget the same principal gets NOTHING back (her drafts were cleared) — ''
+PASS UX after Forget: the composer by numbers — composer=[375, 585, 629, 28] row=[359, 571, 661, 92] column=[335, 76, 709, 603]
+SHOT 03-after-forget-empty-desktop
+PASS a new draft sits unsent — 'a draft that waits for the restart'
+PASS relaunch: the connection restores itself
+PASS [196] the same identity's draft survives the restart, never sent (A7's recovery kept) — 'a draft that waits for the restart'
+SHOT 04-restart-same-identity-desktop
+PASS Settings > Disconnect returns the Connect card
+PASS relaunch after Disconnect: the Connect card
+PASS Connect as bob goes live
+PASS [196] the tab drafts of alice's identity restore for nobody else — ''
+PASS [196] the tab-drafts file holds no token and no draft of alice's — 154 bytes
+== WALK a21 drafts desktop: 28/28 passed

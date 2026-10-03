@@ -1,37 +1,37 @@
 == native walk a10_skills [phone] (tools/walk/a10_skills.py)
 -- run 1: exit 0 in 20 s
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=79863 app=octosense grabs=<abs>/octosense-79863
-[headless] up: pid 79863  port 8421  log <repo>/tmp/hs/port-8421.log
-[headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+[makepad-remote] listening on 127.0.0.1:8421 pid=43980 app=octosense grabs=<abs>/octosense-43980 token_file=<abs>/port-8421.token
+[headless] up: pid 43980  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
 == 1. /skills: the warning paragraph and the sections
 CLICK composer r=[28, 743, 304, 29]
 TYPE '/'
 TYPE 'ski'
 CLICK palette_row_name '/skills' r=[30, 260, 54, 28]
 PASS skills: /skills palette CLICK opens the dialog
-PASS skills open: dialog numeric checks — frame=328x535 centre_dx=0.0 margins L=16 R=16 labels=8 outside=0 overlaps=0 controls=1 under28=0
+PASS skills open: dialog numeric checks — frame=328x655 centre_dx=0.0 margins L=16 R=16 labels=11 outside=0 overlaps=0 controls=1 under28=0
 SHOT 01-skills-phone
 == 2. search the registry: rows with the web's fields
 TYPE 'lint'
 KEY Return
 PASS skills: Enter in the search box -> profile/skills/registry/search -> rows
 PASS skills: row fields — description, repo, tools/licence, Requires, Installed
-PASS registry rows: dialog numeric checks — frame=328x746 centre_dx=0.0 margins L=16 R=16 labels=19 outside=0 overlaps=0 controls=2 under28=0
+PASS registry rows: dialog numeric checks — frame=328x746 centre_dx=0.0 margins L=16 R=16 labels=19 outside=0 overlaps=0 controls=1 under28=0
 SHOT 02-registry-phone
 == 3. Install (row 0) through the confirm card
-CLICK dlg_skills_reg_0_install_control r=[46, 535, 70, 32] at (81,551)
+CLICK dlg_skills_reg_0_install_control r=[46, 656, 70, 32] at (81,672)
 PASS skills: Install CLICK -> 'Confirm server installation'
 SHOT 03-install-confirm-phone
 CLICK dlg_skills_cf_confirm_control r=[195, 523, 123, 32] at (256,539)
 PASS skills: Confirm install CLICK -> installed; the receipt line; the row in Installed
-PASS after install: dialog numeric checks — frame=328x589 centre_dx=0.0 margins L=16 R=16 labels=11 outside=0 overlaps=0 controls=2 under28=0
+PASS after install: dialog numeric checks — frame=328x710 centre_dx=0.0 margins L=16 R=16 labels=14 outside=0 overlaps=0 controls=2 under28=0
 SHOT 04-installed-phone
 == 4. Install from source: repo + branch through the confirm card
 TYPE 'octos-org/review-kit'
 TYPE 'dev'
 TAP the keyboard's hide chevron (337,513)
-CLICK dlg_skills_src_review_control r=[152, 699, 152, 32] at (228,715)
+CLICK dlg_skills_src_review_control r=[152, 759, 152, 32] at (228,775)
 PASS skills: Review installation CLICK -> the confirm names 'octos-org/review-kit · branch dev'
 SHOT 05-source-confirm-phone
 CLICK dlg_skills_cf_confirm_control r=[195, 523, 123, 32] at (256,539)
@@ -41,16 +41,16 @@ SHOT 07-locked-phone
 PASS skills: a Remove CLICK while locked routes nothing (no confirm asked)
 PASS skills: the source installs; the receipt names the skipped skill; the lock lifts
 == 5. Remove (row 0) through the confirm card
-CLICK dlg_skills_t_remove0_hit r=[252, 430, 52, 28] at (278,444)
+CLICK dlg_skills_t_remove0_hit r=[252, 498, 52, 28] at (278,512)
 CLICK dlg_skills_cf_confirm_control r=[187, 523, 131, 32] at (252,539)
 PASS skills: Remove CLICK -> 'Confirm removal' -> Confirm -> 'Removed code-linter …'
-PASS after remove: dialog numeric checks — frame=328x570 centre_dx=0.0 margins L=16 R=16 labels=11 outside=0 overlaps=0 controls=2 under28=0
+PASS after remove: dialog numeric checks — frame=328x691 centre_dx=0.0 margins L=16 R=16 labels=14 outside=0 overlaps=0 controls=2 under28=0
 SHOT 06-removed-phone
 PASS wire: profile/skills/registry/search x1 — replay log: 1
 PASS wire: profile/skills/install x2 — replay log: 2
 PASS wire: profile/skills/remove x1 — replay log: 1
-CLICK dialog_close r=[300, 197, 28, 28] at (314,211)
+CLICK dialog_close r=[300, 136, 28, 28] at (314,150)
 == 17/17 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 79863 exited after /gq
+[headless] pid 43980 exited after /gq
 [headless] port 8421 free

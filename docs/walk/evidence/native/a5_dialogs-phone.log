@@ -1,5 +1,5 @@
 == native walk a5_dialogs [phone] (tools/walk/a5_dialogs_walk.py)
--- run 1: exit 0 in 101 s
+-- run 1: exit 0 in 102 s
 PASS palette: '/' lists the dialog commands — ['/model', '/monitor', '/mode', '/compact', '/btw', '/resume']
 PASS /model by CLICK opens the models dialog — rows ['/model', '/monitor', '/mode']
 PASS models: Test route by CLICK — dlg_models_btn_test_control clicked=True
@@ -39,18 +39,18 @@ PASS typed commands never reached the model (no turn/start) — x0
 PASS Settings > Model > Manage models… opens the Models dialog over Settings
 == WALK a5_dialogs phone: 37/37 passed
 -- fixture log tail:
-[replay-serve] <- peer/gather (id=46)
+[replay-serve] <- peer/gather (id=48)
 [replay-serve] -> peer/gather (recorded reply)
-[replay-serve] <- task/cancel (id=47)
-[replay-serve] <- profile/llm/list (id=48)
+[replay-serve] <- task/cancel (id=49)
+[replay-serve] <- profile/llm/list (id=50)
 [replay-serve] -> profile/llm/list (recorded reply)
-[replay-serve] <- profile/skills/list (id=49)
+[replay-serve] <- profile/skills/list (id=51)
 [replay-serve] -> profile/skills/list (recorded reply)
-[replay-serve] <- profile/sub_providers/list (id=50)
+[replay-serve] <- profile/sub_providers/list (id=52)
 [replay-serve] -> profile/sub_providers/list (recorded reply)
-[replay-serve] <- profile/llm/list (id=51)
+[replay-serve] <- profile/llm/list (id=53)
 [replay-serve] -> profile/llm/list (recorded reply)
-[replay-serve] <- profile/skills/list (id=52)
+[replay-serve] <- profile/skills/list (id=54)
 [replay-serve] -> profile/skills/list (recorded reply)
-[replay-serve] <- profile/sub_providers/list (id=53)
+[replay-serve] <- profile/sub_providers/list (id=55)
 [replay-serve] -> profile/sub_providers/list (recorded reply)

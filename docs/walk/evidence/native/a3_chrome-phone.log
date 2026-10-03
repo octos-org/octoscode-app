@@ -1,5 +1,5 @@
 == native walk a3_chrome [phone] (tools/walk/a3_chrome_walk.py)
--- run 1: exit 0 in 7 s
+-- run 1: exit 0 in 6 s
 PASS layout: hd_review_label is icon-only in this mode
 PASS layout: hd_settings_label is icon-only in this mode
 PASS Menu opens the drawer — clicked=True log~'drawer.open'
@@ -31,7 +31,7 @@ PASS Settings nav -> connection — clicked=True log~'settings.section.connectio
 PASS Settings nav -> preferences — clicked=True log~'settings.section.preferences'
 PASS Settings nav -> about — clicked=True log~'settings.section.about'
 PASS layout: settings hit targets >= 28 px — []
-PASS Desktop notifications toggles — clicked=True log~'notifications_toggle.toggle'
+PASS Desktop notifications toggles — this process has no notification backend: the row reads ['Unavailable'] (A25)
 PASS Stop server… opens the confirm — clicked=True log~'server.stop.request'
 PASS Cancel closes the confirm — clicked=True log~'server.stop.cancel'
 PASS Cancel sent no server/shutdown

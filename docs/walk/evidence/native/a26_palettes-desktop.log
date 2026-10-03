@@ -1,5 +1,5 @@
 == native walk a26_palettes [desktop] (tools/walk/a26_palettes.py)
--- run 1: exit 0 in 28 s
+-- run 1: exit 0 in 24 s
 PASS Terminal on the light theme draws the light shell — pixel (255, 255, 255) at (222, 511) vs light (255, 255, 255)
 SHOT desktop-terminal-light
 CLICK sb_theme_hit r=[64, 603, 260, 34] at (194,620)
@@ -19,12 +19,13 @@ PASS Settings opens from the sidebar footer
 CLICK set_nav_preferences r=[161, 417, 164, 40] at (243,437)
 PASS Preferences shows
 PASS five palette rows in the web's order and labels — ['Terminal', 'Codex', 'Claude', 'Slate', 'Solarized']
-PASS every palette row lies inside the Settings body — body=[338, 199, 611, 415] rows=[[362, 254, 563, 30], [362, 284, 563, 30], [362, 314, 563, 30], [362, 344, 563, 30], [362, 374, 563, 30]]
-PASS palette rows are >= 28 px targets — [[362, 254, 563, 30], [362, 284, 563, 30], [362, 314, 563, 30], [362, 344, 563, 30], [362, 374, 563, 30]]
-PASS Save sits whole inside the Settings body (not clipped) — save=[362, 552, 148, 36] body=[338, 199, 611, 415]
+PASS every palette row lies inside the Settings body — body=[338, 199, 611, 313] rows=[[362, 295, 563, 30], [362, 325, 563, 30], [362, 355, 563, 30], [362, 385, 563, 30], [362, 415, 563, 30]]
+PASS palette rows are >= 28 px targets — [[362, 295, 563, 30], [362, 325, 563, 30], [362, 355, 563, 30], [362, 385, 563, 30], [362, 415, 563, 30]]
+PASS Save sits whole inside the fixed footer (not clipped) — save=[362, 569, 148, 36] footer=[338, 512, 611, 101]
+PASS the footer sits below the body — body=[338, 199, 611, 313] footer=[338, 512, 611, 101]
 PASS the Terminal radio is on
 SHOT desktop-prefs-terminal
-CLICK the Codex row r=[362, 284, 563, 30]
+CLICK the Codex row r=[362, 325, 563, 30]
 PASS the Codex row re-themes the app (log)
 PASS Codex: its radio is on and Terminal's is off
 PASS Codex: applied but unsaved — 'Unsaved preferences.'
@@ -36,7 +37,7 @@ SHOT desktop-conversation-codex
 CLICK sb_settings_hit r=[64, 637, 260, 34] at (194,654)
 CLICK set_nav_preferences r=[161, 417, 164, 40] at (243,437)
 PASS Codex: Settings reopens from the footer
-CLICK the Claude row r=[362, 314, 563, 30]
+CLICK the Claude row r=[362, 355, 563, 30]
 PASS the Claude row re-themes the app (log)
 PASS Claude: its radio is on and Terminal's is off
 PASS Claude: applied but unsaved — 'Unsaved preferences.'
@@ -48,7 +49,7 @@ SHOT desktop-conversation-claude
 CLICK sb_settings_hit r=[64, 637, 260, 34] at (194,654)
 CLICK set_nav_preferences r=[161, 417, 164, 40] at (243,437)
 PASS Claude: Settings reopens from the footer
-CLICK the Slate row r=[362, 344, 563, 30]
+CLICK the Slate row r=[362, 385, 563, 30]
 PASS the Slate row re-themes the app (log)
 PASS Slate: its radio is on and Terminal's is off
 PASS Slate: applied but unsaved — 'Unsaved preferences.'
@@ -60,7 +61,7 @@ SHOT desktop-conversation-slate
 CLICK sb_settings_hit r=[64, 637, 260, 34] at (194,654)
 CLICK set_nav_preferences r=[161, 417, 164, 40] at (243,437)
 PASS Slate: Settings reopens from the footer
-CLICK the Solarized row r=[362, 374, 563, 30]
+CLICK the Solarized row r=[362, 415, 563, 30]
 PASS the Solarized row re-themes the app (log)
 PASS Solarized: its radio is on and Terminal's is off
 PASS Solarized: applied but unsaved — 'Unsaved preferences.'
@@ -72,11 +73,11 @@ SHOT desktop-conversation-solarized
 CLICK sb_settings_hit r=[64, 637, 260, 34] at (194,654)
 CLICK set_nav_preferences r=[161, 417, 164, 40] at (243,437)
 PASS Settings reopens for Save
-CLICK prefs_save r=[362, 552, 148, 36] at (436,570)
+CLICK prefs_save r=[362, 569, 148, 36] at (436,587)
 PASS Save -> 'Preferences saved.' — 'Preferences saved.'
 PASS the file holds exactly the display whitelist with solarized — {'language': 'en', 'theme': 'solarized', 'version': 1, 'vimMode': False}
 CLICK settings_close r=[905, 154, 32, 32] at (921,170)
-== 38/38 checks passed
+== 39/39 checks passed
 -- app restart (state kept)
 -- run 2: exit 0 in 4 s
 PASS a fresh launch draws the saved palette (Solarized) from its first frame — pixel (0, 43, 54) at (222, 511) vs solarized (0, 43, 54)
@@ -86,19 +87,20 @@ PASS Settings opens from the sidebar footer
 CLICK set_nav_preferences r=[161, 417, 164, 40] at (243,437)
 PASS Preferences shows
 PASS five palette rows in the web's order and labels — ['Terminal', 'Codex', 'Claude', 'Slate', 'Solarized']
-PASS every palette row lies inside the Settings body — body=[338, 199, 611, 415] rows=[[362, 254, 563, 30], [362, 284, 563, 30], [362, 314, 563, 30], [362, 344, 563, 30], [362, 374, 563, 30]]
-PASS palette rows are >= 28 px targets — [[362, 254, 563, 30], [362, 284, 563, 30], [362, 314, 563, 30], [362, 344, 563, 30], [362, 374, 563, 30]]
-PASS Save sits whole inside the Settings body (not clipped) — save=[362, 552, 148, 36] body=[338, 199, 611, 415]
+PASS every palette row lies inside the Settings body — body=[338, 199, 611, 313] rows=[[362, 295, 563, 30], [362, 325, 563, 30], [362, 355, 563, 30], [362, 385, 563, 30], [362, 415, 563, 30]]
+PASS palette rows are >= 28 px targets — [[362, 295, 563, 30], [362, 325, 563, 30], [362, 355, 563, 30], [362, 385, 563, 30], [362, 415, 563, 30]]
+PASS Save sits whole inside the fixed footer (not clipped) — save=[362, 569, 148, 36] footer=[338, 512, 611, 101]
+PASS the footer sits below the body — body=[338, 199, 611, 313] footer=[338, 512, 611, 101]
 PASS the Solarized radio is on
 SHOT desktop-relaunch-prefs
-CLICK the Terminal row r=[362, 254, 563, 30]
+CLICK the Terminal row r=[362, 295, 563, 30]
 PASS the Terminal row re-themes back to the light shell
-CLICK prefs_save r=[362, 552, 148, 36] at (436,570)
+CLICK prefs_save r=[362, 569, 148, 36] at (436,587)
 PASS Save -> 'Preferences saved.' — 'Preferences saved.'
 PASS the file holds the whitelist with terminal — {'language': 'en', 'theme': 'terminal', 'version': 1, 'vimMode': False}
 CLICK settings_close r=[905, 154, 32, 32] at (921,170)
 PASS …and the app is light again — pixel (255, 255, 255) at (222, 511) vs light (255, 255, 255)
-== 12/12 checks passed
+== 13/13 checks passed
 -- fixture log tail:
 [replay-serve] -> session/list (history) null
 [replay-serve] <- session/hydrate (id=4)
@@ -109,9 +111,9 @@ PASS …and the app is light again — pixel (255, 255, 255) at (222, 511) vs li
 [replay-serve] -> profile/llm/list (recorded reply)
 [replay-serve] <- session/status/read (id=7)
 [replay-serve] -> session/status/read (recorded reply)
-[replay-serve] <- permission/profile/list (id=8)
-[replay-serve] -> permission/profile/list (recorded reply)
-[replay-serve] <- profile/skills/list (id=9)
+[replay-serve] <- profile/skills/list (id=8)
 [replay-serve] -> profile/skills/list (recorded reply)
+[replay-serve] <- permission/profile/list (id=9)
+[replay-serve] -> permission/profile/list (recorded reply)
 [replay-serve] <- profile/sub_providers/list (id=10)
 [replay-serve] -> profile/sub_providers/list (recorded reply)

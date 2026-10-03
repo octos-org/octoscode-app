@@ -1,6 +1,6 @@
 == native walk a6_surfaces [phone] (tools/walk/a6_surfaces_walk.py)
--- run 1: exit 0 in 40 s
-== A6 surfaces walk (phone) — app :8421, replay :8503
+-- run 1: exit 0 in 42 s
+== A6 surfaces walk (phone) — app :8421, replay :8516
 PASS window open — size [402, 874]
 PASS module up: the composer is shown
 PASS connected: the Chat / Trajectory tabs show (capabilities advertised) — 'Chat' / 'Trajectory'
@@ -14,20 +14,20 @@ PASS expanded thinking: no hover tint after the click — header (255, 255, 255)
   shot tmp/walk/native/a6_surfaces-phone/out/phone-02-thinking-expanded.png
 PASS CLICK again -> folded
 PASS turn 2: CLICK composer + type + Return -> turn/start
-PASS turn 2: delivered files are attachment rows — ['b3_tl_file_download_7', 'b3_tl_file_download_6']
-PASS files: r23-report.pdf (2 KiB) and coverage.png — ['coverage.png', 'r23-report.pdf'] ['96 KiB', '2 KiB']
-PASS CLICK the tool row -> its output discloses — ['08:29 - [octoscode] tool.toggle: call_00_1nHw0JiGHc6HQdxNySqu4250 open']
+PASS turn 2: delivered files are attachment rows — ['b3_tl_file_download_6', 'b3_tl_file_download_7']
+PASS files: r23-report.pdf (2 KiB) and coverage.png — ['r23-report.pdf', 'coverage.png'] ['2 KiB', '96 KiB']
+PASS CLICK the tool row -> its output discloses — ['99:29 - [octoscode] tool.toggle: call_00_1nHw0JiGHc6HQdxNySqu4250 open']
   shot tmp/walk/native/a6_surfaces-phone/out/phone-03-tool-expanded.png
 PASS CLICK Download -> GET /api/files on the wire, saved to the download dir — saved=True wire=True
 PASS CLICK Preview -> the image shows in its row — b3_tl_file_img_7
 PASS preview: the image keeps its aspect inside its row — [16, 458, 328, 185] in [16, 354, 328, 96]
   shot tmp/walk/native/a6_surfaces-phone/out/phone-04-files.png
 PASS fold bar shown at the transcript head
-PASS CLICK Expand all -> every visible block opens — folded {'b3_tl_think_1': 42, 'b3_tl_think_4': 42} -> {block: (open, rect, clipped)} {'b3_tl_think_1': (True, [16, 271, 328, 80], False), 'b3_tl_think_4': (True, [16, 602, 328, 51], True)} viewport [0, 127, 360, 526]
+PASS CLICK Expand all -> every visible block opens — folded {'b3_tl_think_4': 42, 'b3_tl_think_1': 42} -> {block: (open, rect, clipped)} {'b3_tl_think_4': (True, [16, 602, 328, 51], True), 'b3_tl_think_1': (True, [16, 271, 328, 80], False)} viewport [0, 127, 360, 526]
   shot tmp/walk/native/a6_surfaces-phone/out/phone-05-expand-all.png
 PASS Expand all: b3_tl_think_4, scrolled fully into view, measures open — [16, 522, 328, 98] in viewport [0, 127, 360, 526]
   shot tmp/walk/native/a6_surfaces-phone/out/phone-06-expand-all-scrolled.png
-PASS CLICK Collapse all -> every block folds — heights {'b3_tl_think_1': 42, 'b3_tl_think_4': 42} (folded {'b3_tl_think_1': 42, 'b3_tl_think_4': 42})
+PASS CLICK Collapse all -> every block folds — heights {'b3_tl_think_4': 42, 'b3_tl_think_1': 42} (folded {'b3_tl_think_4': 42, 'b3_tl_think_1': 42})
   shot tmp/walk/native/a6_surfaces-phone/out/phone-07-collapse-all.png
 PASS turn 3: CLICK composer + type + Return -> turn/start
 PASS turn 3: the question takes the composer over — card=True composer=False None
@@ -52,7 +52,7 @@ PASS CLICK Other + type -> the text stays (no remount) — 'teal'
 PASS Return (inside the Other field) -> user_question/respond on the wire, card settles
 PASS next: a multi-select question — 'Which accents should the theme use?'
 PASS multi-select: its rule hint
-PASS keys: ArrowDown / Space toggle options in the group — ['1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)', 'ost.rs:341:17 - [octoscode] surfaces key Space -> cv.q.opt#3', 'rs:1674:13 - [octoscode] surfaces action cv.q.opt #3 -> Done', '1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)']
+PASS keys: ArrowDown / Space toggle options in the group — ['1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)', 'ost.rs:341:17 - [octoscode] surfaces key Space -> cv.q.opt#3', 'rs:1805:13 - [octoscode] surfaces action cv.q.opt #3 -> Done', '1a0eb8f-7b23-7030-9f26-a284864217a1")): 6 tap(s), 1 input(s)']
   shot tmp/walk/native/a6_surfaces-phone/out/phone-10-question-multi.png
 PASS CLICK Submit answer -> user_question/respond on the wire
 PASS next: a third question

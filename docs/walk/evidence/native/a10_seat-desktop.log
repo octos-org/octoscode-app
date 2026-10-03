@@ -1,9 +1,9 @@
 == native walk a10_seat [desktop] (tools/walk/a10_seat.py)
--- run 1: exit 0 in 78 s
+-- run 1: exit 0 in 77 s
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=37528 app=octosense grabs=<abs>/octosense-37528
-[headless] up: pid 37528  port 8421  log <repo>/tmp/hs/port-8421.log
-[headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+[makepad-remote] listening on 127.0.0.1:8421 pid=97529 app=octosense grabs=<abs>/octosense-97529 token_file=<abs>/port-8421.token
+[headless] up: pid 97529  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
 == 1. the pane's Advanced: the console offers the seat
 CLICK b3_strip_tap r=[359, 516, 660, 32] at (689,532)
 CLICK b3_sc_adv r=[289, 603, 510, 36] at (544,621)
@@ -16,7 +16,7 @@ SHOT 01-offered-desktop
 CLICK b3_fleet_console_acquire r=[520, 595, 111, 32] at (576,611)
 PASS acquire: Acquire seat CLICK -> ONE acquire expected_revision=0 -> Release seat live — [replay-serve] -> session/driver/acquire (fleet sim) expected_revision=0
 PASS held: the re-walked disclosure names this app's peer (SELF) — 'A peer you started is using this session'
-PASS held: the console is bound to this app's stable driver id — 'Bound to octoscode-native:40996648-f7e6-4c5c-bed7-2bc195d8215c @ epoch 1'
+PASS held: the console is bound to this app's stable driver id — 'Bound to octoscode-native:2b6e187b-edf9-4c62-9be0-f9b56f2cca55 @ epoch 1'
 PASS held: pane numeric checks — frame=560x563 centre_dx=0.0 margins L=20 R=20 labels=23 outside=0 overlaps=0 controls=3 under28=0
 SHOT 02-held-desktop
 == 3. the lease renews on the cadence
@@ -35,33 +35,33 @@ KEY End
 TYPE 'summarise the open peers'
 KEY Return
 PASS chat: a prompt CLICK + Return -> turn/start
-PASS chat: the seat went back (release next=internal) BEFORE the one turn/start — release@[55] turn/start@[58]
+PASS chat: the seat went back (release next=internal) BEFORE the one turn/start — release@[57] turn/start@[60]
 CLICK b3_strip_tap r=[359, 516, 660, 32] at (689,532)
 PASS pane: reopened, the console offers Acquire seat again (handed back)
 == 6. the seat panel: the acquire's pending work + the live turn
 CLICK b3_fleet_console_acquire r=[520, 635, 111, 4] at (576,637)
 PASS acquire: Acquire seat CLICK during the live turn -> the seat panel 'Peer control'
 CLICK b3_fleet_seat_cmd_2 r=[616, 609, 66, 30] at (649,624)
-PASS seat: Steer CLICK -> ONE peer/control on the pending work + the live turn -> Worker + 'Newly applied' — worker='lint-sweep' dup='Newly applied' [replay-serve] -> peer/control (fleet sim) operation_id=24c8fa99-8ef2-4f1d-837a-c2cc294bd2ea target_operation_id=synthetic-pending-op expected_turn_id=01a0fc42-54fa-765a-be20-a934283273de command=steer
+PASS seat: Steer CLICK -> ONE peer/control on the pending work + the live turn -> Worker + 'Newly applied' — worker='lint-sweep' dup='Newly applied' [replay-serve] -> peer/control (fleet sim) operation_id=3e7056d8-cecc-46f6-aa36-5de0de581f71 target_operation_id=synthetic-pending-op expected_turn_id=01a0ff99-f2fd-7462-9c91-66f964495f11 command=steer
 PASS seat: pane numeric checks — frame=560x563 centre_dx=0.0 margins L=20 R=20 labels=28 outside=0 overlaps=0 controls=5 under28=0
 SHOT 04-seat-desktop
 == 7. another app takes the lease: the seat is dropped, the label stays
 PASS expired: the next renew is refused driver_fence_stale -> 'Your control of this session expired' — [replay-serve] -> session/driver/renew REFUSED "driver_fence_stale" (fleet sim) operation_id=
 PASS expired: dropped without a frame; no seat panel; Acquire seat offered
 PASS expired: the re-walk names the new holder — 'Another app is using this session' + Resume chat — 'Another app is using this session'
-PASS expired: never retried with the dead fence (no renew after the refusal) — renews 7 -> 7
+PASS expired: never retried with the dead fence (no renew after the refusal) — renews 6 -> 6
 PASS expired: pane numeric checks — frame=560x563 centre_dx=0.0 margins L=20 R=20 labels=20 outside=0 overlaps=0 controls=3 under28=0
 SHOT 05-expired-desktop
 CLICK b3_close r=[781, 118, 28, 28] at (795,132)
 PASS pane: the close CLICK
 == 24/24 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 37528 exited after /gq
+[headless] pid 97529 exited after /gq
 [headless] port 8421 free
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=46189 app=octosense grabs=<abs>/octosense-46189
-[headless] up: pid 46189  port 8421  log <repo>/tmp/hs/port-8421.log
-[headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+[makepad-remote] listening on 127.0.0.1:8421 pid=8870 app=octosense grabs=<abs>/octosense-8870 token_file=<abs>/port-8421.token
+[headless] up: pid 8870  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
 == the e2e no-method variant: peer/control unadvertised
 CLICK b3_strip_tap r=[359, 516, 660, 32] at (689,532)
 CLICK b3_sc_adv r=[289, 603, 510, 36] at (544,621)
@@ -74,5 +74,5 @@ CLICK b3_close r=[781, 118, 28, 28] at (795,132)
 PASS pane: the close CLICK
 == 5/5 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 46189 exited after /gq
+[headless] pid 8870 exited after /gq
 [headless] port 8421 free

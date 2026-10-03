@@ -1,5 +1,5 @@
 == native walk a26_footer [desktop] (tools/walk/a26_footer.py)
--- run 1: exit 0 in 13 s
+-- run 1: exit 0 in 14 s
 PASS light: the footer rows are on screen (+ Add workspace, Fleet, theme, Settings) — [[64, 535, 260, 34], [64, 569, 260, 34], [64, 603, 260, 34], [64, 637, 260, 34]]
 PASS light: in the web's order, one stack (Fleet, then the theme toggle, then Settings) — y=[535, 569, 603, 637]
 PASS light: one row height and one left edge (A3's row metrics) — [[64, 535, 260, 34], [64, 569, 260, 34], [64, 603, 260, 34], [64, 637, 260, 34]]
@@ -66,10 +66,10 @@ PASS the column expands back with its labels
 [replay-serve] -> profile/llm/list (recorded reply)
 [replay-serve] <- session/status/read (id=7)
 [replay-serve] -> session/status/read (recorded reply)
-[replay-serve] <- profile/skills/list (id=8)
-[replay-serve] -> profile/skills/list (recorded reply)
-[replay-serve] <- permission/profile/list (id=9)
+[replay-serve] <- permission/profile/list (id=8)
 [replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] <- profile/skills/list (id=9)
+[replay-serve] -> profile/skills/list (recorded reply)
 [replay-serve] <- profile/sub_providers/list (id=10)
 [replay-serve] -> profile/sub_providers/list (recorded reply)
 [replay-serve] <- profile/sub_providers/list (id=11)

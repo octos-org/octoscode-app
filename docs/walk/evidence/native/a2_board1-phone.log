@@ -1,5 +1,5 @@
 == native walk a2_board1 [phone] (tools/walk/a2_board1_walk.py)
--- run 1: exit 0 in 38 s
+-- run 1: exit 0 in 36 s
 [entry_connect] entry=b1_connect_pair rect=[106, 553, 148, 32] pass=True
 PASS entry_connect: the entry b1_connect_pair is laid out (>= 28 px, inside the view) — [106, 553, 148, 32]
 [p4-01_pair] pass=True card=[0, 74, 360, 776] margins=[0, 0] small=[] overlaps=[] outside=[]
@@ -24,8 +24,8 @@ PASS p4-07: a rejected key shows the bounded copy (no server text) and keeps the
 [p4-07_rejected] pass=True card=[0, 74, 360, 776] margins=[0, 0] small=[] overlaps=[] outside=[]
 PASS p4-07_rejected: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [0, 74, 360, 776] margins [0, 0] small [] overlaps [] outside []
 PASS provider_saved_back_in_settings: a good key saves and the editor closes back to Settings
-[entry_add_workspace] entry=sb_add_hit rect=[10, 778, 292, 34] pass=True
-PASS entry_add_workspace: the entry sb_add_hit is laid out (>= 28 px, inside the view) — [10, 778, 292, 34]
+[entry_add_workspace] entry=sb_add_hit rect=[10, 710, 292, 34] pass=True
+PASS entry_add_workspace: the entry sb_add_hit is laid out (>= 28 px, inside the view) — [10, 710, 292, 34]
 PASS p4-08: the server's hidden folders are reported — '3 hidden by the server'
 PASS p4-08: picking a subfolder fills the path box without leaving the parent — path '/home/user/code/octoscode-app', rows ['octos', 'octoscode-app', 'notes', 'scratch']
 [p4-08_browser] pass=True card=[0, 74, 360, 776] margins=[0, 0] small=[] overlaps=[] outside=[]
@@ -45,10 +45,11 @@ PASS picker without the browse feature: no Browse and no New folder (fail closed
 [picker-no-browse] pass=True card=[0, 74, 360, 776] margins=[0, 0] small=[] overlaps=[] outside=[]
 PASS picker-no-browse: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [0, 74, 360, 776] margins [0, 0] small [] overlaps [] outside []
 -- fixture log tail:
-[board1-serve] listening on 127.0.0.1:8493 (pair=ok, browse=false)
-PAIR-LINK http://app.invalid/?octos=http://127.0.0.1:8493&pair=3QK7ZP2M
+[board1-serve] listening on 127.0.0.1:8511 (pair=ok, browse=false)
+PAIR-LINK http://app.invalid/?octos=http://127.0.0.1:8511&pair=3QK7ZP2M
 [board1-serve] ui-protocol socket open
 [board1-serve] <- session/open
+[board1-serve] <- session/list
 [board1-serve] <- session/list
 [board1-serve] <- profile/llm/list
 [board1-serve] <- profile/skills/list

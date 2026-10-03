@@ -1,9 +1,9 @@
 == native walk a10_autonomy [phone] (tools/walk/a10_autonomy.py)
 -- run 1: exit 0 in 28 s
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=4960 app=octosense grabs=<abs>/octosense-4960
-[headless] up: pid 4960  port 8421  log <repo>/tmp/hs/port-8421.log
-[headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+[makepad-remote] listening on 127.0.0.1:8421 pid=36847 app=octosense grabs=<abs>/octosense-36847 token_file=<abs>/port-8421.token
+[headless] up: pid 36847  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
 == 1. /loop -> + New loop: the form on the default cadence (Maintenance)
 CLICK composer r=[28, 743, 304, 29]
 TYPE '/'
@@ -73,5 +73,5 @@ PASS loops: reopen by palette CLICK -> a fresh loop/list read, the rows shown â€
 CLICK dialog_close r=[300, 391, 28, 28] at (314,405)
 == 20/20 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 4960 exited after /gq
+[headless] pid 36847 exited after /gq
 [headless] port 8421 free
