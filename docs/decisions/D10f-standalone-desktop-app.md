@@ -1,5 +1,14 @@
 # D10f. OctosCode runs standalone on macOS, built from a fresh clone: DECIDED (A33, 2026-10-02)
 
+## Follow-up: independent native application
+
+The default desktop build now creates the native UI directly through `register_widgets` and
+`create_view`. Its WebSocket/REST client is the local `octoscode-transport` crate, extracted
+from the patched upstream client without the kernel adapter (provenance in its `ORIGIN.txt`).
+The AppModule implementation is available only with `octosense-module`;
+`tools/build-macos.sh --octosense` selects it explicitly. The renderer forks and packaged resource
+behavior are unchanged. The sections below record the earlier host-based implementation.
+
 The operator: "pull the latest and test on another Mac", and "the app should be able to be ejected out of
 octosense and run as standalone". Before A33 a fresh clone could not build the app at all: the module ran only
 inside the OctoSense shell, wired in by an uncommitted diff in one local OctoSense checkout, with makepad,

@@ -1,0 +1,29 @@
+[package]
+name = "octoscode-transport"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Standalone WebSocket and REST transport for the Octos UI Protocol"
+
+[lib]
+name = "octos_app_transport"
+
+[dependencies]
+tokio = { workspace = true, features = ["io-util", "net", "time"] }
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-native-roots"] }
+futures-util = "0.3"
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+url = "2"
+reqwest = { workspace = true }
+log = { workspace = true }
+octos-core = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+android_logger = "0.14"

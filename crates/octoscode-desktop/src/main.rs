@@ -1,29 +1,67 @@
-//! `octoscode`: the standalone OctosCode desktop app (A33, decision D10f).
-//!
-//! One window, titled "OctosCode", holding the octoscode module's root and
-//! nothing else (see the crate doc in lib.rs for what the OctoSense shell
-//! provides the module and what this host provides instead).
-//!
-//!   octoscode                     # a normal window
-//!   octoscode --remote <port>     # + the makepad instrument bridge (D10c token), only when asked
-//!
-//! The server, token and Session come from the module's own Connect card, or
-//! from OCTOS_BASE_URL / OCTOS_BEARER / OCTOS_PROFILE_ID like every host.
-use makepad_widgets::*;
-use octoscode_desktop::{create_instance, window_size, OctoscodeHost, OCTOSCODE_MODULE};
+//! Standalone OctosCode application. No shell, module host, or local kernel.
+pub use makepad_widgets;
 
-app_main!(App);
+use makepad_widgets::*;
+
+app_main!(App, configure: |_cx: &mut Cx| {
+    if let Err(error) = configure_connection() {
+        eprintln!("OctosCode: {error}");
+        std::process::exit(2);
+    }
+});
+
+fn configure_connection() -> Result<(), String> {
+    let mut args = std::env::args().skip(1);
+    let mut token_file = None;
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "--server" | "--token-file" | "--workspace" => {
+                let value = args
+                    .next()
+                    .ok_or_else(|| format!("{arg} requires a value"))?;
+                match arg.as_str() {
+                    "--server" => std::env::set_var("OCTOS_BASE_URL", value),
+                    "--workspace" => std::env::set_var("OCTOS_WORKSPACE_CWD", value),
+                    _ => token_file = Some(value),
+                }
+            }
+            _ => {} // Makepad owns its own flags, including --remote.
+        }
+    }
+    if let Some(file) = token_file {
+        let server = std::env::var("OCTOS_BASE_URL")
+            .map_err(|_| "--token-file requires --server".to_owned())?;
+        let token = std::fs::read_to_string(file)
+            .map_err(|e| format!("cannot read access token file: {e}"))?;
+        let token = token.trim();
+        if token.is_empty() {
+            return Err("access token file is empty".into());
+        }
+        std::env::set_var("OCTOS_BEARER", token);
+        octoscode_module::credentials::remember_server(&server)?;
+        octoscode_module::credentials::remember_token(&server, token)?;
+    }
+    Ok(())
+}
 
 script_mod! {
     use mod.prelude.widgets.*
 
-    startup() do #(App::script_component(vm)){
-        ui: Root{
-            main_window := Window{
+    startup() do #(App::script_component(vm)) {
+        ui: Root {
+            main_window := Window {
                 window.title: "OctosCode"
                 window.inner_size: vec2(1280, 800)
+                caption_bar +: {
+                    caption_label +: {
+                        label +: { draw_text.text_style: theme.oc_text_row }
+                    }
+                }
                 body +: {
-                    module_host := mod.widgets.OctoscodeHost{}
+                    content := View {
+                        width: Fill height: Fill
+                        flow: Overlay
+                    }
                 }
             }
         }
@@ -38,44 +76,30 @@ pub struct App {
     sized: bool,
 }
 
-impl App {
-    fn mount(&mut self, cx: &mut Cx) {
-        let host = self.ui.widget(cx, ids!(module_host));
-        if host.borrow::<OctoscodeHost>().is_some_and(|h| h.instance().is_some()) {
-            return;
-        }
-        let (w, h) = window_size();
-        match create_instance(cx, &OCTOSCODE_MODULE, dvec2(w, h)) {
-            Ok(instance) => {
-                if let Some(mut host) = host.borrow_mut::<OctoscodeHost>() {
-                    host.set_instance(cx, instance);
-                }
-            }
-            Err(e) => log!("[octoscode-desktop] the module did not mount: {e}"),
-        }
-    }
-}
-
 impl MatchEvent for App {
     fn handle_startup(&mut self, cx: &mut Cx) {
-        self.mount(cx);
+        let root = cx.with_vm(octoscode_desktop::create_view);
+        let content = self.ui.view(cx, ids!(content));
+        if let Some(mut view) = content.borrow_mut() {
+            view.children.push((live_id!(octoscode), root));
+            cx.widget_tree_mark_dirty(view.widget_uid());
+            view.redraw(cx);
+        };
     }
 }
 
 impl AppMain for App {
     fn script_mod(vm: &mut ScriptVm) -> ScriptValue {
         makepad_widgets::script_mod(vm);
-        octoscode_desktop::script_mod(vm);
+        octoscode_desktop::register_widgets(vm);
         self::script_mod(vm)
     }
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
-        // OCTOSENSE_WINDOW_SIZE / OCTOSCODE_WINDOW_SIZE (e.g. the phone's
-        // 360x780) size the window once it exists.
         if let Event::Draw(_) = event {
             if !self.sized {
                 self.sized = true;
-                let (w, h) = window_size();
+                let (w, h) = octoscode_desktop::window_size();
                 if (w, h) != octoscode_desktop::DEFAULT_WINDOW_SIZE {
                     self.ui.window(cx, ids!(main_window)).resize(cx, dvec2(w, h));
                 }

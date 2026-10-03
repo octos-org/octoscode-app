@@ -1,0 +1,97 @@
+name: Desktop packages
+
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  desktop:
+    name: ${{ matrix.platform }} package
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            runner: ubuntu-22.04
+          - platform: windows
+            runner: windows-2022
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Preserve LF in patch files
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install Linux build and graphics dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential pkg-config clang libssl-dev libx11-dev libxcursor-dev libxkbcommon-dev libxrandr-dev libxi-dev libxinerama-dev libasound2-dev libpulse-dev libwayland-dev libegl1-mesa-dev libgl1-mesa-dev libgles2-mesa-dev libdrm-dev libgbm-dev libgl1-mesa-dri xvfb xauth pulseaudio
+      - name: Select stable Rust
+        run: |
+          rustup toolchain install stable --profile minimal --no-self-update
+          rustup default stable
+          rustc -vV
+      - name: Cache Rust dependencies
+        id: rust-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-desktop-${{ hashFiles('Cargo.lock', 'patches/**') }}
+      - name: Prepare pinned renderer forks
+        run: |
+          bash tools/prepare-makepad-fork.sh
+          bash tools/prepare-octoscript-makepad-fork.sh
+      - name: Build and package native app
+        id: package
+        run: python tools/package-desktop.py
+      - name: Save compiled dependencies before UI checks
+        if: steps.rust-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-desktop-${{ hashFiles('Cargo.lock', 'patches/**') }}
+      - name: Smoke test Linux archive under Xvfb
+        if: runner.os == 'Linux'
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          pulseaudio --start --exit-idle-time=-1
+          xvfb-run -a python tools/smoke-desktop-package.py target/desktop-packages/OctosCode-linux-x86_64.tar.gz
+      - name: Probe Windows startup
+        if: runner.os == 'Windows'
+        continue-on-error: true # Hosted runners may lack the required graphics adapter.
+        run: python tools/smoke-desktop-package.py target/desktop-packages/OctosCode-windows-x86_64.zip
+      - name: Upload release archive
+        if: always() && steps.package.outcome == 'success'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: octoscode-${{ matrix.platform }}-x86_64
+          path: |
+            target/desktop-packages/*.zip
+            target/desktop-packages/*.tar.gz
+            target/desktop-packages/*.sha256
+          if-no-files-found: error
+          compression-level: 0
+      - name: Upload startup evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ matrix.platform }}-startup-evidence
+          path: target/package-smoke/
+          if-no-files-found: ignore

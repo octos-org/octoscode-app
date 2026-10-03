@@ -40,7 +40,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 [ "$(uname -s)" = "Darwin" ] || { echo "package-macos: macOS only" >&2; exit 1; }
-for f in makepad-fork/widgets/Cargo.toml octosense-fork/apps/appcard/app/crates/octos-app-transport/Cargo.toml \
+for f in makepad-fork/widgets/Cargo.toml \
          octoscript-makepad-fork/crates/octoscript-makepad/Cargo.toml; do
   [ -f "$REPO/.forks/$f" ] || { echo "package-macos: .forks/$f is missing: run tools/build-macos.sh first" >&2; exit 1; }
 done
