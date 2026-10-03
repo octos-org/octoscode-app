@@ -219,7 +219,8 @@ pub(crate) fn provider_count(models: &[&ProfileLlmModel]) -> String {
 /// `t_flash "deepseek-v4-flash (default)"` (`ProfileLlmModel.selected`).
 pub(crate) fn model_row(m: &ProfileLlmModel) -> String {
     if m.selected {
-        format!("{} {}", m.model, crate::i18n::tr("(default)"))
+        // zh: "{model}（默认）" — a full-width bracket carries its own space.
+        crate::i18n::tr1("{value0} (default)", &m.model)
     } else {
         m.model.clone()
     }

@@ -1120,7 +1120,7 @@ fn model_rows(v: &mut Ui, l: &Layout, ui: &ProviderUi, list: &[String], action: 
         .enumerate()
         .map(|(i, m)| {
             let on = *m == chosen;
-            let label = if on && ui.set_primary() { format!("{m} {}", tr("(default)")) } else { m.clone() };
+            let label = if on && ui.set_primary() { tr1("{value0} (default)", m) } else { m.clone() };
             let id = format!("{id_base}_{i}");
             let hit = if interactive {
                 v.button(&id, &format!("{action}.{i}"));
@@ -1457,7 +1457,7 @@ pub fn copies(screen: Screen, ui: &ProviderUi) -> Vec<(String, String)> {
     push("prov_url_text", &ui.base_url);
     for (i, m) in ui.models.iter().enumerate().take(3) {
         let label = if ui.default_model.as_deref() == Some(m.as_str()) {
-            format!("{m} {}", tr("(default)"))
+            tr1("{value0} (default)", m)
         } else {
             m.clone()
         };

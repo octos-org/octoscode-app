@@ -641,7 +641,7 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Test route", "测试路由"),
     ("Discover models", "发现模型"),
     ("default route", "默认路由"),
-    ("(default)", "（默认）"),
+    ("{value0} (default)", "{value0}（默认）"),
     ("{value0} model", "{value0} 个模型"),
     ("{value0} models", "{value0} 个模型"),
     ("Items", "条目"),

@@ -14,11 +14,14 @@
 //!
 //! A text argument naming a string constant (`d.text(id, KEY_HINT, …)`) is
 //! that constant's literal, unless the helper translates inside (listed in
-//! TRANSLATING, proven by a test). The CONVERTED files are held to zero, and
-//! every literal (or constant) they route through `tr*()` must read in
-//! Chinese — the web's catalog, an alias, or the reviewed native supplement.
-//! The rest of the crate is counted and may only go DOWN (the ratchet
-//! below: 314 at the end of phase 1, then each conversion lowers it).
+//! TRANSLATING, proven by a test). A chip is a builder, and so is any helper
+//! a file defines that forwards a text parameter into a builder untranslated
+//! (`fact(d, id, "Operation", op)` -> `d.text(…, label, …)`). The CONVERTED
+//! files are held to zero, and every literal (or constant) the crate routes
+//! through `tr*()` must read in Chinese — the web's catalog, an alias, or
+//! the reviewed native supplement. The rest of the crate is counted and may
+//! only go DOWN (the ratchet below: 314 at the end of phase 1, 0 at the end
+//! of phase 2, and held there).
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 

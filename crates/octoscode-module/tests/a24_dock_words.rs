@@ -201,6 +201,29 @@ fn the_dock_draws_the_fleets_word_for_every_status_in_en_and_zh() {
     }
 }
 
+/// The dock names each peer as the Fleet does ("Peer N · model", the
+/// Fleet's numbering), in every language: Peer in English, 同侪 in Chinese
+/// (the web's own key, `fleet-copy.ts:80` / `peer-copy.ts:31`).
+#[test]
+fn the_dock_names_each_peer_as_the_fleet_does_in_en_and_zh() {
+    let _s = serial();
+    fresh();
+    let now = peers::now_ms();
+    let store = every_status(now);
+    for (lang, peer) in [(Lang::En, "Peer "), (Lang::Zh, "同侪 ")] {
+        i18n::set_language(lang);
+        let fleet = fleet_dsl(&store);
+        let docked = dock::lower(&store, now, DESKTOP).expect("the dock shows");
+        i18n::set_language(Lang::En);
+        for i in 0..ALL.len() {
+            let f = label_text(&fleet, &format!("b3_fleet_row_{i}_label")).unwrap_or_else(|| panic!("the Fleet labels row {i}"));
+            let d = label_text(&docked.dsl, &format!("pd_row_{i}_label")).unwrap_or_else(|| panic!("the dock labels row {i}"));
+            assert_eq!(d, f, "{lang:?} row {i}: the dock's label is the Fleet's");
+            assert!(f.starts_with(&format!("{peer}{}", i + 1)) && f.ends_with("glm-4.6"), "{lang:?} row {i}: {f}");
+        }
+    }
+}
+
 /// The words themselves: each status has its own word in each language (no
 /// two statuses collapse into one wording), and the shared function is the
 /// Fleet's `t(FleetStatusWord)` the dock now reads.

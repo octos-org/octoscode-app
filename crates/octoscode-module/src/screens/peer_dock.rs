@@ -129,7 +129,8 @@ pub struct DockRow {
     /// 1-based, the Fleet's numbering.
     pub number: usize,
     pub model: Option<String>,
-    /// "Peer N · model" (English; drawn through `tr`).
+    /// The Fleet's "Peer N · model" (`peers::row_label`, in the interface
+    /// language), drawn as is.
     pub label: String,
     pub status: Status,
     pub elapsed_ms: u64,
@@ -668,10 +669,9 @@ fn row_view(
     d.view(&line1, &format!("width: Fill height: 18 flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: {}", fmt(GAP)));
     glyph(d, &format!("{id}_glyph"), r.status);
     let elapsed = peers::format_elapsed(r.elapsed_ms);
-    let label = match &r.model {
-        Some(m) => format!("{} · {m}", tr1("Peer {value0}", &r.number.to_string())),
-        None => tr1("Peer {value0}", &r.number.to_string()),
-    };
+    // The Fleet's own label for the row (`peers::row_label`: "Peer N · model"
+    // in the interface language).
+    let label = r.label.clone();
     // One line: the renderer ellipsizes what the elapsed leaves (the
     // session tree's own `sb_r_title`), never pushing the elapsed out.
     d.open(

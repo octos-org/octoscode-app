@@ -443,11 +443,15 @@ pub fn compose_gather_prompt(peers: &[octoscode_client::domains::peer::PeerGathe
 
 // --------------------------------------------------------------- row view
 
-/// `peerRowLabel` (`peer-row-view.ts:23-27`): never the slug.
+/// `peerRowLabel` (`peer-row-view.ts:23-27`): never the slug. A24 — "Peer
+/// N" in the interface language (the web's own key, fleet-copy.ts:80 /
+/// peer-copy.ts:31 "Peer {value0}" -> 同侪 {value0}): the Fleet's rows, its
+/// announcements and the sidebar dock name a peer alike in every language.
 pub fn row_label(index: usize, model: Option<&str>) -> String {
+    let peer = crate::i18n::tr1("Peer {value0}", &(index + 1).to_string());
     match model {
-        Some(m) if !m.is_empty() => format!("Peer {} · {m}", index + 1),
-        _ => format!("Peer {}", index + 1),
+        Some(m) if !m.is_empty() => format!("{peer} · {m}"),
+        _ => peer,
     }
 }
 
