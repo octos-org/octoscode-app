@@ -56,8 +56,6 @@ enum Reply {
     /// Frames now, the result `delay_ms` later (a history read that settles
     /// after the person moved on).
     Late { before: Vec<Value>, delay_ms: u64, result: Value },
-    /// Frames now, the result once the test opens `gate`.
-    Held { before: Vec<Value>, gate: Arc<tokio::sync::Notify>, result: Value },
 }
 
 type Script = Arc<dyn Fn(&str, &Value) -> Reply + Send + Sync>;
@@ -128,16 +126,6 @@ impl Core {
                                 let (tx, frame) = (tx.clone(), ok(result).to_string());
                                 tokio::spawn(async move {
                                     tokio::time::sleep(Duration::from_millis(delay_ms)).await;
-                                    let _ = tx.send(frame);
-                                });
-                            }
-                            Reply::Held { before, gate, result } => {
-                                for f in before {
-                                    let _ = tx.send(f.to_string());
-                                }
-                                let (tx, frame) = (tx.clone(), ok(result).to_string());
-                                tokio::spawn(async move {
-                                    gate.notified().await;
                                     let _ = tx.send(frame);
                                 });
                             }
@@ -542,24 +530,20 @@ async fn row_203_a_candidate_fails_closed_on_the_4097th_buffered_event() {
     let b = "a22:api:flood";
     let reads = Arc::new(AtomicUsize::new(0));
     let r2 = reads.clone();
-    let gate = Arc::new(tokio::sync::Notify::new());
-    let g2 = gate.clone();
     let core = Core::start(Arc::new(move |method, p| {
         let session = p["session_id"].as_str().unwrap_or("").to_owned();
         match method {
             "session/open" => Reply::Ok(opened(&session, p["cwd"].as_str().unwrap_or(CWD), None)),
             // The first history read of B is surrounded by a flood of its
-            // live events; a later one (the re-open) is answered plainly.
-            // (its reply waits until the app has taken the whole flood in:
-            // the transport hands a reply over with a non-blocking send and
-            // drops one that finds its 64-slot event channel full — not this
-            // test's subject)
-            "session/hydrate" if session == b && messages_read(p) && r2.fetch_add(1, Ordering::SeqCst) == 0 => Reply::Held {
+            // live events, its reply right behind them (the transport hands
+            // every reply over, however full its event channel is: D10d);
+            // a later one (the re-open) is answered plainly.
+            "session/hydrate" if session == b && messages_read(p) && r2.fetch_add(1, Ordering::SeqCst) == 0 => Reply::Around {
                 before: (1..=CANDIDATE_LIMIT as u64 + 1)
                     .map(|i| env(b, T3, i, 14 + i, json!({"type": "assistant_delta", "data": {"text": "x", "assistant_segment_id": "s"}})))
                     .collect(),
-                gate: g2.clone(),
                 result: hydrated(b, 14, vec![row(1, "user", "First prompt", T1), row(2, "assistant", "Answer one", T1)], &[(T1, 2)]),
+                after: vec![],
             },
             "session/hydrate" if session == b && messages_read(p) => Reply::Ok(hydrated(
                 b,
@@ -580,7 +564,6 @@ async fn row_203_a_candidate_fails_closed_on_the_4097th_buffered_event() {
     })
     .await;
     // The history read is answered after the flood: it never commits.
-    gate.notify_one();
     until("B's history reply was judged", || {
         verdicts.lock().unwrap().iter().any(|v| v.contains("session/hydrate-candidate-failed"))
     })
