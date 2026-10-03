@@ -1649,6 +1649,15 @@ impl Conversation {
         *self.open_seq.lock().unwrap()
     }
 
+    /// The history reads of `session` still waiting for their reply — the
+    /// per-Session history-read queue (A15: one socket answers in order, so
+    /// each reply is judged by the oldest read in it). 0 once every read was
+    /// answered; a read that never gets its reply would leave the queue one
+    /// read behind. Diagnostics and tests.
+    pub fn history_reads_in_flight(&self, session: &str) -> usize {
+        self.hydrate_gen.lock().unwrap().get(session).map_or(0, |q| q.len())
+    }
+
     /// A8 — ask for the canonical `session/hydrate` of `session` under the
     /// CURRENT generation (the reply arm refuses it once the generation moved).
     pub fn request_hydrate(&self, session: &str) -> bool {

@@ -1,0 +1,17 @@
+# A22 failing-first (app level): crates/octoscode-module/tests/a22_sessions.rs every_history_reply_arrives_in_order_behind_a_flood_of_live_events
+# against the OctoSense fork at pinned 6e9bfd40 + 0001 (the transport BEFORE patch 0002); red in 7 of 7 runs
+# cargo test -p octoscode-module --test a22_sessions every_history_reply
+test every_history_reply_arrives_in_order_behind_a_flood_of_live_events ... FAILED
+
+failures:
+
+--
+thread 'every_history_reply_arrives_in_order_behind_a_flood_of_live_events' (246501917) panicked at crates/octoscode-module/tests/a22_sessions.rs:1034:13:
+B's history behind a flood: a22:api:flood-b never left Loading — the server answered 2 history reads (["a22:main", "a22:api:flood-b"]), the client took 1 (["Other(\"session/hydrate\")"]); a22:api:flood-b's history-read queue: 1 read(s) still waiting
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+--
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 16.42s
+
+error: test failed, to rerun pass `-p octoscode-module --test a22_sessions`

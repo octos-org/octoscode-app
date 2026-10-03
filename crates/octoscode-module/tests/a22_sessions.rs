@@ -232,6 +232,16 @@ async fn launch(core: &Core) -> Arc<Conversation> {
 /// [`launch`], keeping the flow's verdict for every event (`on_event`'s
 /// `FlowEvent`, as text) so a test can wait on one.
 async fn launch_logged(core: &Core) -> (Arc<Conversation>, Arc<Mutex<Vec<String>>>) {
+    launch_paced(core, Arc::default()).await
+}
+
+/// [`launch_logged`] whose drain loop sleeps `pace` µs after each event: a
+/// consumer as slow as a busy UI thread, so the transport's event channel
+/// stays full while the server keeps sending.
+async fn launch_paced(
+    core: &Core,
+    pace: Arc<std::sync::atomic::AtomicU64>,
+) -> (Arc<Conversation>, Arc<Mutex<Vec<String>>>) {
     let (conv, mut events) = Conversation::connect(&core.base, "dummy", PROFILE, Some(CWD.to_owned()), None).expect("connect");
     let conv = Arc::new(conv);
     conv.attach();
@@ -242,6 +252,10 @@ async fn launch_logged(core: &Core) -> (Arc<Conversation>, Arc<Mutex<Vec<String>
         while let Some(evt) = events.recv().await {
             let out = drv.on_event(evt);
             sink.lock().unwrap().push(format!("{out:?}"));
+            let us = pace.load(std::sync::atomic::Ordering::Relaxed);
+            if us > 0 {
+                tokio::time::sleep(Duration::from_micros(us)).await;
+            }
         }
     });
     conv.open_workspace(Some(CWD.to_owned())).await.expect("session/open");
@@ -945,5 +959,108 @@ async fn row_236_a_background_session_keeps_its_own_visible_state() {
     open(&conv, c).await;
     assert!(!conv.store.domains.session.unread(c), "selected: read");
     assert_eq!(status_of(&conv, c), Some(sidebar::Status::Done), "the foreground's own terminal");
+    quit(&conv);
+}
+
+/// The transport never drops a server reply (OctoSense fork patch 0002): a
+/// history reply that reaches the client right behind a flood of live events
+/// — the transport's event channel full, its consumer as slow as a busy UI —
+/// arrives, every one of them, in the order the server answered, and the
+/// per-Session history-read queue stays in step: B's read commits, B's
+/// re-open's read commits (never judged by a lost read's generation), C's
+/// read commits, and no read is left waiting. Before 0002 the transport's
+/// `try_emit` dropped the reply that found the channel full: B never left
+/// "Loading conversation…" and its queue stayed one read behind.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn every_history_reply_arrives_in_order_behind_a_flood_of_live_events() {
+    use octoscode_module::flow::History;
+    use std::sync::atomic::{AtomicU64, Ordering};
+    let _g = lock();
+    let (b, c) = ("a22:api:flood-b", "a22:api:flood-c");
+    let elsewhere = "a22:api:elsewhere";
+    // Each history read of B or C is answered right behind 400 live events
+    // of a Session this client does not show (another client's busy turn).
+    let cursor = Arc::new(AtomicU64::new(100));
+    let c2 = cursor.clone();
+    let core = Core::start(Arc::new(move |method, p| {
+        let session = p["session_id"].as_str().unwrap_or("").to_owned();
+        match method {
+            "session/open" => Reply::Ok(opened(&session, p["cwd"].as_str().unwrap_or(CWD), None)),
+            "session/hydrate" if (session == b || session == c) && messages_read(p) => {
+                let from = c2.fetch_add(400, Ordering::SeqCst);
+                Reply::Around {
+                    before: (1..=400u64)
+                        .map(|i| env(elsewhere, T3, from + i, from + i, json!({"type": "assistant_delta",
+                            "data": {"text": "x", "assistant_segment_id": "s"}})))
+                        .collect(),
+                    result: hydrated(&session, 1, vec![row(1, "user", &format!("history of {session}"), T1)], &[(T1, 1)]),
+                    after: vec![],
+                }
+            }
+            "session/hydrate" => Reply::Ok(empty_history(&session)),
+            "session/list" => Reply::Ok(json!({"sessions": [], "workspace_root": CWD, "profile_id": PROFILE})),
+            _ => Reply::Ok(json!({})),
+        }
+    }))
+    .await;
+    let pace = Arc::new(AtomicU64::new(0));
+    let (conv, verdicts) = launch_paced(&core, pace.clone()).await;
+    let a = conv.session_id();
+    // From here the consumer is slow: 2 ms per event.
+    pace.store(2_000, Ordering::Relaxed);
+    let hydrate_verdicts = || -> Vec<String> {
+        verdicts.lock().unwrap().iter().filter(|v| v.contains("session/hydrate")).cloned().collect()
+    };
+    let reads = || -> Vec<String> {
+        core.params_of("session/hydrate")
+            .into_iter()
+            .filter(|p| messages_read(p))
+            .map(|p| p["session_id"].as_str().unwrap_or("").to_owned())
+            .collect()
+    };
+    let settle = |what: &str, id: &str| {
+        let what = what.to_owned();
+        let id = id.to_owned();
+        let conv = conv.clone();
+        let hydrate_verdicts = hydrate_verdicts.clone();
+        let reads = reads.clone();
+        async move {
+            for _ in 0..750 {
+                if conv.store.active_session().as_deref() == Some(id.as_str()) && conv.history(&id) == History::Ready {
+                    return;
+                }
+                tokio::time::sleep(Duration::from_millis(20)).await;
+            }
+            panic!(
+                "{what}: {id} never left {:?} — the server answered {} history reads ({:?}), the client took {} ({:?}); \
+                 {id}'s history-read queue: {} read(s) still waiting",
+                conv.history(&id),
+                reads().len(),
+                reads(),
+                hydrate_verdicts().len(),
+                hydrate_verdicts(),
+                conv.history_reads_in_flight(&id)
+            );
+        }
+    };
+    conv.open_session(b, Some(CWD.to_owned())).await.expect("open B");
+    settle("B's history behind a flood", b).await;
+    conv.open_session(b, Some(CWD.to_owned())).await.expect("re-open B");
+    settle("B's re-read behind a flood", b).await;
+    conv.open_session(c, Some(CWD.to_owned())).await.expect("open C");
+    settle("C's history behind a flood", c).await;
+    pace.store(0, Ordering::Relaxed);
+    quiet().await;
+    // Every history reply arrived, committed, in the server's order.
+    assert_eq!(reads(), vec![a.clone(), b.to_owned(), b.to_owned(), c.to_owned()], "the reads the server answered");
+    assert_eq!(
+        hydrate_verdicts(),
+        vec!["Other(\"session/hydrate\")".to_owned(); 4],
+        "every reply committed — none lost, none judged stale"
+    );
+    // The per-Session history-read queue is in step: nothing left waiting.
+    for id in [a.as_str(), b, c] {
+        assert_eq!(conv.history_reads_in_flight(id), 0, "{id}'s history-read queue");
+    }
     quit(&conv);
 }
