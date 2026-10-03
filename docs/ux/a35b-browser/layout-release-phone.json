@@ -1,0 +1,6 @@
+{
+ "open": "open: window [360, 780]; card [0, 32, 360, 748] l/r [0, 0]; inside=True; rows drawn 7; row text outside its row 0; controls<28px 0; row overlaps 0",
+ "packages, scrolled": "packages, scrolled: window [360, 780]; card [0, 32, 360, 748] l/r [0, 0]; inside=True; rows drawn 8; row text outside its row 0; controls<28px 0; row overlaps 0",
+ "node_modules": "node_modules: window [360, 780]; card [0, 32, 360, 748] l/r [0, 0]; inside=True; rows drawn 7; row text outside its row 0; controls<28px 0; row overlaps 0",
+ "refused": "refused: window [360, 780]; card [0, 32, 360, 748] l/r [0, 0]; inside=True; rows drawn 0; row text outside its row 0; controls<28px 0; row overlaps 0"
+}

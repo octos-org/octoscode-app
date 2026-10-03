@@ -1,0 +1,224 @@
+{
+ "binary_profile": "release",
+ "host": false,
+ "mode": "phone",
+ "live": false,
+ "steps": [
+  {
+   "step": "open: + Add workspace -> the listing",
+   "ms": 50.2,
+   "input_ack_ms": 9.1,
+   "budget_ms": 100.0,
+   "remounts": 2,
+   "ui_hangs": [],
+   "server_ms": 0.5,
+   "client_ms": 49.7,
+   "workspace_list_requests": 1
+  },
+  {
+   "step": "pick: a first tap fills the path box",
+   "ms": 13.3,
+   "input_ack_ms": 12.2,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0,
+   "client_ms": 13.3,
+   "workspace_list_requests": 0
+  },
+  {
+   "step": "drill: a second tap opens the folder",
+   "ms": 24.7,
+   "input_ack_ms": 9.4,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0.4,
+   "client_ms": 24.3,
+   "workspace_list_requests": 1
+  },
+  {
+   "step": "up: the breadcrumb opens the parent",
+   "ms": 47.6,
+   "input_ack_ms": 7.1,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0.5,
+   "client_ms": 47.1,
+   "workspace_list_requests": 1
+  },
+  {
+   "step": "type '/monorepo' in the path box",
+   "per_key_ms": [
+    2.5,
+    3.2,
+    2.0,
+    1.7,
+    1.4,
+    2.0,
+    1.7,
+    1.9,
+    1.6
+   ],
+   "budget_ms": 16.0,
+   "workspace_list_requests": 0,
+   "remounts": 0,
+   "ui_hangs": []
+  },
+  {
+   "step": "go: Return opens the typed folder",
+   "ms": 4.7,
+   "input_ack_ms": 3.8,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0.2,
+   "client_ms": 4.5,
+   "workspace_list_requests": 1
+  },
+  {
+   "step": "pick: packages",
+   "ms": 9.0,
+   "input_ack_ms": 8.2,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0,
+   "client_ms": 9.0,
+   "workspace_list_requests": 0
+  },
+  {
+   "step": "drill: packages (150 folders)",
+   "ms": 26.6,
+   "input_ack_ms": 7.5,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0.8,
+   "client_ms": 25.8,
+   "workspace_list_requests": 1
+  },
+  {
+   "step": "scroll the 150-folder listing (6 wheel steps)",
+   "per_step_ms": [
+    1.7,
+    1.6,
+    0.7,
+    0.8,
+    2.6,
+    0.9
+   ],
+   "budget_ms": 16.0,
+   "remounts": 0,
+   "ui_hangs": []
+  },
+  {
+   "step": "go: node_modules (650 folders, the server pages 500)",
+   "ms": 16.1,
+   "input_ack_ms": 13.7,
+   "budget_ms": 100.0,
+   "remounts": 2,
+   "ui_hangs": [],
+   "server_ms": 2.1,
+   "client_ms": 14.0,
+   "workspace_list_requests": 1
+  },
+  {
+   "step": "refused: a folder the server refuses -> the bounded refusal",
+   "ms": 5.7,
+   "input_ack_ms": 4.5,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0.3,
+   "client_ms": 5.4,
+   "workspace_list_requests": 1
+  },
+  {
+   "step": "back: Back to the last good folder",
+   "ms": 12.8,
+   "input_ack_ms": 11.6,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0,
+   "client_ms": 12.8,
+   "workspace_list_requests": 0
+  },
+  {
+   "step": "close: the back chevron -> the picker",
+   "ms": 13.3,
+   "input_ack_ms": 11.1,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0,
+   "client_ms": 13.3,
+   "workspace_list_requests": 0
+  },
+  {
+   "step": "browse: the picker's Browse -> the server's folder",
+   "ms": 75.0,
+   "input_ack_ms": 9.8,
+   "budget_ms": 100.0,
+   "remounts": 2,
+   "ui_hangs": [],
+   "server_ms": 0.4,
+   "client_ms": 74.6,
+   "workspace_list_requests": 1
+  },
+  {
+   "step": "unpolled pick: a first tap",
+   "app_clock_ms": 6.4,
+   "server_ms": 0,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "client_ms": 6.4,
+   "workspace_list_requests": 0
+  },
+  {
+   "step": "unpolled drill: a second tap opens the folder",
+   "app_clock_ms": 14.1,
+   "server_ms": 0.4,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "client_ms": 13.7,
+   "workspace_list_requests": 1
+  },
+  {
+   "step": "unpolled up: the breadcrumb opens the parent",
+   "app_clock_ms": 16.9,
+   "server_ms": 0.4,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "client_ms": 16.5,
+   "workspace_list_requests": 1
+  },
+  {
+   "step": "unpolled go: node_modules (the server's page of 500)",
+   "app_clock_ms": 10.8,
+   "server_ms": 2.1,
+   "budget_ms": 100.0,
+   "remounts": 2,
+   "ui_hangs": [],
+   "client_ms": 8.7,
+   "workspace_list_requests": 1
+  },
+  {
+   "step": "unpolled open: + Add workspace -> the listing",
+   "app_clock_ms": 6.1,
+   "server_ms": 0.4,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "client_ms": 5.7,
+   "workspace_list_requests": 1
+  }
+ ],
+ "passed": 49,
+ "checks": 49
+}

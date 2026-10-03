@@ -1,0 +1,215 @@
+[octoscode] perf: event 24.4 ms @24.4 lookups=+282 misses=+237 walked=+184428 inval=+30 unstored=+0 b1_compose=+0 b1_mount=+0
+[ui-hang] 260 ms · phase=Startup detail=0 · samples=12 · ticks=12/expected=17 · top frames: 3x Startup: close+0x8 (libsystem_kernel.dylib) ← std::sync::once::Once::call_once_force::_$u7b$$u7b$closure$u7d$$u7d$+0x518 (octoscode) ← std::sys::sync::once::queue::Once::call+0x100 (octoscode) ← std::sync::once_lock::OnceLock<T>::initialize+0x28 (octoscode) ← octoscode_module::design::font_file+0x64 (oct
+[octoscode] perf: Signal 22.5 ms @119.9 lookups=+267 misses=+227 walked=+176619 inval=+28 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 5.3 ms @125.4 lookups=+312 misses=+49 walked=+38122 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 6.1 ms @134.5 lookups=+13 misses=+9 walked=+7062 inval=+24 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 30.2 ms @165.1 lookups=+318 misses=+273 walked=+221970 inval=+56 unstored=+0 b1_compose=+0 b1_mount=+0
+[ui-hang] 113 ms · phase=Actions detail=0 · samples=3 · ticks=3/expected=5 · top frames: 1x Actions: makepad_widgets::widget_tree::WidgetTree::ensure_node_cached+0x84 (octoscode) ← makepad_widgets::widget_tree::WidgetTree::collect_within_graph_with_skip+0x338 (octoscode) ← makepad_widgets::widget_tree::WidgetTree::find_all_within_cached_graph+0x3d4 (octoscode) ← makepad_widgets::widget_tree::Widge
+[octoscode] perf: Actions 4.3 ms @177.4 lookups=+314 misses=+42 walked=+34356 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 1.6 ms @179.1 lookups=+8 misses=+7 walked=+5726 inval=+24 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 27.5 ms @211.4 lookups=+314 misses=+271 walked=+221464 inval=+26 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.5 ms @212.6 lookups=+5 misses=+2 walked=+1634 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 1.7 ms @219.5 lookups=+269 misses=+13 walked=+10621 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 27.0 ms @2603.4 lookups=+314 misses=+264 walked=+215688 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.7 ms @2604.6 lookups=+512 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 1.3 ms @2606.0 lookups=+26 misses=+22 walked=+2080 inval=+20 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 1.0 ms @2607.0 lookups=+319 misses=+5 walked=+4085 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 23.2 ms @2638.5 lookups=+268 misses=+227 walked=+185459 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.6 ms @2639.3 lookups=+26 misses=+22 walked=+2080 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 4.9 ms @3227.3 lookups=+319 misses=+43 walked=+35131 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: b1.open.add
+[octoscode] perf: workspace_list answered in 0.5 ms (46 entries)
+[octoscode] board1 remounted (8552 bytes)
+[octoscode] perf: Actions 1.3 ms @3229.0 lookups=+515 misses=+2 walked=+4 inval=+50 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.4 ms @3229.5 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 remounted (83711 bytes)
+[octoscode] perf: Signal 27.5 ms @3266.2 lookups=+265 misses=+229 walked=+185513 inval=+544 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 2.0 ms @3269.2 lookups=+5 misses=+4 walked=+3268 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 22.9 ms @3293.9 lookups=+265 misses=+226 walked=+183556 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 4.2 ms @3659.1 lookups=+310 misses=+38 walked=+31046 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.enter.2
+[octoscode] board1 remounted (83783 bytes)
+[octoscode] perf: Actions 3.9 ms @3663.4 lookups=+310 misses=+0 walked=+0 inval=+546 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.7 ms @3664.2 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 22.5 ms @3696.0 lookups=+265 misses=+229 walked=+186009 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 4.7 ms @3985.5 lookups=+310 misses=+38 walked=+31046 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.enter.2
+[octoscode] perf: workspace_list answered in 0.4 ms (5 entries)
+[octoscode] perf: Actions 0.9 ms @3986.9 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+1 b1_mount=+0
+[octoscode] board1 remounted (23781 bytes)
+[octoscode] perf: Signal 2.3 ms @3998.0 lookups=+265 misses=+0 walked=+0 inval=+126 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.8 ms @3999.9 lookups=+5 misses=+4 walked=+3268 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 23.6 ms @4028.1 lookups=+265 misses=+226 walked=+183138 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 4.2 ms @4367.5 lookups=+310 misses=+38 walked=+31046 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.crumb.3
+[octoscode] perf: Actions 0.5 ms @4368.3 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+1 b1_mount=+0
+[octoscode] perf: workspace_list answered in 0.5 ms (46 entries)
+[octoscode] board1 remounted (83711 bytes)
+[octoscode] perf: Signal 4.3 ms @4381.4 lookups=+265 misses=+0 walked=+0 inval=+544 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 1.3 ms @4383.9 lookups=+5 misses=+4 walked=+3268 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 23.3 ms @4408.4 lookups=+265 misses=+226 walked=+183556 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 4.0 ms @4715.9 lookups=+310 misses=+38 walked=+31046 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @4716.6 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.5 ms @5120.5 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @5121.0 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.5 ms @5330.9 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.5 ms @5331.5 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.5 ms @5334.2 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.5 ms @5334.8 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.5 ms @5336.8 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.5 ms @5337.3 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.4 ms @5338.7 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @5339.1 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.4 ms @5340.2 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @5340.6 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.4 ms @5342.1 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @5342.5 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.5 ms @5343.7 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @5344.2 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.4 ms @5345.7 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @5346.1 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.5 ms @5347.3 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @5347.7 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.go
+[octoscode] perf: workspace_list answered in 0.2 ms (5 entries)
+[octoscode] board1 remounted (23372 bytes)
+[octoscode] perf: Actions 1.8 ms @5654.5 lookups=+310 misses=+0 walked=+0 inval=+126 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.4 ms @5654.9 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 24.9 ms @5689.8 lookups=+265 misses=+229 walked=+185589 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 4.1 ms @5968.8 lookups=+310 misses=+38 walked=+31046 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.enter.2
+[octoscode] board1 remounted (23445 bytes)
+[octoscode] perf: Actions 1.6 ms @5970.8 lookups=+310 misses=+0 walked=+0 inval=+128 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.5 ms @5971.3 lookups=+5 misses=+2 walked=+1634 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 22.1 ms @6003.4 lookups=+265 misses=+229 walked=+185591 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 4.7 ms @6290.3 lookups=+310 misses=+38 walked=+31046 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.enter.2
+[octoscode] perf: Actions 0.5 ms @6291.2 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+1 b1_mount=+0
+[octoscode] perf: workspace_list answered in 0.8 ms (150 entries)
+[octoscode] board1 remounted (83225 bytes)
+[octoscode] perf: Signal 4.6 ms @6305.9 lookups=+265 misses=+0 walked=+0 inval=+544 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 1.6 ms @6308.5 lookups=+5 misses=+4 walked=+3268 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 24.8 ms @6342.4 lookups=+265 misses=+226 walked=+183556 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.5 ms @6619.3 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.3 ms @6620.8 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.3 ms @6622.3 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.3 ms @6623.0 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.3 ms @6625.6 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.3 ms @6626.5 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.3 ms @6629.8 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 4.3 ms @6992.0 lookups=+310 misses=+38 walked=+31046 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.5 ms @6993.0 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @7305.1 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.5 ms @7309.6 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @7310.0 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.6 ms @7499.2 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.go
+[octoscode] perf: workspace_list answered in 2.1 ms (500 entries)
+[octoscode] board1 remounted (83229 bytes)
+[octoscode] perf: Actions 4.5 ms @7623.0 lookups=+310 misses=+0 walked=+0 inval=+544 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.7 ms @7623.7 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 remounted (83233 bytes)
+[octoscode] perf: Signal 4.7 ms @7629.4 lookups=+265 misses=+2 walked=+548 inval=+544 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 1.3 ms @7630.8 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 23.9 ms @7664.2 lookups=+265 misses=+229 walked=+186007 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 4.2 ms @8000.9 lookups=+310 misses=+38 walked=+31046 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.5 ms @8001.8 lookups=+5 misses=+2 walked=+1634 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @8314.5 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.5 ms @8320.8 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @8321.2 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @8508.7 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.go
+[octoscode] perf: workspace_list answered in 0.3 ms (refused)
+[octoscode] board1 remounted (10526 bytes)
+[octoscode] perf: Actions 1.8 ms @8636.6 lookups=+310 misses=+0 walked=+0 inval=+60 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.8 ms @8637.4 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 24.1 ms @8665.7 lookups=+265 misses=+229 walked=+185523 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 4.2 ms @9001.8 lookups=+310 misses=+38 walked=+31046 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.back
+[octoscode] board1 remounted (83233 bytes)
+[octoscode] perf: Actions 4.0 ms @9006.1 lookups=+310 misses=+0 walked=+0 inval=+544 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.9 ms @9007.1 lookups=+5 misses=+2 walked=+1634 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 24.5 ms @9041.1 lookups=+265 misses=+229 walked=+186007 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 5.4 ms @9330.2 lookups=+310 misses=+38 walked=+31046 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.close
+[octoscode] board1 remounted (9744 bytes)
+[octoscode] perf: Actions 1.0 ms @9331.7 lookups=+310 misses=+0 walked=+0 inval=+58 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.5 ms @9332.3 lookups=+5 misses=+2 walked=+1634 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 24.7 ms @9366.0 lookups=+265 misses=+229 walked=+185521 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 5.4 ms @9653.0 lookups=+310 misses=+38 walked=+31046 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: picker.browse
+[octoscode] perf: workspace_list answered in 0.4 ms (46 entries)
+[octoscode] board1 remounted (13011 bytes)
+[octoscode] perf: Actions 1.5 ms @9654.9 lookups=+310 misses=+0 walked=+0 inval=+62 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.4 ms @9655.3 lookups=+5 misses=+2 walked=+1634 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 remounted (83711 bytes)
+[octoscode] perf: Signal 28.4 ms @9693.4 lookups=+265 misses=+229 walked=+185525 inval=+544 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 1.0 ms @9695.6 lookups=+5 misses=+4 walked=+3268 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 23.3 ms @9720.1 lookups=+265 misses=+226 walked=+183556 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 4.5 ms @10034.8 lookups=+310 misses=+38 walked=+31046 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.enter.0
+[octoscode] board1 remounted (83787 bytes)
+[octoscode] perf: Actions 4.1 ms @10039.3 lookups=+310 misses=+0 walked=+0 inval=+546 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.8 ms @10040.1 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.6 ms @10651.1 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.enter.2
+[octoscode] board1 remounted (83783 bytes)
+[octoscode] perf: Actions 4.9 ms @10656.1 lookups=+310 misses=+0 walked=+0 inval=+546 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.7 ms @10656.9 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.6 ms @11470.9 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.enter.2
+[octoscode] perf: workspace_list answered in 0.4 ms (5 entries)
+[octoscode] perf: Actions 0.9 ms @11472.0 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+1 b1_mount=+0
+[octoscode] board1 remounted (23781 bytes)
+[octoscode] perf: Signal 2.1 ms @11483.9 lookups=+265 misses=+0 walked=+0 inval=+126 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.4 ms @11484.4 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.5 ms @12285.9 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.crumb.3
+[octoscode] perf: workspace_list answered in 0.4 ms (46 entries)
+[octoscode] perf: Actions 0.6 ms @12286.6 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+1 b1_mount=+0
+[octoscode] board1 remounted (83711 bytes)
+[octoscode] perf: Signal 5.0 ms @12301.5 lookups=+265 misses=+0 walked=+0 inval=+544 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.7 ms @12302.3 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.5 ms @13092.8 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @13093.3 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @13405.1 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.5 ms @13409.8 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @13410.2 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @13598.8 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.go
+[octoscode] perf: workspace_list answered in 2.1 ms (500 entries)
+[octoscode] board1 remounted (83733 bytes)
+[octoscode] perf: Actions 4.3 ms @13825.2 lookups=+310 misses=+0 walked=+0 inval=+544 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.7 ms @13826.0 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 remounted (83233 bytes)
+[octoscode] perf: Signal 4.4 ms @13830.9 lookups=+265 misses=+2 walked=+548 inval=+544 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.6 ms @13831.7 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.5 ms @14641.9 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @14642.4 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @14954.2 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.4 ms @14956.6 lookups=+310 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.4 ms @14957.0 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.go
+[octoscode] perf: workspace_list answered in 0.4 ms (46 entries)
+[octoscode] board1 remounted (83211 bytes)
+[octoscode] perf: Actions 4.1 ms @14961.8 lookups=+310 misses=+0 walked=+0 inval=+544 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.6 ms @14962.4 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 remounted (83711 bytes)
+[octoscode] perf: Signal 4.1 ms @14969.1 lookups=+265 misses=+2 walked=+548 inval=+544 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.6 ms @14969.8 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: browser.close
+[octoscode] board1 remounted (9744 bytes)
+[octoscode] perf: KeyDown 1.3 ms @15571.6 lookups=+265 misses=+0 walked=+0 inval=+58 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.2 ms @15571.8 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: picker.close
+[octoscode] perf: Draw 0.2 ms @15974.7 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.6 ms @16377.3 lookups=+314 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.6 ms @16377.9 lookups=+512 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Draw 0.3 ms @16378.2 lookups=+26 misses=+20 walked=+446 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Signal 1.1 ms @16389.5 lookups=+268 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] perf: Actions 0.9 ms @16994.5 lookups=+319 misses=+5 walked=+4085 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0
+[octoscode] board1 action: b1.open.add
+[octoscode] perf: workspace_list answered in 0.4 ms (46 entries)
+[octoscode] board1 remounted (83711 bytes)
+[octoscode] perf: Actions 4.3 ms @16998.9 lookups=+515 misses=+0 walked=+0 inval=+544 unstored=+0 b1_compose=+1 b1_mount=+1
+[octoscode] perf: Draw 0.7 ms @16999.7 lookups=+5 misses=+0 walked=+0 inval=+0 unstored=+0 b1_compose=+0 b1_mount=+0

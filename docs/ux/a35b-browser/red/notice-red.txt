@@ -1,0 +1,6 @@
+test screens::browser::tests::a_listing_longer_than_the_view_says_how_many_rows_it_shows ... FAILED
+thread 'screens::browser::tests::a_listing_longer_than_the_view_says_how_many_rows_it_shows' (264203345) panicked at crates/octoscode-module/src/screens/browser.rs:931:9:
+assertion `left == right` failed
+  left: []
+ right: ["Only the first 40 folders are shown."]
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 628 filtered out; finished in 0.00s

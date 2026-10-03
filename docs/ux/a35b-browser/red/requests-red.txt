@@ -1,0 +1,6 @@
+test replay::every_browser_action_sends_the_requests_it_needs_and_no_more ... FAILED
+thread 'replay::every_browser_action_sends_the_requests_it_needs_and_no_more' (263793789) panicked at crates/octoscode-module/tests/fd1t_transport.rs:456:9:
+assertion `left == right` failed: onboarding/workspace_list requests per action
+  left: [("+ Add workspace", 2), ("pick", 0), ("drill", 1), ("up", 1), ("type 3 keys", 0), ("Return", 1), ("breadcrumb", 1), ("back to the picker", 0), ("picker Browse", 1)]
+ right: [("+ Add workspace", 1), ("pick", 0), ("drill", 1), ("up", 1), ("type 3 keys", 0), ("Return", 1), ("breadcrumb", 1), ("back to the picker", 0), ("picker Browse", 1)]
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.01s

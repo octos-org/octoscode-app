@@ -1,0 +1,10 @@
+[a35] standalone tmp/bin/octoscode-release-before (octoscode-release-before), desktop
+PASS the standalone app starts hidden with its bridge — [makepad-remote] listening on 127.0.0.1:8470 pid=26593 app=octoscode-release-before grabs=<abs>/octoscode-release-before-26593 token_file=<abs>/port-8470.token
+PASS connected: the workspace entry is drawn
+FAIL open: + Add workspace -> the listing: drawn within 100 ms — not drawn within 3 s — the listing is in the widget tree but no frame drew it
+FAIL open: + Add workspace -> the listing: 1 workspace_list request(s) — 2 sent
+FAIL open: the rows are the server's folders in order — [None, None, None]
+FAIL open: the server's hidden folders are reported — ''
+FAIL layout (open): the card inside the window, rows clean — open: window [1280, 800]; card None no card; inside=False; rows drawn 0; row text outside its row 0; controls<28px 0; row overlaps 0
+FAIL the walk reached its last step — stopped: no drawn b1_br_row_2 to click
+== 2/8 checks passed (desktop, octoscode-release-before)

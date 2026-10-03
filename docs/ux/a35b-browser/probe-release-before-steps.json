@@ -1,0 +1,338 @@
+[
+ {
+  "step": "open: + Add workspace",
+  "ms": null,
+  "ack_ms": 41.0,
+  "in_tree_not_drawn": true,
+  "drawn_after_mouse_moves_ms": null,
+  "forced_redraw_drew_it": true,
+  "lists": 2,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    38
+   ],
+   [
+    "Signal",
+    32
+   ],
+   [
+    "Signal",
+    32
+   ],
+   [
+    "Actions",
+    23
+   ],
+   [
+    "Signal",
+    36
+   ],
+   [
+    "Signal",
+    34
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: b1.open.add"
+  ]
+ },
+ {
+  "step": "pick: row 2 fills the path box",
+  "ms": 60.2,
+  "ack_ms": 58.8,
+  "lists": 0,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    57
+   ],
+   [
+    "Signal",
+    35
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.enter.2"
+  ]
+ },
+ {
+  "step": "drill: row 2 again opens billing",
+  "ms": null,
+  "ack_ms": 52.9,
+  "in_tree_not_drawn": true,
+  "drawn_after_mouse_moves_ms": null,
+  "forced_redraw_drew_it": true,
+  "lists": 1,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    51
+   ],
+   [
+    "Signal",
+    31
+   ],
+   [
+    "draw-list",
+    10
+   ],
+   [
+    "Signal",
+    29
+   ],
+   [
+    "Signal",
+    29
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.enter.2"
+  ]
+ },
+ {
+  "step": "up: the 'work' crumb",
+  "ms": null,
+  "ack_ms": 37.1,
+  "in_tree_not_drawn": true,
+  "drawn_after_mouse_moves_ms": null,
+  "forced_redraw_drew_it": true,
+  "lists": 1,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    36
+   ],
+   [
+    "native-event",
+    8
+   ],
+   [
+    "Signal",
+    33
+   ],
+   [
+    "Actions",
+    46
+   ],
+   [
+    "Signal",
+    34
+   ],
+   [
+    "Signal",
+    31
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.crumb.3"
+  ]
+ },
+ {
+  "step": "type '/monorepo' in the path box",
+  "per_key_ms": [
+   2.1,
+   2.8,
+   3.3,
+   1.8,
+   3.0,
+   2.3,
+   1.6,
+   2.1,
+   2.9
+  ],
+  "lists": 0,
+  "ui_events_over_threshold": [],
+  "log": []
+ },
+ {
+  "step": "go: Return opens monorepo",
+  "ms": null,
+  "ack_ms": 50.7,
+  "in_tree_not_drawn": true,
+  "drawn_after_mouse_moves_ms": null,
+  "forced_redraw_drew_it": true,
+  "lists": 1,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    49
+   ],
+   [
+    "Signal",
+    27
+   ],
+   [
+    "present",
+    10
+   ],
+   [
+    "Signal",
+    29
+   ],
+   [
+    "Signal",
+    30
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.go"
+  ]
+ },
+ {
+  "step": "pick: packages",
+  "ms": null,
+  "ack_ms": 39.5,
+  "in_tree_not_drawn": true,
+  "drawn_after_mouse_moves_ms": null,
+  "forced_redraw_drew_it": true,
+  "lists": 0,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    38
+   ],
+   [
+    "Signal",
+    26
+   ],
+   [
+    "Actions",
+    38
+   ],
+   [
+    "Signal",
+    31
+   ],
+   [
+    "Signal",
+    29
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.enter.2"
+  ]
+ },
+ {
+  "step": "drill: packages (150 folders)",
+  "ms": null,
+  "ack_ms": 42.2,
+  "in_tree_not_drawn": true,
+  "drawn_after_mouse_moves_ms": null,
+  "forced_redraw_drew_it": true,
+  "lists": 1,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    41
+   ],
+   [
+    "native-event",
+    8
+   ],
+   [
+    "Signal",
+    33
+   ],
+   [
+    "Actions",
+    48
+   ],
+   [
+    "Signal",
+    36
+   ],
+   [
+    "Signal",
+    34
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.enter.2"
+  ]
+ },
+ {
+  "step": "scroll the 150-folder list (6 wheel steps)",
+  "per_step_ms": [
+   4.2,
+   1.5,
+   0.9,
+   0.8,
+   0.8,
+   2.3
+  ],
+  "ui_events_over_threshold": []
+ },
+ {
+  "step": "back: chevron -> picker",
+  "ms": null,
+  "ack_ms": 70.0,
+  "in_tree_not_drawn": true,
+  "drawn_after_mouse_moves_ms": null,
+  "forced_redraw_drew_it": true,
+  "lists": 0,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    69
+   ],
+   [
+    "Signal",
+    24
+   ],
+   [
+    "Actions",
+    12
+   ],
+   [
+    "Signal",
+    26
+   ],
+   [
+    "Signal",
+    24
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.close"
+  ]
+ },
+ {
+  "step": "browse: picker Browse -> listing",
+  "ms": null,
+  "ack_ms": 54.0,
+  "in_tree_not_drawn": true,
+  "drawn_after_mouse_moves_ms": null,
+  "forced_redraw_drew_it": true,
+  "lists": 1,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    51
+   ],
+   [
+    "Signal",
+    42
+   ],
+   [
+    "Signal",
+    34
+   ],
+   [
+    "Actions",
+    50
+   ],
+   [
+    "Signal",
+    37
+   ],
+   [
+    "Signal",
+    49
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: picker.browse"
+  ]
+ }
+]
