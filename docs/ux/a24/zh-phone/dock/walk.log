@@ -1,0 +1,161 @@
+PASS dock: connected
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:413:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:1412:9 - [octoscode] a24 language at launch: zh
+    log: [I] apps/octoscode/module/src/screens/bootstrap.rs:169:5 - [octoscode] bootstrap: Harness(http://127.0.0.1:8508, token: true) (remembered server: false, saved token: false, restore target: false, auto-connect: None)
+    log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+    log: [I] apps/octoscode/module/src/attention.rs:938:9 - [octoscode] attention: start (platform api false, focused false)
+    log: [I] apps/octoscode/module/src/lib.rs:1687:13 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/lib.rs:3481:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4360:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/flow_controller.rs:312:17 - [octoscode] driver/get dsflash:main: held=Some(Holder { label: "octoscode-native:00000000-0000-4000-8000-0000000000aa", revision: 42 })
+    log: [I] apps/octoscode/module/src/lib.rs:3585:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4360:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3926:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:3984:17 - [octoscode] aside panel: hidden
+    log: [I] apps/octoscode/module/src/chrome.rs:2328:13 - [octoscode] a24 shell copy: 81 text(s) set (zh; 86 source(s))
+    log: [I] apps/octoscode/module/src/lib.rs:3481:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/attention.rs:984:9 - [octoscode] attention: os Authorization { status: Unavailable, requested: false, error: None }
+    log: [I] apps/octoscode/module/src/lib.rs:3481:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4447:13 - [octoscode] chrome: Action("drawer.open", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2031:21 - [octoscode] sidebar action: drawer.open
+CLICK fleet_nav_hit r=[10, 744, 292, 34] at (156,761)
+PASS fleet: the footer's Fleet CLICK
+PASS dock: the Fleet's start form reads Chinese — '启动一个同侪'
+CLICK b3_fleet_model_tap r=[30, 194, 300, 36] at (180,212)
+CLICK b3_fleet_opt_0 r=[34, 242, 292, 32] at (180,258)
+TYPE '修复重连时 steer 队列丢失'
+TYPE '修复重连时 steer 队列丢失'
+CLICK b3_fleet_start r=[271, 407, 59, 34] at (300,424)
+PASS dock: 启动 CLICK -> one peer/dispatch
+PASS dock: the Fleet shows the peer's row
+PASS Fleet (one peer): no clipped or overflowing Chinese label (zh-fleet-peer) — cjk=19 outside=0 overflow=0 truncated=0 overlaps=0 controls=7 under28=0
+SHOT zh-fleet-peer
+PASS Fleet (one peer): no English copy left (zh-fleet-peer) — []
+    log: [I] apps/octoscode/module/src/lib.rs:5853:21 - [octoscode] sidebar: fleet
+    log: [I] apps/octoscode/module/src/lib.rs:1765:13 - [octoscode] board3 action b3.open.fleet #0 -> Spawn(FleetLanes)
+    log: [I] apps/octoscode/module/src/lib.rs:2031:21 - [octoscode] sidebar action: drawer.close
+    log: [I] apps/octoscode/module/src/lib.rs:4360:42 - [octoscode] board3 FleetLanes: Ok("3 lanes"); Ok("0 operation(s), revision 42")
+    log: [I] apps/octoscode/module/src/lib.rs:4180:17 - [octoscode] board3 mounted Some(Fleet): 2 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4180:17 - [octoscode] board3 mounted Some(Fleet): 4 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5726:25 - [octoscode] board3 tap: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:1765:13 - [octoscode] board3 action b3.fleet.lane.toggle #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4180:17 - [octoscode] board3 mounted Some(Fleet): 7 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6549:17 - [octoscode] nav tap: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:5471:21 - [octoscode] nav route: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:3130:9 - [octoscode] screen action: b3.fleet.lane.toggle
+    log: [I] apps/octoscode/module/src/lib.rs:5726:25 - [octoscode] board3 tap: b3.fleet.lane#0
+    log: [I] apps/octoscode/module/src/lib.rs:1765:13 - [octoscode] board3 action b3.fleet.lane #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4180:17 - [octoscode] board3 mounted Some(Fleet): 4 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4180:17 - [octoscode] board3 mounted Some(Fleet): 5 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6326:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:5726:25 - [octoscode] board3 tap: b3.fleet.start
+    log: [I] apps/octoscode/module/src/lib.rs:1765:13 - [octoscode] board3 action b3.fleet.start #0 -> Spawn(FleetStart { operation_id: "b4856a0e-ca3a-470c-afe0-5def8388d33f", lane: "lane-glm", brief: "修复重连时 steer 队列丢失" })
+    log: [I] apps/octoscode/module/src/lib.rs:4360:42 - [octoscode] board3 FleetStart { operation_id: "b4856a0e-ca3a-470c-afe0-5def8388d33f", lane: "lane-glm", brief: "修复重连时 steer 队列丢失" }: Accepted { slug: "steer", operation_id: "b4856a0e-ca3a-470c-afe0-5def8388d33f", duplicate: false }
+    log: [I] apps/octoscode/module/src/lib.rs:4180:17 - [octoscode] board3 mounted Some(Fleet): 4 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: folded (1 tap(s), phone)
+    log: [I] apps/octoscode/module/src/lib.rs:4180:17 - [octoscode] board3 mounted Some(Fleet): 6 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-steer: TurnStarted { turn_id: Some("00000000-0000-4000-8000-0000000000d2") }
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-steer: Usage { output_tokens: 12400 }
+    log: [I] apps/octoscode/module/src/lib.rs:4180:17 - [octoscode] board3 mounted Some(Fleet): 6 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/screens/peers.rs:192:13 - [octoscode] peer session dsflash:main#peer-steer: AttentionRequested { request_id: Some("01a0eb92-9444-7101-aa6f-000000010001"), kind: Some(Approval), detail: Some(Approval(ApprovalDetail { tool_name: "shell", target: Some("cargo build -p octos-core"), scope: Some("command"), title: Some("Peer requests to run checks"), body: Some("A staged peer wants to run the repository checks.") })) }
+    log: [I] apps/octoscode/module/src/screens/board3/host.rs:270:13 - [octoscode] fleet announce: 同侪 1 · glm-4.6 正在等待你的批准
+    log: [I] apps/octoscode/module/src/lib.rs:4180:17 - [octoscode] board3 mounted Some(Fleet): 7 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: folded (1 tap(s), phone)
+KEY Escape
+PASS fleet: Escape closes the pane (the phone's Back)
+PASS fleet: ...and the app stays in front (the composer is back)
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK pd_pill r=[10, 621, 292, 54] at (156,648)
+PASS dock: the dock shows the peer's row
+PASS dock: the dock reads Chinese (同侪, 隐藏同侪) — '同侪 1 · glm-4.6'
+PASS Peer dock (sidebar): no clipped or overflowing Chinese label (zh-peer-dock) — cjk=9 outside=0 overflow=0 truncated=0 overlaps=0 controls=7 under28=0
+SHOT zh-peer-dock
+PASS Peer dock (sidebar): no English copy left (zh-peer-dock) — []
+CLICK drawer_close r=[270, 87, 32, 32] at (286,103)
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+    log: [I] apps/octoscode/module/src/lib.rs:4525:9 - [octoscode] back: the top surface closed
+    log: [I] apps/octoscode/module/src/lib.rs:4447:13 - [octoscode] chrome: Action("drawer.open", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2031:21 - [octoscode] sidebar action: drawer.open
+    log: [I] apps/octoscode/module/src/a30_host.rs:85:17 - [octoscode] peer dock tap: pd.fold
+    log: [I] apps/octoscode/module/src/a30_host.rs:101:30 - [octoscode] peer dock pd.fold#0
+    log: [I] apps/octoscode/module/src/a30_host.rs:47:17 - [octoscode] peer dock: expanded (6 tap(s), phone)
+    log: [I] apps/octoscode/module/src/lib.rs:4447:13 - [octoscode] chrome: Action("drawer.close", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2031:21 - [octoscode] sidebar action: drawer.close
+    log: [I] apps/octoscode/module/src/lib.rs:4447:13 - [octoscode] chrome: Action("drawer.open", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2031:21 - [octoscode] sidebar action: drawer.open
+CLICK fleet_nav_hit r=[10, 744, 292, 34] at (156,761)
+PASS fleet: the footer's Fleet CLICK
+PASS dock: the dock's status word is the Fleet chip's (row 117) — dock='等待你的批准' fleet='⚠ 等待你的批准'
+PASS dock: the dock names the peer as the Fleet does (同侪 1 · glm-4.6) — dock='同侪 1 · glm-4.6' fleet='同侪 1 · glm-4.6'
+    log: [I] apps/octoscode/module/src/lib.rs:5853:21 - [octoscode] sidebar: fleet
+    log: [I] apps/octoscode/module/src/lib.rs:1765:13 - [octoscode] board3 action b3.open.fleet #0 -> Spawn(FleetLanes)
+    log: [I] apps/octoscode/module/src/lib.rs:2031:21 - [octoscode] sidebar action: drawer.close
+    log: [I] apps/octoscode/module/src/lib.rs:4360:42 - [octoscode] board3 FleetLanes: Ok("3 lanes"); Ok("1 operation(s), revision 43")
+    log: [I] apps/octoscode/module/src/lib.rs:4180:17 - [octoscode] board3 mounted Some(Fleet): 6 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4180:17 - [octoscode] board3 mounted Some(Fleet): 7 tap(s), 2 input(s)
+KEY Escape
+PASS fleet: Escape closes the pane (the phone's Back)
+PASS fleet: ...and the app stays in front (the composer is back)
+== 18/18 checks passed

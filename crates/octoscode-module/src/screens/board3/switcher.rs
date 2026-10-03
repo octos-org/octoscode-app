@@ -16,6 +16,7 @@ use octoscode_store::Store;
 
 use super::host::Outcome;
 use super::ui::{self, tok, Dsl, Face, Frame, Txt, W};
+use crate::i18n::{tr, tr1, tr_with};
 
 #[derive(Debug, Clone, Default)]
 pub struct SwitchState {
@@ -66,7 +67,7 @@ pub fn known_session_title(id: &str) -> String {
     let leaf = id.split(':').next_back().map(str::trim).filter(|l| !l.is_empty()).unwrap_or(id.trim());
     let n = leaf.chars().count();
     let compact: String = if n > 10 { leaf.chars().skip(n - 8).collect() } else { leaf.to_owned() };
-    format!("Session {}", if compact.is_empty() { "unknown" } else { &compact })
+    tr_with("Session {id}", &[("id", if compact.is_empty() { tr("unknown") } else { &compact })])
 }
 
 /// The rows, newest first, the current one marked.
@@ -166,7 +167,7 @@ pub async fn delete(conv: &crate::flow::Conversation, id: String) -> Result<Stri
                 octoscode_client::ClientError::Rpc { error, .. } => error.message.clone(),
                 other => other.to_string(),
             };
-            st.switch.error = Some(format!("Couldn't delete the session: {msg}"));
+            st.switch.error = Some(tr1("Couldn't delete the session: {value0}", &msg));
             Err(msg)
         }
     }
@@ -221,13 +222,13 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
     // line (bottom right), so the title keeps its width.
     let narrow = inner_w > 0.0 && inner_w < 360.0;
     if st.loading && rows.is_empty() {
-        d.text("b3_switch_loading", "Loading sessions…", &ui::meta());
+        d.text("b3_switch_loading", tr("Loading sessions…"), &ui::meta());
     }
     if let Some(e) = &st.error {
         ui::dialog_error(d, "b3_switch_error", e, st.failed.as_ref(), OPEN_FAILED);
     }
     if rows.is_empty() && !st.loading {
-        d.text("b3_switch_empty", "No sessions yet.", &ui::meta());
+        d.text("b3_switch_empty", tr("No sessions yet."), &ui::meta());
     }
     let list = d.anon();
     d.view(&list, "width: Fill height: Fit flow: Down");
@@ -247,14 +248,14 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
         let confirming = st.confirm_delete.as_deref() == Some(r.id.as_str());
         let trailing = if !r.current && delete_offered(store) {
             if st.deleting.as_deref() == Some(r.id.as_str()) {
-                ui::text_w("Deleting…", 12.0, Face::Regular) + 14.0
+                ui::text_w(tr("Deleting…"), 12.0, Face::Regular) + 14.0
             } else if confirming && !narrow {
-                10.0 + ui::text_w("Delete?", 12.0, Face::Medium)
+                10.0 + ui::text_w(tr("Delete?"), 12.0, Face::Medium)
                     + 4.0
-                    + ui::text_w("Cancel", 12.5, Face::Regular)
+                    + ui::text_w(tr("Cancel"), 12.5, Face::Regular)
                     + 4.0
                     + 12.0
-                    + ui::text_w("Delete", 12.5, Face::Medium)
+                    + ui::text_w(tr("Delete"), 12.5, Face::Medium)
                     + 4.0
                     + 14.0
             } else {
@@ -279,7 +280,7 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
         d.view(&meta, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
         d.chip(&format!("{rid}_tag"), &r.tag, tok::TEXT, tok::CHIP, None, true);
         let opening = st.opening.as_deref() == Some(r.id.as_str());
-        let when = if opening { "Opening…".to_owned() } else { r.when.clone() };
+        let when = if opening { tr("Opening…").to_owned() } else { r.when.clone() };
         d.text(&format!("{rid}_when"), &when, &Txt::new(12.0, Face::Regular, tok::MUTED));
         d.close();
         d.close();
@@ -302,7 +303,7 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
                 d.view(&layer, "width: Fill height: Fill flow: Right align: Align{x: 1.0 y: 0.5} padding: Inset{right: 8}");
             }
             if st.deleting.as_deref() == Some(r.id.as_str()) {
-                d.text(&format!("{rid}_deleting"), "Deleting…", &Txt::new(12.0, Face::Regular, tok::MUTED));
+                d.text(&format!("{rid}_deleting"), tr("Deleting…"), &Txt::new(12.0, Face::Regular, tok::MUTED));
             } else if st.confirm_delete.as_deref() == Some(r.id.as_str()) {
                 d.surface(
                     &format!("{rid}_confirm"),
@@ -311,10 +312,10 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
                     10.0,
                     Some(tok::HAIRLINE),
                 );
-                d.text(&format!("{rid}_confirm_q"), "Delete?", &Txt::new(12.0, Face::Medium, tok::TEXT));
-                d.link(&format!("{rid}_confirm_no"), "Cancel", Some("b3.switch.delete.cancel"), 12.5);
+                d.text(&format!("{rid}_confirm_q"), tr("Delete?"), &Txt::new(12.0, Face::Medium, tok::TEXT));
+                d.link(&format!("{rid}_confirm_no"), tr("Cancel"), Some("b3.switch.delete.cancel"), 12.5);
                 d.view(&format!("{rid}_confirm_yes_box"), "width: Fit height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5} padding: Inset{left: 6 right: 6}");
-                d.text(&format!("{rid}_confirm_yes_label"), "Delete", &Txt::new(12.5, Face::Medium, tok::RED_TEXT));
+                d.text(&format!("{rid}_confirm_yes_label"), tr("Delete"), &Txt::new(12.5, Face::Medium, tok::RED_TEXT));
                 d.tap(&format!("{rid}_confirm_yes"), "b3.switch.delete.confirm");
                 d.close();
                 d.close();
@@ -337,7 +338,7 @@ pub fn build(d: &mut Dsl, st: &SwitchState, frame: &Frame, store: &Store, vim: &
     let pad = ui::dialog_pad(frame, width);
     ui::shell_open(d, frame, width);
     if split {
-        ui::header(d, "Open a different session", "b3.close");
+        ui::header(d, tr("Open a different session"), "b3.close");
         d.gap(W::Fill, 12.0);
         let cols = d.anon();
         d.view(&cols, "width: Fill height: Fit flow: Right spacing: 18");
@@ -350,7 +351,7 @@ pub fn build(d: &mut Dsl, st: &SwitchState, frame: &Frame, store: &Store, vim: &
         super::vim::legend(d, vim, W::Px(LEGEND_W));
         d.close();
     } else {
-        ui::header(d, "Open a different session", "b3.close");
+        ui::header(d, tr("Open a different session"), "b3.close");
         d.gap(W::Fill, 12.0);
         ui::body_open(d, frame, width, 50.0);
         panel(d, st, store, width - 2.0 * pad);

@@ -1,0 +1,19 @@
+hd_title	Label	[54, 85, 126, 16]	Why does main.rs print 5?
+hd_path	Label	[54, 102, 126, 13]	<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace
+hd_tab_chat_on	Label	[190, 92, 26, 16]	聊天
+hd_tab_traj_off	Label	[226, 92, 26, 16]	轨迹
+b3_tl_think_1_summary	Label	[50, 259, 211, 16]	The user asks to run `sudo…
+b3_tl_think_1_meta	Label	[269, 260, 63, 14]	1 秒 · 135 词
+i0_workingrow_label	Label	[38, 304, 78, 17]	工作中 · 1 秒
+i0_userbubble_0	Label	[217, 193, 111, 19]	重试 steer 队列
+b3_tl_fold_expand_label	Label	[16, 135, 50, 15]	全部展开
+b3_tl_fold_collapse_label	Label	[88, 135, 50, 15]	全部折叠
+cv_ap_title	Label	[62, 504, 179, 21]	Apply a patch to s…
+cv_ap_risk	Label	[258, 507, 67, 13]	medium 风险
+cv_ap_body	Label	[28, 538, 304, 17]	Retries the steer queue with backoff.
+cv_ap_tool	Label	[28, 561, 304, 15]	apply_patch · diff
+cv_ap_once_label	Label	[141, 607, 78, 16]	仅此一次批准
+cv_ap_session_label	Label	[135, 663, 91, 16]	本次会话内批准
+cv_ap_deny_label	Label	[167, 716, 26, 16]	拒绝
+cv_ap_diff_label	Label	[154, 764, 52, 16]	审查差异
+cv_ap_hint	Label	[147, 795, 67, 15]	Y / S / N / D

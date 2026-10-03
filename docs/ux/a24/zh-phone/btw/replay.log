@@ -1,0 +1,19 @@
+[replay-serve] scenario=btw fixture=live-gate-a6ea8505.jsonl: 266 frames; recorded session `dsflash:main`; 2 recorded turns ["01a0e75b-dfb8-708a-a7ce-5d29c534f2f6", "01a0e75b-f89c-7042-8372-06590a201ac8"]; 6 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8508/api/ui-protocol/ws (delay 40ms)
+[replay-serve] client connected
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- session/hydrate (id=2)
+[replay-serve] -> session/hydrate (btw) dsflash:main
+[replay-serve] <- session/list (id=3)
+[replay-serve] <- session/hydrate (id=4)
+[replay-serve] -> session/hydrate (btw) dsflash:main
+[replay-serve] <- permission/profile/list (id=5)
+[replay-serve] <- profile/llm/list (id=6)
+[replay-serve] <- session/status/read (id=7)
+[replay-serve] <- profile/skills/list (id=8)
+[replay-serve] <- profile/sub_providers/list (id=9)
+[replay-serve] <- session/btw (id=10)
+[replay-serve] session/btw #1 asked: session_id=dsflash:main question="为什么要先排空队列？"
+[replay-serve] -> session/btw #1 answered after 4000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main

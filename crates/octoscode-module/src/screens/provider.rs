@@ -37,6 +37,7 @@ use serde_json::{Map, Value};
 use super::board1::{Layout, Ui};
 use super::board1_kit::{self as kit, Field, Text};
 use super::model_settings::{self as ms, copy, Credential, EditorDraft, Family, Provider, ProviderRoute};
+use crate::i18n::{tr, tr1};
 
 /// The web's own alert copy (`model-management.spec.ts:181-183`), shown when a
 /// failure is not a key rejection.
@@ -483,7 +484,7 @@ impl ProviderUi {
         self.save_refused = false;
         self.busy = false;
         self.screen = Screen::Editor;
-        self.feedback = Some(Feedback { ok: false, text: format!("{} Your draft is kept.", self.failure_line()) });
+        self.feedback = Some(Feedback { ok: false, text: format!("{} {}", self.failure_line(), tr("Your draft is kept.")) });
     }
 
     /// The test passed: drop the error, leave the draft alone.
@@ -500,13 +501,13 @@ impl ProviderUi {
     pub fn failure_line(&self) -> String {
         if self.key_rejected {
             match self.error_status {
-                Some(n) => format!("The provider rejected this key ({n})."),
-                None => "The provider rejected this key.".to_owned(),
+                Some(n) => tr1("The provider rejected this key ({value0}).", &n.to_string()),
+                None => tr("The provider rejected this key.").to_owned(),
             }
         } else if self.save_refused {
-            copy::SAVE_FAILED.to_owned()
+            tr(copy::SAVE_FAILED).to_owned()
         } else {
-            TEST_FAILED.to_owned()
+            tr(TEST_FAILED).to_owned()
         }
     }
 
@@ -1043,7 +1044,7 @@ fn mono(id: &str, s: &str, px: f64, color: &str) -> String {
 fn issue_line(v: &mut Ui, ui: &ProviderUi, field: ms::Field, id: &str) {
     if let Some(i) = ui.issues.iter().find(|i| i.field == field) {
         v.push(kit::gap(6.0));
-        v.push(Text::new(id, i.message).px(14.0).color(kit::RED).fill().dsl());
+        v.push(Text::new(id, tr(i.message)).px(14.0).color(kit::RED).fill().dsl());
     }
 }
 
@@ -1067,7 +1068,7 @@ fn select_field(v: &mut Ui, l: &Layout, ui: &ProviderUi, which: Select, label: &
     };
     let open = ui.open_select == Some(which);
     let enabled = !ui.read_only() && !ui.busy;
-    v.push(Text::new("", label).px(15.0).fill().one_line().dsl());
+    v.push(Text::new("", tr(label)).px(15.0).fill().one_line().dsl());
     v.push(kit::gap(8.0));
     let edge = if open { kit::BLUE } else { kit::FIELD_EDGE };
     let ink = if enabled { kit::INK } else { kit::MUTED };
@@ -1075,7 +1076,7 @@ fn select_field(v: &mut Ui, l: &Layout, ui: &ProviderUi, which: Select, label: &
     v.push(format!(
         "View {{ width: Fill height: 44 flow: Overlay\nDesignSurface {{\nwidth: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 14 right: 12}} spacing: 8\ndraw_bg.color: {} draw_bg.radius: 10 draw_bg.border_width: 1 draw_bg.border_position: 1 draw_bg.border_color: {edge}\n{}{}{}}}\n{hit}}}\n",
         kit::WHITE,
-        Text::new(&format!("{id}_value"), value).px(15.0).color(ink).fill().one_line().dsl(),
+        Text::new(&format!("{id}_value"), tr(value)).px(15.0).color(ink).fill().one_line().dsl(),
         mono("", detail, 12.0, kit::MUTED),
         kit::svg("", "b3_chevron_down_dark.svg", 13.0),
     ));
@@ -1098,7 +1099,7 @@ fn select_field(v: &mut Ui, l: &Layout, ui: &ProviderUi, which: Select, label: &
                 let mark = if *oid == chosen { kit::svg("", "b1_check_on.svg", 20.0) } else { "View { width: 20 height: 20 }\n".to_owned() };
                 format!(
                     "View {{ width: Fill height: {row_h} flow: Overlay\nView {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 14 right: 12}} spacing: 10\n{}{}{mark}}}\n{}}}\n",
-                    Text::new(&format!("b1_prov_opt_t{i}"), olabel).px(14.0).fill().one_line().dsl(),
+                    Text::new(&format!("b1_prov_opt_t{i}"), tr(olabel)).px(14.0).fill().one_line().dsl(),
                     mono("", oid, 12.0, kit::MUTED),
                     kit::hit(&rid, true)
                 )
@@ -1119,7 +1120,7 @@ fn model_rows(v: &mut Ui, l: &Layout, ui: &ProviderUi, list: &[String], action: 
         .enumerate()
         .map(|(i, m)| {
             let on = *m == chosen;
-            let label = if on && ui.set_primary() { format!("{m} (default)") } else { m.clone() };
+            let label = if on && ui.set_primary() { tr1("{value0} (default)", m) } else { m.clone() };
             let id = format!("{id_base}_{i}");
             let hit = if interactive {
                 v.button(&id, &format!("{action}.{i}"));
@@ -1163,14 +1164,14 @@ fn five_rows_h(rows: &[(String, f64)]) -> Option<f64> {
 /// The Models list (board 1 #6), the endpoint's models after a fetch
 /// ("Available from endpoint" with its count) and "Fetch available models".
 fn models_section(v: &mut Ui, l: &Layout, ui: &ProviderUi, read_only: bool) {
-    v.push(Text::new("", "Models").px(15.0).fill().one_line().dsl());
+    v.push(Text::new("", tr("Models")).px(15.0).fill().one_line().dsl());
     v.push(kit::gap(if l.phone { 8.0 } else { 6.0 }));
     let models: Vec<String> = ui.models.clone();
     let rows = model_rows(v, l, ui, &models, "provider.model", "b1_prov_model", !read_only);
     let max_h = five_rows_h(&rows);
     let rows: Vec<String> = rows.into_iter().map(|(r, _)| r).collect();
     if rows.is_empty() {
-        v.push(Text::new("b1_prov_models_none", "No catalog models for this provider.").px(14.0).color(kit::MUTED).fill().dsl());
+        v.push(Text::new("b1_prov_models_none", tr("No catalog models for this provider.")).px(14.0).color(kit::MUTED).fill().dsl());
     } else {
         v.push(kit::list_card_scroll("b1_prov_models", &rows, max_h));
     }
@@ -1178,7 +1179,7 @@ fn models_section(v: &mut Ui, l: &Layout, ui: &ProviderUi, read_only: bool) {
         v.push(kit::gap(12.0));
         v.push(format!(
             "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8\n{}{}}}\n",
-            Text::new("b1_prov_fetched_label", copy::FROM_ENDPOINT).px(15.0).one_line().dsl(),
+            Text::new("b1_prov_fetched_label", tr(copy::FROM_ENDPOINT)).px(15.0).one_line().dsl(),
             Text::new("b1_prov_fetched_count", &ui.fetched.len().to_string()).px(13.0).color(kit::MUTED).one_line().dsl()
         ));
         v.push(kit::gap(6.0));
@@ -1190,11 +1191,11 @@ fn models_section(v: &mut Ui, l: &Layout, ui: &ProviderUi, read_only: bool) {
     }
     if let Some(f) = &ui.fetch_feedback {
         v.push(kit::gap(8.0));
-        v.push(kit::status_line("b1_prov_fetch_feedback", &f.text, f.ok));
+        v.push(kit::status_line("b1_prov_fetch_feedback", tr(&f.text), f.ok));
     }
     if !read_only && ui.can_fetch {
         v.push(kit::gap(10.0));
-        let label = if ui.busy && ui.last_op == Op::Fetch { copy::FETCHING } else { copy::FETCH };
+        let label = tr(if ui.busy && ui.last_op == Op::Fetch { copy::FETCHING } else { copy::FETCH });
         v.push(kit::pill_outline_fit("b1_prov_fetch", label, 40.0));
         v.button("b1_prov_fetch", "provider.fetch");
     }
@@ -1213,7 +1214,7 @@ fn body_max(l: &Layout) -> f64 {
 /// The native view of the editor (p4-06, or p4-07 after a rejection).
 pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
     let mut v = Ui::default();
-    let title = if ui.mode == Mode::Add { copy::ADD_PROVIDER } else { "Edit provider" };
+    let title = tr(if ui.mode == Mode::Add { copy::ADD_PROVIDER } else { "Edit provider" });
     v.header(l, "b1_prov_back", "provider.back", title);
     // Mutation not advertised, or a row the editor cannot preserve: the same
     // editor, read-only, with the reason and a Close instead of Cancel/Save
@@ -1233,7 +1234,7 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         // The catalog-driven identity (`openAdd`): the family from the
         // catalog, the model id (typed or picked below), the route id.
         if ui.families.is_empty() {
-            v.push(Field::new("b1_prov_family_text", &ui.family).label("Provider / family ID").placeholder("deepseek").dsl());
+            v.push(Field::new("b1_prov_family_text", &ui.family).label(tr("Provider / family ID")).placeholder("deepseek").dsl());
             v.input("b1_prov_family_text", "provider.family");
         } else {
             let label = ui.family_option().map(|f| f.label.clone()).unwrap_or_else(|| ui.family.clone());
@@ -1241,7 +1242,7 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         }
         issue_line(&mut v, ui, ms::Field::FamilyId, "b1_prov_family_issue");
         v.push(kit::gap(field_gap));
-        v.push(Field::new("b1_prov_model_id", &ui.model_id()).label("Model ID").placeholder("deepseek-chat").dsl());
+        v.push(Field::new("b1_prov_model_id", &ui.model_id()).label(tr("Model ID")).placeholder("deepseek-chat").dsl());
         v.input("b1_prov_model_id", "provider.model_id");
         issue_line(&mut v, ui, ms::Field::ModelId, "b1_prov_model_issue");
         // The catalog's (and the endpoint's) models, right under the id
@@ -1250,20 +1251,20 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         models_section(&mut v, l, ui, read_only);
         v.push(kit::gap(if l.phone { 18.0 } else { 14.0 }));
     }
-    v.push(Field::new("b1_prov_name", &ui.name).label("Name").placeholder("Provider · Route").read_only(read_only).dsl());
+    v.push(Field::new("b1_prov_name", &ui.name).label(tr("Name")).placeholder(tr("Provider · Route")).read_only(read_only).dsl());
     v.input("b1_prov_name", "provider.name");
     issue_line(&mut v, ui, ms::Field::RouteLabel, "b1_prov_name_issue");
     v.push(kit::gap(field_gap));
-    let url_placeholder = if ui.default_base_url.is_empty() { "Provider default" } else { ui.default_base_url.as_str() };
-    v.push(Field::new("b1_prov_url", &ui.base_url).label("Base URL").placeholder(url_placeholder).read_only(read_only).dsl());
+    let url_placeholder = if ui.default_base_url.is_empty() { tr("Provider default") } else { ui.default_base_url.as_str() };
+    v.push(Field::new("b1_prov_url", &ui.base_url).label(tr("Base URL")).placeholder(url_placeholder).read_only(read_only).dsl());
     v.input("b1_prov_url", "provider.url");
     issue_line(&mut v, ui, ms::Field::BaseUrl, "b1_prov_url_issue");
     v.push(kit::gap(field_gap));
     if ui.credential() == Credential::None {
         // `credentialRequirement === "none"`: no key field at all.
-        v.push(Text::new("", "API key").px(15.0).fill().one_line().dsl());
+        v.push(Text::new("", tr("API key")).px(15.0).fill().one_line().dsl());
         v.push(kit::gap(8.0));
-        v.push(kit::callout(false, false, copy::KEY_NONE, None));
+        v.push(kit::callout(false, false, tr(copy::KEY_NONE), None));
     } else {
         let eye = format!(
             "View {{ width: 36 height: 36 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n{}{}}}\n",
@@ -1273,7 +1274,7 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         // p4-07's red outline: the provider refused this key (on a Save or a
         // Test connection).
         let mut key = Field::new("b1_prov_key", &ui.key)
-            .label("API key")
+            .label(tr("API key"))
             .error(ui.key_rejected && (ui.screen == Screen::Rejected || ui.feedback.as_ref().is_some_and(|f| !f.ok)))
             .read_only(read_only)
             .trailing(eye);
@@ -1286,7 +1287,7 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         if ui.key.is_empty() && ui.key_stored {
             key = key.placeholder("••••••••••••••••••••••").placeholder_ink();
         } else if ui.key.is_empty() {
-            key = key.placeholder("Paste the provider's API key");
+            key = key.placeholder(tr("Paste the provider's API key"));
         }
         v.push(key.dsl());
         v.input("b1_prov_key", "provider.key");
@@ -1300,7 +1301,7 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         v.push(Text::new("b1_prov_error", &ui.failure_line()).px(15.0).color(kit::RED).fill().dsl());
         if !ui.save_refused {
             v.push(kit::gap(2.0));
-            v.push(Text::new("b1_prov_kept", "Your draft is kept.").px(15.0).color(kit::RED).fill().one_line().dsl());
+            v.push(Text::new("b1_prov_kept", tr("Your draft is kept.")).px(15.0).color(kit::RED).fill().one_line().dsl());
         }
     }
     // The board's p4-06 order first (Name, Base URL, API key, Models), so
@@ -1315,7 +1316,7 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
     if !read_only {
         v.push(kit::gap(if l.phone { 18.0 } else { 14.0 }));
         if ui.credential() != Credential::None {
-            v.push(Text::new("b1_prov_key_hint", if ui.credential_configured() { copy::KEY_CONFIGURED_HINT } else { copy::KEY_WRITE_ONLY_HINT })
+            v.push(Text::new("b1_prov_key_hint", tr(if ui.credential_configured() { copy::KEY_CONFIGURED_HINT } else { copy::KEY_WRITE_ONLY_HINT }))
                 .px(13.0)
                 .color(kit::MUTED)
                 .fill()
@@ -1323,11 +1324,11 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         }
         if let Some(f) = &ui.feedback {
             v.push(kit::gap(8.0));
-            v.push(kit::status_line("b1_prov_feedback", &f.text, f.ok));
+            v.push(kit::status_line("b1_prov_feedback", tr(&f.text), f.ok));
         }
         if ui.caps.test {
             v.push(kit::gap(10.0));
-            let label = if ui.busy && ui.last_op == Op::Test { copy::TESTING } else { copy::TEST };
+            let label = tr(if ui.busy && ui.last_op == Op::Test { copy::TESTING } else { copy::TEST });
             v.push(kit::pill_outline_fit("b1_prov_test", label, 40.0));
             v.button("b1_prov_test", "prov.test");
         }
@@ -1340,36 +1341,36 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         .into_iter()
         .find(|(id, _)| *id == protocol)
         .map(|(_, l)| l)
-        .unwrap_or_else(|| "Choose a protocol".to_owned());
+        .unwrap_or_else(|| tr("Choose a protocol").to_owned());
     select_field(&mut v, l, ui, Select::Protocol, "API protocol", &plabel, &protocol);
     issue_line(&mut v, ui, ms::Field::ApiProtocol, "b1_prov_protocol_issue");
     if ui.credential() != Credential::None {
         v.push(kit::gap(field_gap));
         let env = ui.api_key_env.clone().unwrap_or_default();
-        v.push(Field::new("b1_prov_env", &env).label("Credential environment").placeholder("ZAI_API_KEY").read_only(read_only).dsl());
+        v.push(Field::new("b1_prov_env", &env).label(tr("Credential environment")).placeholder("ZAI_API_KEY").read_only(read_only).dsl());
         v.input("b1_prov_env", "provider.env");
         if ui.issues.iter().any(|i| i.field == ms::Field::ApiKeyEnv) {
             issue_line(&mut v, ui, ms::Field::ApiKeyEnv, "b1_prov_env_issue");
         } else {
-            hint(&mut v, "b1_prov_env_hint", copy::ENV_HINT);
+            hint(&mut v, "b1_prov_env_hint", tr(copy::ENV_HINT));
         }
     }
     v.push(kit::gap(field_gap));
     if ui.mode == Mode::Add {
-        v.push(Field::new("b1_prov_route_id", &ui.route).label("Route ID").placeholder("deepseek").dsl());
+        v.push(Field::new("b1_prov_route_id", &ui.route).label(tr("Route ID")).placeholder("deepseek").dsl());
         v.input("b1_prov_route_id", "provider.route_id");
         issue_line(&mut v, ui, ms::Field::RouteId, "b1_prov_route_issue");
     } else {
         // The fixed identity (board 1 #5's rows): an edit never renames it.
         let rows = vec![
-            kit::kv_row("Provider", &format!("{} ({})", ui.family_label, ui.family)),
-            kit::kv_row("Route", &ui.route),
+            kit::kv_row(tr("Provider"), &format!("{} ({})", ui.family_label, ui.family)),
+            kit::kv_row(tr("Route"), &ui.route),
         ];
         v.push(kit::list_card("b1_prov_identity", &rows));
-        hint(&mut v, "b1_prov_identity_hint", &format!("{} {}", copy::FIXED_PROVIDER, copy::FIXED_ROUTE));
+        hint(&mut v, "b1_prov_identity_hint", &format!("{} {}", tr(copy::FIXED_PROVIDER), tr(copy::FIXED_ROUTE)));
     }
     v.push(kit::gap(if l.phone { 16.0 } else { 12.0 }));
-    v.push(kit::callout(false, true, copy::PARAMETERS_HEAD, Some(copy::PARAMETERS_BODY)));
+    v.push(kit::callout(false, true, tr(copy::PARAMETERS_HEAD), Some(tr(copy::PARAMETERS_BODY))));
     if ui.model_id().trim().eq_ignore_ascii_case("glm-5.3-flash") {
         v.push(kit::gap(12.0));
         glm_guidance(&mut v);
@@ -1378,10 +1379,10 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
     v.push("}\n");
     if read_only {
         v.push(kit::gap(14.0));
-        let why = if ui.edit_blocked { copy::EDIT_BLOCKED } else { READ_ONLY };
+        let why = tr(if ui.edit_blocked { copy::EDIT_BLOCKED } else { READ_ONLY });
         v.push(kit::callout(false, true, why, None));
         v.spacer(l, 16.0, 22.0);
-        v.push(kit::pill_outline("b1_prov_cancel", "Close", "Fill"));
+        v.push(kit::pill_outline("b1_prov_cancel", tr("Close"), "Fill"));
         v.button("b1_prov_cancel", "provider.cancel");
         if l.phone {
             v.push(kit::gap(24.0));
@@ -1390,18 +1391,18 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
     }
     if !ui.issues.is_empty() {
         v.push(kit::gap(10.0));
-        v.push(Text::new("b1_prov_complete", copy::COMPLETE_FIELDS).px(14.0).color(kit::RED).fill().dsl());
+        v.push(Text::new("b1_prov_complete", tr(copy::COMPLETE_FIELDS)).px(14.0).color(kit::RED).fill().dsl());
     }
     v.spacer(l, 16.0, 22.0);
-    let primary_label = match (ui.busy, ui.screen) {
+    let primary_label = tr(match (ui.busy, ui.screen) {
         (true, _) if ui.last_op == Op::Save => "Saving\u{2026}",
         (_, Screen::Rejected) => "Try again",
         _ => "Save",
-    };
+    });
     let primary_action = if ui.screen == Screen::Rejected { "provider.retry" } else { "provider.save" };
     v.push(format!(
         "View {{ width: Fill height: Fit flow: Right spacing: 12\n{}{}}}\n",
-        kit::pill_outline("b1_prov_cancel", "Cancel", "Fill"),
+        kit::pill_outline("b1_prov_cancel", tr("Cancel"), "Fill"),
         kit::pill_primary("b1_prov_save", primary_label, "Fill")
     ));
     v.button("b1_prov_cancel", "provider.cancel");
@@ -1417,17 +1418,17 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
 fn glm_guidance(v: &mut Ui) {
     let mut rows = vec![format!(
         "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 16 right: 8 top: 10 bottom: 8}} spacing: 8\nView {{ width: Fill height: Fit flow: Down spacing: 2\n{}{}}}\n{}}}\n",
-        Text::new("b1_prov_glm_title", copy::GLM_TITLE).px(14.0).weight(500).fill().dsl(),
+        Text::new("b1_prov_glm_title", tr(copy::GLM_TITLE)).px(14.0).weight(500).fill().dsl(),
         // Wraps, never an ellipsis: on a phone the link leaves it ~150 px.
-        Text::new("b1_prov_glm_sub", copy::GLM_SUB).px(13.0).color(kit::MUTED).fill().dsl(),
-        kit::link("b1_prov_guide", copy::GLM_LINK, kit::BLUE, 14.0, 500)
+        Text::new("b1_prov_glm_sub", tr(copy::GLM_SUB)).px(13.0).color(kit::MUTED).fill().dsl(),
+        kit::link("b1_prov_guide", tr(copy::GLM_LINK), kit::BLUE, 14.0, 500)
     )];
     v.button("b1_prov_guide", "provider.guide");
     for (k, val) in copy::GLM_GUIDANCE {
         rows.push(kit::kv_row(k, val));
     }
     v.push(kit::list_card("b1_prov_glm", &rows));
-    hint(v, "b1_prov_glm_note", copy::GLM_NOTE);
+    hint(v, "b1_prov_glm_note", tr(copy::GLM_NOTE));
 }
 
 /// The bindings this screen projects. The KEY ITSELF is never a binding.
@@ -1456,7 +1457,7 @@ pub fn copies(screen: Screen, ui: &ProviderUi) -> Vec<(String, String)> {
     push("prov_url_text", &ui.base_url);
     for (i, m) in ui.models.iter().enumerate().take(3) {
         let label = if ui.default_model.as_deref() == Some(m.as_str()) {
-            format!("{m} (default)")
+            tr1("{value0} (default)", m)
         } else {
             m.clone()
         };

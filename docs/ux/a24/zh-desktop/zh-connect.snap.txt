@@ -3,7 +3,7 @@
 connect_title	Label	[471, 187, 97, 23]	连接 Octos
 1	Label	[471, 228, 65, 22]	服务器地址
 4	Label	[471, 312, 52, 22]	认证令牌
-connect_note	Label	[471, 389, 147, 15]	Stored for this server only
+connect_note	Label	[471, 389, 96, 15]	仅为此服务器保存
 connect_btn_label	Label	[664, 439, 30, 18]	连接
-connect_pair_label	Label	[605, 490, 148, 17]	Pair with a link instead
-connect_solo_label	Label	[610, 524, 139, 17]	Use local solo server
+connect_pair_label	Label	[637, 490, 84, 17]	改用链接配对
+connect_solo_label	Label	[616, 524, 126, 17]	使用本地单人服务器

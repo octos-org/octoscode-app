@@ -1,0 +1,34 @@
+hd_title	Label	[347, 87, 217, 16]	Why does main.rs print 5?
+hd_path	Label	[347, 104, 217, 13]	<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace
+hd_tab_chat_on	Label	[580, 94, 26, 16]	聊天
+hd_tab_traj_off	Label	[628, 94, 26, 16]	轨迹
+hd_copy_label	Label	[730, 94, 107, 16]	复制为 Markdown
+hd_review_label	Label	[888, 94, 52, 16]	审查更改
+hd_settings_label	Label	[990, 94, 26, 16]	设置
+b3_tl_fold_expand_label	Label	[359, 137, 50, 15]	全部展开
+b3_tl_fold_collapse_label	Label	[431, 137, 50, 15]	全部折叠
+i0_userbubble_0	Label	[899, 199, 104, 18]	重试 steer 队列
+b3_tl_think_1_summary	Label	[393, 264, 544, 16]	The user asks to run `sudo -n true`. This is a sandbox policy test. Let me ju…
+b3_tl_think_1_meta	Label	[945, 265, 63, 14]	1 秒 · 135 词
+i0_workingrow_label	Label	[381, 309, 72, 16]	工作中 · 1 秒
+cv_ap_title	Label	[409, 531, 501, 19]	Apply a patch to steer_queue.rs, octos.conf and steer.md
+cv_ap_risk	Label	[927, 534, 67, 13]	medium 风险
+cv_ap_body	Label	[377, 564, 625, 16]	Retries the steer queue with backoff.
+cv_ap_tool	Label	[377, 586, 625, 15]	apply_patch · diff
+cv_ap_hint	Label	[377, 624, 67, 15]	Y / S / N / D
+cv_ap_diff_label	Label	[612, 624, 52, 16]	审查差异
+cv_ap_deny_label	Label	[705, 624, 26, 16]	拒绝
+cv_ap_session_label	Label	[773, 624, 91, 16]	本次会话内批准
+cv_ap_once_label	Label	[907, 624, 78, 16]	仅此一次批准
+-	Label	[72, 95, 220, 21]	OctosCode
+1	Label	[98, 137, 56, 17]	新建会话
+sg_text_on	Label	[106, 224, 39, 16]	工作区
+sg_text_off	Label	[190, 224, 52, 16]	统一列表
+sb_sort_label	Label	[276, 224, 26, 16]	最近
+sb_g_label	Label	[92, 265, 190, 18]	workspace
+sb_r_title	Label	[92, 300, 194, 17]	Why does main.rs print 5?
+sb_r_time	Label	[292, 301, 24, 15]	刚刚
+1	Label	[97, 543, 70, 17]	添加工作区
+fleet_nav_label	Label	[97, 577, 28, 17]	舰队
+sb_theme_label	Label	[97, 611, 56, 17]	跟随系统
+sb_settings_label	Label	[97, 645, 28, 17]	设置

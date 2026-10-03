@@ -36,6 +36,7 @@ use octoscode_store::Store;
 
 use super::host::{Job, Outcome};
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Seg, Txt, W};
+use crate::i18n::{tr, tr1, tr_with};
 use crate::screens::driver_discovery::{self as dd, Inventory};
 
 pub const STATUS_METHOD: &str = "session/status/read";
@@ -161,26 +162,38 @@ pub fn parse_models(v: &Value) -> Vec<ModelRow> {
 pub fn disposition_notice(result: &Value, saved: &str, running: Option<&str>) -> String {
     let text = |k: &str| result.get(k).and_then(|x| x.as_str()).filter(|x| !x.is_empty());
     match result.get("runtime_disposition").and_then(|d| d.as_str()) {
-        None if result.get("applied").and_then(|a| a.as_bool()) == Some(true) => "Saved".into(),
-        None => "Couldn't save: the server refused the change".into(),
-        Some("reloaded") => format!("Saved. Your next message uses {saved}"),
+        None if result.get("applied").and_then(|a| a.as_bool()) == Some(true) => tr("Saved").into(),
+        None => tr1("Couldn't save: {value0}", tr("the server refused the change")),
+        Some("reloaded") => tr1("Saved. Your next message uses {value0}", saved),
         Some("deferred") => match text("condition") {
-            Some(c) => format!("Saved. The model is not active yet ({c})"),
-            None => "Saved. The model is not active yet".into(),
+            Some(c) => tr1("Saved. The model is not active yet ({value0})", c),
+            None => tr("Saved. The model is not active yet").into(),
         },
-        Some("restart_required") => format!(
-            "Saved. The server keeps running {} until it restarts",
+        Some("restart_required") => tr1(
+            "Saved. The server keeps running {value0} until it restarts",
             running
                 .or_else(|| result.pointer("/runtime_policy_stamp/model").and_then(|m| m.as_str()))
-                .unwrap_or("the previous model")
+                .unwrap_or(tr("the previous model")),
         ),
-        Some("persisted_but_not_live") => format!(
-            "Saved, but not usable right now: {}",
-            text("runtime_error").unwrap_or("the runtime could not start")
+        Some("persisted_but_not_live") => tr1(
+            "Saved, but not usable right now: {value0}",
+            text("runtime_error").unwrap_or(tr("the runtime could not start")),
         ),
-        Some("unchanged") => "Already selected".into(),
-        Some(_) => format!("Couldn't save: {}", text("reason").unwrap_or("the server refused the change")),
+        Some("unchanged") => tr("Already selected").into(),
+        Some(_) => tr1("Couldn't save: {value0}", text("reason").unwrap_or(tr("the server refused the change"))),
     }
+}
+
+/// A refusal reads red. The notice is composed in the language of its
+/// moment (`dispositionNotice(input, t)`), so the refusal templates' leads
+/// count in both languages.
+fn is_refusal(notice: &str) -> bool {
+    let lead = |t: &'static str| t.split("{value0}").next().unwrap_or(t);
+    notice.starts_with("Couldn't")
+        || ["Couldn't save: {value0}", crate::screens::session_defaults::APPLY_FAILED]
+            .iter()
+            .filter_map(|k| crate::i18n::zh_for(k))
+            .any(|zh| notice.starts_with(lead(zh)))
 }
 
 /// One permission preset (`permissionOptions`, `permission-projection.ts:31-50`).
@@ -202,7 +215,7 @@ impl PermOption {
             _ => "Full access",
         };
         let net = if self.network == "allow" { "Network allowed" } else { "Network blocked" };
-        format!("{mode} · {net}")
+        format!("{} · {}", tr(mode), tr(net))
     }
     pub fn dangerous(&self) -> bool {
         self.mode == "danger_full_access"
@@ -697,8 +710,8 @@ pub async fn select_model(conv: &crate::flow::Conversation, index: usize) -> Res
     st.pane.model_saving = false;
     let notice = match &result {
         Ok(v) => disposition_notice(v, &row.title, running.as_deref()),
-        Err(octoscode_client::ClientError::Rpc { error, .. }) => format!("Couldn't save: {}", error.message),
-        Err(_) => "Couldn't save: the server refused the change".into(),
+        Err(octoscode_client::ClientError::Rpc { error, .. }) => tr1("Couldn't save: {value0}", &error.message),
+        Err(_) => tr1("Couldn't save: {value0}", tr("the server refused the change")),
     };
     st.pane.model_notice = Some(notice.clone());
     // `restartHint` (`use-model-selection.ts:236-242,297`): a saved selection
@@ -745,7 +758,7 @@ pub async fn set_permission(conv: &crate::flow::Conversation, intent: PermIntent
     match result {
         Ok(v) => {
             if v.get("session_id").and_then(|s| s.as_str()) != Some(session.as_str()) {
-                super::host::state().pane.perm_save = Some(SaveState::Failed("the reply named another session".into()));
+                super::host::state().pane.perm_save = Some(SaveState::Failed(tr("the reply named another session").into()));
                 return Err("permission/profile/set: another session's reply".into());
             }
             fold_permission(&conv.store, &v);
@@ -929,7 +942,7 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
     let inner_w = width - 2.0 * pad - 10.0 - 28.0;
     let session = store.active_session().unwrap_or_default();
     ui::shell_open(d, frame, width);
-    ui::header(d, "Session settings", "b3.close");
+    ui::header(d, tr("Session settings"), "b3.close");
     let scope = if st.session.is_empty() { session.clone() } else { st.session.clone() };
     d.text("b3_sc_scope", &ui::fit_w(&scope, width - 2.0 * pad, 11.5, Face::Mono), &Txt::new(11.5, Face::Mono, tok::MUTED).w(W::Fill));
     d.gap(W::Fill, 12.0);
@@ -948,12 +961,12 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
             12.0,
             Some(tok::AMBER_LINE),
         );
-        d.text("b3_sc_holder_head", "Another app is using this session", &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
+        d.text("b3_sc_holder_head", tr("Another app is using this session"), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
         if let Some(n) = &st.resume_notice {
-            status_line(d, "b3_sc_holder_notice", n, tok::RED_TEXT);
+            status_line(d, "b3_sc_holder_notice", tr(n), tok::RED_TEXT);
         }
         let (label, kind) = if st.resume_busy { ("Resuming chat…", Btn::Disabled) } else { ("Resume chat", Btn::Outline) };
-        d.button("b3_sc_resume", label, "b3.sc.resume_chat", kind, W::Fit, 32.0);
+        d.button("b3_sc_resume", tr(label), "b3.sc.resume_chat", kind, W::Fit, 32.0);
         d.close();
     } else if own_held(st) {
         d.surface(
@@ -963,15 +976,15 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
             12.0,
             Some(tok::HAIRLINE),
         );
-        d.text("b3_sc_ownhold_head", "A peer you started is using this session", &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
-        help(d, "b3_sc_ownhold_body", "It keeps running while you chat. Chat sends hand control back first.");
+        d.text("b3_sc_ownhold_head", tr("A peer you started is using this session"), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
+        help(d, "b3_sc_ownhold_body", tr("It keeps running while you chat. Chat sends hand control back first."));
         d.close();
     }
 
     // 2. Model (`model-section.tsx:36-94`).
     ui::card_open(d, "b3_sc_model", 6.0);
-    ui::section_title(d, "b3_sc_model_title", "Model");
-    help(d, "b3_sc_model_help", "Changing the model changes the shared profile, not just this session.");
+    ui::section_title(d, "b3_sc_model_title", tr("Model"));
+    help(d, "b3_sc_model_help", tr("Changing the model changes the shared profile, not just this session."));
     // The Profile default: (name, model id, provider).
     let profile_default = st
         .models
@@ -984,16 +997,16 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
                 (name, m.model, m.provider)
             })
         });
-    let saved = profile_default.as_ref().map(|(n, _, _)| n.clone()).unwrap_or_else(|| "(no model selected)".into());
-    kv(d, "b3_sc_saved", "Saved for this profile:", &saved, inner_w);
+    let saved = profile_default.as_ref().map(|(n, _, _)| n.clone()).unwrap_or_else(|| tr("(no model selected)").into());
+    kv(d, "b3_sc_saved", tr("Saved for this profile:"), &saved, inner_w);
     let runtime = st.status.as_ref().and_then(|s| s.model.clone());
     if let Some(rt) = &runtime {
-        kv(d, "b3_sc_runtime", "Session runtime", rt, inner_w);
+        kv(d, "b3_sc_runtime", tr("Session runtime"), rt, inner_w);
     }
     // A22 row 236 — this Session's own live turn, not a background one.
     let own_live = store.active_session().is_some_and(|s| store.domains.turn.in_flight_in(&s) > 0);
     if let (Some(rt), true) = (&runtime, own_live) {
-        kv(d, "b3_sc_turn_model", "This response is using:", rt, inner_w);
+        kv(d, "b3_sc_turn_model", tr("This response is using:"), rt, inner_w);
     }
     // The restart truth (`profileDefaultNeedsRestart`, `product-projection.ts:
     // 3-19`) and the Profile model section's notice (`ModelsSettingsContent.
@@ -1016,20 +1029,20 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
     // so; without `profile/llm/select` the rows are the Profile's, read-only.
     let can_select = advertised(store, LLM_SELECT);
     if st.loading && st.models.is_empty() {
-        status_line(d, "b3_sc_models_loading", "Loading models…", tok::MUTED);
+        status_line(d, "b3_sc_models_loading", tr("Loading models…"), tok::MUTED);
     } else if !advertised(store, LLM_LIST) {
-        status_line(d, "b3_sc_models_none", "Not supported by this server", tok::MUTED);
+        status_line(d, "b3_sc_models_none", tr("Not supported by this server"), tok::MUTED);
     } else if let Some(e) = &st.models_error {
-        ui::failure(d, "b3_sc_models_error", "Couldn't load the models.", e);
-        d.button("b3_sc_models_retry", "Try again", "b3.sc.models.retry", if st.loading { Btn::OutlineOff } else { Btn::Outline }, W::Fit, 32.0);
+        ui::failure(d, "b3_sc_models_error", tr("Couldn't load the models."), e);
+        d.button("b3_sc_models_retry", tr("Try again"), "b3.sc.models.retry", if st.loading { Btn::OutlineOff } else { Btn::Outline }, W::Fit, 32.0);
     } else if st.models.is_empty() {
-        status_line(d, "b3_sc_models_empty", "No models are available.", tok::MUTED);
+        status_line(d, "b3_sc_models_empty", tr("No models are available."), tok::MUTED);
     } else {
         d.gap(W::Fill, 2.0);
         d.hairline();
         for (i, m) in st.models.iter().enumerate() {
             let sub = match (&m.route_label, m.available) {
-                (_, false) => format!("{} · unavailable", m.family_id),
+                (_, false) => format!("{} · {}", m.family_id, tr("unavailable")),
                 (Some(r), _) => format!("{} · {r}", m.family_id),
                 (None, _) => m.family_id.clone(),
             };
@@ -1037,41 +1050,42 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
             choice_row(d, &format!("b3_sc_model_{i}"), &m.title, Some(&sub), m.selected, event.as_deref(), inner_w);
         }
         if !can_select {
-            status_line(d, "b3_sc_models_readonly", "Profile defaults are read-only on this server.", tok::MUTED);
+            status_line(d, "b3_sc_models_readonly", tr("Profile defaults are read-only on this server."), tok::MUTED);
         }
     }
     if st.model_saving {
-        status_line(d, "b3_sc_model_saving", "Saving…", tok::MUTED);
+        status_line(d, "b3_sc_model_saving", tr("Saving…"), tok::MUTED);
     }
     if st.external_change {
-        status_line(d, "b3_sc_model_external", "The selection changed in another tab or app", tok::AMBER);
+        status_line(d, "b3_sc_model_external", tr("The selection changed in another tab or app"), tok::AMBER);
     }
     // The creation-time default's failure is the pane's notice too
     // (`App.tsx:3270-3277`).
     if let Some(n) = st.model_notice.clone().or_else(crate::screens::session_defaults::apply_error) {
-        let color = if n.starts_with("Couldn't") { tok::RED_TEXT } else { tok::GREEN_TEXT };
-        status_line(d, "b3_sc_model_notice", &n, color);
+        let n = tr(&n);
+        let color = if is_refusal(n) { tok::RED_TEXT } else { tok::GREEN_TEXT };
+        status_line(d, "b3_sc_model_notice", n, color);
     }
     d.close();
 
     // 3. Permissions (`permissions-section.tsx:32-97`).
     ui::card_open(d, "b3_sc_perm", 6.0);
-    ui::section_title(d, "b3_sc_perm_title", "Permissions");
+    ui::section_title(d, "b3_sc_perm_title", tr("Permissions"));
     help(
         d,
         "b3_sc_perm_help",
-        "Applies from your next message. A response that is already running keeps the permissions it started with.",
+        tr("Applies from your next message. A response that is already running keeps the permissions it started with."),
     );
     let opts = perm_options(store);
     if !advertised(store, PERM_SET) || opts.is_empty() {
-        status_line(d, "b3_sc_perm_none", if st.loading && advertised(store, PERM_SET) { "Loading access…" } else { "Not supported by this server" }, tok::MUTED);
+        status_line(d, "b3_sc_perm_none", tr(if st.loading && advertised(store, PERM_SET) { "Loading access…" } else { "Not supported by this server" }), tok::MUTED);
     } else {
         d.hairline();
         let selected = perm_selected(store);
         let saving = matches!(st.perm_save, Some(SaveState::Saving));
         for (i, o) in opts.iter().enumerate() {
             let on = selected.as_deref() == Some(o.id().as_str());
-            let sub = o.dangerous().then_some("Asks before it is applied");
+            let sub = o.dangerous().then_some(tr("Asks before it is applied"));
             let event = (!saving && !on).then(|| format!("b3.sc.perm#{i}"));
             choice_row(d, &format!("b3_sc_perm_{i}"), &o.label(), sub, on, event.as_deref(), inner_w);
         }
@@ -1084,10 +1098,10 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
     let readback = st.status.as_ref().and_then(|s| s.approval_policy.clone());
     let has_readback = readback.is_some() || st.approval_set_here.is_some();
     match (readback, &st.approval_set_here) {
-        (Some(p), _) => kv(d, "b3_sc_policy", "Approval policy:", &p, inner_w),
+        (Some(p), _) => kv(d, "b3_sc_policy", tr("Approval policy:"), &p, inner_w),
         (None, Some(p)) => {
-            kv(d, "b3_sc_policy", "Approval policy:", p, inner_w);
-            status_line(d, "b3_sc_policy_unverified", "Current approval policy not verified (as set here)", tok::AMBER);
+            kv(d, "b3_sc_policy", tr("Approval policy:"), p, inner_w);
+            status_line(d, "b3_sc_policy_unverified", tr("Current approval policy not verified (as set here)"), tok::AMBER);
         }
         (None, None) => {}
     }
@@ -1103,24 +1117,24 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
         d.view(&row, "width: Fill height: Fit flow: Down spacing: 6 padding: Inset{top: 4}");
         // The readback line above already names the control.
         if !has_readback {
-            d.text("b3_sc_policy_label", "Approval policy", &Txt::new(12.0, Face::Medium, tok::MUTED));
+            d.text("b3_sc_policy_label", tr("Approval policy"), &Txt::new(12.0, Face::Medium, tok::MUTED));
         }
         let opts: Vec<(&str, String)> = vec![
-            ("On request", "b3.sc.approval.on-request".into()),
-            ("Never ask", "b3.sc.approval.never".into()),
+            (tr("On request"), "b3.sc.approval.on-request".into()),
+            (tr("Never ask"), "b3.sc.approval.never".into()),
         ];
         d.segmented("b3_sc_policy_seg", &opts, current, W::Fill, Seg::Tab);
         d.close();
     }
     match &st.perm_save {
-        Some(SaveState::Saving) => status_line(d, "b3_sc_perm_state", "Saving…", tok::MUTED),
-        Some(SaveState::Saved) => status_line(d, "b3_sc_perm_state", "Saved", tok::GREEN_TEXT),
+        Some(SaveState::Saving) => status_line(d, "b3_sc_perm_state", tr("Saving…"), tok::MUTED),
+        Some(SaveState::Saved) => status_line(d, "b3_sc_perm_state", tr("Saved"), tok::GREEN_TEXT),
         Some(SaveState::Failed(m)) => {
             let row = d.anon();
             d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
-            let text = format!("Failed: {m}");
+            let text = tr1("Failed: {value0}", m);
             d.text("b3_sc_perm_state", &ui::fit_w(&text, inner_w - 60.0, 12.0, Face::Regular), &Txt::new(12.0, Face::Regular, tok::RED_TEXT));
-            d.link("b3_sc_perm_retry", "Retry", Some("b3.sc.perm.retry"), 12.5);
+            d.link("b3_sc_perm_retry", tr("Retry"), Some("b3.sc.perm.retry"), 12.5);
             d.close();
         }
         None => {}
@@ -1129,29 +1143,30 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
 
     // 4. Sandbox (`sandbox-section.tsx:23-80`).
     ui::card_open(d, "b3_sc_sandbox", 6.0);
-    ui::section_title(d, "b3_sc_sandbox_title", "Sandbox");
+    ui::section_title(d, "b3_sc_sandbox_title", tr("Sandbox"));
     let supported = store.capabilities().iter().any(|f| f == crate::screens::session_defaults::SANDBOX_FEATURE);
     if !supported {
-        status_line(d, "b3_sc_sandbox_none", "Not supported by this server", tok::MUTED);
+        status_line(d, "b3_sc_sandbox_none", tr("Not supported by this server"), tok::MUTED);
     } else {
         let s = st.status.clone().unwrap_or_default();
         let enabled = s.sandbox.as_deref().is_some_and(|v| v != "off" && v != "danger-full-access" && v != "none");
-        kv(d, "b3_sc_sb_on", "Sandbox:", if s.sandbox.is_some() { if enabled { "on" } else { "off" } } else { "not reported" }, inner_w);
+        let on = if s.sandbox.is_some() { if enabled { "on" } else { "off" } } else { "not reported" };
+        kv(d, "b3_sc_sb_on", tr("Sandbox:"), tr(on), inner_w);
         let net = match s.network.as_deref() {
             Some("allowed" | "allow" | "enabled") => "allowed",
             Some(_) => "blocked",
             None => "not reported",
         };
-        kv(d, "b3_sc_sb_net", "Network:", net, inner_w);
+        kv(d, "b3_sc_sb_net", tr("Network:"), tr(net), inner_w);
         let paths = match &s.read_paths {
-            None => "not reported".to_owned(),
-            Some(p) if p.is_empty() => "(none)".to_owned(),
+            None => tr("not reported").to_owned(),
+            Some(p) if p.is_empty() => tr("(none)").to_owned(),
             Some(p) => p.join(", "),
         };
-        kv(d, "b3_sc_sb_paths", "Read paths:", &paths, inner_w);
+        kv(d, "b3_sc_sb_paths", tr("Read paths:"), &paths, inner_w);
     }
-    help(d, "b3_sc_sandbox_note", "Set when the session opens — start a new session to change it");
-    d.link("b3_sc_newsession", "New session with…", Some("b3.sc.newsession"), 12.5);
+    help(d, "b3_sc_sandbox_note", tr("Set when the session opens — start a new session to change it"));
+    d.link("b3_sc_newsession", tr("New session with…"), Some("b3.sc.newsession"), 12.5);
     d.close();
 
     // 5. Show thinking (`SessionConfigPane.tsx:340-368`).
@@ -1160,8 +1175,8 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
     d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 12");
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 3");
-    ui::section_title(d, "b3_sc_thinking_title", "Show thinking");
-    help(d, "b3_sc_thinking_help", "Thinking appears in this Session's transcript, collapsed by default.");
+    ui::section_title(d, "b3_sc_thinking_title", tr("Show thinking"));
+    help(d, "b3_sc_thinking_help", tr("Thinking appears in this Session's transcript, collapsed by default."));
     d.close();
     d.toggle("b3_sc_thinking_toggle", store.domains.session.thinking(&session).show_reasoning, "b3.sc.thinking");
     d.close();
@@ -1177,7 +1192,7 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
         14.0,
         tok::TEXT,
     );
-    d.text("b3_sc_adv_label", "Advanced", &Txt::new(13.0, Face::Semibold, tok::TEXT));
+    d.text("b3_sc_adv_label", tr("Advanced"), &Txt::new(13.0, Face::Semibold, tok::TEXT));
     d.close();
     d.tap("b3_sc_adv", "b3.sc.advanced");
     d.close();
@@ -1201,14 +1216,18 @@ fn risk_confirm(d: &mut Dsl, o: &PermOption, ack: bool) {
         10.0,
         Some("#f5c2c7ff"),
     );
-    d.text("b3_sc_risk_title", "Enable full access?", &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    d.text("b3_sc_risk_title", tr("Enable full access?"), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
     help(
         d,
         "b3_sc_risk_body",
-        "Octos can read and modify files outside the workspace and use the network without the normal sandbox boundary.",
+        tr("Octos can read and modify files outside the workspace and use the network without the normal sandbox boundary."),
     );
     let net = if o.network == "allow" { "Network allowed" } else { "Network blocked" };
-    d.text("b3_sc_risk_facts", &format!("Filesystem access: Full access · Network access: {net}"), &Txt::new(12.0, Face::Medium, tok::TEXT).w(W::Fill).wrap());
+    let facts = tr_with(
+        "Filesystem access: {value0} · Network access: {value1}",
+        &[("value0", tr("Full access")), ("value1", tr(net))],
+    );
+    d.text("b3_sc_risk_facts", &facts, &Txt::new(12.0, Face::Medium, tok::TEXT).w(W::Fill).wrap());
     // The web's acknowledgement is a checkbox ("Tick the box above…"): the
     // whole row is its 28+ px tap target.
     d.view("b3_sc_risk_ack_box", "width: Fill height: Fit flow: Overlay");
@@ -1227,21 +1246,21 @@ fn risk_confirm(d: &mut Dsl, o: &PermOption, ack: bool) {
     d.close();
     d.text(
         "b3_sc_risk_ack_label",
-        "I understand that this session can make unrestricted changes.",
+        tr("I understand that this session can make unrestricted changes."),
         &Txt::new(12.0, Face::Regular, tok::TEXT).w(W::Fill).wrap(),
     );
     d.close();
     d.tap("b3_sc_risk_ack", "b3.sc.risk.ack");
     d.close();
     if !ack {
-        help(d, "b3_sc_risk_hint", "Tick the box above to enable this button.");
+        help(d, "b3_sc_risk_hint", tr("Tick the box above to enable this button."));
     }
     let row = d.anon();
     d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} spacing: 8");
-    d.button("b3_sc_risk_cancel", "Cancel", "b3.sc.risk.cancel", Btn::Outline, W::Fit, 32.0);
+    d.button("b3_sc_risk_cancel", tr("Cancel"), "b3.sc.risk.cancel", Btn::Outline, W::Fit, 32.0);
     d.button(
         "b3_sc_risk_confirm",
-        "Enable full access",
+        tr("Enable full access"),
         "b3.sc.risk.confirm",
         if ack { Btn::Primary } else { Btn::Disabled },
         W::Fit,
@@ -1253,32 +1272,32 @@ fn risk_confirm(d: &mut Dsl, o: &PermOption, ack: bool) {
 
 fn advanced(d: &mut Dsl, st: &PaneState, store: &Store, foreign: bool, inner_w: f64) {
     ui::card_open(d, "b3_sc_adv_body", 6.0);
-    d.text("b3_sc_who_label", "Who controls this session", &Txt::new(12.0, Face::Medium, tok::MUTED));
-    d.text("b3_sc_who", dd::controller_label(&st.driver), &Txt::new(13.0, Face::Medium, tok::TEXT));
+    d.text("b3_sc_who_label", tr("Who controls this session"), &Txt::new(12.0, Face::Medium, tok::MUTED));
+    d.text("b3_sc_who", tr(dd::controller_label(&st.driver)), &Txt::new(13.0, Face::Medium, tok::TEXT));
     if foreign {
-        status_line(d, "b3_sc_adv_foreign", "Another app is using this session", tok::AMBER);
+        status_line(d, "b3_sc_adv_foreign", tr("Another app is using this session"), tok::AMBER);
     }
     match &st.driver {
-        Inventory::Loading => status_line(d, "b3_sc_driver_loading", "Reading the controller…", tok::MUTED),
+        Inventory::Loading => status_line(d, "b3_sc_driver_loading", tr("Reading the controller…"), tok::MUTED),
         Inventory::Unavailable => {
             let why = if store.active_session().is_none() { "No session is open" } else { "Not reported by this server" };
-            status_line(d, "b3_sc_driver_none", why, tok::MUTED);
+            status_line(d, "b3_sc_driver_none", tr(why), tok::MUTED);
         }
-        Inventory::Error(reason) => status_line(d, "b3_sc_driver_error", dd::error_label(reason), tok::RED_TEXT),
+        Inventory::Error(reason) => status_line(d, "b3_sc_driver_error", tr(dd::error_label(reason)), tok::RED_TEXT),
         Inventory::Complete { operations, disclosure, .. } => {
             d.hairline();
-            d.text("b3_sc_driver_mode", dd::mode_label(disclosure), &Txt::new(13.0, Face::Semibold, tok::TEXT));
-            kv(d, "b3_sc_driver_recovery", "Recovery", dd::recovery_label(disclosure), inner_w);
+            d.text("b3_sc_driver_mode", tr(dd::mode_label(disclosure)), &Txt::new(13.0, Face::Semibold, tok::TEXT));
+            kv(d, "b3_sc_driver_recovery", tr("Recovery"), tr(dd::recovery_label(disclosure)), inner_w);
             if let Some(b) = &disclosure.binding {
-                kv(d, "b3_sc_driver_id", "Driver", &b.driver_id, inner_w);
-                kv(d, "b3_sc_driver_epoch", "Epoch", &b.epoch.to_string(), inner_w);
-                kv(d, "b3_sc_driver_rev", "Revision", &b.revision.to_string(), inner_w);
+                kv(d, "b3_sc_driver_id", tr("Driver"), &b.driver_id, inner_w);
+                kv(d, "b3_sc_driver_epoch", tr("Epoch"), &b.epoch.to_string(), inner_w);
+                kv(d, "b3_sc_driver_rev", tr("Revision"), &b.revision.to_string(), inner_w);
                 let lease = dd::lease_label(b.lease_expires_at_ms);
-                kv(d, "b3_sc_driver_lease", "Lease", lease.trim_start_matches("Lease expires "), inner_w);
+                kv(d, "b3_sc_driver_lease", tr("Lease"), tr(lease.trim_start_matches("Lease expires ")), inner_w);
             }
             if !operations.is_empty() {
                 d.hairline();
-                d.text("b3_sc_ops_title", &format!("Peers ({})", operations.len()), &Txt::new(12.0, Face::Medium, tok::MUTED));
+                d.text("b3_sc_ops_title", &tr1("Peers ({value0})", &operations.len().to_string()), &Txt::new(12.0, Face::Medium, tok::MUTED));
                 for (i, op) in operations.iter().enumerate().take(8) {
                     kv(d, &format!("b3_sc_op_{i}"), &op.slug, &format!("{} · {}", op.lifecycle, op.model), inner_w);
                 }

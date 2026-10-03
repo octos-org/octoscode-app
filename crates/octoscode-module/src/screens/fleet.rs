@@ -163,12 +163,13 @@ fn settled_task(store: &Store) -> Option<TaskSnapshot> {
 /// card's own vocabulary), and the card's authored copy is capitalized
 /// ("Running" / "Done") — a raw wire state must not paint lowercase.
 pub(crate) fn status_word(state: &str) -> String {
+    use crate::i18n::tr;
     match state {
-        "pending" => "Pending".to_owned(),
-        "running" => "Running".to_owned(),
-        "done" | "completed" => "Done".to_owned(),
-        "failed" => "Failed".to_owned(),
-        "cancelled" | "canceled" => "Stopped".to_owned(),
+        "pending" => tr("Pending").to_owned(),
+        "running" => tr("Running").to_owned(),
+        "done" | "completed" => tr("Done").to_owned(),
+        "failed" => tr("Failed").to_owned(),
+        "cancelled" | "canceled" => tr("Stopped").to_owned(),
         other => other.to_owned(),
     }
 }
@@ -1055,9 +1056,9 @@ pub fn spawn(
         // text comes from.
         if text.trim().is_empty() {
             ::log::warn!("octoscode: fleet steer: nothing to send — the steering text is empty");
-            crate::screens::dialog::set_notice(
+            crate::screens::dialog::set_notice(crate::i18n::tr(
                 "Type the steering text in the composer first, then choose Steer.",
-            );
+            ));
             return;
         }
         let rows = peer_rows(store);

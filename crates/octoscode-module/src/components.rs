@@ -857,7 +857,7 @@ fn lower_fluid(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Opti
         }
         ItemKind::WorkingRow => {
             let text = get("t03_text");
-            let text = if text.is_empty() { "Working…".to_owned() } else { text };
+            let text = if text.is_empty() { crate::i18n::tr("Working…").to_owned() } else { text };
             crate::fluid::working_row(token, &text, &m)
         }
         ItemKind::WorkedFor => crate::fluid::worked_for(
@@ -874,12 +874,13 @@ fn lower_fluid(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Opti
             crate::fluid::composer(
                 &crate::fluid::ComposerView {
                     placeholder: if placeholder.is_empty() {
-                        "Ask Octos anything".to_owned()
+                        crate::i18n::tr("Ask Octos anything").to_owned()
                     } else {
                         placeholder
                     },
+                    // The seat before a permission read (the board's pill copy).
                     approval: if approval.is_empty() {
-                        "Ask for approval".to_owned()
+                        crate::i18n::tr("Ask for approval").to_owned()
                     } else {
                         approval
                     },

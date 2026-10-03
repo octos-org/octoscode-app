@@ -1,0 +1,14 @@
+PASS skills: connected
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'ski'
+CLICK palette_row_name '/skills' r=[286, 252, 54, 28]
+PASS skills: the /skills CLICK opens Skills with its 后台作业 — '后台作业'
+PASS skills: the job rows arrive
+PASS skills: every job's time reads Chinese (刚刚 / N 分钟前 / N 小时前), never now / 2m / 1h — ['刚刚', '刚刚', '2 分钟前', '5 分钟前', '20 分钟前', '1 小时前']
+PASS skills: every shown time is whole (its box holds its words) — []
+PASS Skills > Background jobs: no clipped or overflowing Chinese label (zh-skills-jobs) — cjk=19 outside=0 overflow=0 truncated=0 overlaps=0 controls=1 under28=0
+SHOT zh-skills-jobs
+PASS Skills > Background jobs: no English copy left (zh-skills-jobs) — []
+CLICK dialog_close r=[861, 115, 28, 28] at (875,129)
+== 7/7 checks passed

@@ -24,6 +24,7 @@ use octoscode_store::Store;
 
 use super::board3::host::Outcome;
 use super::board3::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::{tr, tr1};
 
 /// `LaunchRuntimeState.phase` (`launch-model.ts:3-7`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -838,20 +839,20 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     let width = frame.dialog_w(520.0);
     let opening = st.phase == Phase::Opening;
     ui::shell_open(d, frame, width);
-    d.text("b3_launch_eyebrow", "Workspace launch", &Txt::new(11.5, Face::Medium, tok::MUTED));
+    d.text("b3_launch_eyebrow", tr("Workspace launch"), &Txt::new(11.5, Face::Medium, tok::MUTED));
     let no_profile = st.decision.as_ref().is_some_and(|x| x.decision == "no_profile");
-    let title = if no_profile { "Set up a profile for this workspace" } else { "Choose this workspace’s profile" };
+    let title = tr(if no_profile { "Set up a profile for this workspace" } else { "Choose this workspace’s profile" });
     let row = d.anon();
     d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}");
     d.text("b3_title", title, &ui::title().w(W::Fill).wrap());
     ui::close_glyph(d, "b3.launch.cancel");
     d.close();
     d.gap(W::Fill, 6.0);
-    let body = if no_profile {
+    let body = tr(if no_profile {
         "This server has no profile yet. Create the local profile, then the Session opens in this folder."
     } else {
         "This folder is known to more than one profile. Choose which profile should own the new Session."
-    };
+    });
     d.text("b3_launch_body", body, &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill).wrap());
     d.gap(W::Fill, 8.0);
     // The folder and the choices share the body (one right edge: the body
@@ -873,19 +874,19 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
         d.close();
     }
     if let Some(e) = &st.error {
-        d.text("b3_launch_error", e, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+        d.text("b3_launch_error", tr(e), &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     d.gap(W::Fill, 4.0);
     if no_profile {
         let ev = (!opening).then_some("b3.launch.create_profile");
-        choice_button(d, "b3_launch_create", "Create the local profile", "Then start a coding Session in this folder", ev);
+        choice_button(d, "b3_launch_create", tr("Create the local profile"), tr("Then start a coding Session in this folder"), ev);
     } else if let Some(dec) = &st.decision {
         for (i, p) in choices(dec).iter().enumerate() {
             let ev = format!("b3.launch.choose#{i}");
             let (title, sub) = if Some(p) == dec.resolved_profile.as_ref() {
-                (format!("Start {p} here"), "Create this profile’s coding conversation in the folder")
+                (tr1("Start {value0} here", p), tr("Create this profile’s coding conversation in the folder"))
             } else {
-                (format!("Start new session with {p}"), "Use this existing profile for a new Session")
+                (format!("{} {p}", tr("Start new session with")), tr("Use this existing profile for a new Session"))
             };
             choice_button(d, &format!("b3_launch_choice_{i}"), &title, sub, (!opening).then_some(ev.as_str()));
         }
@@ -897,10 +898,10 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
     d.text(
         "b3_launch_status",
-        if opening { "Opening durable session…" } else { "Server decision" },
+        tr(if opening { "Opening durable session…" } else { "Server decision" }),
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill),
     );
-    d.button("b3_launch_cancel", "Cancel", "b3.launch.cancel", if opening { Btn::Disabled } else { Btn::Outline }, W::Fit, 34.0);
+    d.button("b3_launch_cancel", tr("Cancel"), "b3.launch.cancel", if opening { Btn::Disabled } else { Btn::Outline }, W::Fit, 34.0);
     d.close();
     ui::shell_close(d);
 }

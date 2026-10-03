@@ -10,18 +10,18 @@ Counts use the FINAL bucket (phase4_bucket_manual when set, else phase4_bucket).
 | error | 7 | 0 | 0 | 7 |
 | g-autonomy | 40 | 0 | 0 | 40 |
 | g-autonomy2 | 25 | 1 | 0 | 26 |
-| g-composer | 55 | 5 | 1 | 61 |
+| g-composer | 56 | 5 | 0 | 61 |
 | g-connection | 7 | 0 | 0 | 7 |
 | g-control | 42 | 1 | 0 | 43 |
 | g-history | 21 | 3 | 0 | 24 |
 | g-settings | 20 | 2 | 1 | 23 |
-| g-timeline | 38 | 9 | 3 | 50 |
+| g-timeline | 39 | 9 | 2 | 50 |
 | session:links-resume | 14 | 4 | 0 | 18 |
 | session:list-sidebar | 13 | 6 | 0 | 19 |
 | session:store-hydrate | 13 | 9 | 0 | 22 |
 | workspace | 10 | 2 | 0 | 12 |
-| **total** | **313** | **43** | **5** | **361** |
+| **total** | **315** | **43** | **3** | **361** |
 
-**A 313 (313 device-pending)** — verified on the Mac only (desktop + the 360x780 phone simulator); `device_verified` names each row's on-device status until the operator's device test.
+**A 315 (315 device-pending)** — verified on the Mac only (desktop + the 360x780 phone simulator); `device_verified` names each row's on-device status until the operator's device test.
 
-Regenerated 2026-10-03 00:12 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.
+Regenerated 2026-10-03 00:17 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.

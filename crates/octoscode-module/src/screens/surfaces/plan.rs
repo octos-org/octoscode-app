@@ -21,6 +21,7 @@ use octoscode_store::domains::task::{Plan, PlanItem};
 use octoscode_store::Store;
 
 use crate::screens::board3::ui::{tok, Dsl, Face, Txt, W};
+use crate::i18n::{tr, tr_with};
 
 /// The `plan.todos.v1` gate (`supportsFeature(capabilities,
 /// CORE_UI_FEATURES.PLAN_TODOS_V1)`, `use-supervision.ts:68-71`).
@@ -73,17 +74,17 @@ pub fn status_label(status: &str) -> &'static str {
 pub fn updated_label(updated_at_ms: i64, now_ms: i64) -> String {
     let elapsed = now_ms - updated_at_ms;
     if elapsed < 60_000 {
-        return "Updated just now".into();
+        return tr("Updated just now").into();
     }
     let minutes = elapsed / 60_000;
     if minutes < 60 {
-        return format!("Updated {minutes}m ago");
+        return tr_with("Updated {count}m ago", &[("count", &minutes.to_string())]);
     }
     let hours = minutes / 60;
     if hours < 24 {
-        return format!("Updated {hours}h ago");
+        return tr_with("Updated {count}h ago", &[("count", &hours.to_string())]);
     }
-    format!("Updated {}d ago", hours / 24)
+    tr_with("Updated {count}d ago", &[("count", &(hours / 24).to_string())])
 }
 
 /// `planCardVisible` (`plan.ts:101-106`) for the active session.
@@ -114,8 +115,8 @@ pub fn mark(status: &str) -> &'static str {
 /// the web's headline rule), or just `Plan`; fitted with an ellipsis.
 pub fn header_text(plan: &Plan, budget_px: f64) -> String {
     let full = match headline(plan) {
-        Some(h) => format!("Plan · {h}"),
-        None => "Plan".to_owned(),
+        Some(h) => format!("{} · {h}", tr("Plan")),
+        None => tr("Plan").to_owned(),
     };
     crate::screens::board3::ui::fit_w(&full, budget_px, 13.5, Face::Semibold)
 }
@@ -149,7 +150,7 @@ pub fn card(d: &mut Dsl, plan: &Plan, ui: &PlanUi, width: f64, phone: bool, now_
         13.0,
         tok::TEXT,
     );
-    let summary = format!("{} of {} done", prog.completed, prog.total);
+    let summary = tr_with("{done} of {total} done", &[("done", &prog.completed.to_string()), ("total", &prog.total.to_string())]);
     let budget = (width - 2.0 * if phone { 12.0 } else { 14.0 } - 40.0 - crate::screens::board3::ui::text_w(&summary, 12.0, Face::Regular)).max(80.0);
     d.text("cv_pl_title", &header_text(plan, budget), &Txt::new(13.5, Face::Semibold, tok::TEXT).w(W::Fill));
     d.text("cv_pl_summary", &summary, &Txt::new(12.0, Face::Regular, tok::MUTED));
@@ -175,7 +176,7 @@ pub fn card(d: &mut Dsl, plan: &Plan, ui: &PlanUi, width: f64, phone: bool, now_
             if let Some(p) = item.priority.as_deref().filter(|p| !p.trim().is_empty()) {
                 d.chip(&format!("cv_pl_prio_{i}"), p.trim(), tok::MUTED, tok::SURFACE, Some(tok::HAIRLINE), false);
             }
-            d.text(&format!("cv_pl_status_{i}"), status_label(&item.status), &Txt::new(11.5, Face::Regular, tok::FAINT));
+            d.text(&format!("cv_pl_status_{i}"), tr(status_label(&item.status)), &Txt::new(11.5, Face::Regular, tok::FAINT));
             d.close();
         }
         d.close();

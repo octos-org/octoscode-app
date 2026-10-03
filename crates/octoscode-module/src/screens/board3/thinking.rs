@@ -20,6 +20,7 @@ use octoscode_store::Store;
 
 use super::host::Outcome;
 use super::ui::{self, tok, Dsl, Face, Frame, Seg, Txt, W};
+use crate::i18n::{tr, tr_with};
 
 pub const EFFORTS: [&str; 4] = ["low", "medium", "high", "max"];
 
@@ -70,7 +71,7 @@ pub fn summary_of(s: &str) -> String {
         .lines()
         .map(|l| l.trim().trim_start_matches(['#', '*', '-', ' ']).trim_end_matches('*'))
         .find(|l| !l.is_empty())
-        .unwrap_or("Thought process");
+        .unwrap_or(tr("Thought process"));
     super::inventory::fit(line, 72.0 * 7.0, 13.0, false)
 }
 
@@ -104,8 +105,8 @@ pub fn blocks(store: &Store, session: &str, live_turn: Option<&str>) -> Vec<Bloc
 /// The meta line (`Timeline.tsx:281-287`).
 pub fn meta(b: &Block) -> String {
     match b.seconds {
-        Some(s) => format!("{s} s · {} words", b.words),
-        None => format!("{} words", b.words),
+        Some(s) => tr_with("{seconds} s · {words} words", &[("seconds", &s.to_string()), ("words", &b.words.to_string())]),
+        None => tr_with("{words} words", &[("words", &b.words.to_string())]),
     }
 }
 
@@ -240,7 +241,7 @@ pub fn block_view(d: &mut Dsl, id: &str, b: &Block, open: bool, event: &str) {
         14.0,
         tok::TEXT,
     );
-    let label = if b.live { "Thinking…".to_owned() } else { b.summary.clone() };
+    let label = if b.live { tr("Thinking…").to_owned() } else { b.summary.clone() };
     d.text(&format!("{id}_summary"), &label, &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill));
     d.text(&format!("{id}_meta"), &meta(b), &Txt::new(11.5, Face::Regular, tok::MUTED));
     d.close();
@@ -266,8 +267,8 @@ pub fn block_view(d: &mut Dsl, id: &str, b: &Block, open: bool, event: &str) {
 pub fn fold_bar(d: &mut Dsl, id: &str) {
     let row = d.anon();
     d.view(&row, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 18");
-    d.link(&format!("{id}_expand"), "Expand all", Some("b3.think.expand_all"), 12.5);
-    d.link(&format!("{id}_collapse"), "Collapse all", Some("b3.think.collapse_all"), 12.5);
+    d.link(&format!("{id}_expand"), tr("Expand all"), Some("b3.think.expand_all"), 12.5);
+    d.link(&format!("{id}_collapse"), tr("Collapse all"), Some("b3.think.collapse_all"), 12.5);
     d.close();
 }
 
@@ -279,26 +280,26 @@ pub fn build(d: &mut Dsl, frame: &Frame, store: &Store) {
     let shown: Vec<&Block> = list.iter().rev().take(3).collect::<Vec<_>>().into_iter().rev().collect();
     let width = frame.dialog_w(600.0);
     ui::shell_open(d, frame, width);
-    ui::header(d, "Thinking effort", "b3.close");
+    ui::header(d, tr("Thinking effort"), "b3.close");
     d.text("b3_think_scope", &session, &Txt::new(11.5, Face::Mono, tok::MUTED).w(W::Fill));
     d.gap(W::Fill, 14.0);
     ui::body_open(d, frame, width, 64.0);
     let opts: Vec<(&str, String)> = [("Low", "low"), ("Medium", "medium"), ("High", "high"), ("Max", "max")]
         .iter()
-        .map(|(l, v)| (*l, format!("b3.think.effort.{v}")))
+        .map(|(l, v)| (tr(l), format!("b3.think.effort.{v}")))
         .collect();
     d.segmented("b3_think_effort", &opts, effort_index(&prefs).unwrap_or(usize::MAX), W::Fill, Seg::Pill);
     let help = d.anon();
     d.view(&help, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{top: 8}");
     d.text(
         "b3_think_help",
-        "Sets how much the model thinks before answering",
+        tr("Sets how much the model thinks before answering"),
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     if effort_index(&prefs).is_some() {
-        d.link("b3_think_default", "Use profile default", Some("b3.think.effort.default"), 12.0);
+        d.link("b3_think_default", tr("Use profile default"), Some("b3.think.effort.default"), 12.0);
     } else {
-        d.text("b3_think_default_on", "Profile default", &Txt::new(12.0, Face::Medium, tok::TEXT));
+        d.text("b3_think_default_on", tr("Profile default"), &Txt::new(12.0, Face::Medium, tok::TEXT));
     }
     d.close();
     d.gap(W::Fill, 10.0);
@@ -306,8 +307,8 @@ pub fn build(d: &mut Dsl, frame: &Frame, store: &Store) {
     toggle_row(
         d,
         "b3_think_show",
-        "Show reasoning",
-        "Shows the model's reasoning while it works",
+        tr("Show reasoning"),
+        tr("Shows the model's reasoning while it works"),
         prefs.show_reasoning,
         "b3.think.show",
     );
@@ -315,7 +316,7 @@ pub fn build(d: &mut Dsl, frame: &Frame, store: &Store) {
     toggle_row(
         d,
         "b3_think_default_new",
-        "Default on for new chats",
+        tr("Default on for new chats"),
         "",
         prefs.default_on,
         "b3.think.default",
@@ -325,13 +326,13 @@ pub fn build(d: &mut Dsl, frame: &Frame, store: &Store) {
     if !prefs.show_reasoning {
         d.text(
             "b3_think_hidden",
-            "Reasoning is hidden in this Session's transcript.",
+            tr("Reasoning is hidden in this Session's transcript."),
             &ui::meta().w(W::Fill),
         );
     } else if shown.is_empty() {
         d.text(
             "b3_think_none",
-            "No reasoning in this Session yet. New thinking appears folded in the transcript.",
+            tr("No reasoning in this Session yet. New thinking appears folded in the transcript."),
             &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
         );
     } else {

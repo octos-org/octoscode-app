@@ -26,6 +26,7 @@ use super::fleetview::FleetState;
 use super::host::{Job, Outcome as HostOutcome};
 use super::ui::{self, tok, Btn, Dsl, Face, Txt, W};
 use crate::screens::fleet_driver;
+use crate::i18n::{tr, tr1, tr_with};
 
 /// The console's observable state (`PeerControllerPanelState`).
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -136,18 +137,16 @@ fn glyph(activity: &str) -> (&'static str, &'static str) {
 /// active lease"; a positive lease prints its ISO instant.
 pub fn lease_copy(ms: u64) -> String {
     if ms == 0 {
-        return "No active lease".into();
+        return tr("No active lease").into();
     }
     let secs = ms / 1000;
     let (days, rem) = (secs / 86_400, secs % 86_400);
     let date = ui::short_date(ms);
     let _ = days;
-    format!(
-        "Lease expires {} {:02}:{:02}:{:02} UTC",
-        date,
-        rem / 3600,
-        (rem % 3600) / 60,
-        rem % 60
+    // A24: the web's key ("Lease expires {value0}") around the instant.
+    tr1(
+        "Lease expires {value0}",
+        &format!("{} {:02}:{:02}:{:02} UTC", date, rem / 3600, (rem % 3600) / 60, rem % 60),
     )
 }
 
@@ -371,7 +370,7 @@ fn disclosure_seat(d: &mut Dsl, st: &FleetState, store: &Store) {
     let h = d.anon();
     d.view(&h, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 6");
     d.icon("", if st.console.disclosure_open { "b3_chevron_down_dark.svg" } else { "b3_chevron_right_dark.svg" }, 12.0, tok::TEXT);
-    d.text("b3_fleet_disclosure_mode", mode, &Txt::new(13.0, Face::Medium, tok::TEXT));
+    d.text("b3_fleet_disclosure_mode", tr(mode), &Txt::new(13.0, Face::Medium, tok::TEXT));
     d.close();
     d.tap("b3_fleet_disclosure_toggle", "b3.fleet.console.disclosure");
     d.close();
@@ -381,7 +380,7 @@ fn disclosure_seat(d: &mut Dsl, st: &FleetState, store: &Store) {
             "recovery_required" => "Recovery required",
             _ => "No recovery pending",
         };
-        fact(d, "b3_fleet_disc_recovery", "Recovery", recovery);
+        fact(d, "b3_fleet_disc_recovery", tr("Recovery"), tr(recovery));
         // `peerControlBindingFor`: the HELD acquire's own binding wins over
         // the last observed walk.
         let session = store.active_session().unwrap_or_default();
@@ -389,10 +388,10 @@ fn disclosure_seat(d: &mut Dsl, st: &FleetState, store: &Store) {
             .map(|b| (b.driver_id, b.epoch, b.revision, b.lease_expires_at_ms))
             .or(disc.binding.clone());
         if let Some((driver, epoch, revision, lease)) = &binding {
-            fact(d, "b3_fleet_disc_driver", "Driver", driver);
-            fact(d, "b3_fleet_disc_epoch", "Epoch", &epoch.to_string());
-            fact(d, "b3_fleet_disc_revision", "Revision", &revision.to_string());
-            fact(d, "b3_fleet_disc_lease", "Lease", &lease_copy(*lease));
+            fact(d, "b3_fleet_disc_driver", tr("Driver"), driver);
+            fact(d, "b3_fleet_disc_epoch", tr("Epoch"), &epoch.to_string());
+            fact(d, "b3_fleet_disc_revision", tr("Revision"), &revision.to_string());
+            fact(d, "b3_fleet_disc_lease", tr("Lease"), &lease_copy(*lease));
         }
     }
     d.close();
@@ -410,9 +409,9 @@ fn seat_panel(d: &mut Dsl, st: &FleetState, store: &Store, content_w: f64) {
         return;
     }
     ui::card_open(d, "b3_fleet_seat", 8.0);
-    ui::section_title(d, "b3_fleet_seat_title", "Peer control");
+    ui::section_title(d, "b3_fleet_seat_title", tr("Peer control"));
     // The "Commands" group: the four, one line when they fit.
-    let labels: Vec<&str> = SEAT_COMMANDS.iter().map(|(_, l)| *l).collect();
+    let labels: Vec<&str> = SEAT_COMMANDS.iter().map(|(_, l)| tr(l)).collect();
     let per = per_row(&labels, content_w, 8.0);
     let sending = matches!(st.console.seat, SeatPanel::Sending(_));
     grid_open(d, 8.0);
@@ -425,7 +424,7 @@ fn seat_panel(d: &mut Dsl, st: &FleetState, store: &Store, content_w: f64) {
         }
         d.button(
             &format!("b3_fleet_seat_cmd_{i}"),
-            label,
+            tr(label),
             &format!("b3.fleet.console.seat#{i}"),
             if sending { Btn::OutlineOff } else { Btn::Outline },
             if per == 1 { W::Fill } else { W::Fit },
@@ -435,13 +434,17 @@ fn seat_panel(d: &mut Dsl, st: &FleetState, store: &Store, content_w: f64) {
     d.close();
     d.close();
     match &st.console.seat {
-        SeatPanel::Sending(k) => d.text("b3_fleet_seat_state", &format!("Sending {k}…"), &ui::meta().w(W::Fill)),
+        // A24: the command by its label, never its wire id (row 117).
+        SeatPanel::Sending(k) => {
+            let label = SEAT_COMMANDS.iter().find(|(id, _)| id == k).map(|(_, l)| tr(l)).unwrap_or(k.as_str());
+            d.text("b3_fleet_seat_state", &tr1("Sending {value0}…", label), &ui::meta().w(W::Fill))
+        }
         SeatPanel::Refused(label) => {
-            d.text("b3_fleet_seat_state", label, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap())
+            d.text("b3_fleet_seat_state", tr(label), &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap())
         }
         SeatPanel::Receipt { slug, duplicate } => {
-            fact(d, "b3_fleet_seat_worker", "Worker", slug);
-            fact(d, "b3_fleet_seat_dup", "Duplicate", if *duplicate { "Already applied" } else { "Newly applied" });
+            fact(d, "b3_fleet_seat_worker", tr("Worker"), slug);
+            fact(d, "b3_fleet_seat_dup", tr("Duplicate"), tr(if *duplicate { "Already applied" } else { "Newly applied" }));
         }
         SeatPanel::Idle => {}
     }
@@ -455,19 +458,19 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
     let session = store.active_session().unwrap_or_default();
     let held = fleet_driver::seat_held(&session);
     ui::card_open(d, "b3_fleet_console", 8.0);
-    ui::section_title(d, "b3_fleet_console_title", "Peer controller");
+    ui::section_title(d, "b3_fleet_console_title", tr("Peer controller"));
     let binding = fleet_driver::held_binding(&session)
         .map(|b| (b.driver_id, b.epoch))
         .or_else(|| fleet_driver::disclosure(store).and_then(|d| d.binding.map(|b| (b.0, b.1))));
     if let Some((driver, epoch)) = binding {
         d.text(
             "b3_fleet_console_bound",
-            &format!("Bound to {driver} @ epoch {epoch}"),
+            &tr_with("Bound to {value0} @ epoch {value1}", &[("value0", &driver), ("value1", &epoch.to_string())]),
             &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
         );
     }
     // The lane picker: the advertised keys verbatim, no default.
-    ui::field_label(d, "b3_fleet_console_lane_label", "Model lane");
+    ui::field_label(d, "b3_fleet_console_lane_label", tr("Model lane"));
     let keys = st.lane_keys();
     let lane = if keys.contains(&st.console.lane) { st.console.lane.clone() } else { String::new() };
     d.surface("b3_fleet_console_lane", "width: Fill height: 34 flow: Overlay", if keys.is_empty() { tok::SURFACE2 } else { tok::SURFACE }, 8.0, Some("#d9d9dcff"));
@@ -494,17 +497,17 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
         }
         d.close();
     }
-    ui::field_label(d, "b3_fleet_console_brief_label", "Brief");
+    ui::field_label(d, "b3_fleet_console_brief_label", tr("Brief"));
     d.input("b3_fleet_console_brief", "fleet.console.brief", &st.console.brief_snap, "", false, 34.0);
-    ui::field_label(d, "b3_fleet_console_title_label", "Title");
+    ui::field_label(d, "b3_fleet_console_title_label", tr("Title"));
     d.input("b3_fleet_console_title", "fleet.console.title", &st.console.title_snap, "", false, 34.0);
     // The Staging group: Dispatch, Release seat and — whenever this app does
     // not hold the seat (P2q: opt-in; after a release, a hand-back or an
     // expiry) — Acquire seat; one line when they fit, else stacked.
     let busy = st.console.seat_busy;
     let offer = !held && fleet_driver::control_ready(store);
-    let acquire_label = if busy { "Acquiring…" } else { "Acquire seat" };
-    let mut labels = vec!["Dispatch", "Release seat"];
+    let acquire_label = tr(if busy { "Acquiring…" } else { "Acquire seat" });
+    let mut labels = vec![tr("Dispatch"), tr("Release seat")];
     if offer {
         labels.push(acquire_label);
     }
@@ -516,7 +519,7 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
     grid_row(d, 8.0);
     d.button(
         "b3_fleet_console_dispatch",
-        "Dispatch",
+        tr("Dispatch"),
         "b3.fleet.console.dispatch",
         if dispatchable && !sending { Btn::Primary } else { Btn::Disabled },
         bw.clone(),
@@ -528,7 +531,7 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
     }
     d.button(
         "b3_fleet_console_release",
-        "Release seat",
+        tr("Release seat"),
         "b3.fleet.console.release",
         if held && !busy { Btn::Outline } else { Btn::OutlineOff },
         bw.clone(),
@@ -555,18 +558,18 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
     if !held && fleet_driver::seat_expired(&session) {
         d.text(
             "b3_fleet_console_expired",
-            fleet_driver::control_refusal_label("driver_fence_stale"),
+            tr(fleet_driver::control_refusal_label("driver_fence_stale")),
             &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap(),
         );
     }
     if let Some(note) = &st.console.seat_note {
-        d.text("b3_fleet_console_seat_note", note, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+        d.text("b3_fleet_console_seat_note", tr(note), &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     // "Session peers" — the console roster.
     let rows = console_rows(store);
     st.console.drawn = rows.iter().map(|(id, _, _)| id.clone()).collect();
     if !rows.is_empty() {
-        d.text("b3_fleet_console_roster", "Session peers", &Txt::new(12.0, Face::Semibold, tok::MUTED).w(W::Fill));
+        d.text("b3_fleet_console_roster", tr("Session peers"), &Txt::new(12.0, Face::Semibold, tok::MUTED).w(W::Fill));
     }
     for (ri, (identity, slug, activity)) in rows.iter().enumerate() {
         let id = format!("b3_fleet_console_row_{ri}");
@@ -575,12 +578,12 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
         let head = d.anon();
         d.view(&head, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
         d.text(&format!("{id}_glyph"), g, &Txt::new(13.0, Face::Regular, tok::TEXT));
-        d.text(&format!("{id}_word"), word, &Txt::new(11.5, Face::Regular, tok::MUTED));
+        d.text(&format!("{id}_word"), tr(word), &Txt::new(11.5, Face::Regular, tok::MUTED));
         d.text(&format!("{id}_slug"), &super::inventory::fit(slug, content_w - 132.0, 12.0, true), &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill));
         d.close();
         if *activity != "reaped" {
             let steer = st.console.steer.get(identity).cloned().unwrap_or_default();
-            let names = ["Approve", "Deny", "Steer", "Interrupt"];
+            let names = [tr("Approve"), tr("Deny"), tr("Steer"), tr("Interrupt")];
             // The row card's own 10 px insets.
             let per = per_row(&names, content_w - 20.0, 6.0);
             grid_open(d, 6.0);
@@ -610,12 +613,12 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
             match row.control {
                 Some(RowControl::Receipt { duplicate }) => d.text(
                     &format!("{id}_receipt"),
-                    if duplicate { "Already applied" } else { "Newly applied" },
+                    tr(if duplicate { "Already applied" } else { "Newly applied" }),
                     &Txt::new(12.0, Face::Medium, tok::GREEN_TEXT),
                 ),
                 Some(RowControl::Refused { kind }) => d.text(
                     &format!("{id}_refusal"),
-                    fleet_driver::control_refusal_label(&kind),
+                    tr(fleet_driver::control_refusal_label(&kind)),
                     &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap(),
                 ),
                 _ => {}
@@ -633,11 +636,13 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
         ConsoleOutcome::Idle => None,
     };
     if let Some((text, color)) = copy {
-        d.text("b3_fleet_console_state", &text, &Txt::new(12.0, Face::Regular, color).w(W::Fill).wrap());
+        // The outcome line in the interface language (the refusal labels are
+        // the web's peer-control words).
+        d.text("b3_fleet_console_state", tr(&text), &Txt::new(12.0, Face::Regular, color).w(W::Fill).wrap());
     }
     if let ConsoleOutcome::Accepted { slug, operation_id } = &st.console.outcome {
-        fact(d, "b3_fleet_console_worker", "Worker", slug);
-        fact(d, "b3_fleet_console_operation", "Operation", operation_id);
+        fact(d, "b3_fleet_console_worker", tr("Worker"), slug);
+        fact(d, "b3_fleet_console_operation", tr("Operation"), operation_id);
     }
     d.close();
 }

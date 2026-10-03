@@ -1,131 +1,935 @@
-//! Native copy with NO web counterpart, translated here.
+//! A24 phase 2 — the NATIVE-ONLY supplement: Simplified Chinese for product
+//! copy that has NO entry in the web's catalog (`zh.rs`) and no web control of
+//! the same meaning (`alias.rs`) — native-only surfaces, native wording, and
+//! the few strings the web renders through `t()` without a zh entry (its
+//! Chinese UI shows them in English; the operator asked for Chinese here).
 //!
-//! [`super::zh`] is the web's own catalog and [`super::alias`] maps native
-//! wording onto a web key for the SAME control. Board 4 (approved by the
-//! operator 2026-10-02, `design/stage-a/phase4-new4/README.md`) adds surfaces
-//! the web has no screen for at all, so their copy has no web key to borrow;
-//! the task that builds such a surface asks for its Chinese ("strings
-//! through tr() with zh"). Each entry here is that surface's English source,
-//! its Simplified Chinese, and where the English comes from. The web catalog
-//! always wins: a test proves no entry is a web key or an alias (it would be
-//! dead), that both sides carry the same placeholders, and that every value
-//! is Chinese. Wording follows the web catalog's own terms (会话 Session,
-//! 运行中 running, 排队中 queued, 已停止 / 已失败 / 已完成).
-use std::collections::HashMap;
-use std::sync::OnceLock;
+//! This table is NOT the web's: it is A24's translation, reviewed for meaning
+//! and for the web's own vocabulary. Rules, each pinned by `i18n::tests`:
+//! - it is consulted LAST (`super::zh_for`: web key, then alias, then this);
+//!   an entry the web catalog or an alias already covers is an error, so the
+//!   web's wording wins the day the web adds one;
+//! - every value keeps its source's `{placeholders}`;
+//! - every value is Chinese, in the web catalog's vocabulary: [`GLOSSARY`]
+//!   (Session -> 会话, Profile -> 配置档案, workspace -> 工作区, …) is the
+//!   web's dominant rendering of each term, checked over every entry;
+//! - every key is used somewhere in the module (`tests/i18n_scan.rs`).
+//!
+//! Brand and product names stay as written (OctosCode, Octos, Markdown,
+//! Codex, Claude, Slate, Solarized — the web keeps its palette brands
+//! English too); identifiers, method names, paths and server text are never
+//! keys.
 
-/// (English source, Chinese, source of the English).
-pub static NATIVE_ZH: &[(&str, &str, &str)] = &[
-    // ---- A31: the Skills dialog's "Background jobs" (parity row 15; board 4
-    // region 3 and README "Row 15: skill-job status"; the web's
-    // SkillsDialog.tsx has no job UI). "Job" is 作业, apart from the web's
-    // background TASKS (后台任务), which are another surface.
-    ("Background jobs", "后台作业", "board 4 region 3, the section title"),
-    // The header count's queued half: the web's "{count} queued" counts
-    // queued PROMPTS (条); jobs take 个, like the web's "{count} 个运行中".
-    ("{value0} queued", "{value0} 个排队中", "board 4 region 3, the header count"),
-    ("Queued", "排队中", "README row 15 status table: queued -> ○ Queued"),
-    ("Couldn't finish this job.", "无法完成此作业。", "README row 15 status table: failed"),
+/// English source -> reviewed Simplified Chinese (native-only copy).
+pub static NATIVE_ZH: &[(&str, &str)] = &[
+    // ---- Settings: sections, rows, help (chrome.rs, screens/settings.rs)
+    ("Preferences", "偏好设置"),
+    ("About", "关于"),
+    ("Palette", "配色方案"),
+    ("Terminal follows the light or dark theme; named palettes are dark.", "终端配色跟随浅色或深色主题；命名配色方案均为深色。"),
     (
-        "The server restarted before this job finished.",
-        "服务器在此作业完成前已重启。",
-        "README row 15 status table: abandoned",
+        "Changes apply immediately. Save remembers them on this device; no server configuration, credentials or conversations are stored.",
+        "更改立即生效。保存仅在此设备上记住这些设置，不会存储服务器配置、凭据或对话。",
     ),
-    ("No background jobs in this Session.", "此会话没有后台作业。", "A31 empty state"),
-    ("Loading background jobs…", "正在加载后台作业…", "A31 loading state"),
-    ("Couldn't load background jobs.", "无法加载后台作业。", "A31 list failure"),
+    ("Unsaved preferences.", "偏好设置尚未保存。"),
+    ("Preferences saved.", "偏好设置已保存。"),
+    ("Preferences could not be saved.", "无法保存偏好设置。"),
+    ("Save preferences", "保存偏好设置"),
+    ("System", "系统"),
+    // the theme choice (`i18n::tr_ctx("theme", …)`): "follow the system"
+    ("theme|System", "跟随系统"),
+    ("Light", "浅色"),
+    ("Dark", "深色"),
+    ("Desktop notifications", "桌面通知"),
+    ("Connected", "已连接"),
+    ("Connecting\u{2026}", "正在连接\u{2026}"),
+    ("Shuts down Octos on this computer", "关闭此电脑上的 Octos"),
+    ("Ask for approval", "请求批准"),
+    ("No network \u{b7} asks before risky commands", "无网络 \u{b7} 执行有风险的命令前询问"),
+    ("Auto-approve in workspace", "工作区内自动批准"),
+    ("No network \u{b7} never asks, refuses risky commands", "无网络 \u{b7} 从不询问，拒绝有风险的命令"),
+    ("No prompts \u{b7} full read/write/network", "无确认提示 \u{b7} 完全读写与网络访问"),
+    ("Server: permissions not reported yet", "服务器：尚未报告权限"),
+    ("Server: {value0} \u{b7} {value1}", "服务器：{value0} \u{b7} {value1}"),
+    ("never asks", "从不询问"),
+    ("asks on request", "按需询问"),
+    ("Never asks", "从不询问"),
+    ("Asks on request", "按需询问"),
+    ("Thinking", "思考"),
+    ("Off", "关"),
+    ("On", "开"),
+    ("Shows the model's reasoning while it works", "在模型工作时显示其推理过程"),
+    ("All models", "所有模型"),
+    ("Open", "打开"),
+    ("Each provider's models", "各提供商的模型"),
+    ("The provider route and its API key", "提供商路由及其 API 密钥"),
+    ("Allow writes inside the workspace", "允许在工作区内写入"),
+    ("Allow outbound network requests", "允许出站网络请求"),
+    ("Session sandbox", "会话沙箱"),
+    ("Open new chats in the server's session sandbox", "在服务器的会话沙箱中打开新会话"),
+    (
+        "Disconnect keeps this server remembered. Forget removes the saved server and its saved access token.",
+        "断开连接仍会记住此服务器。忘记服务器会删除已保存的服务器及其已保存的访问令牌。",
+    ),
+    ("This device", "此设备"),
+    ("Details", "详情"),
+    ("Pairing and the saved access token", "配对和已保存的访问令牌"),
+    ("Default model", "默认模型"),
+    ("Thinking: {value0}", "思考：{value0}"),
+    ("New chat defaults", "新会话默认设置"),
+    ("All sessions on this computer stop.\nRunning turns are interrupted.", "此电脑上的所有会话都将停止。\n正在运行的轮次会被中断。"),
+    ("Version {version}", "版本 {version}"),
+    ("{server} \u{b7} {methods} protocol methods advertised", "{server} \u{b7} 已声明 {methods} 个协议方法"),
+    ("Failed: {value0}", "失败：{value0}"),
+    // ---- the sidebar and its workspace menu (chrome.rs, screens/sidebar.rs)
+    ("Clear search", "清除搜索"),
+    ("New chat here", "在此新建会话"),
+    ("Rename", "重命名"),
+    ("Remove from sidebar", "从侧栏移除"),
+    ("Rename workspace", "重命名工作区"),
+    ("Workspace name", "工作区名称"),
+    ("Oldest", "最早"),
+    ("Fixed", "固定"),
+    ("No chats match \u{201c}{value0}\u{201d}", "没有与\u{201c}{value0}\u{201d}匹配的会话"),
+    ("No chats in {value0} match \u{201c}{value1}\u{201d}", "{value0} 中没有与\u{201c}{value1}\u{201d}匹配的会话"),
+    // ---- the conversation header (chrome.rs, screens/copy_button.rs, lib.rs)
+    ("Copy as Markdown", "复制为 Markdown"),
+    ("Copying\u{2026}", "正在复制\u{2026}"),
+    ("Take over", "接管"),
+    (
+        "This session is open in another client. You can read along; take over to send.",
+        "此会话已在另一个客户端中打开。你可以同步查看；接管后才能发送。",
+    ),
+    (
+        "This session is open in {who}. You can read along; take over to send.",
+        "此会话已在 {who} 中打开。你可以同步查看；接管后才能发送。",
+    ),
+    ("another client", "另一个客户端"),
+    ("Last turn", "上一轮"),
+    // ---- the composer, its seats, chip and notices (fluid.rs, board3/seats.rs, seat.rs)
+    ("Ask Octos anything", "向 Octos 提出任何问题"),
+    ("Select a model", "选择模型"),
+    ("Model unavailable", "模型不可用"),
+    ("No models are configured for this profile.", "此配置档案未配置模型。"),
+    ("This configured model is unavailable.", "此已配置的模型不可用。"),
+    ("Steer now", "立即引导"),
+    ("\u{21b3} read-only peer \u{b7} {value0} \u{b7} steer from the master", "\u{21b3} 只读同侪 \u{b7} {value0} \u{b7} 请从主会话引导"),
+    ("Couldn't confirm \u{2014} waiting for the previous attempt to expire", "无法确认 \u{2014} 正在等待上一次尝试过期"),
+    (
+        "Another app is using this session \u{2014} try again when it finishes or after {time}",
+        "另一个应用正在使用此会话 \u{2014} 请在它完成后或 {time} 后重试",
+    ),
+    ("the lease expires", "租约到期"),
+    ("Checking the last response", "正在检查上一条回复"),
+    ("Response status is uncertain", "回复状态不确定"),
+    (
+        "Checking whether Octos is still working or has finished. Your message will not be sent again.",
+        "正在检查 Octos 是否仍在工作或已完成。你的消息不会被重复发送。",
+    ),
+    (
+        "Octos has not confirmed whether the last response is still running or has finished. Sending is paused so the same work is not started twice.",
+        "Octos 尚未确认上一条回复仍在运行还是已完成。发送已暂停，以免同一工作被启动两次。",
+    ),
+    (
+        "This server does not support checking response status. You can copy your text and manage the connection in Settings.",
+        "此服务器不支持检查回复状态。你可以复制文本，并在设置中管理连接。",
+    ),
+    ("The status check failed. You can try again.", "状态检查失败。你可以重试。"),
+    (
+        "If the response was lost, for example because the server restarted, continue without confirming its outcome. This does not stop or resend it; queued messages send next.",
+        "如果回复已丢失（例如服务器已重启），可以不确认其结果直接继续。这不会停止或重新发送它；排队的消息将接着发送。",
+    ),
+    ("Checking status\u{2026}", "正在检查状态\u{2026}"),
+    ("Check status", "检查状态"),
+    ("Continue without it", "不确认，直接继续"),
+    ("Queued messages remain here. You can remove them below.", "排队的消息保留在这里。你可以在下方移除它们。"),
+    ("What should we build?", "我们要构建什么？"),
+    ("What should we build in {value0}?", "我们要在 {value0} 中构建什么？"),
+    ("Loading conversation\u{2026}", "正在加载对话\u{2026}"),
+    (
+        "The conversation history could not be loaded: {value0}. Reopen it from the sidebar to try again.",
+        "无法加载对话历史：{value0}。请从侧栏重新打开以重试。",
+    ),
+    // ---- the connection banner and refusals (screens/reconnect.rs, flow.rs, lib.rs)
+    ("Connection lost", "连接已断开"),
+    ("retry {value0}", "第 {value0} 次重试"),
+    ("Restoring authoritative session state", "正在从服务器恢复会话状态"),
+    ("Not connected to Octos", "未连接到 Octos"),
+    ("Retry now", "立即重试"),
+    ("Not sent \u{2014} your text stays in the composer.", "未发送 \u{2014} 你的文本保留在输入框中。"),
+    ("{value0} was not run \u{2014} your text stays in the composer.", "{value0} 未运行 \u{2014} 你的文本保留在输入框中。"),
+    ("Nothing was sent. Connect to a server first.", "未发送任何内容。请先连接服务器。"),
+    (
+        "Arguments for {value0} are not supported in this native build. Open the command without arguments to use its controls. Nothing was sent to the model.",
+        "此原生版本不支持 {value0} 的参数。请不带参数打开该命令以使用其控件。未向模型发送任何内容。",
+    ),
+    (
+        "/{value0} is not available in this native build \u{2014} nothing was sent to the model.",
+        "此原生版本不提供 /{value0} \u{2014} 未向模型发送任何内容。",
+    ),
+    ("Type the repository or server-side path first.", "请先输入仓库或服务器端路径。"),
+    // ---- the slash menu: native commands and their footer (screens/palette.rs, lib.rs)
+    ("Change permissions", "更改权限"),
+    ("Browse sessions", "浏览会话"),
+    ("Inspect and steer peers", "查看并引导同侪"),
+    ("Show background tasks", "显示后台任务"),
+    ("Inspect the active turn", "查看当前轮次"),
+    ("to move", "移动"),
+    ("to run", "运行"),
+    ("\u{b7} esc", "\u{b7} esc 关闭"),
+    // ---- the leave confirmation (screens/a9_settings.rs)
+    ("Disconnect from Octos?", "断开与 Octos 的连接？"),
+    ("Forget this server?", "忘记此服务器？"),
+    (
+        "Current and background work may stop when this connection closes. Queued messages will be discarded.",
+        "关闭此连接时，当前和后台工作可能会停止。排队的消息将被丢弃。",
+    ),
+    ("This input has not been saved. Copy it before leaving this conversation.", "此输入尚未保存。请在离开此对话前复制它。"),
+    ("This also removes the saved server address and its saved access token.", "这也会删除已保存的服务器地址及其已保存的访问令牌。"),
+    ("The server stays remembered so you can reconnect later.", "服务器会被记住，以便你稍后重新连接。"),
+    // ---- the Connect card (fluid.rs, screens/connect.rs, screens/a9_connect.rs)
+    ("Paste your server token", "粘贴服务器令牌"),
+    ("Stored for this server only", "仅为此服务器保存"),
+    ("Pair with a link instead", "改用链接配对"),
+    ("Use local solo server", "使用本地单人服务器"),
+    ("Last tried {value0} \u{b7}", "上次尝试 {value0} \u{b7}"),
+    ("Can't reach {value0}", "无法连接 {value0}"),
+    ("check the address", "检查地址"),
+    ("Re-enter the token", "重新输入令牌"),
+    ("Open Settings \u{203a} Providers", "打开 设置 \u{203a} 提供商"),
+    (
+        "This site isn't allowed to talk to that server \u{2014} ask the server owner to allow it.",
+        "此站点不允许与该服务器通信 \u{2014} 请联系服务器所有者允许访问。",
+    ),
+    ("Enter the address of your Octos server.", "请输入 Octos 服务器的地址。"),
+    ("Enter a complete address, such as http://localhost:18032.", "请输入完整地址，例如 http://localhost:18032。"),
+    ("Use an http, https, ws, or wss address.", "请使用 http、https、ws 或 wss 地址。"),
+    (
+        "Use the server address without credentials, query parameters, or a fragment. Put your token in Auth token.",
+        "请使用不含凭据、查询参数或片段的服务器地址。请将令牌填入\u{201c}认证令牌\u{201d}。",
+    ),
+    ("Could not open the Octos UI Protocol connection", "无法打开 Octos UI 协议连接"),
+    ("Origin not allowed", "来源不被允许"),
+    ("The server answered, but the Octos UI Protocol connection did not open.", "服务器已响应，但 Octos UI 协议连接未能打开。"),
+    (
+        "Check that your server is running. If it requires authentication, enter its token above.",
+        "请确认服务器正在运行。如需认证，请在上方输入其令牌。",
+    ),
+    ("Check that your server is running and your token is current.", "请确认服务器正在运行且令牌仍然有效。"),
+    ("Connect to a server first.", "请先连接服务器。"),
+    // ---- board 1: pairing (screens/pairing.rs, screens/board1.rs)
+    ("Pair with Octos", "与 Octos 配对"),
+    ("Scan the pairing QR shown in Octos", "扫描 Octos 显示的配对二维码"),
+    ("on your computer", "（在你的电脑上）"),
+    ("Paste pairing link", "粘贴配对链接"),
+    ("Pair", "配对"),
+    ("Enter server and token instead", "改为输入服务器和令牌"),
+    ("Pairing with {value0}\u{2026}", "正在与 {value0} 配对\u{2026}"),
+    ("This code works once.", "此配对码仅可使用一次。"),
+    ("Enter the server and token instead.", "请改为输入服务器和令牌。"),
+    ("Use server and token", "使用服务器和令牌"),
+    ("Paired", "已配对"),
+    ("Signed in", "已登录"),
+    ("With an access token", "使用访问令牌"),
+    ("Stays on this device only", "仅保存在此设备上"),
+    ("Forget this device", "忘记此设备"),
+    ("Today, {value0}", "今天 {value0}"),
+    ("Yesterday, {value0}", "昨天 {value0}"),
+    ("This pairing link was already used.", "此配对链接已被使用。"),
+    ("Ask Octos for a new code.", "请让 Octos 生成新的配对码。"),
+    ("This pairing link has expired.", "此配对链接已过期。"),
+    ("Restart Octos on your computer for a fresh link.", "请在你的电脑上重启 Octos 以获取新链接。"),
+    ("Too many pairing attempts.", "配对尝试次数过多。"),
+    ("Restart the Octos server, then pair again.", "请重启 Octos 服务器，然后重新配对。"),
+    ("This pairing link isn\u{2019}t complete.", "此配对链接不完整。"),
+    ("Copy the whole link again from Octos.", "请从 Octos 重新复制完整链接。"),
+    ("This link points to another computer.", "此链接指向另一台电脑。"),
+    ("Pairing links only work for Octos on this computer.", "配对链接仅适用于此电脑上的 Octos。"),
+    ("This server doesn\u{2019}t support pairing.", "此服务器不支持配对。"),
+    ("Octos on another computer must be paired from that computer.", "另一台电脑上的 Octos 必须在那台电脑上配对。"),
+    ("Octos isn\u{2019}t answering at that address.", "Octos 在该地址没有响应。"),
+    ("Check that Octos is still running, then try again.", "请确认 Octos 仍在运行，然后重试。"),
+    ("That isn\u{2019}t a pairing link.", "这不是配对链接。"),
+    ("Paste the whole link Octos printed, or enter the server and token.", "请粘贴 Octos 输出的完整链接，或输入服务器和令牌。"),
+    ("That server address can\u{2019}t be used.", "无法使用该服务器地址。"),
+    ("Paired, but the connection didn\u{2019}t open.", "已配对，但连接未能打开。"),
+    ("Check the server address, then connect with the token.", "请检查服务器地址，然后使用令牌连接。"),
+    ("This device has no camera scanner. Paste the link instead.", "此设备不支持摄像头扫码。请改为粘贴链接。"),
+    ("No code was scanned. Try again, or paste the link.", "未扫描到二维码。请重试或粘贴链接。"),
+    // ---- board 1: the workspace picker and the folder browser (screens/board1.rs, browser.rs, board1_kit.rs)
+    ("Open a workspace", "打开工作区"),
+    ("Reading the server\u{2026}", "正在读取服务器\u{2026}"),
+    ("Starting a session in {value0}\u{2026}", "正在 {value0} 中启动会话\u{2026}"),
+    ("The session didn\u{2019}t open. Check the folder, then try again.", "会话未能打开。请检查文件夹后重试。"),
+    ("Choose workspace folder", "选择工作区文件夹"),
+    ("{value0} hidden by the server", "有 {value0} 项被服务器隐藏"),
+    ("The server won\u{2019}t list this folder.", "服务器不允许列出此文件夹。"),
+    ("Pick another folder or type a path you can access.", "请选择其他文件夹，或输入你可以访问的路径。"),
+    ("or", "或"),
+    // ---- the image picker (the OS dialog's filter name; lib.rs)
+    ("Images", "图片"),
+    // ---- the error boundaries and Activity (screens/a9_boundary.rs, screens/activity.rs)
+    ("OctosCode stopped rendering", "OctosCode 渲染已停止"),
+    ("Client view unavailable", "客户端视图不可用"),
+    (
+        "The client could not recover this view. Closing its connection may have stopped running work. Octos keeps persisted history; unsent drafts and queued messages may be lost when you reload.",
+        "客户端无法恢复此视图。关闭其连接可能已停止正在运行的工作。Octos 会保留已持久化的历史；重新加载时，未发送的草稿和排队的消息可能会丢失。",
+    ),
+    ("{value0} unavailable", "{value0} 不可用"),
+    ("This view could not be displayed. Other parts of the app remain available.", "无法显示此视图。应用的其他部分仍可使用。"),
+    (
+        "Reload the app to try again. Reloading may stop running work and discard drafts and queued messages.",
+        "请重新加载应用以重试。重新加载可能会停止正在运行的工作，并丢弃草稿和排队的消息。",
+    ),
+    ("Loading activity\u{2026}", "正在加载活动\u{2026}"),
+    ("Reading task snapshots from your confirmed sessions.", "正在从你已确认的会话中读取任务快照。"),
+    // ---- the Agents panel (screens/board3/agents.rs)
+    ("Loading agents\u{2026}", "正在加载智能体\u{2026}"),
+    ("This server does not advertise agent controls.", "此服务器未声明支持智能体控制。"),
+    ("Choose a positive whole-number count and enter the task.", "请选择一个正整数数量并输入任务。"),
+    ("Agent request was not queued. The owning session must still be idle and ready.", "智能体请求未入队。所属会话必须仍处于空闲且就绪状态。"),
+    ("Couldn't read the agent's status.", "无法读取智能体的状态。"),
+    ("Couldn't read the agent's output.", "无法读取智能体的输出。"),
+    ("Couldn't list the agent's artifacts.", "无法列出智能体的产物。"),
+    ("Couldn't open the agent's artifact.", "无法打开智能体的产物。"),
+    ("Couldn't load this session's agents.", "无法加载此会话的智能体。"),
+    ("Describe the task for the agents", "描述要交给智能体的任务"),
+    ("agent id", "智能体 ID"),
+    // ---- history: rewind / undo / fork (screens/board3/checkpoints.rs, screens/history.rs) + relative times (board3/ui.rs)
+    ("Couldn't load the conversation history.", "无法加载对话历史。"),
+    ("Couldn't load the workspace snapshots.", "无法加载工作区快照。"),
+    ("Couldn't rewind the conversation.", "无法回退对话。"),
+    ("Couldn't undo the workspace changes.", "无法撤销工作区更改。"),
+    ("Couldn't fork the conversation.", "无法为对话创建分支。"),
+    (
+        "The server accepted the history change, but local reconciliation failed. Retry refresh without repeating the change.",
+        "服务器已接受历史更改，但本地同步失败。请重试刷新，无需重复该更改。",
+    ),
+    ("History changed. Reload the checkpoint picker.", "历史已更改。请重新加载检查点选择器。"),
+    ("Workspace snapshot restored. Conversation history was not changed.", "工作区快照已恢复。对话历史未更改。"),
+    ("Conversation rewound. Workspace files were not restored.", "对话已回退。工作区文件未恢复。"),
+    ("Conversation fork opened in the background. Your selection was not changed.", "对话分支已在后台打开。你当前的选择未更改。"),
+    ("Conversation history", "对话历史"),
+    ("Restore", "恢复"),
+    ("Current live turn", "当前进行中的轮次"),
+    (
+        "Restoring removes that turn and every later one; its prompt returns to the composer to edit and resend. Workspace files are not restored.",
+        "恢复会移除该轮次及之后的所有轮次；其提示会返回输入框，供你编辑后重新发送。工作区文件不会恢复。",
+    ),
+    ("{value0} message", "{value0} 条消息"),
+    ("{value0} messages", "{value0} 条消息"),
+    ("just now", "刚刚"),
+    ("{value0}m ago", "{value0} 分钟前"),
+    ("{value0}h ago", "{value0} 小时前"),
+    ("{value0}d ago", "{value0} 天前"),
+    (
+        "Wait for affected turns, queued prompts, and questions to settle before changing history.",
+        "请等待相关轮次、排队的提示和问题处理完毕后再更改历史。",
+    ),
+    ("This server does not advertise the required history methods.", "此服务器未声明支持所需的历史方法。"),
+    // ---- the Fleet console, turn images, runtime inventory, timeline notices + files (board3/fleet_console.rs, images.rs, inventory.rs, rows.rs)
+    ("Respond to approval", "响应批准请求"),
+    ("Answer question", "回答问题"),
+    ("Peer control", "同侪控制"),
+    ("Sending {value0}\u{2026}", "正在发送：{value0}\u{2026}"),
+    ("Acquiring\u{2026}", "正在获取\u{2026}"),
+    ("reaped", "已回收"),
+    ("staged", "已准备"),
+    (
+        "Choose up to four PNG, JPEG, GIF or WebP images. Selecting a file does not upload it; upload explicitly, then send it with this Session's next prompt.",
+        "最多选择四张 PNG、JPEG、GIF 或 WebP 图片。选择文件不会自动上传；请先明确上传，再随此会话的下一条提示发送。",
+    ),
+    ("20 MiB per image", "每张图片不超过 20 MiB"),
+    ("Couldn't upload the images.", "无法上传图片。"),
+    ("Could not select these images.", "无法选择这些图片。"),
+    (
+        "Upload was not confirmed. Retry explicitly; the server may retain an earlier upload.",
+        "上传未确认。请手动重试；服务器可能保留了之前的上传。",
+    ),
+    (
+        "This Session cannot upload images now. Reopen images from its current authority.",
+        "此会话当前无法上传图片。请从当前会话重新打开图片。",
+    ),
+    ("Transfers canceled locally. No server files were deleted.", "传输已在本地取消。未删除任何服务器文件。"),
+    ("Runtime inventory", "运行时清单"),
+    ("Loading scope\u{2026}", "正在加载范围\u{2026}"),
+    ("Tools", "工具"),
+    ("MCP servers", "MCP 服务器"),
+    ("Tool", "工具"),
+    ("Category", "类别"),
+    ("Policy", "策略"),
+    ("Aliases", "别名"),
+    ("Transport", "传输方式"),
+    ("toolCount", "工具数"),
+    ("Summary", "摘要"),
+    ("Couldn't read the tools for this session.", "无法读取此会话的工具。"),
+    ("Couldn't read the MCP servers for this session.", "无法读取此会话的 MCP 服务器。"),
+    ("Couldn't read the runtime inventory.", "无法读取运行时清单。"),
+    ("A confirmed session and profile are required", "需要已确认的会话和配置档案"),
+    ("Turn stopped", "轮次已停止"),
+    ("Turn rate limited", "轮次已被限流"),
+    ("Turn complete", "轮次已完成"),
+    ("Turn failed", "轮次失败"),
+    ("Warning", "警告"),
+    ("The server reported a warning.", "服务器报告了一条警告。"),
+    ("Background task finished", "后台任务已完成"),
+    ("Saved to {value0}", "已保存到 {value0}"),
+    ("Preview", "预览"),
+    // ---- research lanes, Resume chat, model providers (board3/research.rs, resume.rs, routes.rs)
+    ("Confirm save", "确认保存"),
+    ("default model", "默认模型"),
+    ("Edit {value0}", "编辑 {value0}"),
+    ("Remove {value0}", "删除 {value0}"),
+    ("API key environment name", "API 密钥环境变量名"),
+    ("Maximum output tokens (optional)", "最大输出令牌数（可选）"),
+    (
+        "Could not confirm the server change. It may have been applied; refresh before a new attempt and re-enter any credential.",
+        "无法确认服务器更改。它可能已被应用；请先刷新，再重新尝试并重新输入凭据。",
+    ),
+    ("Couldn't load the research lanes.", "无法加载研究通道。"),
+    ("Refresh the catalog before selecting this row.", "选择此条目前请先刷新目录。"),
+    ("Catalog rows are unverified candidates, not confirmed workspace sessions.", "目录条目是未经验证的候选项，不是已确认的工作区会话。"),
+    (
+        "Refresh the catalog before selecting a row. Bare IDs cannot safely identify a historical conversation.",
+        "选择条目前请先刷新目录。仅凭 ID 无法安全识别历史对话。",
+    ),
+    ("{value0} listed message", "{value0} 条所列消息"),
+    ("{value0} listed messages", "{value0} 条所列消息"),
+    ("unverified", "未验证"),
+    ("Confirm exact title to resume:", "输入准确标题以确认恢复："),
+    ("Type the exact thread title above", "输入上方线程的准确标题"),
+    ("Select a candidate first", "请先选择一个候选项"),
+    ("Opening\u{2026}", "正在打开\u{2026}"),
+    (
+        "A confirmed source Session is required to browse history. Opening does not submit a prompt.",
+        "浏览历史需要已确认的来源会话。打开不会发送请求。",
+    ),
+    (
+        "This Session ID is already retained under another workspace or Profile. It cannot be rebound on the shared connection.",
+        "此会话 ID 已保留在另一个工作区或配置档案下，无法在共享连接上重新绑定。",
+    ),
+    ("This retained Session is closed.", "此保留的会话已关闭。"),
+    (
+        "This Session is still opening. Wait for its existing preparation to finish before resuming it.",
+        "此会话仍在打开中。请等待其现有准备完成后再恢复。",
+    ),
+    (
+        "This catalog ID does not identify a full Session in the captured Profile. An authoritative full ID is required; no Profile or channel will be guessed.",
+        "此目录 ID 无法在所绑定的配置档案中标识完整的会话。需要服务器确认的完整 ID；不会猜测配置档案或频道。",
+    ),
+    ("The server does not advertise scoped Session opening and hydration.", "服务器未声明支持按范围打开会话和加载会话历史。"),
+    ("A history opening is already pending.", "已有一个历史打开操作正在进行。"),
+    ("Historical identity was not resolved. The listed conversation was not resumed.", "未能解析历史身份。所列对话未被恢复。"),
+    ("A confirmed source Session is required to browse history.", "浏览历史需要已确认的来源会话。"),
+    ("History catalog is too large to inspect safely.", "历史目录过大，无法安全检查。"),
+    ("The history catalog contains duplicate ambiguous IDs.", "历史目录包含重复且有歧义的 ID。"),
+    ("History listing failed.", "历史列表加载失败。"),
+    ("Confirm the exact Session, workspace and Profile before opening.", "打开前请确认准确的会话、工作区和配置档案。"),
+    ("Add a model on this route", "在此路由上添加模型"),
+    ("Core did not report a complete route identity. This entry is read-only.", "Core 未报告完整的路由身份。此条目为只读。"),
+    ("Add an API key before checking models.", "检查模型前请先添加 API 密钥。"),
+    ("The provider did not return an available-model catalog.", "提供商未返回可用模型目录。"),
+    ("Could not check provider models: {value0}", "无法检查提供商模型：{value0}"),
+    ("verb|Type", "输入"),
+    // ---- Session settings pane (board3/session_pane.rs; the web wraps these in t() without a zh entry)
+    ("the reply named another session", "服务器响应指向了另一个会话"),
+    ("the server is not connected", "服务器未连接"),
+    ("A peer you started is using this session", "你启动的同侪正在使用此会话"),
+    ("It keeps running while you chat. Chat sends hand control back first.", "你聊天时它会继续运行。发送聊天消息前会先交回控制权。"),
+    ("Couldn't load the models.", "无法加载模型。"),
+    ("unavailable", "不可用"),
+    ("Asks before it is applied", "应用前需先确认"),
+    ("Approval policy", "批准策略"),
+    ("On request", "按需询问"),
+    ("Never ask", "从不询问"),
+    ("Sandbox:", "沙箱："),
+    ("Network:", "网络："),
+    ("Read paths:", "可读路径："),
+    ("on", "开"),
+    ("off", "关"),
+    ("allowed", "允许"),
+    ("blocked", "禁止"),
+    ("(none)", "（无）"),
+    ("New session with\u{2026}", "以新设置新建会话\u{2026}"),
+    ("Filesystem access: {value0} \u{b7} Network access: {value1}", "文件系统访问：{value0} \u{b7} 网络访问：{value1}"),
+    ("Reading the controller\u{2026}", "正在读取控制者\u{2026}"),
+    ("No session is open", "没有打开的会话"),
+    ("This app", "此应用"),
+    ("Peers ({value0})", "同侪（{value0}）"),
+    ("The controller list changed while it was read. Open the pane again.", "读取期间控制者列表已更改。请重新打开面板。"),
+    ("The controller list is too large to show.", "控制者列表过大，无法显示。"),
+    ("The session changed while the controller was read.", "读取控制者期间会话已更改。"),
+    ("The controller could not be read from this server.", "无法从此服务器读取控制者。"),
+    // ---- saved conversation link (screens/saved_link.rs, the web's SavedSessionLinkPanel copy) and the system-message row
+    ("This conversation link is invalid", "此对话链接无效"),
+    ("It does not contain a complete server workspace and conversation reference.", "它不包含完整的服务器工作区和对话引用。"),
+    ("Dismiss link", "关闭链接"),
+    ("Open saved conversation", "打开已保存的对话"),
+    (
+        "Open this conversation on the connected server. Check that the server and workspace match the link you saved.",
+        "在已连接的服务器上打开此对话。请确认服务器和工作区与你保存的链接一致。",
+    ),
+    ("Conversation details", "对话详情"),
+    (
+        "If the conversation no longer exists, the server may open an empty session. Opening the link does not send a message.",
+        "如果该对话已不存在，服务器可能会打开一个空会话。打开链接不会发送消息。",
+    ),
+    ("Opening conversation\u{2026}", "正在打开对话\u{2026}"),
+    ("Open conversation", "打开对话"),
+    ("System message", "系统消息"),
+    // ---- inspector (board3/inspector.rs; counts use the web's pieces: 个线程 · 游标, 条消息, 条此会话记住的批准范围)
+    ("This server does not advertise the required inspection method and feature.", "此服务器未声明支持所需的检查方法和功能。"),
+    ("The server could not return a valid inspection for this owner. Retry the read.", "服务器无法为此所有者返回有效的检查结果。请重试读取。"),
+    ("This conversation does not have a complete saved reference yet.", "此对话还没有完整的已保存引用。"),
+    ("No thread graph read yet.", "尚未读取线程图。"),
+    ("{value0} thread \u{b7} Cursor {value1}", "{value0} 个线程 \u{b7} 游标 {value1}"),
+    ("{value0} threads \u{b7} Cursor {value1}", "{value0} 个线程 \u{b7} 游标 {value1}"),
+    ("current", "当前"),
+    ("{value0} \u{b7} root seq {value1}", "{value0} \u{b7} 根序号 {value1}"),
+    ("denied", "拒绝"),
+    ("Approval scopes", "批准范围"),
+    ("Approval scopes were not read.", "未读取批准范围。"),
+    ("{value0} remembered approval scope for this Session.", "{value0} 条此会话记住的批准范围。"),
+    ("{value0} remembered approval scopes for this Session.", "{value0} 条此会话记住的批准范围。"),
+    ("Copy link", "复制链接"),
+    ("Copy conversation link", "复制对话链接"),
+    ("Conversation link copied.", "对话链接已复制。"),
+    ("Turn", "轮次"),
+    // ---- session switcher, thinking effort, Vim keys (board3/switcher.rs, thinking.rs, vim.rs)
+    ("Couldn't open that session.", "无法打开该会话。"),
+    ("Could not load sessions.", "无法加载会话。"),
+    ("Couldn't delete the session: {value0}", "无法删除会话：{value0}"),
+    ("Delete?", "删除？"),
+    ("Open a different session", "打开其他会话"),
+    ("Thought process", "思考过程"),
+    ("{seconds} s \u{b7} {words} words", "{seconds} 秒 \u{b7} {words} 词"),
+    ("{words} words", "{words} 词"),
+    ("Sets how much the model thinks before answering", "设置模型在回答前思考的程度"),
+    ("Use profile default", "使用配置档案默认值"),
+    ("Show reasoning", "显示推理"),
+    ("Default on for new chats", "新会话默认开启"),
+    ("Reasoning is hidden in this Session's transcript.", "此会话的记录中已隐藏推理。"),
+    ("No reasoning in this Session yet. New thinking appears folded in the transcript.", "此会话还没有推理。新的思考会折叠显示在记录中。"),
+    ("OFF", "关"),
+    ("NORMAL", "普通"),
+    ("INSERT", "插入"),
+    ("PENDING  {value0}", "等待  {value0}"),
+    ("PENDING  \u{2014}", "等待  \u{2014}"),
+    ("Key", "按键"),
+    ("Action", "操作"),
+    ("Press ? for more help", "按 ? 查看更多帮助"),
+    ("Vim keys", "Vim 按键"),
+    ("Composer editing \u{b7} Normal mode keys", "输入框编辑 \u{b7} 普通模式按键"),
+    ("Turn off Vim editing", "关闭 Vim 编辑"),
+    ("button|Done", "完成"),
+    ("Send the prompt", "发送请求"),
+    ("Normal mode / cancel", "普通模式 / 取消"),
+    ("Next word", "下一个单词"),
+    ("Delete line", "删除整行"),
+    ("Change line", "修改整行"),
+    ("Delete character", "删除字符"),
+    ("Modes", "模式"),
+    ("Motions", "移动"),
+    ("Edits", "编辑"),
+    ("Normal mode; cancels a pending g, d or c", "普通模式；取消待执行的 g、d 或 c"),
+    ("Insert before the caret", "在光标前插入"),
+    ("Insert after the caret", "在光标后插入"),
+    ("Insert at the line start", "在行首插入"),
+    ("Insert at the line end", "在行尾插入"),
+    ("Open a line below", "在下方新开一行"),
+    ("Open a line above", "在上方新开一行"),
+    ("Left / right", "左 / 右"),
+    ("Down / up a line", "下 / 上一行"),
+    ("Line start / end", "行首 / 行尾"),
+    ("Next / previous word", "下一个 / 上一个单词"),
+    ("End of the word", "单词末尾"),
+    ("Start / end of the draft", "草稿开头 / 结尾"),
+    ("Delete to the next word", "删除到下一个单词"),
+    (
+        "Enter sends the prompt in both modes. Any other key does nothing in Normal mode \u{2014} it never types text. A second Escape still stops a running turn.",
+        "两种模式下 Enter 都会发送请求。普通模式下其他按键不起作用 \u{2014} 不会输入任何文字。再按一次 Escape 仍会停止正在运行的轮次。",
+    ),
+    // ---- Trajectory pane, task detail, approval and question cards (surfaces/trajectory.rs, takeover.rs)
+    ("Task", "任务"),
+    ("{value0} artifact", "{value0} 个产物"),
+    ("{value0} artifacts", "{value0} 个产物"),
+    ("{value0} file", "{value0} 个文件"),
+    ("{value0} files", "{value0} 个文件"),
+    ("Cancelling\u{2026}", "正在取消\u{2026}"),
+    ("Reading artifacts\u{2026}", "正在读取产物\u{2026}"),
+    ("Live task output has a cursor gap. Load more output to resynchronize.", "实时任务输出出现游标缺口。请加载更多输出以重新同步。"),
+    ("Octos needs a decision", "Octos 需要你做决定"),
+    ("Submit answer", "提交回答"),
+    ("Stop turn", "停止轮次"),
+    ("Stop turn \u{b7} Esc", "停止轮次 \u{b7} Esc"),
+    ("Sends this answer and resumes the turn", "发送此回答并继续该轮次"),
+    // ---- dialog notices, workspace launch, onboarding, the Fleet badge (models.rs, launch.rs, onboarding.rs, fleet.rs)
+    (
+        "Could not confirm the server change. It may have been applied; refresh the Profile before reviewing another attempt.",
+        "无法确认服务器更改。它可能已被应用；请先刷新配置档案，再决定是否重试。",
+    ),
+    ("Route test failed: {value0}", "路由测试失败：{value0}"),
+    ("Route test finished.", "路由测试已完成。"),
+    ("Route test: {value0}", "路由测试：{value0}"),
+    ("Model discovery: {value0}", "模型发现：{value0}"),
+    ("no models reported", "未报告任何模型"),
+    ("Found {value0} model: {value1}", "找到 {value0} 个模型：{value1}"),
+    ("Found {value0} models: {value1}", "找到 {value0} 个模型：{value1}"),
+    ("Removed {value0} from server Profile {value1}.", "已从服务器配置档案 {value1} 中移除 {value0}。"),
+    ("Set up a profile for this workspace", "为此工作区设置配置档案"),
+    (
+        "This server has no profile yet. Create the local profile, then the Session opens in this folder.",
+        "此服务器还没有配置档案。请创建本地配置档案，随后会话将在此文件夹中打开。",
+    ),
+    ("Create the local profile", "创建本地配置档案"),
+    ("Then start a coding Session in this folder", "然后在此文件夹中开始编程会话"),
+    ("Start {value0} here", "在此处启动 {value0}"),
+    ("This server cannot onboard from this app", "此服务器不支持从此应用完成配置"),
+    (
+        "Sent only to your Octos server for test and save; never stored by this app.",
+        "仅发送至你的 Octos 服务器用于测试和保存；此应用不会存储。",
+    ),
+    ("Octos could not finish the setup.", "Octos 无法完成设置。"),
+    ("Creating profile", "正在创建配置档案"),
+    ("Testing provider", "正在测试提供商"),
+    ("Saving provider", "正在保存提供商"),
+    ("Opening coding session", "正在打开编程会话"),
+    ("Server-verified setup", "服务器验证的设置"),
+    ("Official API", "官方 API"),
+    ("Waiting", "等待中"),
+    ("Unknown", "未知"),
+    ("Type the steering text in the composer first, then choose Steer.", "请先在输入框中输入引导文字，然后选择\u{201c}引导\u{201d}。"),
+    // ---- the fallback renderer's send button (fallback.rs; the web's "Queue" key is the noun 队列)
+    ("verb|Queue", "加入队列"),
+    // ---- the sidebar's relative times (relative-time.ts buckets, printed without t() on the web)
+    ("now", "刚刚"),
+    ("{value0}m", "{value0} 分钟前"),
+    ("{value0}h", "{value0} 小时前"),
+    ("{value0}d", "{value0} 天前"),
+    // ---- A31 (merged from main): the Skills dialog's background jobs (parity row 15;
+    // board 4 region 3) and its warning; each row's English source in a comment.
+    // board 4 region 3, the section title
+    ("Background jobs", "后台作业"),
+    // board 4 region 3, the header count
+    ("{value0} queued", "{value0} 个排队中"),
+    // README row 15 status table: queued -> ○ Queued
+    ("Queued", "排队中"),
+    // README row 15 status table: failed
+    ("Couldn't finish this job.", "无法完成此作业。"),
+    // README row 15 status table: abandoned
+    ("The server restarted before this job finished.", "服务器在此作业完成前已重启。"),
+    // A31 empty state
+    ("No background jobs in this Session.", "此会话没有后台作业。"),
+    // A31 loading state
+    ("Loading background jobs…", "正在加载后台作业…"),
+    // A31 list failure
+    ("Couldn't load background jobs.", "无法加载后台作业。"),
+    // A31: a server without skill.action_jobs.v1 (operator default)
     (
         "Only jobs announced since the app connected are shown; this server doesn't list earlier jobs.",
         "仅显示应用连接后通知的作业；此服务器不提供更早作业的列表。",
-        "A31: a server without skill.action_jobs.v1 (operator default)",
     ),
-    // The Skills dialog's warning in its native wording ("on this device"
-    // for the web's "in your browser", SkillsDialog.tsx:158-162): the web's
-    // own Chinese with 此设备 for 浏览器.
+    // screens/dialog.rs SKILLS_WARNING (the web's zh.ts key with 'in your browser')
     (
         "Skills are shared by this Profile, not installed on this device. Installation may download executable \
          tools and dependencies. Review and trust the source first.",
         "技能由此配置档案共享，不会安装到此设备。安装可能下载可执行工具和依赖。请先审查并信任来源。",
-        "screens/dialog.rs SKILLS_WARNING (the web's zh.ts key with 'in your browser')",
     ),
-    // ---- A30: the sidebar peer dock (parity row 270; board 4 regions 6/7 and
-    // README "Row 270"). The collapsed pill rewrites the web's
-    // `formatPeerDockPill` ("3 · 1 live · 1/3 landed · 1 blocked", which the
-    // web never translates) in the Fleet's words (工作中 / 已完成, FLEET_ZH);
-    // the board names the web's "Approve for this session" (peer-copy.ts:
-    // 本次会话内批准) "Approve for session"; the control chain's three
-    // fail-closed labels (`fleet_driver::row_control`) read like the Fleet's
-    // "Take control of {value0} to do this" (需要先取得 {value0} 的控制权).
-    ("{value0} working", "{value0} 个工作中", "board 4 region 7, the pill's working count"),
-    ("{value0} waiting", "{value0} 个等待中", "board 4 region 7, the pill's waiting count"),
-    ("{value0}/{value1} finished", "{value0}/{value1} 已完成", "board 4 region 7, the pill's finished of total"),
-    ("Approve for session", "本次会话内批准", "board 4 region 6, the threaded card's link (the web's 'Approve for this session')"),
-    ("This peer is no longer in the roster.", "此同侪已不在名单中。", "fleet_driver::row_control's fail-closed label"),
-    ("Take control of this session to do this", "需要先取得此会话的控制权", "fleet_driver::row_control's fail-closed label"),
-    ("That action is not available right now.", "此操作当前不可用。", "fleet_driver::row_control's fail-closed label"),
-    // A30 follow-up: a control drawn for a request / turn the peer has since
-    // replaced is refused on the card (never a silent no-op).
+    // ---- the dialog family: Models, Context, Goal, Loops, Monitors, Tasks, Code review, their confirm / create cards (dialog_view.rs, dialog.rs, autonomy.rs, models.rs, review.rs)
+    ("Context", "上下文"),
+    ("Code review", "代码审查"),
+    ("Test route", "测试路由"),
+    ("Discover models", "发现模型"),
+    ("default route", "默认路由"),
+    ("{value0} (default)", "{value0}（默认）"),
+    ("{value0} model", "{value0} 个模型"),
+    ("{value0} models", "{value0} 个模型"),
+    ("Items", "条目"),
+    ("{value0} of {value1} tokens", "{value0} / {value1} 令牌"),
+    ("Compacting context \u{b7} {value0}", "正在压缩上下文 \u{b7} {value0}"),
+    ("Last compaction: {value0} \u{b7} {value1} → {value2} tokens", "上次压缩：{value0} \u{b7} {value1} → {value2} 令牌"),
+    ("Compaction:", "压缩方式："),
+    ("Heuristic", "启发式"),
+    ("Compact now", "立即压缩"),
+    ("Active", "进行中"),
+    ("Paused", "已暂停"),
+    ("Budget limited", "预算受限"),
+    ("Complete", "已完成"),
+    ("Token budget", "令牌预算"),
+    ("Elapsed", "已用时间"),
+    ("self-paced", "自定节奏"),
+    ("hourly", "每小时"),
+    ("every minute", "每分钟"),
+    ("every {value0}h", "每 {value0} 小时"),
+    ("every {value0}m", "每 {value0} 分钟"),
+    ("every {value0}s", "每 {value0} 秒"),
+    ("duration|{value0}s", "{value0} 秒"),
+    ("duration|{value0}m", "{value0} 分钟"),
+    ("duration|{value0}h", "{value0} 小时"),
+    ("{value0}h {value1}m", "{value0} 小时 {value1} 分钟"),
+    ("+ New loop", "+ 新建循环任务"),
+    ("+ New monitor", "+ 新建监视器"),
+    ("{value0} monitor \u{b7} {value1} active", "{value0} 个监视器 \u{b7} {value1} 个活动"),
+    ("{value0} monitors \u{b7} {value1} active", "{value0} 个监视器 \u{b7} {value1} 个活动"),
+    ("Waiting for output\u{2026}", "正在等待输出\u{2026}"),
+    ("Ready to review the current project changes.", "已准备好审查当前项目的更改。"),
+    ("Reviewing \u{b7} {value0} specialists", "正在审查 \u{b7} {value0} 个专家"),
+    ("Reviewing {value0} files \u{b7} {value1} specialists", "正在审查 {value0} 个文件 \u{b7} {value1} 个专家"),
+    ("This server does not advertise native code review.", "此服务器未声明支持原生代码审查。"),
+    ("Wait for this Session to finish recovery before starting review.", "请等待此会话完成恢复后再开始审查。"),
     (
-        "This peer changed. Review it and tap again.",
-        "此同侪已变化，请查看后重试。",
-        "fleet_driver::CHANGED_DRAWN, the dock's and the Fleet's stale-control refusal",
+        "Wait for this Session's active turn and queued prompts to settle before starting review.",
+        "请等待此会话当前的轮次和排队请求结束后再开始审查。",
     ),
-    // ---- A28: the diff review (parity row 23; board 4 frames 1 / 1b / 2,
-    // README "Row 23"; screens/board3/diff_review.rs). Terms as the web's
-    // zh: diff 差异, preview 预览, review 审查, plain text 纯文本.
     (
-        "Large preview shown as plain text. All lines are included.",
-        "大型预览以纯文本显示，已包含所有行。",
-        "DiffReviewDialog.tsx:107-109 plainNotice (the web renders it without t()); board 4 frame 1b",
+        "Wait for this Session's pending questions and approvals to settle before starting review.",
+        "请等待此会话待处理的问题和批准结束后再开始审查。",
     ),
-    ("No diff preview yet", "尚无差异预览", "A10: the header Review entry before any preview id"),
+    ("this Profile", "此配置档案"),
+    ("Confirm remove", "确认删除"),
+    ("Confirm install", "确认安装"),
+    ("New loop", "新建循环任务"),
+    ("New monitor", "新建监视器"),
+    ("Prompt (optional)", "提示词（可选）"),
+    (
+        "Creating a loop schedules server-owned work. It does not run in this app, and closing this panel does not stop it.",
+        "创建循环任务会安排由服务器管理的工作。它不在此应用中运行，关闭此面板也不会停止它。",
+    ),
+    ("A blank budget is left out; the server applies its default.", "预算留空时将省略，由服务器应用默认值。"),
+    (
+        "The command is a JSON array of arguments; it is not run through a shell. The monitor polls it on the server.",
+        "命令是一个 JSON 参数数组，不会通过 shell 运行。监视器会在服务器上轮询它。",
+    ),
+    ("This server does not advertise that control.", "此服务器未声明支持该控件。"),
+    ("Choose Maintenance, Self-paced, or Fixed interval.", "请选择维护、自定节奏或固定间隔。"),
+    ("A prompt is required for self-paced and fixed-interval loops.", "自定节奏和固定间隔的循环任务需要提示词。"),
+    (
+        "Use a whole-number native interval such as 60s, 5m, or 2h (60 seconds to 24 hours).",
+        "请使用整数的原生间隔，例如 60s、5m 或 2h（60 秒到 24 小时）。",
+    ),
+    ("Loop prompt must fit within the server's 8192-byte limit.", "循环任务提示词不能超过服务器的 8192 字节限制。"),
+    ("Type the monitor's name first.", "请先输入监视器名称。"),
+    (
+        "Probe command must be a JSON array of arguments, e.g. [\"./scripts/watch.sh\", \"--verbose\"].",
+        "探测命令必须是 JSON 参数数组，例如 [\"./scripts/watch.sh\", \"--verbose\"]。",
+    ),
+    ("Type the goal's objective first.", "请先输入目标内容。"),
+    ("The token budget is a whole number of tokens, such as 100000.", "令牌预算必须是整数，例如 100000。"),
+    // ---- the transcript's working row (flow.rs turn_activity)
+    ("Working \u{b7} {value0}s", "工作中 \u{b7} {value0} 秒"),
+    // ---- desktop notifications (attention.rs: the Settings row and the OS notice; desktop-notifications.ts has no zh)
+    ("Enabling\u{2026}", "正在开启\u{2026}"),
+    (
+        "Notify when a turn needs you or finishes while OctosCode is in the background",
+        "OctosCode 在后台时，若轮次需要你处理或已完成，将发送通知",
+    ),
+    ("Desktop notifications are unavailable here.", "此处无法使用桌面通知。"),
+    ("Desktop notifications are on.", "桌面通知已开启。"),
+    ("Permission was not granted. You can enable notifications later.", "未获得权限。你可以稍后再开启通知。"),
+    ("Could not enable desktop notifications. Try again when permissions allow.", "无法开启桌面通知。请在权限允许时重试。"),
+    ("Notification permission changed.", "通知权限已更改。"),
+    ("OctosCode could not show a desktop notification.", "OctosCode 无法显示桌面通知。"),
+    (
+        "Notifications are blocked. Allow OctosCode in System Settings \u{203a} Notifications.",
+        "通知已被阻止。请在\u{201c}系统设置 \u{203a} 通知\u{201d}中允许 OctosCode。",
+    ),
+    (
+        "Notifications are blocked. Allow them in Settings \u{203a} Apps \u{203a} OctosCode \u{203a} Notifications.",
+        "通知已被阻止。请在\u{201c}设置 \u{203a} 应用 \u{203a} OctosCode \u{203a} 通知\u{201d}中允许。",
+    ),
+    ("A background response needs your input. Return to OctosCode to review it.", "后台回复需要你的输入。请返回 OctosCode 查看。"),
+    ("A background response needs attention. Return to OctosCode to review it.", "后台回复需要处理。请返回 OctosCode 查看。"),
+    ("A background response finished. Return to OctosCode to review it.", "后台回复已完成。请返回 OctosCode 查看。"),
+    // ---- A30 (merged from main): the sidebar peer dock (row 270; board 4 regions 6/7); each row's English source in a comment.
+    // board 4 region 7, the pill's working count
+    ("{value0} working", "{value0} 个工作中"),
+    // board 4 region 7, the pill's waiting count
+    ("{value0} waiting", "{value0} 个等待中"),
+    // board 4 region 7, the pill's finished of total
+    ("{value0}/{value1} finished", "{value0}/{value1} 已完成"),
+    // board 4 region 6, the threaded card's link (the web's 'Approve for this session')
+    ("Approve for session", "本次会话内批准"),
+    // fleet_driver::row_control's fail-closed label
+    ("This peer is no longer in the roster.", "此同侪已不在名单中。"),
+    // fleet_driver::row_control's fail-closed label
+    ("Take control of this session to do this", "需要先取得此会话的控制权"),
+    // fleet_driver::row_control's fail-closed label
+    ("That action is not available right now.", "此操作当前不可用。"),
+    // fleet_driver::CHANGED_DRAWN (A30 follow-up): a control drawn for a request / turn the peer has
+    // since replaced is refused on the card (the dock's and the Fleet's stale-control refusal)
+    ("This peer changed. Review it and tap again.", "此同侪已变化，请查看后重试。"),
+    // ---- A28 (merged from main): the diff review (row 23; board 4 frames 1/1b/2); each row's English source in a comment.
+    // DiffReviewDialog.tsx:107-109 plainNotice (the web renders it without t()); board 4 frame 1b
+    ("Large preview shown as plain text. All lines are included.", "大型预览以纯文本显示，已包含所有行。"),
+    // A10: the header Review entry before any preview id
+    ("No diff preview yet", "尚无差异预览"),
+    // A10: the no-preview state's body
     (
         "A preview appears here once this Session proposes file changes, such as an approval that edits files.",
         "此会话提出文件更改（例如需要批准的文件编辑）后，预览会显示在这里。",
-        "A10: the no-preview state's body",
     ),
-    ("This server does not provide diff previews.", "此服务器不提供差异预览。", "A10: a server without diff/preview/get"),
-    ("Code review…", "代码审查…", "A10: the no-preview state's way to the Code review dialog (/review)"),
-    // ---- A29: the /btw aside (parity row 6; board 4 regions 4/5 and README
-    // "Row 6"). The web renders the controller's FAILED / STALE strings and
-    // the /btw usage reason untranslated (lazy-btw-controller.ts:52-54,
-    // intent.ts:103); the board splits each failure into a red lead and a
-    // muted cause, so both halves are entries too. 旁问 and 会话 are the web
-    // catalog's terms (旁问 — /btw, 此旁问不会保存到对话。).
-    (
-        "The aside could not be answered. Try again.",
-        "无法回答此旁问。请重试。",
-        "lazy-btw-controller.ts:52 FAILED",
-    ),
-    ("The aside could not be answered.", "无法回答此旁问。", "FAILED's red lead (board 4 region 5c's notice shape)"),
-    ("Try again.", "请重试。", "FAILED's muted cause"),
+    // A10: a server without diff/preview/get
+    ("This server does not provide diff previews.", "此服务器不提供差异预览。"),
+    // A10: the no-preview state's way to the Code review dialog (/review)
+    ("Code review…", "代码审查…"),
+    // ---- A29 (merged from main): the /btw aside (row 6; board 4 regions 4/5); each row's English source in a comment.
+    // lazy-btw-controller.ts:52 FAILED
+    ("The aside could not be answered. Try again.", "无法回答此旁问。请重试。"),
+    // FAILED's red lead (board 4 region 5c's notice shape)
+    ("The aside could not be answered.", "无法回答此旁问。"),
+    // FAILED's muted cause
+    ("Try again.", "请重试。"),
+    // lazy-btw-controller.ts:53-54 STALE
     (
         "The Session connection changed before the aside completed. Ask again when it is ready.",
         "旁问完成前，会话连接已变更。请在连接就绪后重新提问。",
-        "lazy-btw-controller.ts:53-54 STALE",
     ),
-    (
-        "The Session connection changed before the aside completed.",
-        "旁问完成前，会话连接已变更。",
-        "board 4 region 5c, the red lead",
-    ),
-    ("Ask again when it is ready.", "请在连接就绪后重新提问。", "board 4 region 5c, the muted cause"),
-    ("Answered", "已回答", "board 4 region 5b, the collapsed row's state word"),
+    // board 4 region 5c, the red lead
+    ("The Session connection changed before the aside completed.", "旁问完成前，会话连接已变更。"),
+    // board 4 region 5c, the muted cause
+    ("Ask again when it is ready.", "请在连接就绪后重新提问。"),
+    // board 4 region 5b, the collapsed row's state word
+    ("Answered", "已回答"),
+    // intent.ts:103, the /btw usage reason
     (
         "Use /btw <question> for a temporary side answer. Nothing was sent to the model.",
         "使用 /btw <问题> 获取临时旁问回答。未向模型发送任何内容。",
-        "intent.ts:103, the /btw usage reason",
     ),
+    // ---- model providers: the board-1 provider editor and the board-3 Model providers dialog (provider.rs, routes.rs, model_settings.rs copy); the Fleet's Back / brief
+    ("Edit provider", "编辑提供商"),
+    ("Your draft is kept.", "草稿已保留。"),
+    ("The provider rejected this key.", "提供商拒绝了此密钥。"),
+    ("The provider rejected this key ({value0}).", "提供商拒绝了此密钥（{value0}）。"),
+    ("No catalog models for this provider.", "此提供商在目录中没有模型。"),
+    ("Provider \u{b7} Route", "提供商 \u{b7} 路由"),
+    ("Paste the provider's API key", "粘贴提供商的 API 密钥"),
+    ("OpenAI-compatible", "OpenAI 兼容"),
+    ("Anthropic-compatible", "Anthropic 兼容"),
+    (
+        "This Octos server cannot report the active Profile\u{2019}s configured providers.",
+        "此 Octos 服务器无法报告当前配置档案已配置的提供商。",
+    ),
+    ("Octos did not identify an active Profile for model settings.", "Octos 未能确定用于模型设置的当前配置档案。"),
+    ("Could not load the active Profile\u{2019}s configured providers.", "无法加载当前配置档案已配置的提供商。"),
+    (
+        "This entry contains settings the editor cannot preserve. Edit it through Core configuration instead.",
+        "此条目包含编辑器无法保留的设置。请改为通过 Core 配置进行编辑。",
+    ),
+    (
+        "This configured model contains settings this editor cannot preserve. Edit it through Core configuration instead.",
+        "此已配置模型包含此编辑器无法保留的设置。请改为通过 Core 配置进行编辑。",
+    ),
+    ("The configured model inference settings cannot be safely preserved.", "无法安全保留已配置模型的推理设置。"),
+    ("The model settings response belongs to another profile.", "模型设置响应属于另一个配置档案。"),
+    ("The provider test did not pass.", "提供商测试未通过。"),
+    ("The server did not save the tested model configuration.", "服务器未保存已测试的模型配置。"),
+    ("No models are configured for this Profile.", "此配置档案未配置模型。"),
+    ("Back", "返回"),
+    ("Describe the task for the peer", "描述要交给同侪的任务"),
+    // ---- copy reaching the screen through a helper or a computed line (the phase-2 audit: tuple tables, forwarding helpers, chips, console states)
+    ("Manage providers", "管理提供商"),
+    ("Configured", "已配置"),
+    ("Operation", "操作"),
+    ("The dispatch could not be confirmed.", "无法确认此次派发。"),
+    ("The control command could not be confirmed.", "无法确认此控制命令。"),
+    ("The peer dispatch was accepted.", "同侪派发已被接受。"),
 ];
 
-fn table() -> &'static HashMap<&'static str, &'static str> {
-    static T: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
-    T.get_or_init(|| NATIVE_ZH.iter().map(|(en, zh, _)| (*en, *zh)).collect())
-}
+/// The web catalog's vocabulary: each English term (matched as a word,
+/// case-insensitively, plural included) and the renderings the web's own zh
+/// uses for it (`tools/i18n/web`): a native entry naming the term must use
+/// one of them, so the native copy reads like the web's.
+pub static GLOSSARY: &[(&str, &[&str])] = &[
+    ("session", &["会话"]),
+    ("chat", &["聊天", "会话", "对话"]),
+    ("profile", &["配置档案"]),
+    ("workspace", &["工作区"]),
+    ("server", &["服务器"]),
+    ("token", &["令牌"]),
+    ("approval", &["批准"]),
+    ("approve", &["批准"]),
+    ("deny", &["拒绝"]),
+    ("turn", &["轮次", "一轮"]),
+    ("prompt", &["提示", "请求"]),
+    ("model", &["模型"]),
+    ("provider", &["提供商"]),
+    ("peer", &["同侪", "协作会话"]),
+    ("fleet", &["舰队"]),
+    ("skill", &["技能"]),
+    ("agent", &["智能体"]),
+    ("goal", &["目标"]),
+    ("loop", &["循环任务", "循环"]),
+    ("monitor", &["监视器"]),
+    ("snapshot", &["快照"]),
+    ("checkpoint", &["检查点"]),
+    ("rewind", &["回退"]),
+    ("fork", &["分支"]),
+    ("thread", &["线程"]),
+    ("artifact", &["产物"]),
+    ("lane", &["通道"]),
+    ("sandbox", &["沙箱"]),
+    ("permission", &["权限"]),
+    ("composer", &["输入框"]),
+    ("draft", &["草稿"]),
+    ("steer", &["引导"]),
+    ("interrupt", &["中断"]),
+    ("context", &["上下文"]),
+    ("compaction", &["压缩"]),
+    ("thinking", &["思考"]),
+    ("reasoning", &["推理"]),
+    ("diff", &["差异"]),
+    ("review", &["审查"]),
+    ("pairing", &["配对"]),
+    ("pair", &["配对"]),
+    ("disconnect", &["断开"]),
+    ("reload", &["重新加载"]),
+    ("retry", &["重试"]),
+    ("cancel", &["取消"]),
+    ("history", &["历史"]),
+    ("image", &["图片"]),
+    ("task", &["任务"]),
+    ("tool", &["工具"]),
+    ("route", &["路由"]),
+    ("advertise", &["声明支持", "声明"]),
+    ("registry", &["注册表"]),
+    ("budget", &["预算"]),
+    ("credential", &["凭据"]),
+    ("folder", &["文件夹"]),
+    ("path", &["路径"]),
+    ("browse", &["浏览"]),
+    ("refresh", &["刷新"]),
+    ("copy", &["复制"]),
+    ("link", &["链接"]),
+    ("conversation", &["对话"]),
+    ("message", &["消息"]),
+    ("background", &["后台"]),
+    ("output", &["输出"]),
+    ("restore", &["恢复"]),
+    ("undo", &["撤销"]),
+    ("network", &["网络"]),
+    ("preferences", &["偏好设置"]),
+    ("palette", &["配色方案", "配色"]),
+    ("light", &["浅色"]),
+    ("dark", &["深色"]),
+];
 
-/// The native Chinese for `source`, if it is native copy.
+/// The few (entry, term) pairs where the word is not the noun the glossary
+/// renders — each reviewed; keep this list short.
+pub static GLOSSARY_EXEMPT: &[(&str, &str)] = &[
+    // The verb "turn off", not a conversation turn.
+    ("Turn off Vim editing", "turn"),
+    // "Return to OctosCode to review it": look at it (查看), not a code review.
+    ("A background response needs your input. Return to OctosCode to review it.", "review"),
+    ("A background response needs attention. Return to OctosCode to review it.", "review"),
+    ("A background response finished. Return to OctosCode to review it.", "review"),
+    // A30's stale-control refusal: "review it" is look at the changed row (查看).
+    ("This peer changed. Review it and tap again.", "review"),
+];
+
+/// The native Chinese for `source`, if it is native copy (A31's helper; the
+/// lookup the catalog uses is [`super::native_zh`]).
 pub fn zh(source: &str) -> Option<&'static str> {
-    table().get(source).copied()
+    super::native_zh(source)
 }
 
 #[cfg(test)]
@@ -143,15 +947,17 @@ mod tests {
         out
     }
 
+    /// A31: every native row is new copy (no web key, no alias), Chinese,
+    /// with its placeholders; a context row (`ctx|source`) included.
     #[test]
     fn every_native_entry_is_new_copy_with_chinese_and_its_placeholders() {
         let mut seen = std::collections::HashSet::new();
-        for (en, zh, source) in NATIVE_ZH {
+        for (en, zh) in NATIVE_ZH {
             assert!(seen.insert(*en), "duplicate {en:?}");
-            assert!(!source.is_empty());
+            let source = en.split_once('|').map(|(_, s)| s).unwrap_or(en);
             assert!(!catalog().contains_key(en), "{en:?} is a web key: use the web's translation");
             assert!(alias::web_key(en).is_none(), "{en:?} is an alias of a web key");
-            assert_eq!(placeholders(en), placeholders(zh), "{en:?}");
+            assert_eq!(placeholders(source), placeholders(zh), "{en:?}");
             assert!(zh.chars().any(|c| ('\u{4e00}'..='\u{9fff}').contains(&c)), "{en:?} -> {zh:?} is not Chinese");
             assert_eq!(tr_in(Lang::Zh, en), *zh);
             assert_eq!(tr_in(Lang::En, en), *en);

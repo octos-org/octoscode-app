@@ -47,6 +47,7 @@ use octoscode_client::domains::task::TaskList;
 use octoscode_store::Store;
 
 use super::board3::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::{tr, tr1, tr_with};
 
 // ----------------------------------------------------------------- the model
 
@@ -701,24 +702,38 @@ pub fn format_time(value: &str) -> String {
 
 /// The footer's left text (`ActivityNavigator.tsx:170-176`).
 pub fn footer_text(st: &ActState) -> &'static str {
-    if st.loading {
+    tr(if st.loading {
         "Refreshing task snapshots…"
     } else if st.available {
         "Read-only · refreshes every 10 seconds"
     } else {
         "Read-only · snapshots unavailable"
+    })
+}
+
+/// A24 — a filter's name as the web shows it: `t(candidate)` over the
+/// lowercase id (`ActivityNavigator.tsx:91`, capitalized by CSS).
+pub fn filter_name(f: Filter) -> String {
+    let name = tr(f.id());
+    let mut c = name.chars();
+    match c.next() {
+        Some(first) => first.to_uppercase().chain(c).collect(),
+        None => String::new(),
     }
 }
 
 /// The empty state's detail (`ActivityNavigator.tsx:154-166`).
 pub fn empty_detail(query: &str, filter: Filter) -> String {
     let q = query.trim();
+    // A24: the web's keys (`ActivityNavigator.tsx:158-166`); the filter
+    // reads in the current language (the web passes its raw id).
+    let name = tr(filter.id());
     if !q.is_empty() {
-        format!("No {} task matches “{q}”.", filter.id())
+        tr_with("No {value0} task matches “{value1}”.", &[("value0", name), ("value1", q)])
     } else if filter == Filter::All {
-        "No task snapshots are available yet.".to_owned()
+        tr("No task snapshots are available yet.").to_owned()
     } else {
-        format!("No {} tasks are available.", filter.id())
+        tr1("No {value0} tasks are available.", name)
     }
 }
 
@@ -779,11 +794,11 @@ pub fn lower(store: &Store) -> Option<Lowered> {
         ),
     );
     d.view("a9_act_head_col", "width: Fill height: Fit flow: Down spacing: 4");
-    d.text("a9_act_eyebrow", "ACROSS RECENT SESSIONS", &Txt::new(11.0, Face::Medium, tok::MUTED));
-    d.text("a9_act_title", "Activity", &Txt::new(20.0, Face::Semibold, tok::TEXT));
+    d.text("a9_act_eyebrow", &tr("Across recent sessions").to_uppercase(), &Txt::new(11.0, Face::Medium, tok::MUTED));
+    d.text("a9_act_title", tr("Activity"), &Txt::new(20.0, Face::Semibold, tok::TEXT));
     d.text(
         "a9_act_scope",
-        "Server-owned tasks; no session is opened by this scan.",
+        tr("Server-owned tasks; no session is opened by this scan."),
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     d.close();
@@ -823,7 +838,7 @@ pub fn lower(store: &Store) -> Option<Lowered> {
     let labels: Vec<String> = Filter::ALL
         .iter()
         .enumerate()
-        .map(|(i, f)| format!("{} {}", f.label(), model.counts[i]))
+        .map(|(i, f)| format!("{} {}", filter_name(*f), model.counts[i]))
         .collect();
     let options: Vec<(&str, String)> = Filter::ALL
         .iter()
@@ -850,7 +865,7 @@ pub fn lower(store: &Store) -> Option<Lowered> {
         d.icon("a9_act_warning_icon", "b3_warning.svg", 14.0, tok::AMBER);
         d.text(
             "a9_act_warning_text",
-            "Finish the workspace transition before opening another session.",
+            tr("Finish the workspace transition before opening another session."),
             &Txt::new(12.0, Face::Regular, tok::TEXT).w(W::Fill).wrap(),
         );
         d.close();
@@ -871,14 +886,14 @@ pub fn lower(store: &Store) -> Option<Lowered> {
     // The status lines (`role="status"` paragraphs, not alerts) sit on the
     // rows' inset so they line up with the state dots.
     if !st.available {
-        status_line(&mut d, "a9_act_unavailable", "This server does not advertise task snapshots.");
+        status_line(&mut d, "a9_act_unavailable", tr("This server does not advertise task snapshots."));
     }
     if let Some(e) = &st.error {
-        status_line(&mut d, "a9_act_error", e);
+        status_line(&mut d, "a9_act_error", tr(e));
     }
     // The text column's width: card - results padding - row padding - dot
     // column - gaps - the action pill (desktop) - the scroll gutter.
-    let btn_w = ui::text_w("Open session", 12.0, Face::Medium) + 24.0;
+    let btn_w = ui::text_w(tr("Open session"), 12.0, Face::Medium).max(ui::text_w(tr("Inspect"), 12.0, Face::Medium)) + 24.0;
     let text_w = if compact {
         w - 2.0 * 8.0 - 2.0 * 8.0 - 9.0 - 10.0 - 6.0
     } else {
@@ -895,7 +910,7 @@ pub fn lower(store: &Store) -> Option<Lowered> {
         "a9_act_empty",
         "width: Fill height: 220 flow: Down spacing: 6 align: Align{x: 0.5 y: 0.5}",
     );
-    d.text("a9_act_empty_title", "No matching activity", &Txt::new(13.0, Face::Medium, tok::TEXT));
+    d.text("a9_act_empty_title", tr("No matching activity"), &Txt::new(13.0, Face::Medium, tok::TEXT));
     d.text(
         "a9_act_empty_detail",
         &empty_detail(&st.query_snap, st.filter),
@@ -916,7 +931,7 @@ pub fn lower(store: &Store) -> Option<Lowered> {
     // The keyboard hint only where there is a keyboard (a phone frame closes
     // with the ×).
     if !compact {
-        d.text("a9_act_footer_esc", "Esc closes", &Txt::new(11.0, Face::Mono, tok::MUTED));
+        d.text("a9_act_footer_esc", tr("Esc closes"), &Txt::new(11.0, Face::Mono, tok::MUTED));
     }
     d.close();
 
@@ -948,14 +963,14 @@ fn lower_loading(frame: &Frame) -> Lowered {
         16.0,
         Some(tok::HAIRLINE),
     );
-    d.text("a9_act_loading_title", "Loading activity…", &Txt::new(17.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    d.text("a9_act_loading_title", tr("Loading activity…"), &Txt::new(17.0, Face::Semibold, tok::TEXT).w(W::Fill));
     d.text(
         "a9_act_loading_detail",
-        "Reading task snapshots from your confirmed sessions.",
+        tr("Reading task snapshots from your confirmed sessions."),
         &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     d.view("a9_act_loading_actions", "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} margin: Inset{top: 4}");
-    d.button("a9_act_loading_cancel", "Cancel", ACTION_CANCEL, Btn::Outline, W::Fit, 36.0);
+    d.button("a9_act_loading_cancel", tr("Cancel"), ACTION_CANCEL, Btn::Outline, W::Fit, 36.0);
     d.close();
     d.close();
     d.close();
@@ -976,8 +991,9 @@ fn search_input(d: &mut Dsl, snap: &str) {
         "a9_act_search",
         "TextInput",
         &format!(
-            "width: Fill height: Fit padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: \"Search session, task, role, or status…\"\nflow: Right is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {f} color_empty: {f} color_empty_hover: {f} color_empty_focus: {f}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
+            "width: Fill height: Fit padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: {}\nflow: Right is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {f} color_empty: {f} color_empty_hover: {f} color_empty_focus: {f}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
             ui::lit(snap),
+            ui::lit(tr("Search session, task, role, or status…")),
             t = tok::TEXT,
             f = tok::FAINT,
         ),
@@ -1019,7 +1035,7 @@ fn row(d: &mut Dsl, i: usize, r: &Row, current: bool, enabled: bool, compact: bo
         &ui::fit_w(&detail, text_w, 11.0, Face::Mono),
         &Txt::new(11.0, Face::Mono, tok::MUTED),
     );
-    let label = if current { "Inspect" } else { "Open session" };
+    let label = tr(if current { "Inspect" } else { "Open session" });
     let kind = if enabled { Btn::Outline } else { Btn::OutlineOff };
     let event = format!("{ACTION_ROW}#{i}");
     d.close(); // text

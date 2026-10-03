@@ -31,6 +31,7 @@ use serde_json::Value;
 
 use super::host::{Job, Outcome};
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::{tr, tr1};
 
 /// `ResearchDialog.tsx:208-214`, verbatim.
 pub const INTRO: &str = "Named provider routes for the server research pipeline. This is not a separate browser \
@@ -641,7 +642,7 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
     // glyph (inert while a mutation holds the lease, `:198-203`).
     let row = d.anon();
     d.view(&row, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4");
-    d.text("b3_title", "Research provider lanes", &ui::title().w(W::Fill));
+    d.text("b3_title", tr("Research provider lanes"), &ui::title().w(W::Fill));
     if st.busy {
         d.view("b3_research_refresh_box", "width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}");
         d.icon("b3_research_refresh_icon", "b3_refresh.svg", 16.0, tok::FAINT);
@@ -651,31 +652,31 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
     }
     ui::close_glyph(d, if st.mutating { "b3.noop" } else { "b3.close" });
     d.close();
-    d.text("b3_research_scope", &format!("Server Profile: {profile}"), &ui::micro().w(W::Fill));
+    d.text("b3_research_scope", &format!("{} {profile}", tr("Server Profile:")), &ui::micro().w(W::Fill));
     d.gap(W::Fill, 10.0);
     ui::body_open(d, frame, width, 60.0);
-    d.text("b3_research_intro", INTRO, &ui::meta().w(W::Fill).wrap());
+    d.text("b3_research_intro", tr(INTRO), &ui::meta().w(W::Fill).wrap());
     d.gap(W::Fill, 6.0);
     if lock || st.busy || st.error.is_some() || st.notice.is_some() {
         d.view("b3_research_status", "width: Fill height: Fit flow: Down spacing: 6 padding: Inset{bottom: 4}");
         if lock {
-            status(d, "b3_research_locked", LOCKED, tok::AMBER);
+            status(d, "b3_research_locked", tr(LOCKED), tok::AMBER);
         }
         if st.busy {
-            status(d, "b3_research_busy", "Waiting for the server…", tok::MUTED);
+            status(d, "b3_research_busy", tr("Waiting for the server…"), tok::MUTED);
         }
         if let Some(e) = &st.error {
             // A13: a failed read leads with what failed; the cause the web
             // prints stays under it, muted. The change refusal is already a
             // sentence for people.
             if e == MUTATION_FAILED {
-                status(d, "b3_research_error", e, tok::RED_TEXT);
+                status(d, "b3_research_error", tr(e), tok::RED_TEXT);
             } else {
                 ui::failure(d, "b3_research_error", LOAD_FAILED, e);
             }
         }
         if let Some(n) = &st.notice {
-            status(d, "b3_research_notice", n, tok::TEXT);
+            status(d, "b3_research_notice", tr(n), tok::TEXT);
         }
         d.close();
     }
@@ -697,13 +698,14 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
                     "{} · {} · {}",
                     dr.key,
                     dr.provider,
-                    if dr.model.is_empty() { "default model" } else { dr.model.as_str() }
+                    if dr.model.is_empty() { tr("default model") } else { dr.model.as_str() }
                 ),
                 "Confirm save",
             ),
             Confirm::Remove(k) => ("Confirm lane removal", k.clone(), "Confirm removal"),
         };
-        d.text("b3_research_confirm_title", title, &ui::heading().w(W::Fill));
+        let go = tr(go);
+        d.text("b3_research_confirm_title", tr(title), &ui::heading().w(W::Fill));
         d.text(
             "b3_research_confirm_detail",
             &ui::fit_w(&detail, inner_w, 12.0, Face::Mono),
@@ -711,23 +713,25 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
         );
         d.text(
             "b3_research_confirm_body",
+            // The web composes it around the Profile (ResearchDialog.tsx).
             &format!(
-                "This changes server Profile {profile}. The response will report whether a restart is required. \
-                 Removing a lane requires re-adding its configuration to recover it."
+                "{} {profile}{}",
+                tr("This changes server Profile"),
+                tr(". The response will report whether a restart is required. Removing a lane requires re-adding its configuration to recover it.")
             ),
             &ui::meta().w(W::Fill).wrap(),
         );
         let cancel = if st.busy { Btn::OutlineOff } else { Btn::Outline };
         let ok = if st.busy || lock { Btn::Disabled } else { Btn::Primary };
-        let fits = pill_w("Cancel lane change") + 8.0 + pill_w(go) <= inner_w;
+        let fits = pill_w(tr("Cancel lane change")) + 8.0 + pill_w(go) <= inner_w;
         pills_open(d, fits);
         if fits {
-            d.button("b3_research_cancel", "Cancel lane change", "b3.research.cancel", cancel, W::Fit, 34.0);
+            d.button("b3_research_cancel", tr("Cancel lane change"), "b3.research.cancel", cancel, W::Fit, 34.0);
             d.button("b3_research_confirm_go", go, "b3.research.confirm", ok, W::Fit, 34.0);
         } else {
             // The phone sheet: the primary on top, full width.
             d.button("b3_research_confirm_go", go, "b3.research.confirm", ok, W::Fill, 36.0);
-            d.button("b3_research_cancel", "Cancel lane change", "b3.research.cancel", cancel, W::Fill, 36.0);
+            d.button("b3_research_cancel", tr("Cancel lane change"), "b3.research.cancel", cancel, W::Fill, 36.0);
         }
         d.close();
         d.close();
@@ -735,7 +739,7 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
     d.gap(W::Fill, 8.0);
     // The lanes (`:229-279`), once this generation's list arrived.
     if st.loaded && lanes.is_empty() {
-        d.text("b3_research_empty", EMPTY, &ui::meta().w(W::Fill));
+        d.text("b3_research_empty", tr(EMPTY), &ui::meta().w(W::Fill));
     }
     if st.loaded {
         for (i, l) in lanes.iter().enumerate() {
@@ -746,14 +750,14 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
                 &ui::fit_w(&l.key, inner_w, 13.5, Face::Semibold),
                 &Txt::new(13.5, Face::Semibold, tok::TEXT).w(W::Fill),
             );
-            let model = l.model.clone().unwrap_or_else(|| "Model not specified".into());
+            let model = l.model.clone().unwrap_or_else(|| tr("Model not specified").into());
             d.text(
                 &format!("{id}_route"),
                 &ui::fit_w(&format!("{} · {model}", l.provider), inner_w, 12.5, Face::Regular),
                 &Txt::new(12.5, Face::Regular, tok::TEXT).w(W::Fill),
             );
-            let style = l.api_type.clone().unwrap_or_else(|| "Provider default".into());
-            d.text(&format!("{id}_style"), &format!("API style: {style}"), &ui::meta().w(W::Fill));
+            let style = l.api_type.clone().unwrap_or_else(|| tr("Provider default").into());
+            d.text(&format!("{id}_style"), &format!("{} {style}", tr("API style:")), &ui::meta().w(W::Fill));
             if let Some(desc) = l.description.as_deref().filter(|s| !s.is_empty()) {
                 d.text(&format!("{id}_desc"), desc, &ui::meta().w(W::Fill).wrap());
             }
@@ -761,7 +765,7 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
                 d.gap(W::Fill, 2.0);
                 let kind = if st.busy || lock { Btn::OutlineOff } else { Btn::Outline };
                 let short = ui::fit_w(&l.key, 140.0, 13.0, Face::Medium);
-                let (edit, remove) = (format!("Edit {short}"), format!("Remove {short}"));
+                let (edit, remove) = (tr1("Edit {value0}", &short), tr1("Remove {value0}", &short));
                 let fits = pill_w(&edit) + 8.0 + pill_w(&remove) <= inner_w;
                 let acts = d.anon();
                 if fits {
@@ -785,8 +789,8 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
     // Add or replace a lane (`:280-347`).
     if can_upsert {
         d.gap(W::Fill, 8.0);
-        ui::section_title(d, "b3_research_form_title", "Add or replace a lane");
-        d.text("b3_research_form_help", HELP, &ui::meta().w(W::Fill).wrap());
+        ui::section_title(d, "b3_research_form_title", tr("Add or replace a lane"));
+        d.text("b3_research_form_help", tr(HELP), &ui::meta().w(W::Fill).wrap());
         d.gap(W::Fill, 6.0);
         let form = format!("b3_research_form_{}", st.form_gen);
         d.surface(
@@ -800,29 +804,29 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
         pair(
             d,
             compact,
-            ("b3_research_key", "research.key", "Lane key", &s.key),
-            ("b3_research_provider", "research.provider", "Provider identity", &s.provider),
+            ("b3_research_key", "research.key", tr("Lane key"), &s.key),
+            ("b3_research_provider", "research.provider", tr("Provider identity"), &s.provider),
         );
         pair(
             d,
             compact,
-            ("b3_research_model", "research.model", "Model", &s.model),
-            ("b3_research_api_type", "research.api_type", "API style", &s.api_type),
+            ("b3_research_model", "research.model", tr("Model"), &s.model),
+            ("b3_research_api_type", "research.api_type", tr("API style"), &s.api_type),
         );
         pair(
             d,
             compact,
-            ("b3_research_base_url", "research.base_url", "Base URL", &s.base_url),
-            ("b3_research_api_key_env", "research.api_key_env", "API key environment name", &s.api_key_env),
+            ("b3_research_base_url", "research.base_url", tr("Base URL"), &s.base_url),
+            ("b3_research_api_key_env", "research.api_key_env", tr("API key environment name"), &s.api_key_env),
         );
         let cred = credential().1.clone();
-        masked_field(d, "b3_research_credential", "research.credential", CREDENTIAL_LABEL, &cred);
-        field(d, "b3_research_description", "research.description", "Description", &s.description, W::Fill);
+        masked_field(d, "b3_research_credential", "research.credential", tr(CREDENTIAL_LABEL), &cred);
+        field(d, "b3_research_description", "research.description", tr("Description"), &s.description, W::Fill);
         pair(
             d,
             compact,
-            ("b3_research_context_window", "research.context_window", "Context window (optional)", &s.context_window),
-            ("b3_research_max_output", "research.max_output_tokens", "Maximum output tokens (optional)", &s.max_output_tokens),
+            ("b3_research_context_window", "research.context_window", tr("Context window (optional)"), &s.context_window),
+            ("b3_research_max_output", "research.max_output_tokens", tr("Maximum output tokens (optional)"), &s.max_output_tokens),
         );
         // The footer: "Review lane save" (both variants; the live gate shows
         // one) and "Clear lane draft". The fieldset is disabled while busy or
@@ -830,26 +834,26 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
         let held = st.busy || st.confirm.is_some();
         let clear = if held { Btn::OutlineOff } else { Btn::Outline };
         let armed = if held || lock { Btn::Disabled } else { Btn::Primary };
-        let fits = pill_w("Clear lane draft") + 8.0 + pill_w("Review lane save") <= inner_w;
+        let fits = pill_w(tr("Clear lane draft")) + 8.0 + pill_w(tr("Review lane save")) <= inner_w;
         let h = if fits { 34.0 } else { 36.0 };
         d.gap(W::Fill, 2.0);
         pills_open(d, fits);
         if fits {
-            d.button("b3_research_clear", "Clear lane draft", "b3.research.clear", clear, W::Fit, h);
+            d.button("b3_research_clear", tr("Clear lane draft"), "b3.research.clear", clear, W::Fit, h);
         }
         let both = d.anon();
-        let review_w = if fits { format!("{}", pill_w("Review lane save").ceil()) } else { "Fill".to_owned() };
+        let review_w = if fits { format!("{}", pill_w(tr("Review lane save")).ceil()) } else { "Fill".to_owned() };
         d.view(&both, &format!("width: {review_w} height: {h} flow: Overlay"));
         d.view("b3_research_review_off", "width: Fill height: Fit flow: Right");
-        d.button("b3_research_review_disabled", "Review lane save", "b3.research.review", Btn::Disabled, W::Fill, h);
+        d.button("b3_research_review_disabled", tr("Review lane save"), "b3.research.review", Btn::Disabled, W::Fill, h);
         d.close();
         d.view("b3_research_review_on", "width: Fill height: Fit flow: Right");
-        d.button("b3_research_review", "Review lane save", "b3.research.review", armed, W::Fill, h);
+        d.button("b3_research_review", tr("Review lane save"), "b3.research.review", armed, W::Fill, h);
         d.close();
         d.close();
         if !fits {
             // The phone sheet: the primary on top, full width.
-            d.button("b3_research_clear", "Clear lane draft", "b3.research.clear", clear, W::Fill, h);
+            d.button("b3_research_clear", tr("Clear lane draft"), "b3.research.clear", clear, W::Fill, h);
         }
         d.close();
         d.close();

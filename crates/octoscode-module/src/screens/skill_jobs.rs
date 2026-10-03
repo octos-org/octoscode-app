@@ -220,6 +220,14 @@ fn row(job: &SkillJob, now_ms: u64) -> Row {
     }
 }
 
+/// A24 — the time column's width: one width for every row (the column
+/// aligns), the board's 36 px at least, as wide as the longest time at the
+/// 12 px meta font — the zh wording ("20 分钟前") is wider than the web's
+/// "20m" the 36 px column was sized for, and was cut at the card's edge.
+pub fn time_column_w(rows: &[Row]) -> f64 {
+    rows.iter().map(|r| ui::text_w(&r.time, 12.0, ui::Face::Regular) + 2.0).fold(36.0_f64, f64::max).ceil()
+}
+
 /// The section for the dialog's scope (`None`: no scope yet — no Session or
 /// Profile — so nothing is drawn).
 pub fn section(store: &Store, now_ms: u64) -> Option<Section> {
@@ -268,6 +276,49 @@ mod tests {
             let zh = i18n::tr_in(Lang::Zh, en);
             assert!(zh.chars().any(|c| ('\u{4e00}'..='\u{9fff}').contains(&c)), "{en:?} -> {zh:?}");
         }
+    }
+
+    /// A24 — a row's time is in the interface language (the judge saw
+    /// "now" / "2m" / "1h" in a Chinese dialog, docs/ux/a31 07-zh-desktop).
+    #[test]
+    fn a_row_time_reads_in_the_interface_language() {
+        let j = SkillJob::from_wire(
+            "p",
+            "p:s",
+            &serde_json::json!({"job_id": "j", "status": "running", "updated_at": "2026-10-02T10:00:00Z"}),
+        )
+        .unwrap();
+        let then = (j.updated_ns().unwrap() / 1_000_000) as u64;
+        i18n::set_language(Lang::Zh);
+        let zh: Vec<String> = [30_000, 2 * 60_000, 3_600_000].iter().map(|d| row(&j, then + d).time).collect();
+        i18n::set_language(Lang::En);
+        let en: Vec<String> = [30_000, 2 * 60_000, 3_600_000].iter().map(|d| row(&j, then + d).time).collect();
+        assert_eq!(zh, ["刚刚", "2 分钟前", "1 小时前"]);
+        assert_eq!(en, ["now", "2m", "1h"]);
+    }
+
+    /// A24 — the time column holds its longest time whole: the web's short
+    /// forms keep the board's 36 px; the zh wording widens the one column
+    /// (the walk saw "20 分钟前" cut to "20 分钅" in a 36 px box).
+    #[test]
+    fn the_time_column_holds_its_longest_time() {
+        let at = |time: &str| Row {
+            job_id: String::new(),
+            skill: String::new(),
+            action: String::new(),
+            name: String::new(),
+            chip: chip(&JobStatus::Running),
+            time: time.to_owned(),
+            message: Message::None,
+        };
+        let en = [at("now"), at("20m"), at("1h")];
+        assert_eq!(time_column_w(&en), 36.0, "the board's column for the web's short forms");
+        let zh = [at("刚刚"), at("20 分钟前"), at("1 小时前")];
+        let w = time_column_w(&zh);
+        for r in &zh {
+            assert!(w >= ui::text_w(&r.time, 12.0, ui::Face::Regular), "{:?} fits {w}", r.time);
+        }
+        assert!(w > 36.0, "{w}");
     }
 
     #[test]

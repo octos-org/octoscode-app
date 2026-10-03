@@ -1,0 +1,39 @@
+hd_title	Label	[347, 87, 217, 16]	Why does main.rs print 5?
+hd_path	Label	[347, 104, 217, 13]	<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace
+hd_tab_chat_off	Label	[580, 94, 26, 16]	聊天
+hd_tab_traj_on	Label	[628, 94, 26, 16]	轨迹
+hd_copy_label	Label	[730, 94, 107, 16]	复制为 Markdown
+hd_review_label	Label	[888, 94, 52, 16]	审查更改
+hd_settings_label	Label	[990, 94, 26, 16]	设置
+cv_tr_title	Label	[359, 149, 589, 25]	轨迹
+cv_tr_sub	Label	[359, 178, 589, 15]	此会话的计划与后台工作。
+cv_tr_refresh_label	Label	[977, 163, 26, 16]	刷新
+cv_tr_status_title	Label	[359, 220, 660, 16]	会话状态
+cv_tr_st_label_0	Label	[373, 271, 506, 15]	模型
+cv_tr_st_value_0	Label	[891, 271, 114, 15]	deepseek-v4-flash
+cv_tr_st_label_1	Label	[373, 306, 518, 15]	权限
+cv_tr_st_value_1	Label	[904, 306, 102, 15]	workspace_write
+cv_tr_st_label_2	Label	[373, 341, 605, 15]	健康状态
+cv_tr_st_value_2	Label	[991, 341, 15, 15]	ok
+cv_tr_plan_title	Label	[359, 404, 631, 16]	计划
+cv_tr_plan_title_count	Label	[1005, 406, 7, 13]	0
+cv_tr_plan_empty	Label	[373, 448, 632, 15]	没有活动计划。
+cv_tr_tasks_title	Label	[359, 504, 631, 16]	后台任务
+cv_tr_tasks_title_count	Label	[1005, 505, 7, 13]	2
+cv_tr_task_title_0	Label	[391, 545, 525, 16]	c24b-probe
+cv_tr_task_meta_0	Label	[391, 563, 525, 14]	running
+cv_tr_task_cancel_0_label	Label	[971, 553, 26, 16]	取消
+cv_tr_task_title_1	Label	[391, 607, 592, 16]	c24b-probe completed
+cv_tr_task_meta_1	Label	[391, 625, 592, 14]	completed
+-	Label	[72, 95, 220, 21]	OctosCode
+1	Label	[98, 137, 56, 17]	新建会话
+sg_text_on	Label	[106, 224, 39, 16]	工作区
+sg_text_off	Label	[190, 224, 52, 16]	统一列表
+sb_sort_label	Label	[276, 224, 26, 16]	最近
+sb_g_label	Label	[92, 265, 190, 18]	workspace
+sb_r_title	Label	[92, 300, 194, 17]	Why does main.rs print 5?
+sb_r_time	Label	[292, 301, 24, 15]	刚刚
+1	Label	[97, 543, 70, 17]	添加工作区
+fleet_nav_label	Label	[97, 577, 28, 17]	舰队
+sb_theme_label	Label	[97, 611, 56, 17]	跟随系统
+sb_settings_label	Label	[97, 645, 28, 17]	设置

@@ -309,7 +309,9 @@ pub fn error_line(d: &mut Dsl, id: &str, lead: &str, msg: &str) {
     if is_protocol_error(msg) {
         failure(d, id, lead, msg);
     } else {
-        d.text(id, &clean_cause(msg), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+        // A24: a message written for people is product copy (its key);
+        // server text is no key and reads as written.
+        d.text(id, &clean_cause(tr(msg)), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
 }
 
@@ -1193,21 +1195,47 @@ pub fn mono_box(d: &mut Dsl, id: &str, value: &str, trailing: Option<(&str, &str
 /// `now` under a minute, then `Nm`, `Nh`, `Nd` under a week, then a short
 /// date (`Sep 24`). `then_ms`/`now_ms` are Unix milliseconds.
 pub fn rel_time(now_ms: u64, then_ms: u64) -> String {
+    // A24: in the interface language (刚刚 / N 分钟前 / N 小时前 / N 天前), the
+    // sidebar's own buckets (`sidebar::relative_label`) — the web prints them
+    // without t().
     let secs = now_ms.saturating_sub(then_ms) / 1000;
     if secs < 60 {
-        return "now".into();
+        return tr("now").into();
     }
     let mins = secs / 60;
     if mins < 60 {
-        return format!("{mins}m");
+        return crate::i18n::tr1("{value0}m", &mins.to_string());
     }
     let hours = mins / 60;
     if hours < 24 {
-        return format!("{hours}h");
+        return crate::i18n::tr1("{value0}h", &hours.to_string());
     }
     let days = hours / 24;
     if days < 7 {
-        return format!("{days}d");
+        return crate::i18n::tr1("{value0}d", &days.to_string());
+    }
+    short_date(then_ms)
+}
+
+/// A24 — a past moment as people read it, in the current language: "just
+/// now", "5m ago", "3h ago", "2d ago" (刚刚 / 5 分钟前 / 3 小时前 / 2 天前),
+/// then a short date past a week (no "ago" after a date).
+pub fn rel_ago(now_ms: u64, then_ms: u64) -> String {
+    let secs = now_ms.saturating_sub(then_ms) / 1000;
+    if secs < 60 {
+        return tr("just now").to_owned();
+    }
+    let mins = secs / 60;
+    if mins < 60 {
+        return crate::i18n::tr1("{value0}m ago", &mins.to_string());
+    }
+    let hours = mins / 60;
+    if hours < 24 {
+        return crate::i18n::tr1("{value0}h ago", &hours.to_string());
+    }
+    let days = hours / 24;
+    if days < 7 {
+        return crate::i18n::tr1("{value0}d ago", &days.to_string());
     }
     short_date(then_ms)
 }
@@ -1226,6 +1254,10 @@ pub fn short_date(ms: u64) -> String {
     let mp = (5 * doy + 2) / 153;
     let day = doy - (153 * mp + 2) / 5 + 1;
     let month = if mp < 10 { mp + 3 } else { mp - 9 };
+    // The web's Intl short month + day in the interface language ("10月1日").
+    if crate::i18n::is_zh() {
+        return format!("{month}月{day}日");
+    }
     format!("{} {}", MONTHS[(month - 1) as usize], day)
 }
 

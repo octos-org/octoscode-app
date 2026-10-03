@@ -1,0 +1,46 @@
+[replay-serve] screens: 52 recorded replies: ["agent/artifact/list", "agent/interrupt", "agent/list", "agent/output/read", "agent/status/read", "config/capabilities/list", "content/list", "launch/resolve", "loop/create", "loop/delete", "loop/fire_now", "loop/list", "loop/pause", "loop/resume", "mcp/status/list", "monitor/create", "monitor/delete", "monitor/list", "monitor/pause", "monitor/resume", "onboarding/workspace_create", "onboarding/workspace_list", "peer/gather", "peer/prepare", "permission/profile/list", "permission/profile/set", "profile/llm/catalog", "profile/llm/delete", "profile/llm/list", "profile/llm/select", "profile/llm/upsert", "profile/local/create", "profile/skills/list", "profile/skills/remove", "profile/sub_providers/list", "profile/sub_providers/remove", "profile/sub_providers/upsert", "server/shutdown", "session/compact", "session/compact/mode/set", "session/delete", "session/files.list", "session/fork", "session/goal/clear", "session/goal/get", "session/goal/set", "session/list", "session/rollback", "session/status/read", "snapshot/list", "task/list", "turn/start"]
+[replay-serve] scenario=fleet fixture=a10-fleet-driver-synthetic.jsonl: 22 frames; recorded session `dsflash:main`; 0 recorded turns []; 0 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8508/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] -> session/list (peer dock: three Sessions)
+[replay-serve] <- session/hydrate (id=2)
+[replay-serve] -> session/hydrate (peer dock: an empty history)
+[replay-serve] <- session/list (id=3)
+[replay-serve] -> session/list (peer dock: three Sessions)
+[replay-serve] <- session/hydrate (id=4)
+[replay-serve] -> session/hydrate (peer dock: an empty history)
+[replay-serve] <- permission/profile/list (id=5)
+[replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] <- session/driver/get (id=6)
+[replay-serve] -> session/driver/get (fleet sim) 
+[replay-serve] <- profile/llm/list (id=7)
+[replay-serve] -> profile/llm/list (recorded reply)
+[replay-serve] <- profile/skills/list (id=8)
+[replay-serve] -> profile/skills/list (recorded reply)
+[replay-serve] <- profile/sub_providers/list (id=9)
+[replay-serve] -> profile/sub_providers/list (fleet sim) 
+[replay-serve] <- session/status/read (id=10)
+[replay-serve] -> session/status/read (recorded reply)
+[replay-serve] <- permission/profile/list (id=11)
+[replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] <- profile/sub_providers/list (id=12)
+[replay-serve] -> profile/sub_providers/list (fleet sim) 
+[replay-serve] <- session/driver/get (id=13)
+[replay-serve] -> session/driver/get (fleet sim) 
+[replay-serve] <- session/driver/acquire (id=14)
+[replay-serve] -> session/driver/acquire (fleet sim) expected_revision=42
+[replay-serve] <- peer/prepare (id=15)
+[replay-serve] -> peer/prepare (fleet sim) 
+[replay-serve] <- peer/dispatch (id=16)
+[replay-serve] -> peer/dispatch (fleet sim) operation_id=b4856a0e-ca3a-470c-afe0-5def8388d33f model=lane-glm adopted_session_id=dsflash:main#peer-steer adopted_turn_id=00000000-0000-4000-8000-0000000000d2
+[replay-serve] <- session/open (id=17)
+[replay-serve] => turn/started (fleet) session_id=dsflash:main#peer-steer
+[replay-serve] => progress/updated (fleet) session_id=dsflash:main#peer-steer
+[replay-serve] => approval/requested (fleet) session_id=dsflash:main#peer-steer approval_id=01a0eb92-9444-7101-aa6f-000000010001
+[replay-serve] <- profile/sub_providers/list (id=18)
+[replay-serve] -> profile/sub_providers/list (fleet sim) 
+[replay-serve] <- session/driver/get (id=19)
+[replay-serve] -> session/driver/get (fleet sim) 

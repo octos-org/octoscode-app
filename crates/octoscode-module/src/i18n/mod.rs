@@ -25,7 +25,8 @@
 //! - Never applied to model, user or server prose: only call sites that
 //!   carry product copy call [`tr`] (the web's rule, `zh.ts:1`).
 pub mod alias;
-// A31: native copy with no web counterpart (board 4 surfaces), translated here.
+// A24 phase 2 (+ A31's rows): the reviewed native-only supplement
+// (consulted last: web key, then alias, then native).
 pub mod native;
 pub mod tree;
 #[rustfmt::skip]
@@ -171,6 +172,12 @@ pub fn catalog_loaded() -> bool {
 /// the web's key has `can't` — one string, two spellings); `None` = no web
 /// translation.
 pub fn zh_for(source: &str) -> Option<&'static str> {
+    web_zh(source).or_else(|| native_zh(source))
+}
+
+/// The web's own Chinese for a source: its catalog key, or the web key of
+/// the same control ([`alias`]), with typographic quotes folded.
+pub fn web_zh(source: &str) -> Option<&'static str> {
     let cat = catalog();
     let lookup = |s: &str| {
         cat.get(s)
@@ -180,16 +187,23 @@ pub fn zh_for(source: &str) -> Option<&'static str> {
             // loader never merges — after the merged catalog, so a merged
             // key always wins.
             .or_else(|| zh::PEER_ZH.iter().find(|(k, _)| *k == s).map(|(_, v)| *v))
-            // A31 — native copy the web has no key for (board 4 surfaces;
-            // A30's peer dock included).
-            .or_else(|| native::zh(s))
     };
-    lookup(source).or_else(|| {
-        source
-            .contains(['\u{2018}', '\u{2019}', '\u{201c}', '\u{201d}'])
-            .then(|| source.replace(['\u{2018}', '\u{2019}'], "'").replace(['\u{201c}', '\u{201d}'], "\""))
-            .and_then(|plain| lookup(&plain))
-    })
+    lookup(source).or_else(|| fold_quotes(source).and_then(|plain| lookup(&plain)))
+}
+
+/// The reviewed native-only supplement ([`native`]), consulted after the
+/// web: copy the web has no Chinese for.
+pub fn native_zh(source: &str) -> Option<&'static str> {
+    static NATIVE: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
+    let map = NATIVE.get_or_init(|| native::NATIVE_ZH.iter().copied().collect());
+    map.get(source).copied().or_else(|| fold_quotes(source).and_then(|plain| map.get(plain.as_str()).copied()))
+}
+
+/// `can’t` -> `can't`, `“x”` -> `"x"` (None when there is nothing to fold).
+fn fold_quotes(source: &str) -> Option<String> {
+    source
+        .contains(['\u{2018}', '\u{2019}', '\u{201c}', '\u{201d}'])
+        .then(|| source.replace(['\u{2018}', '\u{2019}'], "'").replace(['\u{201c}', '\u{201d}'], "\""))
 }
 
 /// `t(source)` in `lang` (no interpolation).
@@ -204,6 +218,19 @@ pub fn tr_in(lang: Lang, source: &str) -> &str {
 /// the English source otherwise. Never allocates.
 pub fn tr(source: &str) -> &str {
     tr_in(language(), source)
+}
+
+/// One English word, two meanings: the theme's "System" reads 跟随系统, a
+/// system notice's "System" reads 系统. A native entry keyed
+/// `"<ctx>|<source>"` wins in that context; otherwise plain [`tr`]. The
+/// English is the source either way (no renamed copy).
+pub fn tr_ctx<'a>(ctx: &str, source: &'a str) -> &'a str {
+    if is_zh() {
+        if let Some(zh) = native_zh(&format!("{ctx}|{source}")) {
+            return zh;
+        }
+    }
+    tr(source)
 }
 
 /// `createUiText(lang, catalog)(source, params)` (ui-text.tsx:17-37):
@@ -231,6 +258,12 @@ pub fn keep(source: &str) -> &str {
 /// placeholder `{value0}`.
 pub fn tr1(source: &str, value0: &str) -> String {
     tr_with(source, &[("value0", value0)])
+}
+
+/// [`tr1`] through a context entry ([`tr_ctx`]): a duration's "{value0}m"
+/// (18 分钟) is not the sidebar's "{value0}m" ago (18 分钟前).
+pub fn tr1_ctx(ctx: &str, source: &str, value0: &str) -> String {
+    interpolate(tr_ctx(ctx, source), &[("value0", value0)])
 }
 
 /// The web's `/\{([^{}]+)\}/g` replacement (ui-text.tsx:29-35).

@@ -1,0 +1,175 @@
+hd_title	Label	[54, 85, 126, 16]	Why does main.rs print 5?
+hd_path	Label	[54, 102, 126, 13]	<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace
+hd_tab_chat_on	Label	[190, 92, 26, 16]	聊天
+hd_tab_traj_off	Label	[226, 92, 26, 16]	轨迹
+b3_tl_think_1_summary	Label	[50, 259, 211, 16]	The user asks to run `sudo…
+b3_tl_think_1_meta	Label	[269, 260, 63, 14]	1 秒 · 135 词
+i0_workingrow_label	Label	[38, 304, 80, 17]	工作中 · 2 秒
+i0_userbubble_0	Label	[217, 193, 111, 19]	重试 steer 队列
+b3_tl_fold_expand_label	Label	[16, 135, 50, 15]	全部展开
+b3_tl_fold_collapse_label	Label	[88, 135, 50, 15]	全部折叠
+cv_ap_title	Label	[62, 504, 179, 21]	Apply a patch to s…
+cv_ap_risk	Label	[258, 507, 67, 13]	medium 风险
+cv_ap_body	Label	[28, 538, 304, 17]	Retries the steer queue with backoff.
+cv_ap_tool	Label	[28, 561, 304, 15]	apply_patch · diff
+cv_ap_once_label	Label	[141, 607, 78, 16]	仅此一次批准
+cv_ap_session_label	Label	[135, 663, 91, 16]	本次会话内批准
+cv_ap_deny_label	Label	[167, 716, 26, 16]	拒绝
+cv_ap_diff_label	Label	[154, 764, 52, 16]	审查差异
+cv_ap_hint	Label	[147, 795, 67, 15]	Y / S / N / D
+b3_diff_eyebrow	Label	[16, 88, 110, 13]	服务器确认的差异预览
+b3_title	Label	[16, 103, 328, 21]	Retry the steer queue with backoff
+b3_diff_add	Label	[16, 139, 17, 16]	+6
+b3_diff_del	Label	[39, 139, 17, 16]	−4
+b3_diff_refresh_label	Label	[266, 139, 26, 16]	刷新
+b3_diff_status	Label	[23, 187, 33, 12]	ready
+b3_diff_source	Label	[78, 187, 86, 12]	pending_store
+b3_diff_file_0_mark	Label	[24, 231, 11, 15]	M
+b3_diff_file_0_path	Label	[43, 231, 237, 14]	crates/octos-cli/src/steer_q…
+b3_diff_file_0_status	Label	[288, 231, 48, 14]	modified
+b3_diff_file_0_h0_header	Label	[24, 261, 312, 13]	@@ -42,8 +42,10 @@ impl SteerQueue {
+b3_diff_file_0_h0_l0_old	Label	[24, 290, 30, 12]	42
+b3_diff_file_0_h0_l0_new	Label	[60, 290, 30, 12]	42
+b3_diff_file_0_h0_l0_prefix	Label	[96, 290, 10, 13]	 
+b3_diff_file_0_h0_l0_c0_pl	Label	[112, 290, 28, 13]	    
+b3_diff_file_0_h0_l0_c1_kw	Label	[140, 290, 14, 13]	fn
+b3_diff_file_0_h0_l0_c2_pl	Label	[153, 290, 7, 13]	 
+b3_diff_file_0_h0_l0_c3_fn	Label	[160, 290, 62, 13]	redeliver
+b3_diff_file_0_h0_l0_c4_pu	Label	[222, 290, 14, 13]	(&
+b3_diff_file_0_h0_l0_c5_kw	Label	[236, 290, 21, 13]	mut
+b3_diff_file_0_h0_l0_c6_pl	Label	[257, 290, 7, 13]	 
+b3_diff_file_0_h0_l0_c7_kw	Label	[264, 290, 28, 13]	self
+b3_diff_file_0_h0_l0_c8_pu	Label	[291, 290, 7, 13]	,
+b3_diff_file_0_h0_l0_c9_pl	Label	[298, 290, 35, 13]	 conn
+b3_diff_file_0_h0_l0_c10_pu	Label	[333, 290, 7, 13]	:
+b3_diff_file_0_h0_l0_c11_pl	Label	[340, 290, 7, 13]	 
+b3_diff_file_0_h0_l0_c12_pu	Label	[347, 290, 1, 13]	&
+b3_diff_file_0_h0_l1_old	Label	[24, 314, 30, 12]	43
+b3_diff_file_0_h0_l1_new	Label	[60, 314, 30, 12]	43
+b3_diff_file_0_h0_l1_prefix	Label	[96, 314, 10, 13]	 
+b3_diff_file_0_h0_l1_c0_pl	Label	[112, 314, 55, 13]	        
+b3_diff_file_0_h0_l1_c1_kw	Label	[167, 314, 21, 13]	let
+b3_diff_file_0_h0_l1_c2_pl	Label	[188, 314, 62, 13]	 pending 
+b3_diff_file_0_h0_l1_c3_pu	Label	[250, 314, 7, 13]	=
+b3_diff_file_0_h0_l1_c4_pl	Label	[257, 314, 7, 13]	 
+b3_diff_file_0_h0_l1_c5_kw	Label	[264, 314, 28, 13]	self
+b3_diff_file_0_h0_l1_c6_pu	Label	[291, 314, 7, 13]	.
+b3_diff_file_0_h0_l1_c7_fn	Label	[298, 314, 50, 13]	drain_pending
+b3_diff_file_0_h0_l2_old	Label	[24, 338, 30, 12]	44
+b3_diff_file_0_h0_l2_new	Label	[60, 338, 30, 12]	 
+b3_diff_file_0_h0_l2_prefix	Label	[96, 338, 10, 13]	−
+b3_diff_file_0_h0_l2_c0_pl	Label	[112, 338, 55, 13]	        
+b3_diff_file_0_h0_l2_c1_kw	Label	[167, 338, 21, 13]	let
+b3_diff_file_0_h0_l2_c2_pl	Label	[188, 338, 48, 13]	 delay 
+b3_diff_file_0_h0_l2_c3_pu	Label	[236, 338, 7, 13]	=
+b3_diff_file_0_h0_l2_c4_pl	Label	[243, 338, 7, 13]	 
+b3_diff_file_0_h0_l2_w0_c5_pl	Label	[250, 338, 55, 13]	Duration
+b3_diff_file_0_h0_l2_w0_c6_pu	Label	[305, 338, 14, 13]	::
+b3_diff_file_0_h0_l2_w0_c7_fn	Label	[319, 338, 29, 13]	from_millis
+b3_diff_file_0_h0_l3_old	Label	[24, 362, 30, 12]	 
+b3_diff_file_0_h0_l3_new	Label	[60, 362, 30, 12]	44
+b3_diff_file_0_h0_l3_prefix	Label	[96, 362, 10, 13]	+
+b3_diff_file_0_h0_l3_c0_pl	Label	[112, 362, 55, 13]	        
+b3_diff_file_0_h0_l3_c1_kw	Label	[167, 362, 21, 13]	let
+b3_diff_file_0_h0_l3_c2_pl	Label	[188, 362, 48, 13]	 delay 
+b3_diff_file_0_h0_l3_c3_pu	Label	[236, 362, 7, 13]	=
+b3_diff_file_0_h0_l3_c4_pl	Label	[243, 362, 7, 13]	 
+b3_diff_file_0_h0_l3_w0_c5_kw	Label	[250, 362, 28, 13]	self
+b3_diff_file_0_h0_l3_w0_c6_pu	Label	[278, 362, 7, 13]	.
+b3_diff_file_0_h0_l3_w0_c7_pl	Label	[285, 362, 48, 13]	backoff
+b3_diff_file_0_h0_l3_w0_c8_pu	Label	[333, 362, 7, 13]	.
+b3_diff_file_0_h0_l3_w0_c9_fn	Label	[340, 362, 8, 13]	next
+b3_diff_file_0_h0_l4_old	Label	[24, 386, 30, 12]	45
+b3_diff_file_0_h0_l4_new	Label	[60, 386, 30, 12]	45
+b3_diff_file_0_h0_l4_prefix	Label	[96, 386, 10, 13]	 
+b3_diff_file_0_h0_l4_c0_pl	Label	[112, 386, 55, 13]	        
+b3_diff_file_0_h0_l4_c1_kw	Label	[167, 386, 21, 13]	for
+b3_diff_file_0_h0_l4_c2_pl	Label	[188, 386, 35, 13]	 msg 
+b3_diff_file_0_h0_l4_c3_kw	Label	[222, 386, 14, 13]	in
+b3_diff_file_0_h0_l4_c4_pl	Label	[236, 386, 55, 13]	 pending
+b3_diff_file_0_h0_l4_c5_pu	Label	[291, 386, 7, 13]	.
+b3_diff_file_0_h0_l4_c6_fn	Label	[298, 386, 28, 13]	iter
+b3_diff_file_0_h0_l4_c7_pu	Label	[326, 386, 14, 13]	()
+b3_diff_file_0_h0_l4_c8_pl	Label	[340, 386, 7, 13]	 
+b3_diff_file_0_h0_l4_c9_pu	Label	[347, 386, 1, 13]	{
+b3_diff_file_0_h0_l5_old	Label	[24, 410, 30, 12]	46
+b3_diff_file_0_h0_l5_new	Label	[60, 410, 30, 12]	 
+b3_diff_file_0_h0_l5_prefix	Label	[96, 410, 10, 13]	−
+b3_diff_file_0_h0_l5_c0_pl	Label	[112, 410, 110, 13]	            conn
+b3_diff_file_0_h0_l5_c1_pu	Label	[222, 410, 7, 13]	.
+b3_diff_file_0_h0_l5_w0_c2_fn	Label	[229, 410, 28, 13]	send
+b3_diff_file_0_h0_l5_c3_pu	Label	[257, 410, 7, 13]	(
+b3_diff_file_0_h0_l5_c4_pl	Label	[264, 410, 21, 13]	msg
+b3_diff_file_0_h0_l5_c5_pu	Label	[285, 410, 21, 13]	)?;
+b3_diff_file_0_h0_l6_old	Label	[24, 434, 30, 12]	 
+b3_diff_file_0_h0_l6_new	Label	[60, 434, 30, 12]	46
+b3_diff_file_0_h0_l6_prefix	Label	[96, 434, 10, 13]	+
+b3_diff_file_0_h0_l6_c0_pl	Label	[112, 434, 110, 13]	            conn
+b3_diff_file_0_h0_l6_c1_pu	Label	[222, 434, 7, 13]	.
+b3_diff_file_0_h0_l6_w0_c2_fn	Label	[229, 434, 104, 13]	send_with_retry
+b3_diff_file_0_h0_l6_c3_pu	Label	[333, 434, 7, 13]	(
+b3_diff_file_0_h0_l6_c4_pl	Label	[340, 434, 8, 13]	msg
+b3_diff_file_0_h0_l7_old	Label	[24, 458, 30, 12]	47
+b3_diff_file_0_h0_l7_new	Label	[60, 458, 30, 12]	47
+b3_diff_file_0_h0_l7_prefix	Label	[96, 458, 10, 13]	 
+b3_diff_file_0_h0_l7_c0_pl	Label	[112, 458, 55, 13]	        
+b3_diff_file_0_h0_l7_c1_pu	Label	[167, 458, 7, 13]	}
+b3_diff_file_0_h0_l8_old	Label	[24, 482, 30, 12]	 
+b3_diff_file_0_h0_l8_new	Label	[60, 482, 30, 12]	48
+b3_diff_file_0_h0_l8_prefix	Label	[96, 482, 10, 13]	+
+b3_diff_file_0_h0_l8_c0_pl	Label	[112, 482, 55, 13]	        
+b3_diff_file_0_h0_l8_c1_kw	Label	[167, 482, 28, 13]	self
+b3_diff_file_0_h0_l8_c2_pu	Label	[195, 482, 7, 13]	.
+b3_diff_file_0_h0_l8_c3_pl	Label	[202, 482, 48, 13]	backoff
+b3_diff_file_0_h0_l8_c4_pu	Label	[250, 482, 7, 13]	.
+b3_diff_file_0_h0_l8_c5_fn	Label	[257, 482, 35, 13]	reset
+b3_diff_file_0_h0_l8_c6_pu	Label	[291, 482, 21, 13]	();
+b3_diff_file_0_h0_l9_old	Label	[24, 506, 30, 12]	 
+b3_diff_file_0_h0_l9_new	Label	[60, 506, 30, 12]	49
+b3_diff_file_0_h0_l9_prefix	Label	[96, 506, 10, 13]	+
+b3_diff_file_0_h0_l9_c0_pl	Label	[112, 506, 104, 13]	        tracing
+b3_diff_file_0_h0_l9_c1_pu	Label	[216, 506, 14, 13]	::
+b3_diff_file_0_h0_l9_c2_fn	Label	[229, 506, 35, 13]	debug
+b3_diff_file_0_h0_l9_c3_pu	Label	[264, 506, 14, 13]	!(
+b3_diff_file_0_h0_l9_c4_st	Label	[278, 506, 70, 13]	"redelivered {} messages"
+b3_diff_file_0_h0_l10_old	Label	[24, 530, 30, 12]	48
+b3_diff_file_0_h0_l10_new	Label	[60, 530, 30, 12]	50
+b3_diff_file_0_h0_l10_prefix	Label	[96, 530, 10, 13]	 
+b3_diff_file_0_h0_l10_c0_pl	Label	[112, 530, 55, 13]	        
+b3_diff_file_0_h0_l10_c1_cn	Label	[167, 530, 14, 13]	Ok
+b3_diff_file_0_h0_l10_c2_pu	Label	[181, 530, 28, 13]	(())
+b3_diff_file_0_h0_l11_old	Label	[24, 554, 30, 12]	49
+b3_diff_file_0_h0_l11_new	Label	[60, 554, 30, 12]	51
+b3_diff_file_0_h0_l11_prefix	Label	[96, 554, 10, 13]	 
+b3_diff_file_0_h0_l11_c0_pl	Label	[112, 554, 28, 13]	    
+b3_diff_file_0_h0_l11_c1_pu	Label	[140, 554, 7, 13]	}
+b3_diff_file_1_mark	Label	[24, 608, 11, 15]	M
+b3_diff_file_1_path	Label	[43, 609, 237, 14]	config/octos.conf
+b3_diff_file_1_status	Label	[288, 609, 48, 14]	modified
+b3_diff_file_1_h0_header	Label	[24, 639, 312, 13]	@@ -3,1 +3,1 @@
+b3_diff_file_1_h0_l0_old	Label	[24, 668, 30, 12]	3
+b3_diff_file_1_h0_l0_new	Label	[60, 668, 30, 12]	 
+b3_diff_file_1_h0_l0_prefix	Label	[96, 667, 10, 13]	−
+b3_diff_file_1_h0_l0_c0_tx	Label	[112, 667, 159, 13]	steer.retry.delay_ms = 
+b3_diff_file_1_h0_l0_w0_c1_tx	Label	[271, 667, 21, 13]	500
+b3_diff_file_1_h0_l1_old	Label	[24, 692, 30, 12]	 
+b3_diff_file_1_h0_l1_new	Label	[60, 692, 30, 12]	3
+b3_diff_file_1_h0_l1_prefix	Label	[96, 691, 10, 13]	+
+b3_diff_file_1_h0_l1_c0_tx	Label	[112, 691, 159, 13]	steer.retry.delay_ms = 
+b3_diff_file_1_h0_l1_w0_c1_tx	Label	[271, 691, 21, 13]	250
+b3_diff_file_2_mark	Label	[24, 738, 11, 15]	M
+b3_diff_file_2_path	Label	[43, 738, 237, 14]	docs/steer.md
+b3_diff_file_2_status	Label	[288, 738, 48, 14]	modified
+b3_diff_file_2_h0_header	Label	[24, 769, 312, 13]	@@ -11,2 +11,2 @@
+b3_diff_file_2_h0_l0_old	Label	[24, 797, 30, 12]	11
+b3_diff_file_2_h0_l0_new	Label	[60, 797, 30, 12]	11
+b3_diff_file_2_h0_l0_prefix	Label	[96, 797, 10, 13]	 
+b3_diff_file_2_h0_l0_c0_kw	Label	[112, 797, 69, 13]	## Retries
+b3_diff_file_2_h0_l1_old	Label	[24, 821, 30, 12]	12
+b3_diff_file_2_h0_l1_new	Label	[60, 821, 30, 12]	 
+b3_diff_file_2_h0_l1_prefix	Label	[96, 821, 10, 13]	−
+b3_diff_file_2_h0_l1_c0_pl	Label	[112, 821, 186, 13]	Retries happen immediately.
+b3_diff_file_2_h0_l2_old	Label	[24, 845, 30, 5]	 
+b3_diff_file_2_h0_l2_new	Label	[60, 845, 30, 5]	12
+b3_diff_file_2_h0_l2_prefix	Label	[96, 845, 10, 5]	+
+b3_diff_file_2_h0_l2_c0_pl	Label	[112, 845, 186, 5]	Backoff doubles up to 30 s.

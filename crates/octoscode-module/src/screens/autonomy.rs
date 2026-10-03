@@ -1448,18 +1448,19 @@ pub(crate) fn format_tokens(value: u64) -> String {
 /// The web's interval ladder (model.ts:138-146): "every Ns"/"every Nm"/
 /// "hourly"/"every Nh"/"every minute"/"self-paced".
 fn format_interval(seconds: Option<u64>) -> String {
+    use crate::i18n::{tr, tr1};
     let Some(seconds) = seconds else {
-        return "self-paced".to_owned();
+        return tr("self-paced").to_owned();
     };
     if seconds % 60 == 0 {
         let minutes = seconds / 60;
         if minutes % 60 == 0 {
             let hours = minutes / 60;
-            return if hours == 1 { "hourly".to_owned() } else { format!("every {hours}h") };
+            return if hours == 1 { tr("hourly").to_owned() } else { tr1("every {value0}h", &hours.to_string()) };
         }
-        return if minutes == 1 { "every minute".to_owned() } else { format!("every {minutes}m") };
+        return if minutes == 1 { tr("every minute").to_owned() } else { tr1("every {value0}m", &minutes.to_string()) };
     }
-    format!("every {seconds}s")
+    tr1("every {value0}s", &seconds.to_string())
 }
 
 pub(crate) fn cadence(loop_row: &Value) -> String {
@@ -1468,34 +1469,36 @@ pub(crate) fn cadence(loop_row: &Value) -> String {
 
 /// The compact ladder for the monitor row's narrow slot: "1h"/"30m"/"30s".
 pub(crate) fn interval_short(seconds: Option<u64>) -> String {
+    use crate::i18n::{tr, tr1_ctx};
     let Some(seconds) = seconds else {
-        return "self-paced".to_owned();
+        return tr("self-paced").to_owned();
     };
     if seconds % 3600 == 0 {
-        format!("{}h", seconds / 3600)
+        tr1_ctx("duration", "{value0}h", &(seconds / 3600).to_string())
     } else if seconds % 60 == 0 {
-        format!("{}m", seconds / 60)
+        tr1_ctx("duration", "{value0}m", &(seconds / 60).to_string())
     } else {
-        format!("{seconds}s")
+        tr1_ctx("duration", "{value0}s", &seconds.to_string())
     }
 }
 
 /// Atlas-granular elapsed ('0s'/'18m'/'1h 30m'); the web renders no elapsed
 /// formatter, so this is implemented per entry #30b2 (no cite).
 pub(crate) fn elapsed_atlas(seconds: u64) -> String {
+    use crate::i18n::{tr1_ctx, tr_with};
     if seconds < 60 {
-        return format!("{seconds}s");
+        return tr1_ctx("duration", "{value0}s", &seconds.to_string());
     }
     let minutes = seconds / 60;
     if minutes < 60 {
-        return format!("{minutes}m");
+        return tr1_ctx("duration", "{value0}m", &minutes.to_string());
     }
     let hours = minutes / 60;
     let rest = minutes % 60;
     if rest == 0 {
-        format!("{hours}h")
+        tr1_ctx("duration", "{value0}h", &hours.to_string())
     } else {
-        format!("{hours}h {rest}m")
+        tr_with("{value0}h {value1}m", &[("value0", &hours.to_string()), ("value1", &rest.to_string())])
     }
 }
 

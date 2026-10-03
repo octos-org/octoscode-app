@@ -28,6 +28,7 @@ use octoscode_store::Store;
 
 use super::host::Outcome;
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::{tr, tr1, tr_with};
 
 pub const GRAPH_METHOD: &str = "thread/graph/get";
 pub const SCOPES_METHOD: &str = "approval/scopes/list";
@@ -414,7 +415,7 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, store: &Store) {
     ui::close_glyph(d, "b3.close");
     d.close();
     d.gap(W::Fill, 6.0);
-    d.text("b3_title", st.mode.title(), &Txt::new(20.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    d.text("b3_title", tr(st.mode.title()), &Txt::new(20.0, Face::Semibold, tok::TEXT).w(W::Fill));
     // Scope line + refresh glyph (`InspectionDialog.tsx:70-76`).
     let scope_row = d.anon();
     d.view(&scope_row, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5}");
@@ -422,16 +423,16 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, store: &Store) {
     // (the web's dialog is scoped by its props from the first frame; an
     // empty "Session: " flashed between the open and the load).
     let session = if st.session.is_empty() { store.active_session().unwrap_or_default() } else { st.session.clone() };
-    let mut scope = format!("Session: {session}");
+    let mut scope = format!("{} {session}", tr("Session:"));
     if let Mode::Turn(id) = &st.mode {
-        scope.push_str(&format!(" · Turn: {}", short(id)));
+        scope.push_str(&format!(" · {} {}", tr("Turn:"), short(id)));
     }
     d.text("b3_insp_scope", &scope, &Txt::new(12.0, Face::Mono, tok::MUTED).w(W::Fill));
     ui::icon_button(d, "b3_insp_refresh_glyph", "b3_refresh.svg", 20.0, "b3.insp.refresh");
     d.close();
     d.text(
         "b3_insp_note",
-        "Read-only server snapshot. Reading does not change the conversation, queued prompts, or active Session.",
+        tr("Read-only server snapshot. Reading does not change the conversation, queued prompts, or active Session."),
         &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     d.gap(W::Fill, 12.0);
@@ -439,10 +440,10 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, store: &Store) {
     let body = d.anon();
     d.view(&body, "width: Fill height: Fit flow: Down spacing: 12");
     if st.loading {
-        d.text("b3_insp_loading", "Reading the captured Session…", &ui::meta());
+        d.text("b3_insp_loading", tr("Reading the captured Session…"), &ui::meta());
     }
     if let Some(e) = &st.error {
-        d.text("b3_insp_error", e, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+        d.text("b3_insp_error", tr(e), &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     // The command's own subject first: `/permissions` reads the remembered
     // approvals (`InspectionDialog.tsx` "scopes"), `/turn` the turn state,
@@ -476,7 +477,7 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, store: &Store) {
     let foot = d.anon();
     d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
     let kind = if st.loading { Btn::Disabled } else { Btn::Secondary };
-    let label = if st.loading { "Reading…" } else { "Refresh" };
+    let label = tr(if st.loading { "Reading…" } else { "Refresh" });
     d.button("b3_insp_refresh", label, "b3.insp.refresh", kind, W::Fit, 34.0);
     d.close();
     ui::shell_close(d);
@@ -484,20 +485,20 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, store: &Store) {
 
 fn graph_card(d: &mut Dsl, st: &InspState, compact: bool) {
     ui::card_open(d, "b3_insp_graph", 4.0);
-    ui::section_title(d, "b3_insp_graph_title", "Thread graph");
+    ui::section_title(d, "b3_insp_graph_title", tr("Thread graph"));
     match &st.graph {
-        None => d.text("", "No thread graph read yet.", &ui::meta()),
+        None => d.text("", tr("No thread graph read yet."), &ui::meta()),
         Some(g) if g.threads.is_empty() => {
-            d.text("b3_insp_graph_empty", "No threads returned for this Session.", &ui::meta())
+            d.text("b3_insp_graph_empty", tr("No threads returned for this Session."), &ui::meta())
         }
         Some(g) => {
+            // The web's count + t("thread(s) · Cursor") + cursor
+            // (InspectionDialog.tsx:149-152), with the native plural.
             d.text(
                 "b3_insp_graph_summary",
-                &format!(
-                    "{} thread{} · Cursor {}",
-                    g.threads.len(),
-                    if g.threads.len() == 1 { "" } else { "s" },
-                    g.cursor
+                &tr_with(
+                    if g.threads.len() == 1 { "{value0} thread · Cursor {value1}" } else { "{value0} threads · Cursor {value1}" },
+                    &[("value0", &g.threads.len().to_string()), ("value1", &g.cursor)],
                 ),
                 &ui::micro().w(W::Fill).wrap(),
             );
@@ -505,10 +506,10 @@ fn graph_card(d: &mut Dsl, st: &InspState, compact: bool) {
             let last = g.threads.len() - 1;
             for (i, t) in g.threads.iter().enumerate() {
                 let rid = format!("b3_insp_thread_{i}");
-                let label = if i == last { "current".to_owned() } else { format!("#{}", i + 1) };
-                let facts = format!("{} · root seq {}", t.status, t.root_seq);
+                let label = if i == last { tr("current").to_owned() } else { format!("#{}", i + 1) };
+                let facts = tr_with("{value0} · root seq {value1}", &[("value0", &t.status), ("value1", &t.root_seq.to_string())]);
                 let n = t.message_seqs.len();
-                let count = format!("{n} message{}", if n == 1 { "" } else { "s" });
+                let count = tr1(if n == 1 { "{value0} message" } else { "{value0} messages" }, &n.to_string());
                 if compact {
                     // Phone-narrow: the facts move under the id (one column
                     // of 300 px cannot hold four).
@@ -537,7 +538,7 @@ fn graph_card(d: &mut Dsl, st: &InspState, compact: bool) {
                 let list: Vec<String> = g.orphans.iter().map(|o| o.to_string()).collect();
                 d.text(
                     "b3_insp_orphans",
-                    &format!("Orphan message sequences: {}", list.join(", ")),
+                    &format!("{} {}", tr("Orphan message sequences:"), list.join(", ")),
                     &ui::micro().w(W::Fill),
                 );
             }
@@ -549,8 +550,8 @@ fn graph_card(d: &mut Dsl, st: &InspState, compact: bool) {
 fn decision_tag(d: &mut Dsl, id: &str, decision: &str) {
     let lower = decision.to_ascii_lowercase();
     let (text, fg, bg) = match lower.as_str() {
-        "allow" | "allowed" | "approve" | "approved" | "accept" => ("allowed".to_owned(), tok::BLUE_TEXT, tok::BLUE_BG),
-        "deny" | "denied" | "reject" | "rejected" => ("denied".to_owned(), tok::RED_TEXT, tok::RED_BG),
+        "allow" | "allowed" | "approve" | "approved" | "accept" => (tr("allowed").to_owned(), tok::BLUE_TEXT, tok::BLUE_BG),
+        "deny" | "denied" | "reject" | "rejected" => (tr("denied").to_owned(), tok::RED_TEXT, tok::RED_BG),
         other => (other.to_owned(), tok::MUTED, tok::SURFACE2),
     };
     d.chip(id, &text, fg, bg, None, false);
@@ -558,19 +559,24 @@ fn decision_tag(d: &mut Dsl, id: &str, decision: &str) {
 
 fn scopes_card(d: &mut Dsl, st: &InspState) {
     ui::card_open(d, "b3_insp_scopes", 4.0);
-    ui::section_title(d, "b3_insp_scopes_title", "Approval scopes");
+    ui::section_title(d, "b3_insp_scopes_title", tr("Approval scopes"));
     match &st.scopes {
-        None => d.text("", "Approval scopes were not read.", &ui::meta()),
+        None => d.text("", tr("Approval scopes were not read."), &ui::meta()),
         Some(rows) if rows.is_empty() => {
-            d.text("b3_insp_scopes_empty", "No remembered approval scopes for this Session.", &ui::meta().w(W::Fill).wrap())
+            d.text("b3_insp_scopes_empty", tr("No remembered approval scopes for this Session."), &ui::meta().w(W::Fill).wrap())
         }
         Some(rows) => {
+            // count + t("remembered approval scope(s) for this Session.")
+            // (InspectionDialog.tsx:108-110), with the native plural.
             d.text(
                 "b3_insp_scopes_summary",
-                &format!(
-                    "{} remembered approval scope{} for this Session.",
-                    rows.len(),
-                    if rows.len() == 1 { "" } else { "s" }
+                &tr1(
+                    if rows.len() == 1 {
+                        "{value0} remembered approval scope for this Session."
+                    } else {
+                        "{value0} remembered approval scopes for this Session."
+                    },
+                    &rows.len().to_string(),
                 ),
                 &ui::micro().w(W::Fill),
             );
@@ -582,7 +588,7 @@ fn scopes_card(d: &mut Dsl, st: &InspState) {
                     name = format!("{}{}", first.to_uppercase(), &name[1..]);
                 }
                 d.text("", &name, &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Px(110.0)));
-                let m = if s.scope_match.is_empty() { "(empty)".to_owned() } else { s.scope_match.clone() };
+                let m = if s.scope_match.is_empty() { tr("(empty)").to_owned() } else { s.scope_match.clone() };
                 d.text("", &super::inventory::fit(&m, 260.0, 12.0, true), &Txt::new(12.0, Face::Mono, tok::MUTED).w(W::Fill));
                 decision_tag(d, &format!("{rid}_decision"), &s.decision);
                 d.close();
@@ -591,7 +597,7 @@ fn scopes_card(d: &mut Dsl, st: &InspState) {
     }
     d.text(
         "b3_insp_scopes_note",
-        "This view lists server-owned decisions only. It does not clear or change permissions.",
+        tr("This view lists server-owned decisions only. It does not clear or change permissions."),
         &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     d.close();
@@ -612,10 +618,10 @@ fn link_card(d: &mut Dsl, st: &InspState, field_w: f64) {
     ui::card_open(d, "b3_insp_link", 8.0);
     let head = d.anon();
     d.view(&head, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}");
-    ui::section_title(d, "b3_insp_link_title", "Copy link");
+    ui::section_title(d, "b3_insp_link_title", tr("Copy link"));
     d.button(
         "b3_insp_copy_btn",
-        if st.copied { "Copied" } else { "Copy conversation link" },
+        tr(if st.copied { "Copied" } else { "Copy conversation link" }),
         "b3.insp.copy",
         if st.link.is_empty() { Btn::Disabled } else { Btn::Outline },
         W::Fit,
@@ -625,7 +631,7 @@ fn link_card(d: &mut Dsl, st: &InspState, field_w: f64) {
     if st.link.is_empty() {
         d.text(
             "b3_insp_link_missing",
-            "This conversation does not have a complete saved reference yet.",
+            tr("This conversation does not have a complete saved reference yet."),
             &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
         );
     } else {
@@ -644,7 +650,7 @@ fn link_card(d: &mut Dsl, st: &InspState, field_w: f64) {
         d.close();
     }
     if st.copied {
-        d.text("b3_insp_copied", "Conversation link copied.", &Txt::new(12.0, Face::Regular, tok::GREEN_TEXT));
+        d.text("b3_insp_copied", tr("Conversation link copied."), &Txt::new(12.0, Face::Regular, tok::GREEN_TEXT));
     }
     d.close();
 }
@@ -652,11 +658,11 @@ fn link_card(d: &mut Dsl, st: &InspState, field_w: f64) {
 /// `InspectionDialog.tsx:201-247`: the turn's facts.
 fn turn_card(d: &mut Dsl, id: &str, t: &TurnFacts) {
     ui::card_open(d, "b3_insp_turn", 4.0);
-    ui::section_title(d, "b3_insp_turn_title", "Turn state");
+    ui::section_title(d, "b3_insp_turn_title", tr("Turn state"));
     let fact = |d: &mut Dsl, k: &str, v: &str| {
         let r = d.anon();
         d.view(&r, "width: Fill height: 26 flow: Right align: Align{x: 0.0 y: 0.5}");
-        d.text("", k, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Px(190.0)));
+        d.text("", tr(k), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Px(190.0)));
         d.text("", v, &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill));
         d.close();
     };
@@ -672,7 +678,7 @@ fn turn_card(d: &mut Dsl, id: &str, t: &TurnFacts) {
         fact(d, "Completed", c);
     }
     let seqs = if t.committed.is_empty() {
-        "None".to_owned()
+        tr("None").to_owned()
     } else {
         t.committed.iter().map(|s| s.to_string()).collect::<Vec<_>>().join(", ")
     };
@@ -680,7 +686,7 @@ fn turn_card(d: &mut Dsl, id: &str, t: &TurnFacts) {
     if t.state == "unknown" {
         d.text(
             "",
-            "The Session is known, but the server has no lifecycle record for this turn.",
+            tr("The Session is known, but the server has no lifecycle record for this turn."),
             &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
         );
     }

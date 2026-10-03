@@ -1,0 +1,18 @@
+PASS diff: connected
+KEY End
+TYPE '重试 steer 队列'
+KEY Return
+PASS diff: a prompt + Return starts the approvals turn
+PASS diff: the command approval takes the composer over
+CLICK cv_ap_deny r=[689, 615, 59, 34] at (718,632)
+PASS diff: 拒绝 -> the diff approval with 审查差异
+PASS Diff approval card: no clipped or overflowing Chinese label (zh-approval-diff) — cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0
+SHOT zh-approval-diff
+PASS Diff approval card: no English copy left (zh-approval-diff) — []
+CLICK cv_ap_diff r=[595, 615, 86, 34] at (638,632)
+PASS diff: the 审查差异 CLICK opens the diff review
+PASS Diff review: no clipped or overflowing Chinese label (zh-diff-review) — cjk=2 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0
+SHOT zh-diff-review
+PASS Diff review: no English copy left (zh-diff-review) — []
+CLICK b3_close r=[975, 120, 28, 28] at (989,134)
+== 9/9 checks passed

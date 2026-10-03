@@ -29,6 +29,7 @@ use super::host::{Job, Outcome};
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
 use crate::screens::model_settings::{self as ms, copy, Config, ConfiguredModel, ViewState};
 use crate::screens::provider;
+use crate::i18n::tr;
 
 pub const TITLE: &str = copy::TITLE;
 pub const EMPTY: &str = copy::EMPTY;
@@ -583,7 +584,7 @@ fn state_error(d: &mut Dsl, st: &RoutesState, msg: &str, compact: bool) {
     d.close();
     // The phone column stretches its button (`align-items: stretch`).
     let w = if compact { W::Fill } else { W::Fit };
-    d.button("b3_routes_retry", copy::TRY_AGAIN, "b3.routes.retry", if st.busy { Btn::OutlineOff } else { Btn::Outline }, w, 32.0);
+    d.button("b3_routes_retry", tr(copy::TRY_AGAIN), "b3.routes.retry", if st.busy { Btn::OutlineOff } else { Btn::Outline }, w, 32.0);
     d.close();
 }
 
@@ -591,7 +592,7 @@ fn state_error(d: &mut Dsl, st: &RoutesState, msg: &str, compact: bool) {
 /// the title and hint in a bordered box (26 / 16 insets), centred while the
 /// hint fits on one line, left-aligned where it must wrap (a phone).
 fn empty_state(d: &mut Dsl, body_w: f64) {
-    let fits = ui::text_w(copy::EMPTY_HINT, 12.0, Face::Regular) + 34.0 <= body_w;
+    let fits = ui::text_w(tr(copy::EMPTY_HINT), 12.0, Face::Regular) + 34.0 <= body_w;
     d.surface(
         "b3_routes_empty_box",
         &format!(
@@ -603,9 +604,9 @@ fn empty_state(d: &mut Dsl, body_w: f64) {
         Some(tok::HAIRLINE),
     );
     let w = if fits { W::Fit } else { W::Fill };
-    d.text("b3_routes_empty", EMPTY, &ui::body_medium().w(w));
+    d.text("b3_routes_empty", tr(EMPTY), &ui::body_medium().w(w));
     let hint = ui::meta().w(w);
-    d.text("b3_routes_empty_hint", copy::EMPTY_HINT, &if fits { hint } else { hint.wrap() });
+    d.text("b3_routes_empty_hint", tr(copy::EMPTY_HINT), &if fits { hint } else { hint.wrap() });
     d.close();
 }
 
@@ -618,7 +619,7 @@ fn route_card(d: &mut Dsl, st: &RoutesState, i: usize, r: &Route, p: Option<&ms:
     let title = p.map(|p| p.name().to_owned()).unwrap_or_else(|| r.name());
     d.text(&format!("{id}_name"), &ui::fit_w(&title, inner_w - 90.0, 13.5, Face::Semibold), &Txt::new(13.5, Face::Semibold, tok::TEXT).w(W::Fill));
     if r.primary {
-        d.chip(&format!("{id}_primary"), copy::PRIMARY, tok::BLUE_TEXT, tok::BLUE_BG, None, false);
+        d.chip(&format!("{id}_primary"), tr(copy::PRIMARY), tok::BLUE_TEXT, tok::BLUE_BG, None, false);
     }
     d.close();
     let (family, label) = match p {
@@ -641,7 +642,7 @@ fn route_card(d: &mut Dsl, st: &RoutesState, i: usize, r: &Route, p: Option<&ms:
     d.view(&cred, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 7 padding: Inset{top: 2}");
     d.dot(if r.has_key { tok::GREEN } else { tok::DISABLED_INK }, 8.0);
     let ctext = if r.has_key { copy::CREDENTIAL_CONFIGURED } else { copy::CREDENTIAL_MISSING };
-    d.text(&format!("{id}_credential"), ctext, &ui::meta());
+    d.text(&format!("{id}_credential"), tr(ctext), &ui::meta());
     d.close();
     // `mutationUnavailableReason` (board 3 #7's locked row).
     if let Some(reason) = p.and_then(|p| p.reason).or_else(|| (!r.removable()).then_some(READ_ONLY)) {
@@ -649,7 +650,7 @@ fn route_card(d: &mut Dsl, st: &RoutesState, i: usize, r: &Route, p: Option<&ms:
         d.view(&lock, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.0} spacing: 6 padding: Inset{top: 2}");
         d.icon(&format!("{id}_lock"), "b3_lock.svg", 13.0, tok::AMBER);
         let rid = if r.removable() { format!("{id}_reason") } else { format!("{id}_readonly") };
-        d.text(&rid, reason, &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
+        d.text(&rid, tr(reason), &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
         d.close();
     }
     if r.removable() {
@@ -658,13 +659,13 @@ fn route_card(d: &mut Dsl, st: &RoutesState, i: usize, r: &Route, p: Option<&ms:
         let editable = p.is_some_and(|p| p.editable) && caps.can_save();
         let mut pills: Vec<(String, &str, String)> = Vec::new();
         if editable {
-            pills.push((format!("{id}_edit"), "Edit", format!("b3.routes.edit#{i}")));
+            pills.push((format!("{id}_edit"), tr("Edit"), format!("b3.routes.edit#{i}")));
         }
         if caps.can_save() {
-            pills.push((format!("{id}_add"), "Add a model on this route", format!("b3.routes.add#{i}")));
+            pills.push((format!("{id}_add"), tr("Add a model on this route"), format!("b3.routes.add#{i}")));
         }
         if caps.delete {
-            pills.push((format!("{id}_delete"), "Delete", format!("b3.routes.delete#{i}")));
+            pills.push((format!("{id}_delete"), tr("Delete"), format!("b3.routes.delete#{i}")));
         }
         let total: f64 = pills.iter().map(|(_, l, _)| pill_w(l) + 8.0).sum();
         if total - 8.0 <= inner_w || !compact {
@@ -680,7 +681,7 @@ fn route_card(d: &mut Dsl, st: &RoutesState, i: usize, r: &Route, p: Option<&ms:
             d.close();
         } else {
             // Phone: the short pills share a row, the long one takes its own.
-            let (short, long): (Vec<_>, Vec<_>) = pills.iter().partition(|(_, l, _)| l.len() < 12);
+            let (short, long): (Vec<_>, Vec<_>) = pills.iter().partition(|(_, l, _)| pill_w(l) < pill_w("Add a model"));
             let col = d.anon();
             d.view(&col, "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{top: 4}");
             let row = d.anon();
@@ -708,21 +709,21 @@ fn editor(d: &mut Dsl, st: &RoutesState, r: &Route, store: &Store, compact: bool
         12.0,
         Some(tok::HAIRLINE),
     );
-    d.text("b3_routes_editor_title", "Add model provider", &ui::heading().w(W::Fill));
+    d.text("b3_routes_editor_title", tr("Add model provider"), &ui::heading().w(W::Fill));
     d.text(
         "b3_routes_editor_route",
         &format!("{} · {} ({})", r.family_id, if r.label.is_empty() { &r.route_id } else { &r.label }, r.route_id),
         &ui::meta().w(W::Fill),
     );
-    ui::field_label(d, "b3_routes_model_label", "Model ID");
+    ui::field_label(d, "b3_routes_model_label", tr("Model ID"));
     d.input("b3_routes_model", "routes.model", &st.model_snap, "", true, 36.0);
     if has(store, "profile/llm/fetch_models") {
         let kind = if st.busy { Btn::OutlineOff } else { Btn::Outline };
-        let label = if st.busy { copy::FETCHING } else { copy::FETCH };
+        let label = tr(if st.busy { copy::FETCHING } else { copy::FETCH });
         d.button("b3_routes_fetch", label, "b3.routes.fetch", kind, W::Fit, 34.0);
     }
     if !st.fetched.is_empty() {
-        ui::field_label(d, "b3_routes_fetched_label", copy::FROM_ENDPOINT);
+        ui::field_label(d, "b3_routes_fetched_label", tr(copy::FROM_ENDPOINT));
         let chips = d.anon();
         let total: f64 = st.fetched.iter().map(|m| pill_w(m) + 8.0).sum();
         d.view(&chips, if total <= inner_w + 8.0 {
@@ -740,14 +741,14 @@ fn editor(d: &mut Dsl, st: &RoutesState, r: &Route, store: &Store, compact: bool
     let foot = d.anon();
     d.view(&foot, &format!("width: Fill height: Fit flow: {} align: Align{{x: 1.0 y: 0.5}} spacing: 8", if compact { "Down" } else { "Right" }));
     let w = if compact { W::Fill } else { W::Fit };
-    d.button("b3_routes_cancel", copy::CANCEL, "b3.routes.cancel", if st.busy { Btn::OutlineOff } else { Btn::Outline }, w, 34.0);
+    d.button("b3_routes_cancel", tr(copy::CANCEL), "b3.routes.cancel", if st.busy { Btn::OutlineOff } else { Btn::Outline }, w, 34.0);
     let both = d.anon();
-    d.view(&both, &format!("width: {} height: 34 flow: Overlay", if compact { "Fill".to_owned() } else { format!("{}", (ui::text_w("Save", 13.0, Face::Medium) + 32.0).ceil()) }));
+    d.view(&both, &format!("width: {} height: 34 flow: Overlay", if compact { "Fill".to_owned() } else { format!("{}", (ui::text_w(tr("Save"), 13.0, Face::Medium) + 32.0).ceil()) }));
     d.view("b3_routes_save_off", "width: Fill height: Fit flow: Right");
-    d.button("b3_routes_save_disabled", copy::SAVE, "b3.routes.save", Btn::Disabled, W::Fill, 34.0);
+    d.button("b3_routes_save_disabled", tr(copy::SAVE), "b3.routes.save", Btn::Disabled, W::Fill, 34.0);
     d.close();
     d.view("b3_routes_save_on", "width: Fill height: Fit flow: Right");
-    let label = if st.busy { copy::SAVING } else { copy::SAVE };
+    let label = tr(if st.busy { copy::SAVING } else { copy::SAVE });
     d.button("b3_routes_save", label, "b3.routes.save", if st.busy { Btn::Disabled } else { Btn::Primary }, W::Fill, 34.0);
     d.close();
     d.close();
@@ -764,24 +765,28 @@ fn delete_card(d: &mut Dsl, st: &RoutesState, r: &Route, name: &str, compact: bo
         12.0,
         Some("#f3c4c7ff"),
     );
-    d.text("b3_routes_delete_title", "Delete model provider?", &ui::heading().w(W::Fill));
+    d.text("b3_routes_delete_title", tr("Delete model provider?"), &ui::heading().w(W::Fill));
     d.text(
         "b3_routes_delete_body",
-        &format!("This removes the configured route for {name}. Existing sessions may still refer to it."),
+        &format!("{} {name}{}", tr("This removes the configured route for"), tr(". Existing sessions may still refer to it.")),
         &ui::meta().w(W::Fill).wrap(),
     );
-    d.text("b3_routes_delete_prompt", &format!("Type {} to confirm", r.delete_phrase()), &Txt::new(12.5, Face::Medium, tok::TEXT).w(W::Fill).wrap());
+    d.text(
+        "b3_routes_delete_prompt",
+        &format!("{} {} {}", crate::i18n::tr_ctx("verb", "Type"), r.delete_phrase(), tr("to confirm")),
+        &Txt::new(12.5, Face::Medium, tok::TEXT).w(W::Fill).wrap(),
+    );
     d.input("b3_routes_phrase", "routes.phrase", "", "", true, 36.0);
     if st.delete_failed {
-        d.text("b3_routes_delete_failed", DELETE_FAILED, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+        d.text("b3_routes_delete_failed", tr(DELETE_FAILED), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     let foot = d.anon();
     d.view(&foot, &format!("width: Fill height: Fit flow: {} align: Align{{x: 1.0 y: 0.5}} spacing: 8", if compact { "Down" } else { "Right" }));
     let w = if compact { W::Fill } else { W::Fit };
-    d.button("b3_routes_delete_cancel", copy::CANCEL, "b3.routes.cancel", if st.busy { Btn::OutlineOff } else { Btn::Outline }, w, 34.0);
+    d.button("b3_routes_delete_cancel", tr(copy::CANCEL), "b3.routes.cancel", if st.busy { Btn::OutlineOff } else { Btn::Outline }, w, 34.0);
     let both = d.anon();
-    let label = if st.busy { "Deleting…" } else { "Delete provider" };
-    d.view(&both, &format!("width: {} height: 34 flow: Overlay", if compact { "Fill".to_owned() } else { format!("{}", (ui::text_w("Delete provider", 13.0, Face::Medium) + 32.0).ceil()) }));
+    let label = tr(if st.busy { "Deleting…" } else { "Delete provider" });
+    d.view(&both, &format!("width: {} height: 34 flow: Overlay", if compact { "Fill".to_owned() } else { format!("{}", (ui::text_w(tr("Delete provider"), 13.0, Face::Medium) + 32.0).ceil()) }));
     d.view("b3_routes_delete_off", "width: Fill height: Fit flow: Right");
     d.button("b3_routes_delete_disabled", label, "b3.routes.confirm_delete", Btn::Disabled, W::Fill, 34.0);
     d.close();
@@ -814,10 +819,10 @@ fn heading(d: &mut Dsl, st: &RoutesState, ready: bool, caps: ms::Caps, compact: 
         if compact { "Down" } else { "Right" },
         if compact { 8 } else { 16 }
     ));
-    d.text("b3_routes_intro", copy::INTRO, &ui::meta().w(W::Fill).wrap());
+    d.text("b3_routes_intro", tr(copy::INTRO), &ui::meta().w(W::Fill).wrap());
     if add {
         let kind = if idle { Btn::Primary } else { Btn::Disabled };
-        d.button("b3_routes_add_provider", copy::ADD_PROVIDER, "b3.routes.add_provider", kind, W::Fit, 32.0);
+        d.button("b3_routes_add_provider", tr(copy::ADD_PROVIDER), "b3.routes.add_provider", kind, W::Fit, 32.0);
     }
     d.close();
 }
@@ -832,12 +837,12 @@ pub fn build(d: &mut Dsl, st: &RoutesState, frame: &Frame, store: &Store) {
     ui::shell_open(d, frame, width);
     let row = d.anon();
     d.view(&row, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4");
-    d.text("b3_title", TITLE, &ui::title().w(W::Fill));
+    d.text("b3_title", tr(TITLE), &ui::title().w(W::Fill));
     ui::icon_button(d, "b3_routes_refresh", "b3_refresh.svg", 16.0, "b3.routes.refresh");
     ui::close_glyph(d, "b3.close");
     d.close();
     let profile = store.domains.profile.current().unwrap_or_default();
-    d.text("b3_routes_scope", &format!("Server Profile: {profile}"), &ui::micro().w(W::Fill));
+    d.text("b3_routes_scope", &format!("{} {profile}", tr("Server Profile:")), &ui::micro().w(W::Fill));
     d.gap(W::Fill, 10.0);
     ui::body_open(d, frame, width, 60.0);
     heading(d, st, proj.state == ViewState::Ready, caps, compact);
@@ -848,7 +853,7 @@ pub fn build(d: &mut Dsl, st: &RoutesState, frame: &Frame, store: &Store) {
     match &proj.state {
         ViewState::Loading => {
             d.gap(W::Fill, SECTION);
-            state_notice(d, "b3_routes_loading", copy::LOADING);
+            state_notice(d, "b3_routes_loading", tr(copy::LOADING));
         }
         // An UNREAD configuration: its cause and "Try again" — never the
         // empty state (`model-management-projection.ts:57-63`).
@@ -858,27 +863,27 @@ pub fn build(d: &mut Dsl, st: &RoutesState, frame: &Frame, store: &Store) {
         }
         ViewState::Unavailable(msg) => {
             d.gap(W::Fill, SECTION);
-            note(d, "b3_routes_unavailable", msg);
+            note(d, "b3_routes_unavailable", tr(msg));
         }
         ViewState::Ready => {
             if !caps.can_save() {
                 d.gap(W::Fill, SECTION);
-                note(d, "b3_routes_readonly_note", copy::READ_ONLY);
+                note(d, "b3_routes_readonly_note", tr(copy::READ_ONLY));
             }
             if caps.can_save() || caps.delete {
                 d.gap(W::Fill, SECTION);
-                ui::banner(d, "b3_routes_warning", copy::RUNTIME_WARNING, "");
+                ui::banner(d, "b3_routes_warning", tr(copy::RUNTIME_WARNING), "");
             }
         }
     }
     if let Some(n) = &st.notice {
         d.gap(W::Fill, SECTION);
-        status_line(d, "b3_routes_notice", n, true);
+        status_line(d, "b3_routes_notice", tr(n), true);
     }
     if proj.state == ViewState::Ready {
         if let Some(e) = &st.error {
             d.gap(W::Fill, SECTION);
-            d.text("b3_routes_error", e, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+            d.text("b3_routes_error", tr(e), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
         }
         if let Some(i) = st.deleting {
             if let Some(r) = st.routes.get(i) {

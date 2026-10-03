@@ -248,12 +248,12 @@ pub fn notice_parts(e: &TimelineEntry) -> (String, String) {
         return (title.to_owned(), body.to_owned());
     }
     if let Some(outcome) = e.data.get("outcome").and_then(|o| o.as_str()) {
-        let title = match outcome {
+        let title = crate::i18n::tr(match outcome {
             "interrupted" => "Turn stopped",
             "rate_limited" => "Turn rate limited",
             "completed" => "Turn complete",
             _ => "Turn failed",
-        };
+        });
         // A6: the readable error rides the terminal notice
         // (`octoscode_client::domains::turn::terminal_notice`): the server's
         // message, or `Server error (<code>).` — never protocol metadata.
@@ -264,13 +264,13 @@ pub fn notice_parts(e: &TimelineEntry) -> (String, String) {
         e.data.get("code").and_then(|c| c.as_str()),
         e.data.get("message").and_then(|m| m.as_str()),
     ) {
-        let title = if code.is_empty() { "Warning".to_owned() } else { code.to_owned() };
-        return (title, if msg.is_empty() { "The server reported a warning.".to_owned() } else { msg.to_owned() });
+        let title = if code.is_empty() { crate::i18n::tr("Warning").to_owned() } else { code.to_owned() };
+        return (title, if msg.is_empty() { crate::i18n::tr("The server reported a warning.").to_owned() } else { msg.to_owned() });
     }
     if e.data.get("kind").and_then(|k| k.as_str()) == Some("background_spawn_complete") {
-        return ("Background task finished".to_owned(), e.text.clone());
+        return (crate::i18n::tr("Background task finished").to_owned(), e.text.clone());
     }
-    ("System".to_owned(), e.text.clone())
+    (crate::i18n::tr("System message").to_owned(), e.text.clone())
 }
 
 /// The file name a reference shows (`attachments.ts:7-11`): the last path
@@ -337,8 +337,8 @@ pub fn lower(row: &TRow, store: &Store) -> String {
             d.view("b3_tl_fold", "width: Fill height: Fit flow: Down padding: Inset{left: 0 right: 0 top: 2 bottom: 6}");
             let row = d.anon();
             d.view(&row, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 18");
-            d.link("b3_tl_fold_expand", "Expand all", Some("cv.fold.expand_all"), 12.5);
-            d.link("b3_tl_fold_collapse", "Collapse all", Some("cv.fold.collapse_all"), 12.5);
+            d.link("b3_tl_fold_expand", crate::i18n::tr("Expand all"), Some("cv.fold.expand_all"), 12.5);
+            d.link("b3_tl_fold_collapse", crate::i18n::tr("Collapse all"), Some("cv.fold.collapse_all"), 12.5);
             d.close();
             d.close();
         }
@@ -410,8 +410,8 @@ pub fn lower(row: &TRow, store: &Store) -> String {
             d.view(&col, "width: Fill height: Fit flow: Down spacing: 4");
             d.text(&format!("b3_tl_file_name_{id}"), &super::inventory::fit(&name, 300.0, 14.0, false), &Txt::new(14.0, Face::Regular, tok::TEXT).w(W::Fill));
             let meta = match (&st.saved_to, &st.error, size) {
-                (Some(p), _, _) => format!("Saved to {}", ui::leaf(p)),
-                (_, Some(err), _) => err.clone(),
+                (Some(p), _, _) => crate::i18n::tr1("Saved to {value0}", &ui::leaf(p)),
+                (_, Some(err), _) => crate::i18n::tr(err).to_owned(),
                 (_, _, Some(b)) => size_label(b),
                 _ => e.data.get("mime").and_then(|m| m.as_str()).unwrap_or("").to_owned(),
             };
@@ -420,11 +420,11 @@ pub fn lower(row: &TRow, store: &Store) -> String {
             let btns = d.anon();
             d.view(&btns, "width: Fit height: Fit flow: Down spacing: 8");
             if is_previewable(&name) {
-                d.button(&format!("b3_tl_file_preview_{id}"), "Preview", &format!("b3.file.preview#{id}"), if st.busy { Btn::Disabled } else { Btn::Outline }, W::Px(104.0), 32.0);
+                d.button(&format!("b3_tl_file_preview_{id}"), crate::i18n::tr("Preview"), &format!("b3.file.preview#{id}"), if st.busy { Btn::Disabled } else { Btn::Outline }, W::Px(104.0), 32.0);
             }
             d.button(
                 &format!("b3_tl_file_download_{id}"),
-                if st.busy { "Downloading…" } else { "Download" },
+                crate::i18n::tr(if st.busy { "Downloading…" } else { "Download" }),
                 &format!("b3.file.download#{id}"),
                 if st.busy { Btn::Disabled } else { Btn::Outline },
                 W::Px(104.0),

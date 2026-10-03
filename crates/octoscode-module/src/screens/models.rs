@@ -160,8 +160,8 @@ fn usage_line(estimate: Option<u64>, window: Option<u64>) -> String {
         }
     }
     match (estimate, window) {
-        (Some(e), Some(w)) if w > 0 => format!("{} of {} tokens", k(e), k(w)),
-        (Some(e), _) => format!("{} tokens", k(e)),
+        (Some(e), Some(w)) if w > 0 => crate::i18n::tr_with("{value0} of {value1} tokens", &[("value0", &k(e)), ("value1", &k(w))]),
+        (Some(e), _) => crate::i18n::tr1("{value0} tokens", &k(e)),
         _ => "—".to_owned(),
     }
 }
@@ -207,19 +207,20 @@ fn title_case(id: &str) -> String {
 /// family label next to the route; the authored head reads
 /// "DeepSeek • Official API").
 pub(crate) fn provider_head(m: &ProfileLlmModel) -> String {
-    format!("{} • {}", family_label(&m.provider), m.route.as_deref().unwrap_or("default route"))
+    format!("{} • {}", family_label(&m.provider), m.route.as_deref().unwrap_or(crate::i18n::tr("default route")))
 }
 
 pub(crate) fn provider_count(models: &[&ProfileLlmModel]) -> String {
     let n = models.len();
-    format!("{n} model{}" , if n == 1 { "" } else { "s" })
+    crate::i18n::tr1(if n == 1 { "{value0} model" } else { "{value0} models" }, &n.to_string())
 }
 
 /// A model row: `"{model} (default)"` marks the selected route — the atlas
 /// `t_flash "deepseek-v4-flash (default)"` (`ProfileLlmModel.selected`).
 pub(crate) fn model_row(m: &ProfileLlmModel) -> String {
     if m.selected {
-        format!("{} (default)", m.model)
+        // zh: "{model}（默认）" — a full-width bracket carries its own space.
+        crate::i18n::tr1("{value0} (default)", &m.model)
     } else {
         m.model.clone()
     }
@@ -852,7 +853,7 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
             // dialogs' `setError(errorText(cause))` alert line); a skill
             // mutation's failure is the web's fixed may-have-applied copy.
             if mutation {
-                crate::screens::dialog::set_notice(SKILLS_MUTATION_FAILED);
+                crate::screens::dialog::set_notice(crate::i18n::tr(SKILLS_MUTATION_FAILED));
             } else {
                 crate::screens::dialog::set_notice(format!("{e}"));
             }
@@ -878,13 +879,13 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
         "models.test_route" => {
             // `LlmTestResult` {applied, message, error}.
             match result.get("error").and_then(|e| e.as_str()).filter(|e| !e.is_empty()) {
-                Some(err) => crate::screens::dialog::set_notice(format!("Route test failed: {err}")),
+                Some(err) => crate::screens::dialog::set_notice(crate::i18n::tr1("Route test failed: {value0}", err)),
                 None => {
                     let msg = result.get("message").and_then(|m| m.as_str()).unwrap_or("");
                     crate::screens::dialog::set_info(if msg.is_empty() {
-                        "Route test finished.".to_owned()
+                        crate::i18n::tr("Route test finished.").to_owned()
                     } else {
-                        format!("Route test: {msg}")
+                        crate::i18n::tr1("Route test: {value0}", msg)
                     });
                 }
             }
@@ -897,14 +898,12 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
                 .map(|a| a.iter().filter_map(|v| v.as_str()).collect())
                 .unwrap_or_default();
             if models.is_empty() {
-                let why = result.get("reason").and_then(|r| r.as_str()).unwrap_or("no models reported");
-                crate::screens::dialog::set_notice(format!("Model discovery: {why}"));
+                let why = result.get("reason").and_then(|r| r.as_str()).unwrap_or(crate::i18n::tr("no models reported"));
+                crate::screens::dialog::set_notice(crate::i18n::tr1("Model discovery: {value0}", why));
             } else {
-                crate::screens::dialog::set_info(format!(
-                    "Found {} model{}: {}",
-                    models.len(),
-                    if models.len() == 1 { "" } else { "s" },
-                    models.join(", ")
+                crate::screens::dialog::set_info(crate::i18n::tr_with(
+                    if models.len() == 1 { "Found {value0} model: {value1}" } else { "Found {value0} models: {value1}" },
+                    &[("value0", &models.len().to_string()), ("value1", &models.join(", "))],
                 ));
             }
         }
@@ -920,7 +919,10 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
                     }).unwrap_or_default()
                 });
                 let profile = store.domains.profile.current().unwrap_or_default();
-                crate::screens::dialog::set_info(format!("Removed {name} from server Profile {profile}."));
+                crate::screens::dialog::set_info(crate::i18n::tr_with(
+                    "Removed {value0} from server Profile {value1}.",
+                    &[("value0", &name), ("value1", &profile)],
+                ));
             }
             store.domains.profile.set_registry_packages(Vec::new());
             crate::screens::dialog::set_skills_query(None);

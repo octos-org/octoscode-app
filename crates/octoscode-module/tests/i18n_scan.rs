@@ -12,17 +12,26 @@
 //! static pass (`i18n::tree`): anonymous, listed in `chrome::static_named`,
 //! or set by code (then its setter is a builder call, scanned above).
 //!
-//! Phase 1 (A24) holds the CONVERTED files to zero; the rest of `screens/`
-//! is counted and may only go DOWN (the ratchet below) — phase 2 drives it
-//! to zero.
+//! A text argument naming a string constant (`d.text(id, KEY_HINT, …)`) is
+//! that constant's literal, unless the helper translates inside (listed in
+//! TRANSLATING, proven by a test). A chip is a builder, and so is any helper
+//! a file defines that forwards a text parameter into a builder untranslated
+//! (`fact(d, id, "Operation", op)` -> `d.text(…, label, …)`). The CONVERTED
+//! files are held to zero, and every literal (or constant) the crate routes
+//! through `tr*()` must read in Chinese — the web's catalog, an alias, or
+//! the reviewed native supplement. The rest of the crate is counted and may
+//! only go DOWN (the ratchet below: 314 at the end of phase 1, 0 at the end
+//! of phase 2, and held there).
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
-/// The files converted in phase 1: zero bypasses allowed.
+/// The converted files (phase 1, then phase 2): zero bypasses allowed, and
+/// every literal they wrap reads in Chinese.
 const CONVERTED: &[&str] = &[
     "chrome.rs",
     "lib.rs",
     "fluid.rs",
+    "fallback.rs",
     "seat.rs",
     "screens/sidebar.rs",
     "screens/settings.rs",
@@ -41,17 +50,60 @@ const CONVERTED: &[&str] = &[
     "screens/board3/ui.rs",
     "screens/board3/seats.rs",
     "screens/board3/strip.rs",
+    "screens/saved_link.rs",
+    // phase 2
+    "screens/a9_boundary.rs",
+    "screens/activity.rs",
+    "screens/drafts.rs",
+    "screens/board3/agents.rs",
+    "screens/board3/checkpoints.rs",
+    "screens/board3/fleet_console.rs",
+    "screens/board3/images.rs",
+    "screens/board3/inventory.rs",
+    "screens/board3/research.rs",
+    "screens/board3/resume.rs",
+    "screens/board3/routes.rs",
+    "screens/board3/rows.rs",
+    "screens/board3/session_pane.rs",
+    "screens/board3/inspector.rs",
+    "screens/board3/switcher.rs",
+    "screens/board3/thinking.rs",
+    "screens/board3/vim.rs",
+    "screens/surfaces/trajectory.rs",
+    "screens/surfaces/takeover.rs",
+    "screens/surfaces/plan.rs",
+    "screens/models.rs",
+    "screens/launch.rs",
+    "screens/fleet.rs",
+    "screens/onboarding.rs",
+    "screens/dialog.rs",
+    "screens/autonomy.rs",
+    "screens/review.rs",
+    "screens/skill_jobs.rs",
+    "components.rs",
+    // phase 2, after A23 / A28 / A29 / A30 / A31 landed
+    "screens/provider.rs",
+    "screens/model_settings.rs",
+    "screens/dialog_view.rs",
+    "screens/board3/diff_review.rs",
+    "screens/board3/fleetview.rs",
+    "screens/btw.rs",
+    "screens/peer_dock.rs",
+    "screens/peers.rs",
 ];
 
-/// The phase-2 ceiling: bypasses left in the rest of `screens/` (A24 phase 1
-/// measured this). Lower it as screens are converted; it must reach 0.
-const REMAINING_CEILING: usize = 302; // A31: the Skills dialog's own copy (dialog_view.rs `skills`) 314 -> 305; A28: the diff review (board3/diff_review.rs) -> 302
+/// The ceiling: bypasses left in the rest of the crate (A24 phase 1 measured
+/// `screens/` at 314; phase 2 counts every file and resolves string
+/// constants too, and drove it to 0). It stays 0: new copy goes through
+/// `tr()` from the start.
+const REMAINING_CEILING: usize = 0;
 
 /// (call prefix, text-argument indices). A prefix starting with `.` or `::`
 /// matches a method / path call; otherwise the name must stand alone.
 const BUILDERS: &[(&str, &[usize])] = &[
     // board-3 kit (screens/board3/ui.rs) and its callers.
     (".text(", &[1]),
+    (".chip(", &[1]),
     (".button(", &[1]),
     (".button_ids(", &[3]),
     (".link(", &[1]),
@@ -104,6 +156,7 @@ const ALLOW: &[&str] = &[
     "简体中文",
     "Octos",                // the product name
     "sessions: {sessions}", // lib.rs's 0x0 `/g` metadata label (never drawn)
+    "octoscode onboard",    // a command to type (OnboardingPanel.tsx:299 shows it in <code>, untranslated)
 ];
 
 fn root() -> PathBuf {
@@ -367,7 +420,7 @@ fn args_of(code: &str, open: usize) -> Vec<(usize, usize)> {
 /// translated.
 fn tr_spans(arg: &str) -> Vec<(usize, usize)> {
     let mut out = Vec::new();
-    for w in ["tr(", "tr1(", "tr_with(", "tr_in(", "text_in(", "keep("] {
+    for w in ["tr(", "tr1(", "tr_with(", "tr_in(", "tr_ctx(", "tr1_ctx(", "text_in(", "keep(", "t(", "t1("] {
         let mut from = 0;
         while let Some(at) = arg[from..].find(w).map(|n| n + from) {
             from = at + 1;
@@ -408,16 +461,34 @@ fn bare_literals(arg: &str) -> Vec<Lit> {
 
 /// Every builder-argument bypass in one file: (line, call, text).
 fn bypasses(src: &str) -> Vec<(usize, String, String)> {
+    bypasses_in(None, src)
+}
+
+/// [`bypasses`] for the file `rel`: a text argument that names a string
+/// constant (`d.text(id, KEY_HINT, …)`, `ui::header(d, super::x::TITLE, …)`)
+/// is that constant's literal — prose there bypasses `tr()` as surely as the
+/// literal itself would.
+fn bypasses_in(rel: Option<&str>, src: &str) -> Vec<(usize, String, String)> {
     let code = code_only(src);
     let mut out = Vec::new();
-    for (prefix, idxs) in BUILDERS {
+    // The kit's builders, then the file's own helpers that forward a text
+    // parameter into one of them untranslated.
+    let builders: Vec<(String, Vec<usize>)> = BUILDERS
+        .iter()
+        .map(|(p, i)| (p.to_string(), i.to_vec()))
+        .chain(forwarding(&code).into_iter().map(|(p, i)| (p, vec![i])))
+        .collect();
+    for (prefix, idxs) in &builders {
+        let prefix = prefix.as_str();
         let mut from = 0;
         while let Some(at) = code[from..].find(prefix).map(|n| n + from) {
             from = at + 1;
+            // A bare name is a free call: `ui::header(` counts, a method
+            // of the same name (`req.header("Authorization", …)`) does not.
             let standalone = prefix.starts_with('.')
                 || prefix.contains("::")
                 || at == 0
-                || !(code.as_bytes()[at - 1].is_ascii_alphanumeric() || code.as_bytes()[at - 1] == b'_');
+                || !(code.as_bytes()[at - 1].is_ascii_alphanumeric() || matches!(code.as_bytes()[at - 1], b'_' | b'.'));
             if !standalone {
                 continue;
             }
@@ -437,6 +508,13 @@ fn bypasses(src: &str) -> Vec<(usize, String, String)> {
                         out.push((line, prefix.to_string(), lit.value));
                     }
                 }
+                let translated_inside = rel.is_some_and(|r| translates_inside(r, &code, prefix));
+                if let Some(value) = rel.filter(|_| !translated_inside).and_then(|r| const_value(r, arg)) {
+                    if is_prose(&value) {
+                        let line = code[..a + (arg.len() - arg.trim_start().len())].matches('\n').count() + 1;
+                        out.push((line, prefix.to_string(), value));
+                    }
+                }
             }
         }
     }
@@ -445,13 +523,200 @@ fn bypasses(src: &str) -> Vec<(usize, String, String)> {
     out
 }
 
+/// The byte just past the `}` matching the `{` at `open` (strings and chars
+/// skipped: a DSL literal's braces are not the code's).
+fn block_end(code: &str, open: usize) -> usize {
+    let b = code.as_bytes();
+    let (mut depth, mut j) = (0usize, open);
+    while j < b.len() {
+        match b[j] {
+            b'"' | b'r' if b[j] == b'"' || skip_string(b, j).is_some() => {
+                j = skip_string(b, j).unwrap_or(j + 1);
+                continue;
+            }
+            b'\'' => {
+                j = skip_char(b, j);
+                continue;
+            }
+            b'{' => depth += 1,
+            b'}' => {
+                depth -= 1;
+                if depth == 0 {
+                    return j + 1;
+                }
+            }
+            _ => {}
+        }
+        j += 1;
+    }
+    b.len()
+}
+
+/// A24 (phase-2 audit) — the helpers a file defines that put a `&str`
+/// parameter straight into a builder's text position, untranslated
+/// (board3/fleet_console.rs `fn fact(d, id, label: &str, value: &str)` ->
+/// `d.text(…, label, …)`): a literal passed there is drawn as surely as one
+/// passed to the builder, so the call is a builder too. Each is (call
+/// prefix, text index): `name(` for a free fn, `.name(` for a method (its
+/// receiver is not an argument).
+fn forwarding(code: &str) -> Vec<(String, usize)> {
+    let b = code.as_bytes();
+    let mut out = Vec::new();
+    let mut from = 0;
+    while let Some(at) = code[from..].find("fn ").map(|n| n + from) {
+        from = at + 3;
+        if at > 0 && (b[at - 1].is_ascii_alphanumeric() || b[at - 1] == b'_') {
+            continue;
+        }
+        let rest = &code[at + 3..];
+        let name: String = rest.chars().take_while(|c| c.is_ascii_alphanumeric() || *c == '_').collect();
+        let Some(paren) = rest[name.len()..].find('(') else { continue };
+        let between = rest[name.len()..name.len() + paren].trim();
+        if name.is_empty() || !(between.is_empty() || between.starts_with('<')) {
+            continue;
+        }
+        let open = at + 3 + name.len() + paren;
+        let spans = args_of(code, open);
+        let params: Vec<(String, bool)> = spans
+            .iter()
+            .map(|&(a, z)| {
+                let p = code[a..z].trim();
+                let (n, ty) = p.split_once(':').unwrap_or((p, ""));
+                (n.trim().trim_start_matches("mut ").trim().to_owned(), ty.contains("str") || ty.contains("String"))
+            })
+            .collect();
+        let method = params.first().is_some_and(|(n, _)| n.ends_with("self"));
+        let Some(close) = spans.last().map(|&(_, z)| z) else { continue };
+        let Some(body_at) = code[close..].find(['{', ';']).map(|n| n + close) else { continue };
+        if b[body_at] != b'{' {
+            continue; // a signature without a body
+        }
+        let body = &code[body_at..block_end(code, body_at)];
+        for (prefix, idxs) in BUILDERS {
+            let mut f = 0;
+            while let Some(p) = body[f..].find(prefix).map(|n| n + f) {
+                f = p + 1;
+                let args = args_of(body, p + prefix.len() - 1);
+                for &ix in idxs.iter() {
+                    let Some(&(a, z)) = args.get(ix) else { continue };
+                    let arg = body[a..z].trim().trim_start_matches('&').trim();
+                    let Some(k) = params.iter().position(|(n, is_text)| *is_text && n == arg) else { continue };
+                    out.push(if method { (format!(".{name}("), k - 1) } else { (format!("{name}("), k) });
+                }
+            }
+        }
+    }
+    out.sort();
+    out.dedup();
+    out
+}
+
+/// Helpers that put their text argument through `tr()` themselves (the
+/// file that defines each): a constant passed to one is translated where it
+/// is drawn. A literal at the call site is still held to `tr()` there.
+const TRANSLATING: &[(&str, &str)] = &[
+    ("screens/board3/ui.rs", "failure("),      // d.text(id, tr(lead), …)
+    ("screens/board3/ui.rs", "error_line("),   // failure(…) or tr(msg)
+    ("screens/board3/ui.rs", "dialog_error("), // failure(…) or error_line(…)
+    ("screens/board3/seats.rs", "menu_title("), // d.text("b3_title", tr(text), …)
+    ("screens/board3/seats.rs", "status_line("), // d.text(id, tr(text), …)
+];
+
+/// Whether `prefix` called in `rel` is a [`TRANSLATING`] helper: the file's
+/// own definition when it has one, else the board-3 kit's (`ui::failure`).
+fn translates_inside(rel: &str, code: &str, prefix: &str) -> bool {
+    let name = prefix.trim_start_matches('.');
+    let local = code.contains(&format!("fn {name}"));
+    let home = if local { rel } else { "screens/board3/ui.rs" };
+    TRANSLATING.iter().any(|(f, p)| *f == home && *p == prefix)
+}
+
+/// Every `const NAME: &str = "…";` in the crate: name -> [(file, value)].
+fn str_consts() -> &'static BTreeMap<String, Vec<(String, String)>> {
+    static TABLE: std::sync::OnceLock<BTreeMap<String, Vec<(String, String)>>> = std::sync::OnceLock::new();
+    TABLE.get_or_init(|| {
+        let mut out: BTreeMap<String, Vec<(String, String)>> = BTreeMap::new();
+        for rel in rs_files("") {
+            let code = code_only(&read(&rel));
+            let b = code.as_bytes();
+            let mut from = 0;
+            while let Some(at) = code[from..].find("const ").map(|n| n + from) {
+                from = at + 1;
+                if at > 0 && (b[at - 1].is_ascii_alphanumeric() || b[at - 1] == b'_') {
+                    continue;
+                }
+                let rest = &code[at + 6..];
+                let name: String = rest.chars().take_while(|c| c.is_ascii_alphanumeric() || *c == '_').collect();
+                if name.is_empty() {
+                    continue;
+                }
+                let after = rest[name.len()..].trim_start();
+                let Some(ty) = after.strip_prefix(':') else { continue };
+                let Some(eq) = ty.find('=') else { continue };
+                if !ty[..eq].contains("str") || ty[..eq].contains('[') || ty[..eq].contains('(') {
+                    continue;
+                }
+                let value = ty[eq + 1..].trim_start();
+                let vb = value.as_bytes();
+                if vb.first() != Some(&b'"') {
+                    continue;
+                }
+                let Some(end) = skip_string(vb, 0) else { continue };
+                if !value[end..].trim_start().starts_with(';') {
+                    continue;
+                }
+                out.entry(name).or_default().push((rel.clone(), unescape(&value[1..end - 1])));
+            }
+        }
+        out
+    })
+}
+
+/// The literal a text argument names when it is a string constant: in the
+/// same file, else the module the path names (`fleet_copy::TITLE`), else the
+/// only constant of that name in the crate.
+fn const_value(rel: &str, arg: &str) -> Option<String> {
+    let path = arg.trim().trim_start_matches('&').trim();
+    let segs: Vec<&str> = path.split("::").collect();
+    let ok_seg = |s: &str| !s.is_empty() && s.chars().all(|c| c.is_ascii_alphanumeric() || c == '_');
+    if !segs.iter().all(|s| ok_seg(s)) {
+        return None;
+    }
+    let name = *segs.last()?;
+    let upper = name.chars().any(|c| c.is_ascii_uppercase())
+        && name.chars().all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == '_');
+    if !upper {
+        return None;
+    }
+    let found = str_consts().get(name)?;
+    let stem = |f: &str| f.rsplit('/').next().unwrap_or(f).trim_end_matches(".rs").to_owned();
+    if segs.len() == 1 || matches!(segs[0], "Self" | "self") {
+        if let Some((_, v)) = found.iter().find(|(f, _)| f == rel) {
+            return Some(v.clone());
+        }
+    }
+    if segs.len() > 1 {
+        let module = segs[segs.len() - 2];
+        if let Some((_, v)) = found.iter().find(|(f, _)| stem(f) == module) {
+            return Some(v.clone());
+        }
+    }
+    (found.len() == 1).then(|| found[0].1.clone())
+}
+
 fn read(rel: &str) -> String {
     std::fs::read_to_string(root().join(rel)).unwrap_or_else(|e| panic!("{rel}: {e}"))
 }
 
 fn screens_files() -> Vec<String> {
+    rs_files("screens")
+}
+
+/// Every source file under `src/<dir>` (`""` = the whole crate), as a path
+/// relative to `src/`.
+fn rs_files(dir: &str) -> Vec<String> {
     let mut out = Vec::new();
-    let mut stack = vec![root().join("screens")];
+    let mut stack = vec![root().join(dir)];
     while let Some(dir) = stack.pop() {
         for e in std::fs::read_dir(&dir).unwrap().flatten() {
             let p = e.path();
@@ -484,35 +749,67 @@ mod tests { fn f(d: &mut Dsl) { d.text("x", "Test only", &t); } }
     assert_eq!(found, vec!["Recent".to_owned(), "{} queued".to_owned()], "{found:?}");
 }
 
+/// A helper that forwards its text parameter into a builder untranslated is a
+/// builder too (the phase-2 audit found `fact(d, id, "Operation", op)` in the
+/// Fleet console): its literal argument is a bypass, its wrapped one is not,
+/// and an id it forwards is not prose. A chip is a builder.
+#[test]
+fn the_scanner_follows_a_forwarding_helper_and_sees_chips() {
+    let src = r#"
+fn fact(d: &mut Dsl, id: &str, label: &str, value: &str) {
+    d.text(&format!("{id}_k"), label, &k);
+    d.text(&format!("{id}_v"), value, &v);
+}
+impl B {
+    fn pill(&mut self, base: &str, word: &str) { self.d.chip(base, word, INK, BG, None, false); }
+}
+fn view(d: &mut Dsl, b: &mut B) {
+    fact(d, "f_op", "Operation", op);
+    fact(d, "f_ok", tr("Worker"), "lane-glm");
+    b.pill("p", "Configured");
+    d.chip("c", "Ready", INK, BG, None, false);
+    d.chip("c2", &t("Ready"), INK, BG, None, false);
+}
+"#;
+    let found: Vec<String> = bypasses(src).into_iter().map(|(_, _, t)| t).collect();
+    assert_eq!(found, vec!["Operation".to_owned(), "Configured".to_owned(), "Ready".to_owned()], "{found:?}");
+}
+
 /// The converted surfaces carry no bypass at all.
 #[test]
 fn no_converted_surface_bypasses_tr() {
     let mut bad = Vec::new();
     for rel in CONVERTED {
-        for (line, call, text) in bypasses(&read(rel)) {
+        for (line, call, text) in bypasses_in(Some(rel), &read(rel)) {
             bad.push(format!("{rel}:{line} {call}… {text:?}"));
         }
     }
     assert!(bad.is_empty(), "{} user-visible literal(s) bypass tr():\n{}", bad.len(), bad.join("\n"));
 }
 
-/// The rest of `screens/` (phase 2): counted, and the count may only fall.
+/// The rest of the crate (phase 2): counted, and the count may only fall.
 #[test]
-fn the_remaining_screens_only_get_fewer_bypasses() {
-    let mut per_file: BTreeMap<String, usize> = BTreeMap::new();
-    for rel in screens_files() {
+fn the_rest_of_the_crate_only_gets_fewer_bypasses() {
+    let mut per_file: BTreeMap<String, Vec<(usize, String, String)>> = BTreeMap::new();
+    for rel in rs_files("").into_iter().filter(|r| !r.starts_with("i18n/")) {
         if CONVERTED.contains(&rel.as_str()) {
             continue;
         }
-        let n = bypasses(&read(&rel)).len();
-        if n > 0 {
-            per_file.insert(rel, n);
+        let found = bypasses_in(Some(&rel), &read(&rel));
+        if !found.is_empty() {
+            per_file.insert(rel, found);
         }
     }
-    let total: usize = per_file.values().sum();
+    let total: usize = per_file.values().map(Vec::len).sum();
     println!("A24 phase-2 remainder: {total} bypass(es) in {} file(s):", per_file.len());
-    for (f, n) in &per_file {
-        println!("  {n:4}  {f}");
+    for (f, found) in &per_file {
+        println!("  {:4}  {f}", found.len());
+    }
+    // `--nocapture` lists each one (file:line, the builder, the text).
+    for (f, found) in &per_file {
+        for (line, call, text) in found {
+            println!("    {f}:{line} {call}… {text:?}");
+        }
     }
     assert!(total <= REMAINING_CEILING, "{total} > the ceiling {REMAINING_CEILING}: new copy bypasses tr()");
 }
@@ -575,35 +872,176 @@ fn every_static_shell_literal_is_re_texted() {
     assert!(bad.is_empty(), "static shell copy the language switch cannot reach:\n{}", bad.join("\n"));
 }
 
-/// The copy the converted surfaces route through `tr()` that the web's
-/// catalog has NO key for (they stay English in Chinese — listed in the A24
-/// report, never invented). Printed, not asserted.
-#[test]
-fn list_copy_without_a_web_key() {
-    let mut missing = std::collections::BTreeSet::new();
-    for rel in CONVERTED {
-        let code = code_only(&read(rel));
-        for w in ["tr(\"", "tr1(\"", "tr_with(\""] {
-            let mut parts = code.split(w);
-            let mut before = parts.next().unwrap_or("").to_owned();
-            for part in parts {
-                // A call, not the tail of another name (`push_str("…")`).
-                let called = !before.ends_with(|c: char| c.is_alphanumeric() || c == '_');
-                before = part.to_owned();
-                if !called {
+/// The literal copy each `tr*()` call names in one file: (line, key). A
+/// literal inside the source argument counts (`tr(if busy { "Saving…" } else
+/// { "Save" })`), except a match pattern or a comparison operand (wire
+/// values that pick the copy). `tr_ctx(ctx, "…")` names `ctx|…`. In the
+/// file `rel`, a source argument naming a string constant (`tr(KEY_HINT)`)
+/// is that constant's text. The Fleet's own `t()` / `t1()` count too.
+fn wrapped_literals(src: &str) -> Vec<(usize, String)> {
+    wrapped_literals_in(None, src)
+}
+
+fn wrapped_literals_in(rel: Option<&str>, src: &str) -> Vec<(usize, String)> {
+    let code = code_only(src);
+    let b = code.as_bytes();
+    let mut out = Vec::new();
+    for w in ["tr(", "tr1(", "tr_with(", "tr_ctx(", "tr1_ctx(", "t(", "t1("] {
+        let mut from = 0;
+        while let Some(at) = code[from..].find(w).map(|n| n + from) {
+            from = at + 1;
+            if at > 0 && (b[at - 1].is_ascii_alphanumeric() || b[at - 1] == b'_') {
+                continue;
+            }
+            if code[..at].trim_end().ends_with("fn") {
+                continue;
+            }
+            let args = args_of(&code, at + w.len() - 1);
+            let (ctx, source) = if w == "tr_ctx(" || w == "tr1_ctx(" {
+                let ctx = args.first().and_then(|&(a, z)| {
+                    let t = code[a..z].trim();
+                    (t.starts_with('"') && t.ends_with('"')).then(|| unescape(&t[1..t.len() - 1]))
+                });
+                (ctx, args.get(1).copied())
+            } else {
+                (None, args.first().copied())
+            };
+            let Some((a, z)) = source else { continue };
+            if let Some(value) = rel.and_then(|r| const_value(r, &code[a..z])) {
+                let key = match &ctx {
+                    Some(c) => format!("{c}|{value}"),
+                    None => value,
+                };
+                out.push((code[..a].matches('\n').count() + 1, key));
+                continue;
+            }
+            let mut i = a;
+            while i < z {
+                if b[i] != b'"' {
+                    i += 1;
                     continue;
                 }
-                let b = part.as_bytes();
-                let end = skip_string(&[b"\"".as_slice(), b].concat(), 0).unwrap_or(1);
-                let value = unescape(&part[..end.saturating_sub(2).min(part.len())]);
-                if is_prose(&value) && octoscode_module::i18n::zh_for(&value).is_none() {
-                    missing.insert(value);
+                let end = skip_string(b, i).unwrap_or(z).min(z);
+                let after = code[end..z].trim_start();
+                let before = code[a..i].trim_end();
+                // A nested call's argument (`tr(x.trim_start_matches("Lease "))`,
+                // `tr(label("driver_fence_stale"))`) is not the copy either.
+                let operand = after.starts_with("=>")
+                    || after.starts_with('|')
+                    || after.starts_with("==")
+                    || after.starts_with("!=")
+                    || before.ends_with('|')
+                    || before.ends_with("==")
+                    || before.ends_with("!=")
+                    || before.ends_with('(')
+                    || before.ends_with(',');
+                let value = unescape(&code[i + 1..end.saturating_sub(1)]);
+                if !operand && value.chars().filter(|c| c.is_alphabetic()).count() >= 2 {
+                    let key = match &ctx {
+                        Some(c) => format!("{c}|{value}"),
+                        None => value,
+                    };
+                    out.push((code[..i].matches('\n').count() + 1, key));
                 }
+                i = end;
             }
         }
     }
-    println!("A24: {} phase-1 string(s) with no web key:", missing.len());
-    for m in &missing {
-        println!("  {m:?}");
+    out
+}
+
+/// Whether a wrapped key reads in Chinese: the web's catalog (or an alias of
+/// it) or the native supplement; a context key falls back to its source.
+fn reads_in_chinese(key: &str) -> bool {
+    use octoscode_module::i18n::{native_zh, zh_for};
+    // The Fleet's `t()` adds its gather table (`fleet_copy::GATHER_ZH`).
+    let fleet = |k: &str| octoscode_module::screens::board3::fleet_copy::t_in("zh", k, None) != k;
+    match key.split_once('|') {
+        Some((_, source)) if native_zh(key).is_some() || zh_for(source).is_some() => true,
+        _ => zh_for(key).is_some() || fleet(key),
+    }
+}
+
+/// Every literal (or string constant) the crate routes through `tr*()` has
+/// Chinese: the web's catalog first, else the reviewed native supplement
+/// (`i18n/native.rs`) — wrapped copy that would still render English in
+/// Chinese fails here, in the converted files and everywhere else.
+#[test]
+fn every_wrapped_literal_reads_in_chinese() {
+    let mut bad = Vec::new();
+    for rel in CONVERTED {
+        for (line, key) in wrapped_literals_in(Some(rel), &read(rel)) {
+            if !reads_in_chinese(&key) {
+                bad.push(format!("{rel}:{line} {key:?}"));
+            }
+        }
+    }
+    let mut rest = Vec::new();
+    for rel in rs_files("") {
+        if CONVERTED.contains(&rel.as_str()) || rel.starts_with("i18n/") {
+            continue;
+        }
+        for (line, key) in wrapped_literals_in(Some(&rel), &read(&rel)) {
+            if !reads_in_chinese(&key) {
+                rest.push(format!("{rel}:{line} {key:?}"));
+            }
+        }
+    }
+    println!("A24: {} wrapped literal(s) outside the converted files still read English:", rest.len());
+    for r in &rest {
+        println!("  {r}");
+    }
+    bad.extend(rest);
+    assert!(bad.is_empty(), "{} wrapped literal(s) with no Chinese:\n{}", bad.len(), bad.join("\n"));
+}
+
+/// The scanner reads the source argument and skips the values that pick it.
+#[test]
+fn the_wrapped_literal_scan_reads_sources_not_operands() {
+    let src = r#"
+fn f() {
+    d.text("a", tr("Recent"), &t);
+    let l = tr(if busy { "Saving…" } else { "Save" });
+    let m = tr(match mode { "read_only" => "Read", _ => "Full access" });
+    let n = tr1("{value0} queued", &n.to_string());
+    let v = tr_ctx("verb", "Type");
+    let x = attr("Not a call");
+}
+"#;
+    let keys: Vec<String> = wrapped_literals(src).into_iter().map(|(_, k)| k).collect();
+    for want in ["Recent", "Saving…", "Save", "Read", "Full access", "{value0} queued", "verb|Type"] {
+        assert!(keys.contains(&want.to_owned()), "{want}: {keys:?}");
+    }
+    assert!(!keys.contains(&"read_only".to_owned()) && !keys.contains(&"Not a call".to_owned()), "{keys:?}");
+    assert!(reads_in_chinese("verb|Type") && reads_in_chinese("Recent") && !reads_in_chinese("No such copy anywhere"));
+}
+
+/// [`TRANSLATING`] is true: each listed helper's body calls `tr(` (or hands
+/// the text to a listed helper of the same file).
+#[test]
+fn the_translating_helpers_translate() {
+    for (file, prefix) in TRANSLATING {
+        let code = code_only(&read(file));
+        let name = prefix.trim_end_matches('(');
+        let at = code.find(&format!("fn {name}(")).unwrap_or_else(|| panic!("{file}: no fn {name}"));
+        let open = at + code[at..].find('{').expect("body");
+        let mut depth = 0usize;
+        let mut end = open;
+        for (i, c) in code[open..].char_indices() {
+            match c {
+                '{' => depth += 1,
+                '}' => {
+                    depth -= 1;
+                    if depth == 0 {
+                        end = open + i;
+                        break;
+                    }
+                }
+                _ => {}
+            }
+        }
+        let body = &code[open..end];
+        let hands_on = TRANSLATING.iter().any(|(f, p)| f == file && *p != *prefix && body.contains(*p));
+        assert!(body.contains("tr(") || hands_on, "{file}: {name} does not translate its text");
     }
 }

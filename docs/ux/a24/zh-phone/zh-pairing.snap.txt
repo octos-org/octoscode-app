@@ -1,14 +1,14 @@
 connect_title	Label	[36, 257, 102, 24]	连接 Octos
 1	Label	[36, 299, 65, 22]	服务器地址
 4	Label	[36, 383, 52, 22]	认证令牌
-connect_note	Label	[36, 460, 147, 15]	Stored for this server only
+connect_note	Label	[36, 460, 96, 15]	仅为此服务器保存
 connect_btn_label	Label	[165, 510, 30, 18]	连接
-connect_pair_label	Label	[106, 560, 148, 17]	Pair with a link instead
-connect_solo_label	Label	[111, 594, 139, 17]	Use local solo server
-b1_title	Label	[20, 132, 320, 31]	Pair with Octos
-b1_pair_cap1	Label	[20, 397, 320, 18]	Scan the pairing QR shown in Octos
-b1_pair_cap2	Label	[20, 418, 320, 18]	on your computer
-1	Label	[173, 466, 15, 18]	or
-8	Label	[20, 510, 320, 20]	Paste pairing link
-b1_pair_submit	Button	[20, 613, 320, 44]	Pair
-b1_pair_fallback	Button	[65, 673, 231, 32]	Enter server and token instead
+connect_pair_label	Label	[138, 560, 84, 17]	改用链接配对
+connect_solo_label	Label	[117, 594, 126, 17]	使用本地单人服务器
+b1_title	Label	[20, 132, 320, 31]	与 Octos 配对
+b1_pair_cap1	Label	[20, 397, 320, 18]	扫描 Octos 显示的配对二维码
+b1_pair_cap2	Label	[20, 418, 320, 18]	（在你的电脑上）
+1	Label	[173, 466, 15, 18]	或
+8	Label	[20, 510, 320, 20]	粘贴配对链接
+b1_pair_submit	Button	[20, 613, 320, 44]	配对
+b1_pair_fallback	Button	[99, 673, 162, 32]	改为输入服务器和令牌
