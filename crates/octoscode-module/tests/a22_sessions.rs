@@ -1101,3 +1101,75 @@ async fn a_history_read_with_no_reply_is_said_reset_and_asked_again() {
     assert!(conv.resync_lost_history_reads(Duration::ZERO).is_empty(), "nothing left to resync");
     quit(&conv);
 }
+
+/// A sidebar row CLICK as lib.rs `thread.open` performs it: the
+/// Conversation's decision (`flow::RowClick`), then — unless the row is the
+/// Session already on screen with its history — `open_session` in its folder.
+async fn click_row(conv: &Arc<Conversation>, id: &str) -> octoscode_module::flow::RowClick {
+    let click = conv.row_click(id);
+    if click != octoscode_module::flow::RowClick::AlreadyOpen {
+        conv.open_session(id, Some(CWD.to_owned())).await.expect("thread.open");
+    }
+    click
+}
+
+/// "Reopen it from the sidebar to try again" — A19b's notice for a history
+/// that could not be read — on the row that is ALREADY selected: the CLICK
+/// re-opens the Session and reads its history again; the notice re-states
+/// with the new reason when that read fails too, and the history arrives
+/// when it is answered. A CLICK on the selected row of a Session whose
+/// history IS on screen still does nothing (#34a row 190).
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn clicking_the_selected_row_of_a_session_whose_history_failed_reads_it_again() {
+    use octoscode_module::flow::{History, RowClick};
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    let _g = lock();
+    let b = "a22:api:hiccup";
+    let reads = Arc::new(AtomicUsize::new(0));
+    let r2 = reads.clone();
+    let core = Core::start(Arc::new(move |method, p| {
+        let session = p["session_id"].as_str().unwrap_or("").to_owned();
+        match method {
+            "session/open" => Reply::Ok(opened(&session, p["cwd"].as_str().unwrap_or(CWD), None)),
+            // B's first two history reads are refused; the third is answered.
+            "session/hydrate" if session == b && messages_read(p) => match r2.fetch_add(1, Ordering::SeqCst) {
+                0 => Reply::Err(-32603, "history store busy".into()),
+                1 => Reply::Err(-32603, "history store still busy".into()),
+                _ => Reply::Ok(hydrated(b, 3, vec![row(1, "user", "the history of B", T1)], &[(T1, 1)])),
+            },
+            "session/hydrate" => Reply::Ok(empty_history(&session)),
+            "session/list" => Reply::Ok(json!({"sessions": [], "workspace_root": CWD, "profile_id": PROFILE})),
+            _ => Reply::Ok(json!({})),
+        }
+    }))
+    .await;
+    let conv = launch(&core).await;
+    let a = conv.session_id();
+    let opens_of = |id: &str| core.params_of("session/open").iter().filter(|p| p["session_id"] == json!(id)).count();
+    let reads_of_b =
+        || core.params_of("session/hydrate").iter().filter(|p| p["session_id"] == json!(b) && messages_read(p)).count();
+    // The selected row of a Session whose history IS on screen: nothing.
+    let opens_a = opens_of(&a);
+    assert_eq!(click_row(&conv, &a).await, RowClick::AlreadyOpen);
+    quiet().await;
+    assert_eq!(opens_of(&a), opens_a, "no re-open of the Session on screen (#34a row 190)");
+    // B's history cannot be read: the notice says so.
+    assert_eq!(click_row(&conv, b).await, RowClick::Open);
+    until("B's history could not be read", || conv.history(b) == History::Failed("history store busy".into())).await;
+    assert_eq!(reads_of_b(), 1);
+    // CLICK B's row — the selected one: B is opened again, its history read
+    // again; that read fails too, and the notice re-states with its reason.
+    assert_eq!(click_row(&conv, b).await, RowClick::Reopen, "the selected row of a failed Session re-opens it");
+    until("the history read is re-issued", || reads_of_b() == 2).await;
+    until("the notice re-states", || conv.history(b) == History::Failed("history store still busy".into())).await;
+    assert_eq!(opens_of(b), 2);
+    // CLICK again: read again, answered — the history arrives.
+    assert_eq!(click_row(&conv, b).await, RowClick::Reopen);
+    until("the history arrives", || conv.history(b) == History::Ready).await;
+    assert_eq!((opens_of(b), reads_of_b()), (3, 3));
+    let shown_b: Vec<String> = conv.store.domains.session.timeline.entries(b).into_iter().map(|e| e.text).collect();
+    assert!(shown_b.iter().any(|t| t == "the history of B"), "{shown_b:?}");
+    // With its history on screen, a CLICK on the selected row does nothing again.
+    assert_eq!(click_row(&conv, b).await, RowClick::AlreadyOpen);
+    quit(&conv);
+}
