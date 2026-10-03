@@ -402,6 +402,75 @@ mod replay {
         assert!(!board1::is_open());
     }
 
+    /// A35b — the requests each browser action sends, on the production path
+    /// (`route` -> `execute`): + Add workspace lists the server's folder
+    /// ONCE (it listed it twice: the picker's own root read and the browser's
+    /// listing of the same folder), a pick or a key sends nothing, every
+    /// navigation exactly one.
+    #[tokio::test]
+    async fn every_browser_action_sends_the_requests_it_needs_and_no_more() {
+        let _s = serial();
+        let s = server().await;
+        let conv = connected(&s).await;
+        board1::close_all();
+        browser::set(browser::BrowserUi::default());
+        octoscode_module::screens::recents::set_store(Arc::new(octoscode_module::screens::recents::MemoryStore::new()));
+        sync(&conv);
+        let lists = || s.sent("onboarding/workspace_list").len();
+        let mut steps: Vec<(&str, usize)> = Vec::new();
+        let mut step = |name: &'static str, before: usize, steps: &mut Vec<(&str, usize)>| steps.push((name, lists() - before));
+
+        let n = lists();
+        click("b1.open.add", None, &conv).await;
+        step("+ Add workspace", n, &mut steps);
+        // The picker under the browser still names the server's folder: from
+        // the browser's own listing.
+        assert_eq!(board1::picker().server_root.as_deref(), Some("/home/user/code"));
+        assert_eq!(browser::state().path, "/home/user/code");
+        let n = lists();
+        click("browser.enter.1", None, &conv).await;
+        step("pick", n, &mut steps);
+        let n = lists();
+        click("browser.enter.1", None, &conv).await;
+        step("drill", n, &mut steps);
+        let n = lists();
+        click("browser.up", None, &conv).await;
+        step("up", n, &mut steps);
+        let n = lists();
+        for typed in ["/home/user/code/n", "/home/user/code/no", "/home/user/code/notes"] {
+            board1::route("browser.path", Some(typed));
+        }
+        step("type 3 keys", n, &mut steps);
+        let n = lists();
+        click("browser.go", None, &conv).await;
+        step("Return", n, &mut steps);
+        let n = lists();
+        click("browser.crumb.3", None, &conv).await;
+        step("breadcrumb", n, &mut steps);
+        let n = lists();
+        click("browser.close", None, &conv).await;
+        step("back to the picker", n, &mut steps);
+        let n = lists();
+        click("picker.browse", None, &conv).await;
+        step("picker Browse", n, &mut steps);
+        assert_eq!(
+            steps,
+            vec![
+                ("+ Add workspace", 1),
+                ("pick", 0),
+                ("drill", 1),
+                ("up", 1),
+                ("type 3 keys", 0),
+                ("Return", 1),
+                ("breadcrumb", 1),
+                ("back to the picker", 0),
+                ("picker Browse", 1),
+            ],
+            "onboarding/workspace_list requests per action"
+        );
+        board1::close_all();
+    }
+
     #[tokio::test]
     async fn browsing_fails_closed_without_the_advertised_feature() {
         // Row 166: no feature -> no Browse, no New folder, no request.
@@ -412,7 +481,7 @@ mod replay {
         octoscode_module::screens::recents::set_store(Arc::new(octoscode_module::screens::recents::MemoryStore::new()));
         sync(&conv);
         let work = click("b1.open.add", None, &conv).await;
-        assert_eq!(work, vec![board1::Work::PickerLoad], "+ Add workspace opens the picker alone");
+        assert_eq!(work, vec![board1::Work::PickerLoad { list_root: true }], "+ Add workspace opens the picker alone");
         assert_eq!(board1::top(), Some(board1::Surface::Picker));
         board1::mark_dirty();
         let v = board1::view(990.0, 603.0).unwrap();

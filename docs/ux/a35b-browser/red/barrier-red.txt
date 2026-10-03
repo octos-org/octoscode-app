@@ -1,0 +1,7 @@
+test a_folder_listing_remount_keeps_the_module_roots_lookups_cached ... FAILED
+test typing_in_the_path_box_neither_recomposes_nor_remounts_and_a_navigation_composes_once ... ok
+thread 'a_folder_listing_remount_keeps_the_module_roots_lookups_cached' (263782176) panicked at crates/octoscode-module/tests/a35_browser_perf.rs:122:5:
+assertion `left == right` failed: a folder-listing remount must not send the module root's lookups back to whole-tree walks (board1_dock is a widget-tree search barrier)
+  left: (8, 8312)
+ right: (0, 0)
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s

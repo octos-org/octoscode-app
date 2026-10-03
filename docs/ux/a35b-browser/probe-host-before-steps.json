@@ -1,0 +1,214 @@
+[
+ {
+  "step": "open: + Add workspace",
+  "ms": 718.4,
+  "ack_ms": 14.0,
+  "lists": 2,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    12
+   ],
+   [
+    "Signal",
+    36
+   ],
+   [
+    "Signal",
+    34
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: b1.open.add"
+  ]
+ },
+ {
+  "step": "pick: row 2 fills the path box",
+  "ms": 27.6,
+  "ack_ms": 26.2,
+  "lists": 0,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    25
+   ],
+   [
+    "Signal",
+    32
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.enter.2"
+  ]
+ },
+ {
+  "step": "drill: row 2 again opens billing",
+  "ms": 25.0,
+  "ack_ms": 23.8,
+  "lists": 1,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    22
+   ],
+   [
+    "Signal",
+    25
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.enter.2"
+  ]
+ },
+ {
+  "step": "up: the 'work' crumb",
+  "ms": 649.3,
+  "ack_ms": 12.0,
+  "lists": 1,
+  "ui_events_over_threshold": [
+   [
+    "present",
+    11
+   ],
+   [
+    "native-event",
+    10
+   ],
+   [
+    "Signal",
+    30
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.crumb.3"
+  ]
+ },
+ {
+  "step": "type '/monorepo' in the path box",
+  "per_key_ms": [
+   4.0,
+   3.3,
+   7.9,
+   3.2,
+   4.4,
+   2.9,
+   3.9,
+   3.1,
+   4.9
+  ],
+  "lists": 0,
+  "ui_events_over_threshold": [],
+  "log": []
+ },
+ {
+  "step": "go: Return opens monorepo",
+  "ms": 655.7,
+  "ack_ms": 8.5,
+  "lists": 1,
+  "ui_events_over_threshold": [
+   [
+    "Signal",
+    25
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.go"
+  ]
+ },
+ {
+  "step": "pick: packages",
+  "ms": 16.9,
+  "ack_ms": 15.5,
+  "lists": 0,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    14
+   ],
+   [
+    "Signal",
+    24
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.enter.2"
+  ]
+ },
+ {
+  "step": "drill: packages (150 folders)",
+  "ms": 99.9,
+  "ack_ms": 12.2,
+  "lists": 1,
+  "ui_events_over_threshold": [
+   [
+    "native-event",
+    11
+   ],
+   [
+    "NextFrame",
+    9
+   ],
+   [
+    "Signal",
+    33
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.enter.2"
+  ]
+ },
+ {
+  "step": "scroll the 150-folder list (6 wheel steps)",
+  "per_step_ms": [
+   3.3,
+   3.7,
+   3.2,
+   7.0,
+   3.1,
+   4.5
+  ],
+  "ui_events_over_threshold": []
+ },
+ {
+  "step": "back: chevron -> picker",
+  "ms": 27.7,
+  "ack_ms": 26.1,
+  "lists": 0,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    22
+   ],
+   [
+    "Signal",
+    26
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: browser.close"
+  ]
+ },
+ {
+  "step": "browse: picker Browse -> listing",
+  "ms": 121.7,
+  "ack_ms": 19.7,
+  "lists": 1,
+  "ui_events_over_threshold": [
+   [
+    "Actions",
+    18
+   ],
+   [
+    "Signal",
+    41
+   ],
+   [
+    "Signal",
+    30
+   ]
+  ],
+  "log": [
+   "[octoscode] board1 action: picker.browse"
+  ]
+ }
+]

@@ -1,0 +1,4 @@
+thread 'the_default_builds_are_optimized' (263855498) panicked at crates/octoscode-desktop/tests/build_scripts.rs:120:5:
+build-macos.sh builds release by default
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+

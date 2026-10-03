@@ -42,13 +42,14 @@ tools/build-macos.sh --release --package
 open target/macos-app/OctosCode.app
 ```
 
-The script prepares the pinned renderer forks and builds the app. `--release` optimizes
-the executable; `--package` always builds the bundle with the optimized `app-bundle`
-profile. Use optimized builds for everyday use and performance testing. Without either
-flag, the script produces a debug executable.
+The script prepares the pinned renderer forks and builds the optimized app
+(`target/release/octoscode`); `--package` also builds the bundle with the optimized
+`app-bundle` profile. `--release` is still accepted (older checkouts, such as the
+v0.1.0-rc.1 tag, built a debug executable without it). For development only, `--debug`
+builds debug executables (`target/debug/`), whose UI is noticeably slower.
 
-An optional OctoSense adapter is available with `tools/build-macos.sh --octosense --release`.
-The `--release` flag applies to both the standalone executable and the OctoSense host.
+An optional OctoSense adapter is available with `tools/build-macos.sh --octosense`; it is
+optimized as well (`--debug` applies to both the standalone executable and the OctoSense host).
 See the [macOS build guide](docs/BUILD-macos.md) for prerequisites, output paths,
 host launch commands, and troubleshooting.
 

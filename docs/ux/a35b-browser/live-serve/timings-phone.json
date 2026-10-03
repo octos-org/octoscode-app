@@ -1,0 +1,207 @@
+{
+ "binary_profile": "release",
+ "host": false,
+ "mode": "phone",
+ "live": true,
+ "steps": [
+  {
+   "step": "open: + Add workspace -> the listing",
+   "ms": 50.8,
+   "input_ack_ms": 9.6,
+   "budget_ms": 100.0,
+   "remounts": 2,
+   "ui_hangs": [],
+   "server_ms": 6.2,
+   "client_ms": 44.6
+  },
+  {
+   "step": "pick: a first tap fills the path box",
+   "ms": 14.1,
+   "input_ack_ms": 13.0,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0,
+   "client_ms": 14.1
+  },
+  {
+   "step": "drill: a second tap opens the folder",
+   "ms": 23.9,
+   "input_ack_ms": 9.7,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 1.3,
+   "client_ms": 22.6
+  },
+  {
+   "step": "up: the breadcrumb opens the parent",
+   "ms": 24.4,
+   "input_ack_ms": 7.5,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 4.1,
+   "client_ms": 20.3
+  },
+  {
+   "step": "type '/monorepo' in the path box",
+   "per_key_ms": [
+    2.9,
+    2.4,
+    4.4,
+    1.9,
+    2.3,
+    2.6,
+    1.8,
+    2.1,
+    2.2
+   ],
+   "budget_ms": 16.0,
+   "workspace_list_requests": null,
+   "remounts": 0,
+   "ui_hangs": []
+  },
+  {
+   "step": "go: Return opens the typed folder",
+   "ms": 44.4,
+   "input_ack_ms": 7.1,
+   "budget_ms": 100.0,
+   "remounts": 2,
+   "ui_hangs": [],
+   "server_ms": 0.9,
+   "client_ms": 43.5
+  },
+  {
+   "step": "pick: packages",
+   "ms": 11.2,
+   "input_ack_ms": 9.8,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0,
+   "client_ms": 11.2
+  },
+  {
+   "step": "drill: packages (150 folders)",
+   "ms": 57.4,
+   "input_ack_ms": 7.9,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 13.2,
+   "client_ms": 44.2
+  },
+  {
+   "step": "scroll the 150-folder listing (6 wheel steps)",
+   "per_step_ms": [
+    2.0,
+    1.5,
+    1.0,
+    1.0,
+    1.1,
+    2.7
+   ],
+   "budget_ms": 16.0,
+   "remounts": 0,
+   "ui_hangs": []
+  },
+  {
+   "step": "go: node_modules (650 folders, the server pages 500)",
+   "ms": 58.9,
+   "input_ack_ms": 6.9,
+   "budget_ms": 100.0,
+   "remounts": 2,
+   "ui_hangs": [],
+   "server_ms": 46.0,
+   "client_ms": 12.9
+  },
+  {
+   "step": "refused: a folder the server refuses -> the bounded refusal",
+   "ms": 4.7,
+   "input_ack_ms": 3.8,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0.2,
+   "client_ms": 4.5
+  },
+  {
+   "step": "back: Back to the last good folder",
+   "ms": 14.5,
+   "input_ack_ms": 13.3,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0,
+   "client_ms": 14.5
+  },
+  {
+   "step": "close: the back chevron -> the picker",
+   "ms": 10.4,
+   "input_ack_ms": 9.4,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "server_ms": 0,
+   "client_ms": 10.4
+  },
+  {
+   "step": "browse: the picker's Browse -> the server's folder",
+   "ms": 50.4,
+   "input_ack_ms": 9.2,
+   "budget_ms": 100.0,
+   "remounts": 2,
+   "ui_hangs": [],
+   "server_ms": 5.4,
+   "client_ms": 45.0
+  },
+  {
+   "step": "unpolled pick: a first tap",
+   "app_clock_ms": 5.4,
+   "server_ms": 0,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "client_ms": 5.4
+  },
+  {
+   "step": "unpolled drill: a second tap opens the folder",
+   "app_clock_ms": 13.0,
+   "server_ms": 1.0,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "client_ms": 12.0
+  },
+  {
+   "step": "unpolled up: the breadcrumb opens the parent",
+   "app_clock_ms": 15.1,
+   "server_ms": 4.4,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "client_ms": 10.7
+  },
+  {
+   "step": "unpolled go: node_modules (the server's page of 500)",
+   "app_clock_ms": 55.8,
+   "server_ms": 50.3,
+   "budget_ms": 100.0,
+   "remounts": 2,
+   "ui_hangs": [],
+   "client_ms": 5.5
+  },
+  {
+   "step": "unpolled open: + Add workspace -> the listing",
+   "app_clock_ms": 6.5,
+   "server_ms": 4.4,
+   "budget_ms": 100.0,
+   "remounts": 1,
+   "ui_hangs": [],
+   "client_ms": 2.1
+  }
+ ],
+ "passed": 36,
+ "checks": 36
+}

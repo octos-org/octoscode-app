@@ -96,8 +96,9 @@ open target/macos-app/OctosCode.app
 和 `target/macos-app/OctosCode-macos-arm64.zip`。
 若设置了 `CARGO_TARGET_DIR`，产物路径将使用该目录代替 `target`。
 
-应用包始终使用优化的 `app-bundle` 配置。不加 `--release` 时，单独的可执行文件为调试构建；
-评估性能时请使用优化构建。若要构建默认分支而非这个 RC，请省略 `git checkout` 命令。
+应用包始终使用优化的 `app-bundle` 配置。在这个 RC 标签上，单独的可执行文件需要加
+`--release` 才是优化构建；在默认分支上优化构建是默认行为，`--debug` 才会生成调试版，
+它明显更慢，仅用于开发。若要构建默认分支而非这个 RC，请省略 `git checkout` 命令。
 
 如需同时构建可选的 OctoSense 宿主：
 
@@ -107,7 +108,7 @@ MAKEPAD_WM_TEST_APP=octoscode OCTOSCODE_DESIGN_DIR="$PWD/design" \
   .forks/octosense-host/target/release/octosense --module octoscode
 ```
 
-这里的 `--release` 同时作用于两个可执行文件。独立版下载包不包含该可选宿主。
+这里的 `--release` 同时作用于两个可执行文件（默认分支上默认即为优化构建）。独立版下载包不包含该可选宿主。
 完整构建流程见 [macOS 构建指南（英文）](BUILD-macos.md)。
 
 ### Linux 和 Windows 本机打包
@@ -134,6 +135,6 @@ Windows 上若 Python 3 命令为 `python`，请相应替换。脚本使用优�
 | 令牌被拒绝 | 使用该服务器当前的访问令牌；若服务器以 `--solo` 启动，请选择本地单人登录。 |
 | 配对链接已使用 | 在服务器端生成新链接；已用过的链接不能重复使用。 |
 | 已连接，但模型调用失败 | 在设置中检查提供商、模型和 API 密钥。服务器访问令牌与模型提供商的 API 密钥是两种不同的凭据。 |
-| 侧栏或输入很慢 | 使用发布的应用包或 `--release` 可执行文件；调试构建会明显更慢。 |
+| 侧栏、输入或文件夹浏览很慢 | 使用发布的应用包或优化构建的可执行文件（`tools/build-macos.sh` 默认即为优化构建；RC 标签上需加 `--release`）；`--debug` 构建会明显更慢。 |
 | 复制可执行文件后缺少字体或图标 | 请复制打包后的 `.app` 或发布 ZIP；直接从源码构建的单个可执行文件不是可移植应用包。 |
 | macOS 阻止打开 | 对从本仓库下载的应用，按第 1 步在系统设置中单独批准打开。 |

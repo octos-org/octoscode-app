@@ -1,0 +1,7 @@
+test the_bundle_is_self_contained_and_named_octoscode ... ok
+test the_octosense_fork_carries_the_shell_wiring_as_patch_0003 ... ok
+test build_macos_runs_every_step_of_both_variants ... ok
+test the_default_builds_are_optimized ... FAILED
+test every_build_script_parses ... ok
+thread 'the_default_builds_are_optimized' (263854004) panicked at crates/octoscode-desktop/tests/build_scripts.rs:120:5:
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s

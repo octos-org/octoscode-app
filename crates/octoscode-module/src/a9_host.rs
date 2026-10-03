@@ -443,9 +443,12 @@ impl Widget for OctoscodeView {
             let _ = dock.draw_walk(cx, scope, w);
             return DrawStep::done();
         }
-        match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let span = crate::perf::begin_named(cx, "Draw");
+        let drawn = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             self.draw_walk_unguarded(cx, scope, walk)
-        })) {
+        }));
+        crate::perf::end(cx, span);
+        match drawn {
             Ok(step) => step,
             Err(p) => {
                 let report = crate::screens::a9_boundary::safe_report(&*p, "the client view (draw)");
@@ -466,9 +469,13 @@ impl Widget for OctoscodeView {
             self.a9_crash_event(cx, event, scope);
             return;
         }
-        if let Err(p) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        // A35b: OCTOSCODE_PERF=1 logs what this event cost (crate::perf).
+        let span = crate::perf::begin(cx, event);
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             self.handle_event_unguarded(cx, event, scope)
-        })) {
+        }));
+        crate::perf::end(cx, span);
+        if let Err(p) = result {
             let report = crate::screens::a9_boundary::safe_report(&*p, "the client view");
             makepad_widgets::log!(
                 "[octoscode] a9 fatal boundary: {}",

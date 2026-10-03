@@ -17,8 +17,16 @@
 //!   over a small `/home/user` tree whose `/private` answers the typed
 //!   `workspace_list_permission_denied` refusal.
 //!
+//! - A35 `--tree realistic`: the server's working directory is
+//!   `/home/user/work`, a developer's folder of 46 projects (5 hidden
+//!   dot-folders) with a 150-package `monorepo/packages` and a 650-folder
+//!   `frontend/node_modules` that the listing truncates at the server's own
+//!   500-entry page (`truncated: true`, octos
+//!   `ONBOARDING_WORKSPACE_LIST_MAX_ENTRIES`). The browser latency walk
+//!   (`tools/walk/a35_browser_latency_walk.py`) names the same tree.
+//!
 //! ```sh
-//! cargo run -p octoscode-module --example board1_serve -- 8422 [--pair ok|used|expired|locked|unsupported|open] [--no-browse]
+//! cargo run -p octoscode-module --example board1_serve -- 8422 [--pair ok|used|expired|locked|unsupported|open] [--no-browse] [--tree realistic]
 //! # `open`: /pair/info says pairing_required false (a server without a token; A11's tokenless offer)
 //! # it prints the pairing link to paste:  PAIR-LINK http://app.invalid/?octos=http://127.0.0.1:8422&pair=3QK7ZP2M
 //! ```
@@ -38,11 +46,68 @@ struct Cfg {
     port: u16,
     pair: String,
     browse: bool,
+    /// The server's working directory (what a `workspace_list` with no path
+    /// lists): `/home/user/code`, or `/home/user/work` with `--tree realistic`.
+    root: &'static str,
 }
 
 type Tree = Arc<Mutex<BTreeMap<String, Vec<String>>>>;
 
-fn tree() -> Tree {
+/// A35 — the realistic tree's root and its 46 projects (`--tree realistic`).
+const WORK: &str = "/home/user/work";
+const PROJECTS: &[&str] = &[
+    "api-gateway", "auth-service", "billing", "blog", "cli-tools", "data-pipeline", "deploy", "design-system",
+    "docs-site", "dotfiles", "experiments", "frontend", "game-jam", "homelab", "infra", "ios-app", "kernel-notes",
+    "landing-page", "ml-models", "mobile", "monorepo", "notebooks", "octos", "octoscode-app", "ops-scripts",
+    "payments", "photo-tools", "playground", "plugins", "portfolio", "prototype", "research", "rust-learning",
+    "scraper", "search", "sensors", "shaders", "snippets", "static-assets", "terraform", "themes", "tui-app",
+    "vendor", "web-app", "wiki", "zig-play",
+];
+/// The server's own page (`ONBOARDING_WORKSPACE_LIST_MAX_ENTRIES`).
+const PAGE: usize = 500;
+
+/// A35 — add the realistic `/home/user/work` tree: every project holds the
+/// usual five folders, `monorepo/packages` 150 packages, `octos/crates` 32
+/// crates and `frontend/node_modules` 650 folders (past the server's page).
+fn add_realistic(t: &mut BTreeMap<String, Vec<String>>) {
+    let sorted = |mut v: Vec<String>| {
+        v.sort_by_key(|c| c.to_lowercase());
+        v
+    };
+    t.get_mut("/home/user").expect("the base tree").push("work".to_owned());
+    t.insert(WORK.to_owned(), sorted(PROJECTS.iter().map(|p| (*p).to_owned()).collect()));
+    let usual: Vec<String> = ["assets", "docs", "scripts", "src", "tests"].iter().map(|s| (*s).to_owned()).collect();
+    for p in PROJECTS {
+        let subs: Vec<String> = match *p {
+            "monorepo" => vec!["apps", "docs", "packages", "scripts", "tools"],
+            "frontend" => vec!["build", "node_modules", "public", "src", "tests"],
+            "octos" => vec!["crates", "docs", "scripts", "target"],
+            _ => vec![],
+        }
+        .into_iter()
+        .map(str::to_owned)
+        .collect();
+        let subs = if subs.is_empty() { usual.clone() } else { subs };
+        for s in &subs {
+            t.insert(format!("{WORK}/{p}/{s}"), Vec::new());
+        }
+        t.insert(format!("{WORK}/{p}"), sorted(subs));
+    }
+    let numbered = |prefix: &str, n: usize, width: usize| (0..n).map(|i| format!("{prefix}{i:0width$}")).collect::<Vec<_>>();
+    t.insert(format!("{WORK}/monorepo/packages"), numbered("pkg-", 150, 3));
+    t.insert(format!("{WORK}/octos/crates"), numbered("octos-crate-", 32, 2));
+    t.insert(format!("{WORK}/frontend/node_modules"), numbered("dep-", 650, 3));
+}
+
+fn tree(realistic: bool) -> Tree {
+    let t = base_tree();
+    if realistic {
+        add_realistic(&mut t.lock().unwrap());
+    }
+    t
+}
+
+fn base_tree() -> Tree {
     let mut t = BTreeMap::new();
     let dirs: &[(&str, &[&str])] = &[
         ("/", &["home", "private", "srv"]),
@@ -82,12 +147,13 @@ async fn main() {
         port,
         pair: flag("--pair").unwrap_or_else(|| "ok".to_owned()),
         browse: !args.iter().any(|a| a == "--no-browse"),
+        root: if flag("--tree").as_deref() == Some("realistic") { WORK } else { "/home/user/code" },
     };
     let listener = TcpListener::bind(("127.0.0.1", port)).await.expect("bind");
-    println!("[board1-serve] listening on 127.0.0.1:{port} (pair={}, browse={})", cfg.pair, cfg.browse);
+    println!("[board1-serve] listening on 127.0.0.1:{port} (pair={}, browse={}, root={})", cfg.pair, cfg.browse, cfg.root);
     println!("PAIR-LINK http://app.invalid/?octos=http://127.0.0.1:{port}&pair={CODE}");
     let claimed = Arc::new(Mutex::new(false));
-    let fs = tree();
+    let fs = tree(cfg.root == WORK);
     loop {
         let Ok((stream, _)) = listener.accept().await else { continue };
         let (cfg, claimed, fs) = (cfg.clone(), claimed.clone(), fs.clone());
@@ -189,8 +255,8 @@ async fn http(mut stream: TcpStream, cfg: Cfg, claimed: Arc<Mutex<bool>>) {
     let _ = stream.shutdown().await;
 }
 
-fn listing(fs: &Tree, path: Option<&str>) -> Result<serde_json::Value, serde_json::Value> {
-    let p = path.unwrap_or("/home/user/code").trim_end_matches('/');
+fn listing(fs: &Tree, path: Option<&str>, root: &str) -> Result<serde_json::Value, serde_json::Value> {
+    let p = path.unwrap_or(root).trim_end_matches('/');
     let p = if p.is_empty() { "/" } else { p };
     if p == "/private" || p.starts_with("/private/") {
         return Err(serde_json::json!({
@@ -212,8 +278,11 @@ fn listing(fs: &Tree, path: Option<&str>) -> Result<serde_json::Value, serde_jso
         let cut = p.rfind('/').unwrap_or(0);
         serde_json::json!(if cut == 0 { "/".to_owned() } else { p[..cut].to_owned() })
     };
+    // The server's own page: past it, the listing says `truncated`.
+    let truncated = children.len() > PAGE;
     let entries: Vec<serde_json::Value> = children
         .iter()
+        .take(PAGE)
         .map(|c| {
             let child = if p == "/" { format!("/{c}") } else { format!("{p}/{c}") };
             serde_json::json!({"name": c, "path": child, "writable": child != "/private"})
@@ -224,9 +293,14 @@ fn listing(fs: &Tree, path: Option<&str>) -> Result<serde_json::Value, serde_jso
         "parent_path": parent,
         "writable": p.starts_with("/home/user"),
         "entries": entries,
-        "truncated": false,
-        // The board's own fixture: the code folder hides three dot-folders.
-        "hidden_skipped": if p == "/home/user/code" { 3 } else { 0 },
+        "truncated": truncated,
+        // The board's own fixture: the code folder hides three dot-folders
+        // (A35: the realistic work folder five).
+        "hidden_skipped": match p {
+            "/home/user/code" => 3,
+            WORK => 5,
+            _ => 0,
+        },
     }))
 }
 
@@ -248,7 +322,7 @@ async fn ws(stream: TcpStream, cfg: Cfg, fs: Tree) {
         let result: Result<serde_json::Value, serde_json::Value> = match method.as_str() {
             "session/open" => {
                 let session = params["session_id"].as_str().unwrap_or("octoscode:main").to_owned();
-                let root = params["cwd"].as_str().unwrap_or("/home/user/code").to_owned();
+                let root = params["cwd"].as_str().unwrap_or(cfg.root).to_owned();
                 Ok(serde_json::json!({"opened": {
                     "session_id": session,
                     "active_profile_id": "octoscode",
@@ -294,7 +368,7 @@ async fn ws(stream: TcpStream, cfg: Cfg, fs: Tree) {
                 b["profile_id"] = serde_json::json!("octoscode");
                 Ok(b)
             }
-            "onboarding/workspace_list" => listing(&fs, params["path"].as_str()),
+            "onboarding/workspace_list" => listing(&fs, params["path"].as_str(), cfg.root),
             "onboarding/workspace_create" => {
                 let parent = params["parent"].as_str().unwrap_or("").to_owned();
                 let name = params["name"].as_str().unwrap_or("").to_owned();

@@ -2,23 +2,27 @@
 # From a fresh clone to a running OctosCode on macOS, in one command (A33, decision D10f).
 # docs/BUILD-macos.md has the prerequisites, the run/connect steps and troubleshooting.
 #
-#   tools/build-macos.sh [--package] [--octosense] [--release] [--work <dir>]
+#   tools/build-macos.sh [--package] [--octosense] [--debug] [--work <dir>]
 #
-# Default: the STANDALONE desktop app (crates/octoscode-desktop, binary `octoscode`):
+# Default: the STANDALONE desktop app (crates/octoscode-desktop, binary `octoscode`), OPTIMIZED:
 #   1. prepares the two renderer forks the root Cargo.toml [patch]es, in <work> (default
 #      <repo>/.forks; a fork kept elsewhere is symlinked into .forks/):
 #        makepad-fork             OctoSense-org/makepad@6cf03859 + patches/makepad/*      (tools/prepare-makepad-fork.sh)
 #        octoscript-makepad-fork  Octoscript-Makepad@6881fb6c + patches/octoscript-makepad/* (tools/prepare-octoscript-makepad-fork.sh)
-#   2. cargo build -p octoscode-desktop                 -> target/debug/octoscode (or target/release with --release)
+#   2. cargo build --release -p octoscode-desktop       -> target/release/octoscode (target/debug with --debug)
 # --package    also tools/package-macos.sh              -> target/macos-app/OctosCode.app + OctosCode-macos-<arch>.zip
 # --octosense  also the OctoSense-HOSTED variant (the module inside the OctoSense shell), in <work>/octosense-host:
 #              OctoSense at the pin + patches/octosense/0001-0003 (0003 wires the module into the shell), its
 #              framework sources via OctoSense's own tools/setup.py, our makepad patches on them
 #              (scripts/apply-makepad-patches.sh), the octoscode crates and design/ vendored into apps/
 #              (as outer/scripts/hostbuild.sh does), then
-#              cargo build -p octosense --features app-octoscode
-#              -> <work>/octosense-host/target/debug/octosense (or target/release with --release)
-# --release    optimized builds of both the standalone app and the optional OctoSense host
+#              cargo build --release -p octosense --features app-octoscode
+#              -> <work>/octosense-host/target/release/octosense (target/debug with --debug)
+# --debug      unoptimized-workspace (dev profile) builds of both instead, for development only: the
+#              UI is measurably slower (A35b: the folder browser's open/navigation took 0.3-0.7 s at
+#              opt-level 0 against < 0.1 s optimized). The root Cargo.toml's dev profile optimizes the
+#              dependencies, so even this build stays usable.
+# --release    accepted for compatibility: the optimized build is the default.
 #
 # Prerequisites: macOS with the Xcode Command Line Tools, git, python3, rustup (stable toolchain).
 # IDEMPOTENT: every step is a no-op when its result is already there; re-run it to update after a pull.
@@ -29,15 +33,17 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
 PACKAGE=0
 OCTOSENSE=0
-PROFILE=debug
+# A35b: the optimized build is the default; nobody gets the slow one by accident.
+PROFILE=release
 WORK=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --package) PACKAGE=1; shift ;;
     --octosense) OCTOSENSE=1; shift ;;
+    --debug) PROFILE=debug; shift ;;
     --release) PROFILE=release; shift ;;
     --work) WORK="$2"; shift 2 ;;
-    -h|--help) sed -n '2,28p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,29p' "$0"; exit 0 ;;
     *) echo "build-macos: unknown argument $1 (see --help)" >&2; exit 2 ;;
   esac
 done

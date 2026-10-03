@@ -1,0 +1,17 @@
+test screens::board1::tests::a_change_that_lands_mid_compose_is_rebuilt_not_lost ... FAILED
+
+failures:
+
+---- screens::board1::tests::a_change_that_lands_mid_compose_is_rebuilt_not_lost stdout ----
+
+thread 'screens::board1::tests::a_change_that_lands_mid_compose_is_rebuilt_not_lost' (263736024) panicked at crates/octoscode-module/src/screens/board1.rs:1354:9:
+the change that landed mid-compose must be composed by the next sync
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    screens::board1::tests::a_change_that_lands_mid_compose_is_rebuilt_not_lost
+--
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 627 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p octoscode-module --lib`

@@ -1,0 +1,51 @@
+[a35] standalone tmp/target-o0/debug/octoscode (debug), desktop
+PASS the standalone app starts hidden with its bridge — [makepad-remote] listening on 127.0.0.1:8470 pid=36083 app=octoscode grabs=<abs>/octoscode-36083 token_file=<abs>/port-8470.token
+PASS connected: the workspace entry is drawn
+FAIL open: + Add workspace -> the listing: drawn within 100 ms — 436.8 ms (bar 100 ms)
+PASS open: + Add workspace -> the listing: 1 workspace_list request(s) — 1 sent
+PASS open: the rows are the server's folders in order — ['api-gateway', 'auth-service', 'billing']
+PASS open: the server's hidden folders are reported — 'Only the first 40 folders are shown. 5 hidden by the server'
+PASS layout (open): the card inside the window, rows clean — open: window [1280, 800]; card [370, 52, 540, 733] l/r [370, 370]; inside=True; rows drawn 10; row text outside its row 0; controls<28px 0; row overlaps 0
+FAIL pick: a first tap fills the path box: drawn within 100 ms — 128.7 ms (bar 100 ms)
+PASS pick: a first tap fills the path box: 0 workspace_list request(s) — 0 sent
+PASS drill: a second tap opens the folder: drawn within 100 ms — 89.0 ms (bar 100 ms)
+PASS drill: a second tap opens the folder: 1 workspace_list request(s) — 1 sent
+PASS drill: the folder's rows — ['assets', 'docs', 'scripts', 'src', 'tests']
+PASS up: the breadcrumb names the parent — ['/', 'home', 'user', 'work', 'billing']
+FAIL up: the breadcrumb opens the parent: drawn within 100 ms — 126.2 ms (bar 100 ms)
+PASS up: the breadcrumb opens the parent: 1 workspace_list request(s) — 1 sent
+FAIL type: every key's frame within 16 ms — max 17.2 ms, keys [13.5, 16.2, 12.6, 14.4, 14.6, 17.2, 14.1, 16.0, 12.9]
+PASS type: the path box shows the typed path — '/home/user/work/monorepo'
+PASS type: no remount per key — 0 remounts
+PASS type: no request per key — 0 requests
+PASS go: Return opens the typed folder: drawn within 100 ms — 35.0 ms (bar 100 ms)
+PASS go: Return opens the typed folder: 1 workspace_list request(s) — 1 sent
+PASS pick: packages: drawn within 100 ms — 86.6 ms (bar 100 ms)
+PASS pick: packages: 0 workspace_list request(s) — 0 sent
+FAIL drill: packages (150 folders): drawn within 100 ms — 427.0 ms (bar 100 ms); the server answered in 1.4 ms, the client's part 425.6 ms
+PASS drill: packages (150 folders): 1 workspace_list request(s) — 1 sent
+PASS packages: a listing longer than the view says how many rows it shows — 'Only the first 40 folders are shown.'
+PASS scroll: the long listing scrolls inside the card
+FAIL scroll: every wheel step's frame within 16 ms — max 254.4 ms, steps [15.3, 6.8, 6.9, 254.4, 11.3, 8.3]
+PASS scroll: the list moved, no remount — top row now pkg-016, 0 remounts
+PASS layout (packages, scrolled): the card inside the window, rows clean — packages, scrolled: window [1280, 800]; card [370, 53, 540, 726] l/r [370, 370]; inside=True; rows drawn 10; row text outside its row 0; controls<28px 0; row overlaps 0
+FAIL go: node_modules (650 folders, the server pages 500): drawn within 100 ms — 138.8 ms (bar 100 ms); the server answered in 3.9 ms, the client's part 134.9 ms
+PASS go: node_modules (650 folders, the server pages 500): 1 workspace_list request(s) — 1 sent
+PASS node_modules: the truncation is reported — 'Only the first 40 folders are shown.'
+PASS layout (node_modules): the card inside the window, rows clean — node_modules: window [1280, 800]; card [370, 53, 540, 726] l/r [370, 370]; inside=True; rows drawn 10; row text outside its row 0; controls<28px 0; row overlaps 0
+PASS refused: a folder the server refuses -> the bounded refusal: drawn within 100 ms — 40.5 ms (bar 100 ms)
+PASS refused: a folder the server refuses -> the bounded refusal: 1 workspace_list request(s) — 1 sent
+PASS layout (refused): the card inside the window, rows clean — refused: window [1280, 800]; card [370, 254, 540, 323] l/r [370, 370]; inside=True; rows drawn 0; row text outside its row 0; controls<28px 0; row overlaps 0
+FAIL back: Back to the last good folder: drawn within 100 ms — 129.5 ms (bar 100 ms)
+PASS back: Back to the last good folder: 0 workspace_list request(s) — 0 sent
+FAIL close: the back chevron -> the picker: drawn within 100 ms — 351.5 ms (bar 100 ms)
+PASS close: the back chevron -> the picker: 0 workspace_list request(s) — 0 sent
+FAIL browse: the picker's Browse -> the server's folder: drawn within 100 ms — 412.9 ms (bar 100 ms)
+PASS browse: the picker's Browse -> the server's folder: 1 workspace_list request(s) — 1 sent
+PASS unpolled pick: a first tap: drawn within 100 ms on the app's clock — 48.0 ms (the server 0 ms), 1 remount(s)
+PASS unpolled drill: a second tap opens the folder: drawn within 100 ms on the app's clock — 21.4 ms (the server 0.4 ms), 1 remount(s)
+PASS unpolled up: the breadcrumb opens the parent: drawn within 100 ms on the app's clock — 50.0 ms (the server 0.6 ms), 1 remount(s)
+PASS unpolled go: node_modules (the server's page of 500): drawn within 100 ms on the app's clock — 49.0 ms (the server 3.5 ms), 1 remount(s)
+PASS unpolled open: + Add workspace -> the listing: drawn within 100 ms on the app's clock — 55.1 ms (the server 0.6 ms), 1 remount(s)
+FAIL no UI-thread event of 100 ms or more during the browser steps — [('Actions', 422), ('Signal', 246), ('Actions', 112), ('Signal', 253), ('Actions', 112), ('Signal', 250), ('Actions', 412), ('Signal', 260), ('Signal', 257), ('Signal', 264), ('Actions', 115), ('Actions', 338), ('Actions', 392)]
+== 38/49 checks passed (desktop, debug)

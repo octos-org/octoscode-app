@@ -48,9 +48,10 @@ Then, in a clone of this repository:
 ```sh
 git clone https://github.com/octos-org/octoscode-app.git
 cd octoscode-app
-tools/build-macos.sh              # the standalone app: target/debug/octoscode
+tools/build-macos.sh              # the standalone app, optimized: target/release/octoscode
 tools/build-macos.sh --package    # + the self-contained OctosCode.app and its zip in target/macos-app/
-tools/build-macos.sh --octosense --release  # optimized standalone + OctoSense-hosted variant
+tools/build-macos.sh --octosense  # + the OctoSense-hosted variant (optimized too)
+tools/build-macos.sh --debug      # development only: debug builds in target/debug/ (a slower UI)
 ```
 
 What it does (every step is a no-op when already done, so re-run it after a `git pull`):
@@ -58,7 +59,11 @@ What it does (every step is a no-op when already done, so re-run it after a `git
 1. Prepares the two renderer forks the root `Cargo.toml` `[patch]`es, in `.forks/` (or `--work <dir>`, linked into `.forks/`):
    - `makepad-fork`: OctoSense-org/makepad at `6cf03859` + `patches/makepad/*.patch` (`tools/prepare-makepad-fork.sh`);
    - `octoscript-makepad-fork`: Octoscript-Makepad at `6881fb6c` + `patches/octoscript-makepad/*` (`tools/prepare-octoscript-makepad-fork.sh`).
-2. `cargo build -p octoscode-desktop` (`--release` for an optimized build).
+2. `cargo build --release -p octoscode-desktop`: the optimized app. `--debug` builds the dev profile instead
+   (`target/debug/octoscode`), for development only: the root `Cargo.toml` optimizes its dependencies, but the
+   UI is still slower than a release build. Measured with the Makepad instrument on the standalone app
+   (`tools/walk/a35_browser_latency_walk.py`): a fully unoptimized build took 0.3-0.7 s to open and navigate the
+   folder browser, an optimized one well under 0.1 s. `--release` is still accepted; it is the default.
 3. `--package`: `tools/package-macos.sh` builds the `app-bundle` profile with makepad's packaged resource loading
    (`MAKEPAD=apple_bundle MAKEPAD_PACKAGE_DIR=makepad`), copies every crate's `resources/` into
    `OctosCode.app/Contents/Resources/makepad/`, writes the Info.plist (name OctosCode, id `org.octos.octoscode`),
@@ -67,7 +72,7 @@ What it does (every step is a no-op when already done, so re-run it after a `git
    into the shell), its framework sources from OctoSense's own `tools/setup.py`, our makepad patches on them, the
    octoscode crates and `design/` vendored into `apps/`, then
    `cargo build -p octosense --features app-octoscode,octoscode-module/octosense-module`.
-   `--release` applies to both the standalone app and the OctoSense host; without it, both use debug builds.
+   Both the standalone app and the OctoSense host are optimized unless `--debug` is given.
    The packaged `.app` always uses the optimized `app-bundle` profile.
 
 From a fresh clone with an empty cargo cache it took 10 minutes and 10 GB here (4.5 minutes and about 6 GB without
@@ -78,18 +83,20 @@ From a fresh clone with an empty cargo cache it took 10 minutes and 10 GB here (
 ## 3. Run it
 
 ```sh
-target/debug/octoscode                      # or open target/macos-app/OctosCode.app
-target/debug/octoscode --remote 8411        # + the instrument bridge (only when asked; harness/bcurl sends its token)
-OCTOSCODE_WINDOW_SIZE=360x780 target/debug/octoscode   # the phone's shape
+target/release/octoscode                    # or open target/macos-app/OctosCode.app
+target/release/octoscode --remote 8411      # + the instrument bridge (only when asked; harness/bcurl sends its token)
+OCTOSCODE_WINDOW_SIZE=360x780 target/release/octoscode   # the phone's shape
 ```
 
-The OctoSense-hosted variant, built with `--octosense --release`:
+A `--debug` build is `target/debug/octoscode`.
+
+The OctoSense-hosted variant, built with `--octosense`:
 
 ```sh
 MAKEPAD_WM_TEST_APP=octoscode OCTOSCODE_DESIGN_DIR=$PWD/design .forks/octosense-host/target/release/octosense --module octoscode
 ```
 
-Use `target/debug/octosense` instead when building without `--release`.
+Use `target/debug/octosense` instead after a `--debug` build.
 
 ## 4. Connect it to an octos server
 
@@ -123,6 +130,8 @@ Settings > Model providers > Add provider). The app sends turns to that profile'
 
 - **The first build is slow**: a cold build compiles about 280 crates for the standalone app (section 6 has the
   measured time); later builds take seconds. `--octosense` compiles the whole OctoSense desktop on top.
+- **The app feels slow** (typing, the folder browser, the sidebar): check that it is an optimized build —
+  `target/release/octoscode`, the packaged `.app`, or the zip. A `--debug` build is for development only.
 - **Disk**: the cargo target directory holds most of it (section 6). `cargo clean` frees it; the forks are in
   `.forks/` (about 1 GB), the shared download cache in `~/.cargo`.
 - **"the Xcode Command Line Tools are missing"**: `xcode-select --install`, then re-run.
@@ -153,3 +162,7 @@ A fresh clone under another user's HOME with an empty cargo cache, Apple Silicon
 
 The bundle is 116 MB (zip 61 MB). A Mac building with all its cores is faster; a later build after a `git pull`
 takes seconds to a minute.
+
+A33 measured the standalone step when its default was a debug build. Since A35b the default is the release
+build (the `--package` row's kind of build), and the dev profile optimizes its dependencies: both compile longer
+on a cold cache than that debug build did, in exchange for an app whose UI is not slowed down by its build.

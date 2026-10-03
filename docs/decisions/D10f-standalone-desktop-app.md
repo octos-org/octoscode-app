@@ -50,8 +50,8 @@ fonts and design files read from this machine's paths.
    graph; with it a fresh tree builds exactly the integrator's graph, `cargo build --locked` passes, and a build
    leaves the tree clean. It needs a refresh only when the crates gain a dependency (a normal build still works:
    cargo adds the entry).
-7. **One command**: `tools/build-macos.sh [--package] [--octosense] [--release] [--work <dir>]`;
-   `docs/BUILD-macos.md` for the other Mac.
+7. **One command**: `tools/build-macos.sh [--package] [--octosense] [--debug] [--work <dir>]`;
+   `docs/BUILD-macos.md` for the other Mac. A35b: optimized by default (`--debug` opts into the dev profile).
 
 ## Proof
 

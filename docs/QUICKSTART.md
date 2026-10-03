@@ -104,9 +104,11 @@ The outputs are `target/release/octoscode`, `target/macos-app/OctosCode.app`, an
 `target/macos-app/OctosCode-macos-arm64.zip` on Apple Silicon. If `CARGO_TARGET_DIR` is
 set, those output paths use that directory instead of `target`.
 
-The bundle always uses the optimized `app-bundle` profile. Without `--release`, the
-separate executable uses a debug build; use optimized builds when assessing performance.
-Omit the `git checkout` command to build the default branch instead of this RC.
+The bundle always uses the optimized `app-bundle` profile. On this RC tag the separate
+executable needs `--release` to be optimized; on the default branch the optimized build is
+the default and `--debug` opts into a debug build, which is substantially slower and meant
+for development only. Omit the `git checkout` command to build the default branch instead
+of this RC.
 
 To build the optional OctoSense host as well:
 
@@ -116,7 +118,7 @@ MAKEPAD_WM_TEST_APP=octoscode OCTOSCODE_DESIGN_DIR="$PWD/design" \
   .forks/octosense-host/target/release/octosense --module octoscode
 ```
 
-Here `--release` applies to both executables. This optional host is not included in the
+Here `--release` applies to both executables (the default on the default branch). This optional host is not included in the
 standalone download. See the [macOS build guide](BUILD-macos.md) for the full build workflow.
 
 ### Native Linux and Windows packaging
@@ -143,6 +145,6 @@ and its SHA-256 checksum to `target/desktop-packages/`. It does not cross-compil
 | Token rejected | Use the current token for that server, or the local solo button when the server was started with `--solo`. |
 | Pairing link already used | Generate a fresh link on the server; used links cannot be reused. |
 | Connected, but model calls fail | Check the selected provider, model, and API key in Settings. Server access tokens and provider API keys are separate credentials. |
-| Sidebar or typing feels slow | Use the release bundle or `--release` executable. Debug builds are substantially slower. |
+| Sidebar, typing or the folder browser feels slow | Use the release bundle or an optimized executable (`tools/build-macos.sh` builds one by default; `--release` on the RC tag). A `--debug` build is substantially slower. |
 | Missing fonts or icons after copying a binary | Copy the packaged `.app` or release ZIP; a bare source-build executable is not the portable bundle. |
 | macOS blocks launch | Follow the per-app approval in step 1 for the download from this repository. |

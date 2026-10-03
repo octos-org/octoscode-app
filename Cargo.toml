@@ -75,6 +75,16 @@ makepad-widgets = { path = ".forks/makepad-fork/widgets" }
 makepad-app-module = { path = ".forks/makepad-fork/libs/app_module" }
 makepad-script = { path = ".forks/makepad-fork/platform/script" }
 
+# A35b: the dev profile (a plain `cargo build -p octoscode-desktop`, target/debug/octoscode;
+# every test) optimizes every DEPENDENCY. The UI thread's time is spent in them — makepad's
+# widget-tree lookups, script VM, layout and draw — and at opt-level 0 the folder browser's open
+# and navigations took 0.3-0.7 s against well under 0.1 s optimized
+# (tools/walk/a35_browser_latency_walk.py). The workspace's own crates keep opt-level 0 and
+# incremental builds, so the edit-build loop stays fast; tools/build-macos.sh builds release.
+[profile.dev.package."*"]
+opt-level = 3
+debug = false
+
 # A33: the self-contained OctosCode.app (tools/package-macos.sh): release settings in a
 # profile of its own (target/app-bundle/), because that build carries makepad's bundle-only
 # cfg (MAKEPAD=apple_bundle, MAKEPAD_PACKAGE_DIR) and must never overwrite a plain release

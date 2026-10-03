@@ -1,0 +1,39 @@
+{
+ "browse_advertised": false,
+ "root (no path)": {
+  "median_ms": 4.41,
+  "max_ms": 6.91,
+  "min_ms": 3.86,
+  "entries": 46,
+  "truncated": false,
+  "hidden_skipped": 5,
+  "error": null
+ },
+ "a project": {
+  "median_ms": 0.83,
+  "max_ms": 1.18,
+  "min_ms": 0.65,
+  "entries": 5,
+  "truncated": false,
+  "hidden_skipped": 0,
+  "error": null
+ },
+ "monorepo/packages (150)": {
+  "median_ms": 14.75,
+  "max_ms": 16.63,
+  "min_ms": 11.7,
+  "entries": 150,
+  "truncated": false,
+  "hidden_skipped": 0,
+  "error": null
+ },
+ "node_modules (650)": {
+  "median_ms": 48.88,
+  "max_ms": 53.07,
+  "min_ms": 44.11,
+  "entries": 500,
+  "truncated": true,
+  "hidden_skipped": 0,
+  "error": null
+ }
+}

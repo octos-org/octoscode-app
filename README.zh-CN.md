@@ -39,12 +39,13 @@ tools/build-macos.sh --release --package
 open target/macos-app/OctosCode.app
 ```
 
-脚本会准备固定版本的渲染依赖并构建应用。`--release` 生成优化后的可执行文件；
-`--package` 始终使用优化的 `app-bundle` 配置生成应用包。
-日常使用或性能测试应使用优化构建。不加这两个参数时，脚本生成调试版可执行文件。
+脚本会准备固定版本的渲染依赖并构建优化后的应用（`target/release/octoscode`）；
+`--package` 还会使用优化的 `app-bundle` 配置生成应用包。`--release` 仍可使用
+（较早的版本，例如 v0.1.0-rc.1 标签，不加它会生成调试版）。`--debug` 仅用于开发，
+会生成调试版可执行文件（`target/debug/`），界面明显更慢。
 
-如需嵌入 OctoSense，可运行 `tools/build-macos.sh --octosense --release`。
-`--release` 同时作用于独立版和 OctoSense 宿主。
+如需嵌入 OctoSense，可运行 `tools/build-macos.sh --octosense`，它同样是优化构建
+（`--debug` 同时作用于独立版和 OctoSense 宿主）。
 依赖、产物路径、宿主启动命令和构建问题排查详见 [macOS 构建指南（英文）](docs/BUILD-macos.md)。
 
 ## 使用应用

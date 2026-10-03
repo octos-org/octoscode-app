@@ -1,0 +1,38 @@
+[a35] standalone target/release/octoscode (release), phone, live serve
+PASS the standalone app starts hidden with its bridge — [makepad-remote] listening on 127.0.0.1:8470 pid=80051 app=octoscode grabs=<abs>/octoscode-80051 token_file=<abs>/port-8470.token
+PASS connected: the workspace entry is drawn
+PASS open: + Add workspace -> the listing: drawn within 100 ms (the client's part) — 50.8 ms (bar 100 ms); the server answered in 6.2 ms, the client's part 44.6 ms
+PASS open: the rows are the server's folders in order — ['api-gateway', 'auth-service', 'billing']
+PASS open: the server's hidden folders are reported — 'Only the first 40 folders are shown. 6 hidden by the server'
+PASS layout (open): the card inside the window, rows clean — open: window [360, 780]; card [0, 32, 360, 748] l/r [0, 0]; inside=True; rows drawn 7; row text outside its row 0; controls<28px 0; row overlaps 0
+PASS pick: a first tap fills the path box: drawn within 100 ms (the client's part) — 14.1 ms (bar 100 ms)
+PASS drill: a second tap opens the folder: drawn within 100 ms (the client's part) — 23.9 ms (bar 100 ms); the server answered in 1.3 ms, the client's part 22.6 ms
+PASS drill: the folder's rows — ['assets', 'docs', 'scripts', 'src', 'tests']
+PASS up: the breadcrumb names the parent — ['/', 'ws', 'work', 'billing']
+PASS up: the breadcrumb opens the parent: drawn within 100 ms (the client's part) — 24.4 ms (bar 100 ms); the server answered in 4.1 ms, the client's part 20.3 ms
+PASS type: every key's frame within 16 ms — max 4.4 ms, keys [2.9, 2.4, 4.4, 1.9, 2.3, 2.6, 1.8, 2.1, 2.2]
+PASS type: the path box shows the typed path — '<repo>/tmp/live-3/serve/ws/work/monorepo'
+PASS type: no remount per key — 0 remounts
+PASS go: Return opens the typed folder: drawn within 100 ms (the client's part) — 44.4 ms (bar 100 ms)
+PASS pick: packages: drawn within 100 ms (the client's part) — 11.2 ms (bar 100 ms)
+PASS drill: packages (150 folders): drawn within 100 ms (the client's part) — 57.4 ms (bar 100 ms); the server answered in 13.2 ms, the client's part 44.2 ms
+PASS packages: a listing longer than the view says how many rows it shows — 'Only the first 40 folders are shown.'
+PASS scroll: the long listing scrolls inside the card
+PASS scroll: every wheel step's frame within 16 ms — max 2.7 ms, steps [2.0, 1.5, 1.0, 1.0, 1.1, 2.7]
+PASS scroll: the list moved, no remount — top row now pkg-012, 0 remounts
+PASS layout (packages, scrolled): the card inside the window, rows clean — packages, scrolled: window [360, 780]; card [0, 32, 360, 748] l/r [0, 0]; inside=True; rows drawn 8; row text outside its row 0; controls<28px 0; row overlaps 0
+PASS go: node_modules (650 folders, the server pages 500): drawn within 100 ms (the client's part) — 58.9 ms (bar 100 ms); the server answered in 46.0 ms, the client's part 12.9 ms
+PASS node_modules: the truncation is reported — 'Only the first 40 folders are shown.'
+PASS layout (node_modules): the card inside the window, rows clean — node_modules: window [360, 780]; card [0, 32, 360, 748] l/r [0, 0]; inside=True; rows drawn 7; row text outside its row 0; controls<28px 0; row overlaps 0
+PASS refused: a folder the server refuses -> the bounded refusal: drawn within 100 ms (the client's part) — 4.7 ms (bar 100 ms)
+PASS layout (refused): the card inside the window, rows clean — refused: window [360, 780]; card [0, 32, 360, 748] l/r [0, 0]; inside=True; rows drawn 0; row text outside its row 0; controls<28px 0; row overlaps 0
+PASS back: Back to the last good folder: drawn within 100 ms (the client's part) — 14.5 ms (bar 100 ms)
+PASS close: the back chevron -> the picker: drawn within 100 ms (the client's part) — 10.4 ms (bar 100 ms)
+PASS browse: the picker's Browse -> the server's folder: drawn within 100 ms (the client's part) — 50.4 ms (bar 100 ms); the server answered in 5.4 ms, the client's part 45.0 ms
+PASS unpolled pick: a first tap: drawn within 100 ms on the app's clock (the client's part) — 5.4 ms (the server 0 ms), 1 remount(s)
+PASS unpolled drill: a second tap opens the folder: drawn within 100 ms on the app's clock (the client's part) — 13.0 ms (the server 1.0 ms), 1 remount(s)
+PASS unpolled up: the breadcrumb opens the parent: drawn within 100 ms on the app's clock (the client's part) — 15.1 ms (the server 4.4 ms), 1 remount(s)
+PASS unpolled go: node_modules (the server's page of 500): drawn within 100 ms on the app's clock (the client's part) — 55.8 ms (the server 50.3 ms), 2 remount(s)
+PASS unpolled open: + Add workspace -> the listing: drawn within 100 ms on the app's clock (the client's part) — 6.5 ms (the server 4.4 ms), 1 remount(s)
+PASS no UI-thread event of 100 ms or more during the browser steps — []
+== 36/36 checks passed (phone, release)
