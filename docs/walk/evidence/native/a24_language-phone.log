@@ -1,14 +1,14 @@
 == native walk a24_language [phone] (tools/walk/a24_language.py)
--- run 1: exit 0 in 119 s
-[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=80210 app=octosense grabs=<abs>/octosense-80210 token_file=<abs>/port-8421.token
-[headless] up: pid 80210  port 8421  log <repo>/tmp/hs/port-8421.log
-[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+-- run 1: exit 0 in 121 s
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8475 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8475 pid=65895 app=octosense grabs=<abs>/octosense-65895 token_file=<abs>/port-8475.token
+[headless] up: pid 65895  port 8475  log <repo>/tmp/hs/port-8475.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8475/snap?q=Button   |   harness/headless.sh shot 8475 out.png
 PASS connected
 PASS start: English (the device default here) — ['Fix steer queue drop on reconnect', '/home/user/src/octos', 'Chat', 'Trajectory', 'Session recovery required', 'The conversation history could not be loaded: session/hydrate returned an invalid result: missing field `session_id`. Reopen it from the sidebar to try again.', 'Ready', 'Model not reported', 'Permissions not reported', 'Ask Octos anything', 'Ask for approval', 'Select a model']
 CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
 PASS Settings opens (CLICK)
-CLICK rl_hit r=[8, 384, 40, 40] at (28,404)
+CLICK rl_hit r=[8, 434, 40, 40] at (28,454)
 PASS Preferences shows (CLICK)
 PASS Language: the control shows English | 简体中文, English selected — en=[166, 143, 84, 28] zh=[250, 143, 84, 28] on='English'
 PASS Language: both segments are >= 28 px targets — en=[166, 143, 84, 28] zh=[250, 143, 84, 28]
@@ -18,25 +18,25 @@ PASS switch: 简体中文 CLICK
 PASS switch: the Settings sheet reads Chinese — ['聊天', '轨迹', '需要恢复会话', '无法加载对话历史：session/hydrate returned an invalid result: missing field `session_id`。请从侧栏重新打开以重试。', '向 Octos 提出任何问题', '请求批准', '选择模型', '偏好设置', '语言', '简体中文']
 PASS switch: 简体中文 reads selected — '简体中文'
 PASS switch: the status line says the change is unsaved — 偏好设置尚未保存。
-PASS Settings > Preferences: no clipped or overflowing Chinese label (zh-settings-preferences) — cjk=11 outside=0 overflow=0 truncated=0 overlaps=0 controls=17 under28=0
+PASS Settings > Preferences: no clipped or overflowing Chinese label (zh-settings-preferences) — cjk=11 outside=0 overflow=0 truncated=0 overlaps=0 controls=18 under28=0
 SHOT zh-settings-preferences
 CLICK rl_hit r=[8, 134, 40, 40] at (28,154)
-PASS Settings > General: no clipped or overflowing Chinese label (zh-settings-general) — cjk=13 outside=0 overflow=0 truncated=0 overlaps=0 controls=10 under28=0
+PASS Settings > General: no clipped or overflowing Chinese label (zh-settings-general) — cjk=13 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0
 SHOT zh-settings-general
 CLICK rl_hit r=[8, 184, 40, 40] at (28,204)
-PASS Settings > Permissions: no clipped or overflowing Chinese label (zh-settings-permissions) — cjk=9 outside=0 overflow=0 truncated=0 overlaps=0 controls=12 under28=0
+PASS Settings > Permissions: no clipped or overflowing Chinese label (zh-settings-permissions) — cjk=9 outside=0 overflow=0 truncated=0 overlaps=0 controls=13 under28=0
 SHOT zh-settings-permissions
 CLICK rl_hit r=[8, 234, 40, 40] at (28,254)
-PASS Settings > Model: no clipped or overflowing Chinese label (zh-settings-model) — cjk=14 outside=0 overflow=0 truncated=0 overlaps=0 controls=14 under28=0
+PASS Settings > Model: no clipped or overflowing Chinese label (zh-settings-model) — cjk=14 outside=0 overflow=0 truncated=0 overlaps=0 controls=15 under28=0
 SHOT zh-settings-model
-CLICK rl_hit r=[8, 284, 40, 40] at (28,304)
-PASS Settings > Sandbox: no clipped or overflowing Chinese label (zh-settings-sandbox) — cjk=8 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0
-SHOT zh-settings-sandbox
 CLICK rl_hit r=[8, 334, 40, 40] at (28,354)
-PASS Settings > Connection: no clipped or overflowing Chinese label (zh-settings-connection) — cjk=10 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0
+PASS Settings > Sandbox: no clipped or overflowing Chinese label (zh-settings-sandbox) — cjk=8 outside=0 overflow=0 truncated=0 overlaps=0 controls=12 under28=0
+SHOT zh-settings-sandbox
+CLICK rl_hit r=[8, 384, 40, 40] at (28,404)
+PASS Settings > Connection: no clipped or overflowing Chinese label (zh-settings-connection) — cjk=10 outside=0 overflow=0 truncated=0 overlaps=0 controls=12 under28=0
 SHOT zh-settings-connection
-CLICK rl_hit r=[8, 434, 40, 40] at (28,454)
-PASS Settings > About: no clipped or overflowing Chinese label (zh-settings-about) — cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=8 under28=0
+CLICK rl_hit r=[8, 484, 40, 40] at (28,504)
+PASS Settings > About: no clipped or overflowing Chinese label (zh-settings-about) — cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=9 under28=0
 SHOT zh-settings-about
 CLICK set_back r=[8, 84, 40, 40] at (28,104)
 PASS shell: the header reads Chinese — ['聊天', '轨迹', '需要恢复会话', '无法加载对话历史：session/hydrate returned an invalid result: missing field `session_id`。请从侧栏重新打开以重试。', '就绪', '模型未报告', '权限未报告', '向 Octos 提出任何问题', '请求批准', '选择模型']
@@ -61,8 +61,8 @@ SHOT zh-slash-menu
 KEY Escape
 TAP the keyboard's hide chevron (337,513)
 CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
-CLICK rl_hit r=[8, 334, 40, 40] at (28,354)
-CLICK rl_hit r=[8, 334, 40, 40] at (28,354)
+CLICK rl_hit r=[8, 384, 40, 40] at (28,404)
+CLICK rl_hit r=[8, 384, 40, 40] at (28,404)
 CLICK settings_disconnect r=[81, 307, 112, 36] at (137,325)
 PASS board 1: Disconnect CLICK
 PASS board 1: the Connect card returns
@@ -76,7 +76,7 @@ CLICK b1_pair_back r=[20, 86, 30, 32] at (35,102)
 CLICK connect_btn r=[36, 497, 288, 44] at (180,519)
 PASS board 1: Connect reconnects
 CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
-CLICK rl_hit r=[8, 384, 40, 40] at (28,404)
+CLICK rl_hit r=[8, 434, 40, 40] at (28,454)
 CLICK lang_en r=[166, 143, 84, 28]
 PASS restore: English CLICK
 PASS restore: the sheet reads English again — ['简体中文']
@@ -88,17 +88,17 @@ PASS save: the file holds language zh — {'language': 'zh', 'theme': 'terminal'
 CLICK set_back r=[8, 84, 40, 40] at (28,104)
 == 37/37 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 80210 exited after /gq
-[headless] port 8421 free
-[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=87473 app=octosense grabs=<abs>/octosense-87473 token_file=<abs>/port-8421.token
-[headless] up: pid 87473  port 8421  log <repo>/tmp/hs/port-8421.log
-[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+[headless] pid 65895 exited after /gq
+[headless] port 8475 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8475 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8475 pid=72184 app=octosense grabs=<abs>/octosense-72184 token_file=<abs>/port-8475.token
+[headless] up: pid 72184  port 8475  log <repo>/tmp/hs/port-8475.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8475/snap?q=Button   |   harness/headless.sh shot 8475 out.png
 PASS relaunch: connected
 PASS relaunch: the first frame is Chinese — ['聊天', '轨迹', '需要恢复会话', '无法加载对话历史：session/hydrate returned an invalid result: missing field `session_id`。请从侧栏重新打开以重试。', '就绪', '模型未报告', '权限未报告', '向 Octos 提出任何问题']
 PASS relaunch: adopted at launch (log)
 CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
-CLICK rl_hit r=[8, 384, 40, 40] at (28,404)
+CLICK rl_hit r=[8, 434, 40, 40] at (28,454)
 PASS relaunch: 简体中文 reads selected — '简体中文'
 CLICK lang_en r=[166, 143, 84, 28]
 CLICK prefs_save r=[81, 810, 148, 36] at (155,828)
@@ -106,12 +106,12 @@ PASS relaunch: English saved back — {'language': 'en', 'theme': 'terminal', 'v
 CLICK set_back r=[8, 84, 40, 40] at (28,104)
 == 5/5 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 87473 exited after /gq
-[headless] port 8421 free
-[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=89062 app=octosense grabs=<abs>/octosense-89062 token_file=<abs>/port-8421.token
-[headless] up: pid 89062  port 8421  log <repo>/tmp/hs/port-8421.log
-[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+[headless] pid 72184 exited after /gq
+[headless] port 8475 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8475 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8475 pid=73717 app=octosense grabs=<abs>/octosense-73717 token_file=<abs>/port-8475.token
+[headless] up: pid 73717  port 8475  log <repo>/tmp/hs/port-8475.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8475/snap?q=Button   |   harness/headless.sh shot 8475 out.png
 PASS surfaces: connected
 PASS surfaces: launched in Chinese (log)
 CLICK composer r=[28, 743, 304, 29]
@@ -190,12 +190,12 @@ PASS provider editor: Escape steps back to 模型提供商 — '模型提供商'
 CLICK b3_close r=[300, 161, 28, 28] at (314,175)
 == 37/37 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 89062 exited after /gq
-[headless] port 8421 free
-[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=94809 app=octosense grabs=<abs>/octosense-94809 token_file=<abs>/port-8421.token
-[headless] up: pid 94809  port 8421  log <repo>/tmp/hs/port-8421.log
-[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+[headless] pid 73717 exited after /gq
+[headless] port 8475 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8475 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8475 pid=77292 app=octosense grabs=<abs>/octosense-77292 token_file=<abs>/port-8475.token
+[headless] up: pid 77292  port 8475  log <repo>/tmp/hs/port-8475.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8475/snap?q=Button   |   harness/headless.sh shot 8475 out.png
 PASS skills: connected
 CLICK composer r=[28, 743, 304, 29]
 TYPE '/'
@@ -211,12 +211,12 @@ PASS Skills > Background jobs: no English copy left (zh-skills-jobs) — []
 CLICK dialog_close r=[300, 109, 28, 28] at (314,123)
 == 7/7 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 94809 exited after /gq
-[headless] port 8421 free
-[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=96578 app=octosense grabs=<abs>/octosense-96578 token_file=<abs>/port-8421.token
-[headless] up: pid 96578  port 8421  log <repo>/tmp/hs/port-8421.log
-[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+[headless] pid 77292 exited after /gq
+[headless] port 8475 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8475 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8475 pid=78983 app=octosense grabs=<abs>/octosense-78983 token_file=<abs>/port-8475.token
+[headless] up: pid 78983  port 8475  log <repo>/tmp/hs/port-8475.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8475/snap?q=Button   |   harness/headless.sh shot 8475 out.png
 PASS diff: connected
 KEY End
 TYPE '重试 steer 队列'
@@ -236,12 +236,12 @@ PASS Diff review: no English copy left (zh-diff-review) — []
 CLICK b3_close r=[316, 133, 28, 28] at (330,147)
 == 9/9 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 96578 exited after /gq
-[headless] port 8421 free
-[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=99093 app=octosense grabs=<abs>/octosense-99093 token_file=<abs>/port-8421.token
-[headless] up: pid 99093  port 8421  log <repo>/tmp/hs/port-8421.log
-[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+[headless] pid 78983 exited after /gq
+[headless] port 8475 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8475 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8475 pid=80606 app=octosense grabs=<abs>/octosense-80606 token_file=<abs>/port-8475.token
+[headless] up: pid 80606  port 8475  log <repo>/tmp/hs/port-8475.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8475/snap?q=Button   |   harness/headless.sh shot 8475 out.png
 PASS btw: connected
 KEY End
 TYPE '/btw 为什么要先排空队列？'
@@ -258,12 +258,12 @@ PASS /btw aside (answered): no English copy left (zh-btw-answered) — []
 CLICK btw_aside_close_hit r=[284, 467, 52, 32] at (310,483)
 == 7/7 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 99093 exited after /gq
-[headless] port 8421 free
-[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8421 pid=2314 app=octosense grabs=<abs>/octosense-2314 token_file=<abs>/port-8421.token
-[headless] up: pid 2314  port 8421  log <repo>/tmp/hs/port-8421.log
-[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+[headless] pid 80606 exited after /gq
+[headless] port 8475 free
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8475 --module octoscode --test-action page:0 --test-action launch-octoscode
+[makepad-remote] listening on 127.0.0.1:8475 pid=82720 app=octosense grabs=<abs>/octosense-82720 token_file=<abs>/port-8475.token
+[headless] up: pid 82720  port 8475  log <repo>/tmp/hs/port-8475.log
+[headless] drive it:  <repo>/harness/bcurl -s http://127.0.0.1:8475/snap?q=Button   |   harness/headless.sh shot 8475 out.png
 PASS dock: connected
 CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
 CLICK fleet_nav_hit r=[10, 744, 292, 34] at (156,761)
@@ -300,6 +300,6 @@ PASS fleet: Escape closes the pane (the phone's Back)
 PASS fleet: ...and the app stays in front (the composer is back)
 == 18/18 checks passed
 gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
-[headless] pid 2314 exited after /gq
-[headless] port 8421 free
+[headless] pid 82720 exited after /gq
+[headless] port 8475 free
 == WALK a24 language phone: PASS

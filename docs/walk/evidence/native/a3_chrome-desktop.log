@@ -1,5 +1,5 @@
 == native walk a3_chrome [desktop] (tools/walk/a3_chrome_walk.py)
--- run 1: exit 0 in 7 s
+-- run 1: exit 0 in 8 s
 PASS layout: hd_review_label inside its pill (not truncated) — label [871, 94, 44, 16] pill [841, 87, 86, 30]
 PASS layout: hd_settings_label inside its pill (not truncated) — label [965, 94, 50, 16] pill [935, 87, 92, 30]
 PASS layout: session rows are 32 px — [32]
@@ -33,6 +33,7 @@ PASS Settings opens from the header — clicked=True log~'settings.panel.open'
 PASS Settings nav -> general — clicked=True log~'settings.section.general'
 PASS Settings nav -> permissions — clicked=True log~'settings.section.permissions'
 PASS Settings nav -> model — clicked=True log~'settings.section.model'
+PASS Settings nav -> capabilities — clicked=True log~'settings.section.capabilities'
 PASS Settings nav -> sandbox — clicked=True log~'settings.section.sandbox'
 PASS Settings nav -> connection — clicked=True log~'settings.section.connection'
 PASS Settings nav -> preferences — clicked=True log~'settings.section.preferences'
@@ -47,4 +48,4 @@ PASS Thinking Off selects — clicked=True log~'settings.thinking.off'
 PASS Thinking On selects — clicked=True log~'settings.thinking.on'
 PASS Sandbox: Network access toggles — clicked=True log~'sandbox_network.toggle'
 PASS Settings closes — clicked=True log~'settings.panel.close'
-== WALK desktop: 47/47 passed
+== WALK desktop: 48/48 passed

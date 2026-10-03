@@ -1,5 +1,5 @@
 == native walk a2_board1 [desktop] (tools/walk/a2_board1_walk.py)
--- run 1: exit 0 in 46 s
+-- run 1: exit 0 in 45 s
 [entry_connect] entry=b1_connect_pair rect=[605, 482, 148, 32] pass=True
 PASS entry_connect: the entry b1_connect_pair is laid out (>= 28 px, inside the view) — [605, 482, 148, 32]
 [p4-01_pair] pass=True card=[329, 124, 440, 506] margins=[275, 275] small=[] overlaps=[] outside=[]
@@ -45,14 +45,14 @@ PASS picker without the browse feature: no Browse and no New folder (fail closed
 [picker-no-browse] pass=True card=[279, 248, 540, 258] margins=[225, 225] small=[] overlaps=[] outside=[]
 PASS picker-no-browse: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [279, 248, 540, 258] margins [225, 225] small [] overlaps [] outside []
 -- fixture log tail:
-[board1-serve] listening on 127.0.0.1:8511 (pair=ok, browse=false)
-PAIR-LINK http://app.invalid/?octos=http://127.0.0.1:8511&pair=3QK7ZP2M
+[board1-serve] listening on 127.0.0.1:8479 (pair=ok, browse=false)
+PAIR-LINK http://app.invalid/?octos=http://127.0.0.1:8479&pair=3QK7ZP2M
 [board1-serve] ui-protocol socket open
 [board1-serve] <- session/open
 [board1-serve] <- session/list
 [board1-serve] <- session/list
+[board1-serve] <- session/status/read
 [board1-serve] <- profile/llm/list
 [board1-serve] <- profile/skills/list
 [board1-serve] <- profile/sub_providers/list
-[board1-serve] <- session/status/read
 [board1-serve] socket closed

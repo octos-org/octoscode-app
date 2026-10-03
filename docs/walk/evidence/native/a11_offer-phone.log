@@ -1,19 +1,19 @@
 == native walk a11_offer [phone] (tools/walk/a11_offer_walk.py)
--- run 1: exit 0 in 52 s
-== A11 offer walk (phone): app :8421, fixtures :8497-8499
+-- run 1: exit 0 in 53 s
+== A11 offer walk (phone): app :8475, fixtures :8476-8478
 == 1. nothing remembered; the pairing link's refusals; pair; Forget (the device now remembers the server, no credential)
 PASS [114] launch 1: the first-run Connect card shows
 PASS [114] nothing remembered: no probe, no offer — GET /pair/info x0
 PASS [110] 'Pair with a link instead' opens p4-01
 PASS [110] an expired code: 'This pairing link has expired.' + its next step
   shot 01-p4-03-expired
-PASS [110] a malformed link: its own copy, the origin prefilled — 'http://127.0.0.1:8497'
+PASS [110] a malformed link: its own copy, the origin prefilled — 'http://127.0.0.1:8476'
 PASS [111] a link to another computer is refused without a request, not prefilled — claims 2->2, server field 'http://127.0.0.1:50190'
   shot 02-p4-03-foreign
 PASS [109] a used link says so and the form keeps the origin
 PASS [108] a good link connects with no token box (live)
-PASS [114] connecting remembers the server — ['687474703a2f2f3132372e302e302e313a38343937.token', 'auto-connect', 'last-server']
-PASS [112] the paired credential is kept for the next start (one token file, owner-only) — ['687474703a2f2f3132372e302e302e313a38343937.token', 'auto-connect', 'last-server']
+PASS [114] connecting remembers the server — ['687474703a2f2f3132372e302e302e313a38343736.token', 'auto-connect', 'last-server']
+PASS [112] the paired credential is kept for the next start (one token file, owner-only) — ['687474703a2f2f3132372e302e302e313a38343736.token', 'auto-connect', 'last-server']
 PASS [112][114] Settings > Connection > Forget this device: the Connect card is back, no dialog or dimmer left
 PASS [112][114] seen, no credential: the server stays remembered, its token is gone, the field is empty — token files 0, token field empty
   shot 03-forgotten
@@ -21,15 +21,15 @@ PASS [112][114] seen, no credential: the server stays remembered, its token is g
 PASS [114] launch 2: the Connect card shows
 PASS [112] after Forget, a restart prefills no token (the form stays empty)
 PASS [114] one unauthenticated GET /pair/info on the remembered origin — x1
-PASS [114] the offer, once: 'Found Octos on 127.0.0.1:8497.' — ['Found Octos on 127.0.0.1:8497.']
-PASS [114] its one button: 'Connect to 127.0.0.1:8497'
+PASS [114] the offer, once: 'Found Octos on 127.0.0.1:8476.' — ['Found Octos on 127.0.0.1:8476.']
+PASS [114] its one button: 'Connect to 127.0.0.1:8476'
 PASS [114] a status, not an alert: no error on the card
 PASS [114] layout: the offer inside the card's column, between the title and the fields, >= 28 px hit, no overlap — card [16, 192, 328, 505], box [36, 254, 288, 83], pill [78, 293, 186, 32] hit 186x32, padding t/b 12/12
 PASS [114] layout: the Connect card's own checks (tools/a1/ux_checks.py) — SUMMARY 6/6 pass; card gutters 16/16; card 328<=480; card inside; text 9/9 inside; 4 controls>=28
   shot 04-offer
 PASS [114] CLICK Connect to <host> -> pairing (p4-01)
   shot 05-offer-pairing
-PASS [114] used once: the offer is gone and the form names the server — 'http://127.0.0.1:8497'
+PASS [114] used once: the offer is gone and the form names the server — 'http://127.0.0.1:8476'
   shot 06-offer-used
 PASS [114] the fresh link pairs with the offered server (live)
 PASS [114] never offered twice in a run (after a Forget too); still one GET — x1
@@ -41,7 +41,7 @@ PASS [113] no offer and no complaint of any kind
 PASS [113] the manual form is untouched: a token + Connect opens the server
 == 4. a remembered server that needs no token: Connect to <host> connects at once
 PASS [114] tokenless: the Connect card shows
-PASS [114] tokenless: offered once ('Found Octos on 127.0.0.1:8499.')
+PASS [114] tokenless: offered once ('Found Octos on 127.0.0.1:8478.')
 PASS [114] tokenless: CLICK Connect to <host> connects at once (no pairing dialog)
 == 5. a remembered server off this computer: no probe at all
 PASS [114] foreign: the Connect card shows

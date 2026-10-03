@@ -1,7 +1,7 @@
 == native walk a21_bootstrap [phone] (tools/walk/a21_bootstrap_walk.py)
--- run 1: exit 0 in 55 s
+-- run 1: exit 0 in 57 s
 PASS [199] first launch, nothing remembered: the Connect card
-PASS [199] …prefilled with the default endpoint (OCTOS_BASE_URL) — 'http://127.0.0.1:8502'
+PASS [199] …prefilled with the default endpoint (OCTOS_BASE_URL) — 'http://127.0.0.1:8477'
 PASS [199] …and no token (the initial draft)
 PASS [199] …and NO socket: the server saw no connection and no REST read — sockets=0
 PASS [199] …the bootstrap decided: no auto-start
@@ -10,29 +10,29 @@ SHOT 01-first-launch-phone
 PASS [199] Connect (a click) dials the prefilled server and goes live
 PASS [199] …one socket, opened by the click — sockets=1
 PASS [199] …the connection authenticated: it may restore at the next launch
-PASS [199] …a Session opened in the startup folder — [{'cwd': '/home/user/octos', 'profile_id': 'a8', 'session_id': 'a8:api:01a0ffa2-3ca1-7220-a657-9677346057a2'}]
+PASS [199] …a Session opened in the startup folder — [{'cwd': '/home/user/octos', 'profile_id': 'a8', 'session_id': 'a8:api:01a103f8-11df-72a9-8906-75cb24d023b1'}]
 PASS [199] relaunch: the remembered server restores itself — no click
 PASS [199] …a socket to it, opened by the restore — sockets=2
-PASS [199] …the remembered Session re-opened directly (no launch/resolve) — ['a8:api:01a0ffa2-3ca1-7220-a657-9677346057a2'] vs a8:api:01a0ffa2-3ca1-7220-a657-9677346057a2
+PASS [199] …the remembered Session re-opened directly (no launch/resolve) — ['a8:api:01a103f8-11df-72a9-8906-75cb24d023b1'] vs a8:api:01a103f8-11df-72a9-8906-75cb24d023b1
 PASS [199] …the bootstrap decided: restore
 PASS UX restored at launch: the composer by numbers — composer=[28, 743, 304, 29] row=[12, 729, 336, 93] column=[0, 74, 360, 776]
 SHOT 02-restored-phone
 PASS Settings > Connection > Disconnect returns the Connect card
 PASS [199] after a Disconnect the relaunch shows the Connect card
 PASS [199] …NO socket (a Disconnect stops the unattended restore) — sockets=2 before=2
-PASS [199] …the server and its token kept on the card (the tab's identity) — 'http://127.0.0.1:8502'
+PASS [199] …the server and its token kept on the card (the tab's identity) — 'http://127.0.0.1:8477'
 PASS UX relaunch after Disconnect: the Connect card by numbers — card=[16, 233, 328, 408] pane=[0, 74, 360, 776] centre_dx=0.0 outside=[] under28=[] overlaps=0
 SHOT 03-after-disconnect-relaunch-phone
 PASS [195] Connect to another server goes live
-PASS [195] one identity: only the new server keeps a token — ['http://127.0.0.1:8504']
-PASS [195] …the durable address is the new server — 'http://127.0.0.1:8504'
-PASS [195] …the first server's restore hints went with its identity — ['http://127.0.0.1:8504']
-PASS [195] relaunch: a token saved for another origin (the former device memory) is purged at start — ['http://127.0.0.1:8504']
+PASS [195] one identity: only the new server keeps a token — ['http://127.0.0.1:8479']
+PASS [195] …the durable address is the new server — 'http://127.0.0.1:8479'
+PASS [195] …the first server's restore hints went with its identity — ['http://127.0.0.1:8479']
+PASS [195] relaunch: a token saved for another origin (the former device memory) is purged at start — ['http://127.0.0.1:8479']
 PASS [195] …the connection's own token stays and it restores itself
 PASS UX restored after the switch: the composer by numbers — composer=[28, 743, 304, 29] row=[12, 729, 336, 93] column=[0, 74, 360, 776]
 SHOT 04-restored-after-switch-phone
 PASS Settings > Connection > Forget server returns the Connect card
-PASS [199] Forget: the initial draft — the default endpoint, no token — 'http://127.0.0.1:8502'
+PASS [199] Forget: the initial draft — the default endpoint, no token — 'http://127.0.0.1:8477'
 PASS [195] Forget: no token for any origin, no remembered address, no restore hint — [] None []
 PASS [199] after Forget the relaunch shows the Connect card
 PASS [199] …NO socket — sockets=4 before=4
