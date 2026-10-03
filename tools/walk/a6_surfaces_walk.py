@@ -471,6 +471,17 @@ def boot():
     # chrome's profile reads EARLY_HOLD_MS). While the seat labels rode the
     # composer's DSL, a start-up read's landing re-mounted the composer and
     # the typing vanished (focus, caret and text).
+    # Click where the composer IS: under load the first layouts can still
+    # move it (the phone shell settles a frame or two after the mount), and a
+    # click at a stale rect focuses nothing — not what a person does.
+    settled = [None]
+    def composer_still():
+        r = rect("i0_composer_0")
+        same = r is not None and r == settled[0]
+        settled[0] = r
+        return same
+    if ok:
+        wait(composer_still, 4, 0.25)
     if ok and click("i0_composer_0"):
         before = app_logs()  # drained: what landed before the typing
         type_text(PROMPTS[0])
