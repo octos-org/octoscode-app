@@ -480,12 +480,22 @@ def run_all(binary: str, port: int, fixture_base: int, modes=None, only=None, lo
     found = discover(ROOT, only)
     specs = {s["name"]: s for _, s in found}
     results = []
+    # Each walk gets the next FREE fixture port at or after base + its index:
+    # agents hold their own port blocks on this host, and a counted port that
+    # one of them holds used to BLOCK the walk ("fixture port N is taken").
+    next_fport = fixture_base
     for k, (path, spec) in enumerate(found):
+        fport = max(next_fport, fixture_base + k)
+        for _ in range(400):
+            if fport != port and port_free(fport):
+                break
+            fport += 1
+        next_fport = fport + 1
         for mode in spec.get("modes", ["desktop"]):
             if modes and mode not in modes:
                 continue
             log(f"[native] {spec['name']} [{mode}] …")
-            res = run_walk(path, spec, mode, binary, port, fixture_base + k, log=log)
+            res = run_walk(path, spec, mode, binary, port, fport, log=log)
             ok = sum(1 for c in res["checks"] if c[1])
             log(f"[native] {spec['name']} [{mode}]: {ok}/{len(res['checks'])} pass"
                 + (f" — BLOCKED {res['error']}" if res["error"] else ""))

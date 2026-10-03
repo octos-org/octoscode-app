@@ -39,7 +39,7 @@ use octoscode_store::Store;
 use super::fleet_copy::{t, t1};
 use super::host::Outcome as HostOutcome;
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
-use crate::screens::fleet_driver::{self, StartOutcome, Staged};
+use crate::screens::fleet_driver::{self, DrawnTarget, StartOutcome, Staged};
 use crate::screens::peers::{self, RowAction};
 
 /// §4.3: "Still starting…" once Starting exceeds 15 s.
@@ -183,6 +183,16 @@ pub struct FleetRow {
     /// A question-blocked row's pending question (question ?? header), for
     /// the answer card (`PeerDock.tsx:371-401`).
     pub question: Option<String>,
+    /// A30 follow-up — the ids this row's controls are DRAWN for (the
+    /// roster row's pending request, accepted operation and adopted turn):
+    /// a tap acts only while the row still means them
+    /// (`fleet_driver::drawn_refusal`). `None` for an inventory-only row.
+    pub target: Option<DrawnTarget>,
+}
+
+/// The ids a roster row's controls are drawn for.
+fn target_of(r: &PeerRow) -> DrawnTarget {
+    DrawnTarget { request_id: r.request_id.clone(), operation_id: r.operation_id.clone(), turn_id: r.turn_id.clone() }
 }
 
 /// The pending question's text: `question ?? header` (`PeerDock.tsx:377-381`).
@@ -248,6 +258,7 @@ pub fn rows(store: &Store, now_ms: u64) -> Vec<FleetRow> {
                 control: r.and_then(|r| r.control.clone()),
                 error: r.and_then(|r| r.error.clone()),
                 question: r.and_then(question_of),
+                target: r.map(target_of),
             },
             Some(op.model.clone()).filter(|m| !m.is_empty()).or_else(|| r.and_then(|r| r.model.clone())),
         ));
@@ -277,6 +288,7 @@ pub fn rows(store: &Store, now_ms: u64) -> Vec<FleetRow> {
                 control: r.control.clone(),
                 error: r.error.clone(),
                 question: question_of(r),
+                target: Some(target_of(r)),
             },
             r.model.clone(),
         ));
@@ -678,9 +690,18 @@ pub async fn run_gather(conv: &crate::flow::Conversation) -> Result<String, Stri
     }
 }
 
-/// ONE row action through the production control chain.
-pub async fn run_row(conv: &crate::flow::Conversation, key: String, identity: String, action: RowAction, text: String) -> Result<String, String> {
-    let res = fleet_driver::row_control(conv, &identity, action, &text).await;
+/// ONE row action through the production control chain, bound to the ids
+/// the row's control was drawn for (A30 follow-up: re-checked right before
+/// the frame; a refusal is the row's note, never a silent no-op).
+pub async fn run_row(
+    conv: &crate::flow::Conversation,
+    key: String,
+    identity: String,
+    action: RowAction,
+    text: String,
+    drawn: Option<DrawnTarget>,
+) -> Result<String, String> {
+    let res = fleet_driver::row_control_drawn(conv, &identity, action, &text, drawn.as_ref()).await;
     let mut st = super::host::state();
     match &res {
         Ok(ack) => {
@@ -786,11 +807,20 @@ pub fn perform(st: &mut FleetState, action: &str, index: usize, store: &Store) -
             let Some(identity) = row.identity.clone().filter(|_| ok && row.control_supported) else {
                 return HostOutcome::Done;
             };
+            // A30 follow-up — the row must still mean what this control was
+            // drawn for (a decision its approval, Stop its turn): a stale tap
+            // is refused on the row's note, nothing is sent.
+            if let (Some(target), Some(current)) = (&row.target, store.domains.peer.row(&identity)) {
+                if let Some(reason) = fleet_driver::drawn_refusal(&current, act, target) {
+                    st.row_note.insert(row.key.clone(), reason.to_owned());
+                    return HostOutcome::Done;
+                }
+            }
             st.row_note.remove(&row.key);
             if matches!(act, RowAction::Steer | RowAction::Answer) {
                 super::host::request_blur();
             }
-            HostOutcome::Spawn(Job::FleetRow { key: row.key.clone(), identity, action: act, text: steer })
+            HostOutcome::Spawn(Job::FleetRow { key: row.key.clone(), identity, action: act, text: steer, drawn: row.target.clone() })
         }
         _ => HostOutcome::Unrouted,
     }
@@ -1295,6 +1325,7 @@ mod tests {
             control: None,
             error: None,
             question: None,
+            target: None,
         };
         let rows = vec![
             mk(None, Status::Working),
@@ -1335,6 +1366,7 @@ mod tests {
             control: None,
             error: None,
             question: None,
+            target: None,
         };
         let now = vec![row("1", Status::WaitingApproval)];
         assert_eq!(announce(&[], &now).as_deref(), Some("Peer 1 is waiting for your approval"));

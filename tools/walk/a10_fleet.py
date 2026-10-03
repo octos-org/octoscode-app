@@ -17,6 +17,7 @@ ids it carried.
 usage: OCTOSCODE_APP_BIN=<host octosense> a10_fleet.py <desktop|phone> <outdir>
 """
 import os
+import pathlib
 import re
 import sys
 import time
@@ -45,7 +46,9 @@ WALK = {
               "fleet: the adopted row"],
         131: ["fleet: three Starts = three DISTINCT operation ids on the wire"],
         132: ["fleet: Steer CLICK -> ONE peer/control(steer)"],
-        133: ["fleet: Approve CLICK -> peer/control(approval_respond)", "fleet: the row says 'Sent'"],
+        133: ["fleet: Approve CLICK -> peer/control(approval_respond)", "fleet: the row says 'Sent'",
+              "fleet race: a tap drawn for approval A sends NOTHING once B replaced it",
+              "fleet race: the re-drawn Approve sends exactly ONE approval_respond"],
         134: ["fleet: Stop CLICK -> peer/control(interrupt)", "wire: peer/control x5"],
         136: ["fleet: Start on lane-review -> the typed refusal", "fleet: the refused staging settles"],
         137: {"checks": ["fleet: Advanced CLICK opens the session controller",
@@ -422,5 +425,75 @@ def walk(W: Walk) -> None:
             f"replay log: {len(replay_lines(W, '<- peer/control '))}")
 
 
+# A30 follow-up (judge): the Fleet's row buttons are bound to the ids they
+# were DRAWN for (fleet_driver::row_control_drawn). The deterministic race:
+# the app holds every drawn control RACE_DELAY_MS before its send-time check
+# (OCTOSCODE_PEER_CONTROL_DELAY_MS, inert unless set) and the replay
+# re-issues the pending approval when the trigger file appears
+# (--reissue-trigger: approval/cancelled + approval/requested with a new id,
+# same turn) — between the tap and the send, every time.
+RACE_DELAY_MS = 4000
+CHANGED = "This peer changed. Review it and tap again."
+
+
+def race(W: Walk) -> None:
+    trigger = pathlib.Path(W.out).resolve() / "reissue.trigger"
+    W.note("== race 1. Start a peer; it waits on approval A")
+    W.check("fleet race: Fleet entry CLICK -> the Fleet pane", open_fleet(W))
+    W.wait_shown("b3_fleet_form_title", 10)
+    click_logged(W, "b3_fleet_model_tap", "b3.fleet.lane.toggle", lambda: bool(W.visible("b3_fleet_opt_0")))
+    click_logged(W, "b3_fleet_opt_0", "b3.fleet.lane", lambda: W.text("b3_fleet_model_value") == "lane-primary")
+    type_into(W, "b3_fleet_brief", "Review the reconnect diff", "b3_fleet_brief_label")
+    click_logged(W, "b3_fleet_start", "b3.fleet.start")
+    r = None
+    if W.wait(lambda: (row_of(W, "Peer 2 · gpt-5.4") is not None), 15):
+        r = row_of(W, "Peer 2 · gpt-5.4")
+    waiting = r is not None and W.wait(lambda: "Waiting for your approval" in status_of(W, r), 12)
+    asked = [l for l in replay_lines(W, "=> approval/requested (fleet)")]
+    W.check("fleet race: the adopted peer waits on approval A", waiting, f"row={r} asked={asked[-1:]}")
+    if not waiting:
+        return
+    session = re.search(r"session_id=(\S+)", asked[-1]).group(1) if asked and "session_id=" in asked[-1] else ""
+
+    W.note("== race 2. Approve (drawn for A) is tapped; the server re-issues A as B before the send")
+    before = [l for l in replay_lines(W, "-> peer/control")]
+    tapped = click_logged(W, f"b3_fleet_row_{r}_approve", "b3.fleet.approve")
+    trigger.touch()
+    W.note(f"TRIGGER the re-issue ({trigger.name})")
+    reissued = W.wait(lambda: any(f"session_id={session}" in l for l in replay_lines(W, "=> approval/requested (reissue)")), 4)
+    W.check("fleet race: the re-issue landed between the tap and the send", tapped and reissued,
+            "; ".join(replay_lines(W, "(reissue)")))
+    refused = W.logged("failed: " + CHANGED, RACE_DELAY_MS / 1000 + 6)
+    time.sleep(1.0)
+    after = [l for l in replay_lines(W, "-> peer/control")]
+    W.check("fleet race: a tap drawn for approval A sends NOTHING once B replaced it (zero peer/control frames)",
+            refused and len(after) == len(before), f"{after[len(before):]}")
+    seek(W, f"b3_fleet_row_{r}_note")
+    W.check("fleet race: the row says why (the note, not a silent no-op)",
+            W.text(f"b3_fleet_row_{r}_note") == CHANGED, repr(W.text(f"b3_fleet_row_{r}_note")))
+    numeric(W, "race refused")
+    seek(W, f"b3_fleet_row_{r}_note")
+    W.shot(f"08-race-refused-{MODE}")
+
+    W.note("== race 3. Approve again (drawn for B) -> exactly ONE approval_respond with B's id")
+    b_id = re.search(r"approval_id=(\S+)", [l for l in replay_lines(W, "=> approval/requested (reissue)") if f"session_id={session}" in l][-1]).group(1)
+    before = [l for l in replay_lines(W, "-> peer/control")]
+    click_logged(W, f"b3_fleet_row_{r}_approve", "b3.fleet.approve")
+    W.wait(lambda: len(replay_lines(W, "-> peer/control")) > len(before), RACE_DELAY_MS / 1000 + 6)
+    time.sleep(1.0)
+    new = replay_lines(W, "-> peer/control")[len(before):]
+    W.check("fleet race: the re-drawn Approve sends exactly ONE approval_respond with B's id",
+            len(new) == 1 and "command=approval_respond" in new[0] and f"approval_id={b_id}" in new[0], f"{new} B={b_id}")
+
+
 if __name__ == "__main__":
-    sys.exit(run_session(walk, mode=MODE, outdir=OUT, port=PORT, replay_port=REPLAY, scenario="fleet"))
+    rc = run_session(walk, mode=MODE, outdir=OUT, port=PORT, replay_port=REPLAY, scenario="fleet")
+    race_out = os.path.join(OUT, "race")
+    os.makedirs(race_out, exist_ok=True)
+    trig = pathlib.Path(race_out).resolve() / "reissue.trigger"
+    if trig.exists():
+        trig.unlink()
+    rc_race = run_session(race, mode=MODE, outdir=race_out, port=PORT, replay_port=REPLAY, scenario="fleet",
+                          env={"OCTOSCODE_PEER_CONTROL_DELAY_MS": str(RACE_DELAY_MS)},
+                          replay_args=["--reissue-trigger", str(trig)])
+    sys.exit(rc or rc_race)

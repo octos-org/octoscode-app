@@ -803,8 +803,9 @@ pub fn row_command(row: &octoscode_store::domains::peer::PeerRow, action: RowAct
     }
 }
 
-/// A30 — the ids one dock control was DRAWN for (`peer_dock::Drawn`): the
-/// pending request it showed, the accepted operation and the adopted turn.
+/// A30 — the ids one row control was DRAWN for (the sidebar peer dock's
+/// `peer_dock::Drawn`, the Fleet's `FleetRow::target`): the pending request
+/// it showed, the accepted operation and the adopted turn.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DrawnTarget {
     pub request_id: Option<String>,
@@ -812,27 +813,63 @@ pub struct DrawnTarget {
     pub turn_id: String,
 }
 
-/// The bounded copy of a refused stale action: the request the control was
-/// drawn for is no longer the row's pending one (FLEET_ZH "Already handled").
+/// The bounded copy of a refused stale decision whose request was RESOLVED
+/// (nothing is pending now): FLEET_ZH "Already handled".
 pub const STALE_DRAWN: &str = "Already handled";
 
-/// A30 — whether `row` is still EXACTLY what `drawn` showed: the same
-/// accepted operation and adopted turn (the control target), and the same
-/// pending request — an approval decision needs a pending APPROVAL with that
-/// id; Stop (drawn on the waiting card) refuses once the pending id moved too.
-pub fn still_drawn(row: &octoscode_store::domains::peer::PeerRow, action: RowAction, drawn: &DrawnTarget) -> bool {
+/// A30 follow-up — the bounded copy of a refused control whose row CHANGED
+/// since it was drawn: another request replaced the one it showed, or the
+/// peer moved to another turn / operation. Shown on the card (never a
+/// silent no-op: a person who taps Stop and sees nothing assumes it
+/// stopped); `i18n/native.rs` carries its Chinese.
+pub const CHANGED_DRAWN: &str = "This peer changed. Review it and tap again.";
+
+/// A30 follow-up — why a control drawn with `drawn`'s ids must NOT act on
+/// `row` now (`None` = it acts):
+///
+/// * the accepted operation or the adopted turn moved (the control's
+///   target is gone) -> [`CHANGED_DRAWN`];
+/// * a decision (Approve once / Approve for session / Deny) or an Answer is
+///   bound to the request it was drawn for: another pending request ->
+///   [`CHANGED_DRAWN`], none -> [`STALE_DRAWN`];
+/// * Stop and Steer target the TURN, not a request: on the same operation
+///   and turn they re-resolve to the current row (one frame, the right
+///   target) even when the pending approval was re-issued meanwhile.
+pub fn drawn_refusal(row: &octoscode_store::domains::peer::PeerRow, action: RowAction, drawn: &DrawnTarget) -> Option<&'static str> {
     if row.operation_id != drawn.operation_id || row.turn_id != drawn.turn_id {
-        return false;
+        return Some(CHANGED_DRAWN);
     }
-    match action {
-        RowAction::Approve | RowAction::ApproveSession | RowAction::Deny => {
-            drawn.request_id.is_some()
-                && row.request_kind == Some(RequestKind::Approval)
-                && row.request_id == drawn.request_id
-        }
-        RowAction::Stop | RowAction::Answer => row.request_id == drawn.request_id,
-        RowAction::Steer => true,
+    let kind = match action {
+        RowAction::Approve | RowAction::ApproveSession | RowAction::Deny => RequestKind::Approval,
+        RowAction::Answer => RequestKind::Question,
+        RowAction::Stop | RowAction::Steer => return None,
+    };
+    if drawn.request_id.is_some() && row.request_kind == Some(kind) && row.request_id == drawn.request_id {
+        return None;
     }
+    Some(if row.request_id.is_some() { CHANGED_DRAWN } else { STALE_DRAWN })
+}
+
+/// Whether a control drawn with `drawn`'s ids acts on `row` now
+/// ([`drawn_refusal`] is `None`).
+pub fn still_drawn(row: &octoscode_store::domains::peer::PeerRow, action: RowAction, drawn: &DrawnTarget) -> bool {
+    drawn_refusal(row, action, drawn).is_none()
+}
+
+/// A30 follow-up — the walks' deterministic seam for "the row changes
+/// between the tap and the send" (a loaded machine's real window): with
+/// `OCTOSCODE_PEER_CONTROL_DELAY_MS` set, a DRAWN control waits that long
+/// before its send-time check, so a replay hook can change the row inside
+/// the window. Inert when unset (production: no delay).
+pub fn drawn_control_delay() -> Option<Duration> {
+    static DELAY: std::sync::OnceLock<Option<Duration>> = std::sync::OnceLock::new();
+    *DELAY.get_or_init(|| {
+        std::env::var("OCTOSCODE_PEER_CONTROL_DELAY_MS")
+            .ok()
+            .and_then(|v| v.trim().parse::<u64>().ok())
+            .filter(|ms| *ms > 0)
+            .map(Duration::from_millis)
+    })
 }
 
 /// EXACTLY ONE `peer/control` frame for one row activation (never retried).
@@ -844,10 +881,11 @@ pub async fn row_control(conv: &Conversation, identity: &str, action: RowAction,
 }
 
 /// A30 — [`row_control`] for a control drawn with `drawn`'s ids (the
-/// sidebar peer dock): the row is re-read right before the frame and the
-/// action is REFUSED with no frame ([`STALE_DRAWN`]) when it is no longer
-/// the row that was drawn ([`still_drawn`]); the command is then built from
-/// those same ids, so the frame can only carry the drawn approval id.
+/// sidebar peer dock and the Fleet's row cards): the row is re-read right
+/// before the frame and the action is REFUSED with no frame and a bounded
+/// reason ([`drawn_refusal`]: [`CHANGED_DRAWN`] / [`STALE_DRAWN`]) when it no
+/// longer acts on that row; the command is then built from the current row,
+/// which for a decision IS the drawn approval id.
 pub async fn row_control_drawn(
     conv: &Conversation,
     identity: &str,
@@ -857,11 +895,14 @@ pub async fn row_control_drawn(
 ) -> Result<String, String> {
     let store = &conv.store;
     let scope = scope(conv);
-    let row = store.domains.peer.row(identity).ok_or_else(|| "This peer is no longer in the roster.".to_owned())?;
-    if let Some(d) = drawn {
-        if !still_drawn(&row, action, d) {
-            return Err(STALE_DRAWN.to_owned());
+    if drawn.is_some() {
+        if let Some(delay) = drawn_control_delay() {
+            tokio::time::sleep(delay).await;
         }
+    }
+    let row = store.domains.peer.row(identity).ok_or_else(|| "This peer is no longer in the roster.".to_owned())?;
+    if let Some(reason) = drawn.and_then(|d| drawn_refusal(&row, action, d)) {
+        return Err(reason.to_owned());
     }
     let Some(fence) = held_fence(&scope.session_id) else {
         return Err("Take control of this session to do this".to_owned());
@@ -1026,18 +1067,24 @@ mod tests {
         let drawn = DrawnTarget { request_id: Some("ap-1".into()), operation_id: Some("op-1".into()), turn_id: r.turn_id.clone() };
         let all = [RowAction::Approve, RowAction::ApproveSession, RowAction::Deny, RowAction::Stop];
         assert!(all.iter().all(|a| still_drawn(&r, *a, &drawn)));
+        let decisions = [RowAction::Approve, RowAction::ApproveSession, RowAction::Deny];
         let mut moved = r.clone();
         moved.request_id = Some("ap-2".into());
-        assert!(all.iter().all(|a| !still_drawn(&moved, *a, &drawn)), "a new pending id: refused");
+        assert!(
+            decisions.iter().all(|a| drawn_refusal(&moved, *a, &drawn) == Some(CHANGED_DRAWN)),
+            "a re-issued approval: every decision refused, visibly"
+        );
+        assert!(still_drawn(&moved, RowAction::Stop, &drawn), "Stop re-resolves: same operation and turn");
         let mut turned = r.clone();
         turned.turn_id = "00000000-0000-4000-8000-0000000000d2".into();
-        assert!(all.iter().all(|a| !still_drawn(&turned, *a, &drawn)), "a replacement turn: refused");
+        assert!(all.iter().all(|a| drawn_refusal(&turned, *a, &drawn) == Some(CHANGED_DRAWN)), "a replacement turn: refused");
         let mut redispatched = r.clone();
         redispatched.operation_id = Some("op-2".into());
         assert!(all.iter().all(|a| !still_drawn(&redispatched, *a, &drawn)), "another operation: refused");
         let mut resolved = r.clone();
         resolved.request_id = None;
         resolved.request_kind = None;
+        assert_eq!(drawn_refusal(&resolved, RowAction::Deny, &drawn), Some(STALE_DRAWN), "resolved: Already handled");
         let idle = DrawnTarget { request_id: None, ..drawn.clone() };
         assert!(!still_drawn(&resolved, RowAction::Approve, &idle), "an approval decision needs a pending approval");
     }
