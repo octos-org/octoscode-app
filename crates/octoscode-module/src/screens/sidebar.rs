@@ -147,6 +147,8 @@ pub struct SidebarUi {
     pub add_requested: bool,
     /// The sidebar is collapsed to its icon rail (desktop only).
     pub rail: bool,
+    /// The expanded desktop column width, retained while collapsed.
+    pub width: f64,
     /// The search field should take key focus (the host consumes it).
     pub focus_search: bool,
 }
@@ -176,6 +178,7 @@ impl Default for SidebarUi {
             last_groups: Vec::new(),
             add_requested: false,
             rail: false,
+            width: 280.0,
             focus_search: false,
         }
     }
@@ -195,6 +198,20 @@ pub fn reset_state() {
 /// A copy of the whole UI state (the chrome reads it once per frame).
 pub fn snapshot() -> SidebarUi {
     sidebar().lock().unwrap().clone()
+}
+
+/// Keep the sidebar usable and leave at least 420 px for the conversation.
+pub fn bounded_width(width: f64, window_width: f64) -> f64 {
+    let max = (window_width - 420.0).clamp(280.0, 520.0);
+    if width.is_finite() {
+        width.clamp(280.0, max)
+    } else {
+        280.0
+    }
+}
+
+pub fn resize(width: f64, window_width: f64) {
+    sidebar().lock().unwrap().width = bounded_width(width, window_width);
 }
 
 /// The current view mode.

@@ -8,3 +8,5 @@ Status: Phase 0 (ground truth). See `docs/phase0/`.
 
 Build and run it on a Mac (the standalone OctosCode app, or a zip to copy to another Mac):
 `tools/build-macos.sh [--package] [--octosense]`, see `docs/BUILD-macos.md`.
+
+Drag the left sidebar’s right edge to resize it. The collapse button switches to the icon rail and restores the chosen width when expanded.
