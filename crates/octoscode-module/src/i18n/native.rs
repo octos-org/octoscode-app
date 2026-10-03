@@ -264,6 +264,7 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Choose workspace folder", "选择工作区文件夹"),
     ("{value0} hidden by the server", "有 {value0} 项被服务器隐藏"),
     ("The server won\u{2019}t list this folder.", "服务器不允许列出此文件夹。"),
+    ("Back to {value0}", "返回 {value0}"),
     ("Pick another folder or type a path you can access.", "请选择其他文件夹，或输入你可以访问的路径。"),
     ("or", "或"),
     // ---- the image picker (the OS dialog's filter name; lib.rs)

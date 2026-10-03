@@ -129,6 +129,70 @@ fn a_folder_listing_remount_keeps_the_module_roots_lookups_cached() {
 }
 
 #[test]
+fn routing_a_click_on_a_fresh_listing_walks_no_tree() {
+    let _s = serial();
+    isolate();
+    let mut cx = Cx::new(Box::new(|_, _| {}));
+    cx.with_vm(|vm| {
+        makepad_widgets::script_mod(vm);
+        octoscode_module::register_widgets(vm);
+    });
+    let root = cx.with_vm(octoscode_module::create_view);
+    let dock = root.widget(&cx, ids!(board1_dock));
+    let splash = dock.splash(&cx, ids!(board1_splash));
+    board1::close_all();
+    browser::set(listed("/home/user/work", 46));
+    board1::note_context(&board1::Context { capabilities: vec![browser::BROWSE_FEATURE.into()], ..Default::default() });
+    let _ = board1::route("picker.browse", None);
+    browser::set(listed("/home/user/work", 46));
+    let mut mounts = MountCache::default();
+    let dsl = board1::view(990.0, 603.0).expect("open");
+    assert_eq!(mounts.mount(&mut cx, &splash, &dsl), Ok(true));
+
+    // The host indexes the new controls once (lib.rs sync_board1)...
+    let s0 = cx.widget_tree().stats();
+    let controls = board1::index_controls(&dock);
+    let s1 = cx.widget_tree().stats();
+    assert_eq!(s1.lookups, s0.lookups, "indexing walks the children, no path lookup");
+    let ui = board1::controls();
+    for (id, action) in ui.buttons.iter().chain(&ui.inputs).chain(&ui.returns) {
+        let w = controls.get(&LiveId::from_str(id)).unwrap_or_else(|| panic!("{id} ({action}) is indexed"));
+        assert_eq!(w.widget_uid(), dock.widget(&cx, &[LiveId::from_str(id)]).widget_uid(), "{id} is the mounted one");
+    }
+    assert!(ui.buttons.len() > 40, "every row is a control: {}", ui.buttons.len());
+
+    // ...so routing an Actions event on a freshly mounted listing walks no
+    // tree: the only lookups are the always-mounted entries, from the root.
+    let _ = board1::route("browser.enter.3", None);
+    let picked = board1::view(990.0, 603.0).expect("open");
+    assert_eq!(mounts.mount(&mut cx, &splash, &picked), Ok(true));
+    let controls = board1::index_controls(&dock);
+    let root_view = octoscode_module::mount::eval_component(&mut cx, MAIN_SPLASH_VM_ID, "x := View{width: 1 height: 1}")
+        .expect("a root view");
+    let before = cx.widget_tree().stats();
+    let events = board1::collect(&mut cx, &root_view, &controls, &[]);
+    let after = cx.widget_tree().stats();
+    assert!(events.is_empty());
+    assert!(
+        after.walk_nodes - before.walk_nodes < 20,
+        "routing must not walk the dock per control: {} nodes",
+        after.walk_nodes - before.walk_nodes
+    );
+    // What it replaced: one path lookup per control right after a remount
+    // walks the whole dock subtree each time (quadratic in the rows).
+    let _ = board1::route("browser.enter.4", None);
+    let again = board1::view(990.0, 603.0).expect("open");
+    assert_eq!(mounts.mount(&mut cx, &splash, &again), Ok(true));
+    let before = cx.widget_tree().stats();
+    for (id, _) in &ui.buttons {
+        let _ = dock.button(&cx, &[LiveId::from_str(id)]);
+    }
+    let walked = cx.widget_tree().stats().walk_nodes - before.walk_nodes;
+    assert!(walked > 5_000, "the per-control lookups it replaced walked {walked} nodes");
+    board1::close_all();
+}
+
+#[test]
 fn typing_in_the_path_box_neither_recomposes_nor_remounts_and_a_navigation_composes_once() {
     let _s = serial();
     isolate();

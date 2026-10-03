@@ -1239,6 +1239,9 @@ fn seed_synthetic_live(store: &Arc<Store>) {
     }
 }
 
+/// A35b: board 1's indexed controls (the derive takes a plain type name).
+type Board1Controls = screens::board1::Controls;
+
 #[derive(Script, ScriptHook, Widget)]
 pub struct OctoscodeView {
     #[deref]
@@ -1333,6 +1336,11 @@ pub struct OctoscodeView {
     /// re-instantiates its rows every frame does not re-evaluate them.
     #[rust]
     mounts: ComponentMounts,
+    /// A35b: board 1's mounted controls by id, indexed once per remount
+    /// (`screens::board1::index_controls`), so routing a click never walks
+    /// the dock per control.
+    #[rust]
+    board1_controls: Board1Controls,
     /// The two virtualized lists' widget uids (0 = not captured yet), so
     /// `draw_walk` can tell which `PortalList` a draw step belongs to.
     #[rust]
@@ -3163,9 +3171,11 @@ impl OctoscodeView {
             let same_surface = screens::board1::note_mounted();
             let mounted = self.mounts.mount(cx, &splash, &dsl);
             if let Ok(true) = mounted {
-                // A35b: one line per REAL remount (the browser walk counts them).
+                // A35b: one line per REAL remount (the browser walk counts them),
+                // and the new controls indexed in one walk of the dock.
                 crate::perf::note_board1_mount();
                 makepad_widgets::log!("[octoscode] board1 remounted ({} bytes)", dsl.len());
+                self.board1_controls = screens::board1::index_controls(&dock);
             }
             match mounted {
                 Err(e) => makepad_widgets::log!("[octoscode] board1 mount: {e}"),
@@ -5699,8 +5709,7 @@ impl OctoscodeView {
                 // #A2: board 1's events — the dock's controls and inputs, the
                 // always-mounted entries (the Connect screen's pairing link,
                 // the Settings rows) and the platform's QR answer.
-                let board1_dock = self.board1_dock_ref(cx);
-                let board1_events = screens::board1::collect(cx, &self.view, &board1_dock, actions);
+                let board1_events = screens::board1::collect(cx, &self.view, &self.board1_controls, actions);
                 for (action, value) in board1_events {
                     self.perform_board1(cx, &action, value.as_deref());
                 }

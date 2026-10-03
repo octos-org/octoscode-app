@@ -28,7 +28,7 @@ use octoscode_client::domains::profile::{
 use serde_json::Value;
 
 use super::board1::{Layout, Ui};
-use crate::i18n::tr;
+use crate::i18n::{tr, tr1};
 use super::board1_kit::{self as kit, Field, Text};
 
 /// The most rows one listing shows (the server's own page cap is what
@@ -282,8 +282,13 @@ impl BrowserUi {
     /// hidden count (`workspace-browse.ts:241-259`; the board's wording).
     pub fn notices(&self) -> Vec<String> {
         let mut out = Vec::new();
-        if self.truncated {
-            out.push(crate::i18n::tr1("Only the first {value0} folders are shown.", &self.entries.len().to_string()));
+        // A35b: the count is what the view SHOWS. The server cuts a listing
+        // at its page (`truncated`), and the view holds [`MAX_ROWS`] of it:
+        // a 150-folder listing showed 40 rows and said nothing, so the rest
+        // looked absent (reachable only by typing their path).
+        let shown = self.entries.len().min(MAX_ROWS);
+        if self.truncated || self.entries.len() > MAX_ROWS {
+            out.push(crate::i18n::tr1("Only the first {value0} folders are shown.", &shown.to_string()));
         }
         if self.hidden_skipped > 0 {
             out.push(crate::i18n::tr1("{value0} hidden by the server", &self.hidden_skipped.to_string()));
@@ -571,13 +576,47 @@ pub fn apply(ui: &mut BrowserUi, effect: Effect) -> Option<Effect> {
 
 // --------------------------------------------------------------------- views
 
-fn crumb_row(ui: &BrowserUi, v: &mut Ui) -> String {
+/// A text's estimated width at `px` logical pixels: Inter runs ~0.56 em per
+/// character (`board1::title_px`'s estimate); 0.6 keeps a margin for wide
+/// glyphs and the SemiBold face.
+fn est_w(text: &str, px: f64) -> f64 {
+    text.chars().count() as f64 * 0.6 * px
+}
+
+/// The breadcrumb's text size at this layout (the phone's type scale).
+fn crumb_px(l: &Layout) -> f64 {
+    15.0 * if l.phone { 1.08 } else { 1.0 }
+}
+
+/// How many trailing segments of `crumbs` the breadcrumb shows: at most 4
+/// (with the root and, when it skips some, "…"), and A35b: only as many as
+/// fit the card — a phone showed "/ › … › user › work › monorepo › pa", cut
+/// at the screen's edge (the breadcrumb never wraps).
+fn crumbs_shown(crumbs: &[(String, String)], l: &Layout) -> usize {
+    let n = crumbs.len();
+    if n <= 1 {
+        return 0;
+    }
+    let px = crumb_px(l);
+    // A link pads 6 + 6; a separator is the 12 px chevron and 2 + 2 spacing.
+    let link = |label: &str| est_w(label, px) + 12.0;
+    const SEP: f64 = 16.0;
+    let width = |k: usize| {
+        let mut w = link("/");
+        if k + 1 < n {
+            w += SEP + est_w("\u{2026}", px);
+        }
+        w + crumbs[n - k..].iter().map(|(label, _)| SEP + link(label)).sum::<f64>()
+    };
+    (1..=(n - 1).min(4)).rev().find(|&k| width(k) <= l.content_w).unwrap_or(1)
+}
+
+fn crumb_row(ui: &BrowserUi, l: &Layout, v: &mut Ui) -> String {
     let base = ui.attempted.clone().unwrap_or_else(|| ui.path.clone());
     let crumbs = BrowserUi::crumbs(&base);
     // A deep path keeps its root and its last segments (the breadcrumb never
     // wraps): "/ › … › user › code".
-    let keep = 4usize;
-    let skip = crumbs.len().saturating_sub(keep);
+    let skip = crumbs.len().saturating_sub(crumbs_shown(&crumbs, l));
     let mut out = String::from("View { width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 2\n");
     for (i, (label, _)) in crumbs.iter().enumerate() {
         if i > 0 && i < skip {
@@ -603,7 +642,7 @@ pub fn view(ui: &BrowserUi, l: &Layout) -> Ui {
     let mut v = Ui::default();
     v.header(l, "b1_br_back", "browser.close", tr("Choose workspace folder"));
     v.push(kit::gap(if l.phone { 10.0 } else { 6.0 }));
-    let crumbs = crumb_row(ui, &mut v);
+    let crumbs = crumb_row(ui, l, &mut v);
     v.push(crumbs);
     v.push(kit::gap(if l.phone { 10.0 } else { 8.0 }));
     match ui.screen {
@@ -644,8 +683,16 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
     } else {
         // The card never outgrows the window: rows past what fits scroll
         // inside the list (the fixed chrome around it is ~302 px in a desktop
-        // dialog, ~330 px on a phone sheet).
-        let fixed = if l.phone { 330.0 } else { 302.0 };
+        // dialog, ~330 px on a phone sheet) — A35b: plus each line the
+        // notice wraps onto beside "New folder" (two notices wrap on a phone:
+        // the second line pushed "Use this folder" under the screen's edge).
+        let notice_lines = {
+            let text = ui.notices().join(" ");
+            let link = if ui.writable { est_w(tr("New folder"), crumb_px(l)) + 12.0 } else { 0.0 };
+            let avail = (l.content_w - 6.0 - link).max(1.0);
+            (est_w(&text, crumb_px(l)) / avail).ceil().max(1.0)
+        };
+        let fixed = if l.phone { 330.0 } else { 302.0 } + (notice_lines - 1.0) * 20.0;
         let fits = (((l.h - fixed) / row_h as f64).floor() as usize).max(3);
         let max_h = (rows.len() > fits).then(|| fits as f64 * (row_h as f64 + 1.0));
         v.push(kit::list_card_scroll("b1_br_list", &rows, max_h));
@@ -654,7 +701,7 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
     v.push(kit::gap(8.0));
     v.push(format!(
         "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 6}}\n{}{}}}\n",
-        Text::new("b1_br_notice", &notices.join(" ")).px(15.0).color(kit::MUTED).fill().one_line().dsl(),
+        Text::new("b1_br_notice", &notices.join(" ")).px(15.0).color(kit::MUTED).fill().dsl(),
         if ui.writable && !ui.new_folder_open {
             kit::link("b1_br_newfolder", tr("New folder"), kit::BLUE, 15.0, 500)
         } else {
@@ -694,14 +741,36 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
     }
 }
 
+/// The refusal's way back — "Back to <the folder we stood in>" — and its
+/// pill's width: the board's two-thirds pill when the label fits it, the
+/// full width when only that holds the path, and the folder's own name when
+/// even that does not. A35b: a deep path ("Back to
+/// /home/user/work/frontend/node_modules") overflowed the fixed pill and was
+/// cut off at both ends, on the desktop and the phone alike.
+fn back_label(path: &str, l: &Layout) -> (String, f64) {
+    let path = if path.is_empty() { "/" } else { path };
+    // The pill's 15 px SemiBold label, centred: keep 12 px clear each side.
+    let px = crumb_px(l);
+    let fits = |label: &str, w: f64| est_w(label, px) + 24.0 <= w;
+    let full = tr1("Back to {value0}", path);
+    let label = if fits(&full, l.content_w) {
+        full
+    } else {
+        let name = path.trim_end_matches('/').rsplit('/').next().filter(|n| !n.is_empty()).unwrap_or("/");
+        tr1("Back to {value0}", name)
+    };
+    let narrow = (l.content_w * 0.66).round().max(180.0);
+    let w = if fits(&label, narrow) { narrow } else { l.content_w };
+    (label, w)
+}
+
 fn refused_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
     let kind = ui.failure.as_ref().map(|r| r.kind.as_str()).unwrap_or(UNKNOWN);
     let (head, next) = refusal_copy(kind);
     v.push(kit::gap(if l.phone { 14.0 } else { 4.0 }));
     v.push(kit::callout(false, true, head, Some(next)));
     v.push(kit::gap(if l.phone { 52.0 } else { 20.0 }));
-    let back_to = format!("Back to {}", if ui.path.is_empty() { "/".to_owned() } else { ui.path.clone() });
-    let w = (l.content_w * 0.66).round().max(180.0);
+    let (back_to, w) = back_label(&ui.path, l);
     v.push(format!(
         "View {{ width: Fill height: Fit align: Align{{x: 0.5 y: 0.0}}\n{}}}\n",
         kit::pill_outline("b1_br_backto", &back_to, &format!("{w}"))
@@ -914,6 +983,52 @@ mod tests {
         let n = ui.notices();
         assert_eq!(n[0], "Only the first 2 folders are shown.");
         assert_eq!(n[1], "3 hidden by the server");
+    }
+
+    #[test]
+    fn a_listing_longer_than_the_view_says_how_many_rows_it_shows() {
+        // A35b: 150 folders, none cut by the server, MAX_ROWS shown.
+        let mut ui = listing();
+        ui.entries = (0..150)
+            .map(|i| Entry { name: format!("pkg-{i:03}"), path: format!("/home/user/code/pkg-{i:03}") })
+            .collect();
+        ui.hidden_skipped = 0;
+        assert_eq!(ui.notices(), vec![format!("Only the first {MAX_ROWS} folders are shown.")]);
+        // The server's own cut of 500 says the same: the view shows MAX_ROWS.
+        ui.truncated = true;
+        assert_eq!(ui.notices(), vec![format!("Only the first {MAX_ROWS} folders are shown.")]);
+    }
+
+    /// A35b — a deep path's breadcrumb and the refusal's way back fit the
+    /// card (measured: the phone's breadcrumb was cut at the screen's edge,
+    /// and "Back to /home/user/work/frontend/node_modules" overflowed its
+    /// pill at both ends on the desktop and the phone).
+    #[test]
+    fn a_deep_path_fits_the_breadcrumb_and_the_way_back() {
+        use crate::screens::board1::Surface;
+        let desk = Layout::of(Surface::Browser, 990.0, 603.0);
+        let phone = Layout::of(Surface::Browser, 360.0, 780.0);
+        let deep = BrowserUi::crumbs("/home/user/work/monorepo/packages");
+        assert_eq!(crumbs_shown(&deep, &desk), 4, "the desktop keeps four segments");
+        let k = crumbs_shown(&deep, &phone);
+        assert!((1..4).contains(&k), "the phone keeps fewer: {k}");
+        let shown: f64 = deep[deep.len() - k..].iter().map(|(s, _)| est_w(s, crumb_px(&phone)) + 28.0).sum::<f64>()
+            + est_w("/\u{2026}", crumb_px(&phone))
+            + 44.0;
+        assert!(shown <= phone.content_w, "{shown} > {}", phone.content_w);
+        // A short path keeps all of it.
+        assert_eq!(crumbs_shown(&BrowserUi::crumbs("/home/user/code"), &phone), 3);
+
+        let long = "/home/user/work/frontend/node_modules";
+        let (label, w) = back_label(long, &desk);
+        assert_eq!(label, format!("Back to {long}"), "the desktop holds the whole path");
+        assert!(w <= desk.content_w && est_w(&label, crumb_px(&desk)) + 24.0 <= w);
+        let (label, w) = back_label(long, &phone);
+        assert_eq!(label, "Back to node_modules", "the phone names the folder");
+        assert!(w <= phone.content_w && est_w(&label, crumb_px(&phone)) + 24.0 <= w);
+        // The board's own short path keeps the two-thirds pill.
+        let (label, w) = back_label("/home/user/code", &desk);
+        assert_eq!((label.as_str(), w), ("Back to /home/user/code", (desk.content_w * 0.66).round()));
     }
 
     #[test]

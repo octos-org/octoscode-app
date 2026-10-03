@@ -829,29 +829,66 @@ pub fn controls() -> Ui {
     host().ui.clone()
 }
 
+/// The mounted surface's controls by widget id ([`index_controls`]).
+pub type Controls = std::collections::HashMap<LiveId, WidgetRef>;
+
+/// A35b — the mounted surface's controls, found in ONE walk of the dock's
+/// subtree, right after each remount. `collect` used to look each one up by
+/// path on every Actions event: a path lookup collects every match, so a
+/// miss (every lookup after a remount) walked the whole dock subtree — per
+/// control, i.e. quadratic in the rows (40 rows: ~50 walks, 13k nodes;
+/// 500 rows measured 229 ms for one click).
+pub fn index_controls(dock: &WidgetRef) -> Controls {
+    let ui = host().ui.clone();
+    let want: std::collections::HashSet<LiveId> = ui
+        .buttons
+        .iter()
+        .chain(&ui.inputs)
+        .chain(&ui.returns)
+        .map(|(id, _)| LiveId::from_str(id))
+        .collect();
+    let mut out = std::collections::HashMap::new();
+    let mut stack = vec![dock.clone()];
+    while let Some(w) = stack.pop() {
+        w.children(&mut |id, child| {
+            if want.contains(&id) {
+                out.entry(id).or_insert_with(|| child.clone());
+            }
+            stack.push(child);
+        });
+    }
+    out
+}
+
 /// The routed events in `actions`: every mounted control's click, every
 /// input's live text and Return, and the platform's QR answer.
 ///
-/// A35b: the open surface's controls are looked up from `dock` (board 1's
-/// dock is a widget-tree search barrier, so the module `root` never finds
-/// what it holds); the always-mounted entries live elsewhere in the module
-/// and are looked up from `root`. Nothing is looked up while no surface is
-/// open but the entries.
-pub fn collect(cx: &mut Cx, root: &View, dock: &WidgetRef, actions: &Actions) -> Vec<(String, Option<String>)> {
+/// A35b: the open surface's controls come from `controls`
+/// ([`index_controls`] of the current mount: board 1's dock is a
+/// widget-tree search barrier, so the module `root` never finds what it
+/// holds, and no lookup walks the tree per event); the always-mounted
+/// entries live elsewhere in the module and are looked up from `root`.
+pub fn collect(
+    cx: &mut Cx,
+    root: &View,
+    controls: &Controls,
+    actions: &Actions,
+) -> Vec<(String, Option<String>)> {
     let ui = if is_open() { host().ui.clone() } else { Ui::default() };
+    let control = |id: &str| controls.get(&LiveId::from_str(id)).cloned().unwrap_or_default();
     let mut out = Vec::new();
     for (id, action) in &ui.inputs {
-        if let Some(text) = dock.text_input(cx, &[LiveId::from_str(id)]).changed(actions) {
+        if let Some(text) = control(id).as_text_input().changed(actions) {
             out.push((action.clone(), Some(text)));
         }
     }
     for (id, action) in &ui.returns {
-        if dock.text_input(cx, &[LiveId::from_str(id)]).returned(actions).is_some() {
+        if control(id).as_text_input().returned(actions).is_some() {
             out.push((action.clone(), None));
         }
     }
     for (id, action) in &ui.buttons {
-        if dock.button(cx, &[LiveId::from_str(id)]).clicked(actions) {
+        if control(id).as_button().clicked(actions) {
             out.push((action.clone(), None));
         }
     }

@@ -88,6 +88,8 @@ ap.add_argument("--root", default="/home/user/work", help="the server's working 
 ap.add_argument("--token-file", default="", help="a REAL serve: its token, read here, never printed")
 ap.add_argument("--profile", default="octoscode")
 ap.add_argument("--hang-ms", default="50")
+ap.add_argument("--host", action="store_true",
+                help="--bin is the OctoSense host (octosense): the module in its shell, for comparison")
 ARGS = ap.parse_args()
 
 OUT = pathlib.Path(ARGS.out)
@@ -188,8 +190,9 @@ def app_env() -> dict:
     env.update(isolated_env(STATE))
     (STATE / "home").mkdir(parents=True, exist_ok=True)
     token = pathlib.Path(ARGS.token_file).read_text().strip() if LIVE else "walk-dummy-token"
+    if not ARGS.host:
+        env["HOME"] = str(STATE / "home")
     env.update({
-        "HOME": str(STATE / "home"),
         "HEADLESS_STATE": str(OUT / "hs"),
         "HEADLESS_TIMEOUT": "90",
         "OCTOS_BASE_URL": f"http://127.0.0.1:{ARGS.fixture_port}",
@@ -203,6 +206,12 @@ def app_env() -> dict:
     })
     if PHONE:
         env["OCTOSENSE_WINDOW_SIZE"] = "360x780"
+    if ARGS.host:
+        # The OctoSense-hosted build (walk_env.app_env's launch): the shell
+        # opens OctosCode as one of its windows.
+        env.update({"OCTOSCODE_DESIGN_DIR": str(ROOT / "design"), "MAKEPAD_WM_TEST_APP": "octoscode",
+                    "HEADLESS_ARGS": "--module octoscode"
+                    + (" --test-action page:0 --test-action launch-octoscode" if PHONE else "")})
     return env
 
 
@@ -300,10 +309,12 @@ def hangs(lines: list) -> list:
     return out
 
 
-def timed(name: str, action, wid: str, want: str, budget: float, fx: Fixture, lists: int | None = None,
+def timed(name: str, action, wid: str, want, budget: float, fx: Fixture, lists: int | None = None,
           secs: float = 3.0) -> float | None:
     """One step: the input, then poll (nothing else sent) until `wid` is DRAWN
-    showing `want`. `lists`: the `workspace_list` requests the step must send."""
+    showing `want` (a text, or a tuple of acceptable texts). `lists`: the
+    `workspace_list` requests the step must send."""
+    wants = want if isinstance(want, tuple) else (want,)
     app_log()
     before = fx.lists()
     t0 = time.perf_counter()
@@ -312,7 +323,7 @@ def timed(name: str, action, wid: str, want: str, budget: float, fx: Fixture, li
     seen = None
     while time.perf_counter() < t0 + secs:
         for w in snap(wid):
-            if w.get("i") == wid and drawn(w) and w.get("t") == want:
+            if w.get("i") == wid and drawn(w) and w.get("t") in wants:
                 seen = time.perf_counter()
                 break
         if seen:
@@ -322,7 +333,7 @@ def timed(name: str, action, wid: str, want: str, budget: float, fx: Fixture, li
     rec = {"step": name, "ms": ms, "input_ack_ms": round((ack - t0) * 1000, 1), "budget_ms": budget}
     if ms is None:
         rec["in_widget_tree_but_not_drawn"] = any(
-            w.get("i") == wid and w.get("t") == want for w in snap(wid, drawn_only=False))
+            w.get("i") == wid and w.get("t") in wants for w in snap(wid, drawn_only=False))
     time.sleep(0.3)
     lines = app_log()
     rec["remounts"] = remounts(lines)
@@ -388,7 +399,7 @@ def layout_checks(state: str) -> str:
         and frame[1] + frame[3] <= win[1] + 1
     margins = f"l/r [{frame[0]}, {win[0] - frame[0] - frame[2]}]" if frame else "no card"
     out = (f"{state}: window {win}; card {frame} {margins}; inside={inside}; rows drawn {len(rows)}; "
-           f"row text outside its row {len(outside)}; controls<28px {len(small)}; row overlaps {overlaps}")
+           f"row text outside its row {len(outside)}; controls<28px {len(small)}{small or ''}; row overlaps {overlaps}")
     report(f"layout ({state}): the card inside the window, rows clean", inside and not outside and not small
            and not overlaps, out)
     return out
@@ -425,7 +436,7 @@ def main() -> int:
             subprocess.run(["bash", str(ROOT / "harness/headless.sh"), "stop", str(ARGS.port)], cwd=str(ROOT),
                            env=dict(os.environ, HEADLESS_STATE=str(OUT / "hs")), capture_output=True)
         fx.stop()
-        summary = {"binary_profile": profile_of(exe), "mode": ARGS.mode, "live": LIVE, "steps": TIMINGS,
+        summary = {"binary_profile": profile_of(exe), "host": ARGS.host, "mode": ARGS.mode, "live": LIVE, "steps": TIMINGS,
                    "passed": sum(1 for _, ok in RESULTS if ok), "checks": len(RESULTS)}
         (OUT / "timings.json").write_text(scrub(json.dumps(summary, indent=1)) + "\n")
         print(f"== {summary['passed']}/{summary['checks']} checks passed ({ARGS.mode}, {summary['binary_profile']})",
@@ -567,6 +578,9 @@ def walk(fx: Fixture) -> int:
           lists=0)
     timed("drill: packages (150 folders)", lambda: click("b1_br_row_2"), "b1_br_row_t0", "pkg-000", nav, fx,
           lists=1)
+    note = text("b1_br_notice") or ""
+    report("packages: a listing longer than the view says how many rows it shows",
+           "Only the first 40 folders are shown." in note, repr(note))
     lst = find("b1_br_list")
     if report("scroll: the long listing scrolls inside the card", lst is not None):
         x, y, w, h = lst["r"]
@@ -596,7 +610,8 @@ def walk(fx: Fixture) -> int:
     timed("go: node_modules (650 folders, the server pages 500)", lambda: key("ReturnKey"), "b1_br_row_t0",
           "dep-000", nav, fx, lists=1)
     note = text("b1_br_notice") or ""
-    report("node_modules: the truncation is reported", "Only the first 500 folders are shown." in note, repr(note))
+    # The view holds 40 rows of the server's page of 500: it says what it shows.
+    report("node_modules: the truncation is reported", "Only the first 40 folders are shown." in note, repr(note))
     layout["node_modules"] = layout_checks("node_modules")
     capture("node-modules")
     # 9. a refused folder -> p4-09, then back without a request.
@@ -606,7 +621,8 @@ def walk(fx: Fixture) -> int:
     type_text("/private")
     time.sleep(0.3)
     timed("refused: /private -> the bounded refusal", lambda: key("ReturnKey"), "b1_br_backto",
-          f"Back to {WORK}/frontend/node_modules", nav, fx, lists=1)
+          # the whole path where the pill holds it, else the folder's name
+          (f"Back to {WORK}/frontend/node_modules", "Back to node_modules"), nav, fx, lists=1)
     layout["refused"] = layout_checks("refused")
     capture("refused")
     timed("back: Back to the last good folder", lambda: click("b1_br_backto"), "b1_br_row_t0", "dep-000", nav, fx,
