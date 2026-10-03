@@ -1311,6 +1311,12 @@ impl Conversation {
         if self.store.active_session().as_deref() != Some(id) {
             return RowClick::Open;
         }
+        // A19b's notice for a history that could not be read says "Reopen it
+        // from the sidebar to try again" — and the Session's row is the
+        // selected one. There is no transcript to lose: the CLICK re-opens it.
+        if matches!(self.history(id), History::Failed(_)) {
+            return RowClick::Reopen;
+        }
         RowClick::AlreadyOpen
     }
 
