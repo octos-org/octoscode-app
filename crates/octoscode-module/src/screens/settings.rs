@@ -146,6 +146,9 @@ pub const CAPABILITY_ROWS: &[CapabilityRow] = &[
         methods: &["profile/skills/list"],
     },
     CapabilityRow { id: "mcp", hit: "set_cap_mcp", action: "b3.open.mcp", methods: &["mcp/status/list"] },
+    // A36 (board 5, D2 A) — the Memory dialog (`board3::memory`), which reads
+    // `memory/overview` for the Session's profile on open.
+    CapabilityRow { id: "memory", hit: "set_cap_memory", action: "b3.open.memory", methods: &["memory/overview"] },
 ];
 
 /// A36 — the ids of the rows this server can serve: a row whose surface reads

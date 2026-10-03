@@ -67,7 +67,12 @@ fn capability_rows_show_only_what_the_server_advertises() {
         settings::CAPABILITY_ROWS.iter().map(|r| (r.id, r.hit, r.action)).collect();
     assert_eq!(
         rows,
-        vec![("skills", "set_cap_skills", "dialog.open.skills"), ("mcp", "set_cap_mcp", "b3.open.mcp")]
+        vec![
+            ("skills", "set_cap_skills", "dialog.open.skills"),
+            ("mcp", "set_cap_mcp", "b3.open.mcp"),
+            // A36b — board 5's third row.
+            ("memory", "set_cap_memory", "b3.open.memory"),
+        ]
     );
 }
 

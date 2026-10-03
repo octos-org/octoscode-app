@@ -307,7 +307,13 @@ pub fn lower_open(store: &Store) -> Option<Lowered> {
             super::images::build(&mut d, &st.img, &st.frame, drafts.as_deref());
         }
     }
-    Some(Lowered::from(d))
+    let mut lowered = Lowered::from(d);
+    // A36 (D4) — Memory follows the app theme; the other board-3 dialogs
+    // keep their light kit (A18).
+    if open == Dialog::Memory {
+        lowered.dsl = super::memory::follow_theme(&lowered.dsl);
+    }
+    Some(lowered)
 }
 
 /// Transport work a control or an opening dispatches (run by the host on its

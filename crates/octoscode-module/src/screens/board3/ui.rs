@@ -906,7 +906,7 @@ impl Dsl {
 /// The kit's `TextInput` properties: 13 px text (mono or Inter), transparent
 /// background (the field surface paints), faint placeholder; `multiline`
 /// wraps and fills the field.
-fn input_props(text: &str, placeholder: &str, mono: bool, multiline: bool) -> String {
+pub(crate) fn input_props(text: &str, placeholder: &str, mono: bool, multiline: bool) -> String {
     let face = if mono { Face::Mono } else { Face::Regular };
     let style = text_style(face, 13.0);
     let (walk, flow) = if multiline {

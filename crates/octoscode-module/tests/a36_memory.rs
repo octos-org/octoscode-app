@@ -158,6 +158,9 @@ fn serial() -> std::sync::MutexGuard<'static, ()> {
     let g = L.lock().unwrap_or_else(|e| e.into_inner());
     host::reset();
     i18n::set_language(Lang::En);
+    // The theme is process-wide (tests never install the OS reader, so
+    // `system` would read dark): every test here starts in light.
+    octoscode_module::screens::theme::set_preference("light");
     g
 }
 
@@ -547,6 +550,29 @@ async fn add_note_writes_one_record_and_reports_the_receipt() {
     assert_eq!(server.sent("memory/overview").len(), 2, "the overview is read again");
 }
 
+/// The walk's first capture of the form showed EMPTY fields under an armed
+/// "Add to memory": the submit's initial visibility followed the live note,
+/// so the first keystroke changed the DSL, the dialog remounted and rebuilt
+/// both fields from their (empty) snapshots. Typing must never change the
+/// lowered dialog (the kit's rule); the submit arms through `visibility`.
+#[tokio::test]
+async fn typing_a_note_or_a_query_never_rebuilds_the_fields() {
+    let _g = serial();
+    let server = Server::start(vec![("session/open", json!({"opened": recorded_open()})), ("memory/overview", proposal_overview())]).await;
+    let conv = connect(&server, ALL_MEMORY).await;
+    open_memory(&conv).await;
+    let before = dsl(&conv.store);
+    host::input_changed("mem.query", "steer");
+    assert_eq!(dsl(&conv.store), before, "typing a query changes nothing until Enter");
+    host::perform("b3.mem.add", 0, &conv.store);
+    let form = dsl(&conv.store);
+    host::input_changed("mem.add.title", "Dentist");
+    host::input_changed("mem.add.note", "Tuesday 9:30");
+    assert_eq!(dsl(&conv.store), form, "typing in the form changes nothing in the lowered dialog");
+    let vis: std::collections::BTreeMap<String, bool> = host::live_visibility(&conv.store).into_iter().collect();
+    assert_eq!((vis["b3_mem_add_submit_on"], vis["b3_mem_add_submit_off"]), (true, false), "the submit arms live");
+}
+
 #[test]
 fn the_receipt_follows_the_server_counts() {
     let _g = serial();
@@ -663,7 +689,7 @@ async fn memory_follows_the_app_theme_and_reads_in_chinese() {
         assert!(light.contains("#ffffffff"), "the light surface");
         octoscode_module::screens::theme::set_preference("dark");
         let dark = dsl(&conv.store);
-        octoscode_module::screens::theme::reset_state();
+        octoscode_module::screens::theme::set_preference("light");
         assert!(dark.contains("#1c1f22ff"), "frame 11's dark surface");
         let frame = dark.split("b3_dialog := DesignSurface {").nth(1).expect("the dialog surface");
         assert!(!frame.lines().nth(1).unwrap_or("").contains("draw_bg.color: #ffffffff"), "the dialog is not white in dark");

@@ -30,6 +30,7 @@
 //! | `onboarding` | `live-gate-a6ea8505` handshake + `r29a-onboarding-a6ea8505` replies | A17: the solo onboarding panel (see [`onboarding`]) |
 //! | `btw` | `live-gate-a6ea8505` handshake + turns, `r43a` hydrate shape | A29: the `/btw` aside per Session (see [`btw`]) |
 //! | `skill-jobs` | r1's handshake + SYNTHETIC jobs (`replay_scenarios/skill_jobs.rs`) | A31: the Skills dialog's Background jobs — `skill.action_jobs.v1` advertised (withdraw it with `--drop-feature skill.action_jobs.v1 --drop-method skill/action/job/list`), `skill/action/job/list` per Session, `skill/action/job/updated` around it; `--jobs-trigger <file>` sends a live transition when the file appears |
+//! | `memory` | r1's handshake + `a36-memory-*` (`replay_scenarios/memory.rs`) | A36b: Memory (board 5) and Settings > Capabilities — `--memory-mode proposal` (default: octos shapes + the proposal's `profile_id` echo, SYNTHETIC) / `today` (a6ea8505 RECORDED: the identity's memory, refusals) / `empty`; `--memory-recent`, `--memory-truncated`, `--memory-refuse <method>`; the recorded MCP / tool inventory |
 //!
 //! `--diff-words` (A28, `surfaces`): the approvals turn's diff approvals
 //! announce the SYNTHETIC previews of `a28-diff-words-synthetic.jsonl` — word
@@ -84,6 +85,10 @@ use futures_util::{SinkExt, StreamExt};
 // not take it for an example of its own).
 #[path = "replay_scenarios/skill_jobs.rs"]
 mod skill_jobs;
+// A36b — the `memory` scenario (board 5's Memory dialog, Settings >
+// Capabilities): see `replay_scenarios/memory.rs`.
+#[path = "replay_scenarios/memory.rs"]
+mod memory;
 use serde_json::Value;
 use tokio::net::TcpListener;
 use tokio_tungstenite::tungstenite::Message;
@@ -161,6 +166,11 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         // A31: the Skills dialog's Background jobs (see `skill_jobs`): r1's
         // handshake and the `screens` replies, the jobs synthetic.
         "skill-jobs" => ("skill-jobs", "r1-autonomy-a6ea8505.jsonl"),
+        // A36b: Memory + Settings > Capabilities — r1's handshake (its
+        // recorded open advertises memory/*, profile/skills/list and
+        // mcp/status/list) and the `screens` replies; memory/* from the
+        // `memory` simulator (proposal / today / empty worlds).
+        "memory" => ("memory", "r1-autonomy-a6ea8505.jsonl"),
         other => {
             eprintln!("[replay-serve] unknown scenario '{other}' — using `conversation`");
             ("conversation", "live-gate-a6ea8505.jsonl")
@@ -2040,7 +2050,13 @@ async fn main() {
     let (label, file) = scenario_fixture(&scenario);
     // A15: `history` answers the seats' and the strip's reads (the profile's
     // models, the permission list, the status stamp) from the same recordings.
-    let replies = if label == "screens" || label == "a10" || label == "fleet" || label == "history" || label == "skill-jobs" {
+    let replies = if label == "screens"
+        || label == "a10"
+        || label == "fleet"
+        || label == "history"
+        || label == "skill-jobs"
+        || label == "memory"
+    {
         screens_replies()
     } else {
         BTreeMap::new()
@@ -2219,7 +2235,10 @@ async fn main() {
         })
         .collect();
     let refuse_seen = std::sync::Arc::new(std::sync::Mutex::new(std::collections::BTreeMap::<String, usize>::new()));
-    let standalone = if label == "fleet" || label == "history" || label == "onboarding" || label == "skill-jobs" {
+    // A36b — the memory simulator, shared by every connection of the run (a
+    // note added before a reconnect is still found after it).
+    let memory_sim = std::sync::Arc::new(std::sync::Mutex::new(memory::MemorySim::load(&args)));
+    let standalone = if label == "fleet" || label == "history" || label == "onboarding" || label == "skill-jobs" || label == "memory" {
         // The fleet fixture's inbound frames are replies + peer-session
         // frames, never standalone notifications. A15 `history`: the
         // transcript comes from the hydrate alone. A17 `onboarding`: a quiet
@@ -2271,6 +2290,7 @@ async fn main() {
         let onb_world = onb_world.clone();
         let refuse = refuse.clone();
         let refuse_seen = refuse_seen.clone();
+        let memory_sim = memory_sim.clone();
         // A29 — the `btw` scenario's per-run controls.
         let (btw_drop, btw_fail, btw_seen) = (btw_drop.clone(), btw_fail.clone(), btw_seen.clone());
         let btw_hydrate_template = btw_hydrate_template.clone();
@@ -2705,6 +2725,32 @@ async fn main() {
                     continue;
                 }
                 match method.as_str() {
+                    // A36b — the `memory` scenario: memory/* and the recorded
+                    // inventory (see `replay_scenarios/memory.rs`).
+                    m if label == "memory" && memory::MemorySim::handles(m) => {
+                        let reply = memory_sim.lock().unwrap().reply(m, &v["params"], &active_session);
+                        let frame = match reply {
+                            Ok(r) => {
+                                println!("[replay-serve] -> {m} (memory) {}", v["params"]);
+                                serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r})
+                            }
+                            Err(e) => {
+                                println!("[replay-serve] -> {m} refused (memory) {} {}", e["code"], v["params"]);
+                                serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e})
+                            }
+                        };
+                        match slow.get(m).copied() {
+                            Some(ms) => {
+                                println!("[replay-serve] -> {m} held {ms} ms (--slow)");
+                                let tx2 = tx.clone();
+                                tokio::spawn(async move {
+                                    tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                                    let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                });
+                            }
+                            None => send(&tx, frame).await,
+                        }
+                    }
                     "session/open" => {
                         opens += 1;
                         // A17 — the walk's wire proof of the onboarded open
