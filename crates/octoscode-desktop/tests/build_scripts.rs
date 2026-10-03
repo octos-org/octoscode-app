@@ -22,6 +22,7 @@ fn read(rel: &str) -> String {
 fn every_build_script_parses() {
     for script in [
         "tools/build-macos.sh",
+        "tools/check-fresh-clone-macos.sh",
         "tools/package-macos.sh",
         "tools/prepare-makepad-fork.sh",
         "tools/prepare-octosense-fork.sh",

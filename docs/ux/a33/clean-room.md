@@ -6,12 +6,12 @@ Decision D10f (`docs/decisions/D10f-standalone-desktop-app.md`). Two proofs, bot
 
 ## The other Mac
 
-- A fresh user HOME, `~/home/oa.noindex/other-mac/home` (written `<OM>/home` below), with an EMPTY cargo home in it
-  (`CARGO_HOME=<OM>/home/.cargo`), the system `PATH` (`/usr/bin:/bin:/usr/sbin:/sbin`, so `/usr/bin/python3`) plus only
+- A fresh user HOME, `other-mac/home` under the work root (written `<OTHER_HOME>` below), with an EMPTY cargo home in it
+  (`CARGO_HOME=<OTHER_HOME>/.cargo`), the system `PATH` (`/usr/bin:/bin:/usr/sbin:/sbin`, so `/usr/bin/python3`) plus only
   rustup's proxies; the stable toolchain 1.95.0 through `RUSTUP_HOME` (a prerequisite, not part of the build).
-- A fresh `git clone` of this branch's committed tree into `<OM>/home/src/octoscode-app` (commit `ee193375`, 8696
+- A fresh `git clone` of this branch's committed tree into `<OTHER_HOME>/src/octoscode-app` (commit `ee193375`, 8696
   tracked files; the repo is never pushed by an agent, so the clone reads the branch locally: the same tree a pull
-  delivers). Script: the A33 lane's `tmp/a33-clean-room.sh`; log: `<OM>/clean-room.log`.
+  delivers). Script: the A33 lane's clean-room script, tracked since as `tools/check-fresh-clone-macos.sh <empty dir>`; log: `other-mac/clean-room.log`.
 - One command: `tools/build-macos.sh --package --octosense`. It exited 0.
 
 ## Times (Apple Silicon, `CARGO_BUILD_JOBS=6`, empty cargo home: every crate downloaded)
@@ -44,7 +44,7 @@ the zip `OctosCode-macos-arm64.zip` 61 MB.
 
 ## Proof 1: the from-source build streams a turn (`live-from-source/`)
 
-`<OM>/home/src/octoscode-app/target/debug/octoscode`, HOME = the other user's: **10/10 checks**
+`<OTHER_HOME>/src/octoscode-app/target/debug/octoscode`, HOME = the other user's: **10/10 checks**
 (`live-from-source/checks.txt`): the module mounted in the standalone host; the design root and the seven kit faces
 materialized under that HOME (`design embed: 7 font face(s)`, `app.log`); no resource failed to load; connected; the
 turn started (Stop seen), completed, and the answer rendered ("2 + 3 = 5."); no saved file carries the token.
@@ -53,7 +53,7 @@ redacted: it named the serve's scratch dir under the build machine's home; the l
 
 ## Proof 2: the zipped app, unzipped into Downloads, with every build tree unreadable (`live-unzipped-app/`)
 
-`OctosCode-macos-arm64.zip` copied to `<OM>/home/Downloads` and unzipped there with `ditto -x -k` (what a double-click
+`OctosCode-macos-arm64.zip` copied to `<OTHER_HOME>/Downloads` and unzipped there with `ditto -x -k` (what a double-click
 does); `codesign --verify --strict` passes. The other user's `~/.octoscode` from proof 1 moved away first (a first
 launch). For the whole run the walk RENAMES the clone (its `design/`, `crates/*/resources`, `.forks/` with makepad's
 resources, `target/`) and the cargo home away (`--hide`), so nothing the binary was compiled from can be read.

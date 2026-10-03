@@ -69,7 +69,9 @@ What it does (every step is a no-op when already done, so re-run it after a `git
    octoscode crates and `design/` vendored into `apps/`, then `cargo build -p octosense --features app-octoscode`.
 
 From a fresh clone with an empty cargo cache it took 10 minutes and 10 GB here (4.5 minutes and about 6 GB without
-`--octosense`); section 6 has the breakdown.
+`--octosense`); section 6 has the breakdown. To repeat that check on any Mac without touching your own setup:
+`tools/check-fresh-clone-macos.sh <an empty directory>` (a fresh HOME and cargo home inside it, a fresh clone, then
+`tools/build-macos.sh --package --octosense`; log in `<dir>/fresh-clone.log`).
 
 ## 3. Run it
 

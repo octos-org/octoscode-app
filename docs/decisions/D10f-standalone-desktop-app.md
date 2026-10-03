@@ -47,9 +47,15 @@ fonts and design files read from this machine's paths.
 ## Proof
 
 `docs/ux/a33/clean-room.md`: a fresh `git clone` under another user path with its own HOME and cargo home,
-`tools/build-macos.sh --package --octosense` from scratch, times and disk; the zipped app unzipped into that
-HOME's Downloads and launched with every build tree unreadable; both the from-source build and the unzipped app
-stream one dsflash turn against a private octos serve.
+`tools/build-macos.sh --package --octosense` from scratch (596 s, 10 GB; both variants built), times and disk; the
+zipped app unzipped into that HOME's Downloads and launched with every build tree unreadable; both the from-source
+build (10/10) and the unzipped app (13/13) stream one dsflash turn against a private octos serve
+(`tools/walk/a33_other_mac_live.py`). The scripted check, repeatable on any Mac: `tools/check-fresh-clone-macos.sh
+<empty dir>`.
+
+Finding (pre-existing, not the host): the module compares the workspace it asked for with the server's canonical
+`workspace_root` byte for byte (`flow.rs`, "the server opened another workspace"), so a workspace named through a
+symlink (`/tmp/x` vs `/private/tmp/x`) loses its history read and permission seat; the turn itself runs.
 
 ## Exit
 
