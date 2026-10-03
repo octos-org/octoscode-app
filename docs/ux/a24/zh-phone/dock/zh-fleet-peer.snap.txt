@@ -1,0 +1,36 @@
+hd_title	Label	[54, 85, 126, 16]	新建会话
+hd_path	Label	[54, 102, 126, 13]	tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace
+hd_tab_chat_on	Label	[190, 92, 26, 16]	聊天
+hd_tab_traj_off	Label	[226, 92, 26, 16]	轨迹
+hd_held_text	Label	[50, 139, 186, 79]	此会话已在 octoscode-native:00000000-0000-4000-8000-0000000000aa 中打开。你可以同步查看；接管后才能发送。
+1	Label	[284, 170, 28, 17]	接管
+hd_defaults_text	Label	[16, 247, 256, 16]	新会话默认设置 · 服务器默认值 · …
+-	Label	[303, 247, 26, 16]	更改
+empty_title	Label	[24, 496, 312, 58]	我们要在 workspace 中构建什么？
+empty_hint	Label	[24, 562, 312, 39]	描述一项更改、排查一个缺陷，或询问代码的工作方式。
+empty_chip	Label	[155, 623, 68, 16]	workspace
+b3_fleet_back_label	Label	[33, 99, 26, 16]	返回
+b3_title	Label	[85, 97, 137, 21]	舰队
+b3_fleet_gather_label	Label	[249, 99, 78, 16]	汇总协作结果
+b3_fleet_announce	Label	[16, 136, 328, 15]	同侪 1 · glm-4.6 正在等待你的批准
+b3_fleet_form_title	Label	[30, 175, 300, 16]	启动一个同侪
+b3_fleet_lane_initial	Label	[42, 208, 10, 18]	Z
+b3_fleet_lane_title	Label	[76, 200, 254, 15]	zhipu/glm-4.6
+b3_fleet_lane_state	Label	[83, 224, 33, 13]	已配置
+b3_fleet_lane_desc	Label	[76, 247, 254, 15]	Long-context lane
+b3_fleet_model_label	Label	[30, 272, 300, 15]	模型
+b3_fleet_model_value	Label	[40, 306, 266, 14]	lane-glm
+b3_fleet_brief_label	Label	[30, 339, 300, 15]	任务简报
+b3_fleet_start_label	Label	[288, 442, 26, 16]	启动
+b3_fleet_group_0	Label	[16, 491, 328, 15]	同侪
+b3_fleet_row_0_avatar_initial	Label	[39, 536, 8, 13]	G
+b3_fleet_row_0_label	Label	[66, 536, 160, 14]	同侪 1 · glm-4.6
+b3_fleet_row_0_status	Label	[243, 536, 80, 13]	⚠ 等待你的批准
+b3_fleet_row_0_title	Label	[30, 564, 300, 16]	修复重连时 steer 队列丢失
+b3_fleet_row_0_meta	Label	[30, 587, 300, 15]	<1m · ↓ 12.4k · workspace
+b3_fleet_row_0_approve_label	Label	[47, 618, 26, 16]	批准
+b3_fleet_row_0_deny_label	Label	[114, 618, 26, 16]	拒绝
+b3_fleet_row_0_stop_label	Label	[181, 618, 26, 16]	停止
+b3_fleet_row_0_steer_btn_label	Label	[288, 659, 26, 16]	引导
+b3_fleet_row_0_steer_reason	Label	[30, 692, 81, 14]	仅在工作中可用
+b3_fleet_advanced_label	Label	[35, 738, 26, 16]	高级

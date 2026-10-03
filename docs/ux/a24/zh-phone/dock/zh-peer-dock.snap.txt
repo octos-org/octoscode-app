@@ -1,0 +1,41 @@
+hd_title	Label	[54, 85, 126, 16]	新建会话
+hd_path	Label	[54, 102, 126, 13]	tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace
+hd_tab_chat_on	Label	[190, 92, 26, 16]	聊天
+hd_tab_traj_off	Label	[226, 92, 26, 16]	轨迹
+hd_held_text	Label	[50, 139, 186, 79]	此会话已在 octoscode-native:00000000-0000-4000-8000-0000000000aa 中打开。你可以同步查看；接管后才能发送。
+1	Label	[284, 170, 28, 17]	接管
+hd_defaults_text	Label	[16, 247, 256, 16]	新会话默认设置 · 服务器默认值 · …
+-	Label	[303, 247, 26, 16]	更改
+empty_title	Label	[24, 412, 312, 58]	我们要在 workspace 中构建什么？
+empty_hint	Label	[24, 477, 312, 39]	描述一项更改、排查一个缺陷，或询问代码的工作方式。
+empty_chip	Label	[155, 538, 68, 16]	workspace
+b3_strip_state	Label	[22, 671, 318, 15]	另一个应用正在使用此会话
+b3_strip_model	Label	[22, 702, 149, 15]	deepseek-v4-flash
+b3_strip_perm	Label	[190, 702, 149, 15]	工作区写入
+i0_composer_2_0	Label	[66, 788, 26, 16]	写入
+i0_composer_4	Label	[131, 788, 119, 16]	deepseek-v4-flash
+-	Label	[18, 93, 252, 21]	OctosCode
+1	Label	[44, 135, 56, 17]	新建会话
+sg_text_on	Label	[52, 232, 39, 16]	工作区
+sg_text_off	Label	[136, 232, 52, 16]	统一列表
+sb_sort_label	Label	[254, 232, 26, 16]	最近
+sb_g_label	Label	[38, 273, 222, 18]	workspace
+sb_r_title	Label	[38, 308, 226, 17]	新建会话
+sb_r_time	Label	[270, 309, 24, 15]	刚刚
+pd_title	Label	[16, 515, 222, 13]	同侪
+pd_hide_label	Label	[246, 514, 48, 15]	隐藏同侪
+pd_row_0_label	Label	[38, 538, 237, 17]	同侪 1 · glm-4.6
+pd_row_0_elapsed	Label	[281, 539, 13, 15]	5s
+pd_row_0_status	Label	[38, 558, 72, 15]	等待你的批准
+pd_row_0_meta	Label	[110, 558, 54, 15]	 · ↓ 12.4k
+pd_row_0_asks	Label	[36, 586, 256, 16]	请求运行 shell
+pd_row_0_target	Label	[43, 609, 242, 14]	cargo build -p octos-core
+pd_row_0_approve_label	Label	[47, 641, 72, 15]	仅此一次批准
+pd_row_0_deny_label	Label	[147, 641, 24, 15]	拒绝
+pd_row_0_stop_label	Label	[198, 641, 24, 15]	停止
+pd_row_0_session_label	Label	[36, 673, 91, 16]	本次会话内批准
+pd_row_0_keys	Label	[235, 674, 51, 14]	⌥Y / ⌥N
+1	Label	[43, 719, 70, 17]	添加工作区
+fleet_nav_label	Label	[43, 753, 28, 17]	舰队
+sb_theme_label	Label	[43, 787, 56, 17]	跟随系统
+sb_settings_label	Label	[43, 821, 28, 17]	设置

@@ -4,125 +4,324 @@
   "surface": "Settings > Preferences",
   "png": "docs/ux/a24/zh-desktop/zh-settings-preferences.png",
   "checks": "cjk=19 outside=0 overflow=0 truncated=0 overlaps=0 controls=17 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "settings_drawer",
+   "set_body"
+  ]
  },
  {
   "name": "zh-settings-general",
   "surface": "Settings > General",
   "png": "docs/ux/a24/zh-desktop/zh-settings-general.png",
   "checks": "cjk=21 outside=0 overflow=0 truncated=0 overlaps=0 controls=10 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "settings_drawer",
+   "set_body"
+  ]
  },
  {
   "name": "zh-settings-permissions",
   "surface": "Settings > Permissions",
   "png": "docs/ux/a24/zh-desktop/zh-settings-permissions.png",
   "checks": "cjk=17 outside=0 overflow=0 truncated=0 overlaps=0 controls=12 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "settings_drawer",
+   "set_body"
+  ]
  },
  {
   "name": "zh-settings-model",
   "surface": "Settings > Model",
   "png": "docs/ux/a24/zh-desktop/zh-settings-model.png",
   "checks": "cjk=22 outside=0 overflow=0 truncated=0 overlaps=0 controls=14 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "settings_drawer",
+   "set_body"
+  ]
  },
  {
   "name": "zh-settings-sandbox",
   "surface": "Settings > Sandbox",
   "png": "docs/ux/a24/zh-desktop/zh-settings-sandbox.png",
   "checks": "cjk=16 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "settings_drawer",
+   "set_body"
+  ]
  },
  {
   "name": "zh-settings-connection",
   "surface": "Settings > Connection",
   "png": "docs/ux/a24/zh-desktop/zh-settings-connection.png",
   "checks": "cjk=18 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "settings_drawer",
+   "set_body"
+  ]
  },
  {
   "name": "zh-settings-about",
   "surface": "Settings > About",
   "png": "docs/ux/a24/zh-desktop/zh-settings-about.png",
   "checks": "cjk=12 outside=0 overflow=0 truncated=0 overlaps=0 controls=8 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "settings_drawer",
+   "set_body"
+  ]
  },
  {
   "name": "zh-shell",
   "surface": "shell (sidebar, header, composer, strip)",
   "png": "docs/ux/a24/zh-desktop/zh-shell.png",
   "checks": "cjk=26 outside=0 overflow=0 truncated=0 overlaps=0 controls=27 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "threads_column",
+   "conversation_column"
+  ]
  },
  {
   "name": "zh-permission-menu",
   "surface": "composer permission menu",
   "png": "docs/ux/a24/zh-desktop/zh-permission-menu.png",
   "checks": "cjk=2 outside=0 overflow=0 truncated=0 overlaps=0 controls=1 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "b3_dialog"
+  ]
  },
  {
   "name": "zh-slash-menu",
   "surface": "slash menu",
   "png": "docs/ux/a24/zh-desktop/zh-slash-menu.png",
   "checks": "cjk=9 outside=0 overflow=0 truncated=0 overlaps=0 controls=6 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "palette_dock",
+   "palette_list",
+   "palette"
+  ]
  },
  {
   "name": "zh-connect",
   "surface": "Connect card (board 1)",
   "png": "docs/ux/a24/zh-desktop/zh-connect.png",
   "checks": "cjk=7 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "connect_card"
+  ]
  },
  {
   "name": "zh-pairing",
   "surface": "Pair with Octos (board 1 p4-01)",
   "png": "docs/ux/a24/zh-desktop/zh-pairing.png",
   "checks": "cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "b1_card"
+  ]
  },
  {
   "name": "zh-review",
   "surface": "Code review dialog",
   "png": "docs/ux/a24/zh-desktop/surfaces/zh-review.png",
   "checks": "cjk=6 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "dialog_frame"
+  ],
+  "english": [],
+  "data": []
  },
  {
   "name": "zh-thinking",
   "surface": "Thinking effort",
   "png": "docs/ux/a24/zh-desktop/surfaces/zh-thinking.png",
   "checks": "cjk=11 outside=0 overflow=0 truncated=0 overlaps=0 controls=7 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "b3_dialog"
+  ],
+  "english": [],
+  "data": []
  },
  {
   "name": "zh-inspector",
   "surface": "Inspector (/threads)",
   "png": "docs/ux/a24/zh-desktop/surfaces/zh-inspector.png",
   "checks": "cjk=12 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "b3_dialog"
+  ],
+  "english": [],
+  "data": []
  },
  {
   "name": "zh-fleet",
   "surface": "Fleet",
   "png": "docs/ux/a24/zh-desktop/surfaces/zh-fleet.png",
-  "checks": "cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0",
-  "ok": true
+  "checks": "cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0",
+  "ok": true,
+  "frames": [
+   "b3_fleet_panel"
+  ],
+  "english": [],
+  "data": []
  },
  {
   "name": "zh-session-settings",
   "surface": "Session settings",
   "png": "docs/ux/a24/zh-desktop/surfaces/zh-session-settings.png",
   "checks": "cjk=10 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "b3_dialog"
+  ],
+  "english": [],
+  "data": []
  },
  {
   "name": "zh-trajectory",
   "surface": "Trajectory",
   "png": "docs/ux/a24/zh-desktop/surfaces/zh-trajectory.png",
   "checks": "cjk=11 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
-  "ok": true
+  "ok": true,
+  "frames": [
+   "cv_tr_root"
+  ],
+  "english": [],
+  "data": []
+ },
+ {
+  "name": "zh-models",
+  "surface": "Models dialog",
+  "png": "docs/ux/a24/zh-desktop/surfaces/zh-models.png",
+  "checks": "cjk=7 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
+  "ok": true,
+  "frames": [
+   "dialog_frame"
+  ],
+  "english": [],
+  "data": []
+ },
+ {
+  "name": "zh-providers",
+  "surface": "Model providers",
+  "png": "docs/ux/a24/zh-desktop/surfaces/zh-providers.png",
+  "checks": "cjk=14 outside=0 overflow=0 truncated=0 overlaps=0 controls=9 under28=0",
+  "ok": true,
+  "frames": [
+   "b3_dialog"
+  ],
+  "english": [],
+  "data": []
+ },
+ {
+  "name": "zh-provider-editor",
+  "surface": "Provider editor (board 1)",
+  "png": "docs/ux/a24/zh-desktop/surfaces/zh-provider-editor.png",
+  "checks": "cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=10 under28=0",
+  "ok": true,
+  "frames": [
+   "b1_card"
+  ],
+  "english": [],
+  "data": []
+ },
+ {
+  "name": "zh-skills-jobs",
+  "surface": "Skills > Background jobs",
+  "png": "docs/ux/a24/zh-desktop/skills/zh-skills-jobs.png",
+  "checks": "cjk=19 outside=0 overflow=0 truncated=0 overlaps=0 controls=1 under28=0",
+  "ok": true,
+  "frames": [
+   "dialog_frame"
+  ],
+  "english": [],
+  "data": []
+ },
+ {
+  "name": "zh-approval-diff",
+  "surface": "Diff approval card",
+  "png": "docs/ux/a24/zh-desktop/diff/zh-approval-diff.png",
+  "checks": "cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
+  "ok": true,
+  "frames": [
+   "cv_ap_card"
+  ],
+  "english": [],
+  "data": []
+ },
+ {
+  "name": "zh-diff-review",
+  "surface": "Diff review",
+  "png": "docs/ux/a24/zh-desktop/diff/zh-diff-review.png",
+  "checks": "cjk=2 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0",
+  "ok": true,
+  "frames": [
+   "b3_dialog"
+  ],
+  "english": [],
+  "data": [
+   "b3_title"
+  ]
+ },
+ {
+  "name": "zh-btw-answering",
+  "surface": "/btw aside (answering)",
+  "png": "docs/ux/a24/zh-desktop/btw/zh-btw-answering.png",
+  "checks": "cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0",
+  "ok": true,
+  "frames": [
+   "btw_aside"
+  ],
+  "english": [],
+  "data": []
+ },
+ {
+  "name": "zh-btw-answered",
+  "surface": "/btw aside (answered)",
+  "png": "docs/ux/a24/zh-desktop/btw/zh-btw-answered.png",
+  "checks": "cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0",
+  "ok": true,
+  "frames": [
+   "btw_aside"
+  ],
+  "english": [],
+  "data": []
+ },
+ {
+  "name": "zh-fleet-peer",
+  "surface": "Fleet (one peer)",
+  "png": "docs/ux/a24/zh-desktop/dock/zh-fleet-peer.png",
+  "checks": "cjk=17 outside=0 overflow=0 truncated=0 overlaps=0 controls=6 under28=0",
+  "ok": true,
+  "frames": [
+   "b3_fleet_panel"
+  ],
+  "english": [],
+  "data": []
+ },
+ {
+  "name": "zh-peer-dock",
+  "surface": "Peer dock (sidebar)",
+  "png": "docs/ux/a24/zh-desktop/dock/zh-peer-dock.png",
+  "checks": "cjk=8 outside=0 overflow=0 truncated=0 overlaps=0 controls=7 under28=0",
+  "ok": true,
+  "frames": [
+   "peer_dock_row",
+   "pd_dock"
+  ],
+  "english": [],
+  "data": []
  }
 ]

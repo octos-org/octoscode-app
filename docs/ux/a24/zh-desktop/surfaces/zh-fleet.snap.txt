@@ -13,14 +13,14 @@ sg_text_on	Label	[106, 224, 39, 16]	工作区
 sg_text_off	Label	[190, 224, 52, 16]	统一列表
 sb_sort_label	Label	[276, 224, 26, 16]	最近
 sb_g_label	Label	[92, 265, 190, 18]	workspace
-sb_r_title	Label	[92, 300, 215, 17]	Why does main.rs print 5?
-sb_r_time	Label	[313, 301, 3, 15]	 
+sb_r_title	Label	[92, 300, 194, 17]	Why does main.rs print 5?
+sb_r_time	Label	[292, 301, 24, 15]	刚刚
 1	Label	[97, 543, 70, 17]	添加工作区
 fleet_nav_label	Label	[97, 577, 28, 17]	舰队
 sb_theme_label	Label	[97, 611, 56, 17]	跟随系统
 sb_settings_label	Label	[97, 645, 28, 17]	设置
-b3_fleet_back_label	Label	[368, 101, 31, 16]	Back
-b3_title	Label	[425, 99, 480, 21]	舰队
+b3_fleet_back_label	Label	[368, 101, 26, 16]	返回
+b3_title	Label	[420, 99, 485, 21]	舰队
 b3_fleet_gather_label	Label	[932, 101, 78, 16]	汇总协作结果
 b3_fleet_none	Label	[647, 244, 85, 21]	还没有同侪
 b3_fleet_unsupported	Label	[618, 271, 143, 16]	此服务器不支持启动同侪

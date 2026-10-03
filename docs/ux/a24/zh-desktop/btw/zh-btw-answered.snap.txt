@@ -1,0 +1,36 @@
+hd_title	Label	[347, 87, 217, 16]	Fix steer queue drop on reconnect
+hd_path	Label	[347, 104, 217, 13]	/home/user/src/octos
+hd_tab_chat_on	Label	[580, 94, 26, 16]	聊天
+hd_tab_traj_off	Label	[628, 94, 26, 16]	轨迹
+hd_copy_label	Label	[730, 94, 107, 16]	复制为 Markdown
+hd_review_label	Label	[888, 94, 52, 16]	审查更改
+hd_settings_label	Label	[990, 94, 26, 16]	设置
+i0_answeractions_3	Label	[449, 271, 3, 15]	 
+i0_userbubble_0	Label	[750, 163, 253, 18]	Make redeliver survive a reconnect.
+btw_aside_title	Label	[375, 358, 86, 18]	旁问 — /btw
+btw_aside_close_label	Label	[970, 359, 26, 16]	关闭
+btw_aside_scope	Label	[375, 387, 627, 14]	octos · Fix steer queue drop on reconnect
+btw_aside_question	Label	[375, 410, 627, 18]	为什么要先排空队列？
+btw_aside_note	Label	[375, 471, 627, 20]	此旁问不会保存到对话。
+b3_strip_model	Label	[369, 524, 201, 16]	模型未报告
+b3_strip_state	Label	[589, 524, 201, 16]	就绪
+b3_strip_perm	Label	[809, 524, 201, 16]	权限未报告
+b3_strip_caption	Label	[361, 552, 656, 15]	模型、权限、沙箱
+i0_composer_2_0	Label	[419, 629, 52, 16]	请求批准
+i0_composer_4	Label	[860, 629, 52, 16]	选择模型
+-	Label	[72, 95, 220, 21]	OctosCode
+1	Label	[98, 137, 56, 17]	新建会话
+sg_text_on	Label	[106, 224, 39, 16]	工作区
+sg_text_off	Label	[190, 224, 52, 16]	统一列表
+sb_sort_label	Label	[276, 224, 26, 16]	最近
+sb_r_title	Label	[92, 364, 186, 17]	Add session fork
+sb_r_time	Label	[284, 365, 32, 15]	1 天前
+sb_r_title	Label	[92, 332, 167, 17]	Why is hydrate slow?
+sb_r_time	Label	[265, 333, 51, 15]	15 小时前
+sb_g_label	Label	[92, 265, 190, 18]	octos
+sb_r_title	Label	[92, 300, 194, 17]	Fix steer queue drop on reconnect
+sb_r_time	Label	[292, 301, 24, 15]	刚刚
+1	Label	[97, 543, 70, 17]	添加工作区
+fleet_nav_label	Label	[97, 577, 28, 17]	舰队
+sb_theme_label	Label	[97, 611, 56, 17]	跟随系统
+sb_settings_label	Label	[97, 645, 28, 17]	设置

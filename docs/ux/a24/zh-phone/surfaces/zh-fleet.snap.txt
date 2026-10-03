@@ -4,8 +4,8 @@ hd_tab_chat_on	Label	[190, 92, 26, 16]	聊天
 hd_tab_traj_off	Label	[226, 92, 26, 16]	轨迹
 history_title	Label	[24, 432, 312, 24]	需要恢复会话
 history_hint	Label	[24, 464, 312, 61]	无法加载对话历史：session/hydrate returned an invalid result: missing field `session_id`。请从侧栏重新打开以重试。
-b3_fleet_back_label	Label	[33, 99, 31, 16]	Back
-b3_title	Label	[90, 97, 132, 21]	舰队
+b3_fleet_back_label	Label	[33, 99, 26, 16]	返回
+b3_title	Label	[85, 97, 137, 21]	舰队
 b3_fleet_gather_label	Label	[249, 99, 78, 16]	汇总协作结果
 b3_fleet_none	Label	[138, 242, 85, 21]	还没有同侪
 b3_fleet_unsupported	Label	[109, 269, 143, 16]	此服务器不支持启动同侪

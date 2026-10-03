@@ -1,0 +1,15 @@
+PASS btw: connected
+KEY End
+TYPE '/btw 为什么要先排空队列？'
+KEY Return
+PASS btw: 旁问 — /btw · 正在回答… — '旁问 — /btw' '正在回答…'
+TAP the keyboard's hide chevron (337,513)
+PASS /btw aside (answering): no clipped or overflowing Chinese label (zh-btw-answering) — cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0
+SHOT zh-btw-answering
+PASS /btw aside (answering): no English copy left (zh-btw-answering) — []
+PASS btw: the answer arrives
+PASS /btw aside (answered): no clipped or overflowing Chinese label (zh-btw-answered) — cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=2 under28=0
+SHOT zh-btw-answered
+PASS /btw aside (answered): no English copy left (zh-btw-answered) — []
+CLICK btw_aside_close_hit r=[284, 467, 52, 32] at (310,483)
+== 7/7 checks passed
