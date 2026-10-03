@@ -16,7 +16,7 @@
 #              framework sources via OctoSense's own tools/setup.py, our makepad patches on them
 #              (scripts/apply-makepad-patches.sh), the octoscode crates and design/ vendored into apps/
 #              (as outer/scripts/hostbuild.sh does), then
-#              cargo build -p octosense --features app-octoscode,octoscode-module/octosense-module
+#              cargo build -p octosense --features app-octoscode
 #              -> <work>/octosense-host/target/debug/octosense (or target/release with --release)
 # --release    optimized builds of both the standalone app and the optional OctoSense host
 #
@@ -137,9 +137,9 @@ if [ "$OCTOSENSE" = 1 ]; then
   echo "$(git -C "$REPO" rev-parse --short HEAD) $(date +%Y-%m-%dT%H:%M:%S)" > "$HOST/apps/octoscode/BUILT_FROM"
   started=$(date +%s)
   if [ "$PROFILE" = release ]; then
-    (cd "$HOST" && cargo build --release -p octosense --features app-octoscode,octoscode-module/octosense-module)
+    (cd "$HOST" && cargo build --release -p octosense --features app-octoscode)
   else
-    (cd "$HOST" && cargo build -p octosense --features app-octoscode,octoscode-module/octosense-module)
+    (cd "$HOST" && cargo build -p octosense --features app-octoscode)
   fi
   HOST_BIN="$HOST/target/$PROFILE/octosense"
   [ -x "$HOST_BIN" ] || die "the host build finished but $HOST_BIN is missing"

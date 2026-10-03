@@ -1,0 +1,25 @@
+From e697de9555abef44994b8757d24d2e92ee2a253e Mon Sep 17 00:00:00 2001
+From: ymote <151983+ymote@users.noreply.github.com>
+Date: Sat, 3 Oct 2026 14:31:59 -0700
+Subject: [PATCH] feat(shell): app-octoscode turns on the module adapter
+
+The standalone OctosCode build keeps the AppModule adapter (OCTOSCODE_MODULE) behind the module's own octosense-module feature; the shell's app-octoscode registers that module, so it turns the adapter on. Builds keep using --features app-octoscode.
+---
+ crates/shell/Cargo.toml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/crates/shell/Cargo.toml b/crates/shell/Cargo.toml
+index a43f63e..90221ed 100644
+--- a/crates/shell/Cargo.toml
++++ b/crates/shell/Cargo.toml
+@@ -92,6 +92,6 @@ app-maps = ["dep:octosense-maps"]
+ # The AppCard module (the assistant in a tile), opt-in only (implies `octos-core`).
+ app-appcard = ["dep:octosense-appcard", "octos-core"]
+ # Phase-1 core: the octoscode client module (implies the App Hub host).
+-app-octoscode = ["dep:octoscode-module", "app-hub", "octos-core"]
++app-octoscode = ["dep:octoscode-module", "octoscode-module/octosense-module", "app-hub", "octos-core"]
+ # The aichat module, seated in the pane in-process.
+ app-aichat = ["dep:makepad-aichat"]
+-- 
+2.49.0
+
