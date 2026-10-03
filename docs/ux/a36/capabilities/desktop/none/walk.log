@@ -1,0 +1,26 @@
+== none: nothing advertised -> no row, the note
+    log: [I] apps/octoscode/module/src/design.rs:164:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:448:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:1457:9 - [octoscode] a24 language at launch: en
+    log: [I] apps/octoscode/module/src/screens/bootstrap.rs:169:5 - [octoscode] bootstrap: Harness(http://127.0.0.1:8476, token: true) (remembered server: false, saved token: false, restore target: false, auto-connect: None)
+    log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+    log: [I] apps/octoscode/module/src/attention.rs:1032:9 - [octoscode] attention: start (platform api true, focused false)
+    log: [I] apps/octoscode/module/src/lib.rs:1732:13 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/flow.rs:1414:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3999:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:4057:17 - [octoscode] aside panel: hidden
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3656:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/attention.rs:1092:9 - [octoscode] attention: os Authorization { status: Unavailable, requested: false, error: None }
+    log: [I] apps/octoscode/module/src/lib.rs:3542:33 - [octoscode] composer remounted
+CLICK settings_open_hit r=[935, 87, 92, 30] at (981,102)
+    log: [I] apps/octoscode/module/src/lib.rs:4520:13 - [octoscode] chrome: OpenSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1967:13 - [octoscode] settings action: settings.panel.open
+CLICK set_nav_capabilities r=[161, 329, 164, 40] at (243,349)
+PASS none: Settings > Capabilities CLICK shows the section
+PASS none: no row is offered; the section says why — [('set_cap_skills_row', False), ('set_cap_mcp_row', False), ('set_cap_memory_row', False)] note=True
+SHOT 05-capabilities-none-desktop
+CLICK settings_close r=[905, 154, 32, 32] at (921,170)
+== 2/2 checks passed

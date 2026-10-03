@@ -59,7 +59,7 @@ WALK = {
                          "RUNNING turn are not staged"},
     },
 }
-SECTIONS = ["general", "permissions", "model", "sandbox", "connection", "preferences", "about"]
+SECTIONS = ["general", "permissions", "model", "capabilities", "sandbox", "connection", "preferences", "about"]
 
 
 def open_settings():

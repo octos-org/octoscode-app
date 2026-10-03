@@ -209,7 +209,7 @@ def settings_walk():
     step("Settings opens from the header", "settings_open_hit",
          lambda: is_shown("settings_drawer"), log_needle="settings.panel.open")
     # A9 added Preferences before About.
-    sections = ["general", "permissions", "model", "sandbox", "connection", "preferences", "about"]
+    sections = ["general", "permissions", "model", "capabilities", "sandbox", "connection", "preferences", "about"]
     cell = "rl_hit" if MODE == "phone" else "nv_hit"
     for i, sec in enumerate(sections):
         step(f"Settings nav -> {sec}", cell, lambda sec=sec: is_shown(f"sec_{sec}"),
@@ -258,7 +258,7 @@ def settings_walk():
          lambda: inside("sg_pill", "th_off"), log_needle="settings.thinking.off")
     step("Thinking On selects", "th_on",
          lambda: inside("sg_pill", "th_on"), log_needle="settings.thinking.on")
-    click(cell, 3)
+    click(cell, sections.index("sandbox"))  # A36: Capabilities sits before Sandbox
     before = inside("tg_on", "tg_sb_network")
     step("Sandbox: Network access toggles", "tg_sb_network",
          lambda: inside("tg_on", "tg_sb_network") != before, log_needle="sandbox_network.toggle")

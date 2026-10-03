@@ -1,0 +1,316 @@
+== main: Settings > Capabilities > Memory
+    log: [I] apps/octoscode/module/src/design.rs:164:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:448:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:1457:9 - [octoscode] a24 language at launch: en
+    log: [I] apps/octoscode/module/src/screens/bootstrap.rs:169:5 - [octoscode] bootstrap: Harness(http://127.0.0.1:8476, token: true) (remembered server: false, saved token: false, restore target: false, auto-connect: None)
+    log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+    log: [I] apps/octoscode/module/src/attention.rs:1032:9 - [octoscode] attention: start (platform api true, focused false)
+    log: [I] apps/octoscode/module/src/lib.rs:1732:13 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/flow.rs:1414:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3999:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:4057:17 - [octoscode] aside panel: hidden
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3656:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/attention.rs:1092:9 - [octoscode] attention: os Authorization { status: Unavailable, requested: false, error: None }
+    log: [I] apps/octoscode/module/src/lib.rs:3542:33 - [octoscode] composer remounted
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+CLICK set_rail_capabilities r=[8, 284, 40, 40] at (28,304)
+CLICK set_cap_memory r=[224, 428, 112, 32] at (280,444)
+    log: [I] apps/octoscode/module/src/lib.rs:4520:13 - [octoscode] chrome: OpenSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1967:13 - [octoscode] settings action: settings.panel.open
+    log: [I] apps/octoscode/module/src/lib.rs:4520:13 - [octoscode] chrome: Action("settings.section.capabilities", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1967:13 - [octoscode] settings action: settings.section.capabilities
+    log: [I] apps/octoscode/module/src/lib.rs:4520:13 - [octoscode] chrome: Action("b3.open.memory", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.open.memory #0 -> Spawn(MemoryOverview(1))
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 MemoryOverview(1): memory overview for dsflash: 3 entities
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 4 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 9 tap(s), 1 input(s)
+PASS open: Settings > Capabilities > Memory 'Open' CLICK -> the Memory dialog
+PASS wire: memory/overview names the Session's profile — ['[replay-serve] -> memory/overview (memory) {"profile_id":"dsflash"}']
+PASS overview: long-term memory and today (frame 2/4)
+PASS overview: the scope line names the Session's profile (D2 A), plain text (D1) — 'Server Profile: dsflash'
+PASS overview: Add note is offered (the profile is confirmed, ingest advertised)
+PASS overview: numeric checks (labels inside, no overlap, controls >= 28) — frame=360x776 centre_dx=0.0 margins L=16 R=26 labels=15 outside=0 overlaps=0 controls=7 under28=0
+SHOT 01-overview-phone
+PASS overview: the entities (name-sorted by the server) and the staging line below
+PASS overview scrolled: numeric checks (labels inside, no overlap, controls >= 28) — frame=360x776 centre_dx=0.0 margins L=16 R=26 labels=15 outside=0 overlaps=0 controls=7 under28=0
+SHOT 01b-overview-scrolled-phone
+== Show all -> long-term memory (frame 8)
+CLICK b3_mem_lt_more r=[30, 438, 58, 28] at (59,452)
+PASS long-term: Show all CLICK opens MEMORY.md in full
+PASS long-term: numeric checks (labels inside, no overlap, controls >= 28) — frame=360x776 centre_dx=0.0 margins L=16 R=32 labels=3 outside=0 overlaps=0 controls=2 under28=0
+SHOT 02-long-term-phone
+CLICK b3_mem_back r=[16, 88, 76, 32] at (54,104)
+PASS long-term: ‹ Memory returns to the overview
+== an entity row -> its page (frame 7)
+CLICK b3_mem_entity_2 r=[16, 718, 318, 53] at (175,744)
+PASS entity: the steer-queue row CLICK -> memory/entity {name} -> the page
+PASS wire: memory/entity {name: steer-queue, profile_id}
+PASS entity: numeric checks (labels inside, no overlap, controls >= 28) — frame=360x776 centre_dx=0.0 margins L=16 R=32 labels=2 outside=0 overlaps=0 controls=2 under28=0
+SHOT 03-entity-phone
+CLICK b3_mem_back r=[16, 88, 76, 32] at (54,104)
+== search (frame 5)
+TYPE 'steer queue'
+    log: [I] apps/octoscode/module/src/lib.rs:5862:25 - [octoscode] board3 tap: b3.mem.lt
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.mem.lt #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 3 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5862:25 - [octoscode] board3 tap: b3.mem.back
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.mem.back #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 9 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5862:25 - [octoscode] board3 tap: b3.mem.entity#2
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.mem.entity #2 -> Spawn(MemoryEntity(1, "steer-queue"))
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 MemoryEntity(1, "steer-queue"): memory entity steer-queue opened
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 3 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 3 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5862:25 - [octoscode] board3 tap: b3.mem.back
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.mem.back #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 9 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+KEY Return
+PASS search: Enter -> memory/search -> 3 results with kind chips and the untrusted chip
+PASS wire: memory/search {query, limit: 20, profile_id}, no kinds for All
+TAP the keyboard's hide chevron (337,513)
+PASS results: numeric checks (labels inside, no overlap, controls >= 28) — frame=360x776 centre_dx=0.0 margins L=16 R=26 labels=20 outside=0 overlaps=0 controls=10 under28=0
+SHOT 04-results-phone
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key ReturnKey -> ComposerSubmit
+    log: [I] apps/octoscode/module/src/flow.rs:2889:13 - [octoscode] submit ignored: empty draft
+    log: [I] apps/octoscode/module/src/lib.rs:5939:25 - [octoscode] board3 return in mem.query -> Spawn(MemorySearch(1))
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 MemorySearch(1): memory search "steer queue": 3 hits
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 8 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 11 tap(s), 1 input(s)
+CLICK b3_mem_kind_3 r=[255, 202, 77, 28] at (294,216)
+PASS filter: Documents CLICK -> kinds [document] -> 1 result
+SHOT 05-results-documents-phone
+CLICK b3_mem_kind_0 r=[19, 202, 77, 28] at (58,216)
+== a hit -> its record (frame 6)
+CLICK b3_mem_hit_2 r=[16, 508, 318, 131] at (175,574)
+PASS record: the document hit CLICK -> memory/load -> the record with the untrusted callout
+PASS record: opened N times (the load counted a visit) — 30 Sep 2026 · opened 3 times
+PASS wire: memory/load {id, profile_id}
+PASS record: numeric checks (labels inside, no overlap, controls >= 28) — frame=360x776 centre_dx=0.0 margins L=16 R=26 labels=9 outside=0 overlaps=0 controls=2 under28=0
+SHOT 06-record-phone
+CLICK b3_mem_back r=[16, 88, 72, 32] at (52,104)
+PASS record: ‹ Results returns to the results
+CLICK b3_mem_clear r=[302, 155, 28, 28] at (316,169)
+PASS clear: × returns to the overview
+== Add note (frame 9)
+CLICK b3_mem_add r=[178, 89, 88, 30] at (222,104)
+PASS add: Add note CLICK -> the form
+PASS add: the submit is unarmed while the note is empty
+TYPE 'Dentist appointment'
+TYPE 'Tuesday 14 October at 9:30 with Dr. Lin, Elm Street clinic.'
+TAP the keyboard's hide chevron (337,513)
+PASS add: typing the note arms Add to memory
+PASS add form: numeric checks (labels inside, no overlap, controls >= 28) — frame=360x776 centre_dx=0.0 margins L=16 R=26 labels=7 outside=0 overlaps=0 controls=4 under28=0
+SHOT 07-add-note-phone
+    log: [I] apps/octoscode/module/src/lib.rs:5862:25 - [octoscode] board3 tap: b3.mem.kind.document
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.mem.kind.document #0 -> Spawn(MemorySearch(2))
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 MemorySearch(2): memory search "steer queue": 1 hits
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 8 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6678:13 - [octoscode] nav tap: b3.mem.kind.document
+    log: [I] apps/octoscode/module/src/lib.rs:5607:21 - [octoscode] nav route: b3.mem.kind.document
+    log: [I] apps/octoscode/module/src/lib.rs:3170:9 - [octoscode] screen action: b3.mem.kind.document
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 9 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5862:25 - [octoscode] board3 tap: b3.mem.kind.all
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.mem.kind.all #0 -> Spawn(MemorySearch(3))
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 MemorySearch(3): memory search "steer queue": 3 hits
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 8 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6678:13 - [octoscode] nav tap: b3.mem.kind.all
+    log: [I] apps/octoscode/module/src/lib.rs:5607:21 - [octoscode] nav route: b3.mem.kind.all
+    log: [I] apps/octoscode/module/src/lib.rs:3170:9 - [octoscode] screen action: b3.mem.kind.all
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 11 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5862:25 - [octoscode] board3 tap: b3.mem.open#2
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.mem.open #2 -> Spawn(MemoryLoad(1, "doc:octoscode:7f3a9c2e5b1d4a60"))
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 MemoryLoad(1, "doc:octoscode:7f3a9c2e5b1d4a60"): memory record doc:octoscode:7f3a9c2e5b1d4a60 opened
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 3 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 3 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5862:25 - [octoscode] board3 tap: b3.mem.back
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.mem.back #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 11 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5862:25 - [octoscode] board3 tap: b3.mem.clear
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.mem.clear #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 9 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5862:25 - [octoscode] board3 tap: b3.mem.add
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.mem.add #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 5 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+CLICK b3_mem_add_submit r=[180, 524, 154, 40] at (257,544)
+PASS add: Add to memory CLICK -> memory/ingest -> 'Added to memory.' on the overview
+PASS wire: ONE document record doc:octoscode:<16 hex>, source octoscode, the title and the note — [replay-serve] -> memory/ingest (memory) {"profile_id":"dsflash","records":[{"abstract":"Tuesday 14 October at 9:30 with Dr. Lin, Elm Street clinic.","id":"doc:octoscode:587f5ba3038e4d16","kind":"docu
+SHOT 08-added-phone
+TYPE 'dentist'
+    log: [I] apps/octoscode/module/src/lib.rs:5862:25 - [octoscode] board3 tap: b3.mem.add.submit
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.mem.add.submit #0 -> Spawn(MemoryIngest(1))
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 MemoryIngest(1): memory note added: IngestReport { inserted: 1, updated: 0, unchanged: 0 }
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 5 tap(s), 2 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6678:13 - [octoscode] nav tap: b3.mem.add.submit
+    log: [I] apps/octoscode/module/src/lib.rs:5607:21 - [octoscode] nav route: b3.mem.add.submit
+    log: [I] apps/octoscode/module/src/lib.rs:3170:9 - [octoscode] screen action: b3.mem.add.submit
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 9 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+    log: [I] apps/octoscode/module/src/lib.rs:6462:17 - [octoscode] key Backspace -> Ignore
+KEY Return
+PASS add: the note is found by a search, marked untrusted
+TAP the keyboard's hide chevron (337,513)
+SHOT 09-note-found-phone
+CLICK b3_close r=[306, 90, 28, 28] at (320,104)
+CLICK set_back r=[8, 84, 40, 40] at (28,104)
+== 31/31 checks passed

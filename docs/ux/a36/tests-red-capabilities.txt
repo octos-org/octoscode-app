@@ -1,0 +1,17 @@
+# A36 failing-first: tests/a36_capabilities.rs on base 55807fb7 + compile-only stubs (Section::Capabilities not in ALL, CAPABILITY_ROWS empty, b3.open.mcp unrouted, no MCP note)
+# cargo test -p octoscode-module --test a36_capabilities
+test settings_has_a_capabilities_section_after_model ... FAILED
+test capability_rows_show_only_what_the_server_advertises ... FAILED
+test the_mcp_row_opens_the_inventory_on_its_mcp_tab ... FAILED
+test the_mcp_view_says_servers_are_configured_on_the_server_and_offers_no_management ... FAILED
+test the_skills_row_opens_the_existing_skills_dialog ... FAILED
+thread 'settings_has_a_capabilities_section_after_model' (263021319) panicked at crates/octoscode-module/tests/a36_capabilities.rs:46:5:
+  left: Some("sandbox")
+ right: Some("capabilities")
+thread 'capability_rows_show_only_what_the_server_advertises' (263021318) panicked at crates/octoscode-module/tests/a36_capabilities.rs:59:5:
+  left: []
+ right: ["skills"]
+thread 'the_mcp_row_opens_the_inventory_on_its_mcp_tab' (263021320) panicked at crates/octoscode-module/tests/a36_capabilities.rs:88:72:
+thread 'the_mcp_view_says_servers_are_configured_on_the_server_and_offers_no_management' (263021321) panicked at crates/octoscode-module/tests/a36_capabilities.rs:115:44:
+thread 'the_skills_row_opens_the_existing_skills_dialog' (263021322) panicked at crates/octoscode-module/tests/a36_capabilities.rs:77:75:
+test result: FAILED. 0 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

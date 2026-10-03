@@ -1,0 +1,41 @@
+{
+  "card": "phase4n5-10b",
+  "board": "design/stage-a/phase4-new5",
+  "frame": 10,
+  "frame_title": "Memory · states",
+  "atlas_box": [
+    2534,
+    1277,
+    2900,
+    2080
+  ],
+  "state": "(b) loading",
+  "reached_by": "open while the overview is in flight",
+  "native_ids": [
+    "b3_mem_loading"
+  ],
+  "methods": [
+    "memory/overview"
+  ],
+  "kit": "crates/octoscode-module/src/screens/board3/memory.rs (board-3 dialog kit, ui.rs)",
+  "evidence": [
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/loading/14-loading-phone.png",
+      "snap": "docs/ux/a36/memory/phone/loading/14-loading-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-10b-review-phone-loading.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "loading",
+      "capture": "14-loading-phone"
+    },
+    {
+      "window": "desktop",
+      "native": "docs/ux/a36/memory/desktop/loading/14-loading-desktop.png",
+      "snap": "docs/ux/a36/memory/desktop/loading/14-loading-desktop.snap.json",
+      "review": "evidence/gate-b/phase4n5-10b-review-desktop-loading.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "loading",
+      "capture": "14-loading-desktop"
+    }
+  ]
+}

@@ -431,7 +431,7 @@ def main():
     opened = click("settings_open_hit", scroll=False)
     check("Settings opens from the header", opened and wait(lambda: shown("settings_drawer")))
     cell = "rl_hit" if MODE == "phone" else "nv_hit"
-    r = rect(cell, nth=3)
+    r = rect(cell, nth=4)  # Sandbox (A36: Capabilities sits after Model)
     if r:
         click_rect(r)
     check("Settings > Sandbox shows the three switches", wait(lambda: shown("tg_sb_write") and shown("tg_sb_read")))

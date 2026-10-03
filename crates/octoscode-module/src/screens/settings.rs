@@ -106,6 +106,7 @@ pub const ACTIONS: &[&str] = &[
     "settings.section.general",
     "settings.section.permissions",
     "settings.section.model",
+    "settings.section.capabilities",
     "settings.section.sandbox",
     "settings.section.connection",
     "settings.section.preferences",
@@ -117,6 +118,49 @@ pub const ACTIONS: &[&str] = &[
 /// The one-owner rule.
 pub fn owns(action: &str) -> bool {
     ACTIONS.contains(&action)
+}
+
+/// A36 — one Settings > Capabilities row: the surface a CLICK opens.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct CapabilityRow {
+    /// The row key (`set_cap_<id>_row`).
+    pub id: &'static str,
+    /// The row's hit (its "Open" pill).
+    pub hit: &'static str,
+    /// The action the click performs (owned by the surface's own table).
+    pub action: &'static str,
+    /// The row shows when the server advertises any of these.
+    pub methods: &'static [&'static str],
+}
+
+/// A36 — the Capabilities rows, in order. Each opens a surface that already
+/// exists and is otherwise reached only by a slash command: the Skills dialog
+/// (`/skills`, `screens::dialog` `Dialog::Skills`, which loads
+/// `profile/skills/list` on open) and the runtime inventory on its MCP tab
+/// (`/mcp`, `board3::host` `b3.open.mcp`, which reads `mcp/status/list`).
+pub const CAPABILITY_ROWS: &[CapabilityRow] = &[
+    CapabilityRow {
+        id: "skills",
+        hit: "set_cap_skills",
+        action: "dialog.open.skills",
+        methods: &["profile/skills/list"],
+    },
+    CapabilityRow { id: "mcp", hit: "set_cap_mcp", action: "b3.open.mcp", methods: &["mcp/status/list"] },
+    // A36 (board 5, D2 A) — the Memory dialog (`board3::memory`), which reads
+    // `memory/overview` for the Session's profile on open.
+    CapabilityRow { id: "memory", hit: "set_cap_memory", action: "b3.open.memory", methods: &["memory/overview"] },
+];
+
+/// A36 — the ids of the rows this server can serve: a row whose surface reads
+/// a method the server does not advertise is not offered (the palette's own
+/// gate for `/skills` and `/mcp`, `screens::palette` `methods_any`).
+pub fn capability_rows(store: &Store) -> Vec<&'static str> {
+    let supported = store.domains.config.supported_methods();
+    CAPABILITY_ROWS
+        .iter()
+        .filter(|r| r.methods.iter().any(|m| supported.iter().any(|s| s == m)))
+        .map(|r| r.id)
+        .collect()
 }
 
 /// The web renders the Stop row ONLY when the session's capabilities advertise

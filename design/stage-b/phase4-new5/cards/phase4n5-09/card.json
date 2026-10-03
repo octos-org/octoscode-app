@@ -1,0 +1,55 @@
+{
+  "card": "phase4n5-09",
+  "board": "design/stage-a/phase4-new5",
+  "frame": 9,
+  "frame_title": "Add a note",
+  "atlas_box": [
+    2113,
+    1277,
+    2495,
+    2076
+  ],
+  "state": "Add a note",
+  "reached_by": "Add note",
+  "native_ids": [
+    "b3_mem_add_title",
+    "b3_mem_add_note",
+    "b3_mem_add_trust",
+    "b3_mem_add_cancel",
+    "b3_mem_add_submit",
+    "b3_mem_receipt"
+  ],
+  "methods": [
+    "memory/ingest"
+  ],
+  "kit": "crates/octoscode-module/src/screens/board3/memory.rs (board-3 dialog kit, ui.rs)",
+  "evidence": [
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/main/07-add-note-phone.png",
+      "snap": "docs/ux/a36/memory/phone/main/07-add-note-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-09-review-phone-add-note.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "main",
+      "capture": "07-add-note-phone"
+    },
+    {
+      "window": "desktop",
+      "native": "docs/ux/a36/memory/desktop/main/07-add-note-desktop.png",
+      "snap": "docs/ux/a36/memory/desktop/main/07-add-note-desktop.snap.json",
+      "review": "evidence/gate-b/phase4n5-09-review-desktop-add-note.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "main",
+      "capture": "07-add-note-desktop"
+    },
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/main/08-added-phone.png",
+      "snap": "docs/ux/a36/memory/phone/main/08-added-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-09-review-phone-added.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "main",
+      "capture": "08-added-phone"
+    }
+  ]
+}

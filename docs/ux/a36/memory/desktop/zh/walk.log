@@ -1,0 +1,41 @@
+    log: [I] apps/octoscode/module/src/design.rs:164:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:448:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:1457:9 - [octoscode] a24 language at launch: zh
+    log: [I] apps/octoscode/module/src/screens/bootstrap.rs:169:5 - [octoscode] bootstrap: Harness(http://127.0.0.1:8476, token: true) (remembered server: false, saved token: false, restore target: false, auto-connect: None)
+    log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+    log: [I] apps/octoscode/module/src/attention.rs:1032:9 - [octoscode] attention: start (platform api true, focused false)
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3999:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:4057:17 - [octoscode] aside panel: hidden
+    log: [I] apps/octoscode/module/src/lib.rs:1732:13 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/flow.rs:1414:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
+    log: [I] apps/octoscode/module/src/chrome.rs:2490:13 - [octoscode] a24 shell copy: 92 text(s) set (zh; 97 source(s))
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3656:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/attention.rs:1092:9 - [octoscode] attention: os Authorization { status: Unavailable, requested: false, error: None }
+    log: [I] apps/octoscode/module/src/lib.rs:3542:33 - [octoscode] composer remounted
+CLICK settings_open_hit r=[960, 87, 68, 30] at (994,102)
+CLICK set_nav_capabilities r=[161, 329, 164, 40] at (243,349)
+CLICK set_cap_memory r=[813, 373, 112, 32] at (869,389)
+    log: [I] apps/octoscode/module/src/lib.rs:4520:13 - [octoscode] chrome: OpenSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1967:13 - [octoscode] settings action: settings.panel.open
+    log: [I] apps/octoscode/module/src/lib.rs:4520:13 - [octoscode] chrome: Action("settings.section.capabilities", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1967:13 - [octoscode] settings action: settings.section.capabilities
+    log: [I] apps/octoscode/module/src/lib.rs:4520:13 - [octoscode] chrome: Action("b3.open.memory", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.open.memory #0 -> Spawn(MemoryOverview(1))
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 MemoryOverview(1): memory overview for dsflash: 3 entities
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 4 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 9 tap(s), 1 input(s)
+PASS zh: open
+PASS zh: the overview reads Chinese (frame 12)
+PASS zh: the scope line names the Session's profile (D2 A), plain text (D1) — '服务器配置档案：dsflash'
+PASS zh overview: numeric checks (labels inside, no overlap, controls >= 28) — frame=640x570 centre_dx=0.0 margins L=20 R=30 labels=13 outside=0 overlaps=0 controls=6 under28=0
+SHOT 22-zh-overview-desktop
+CLICK b3_mem_add r=[685, 111, 86, 30] at (728,126)
+PASS zh: the note form reads Chinese
+PASS zh add: numeric checks (labels inside, no overlap, controls >= 28) — frame=640x570 centre_dx=0.0 margins L=20 R=30 labels=7 outside=0 overlaps=0 controls=3 under28=0
+SHOT 23-zh-add-desktop
+CLICK b3_close r=[811, 112, 28, 28] at (825,126)
+CLICK settings_close r=[905, 154, 32, 32] at (921,170)
+== 6/6 checks passed

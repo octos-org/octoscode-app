@@ -935,6 +935,7 @@ script_mod! {
             set_nav_general := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("gear")))}} nv_label +: {text: "General"}}}
             set_nav_permissions := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("shield")))}} nv_label +: {text: "Permissions"}}}
             set_nav_model := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("code")))}} nv_label +: {text: "Model"}}}
+            set_nav_capabilities := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("puzzle")))}} nv_label +: {text: "Capabilities"}}}
             set_nav_sandbox := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("cube")))}} nv_label +: {text: "Sandbox"}}}
             set_nav_connection := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("plug")))}} nv_label +: {text: "Connection"}}}
             set_nav_preferences := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("sliders")))}} nv_label +: {text: "Preferences"}}}
@@ -956,6 +957,7 @@ script_mod! {
             set_rail_general := OcRailCell{rl_off_icon +: {rl_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("gear")))}}} rl_on_icon +: {rl_icon_accent +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("gear_accent")))}}}}
             set_rail_permissions := OcRailCell{rl_off_icon +: {rl_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("shield")))}}} rl_on_icon +: {rl_icon_accent +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("shield_accent")))}}}}
             set_rail_model := OcRailCell{rl_off_icon +: {rl_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("code")))}}} rl_on_icon +: {rl_icon_accent +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("code_accent")))}}}}
+            set_rail_capabilities := OcRailCell{rl_off_icon +: {rl_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("puzzle")))}}} rl_on_icon +: {rl_icon_accent +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("puzzle_accent")))}}}}
             set_rail_sandbox := OcRailCell{rl_off_icon +: {rl_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("cube")))}}} rl_on_icon +: {rl_icon_accent +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("cube_accent")))}}}}
             set_rail_connection := OcRailCell{rl_off_icon +: {rl_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("plug")))}}} rl_on_icon +: {rl_icon_accent +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("plug_accent")))}}}}
             set_rail_preferences := OcRailCell{rl_off_icon +: {rl_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("sliders")))}}} rl_on_icon +: {rl_icon_accent +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("sliders_accent")))}}}}
@@ -1248,6 +1250,84 @@ script_mod! {
                     }
                 }
 
+                // ----- Capabilities (A36): Skills and the MCP status by a CLICK
+                // (they were reachable only by typing `/skills` / `/mcp`).
+                // Each row is Settings > Model's "All models" row (title, an
+                // "Open" pill, help under it) and opens the EXISTING surface
+                // (`settings::CAPABILITY_ROWS`); a row shows only when the
+                // server advertises the method its surface reads.
+                sec_capabilities := View{
+                    width: Fill height: Fit flow: Down visible: false
+                    set_cap_skills_row := View{
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        View{
+                            width: Fill height: 34 flow: Overlay
+                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Skills"}}
+                            View{
+                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                View{
+                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                    OcLabel{text: "Open" draw_text +: {text_style +: {font_size: 9.75}}}
+                                    set_cap_skills := OcHit{draw_bg.border_radius: 9.0}
+                                }
+                            }
+                        }
+                        View{
+                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                            OcRowHelp{text: "Installed skills, the skill registry and background jobs."}
+                        }
+                    }
+                    set_cap_rule_mcp := View{width: Fill height: Fit OcRule{}}
+                    set_cap_mcp_row := View{
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        View{
+                            width: Fill height: 34 flow: Overlay
+                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "MCP servers"}}
+                            View{
+                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                View{
+                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                    OcLabel{text: "Open" draw_text +: {text_style +: {font_size: 9.75}}}
+                                    set_cap_mcp := OcHit{draw_bg.border_radius: 9.0}
+                                }
+                            }
+                        }
+                        View{
+                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                            OcRowHelp{text: "The status this server reports. Servers are configured on the server."}
+                        }
+                    }
+                    // A36b (board 5) — Memory: the Session profile's memory dialog.
+                    set_cap_rule_memory := View{width: Fill height: Fit OcRule{}}
+                    set_cap_memory_row := View{
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        View{
+                            width: Fill height: 34 flow: Overlay
+                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Memory"}}
+                            View{
+                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                View{
+                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                    OcLabel{text: "Open" draw_text +: {text_style +: {font_size: 9.75}}}
+                                    set_cap_memory := OcHit{draw_bg.border_radius: 9.0}
+                                }
+                            }
+                        }
+                        View{
+                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                            OcRowHelp{text: "What Octos remembers for this profile: notes, entities and search."}
+                        }
+                    }
+                    // Nothing advertised: say so instead of an empty section.
+                    set_cap_none := View{
+                        width: Fill height: Fit flow: Down padding: Inset{top: 14 bottom: 14} visible: false
+                        OcRowHelp{text: "This server offers no skills, MCP status or memory."}
+                    }
+                }
+
                 // ----- Sandbox (board 9): the new-chat sandbox defaults.
                 sec_sandbox := View{
                     width: Fill height: Fit flow: Down visible: false
@@ -1531,6 +1611,8 @@ pub enum Section {
     General,
     Permissions,
     Model,
+    /// A36 — Skills, the MCP status (and, after board 5, Memory) by a click.
+    Capabilities,
     Sandbox,
     Connection,
     /// A9: the web's Browser preferences (Vim editing; Save).
@@ -1539,10 +1621,11 @@ pub enum Section {
 }
 
 impl Section {
-    pub const ALL: [Section; 7] = [
+    pub const ALL: [Section; 8] = [
         Section::General,
         Section::Permissions,
         Section::Model,
+        Section::Capabilities,
         Section::Sandbox,
         Section::Connection,
         Section::Preferences,
@@ -1554,6 +1637,7 @@ impl Section {
             Section::General => "General",
             Section::Permissions => "Permissions",
             Section::Model => "Model",
+            Section::Capabilities => "Capabilities",
             Section::Sandbox => "Sandbox",
             Section::Connection => "Connection",
             Section::Preferences => "Preferences",
@@ -1567,6 +1651,7 @@ impl Section {
             Section::General => "general",
             Section::Permissions => "permissions",
             Section::Model => "model",
+            Section::Capabilities => "capabilities",
             Section::Sandbox => "sandbox",
             Section::Connection => "connection",
             Section::Preferences => "preferences",
@@ -1900,6 +1985,13 @@ impl ChromeRuntime {
             // A5: "Manage models…" opens the Models dialog over Settings.
             if c(cx, live_id!(set_models_manage)) {
                 out.push(Intent::Action("dialog.open.models", 0));
+            }
+            // A36: Settings > Capabilities - each row's "Open" opens its
+            // existing surface over Settings (Skills, the MCP status).
+            for row in settings::CAPABILITY_ROWS {
+                if c(cx, LiveId::from_str(row.hit)) {
+                    out.push(Intent::Action(row.action, 0));
+                }
             }
             // A24: Preferences - Language (English | 简体中文).
             if segment_hit(cx, view, live_id!(lang_en), actions) {
@@ -2326,6 +2418,18 @@ impl ChromeRuntime {
         set_segment(cx, view, live_id!(th_on), tr("On"), thinking == settings::Thinking::On);
         set_segment(cx, view, live_id!(th_high), tr("High"), thinking == settings::Thinking::High);
         show(cx, view, ids!(set_models_row), crate::screens::dialog::advertises(store, "profile/llm/list"));
+        // Capabilities (A36): the rows this server can serve.
+        {
+            let rows = settings::capability_rows(store);
+            let on = |id: &str| rows.contains(&id);
+            show(cx, view, ids!(set_cap_skills_row), on("skills"));
+            show(cx, view, ids!(set_cap_mcp_row), on("mcp"));
+            show(cx, view, ids!(set_cap_rule_mcp), on("skills") && on("mcp"));
+            // A36b — Memory, ruled off from whichever row stands above it.
+            show(cx, view, ids!(set_cap_memory_row), on("memory"));
+            show(cx, view, ids!(set_cap_rule_memory), on("memory") && (on("skills") || on("mcp")));
+            show(cx, view, ids!(set_cap_none), rows.is_empty());
+        }
         // Sandbox (new-chat defaults).
         set_toggle(cx, view, live_id!(tg_sb_write), st.sandbox.workspace_write);
         set_toggle(cx, view, live_id!(tg_sb_network), st.sandbox.network);
@@ -2397,6 +2501,7 @@ fn section_action(s: Section) -> &'static str {
         Section::General => "settings.section.general",
         Section::Permissions => "settings.section.permissions",
         Section::Model => "settings.section.model",
+        Section::Capabilities => "settings.section.capabilities",
         Section::Sandbox => "settings.section.sandbox",
         Section::Connection => "settings.section.connection",
         Section::Preferences => "settings.section.preferences",

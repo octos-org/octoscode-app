@@ -1,0 +1,45 @@
+{
+  "card": "phase4n5-05",
+  "board": "design/stage-a/phase4-new5",
+  "frame": 5,
+  "frame_title": "Search results",
+  "atlas_box": [
+    2118,
+    141,
+    2495,
+    1173
+  ],
+  "state": "search results, the kind filter, the untrusted chip",
+  "reached_by": "type 'steer queue' in the search field, Enter",
+  "native_ids": [
+    "b3_mem_query",
+    "b3_mem_kind_0",
+    "b3_mem_count",
+    "b3_mem_hit_0",
+    "b3_mem_hit_1_trust"
+  ],
+  "methods": [
+    "memory/search"
+  ],
+  "kit": "crates/octoscode-module/src/screens/board3/memory.rs (board-3 dialog kit, ui.rs)",
+  "evidence": [
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/main/04-results-phone.png",
+      "snap": "docs/ux/a36/memory/phone/main/04-results-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-05-review-phone-results.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "main",
+      "capture": "04-results-phone"
+    },
+    {
+      "window": "desktop",
+      "native": "docs/ux/a36/memory/desktop/main/04-results-desktop.png",
+      "snap": "docs/ux/a36/memory/desktop/main/04-results-desktop.snap.json",
+      "review": "evidence/gate-b/phase4n5-05-review-desktop-results.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "main",
+      "capture": "04-results-desktop"
+    }
+  ]
+}

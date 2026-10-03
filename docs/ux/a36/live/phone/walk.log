@@ -1,0 +1,75 @@
+PASS live: connected to the private serve
+CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
+    log: [I] apps/octoscode/module/src/design.rs:164:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:448:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:1457:9 - [octoscode] a24 language at launch: en
+    log: [I] apps/octoscode/module/src/screens/bootstrap.rs:169:5 - [octoscode] bootstrap: Harness(http://127.0.0.1:8477, token: true) (remembered server: false, saved token: false, restore target: false, auto-connect: None)
+    log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+    log: [I] apps/octoscode/module/src/attention.rs:1032:9 - [octoscode] attention: start (platform api true, focused false)
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3999:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:4057:17 - [octoscode] aside panel: hidden
+    log: [I] apps/octoscode/module/src/screens/drafts.rs:338:5 - [octoscode] drafts: the principal's scope is bound (0 stored, nothing restored)
+    log: [I] apps/octoscode/module/src/attention.rs:1092:9 - [octoscode] attention: os Authorization { status: Unavailable, requested: false, error: None }
+    log: [I] apps/octoscode/module/src/lib.rs:1732:13 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3656:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/lib.rs:3542:33 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4520:13 - [octoscode] chrome: OpenSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1967:13 - [octoscode] settings action: settings.panel.open
+CLICK set_rail_capabilities r=[8, 284, 40, 40] at (28,304)
+PASS live: Settings > Capabilities shows the three rows (the server advertises each method)
+SHOT 01-capabilities-live-phone
+    log: [I] apps/octoscode/module/src/lib.rs:4520:13 - [octoscode] chrome: Action("settings.section.capabilities", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1967:13 - [octoscode] settings action: settings.section.capabilities
+CLICK set_cap_skills r=[224, 148, 112, 32] at (280,164)
+PASS live: Skills 'Open' -> the Skills dialog reads the profile's (empty) skills
+SHOT 02-skills-live-phone
+CLICK dialog_close r=[300, 173, 28, 28] at (314,187)
+CLICK set_cap_mcp r=[224, 268, 112, 32] at (280,284)
+PASS live: MCP servers 'Open' -> the server's real status: no servers, configured on the server
+SHOT 03-mcp-live-phone
+CLICK b3_close r=[300, 110, 28, 28] at (314,124)
+    log: [I] apps/octoscode/module/src/lib.rs:4520:13 - [octoscode] chrome: Action("dialog.open.skills", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:2581:9 - [octoscode] dialog action: dialog.open.skills
+    log: [I] apps/octoscode/module/src/lib.rs:2581:9 - [octoscode] dialog action: dialog.refresh.profile
+    log: [I] apps/octoscode/module/src/lib.rs:2581:9 - [octoscode] dialog action: dialog.refresh.skill_jobs
+    log: [I] apps/octoscode/module/src/lib.rs:2991:33 - [octoscode] dialog skills mounted: frame 328x748 scale 1.000, 2 tap(s)
+    log: [I] apps/octoscode/module/src/lib.rs:2726:29 - [octoscode] dialog load dialog.refresh.skill_jobs: 0 job(s) listed for dsflash:main
+    log: [I] apps/octoscode/module/src/lib.rs:2726:29 - [octoscode] dialog load dialog.refresh.profile: 3 reads
+    log: [I] apps/octoscode/module/src/lib.rs:2991:33 - [octoscode] dialog skills mounted: frame 328x748 scale 1.000, 2 tap(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5847:25 - [octoscode] dialog tap: dialog.close
+    log: [I] apps/octoscode/module/src/lib.rs:2581:9 - [octoscode] dialog action: dialog.close
+    log: [I] apps/octoscode/module/src/lib.rs:6678:13 - [octoscode] nav tap: dialog.close
+    log: [I] apps/octoscode/module/src/lib.rs:4520:13 - [octoscode] chrome: Action("b3.open.mcp", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.open.mcp #0 -> Spawn(InventoryLoad)
+    log: [I] apps/octoscode/module/src/lib.rs:4433:42 - [octoscode] board3 InventoryLoad: 53 tools, 0 servers
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Inventory): 5 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Inventory): 5 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5862:25 - [octoscode] board3 tap: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.close #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:6678:13 - [octoscode] nav tap: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:5607:21 - [octoscode] nav route: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:3170:9 - [octoscode] screen action: b3.close
+CLICK set_cap_memory r=[224, 428, 112, 32] at (280,444)
+    log: [I] apps/octoscode/module/src/lib.rs:4520:13 - [octoscode] chrome: Action("b3.open.memory", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1810:13 - [octoscode] board3 action b3.open.memory #0 -> Spawn(MemoryOverview(1))
+    log: [I] apps/octoscode/module/src/lib.rs:4434:43 - [octoscode] board3 MemoryOverview(1) failed: memory overview refused: Scope
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 4 tap(s), 1 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4253:17 - [octoscode] board3 mounted Some(Memory): 4 tap(s), 1 input(s)
+PASS live: Memory 'Open' -> the dialog
+PASS live: the honest refusal — a6ea8505 answered for the signed-in account, not dsflash (D2 A)
+PASS live: no raw server error, no admin memory shown as dsflash's, no Add note (D1)
+PASS live: the scope line names the Session's profile in plain text (D1)
+PASS live refused: numeric checks — frame=360x776 centre_dx=0.0 margins L=16 R=26 labels=5 outside=0 overlaps=0 controls=2 under28=0
+SHOT 04-memory-refused-live-phone
+TYPE 'steer queue'
+KEY Return
+PASS live: a search is refused for the same reason, in bounded copy
+TAP the keyboard's hide chevron (337,513)
+PASS live search refused: numeric checks — frame=360x776 centre_dx=0.0 margins L=16 R=26 labels=9 outside=0 overlaps=0 controls=7 under28=0
+SHOT 05-memory-search-refused-live-phone
+CLICK b3_close r=[306, 90, 28, 28] at (320,104)
+CLICK set_back r=[8, 84, 40, 40] at (28,104)
+== 11/11 checks passed

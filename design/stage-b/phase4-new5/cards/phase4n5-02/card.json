@@ -1,0 +1,41 @@
+{
+  "card": "phase4n5-02",
+  "board": "design/stage-a/phase4-new5",
+  "frame": 2,
+  "frame_title": "Memory · desktop",
+  "atlas_box": [
+    26,
+    1148,
+    1227,
+    2093
+  ],
+  "state": "the overview (desktop)",
+  "reached_by": "Settings > Capabilities > Memory 'Open'",
+  "native_ids": [
+    "b3_mem_title",
+    "b3_mem_scope",
+    "b3_mem_add",
+    "b3_mem_refresh",
+    "b3_mem_query",
+    "b3_mem_lt",
+    "b3_mem_lt_more",
+    "b3_mem_today",
+    "b3_mem_entity_0",
+    "b3_mem_staging"
+  ],
+  "methods": [
+    "memory/overview"
+  ],
+  "kit": "crates/octoscode-module/src/screens/board3/memory.rs (board-3 dialog kit, ui.rs)",
+  "evidence": [
+    {
+      "window": "desktop",
+      "native": "docs/ux/a36/memory/desktop/main/01-overview-desktop.png",
+      "snap": "docs/ux/a36/memory/desktop/main/01-overview-desktop.snap.json",
+      "review": "evidence/gate-b/phase4n5-02-review-desktop-overview.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "main",
+      "capture": "01-overview-desktop"
+    }
+  ]
+}

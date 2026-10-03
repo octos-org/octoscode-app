@@ -66,7 +66,7 @@ WALK = {
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a24/zh-{MODE}"
 CELL = "rl_hit" if MODE == "phone" else "nv_hit"
-SECTIONS = ["general", "permissions", "model", "sandbox", "connection", "preferences", "about"]
+SECTIONS = ["general", "permissions", "model", "capabilities", "sandbox", "connection", "preferences", "about"]
 PREFS = pathlib.Path(OUT).resolve() / "display-v1.json"
 
 

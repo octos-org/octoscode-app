@@ -45,8 +45,8 @@ PASS picker without the browse feature: no Browse and no New folder (fail closed
 [picker-no-browse] pass=True card=[0, 74, 360, 776] margins=[0, 0] small=[] overlaps=[] outside=[]
 PASS picker-no-browse: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap — card [0, 74, 360, 776] margins [0, 0] small [] overlaps [] outside []
 -- fixture log tail:
-[board1-serve] listening on 127.0.0.1:8511 (pair=ok, browse=false)
-PAIR-LINK http://app.invalid/?octos=http://127.0.0.1:8511&pair=3QK7ZP2M
+[board1-serve] listening on 127.0.0.1:8479 (pair=ok, browse=false)
+PAIR-LINK http://app.invalid/?octos=http://127.0.0.1:8479&pair=3QK7ZP2M
 [board1-serve] ui-protocol socket open
 [board1-serve] <- session/open
 [board1-serve] <- session/list

@@ -1,0 +1,45 @@
+{
+  "card": "phase4n5-04",
+  "board": "design/stage-a/phase4-new5",
+  "frame": 4,
+  "frame_title": "Memory · phone",
+  "atlas_box": [
+    1708,
+    141,
+    2081,
+    1173
+  ],
+  "state": "the overview (phone sheet)",
+  "reached_by": "Settings > Capabilities > Memory 'Open'",
+  "native_ids": [
+    "b3_mem_title",
+    "b3_mem_add",
+    "b3_mem_lt",
+    "b3_mem_entity_0",
+    "b3_mem_staging"
+  ],
+  "methods": [
+    "memory/overview"
+  ],
+  "kit": "crates/octoscode-module/src/screens/board3/memory.rs (board-3 dialog kit, ui.rs)",
+  "evidence": [
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/main/01-overview-phone.png",
+      "snap": "docs/ux/a36/memory/phone/main/01-overview-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-04-review-phone-overview.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "main",
+      "capture": "01-overview-phone"
+    },
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/main/01b-overview-scrolled-phone.png",
+      "snap": "docs/ux/a36/memory/phone/main/01b-overview-scrolled-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-04-review-phone-overview-scrolled.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "main",
+      "capture": "01b-overview-scrolled-phone"
+    }
+  ]
+}

@@ -171,7 +171,7 @@ class Walk:
         return bool(self.wait(lambda: self.shown("settings_drawer"), 8))
 
     def section(self, name: str) -> bool:
-        sections = ["general", "permissions", "model", "sandbox", "connection", "preferences", "about"]
+        sections = ["general", "permissions", "model", "capabilities", "sandbox", "connection", "preferences", "about"]
         cell = "rl_hit" if self.mode == "phone" else "nv_hit"
         self.click(cell, sections.index(name))
         return bool(self.wait(lambda: self.shown(f"sec_{name}"), 6))

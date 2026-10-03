@@ -5,14 +5,14 @@ PASS Settings opens from the header
 PASS General shows
 PASS General: the state reads Connected — 'Connected'
 PASS General: the green dot shows (one dot)
-PASS General: the origin is the connected server — '127.0.0.1:8524'
+PASS General: the origin is the connected server — '127.0.0.1:8483'
 PASS General: Current workspace shows (known) — 'octos' '/home/user/src/octos'
 PASS General: Profile shows the opened Profile — 'a9walk'
 PASS General: every row fits the body (no overflow) — body [338, 199, 611, 415] []
-PASS General: state and origin do not overlap — [377, 365, 67, 16] [840, 354, 85, 16]
+PASS General: state and origin do not overlap — [377, 365, 67, 16] [839, 354, 86, 16]
 PASS General: set_ws_value inside the body — [891, 418, 34, 16]
 PASS General: set_profile_value inside the body — [881, 482, 44, 16]
-PASS General: set_server_value inside the body — [840, 354, 85, 16]
+PASS General: set_server_value inside the body — [839, 354, 86, 16]
 SHOT <repo>/tmp/walk/native/a9_settings-desktop/out/desktop-settings-general.png
 PASS Connection shows
 PASS Connection: Disconnect / Forget server are >= 28 px targets — []
@@ -21,7 +21,7 @@ PASS Connection: settings_forget inside the body — [484, 354, 120, 36]
 SHOT <repo>/tmp/walk/native/a9_settings-desktop/out/desktop-settings-connection.png
 PASS Disconnect acts at once (no work, no draft)
 PASS …closes the transport and returns to the Connect card
-PASS …on the same server (remembered) — 'http://127.0.0.1:8524'
+PASS …on the same server (remembered) — 'http://127.0.0.1:8483'
 SHOT <repo>/tmp/walk/native/a9_settings-desktop/out/desktop-after-disconnect.png
 PASS Connect reconnects to the remembered server
 PASS Settings reopens
@@ -32,7 +32,7 @@ PASS …its buttons are the web's 44 px — []
 SHOT <repo>/tmp/walk/native/a9_settings-desktop/out/desktop-forget-confirm.png
 PASS Cancel closes the confirmation and keeps the connection
 PASS Confirm forgets: transport closed, the Connect card returns
-PASS …on the default address (the saved one is gone) — 'http://127.0.0.1:8524'
+PASS …on the default address (the saved one is gone) — 'http://127.0.0.1:8483'
 SHOT <repo>/tmp/walk/native/a9_settings-desktop/out/desktop-after-forget.png
 == WALK a9 settings desktop: 29/29 passed
 -- fixture log tail:

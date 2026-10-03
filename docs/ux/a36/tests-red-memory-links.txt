@@ -1,0 +1,25 @@
+# A36b failing-first (found in review): a_page_keeps_its_text_but_not_its_links against memory.rs link_text, which dropped EVERY '>' (quotes, comparisons) while unwrapping autolinks
+# cargo test -p octoscode-module --test a36_memory
+test refusals_are_classified_from_the_server_code_and_kind ... ok
+test a_note_is_one_document_record_the_server_accepts ... ok
+test add_note_needs_a_confirmed_profile_and_the_ingest_method ... ok
+test capabilities_offers_memory_only_when_the_server_advertises_it ... ok
+test show_all_opens_long_term_memory_and_says_when_the_server_cut_it ... ok
+test add_note_writes_one_record_and_reports_the_receipt ... ok
+test a_page_keeps_its_text_but_not_its_links ... FAILED
+test a_refused_note_keeps_the_draft ... ok
+test a_reply_for_another_profile_is_refused ... ok
+test opening_a_hit_loads_the_record_and_shows_untrusted_content_as_data ... ok
+test the_overview_asks_for_the_session_profile_and_draws_board_5 ... ok
+test an_entity_row_opens_its_page ... ok
+test search_sends_the_query_the_kind_and_the_limit_and_lists_the_hits ... ok
+test memory_follows_the_app_theme_and_reads_in_chinese ... ok
+test a_refused_search_explains_the_problem_and_the_next_step_never_the_raw_error ... ok
+test the_receipt_follows_the_server_counts ... ok
+test an_empty_profile_says_so ... ok
+test the_scope_line_is_plain_text_in_the_muted_ink ... ok
+test todays_server_answers_for_the_signed_in_account_so_the_dialog_refuses_honestly ... ok
+test todays_server_refuses_search_for_the_scope_reason ... ok
+test typing_a_note_or_a_query_never_rebuilds_the_fields ... ok
+thread 'a_page_keeps_its_text_but_not_its_links' (264646067) panicked at crates/octoscode-module/tests/a36_memory.rs:480:5:
+test result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
