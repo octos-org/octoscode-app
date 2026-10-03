@@ -15,6 +15,10 @@
 #         repo's own workspace uses only the transport crates of this tree:
 #         the extra members and [patch] of a path dependency's workspace are
 #         never loaded by cargo, so 0003 changes nothing for it.
+#   0004  the shell's app-octoscode also turns on the module's OctoSense
+#         adapter (octoscode-module/octosense-module: OCTOSCODE_MODULE), which
+#         the standalone build keeps behind that feature; every build keeps
+#         using --features app-octoscode.
 # This script is IDEMPOTENT: run twice, the second run is a no-op.
 #
 # - A tree already at the pin with the first k patches on top (k < all, e.g.
@@ -46,6 +50,7 @@ PATCHES=(
   "$REPO/patches/octosense/0001-transport-generic-request.patch"
   "$REPO/patches/octosense/0002-transport-never-drop-a-reply.patch"
   "$REPO/patches/octosense/0003-shell-octoscode-module.patch"
+  "$REPO/patches/octosense/0004-shell-octoscode-adapter-feature.patch"
 )
 TRANSPORT="apps/appcard/app/crates/octos-app-transport"
 REMOTE="https://github.com/OctoSense-org/OctoSense"
