@@ -41,6 +41,14 @@ jobs:
           rustup toolchain install stable --profile minimal --no-self-update
           rustup default stable
           rustc -vV
+      - name: Cache Rust dependencies
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-desktop-${{ hashFiles('Cargo.lock', 'patches/**') }}
       - name: Prepare pinned renderer forks
         run: |
           bash tools/prepare-makepad-fork.sh
