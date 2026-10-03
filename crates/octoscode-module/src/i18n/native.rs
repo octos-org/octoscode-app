@@ -365,6 +365,14 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Couldn't read the tools for this session.", "无法读取此会话的工具。"),
     ("Couldn't read the MCP servers for this session.", "无法读取此会话的 MCP 服务器。"),
     ("Couldn't read the runtime inventory.", "无法读取运行时清单。"),
+    // ---- A36: Settings > Capabilities (chrome.rs) and the MCP view's note
+    ("Installed skills, the skill registry and background jobs.", "已安装的技能、技能注册表和后台任务。"),
+    ("The status this server reports. Servers are configured on the server.", "此服务器报告的状态。服务器在服务器端配置。"),
+    ("This server offers no skills or MCP status.", "此服务器不提供技能或 MCP 状态。"),
+    (
+        "MCP servers are configured on the server. This app shows the status the server reports and can't add or remove servers.",
+        "MCP 服务器在服务器端配置。此应用显示服务器报告的状态，无法添加或删除服务器。",
+    ),
     ("A confirmed session and profile are required", "需要已确认的会话和配置档案"),
     ("Turn stopped", "轮次已停止"),
     ("Turn rate limited", "轮次已被限流"),

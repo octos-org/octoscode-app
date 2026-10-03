@@ -37,8 +37,12 @@ pub const TOOLS_FAILED: &str = "Couldn't read the tools for this session.";
 pub const MCP_FAILED: &str = "Couldn't read the MCP servers for this session.";
 pub const INVENTORY_FAILED: &str = "Couldn't read the runtime inventory.";
 
-/// A36 — where MCP servers are managed (the protocol has no method to add,
-/// remove or configure one). Stub: not drawn yet.
+/// A36 — where MCP servers are managed. The UI protocol has no method to add,
+/// remove or configure one (octos a6ea8505 and main 3916c6a8: servers come
+/// from the server's and the profile's `mcp_servers` config, and
+/// `mcp/status/list` answers with a hard-coded empty list), so the MCP view
+/// says so under its summary instead of implying the list is the whole truth.
+/// The upstream draft: `docs/proposals/mcp-management.md`.
 pub const MCP_MANAGED_ON_SERVER: &str =
     "MCP servers are configured on the server. This app shows the status the server reports and can't add or remove servers.";
 
@@ -568,6 +572,13 @@ fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
             tr("disabled")
         ),
         &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap(),
+    );
+    d.gap(W::Fill, 4.0);
+    // A36 — management is the server's: say so (no add / remove here).
+    d.text(
+        "b3_inv_mcp_note",
+        tr(MCP_MANAGED_ON_SERVER),
+        &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     d.gap(W::Fill, 8.0);
     let cols = server_cols(inner_w);

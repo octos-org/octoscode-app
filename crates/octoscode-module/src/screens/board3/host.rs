@@ -636,6 +636,12 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
     if action == "b3.noop" {
         return Outcome::Done;
     }
+    // A36 — Settings > Capabilities > MCP servers: the inventory on its MCP
+    // tab, exactly as `/mcp` opens it (`command("mcp")`).
+    if action == "b3.open.mcp" {
+        state().inv.tab = super::inventory::Tab::Mcp;
+        return open(Dialog::Inventory);
+    }
     if let Some(rest) = action.strip_prefix("b3.open.") {
         return match Dialog::from_id(rest) {
             Some(d) => open(d),
