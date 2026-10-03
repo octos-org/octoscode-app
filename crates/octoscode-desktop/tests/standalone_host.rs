@@ -3,8 +3,8 @@
 //! isolate, `register` + `create` in one trusted entry, the module's
 //! `OctoscodeView` as the root, no script error, and a clean teardown.
 //!
-//! Failing first: written before `octoscode_desktop::create_instance` existed
-//! (the crate had no host; the module mounted only inside OctoSense).
+//! Before A33 nothing hosted the module outside OctoSense; this is the seam
+//! the standalone app's `main.rs` mounts it through.
 use makepad_widgets::*;
 use octoscode_desktop::{create_instance, OCTOSCODE_MODULE};
 

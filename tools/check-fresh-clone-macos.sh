@@ -3,9 +3,9 @@
 #
 #   tools/check-fresh-clone-macos.sh <empty-work-dir> [--source <repo or URL>] [--branch <name>] [-- <build-macos.sh args>]
 #
-# In <empty-work-dir> it makes a fresh user HOME (`home/`) with an EMPTY cargo home, keeps only the system PATH
+# In <empty-work-dir> it makes a fresh user HOME (`user-home/`) with an EMPTY cargo home, keeps only the system PATH
 # plus rustup's proxies (the stable toolchain is a prerequisite), clones <source> (default: this repository) at
-# <branch> (default: the current branch) into home/src/octoscode-app, and runs
+# <branch> (default: the current branch) into user-home/src/octoscode-app, and runs
 #   tools/build-macos.sh --package --octosense      (or the args after --)
 # there, logging to <empty-work-dir>/fresh-clone.log with the time of every step and the disk use.
 # Exit: build-macos.sh's. Nothing outside <empty-work-dir> is written (crates and repositories are downloaded).
@@ -31,15 +31,15 @@ OM="$(cd "$OM" && pwd)"
 [ -z "$(ls -A "$OM" 2>/dev/null)" ] || { echo "check-fresh-clone: $OM must be empty" >&2; exit 1; }
 REAL_HOME="$HOME"
 RUSTUP_BIN="$(dirname "$(command -v rustup || command -v cargo)")"
-mkdir -p "$OM/home/src" "$OM/home/Downloads"
+mkdir -p "$OM/user-home/src" "$OM/user-home/Downloads"
 exec > >(tee "$OM/fresh-clone.log") 2>&1
 
-export HOME="$OM/home"
+export HOME="$OM/user-home"
 export CARGO_HOME="$HOME/.cargo"
 export RUSTUP_HOME="${RUSTUP_HOME:-$REAL_HOME/.rustup}"
 export PATH="$RUSTUP_BIN:/usr/bin:/bin:/usr/sbin:/sbin"
 unset CARGO_TARGET_DIR RUSTFLAGS CARGO_INCREMENTAL OCTOSCODE_DESIGN_DIR OCTO_FORKS_DIR MAKEPAD MAKEPAD_PACKAGE_DIR
-echo "fresh-clone: HOME=<work>/home, CARGO_HOME=<work>/home/.cargo (empty), PATH=rustup + system; $(date)"
+echo "fresh-clone: HOME=<work>/user-home, CARGO_HOME=<work>/user-home/.cargo (empty), PATH=rustup + system; $(date)"
 echo "fresh-clone: $(command -v python3); jobs ${CARGO_BUILD_JOBS:-all cores}"
 t0=$(date +%s)
 git clone --quiet --branch "$BRANCH" "$SOURCE" "$HOME/src/octoscode-app" || exit 1
