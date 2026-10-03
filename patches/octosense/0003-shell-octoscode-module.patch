@@ -1,0 +1,255 @@
+From e6d2f7005995f9739110043b5457a3aac54eb654 Mon Sep 17 00:00:00 2001
+From: ymote <151983+ymote@users.noreply.github.com>
+Date: Fri, 2 Oct 2026 20:44:02 -0700
+Subject: [PATCH] feat(shell): host the octoscode module (app-octoscode)
+
+Link OctosCode, the native octos client of the octoscode-app repository,
+into the shell as an in-process module, opt-in like AppCard:
+
+- root Cargo.toml: apps/octoscode/{client,store,module} are workspace
+  members and path dependencies (the octoscode repo vendors its crates
+  there, with its design/ in apps/design, at build time); `publish` joins
+  [workspace.package] (the crates inherit it); `octoscript-widgets` joins
+  [workspace.dependencies]; the Octoscript-Makepad [patch] points at the
+  octoscode repo's renderer fork, beside this tree
+  (../octoscript-makepad-fork: this rev + its patches/octoscript-makepad,
+  which add to_makepad_ui_in_slot, the module's mount path).
+- crates/shell: the optional `octoscode-module` dependency and the feature
+  `app-octoscode = ["dep:octoscode-module", "app-hub", "octos-core"]`;
+  linked_modules() pushes OCTOSCODE_MODULE under it, next to AppCard.
+- desktop/, phone/: the feature forwarded (`app-octoscode`).
+- apps/appcard/app: l0_eval.rs fills `padright`, the field the renderer
+  fork adds to octoscript_node's Attrs beside its four padding siblings
+  (without it the fork does not compile here).
+- Cargo.lock: the three crates and the shell's new dependency. Every
+  dependency they use is already pinned by this lock, so a fresh tree
+  builds exactly this graph and `cargo build --locked` passes.
+
+Build: cargo build -p octosense --features app-octoscode; run with
+MAKEPAD_WM_TEST_APP=octoscode ... --module octoscode. The octoscode repo's
+tools/build-macos.sh --octosense prepares the whole tree (this patch is its
+patches/octosense/0003, applied after 0001 and 0002 by
+tools/prepare-octosense-fork.sh).
+---
+ Cargo.lock                              | 53 +++++++++++++++++++++++++
+ Cargo.toml                              | 23 +++++++++--
+ apps/appcard/app/app/src/app/l0_eval.rs |  5 +++
+ crates/shell/Cargo.toml                 |  3 ++
+ crates/shell/src/apps.rs                |  4 ++
+ desktop/Cargo.toml                      |  2 +
+ phone/Cargo.toml                        |  2 +
+ 7 files changed, 89 insertions(+), 3 deletions(-)
+
+diff --git a/Cargo.lock b/Cargo.lock
+index 8455c36..6f41855 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -7079,6 +7079,58 @@ dependencies = [
+  "tracing",
+ ]
+ 
++[[package]]
++name = "octoscode-client"
++version = "0.1.0"
++dependencies = [
++ "log",
++ "octos-app-transport",
++ "octos-core",
++ "octoscode-store",
++ "reqwest 0.12.28",
++ "serde",
++ "serde_json",
++ "tokio",
++ "url",
++]
++
++[[package]]
++name = "octoscode-module"
++version = "0.1.0"
++dependencies = [
++ "chrono",
++ "futures-util",
++ "log",
++ "makepad-app-module",
++ "makepad-widgets",
++ "octos-app-transport",
++ "octos-core",
++ "octoscode-client",
++ "octoscode-store",
++ "octoscript-makepad",
++ "octoscript-render",
++ "octoscript-ui-l0",
++ "octoscript-widgets",
++ "regex",
++ "reqwest 0.12.28",
++ "serde",
++ "serde_json",
++ "sha2 0.10.9",
++ "tokio",
++ "tokio-tungstenite 0.24.0",
++ "url",
++]
++
++[[package]]
++name = "octoscode-store"
++version = "0.1.0"
++dependencies = [
++ "log",
++ "octos-app-transport",
++ "serde",
++ "serde_json",
++]
++
+ [[package]]
+ name = "octoscript-makepad"
+ version = "0.1.0"
+@@ -7372,6 +7424,7 @@ dependencies = [
+  "makepad-widgets",
+  "makepad-wm-api",
+  "makepad-wm-theme",
++ "octoscode-module",
+  "octoscript-makepad",
+  "octosense-ai-host",
+  "octosense-app-hub-app",
+diff --git a/Cargo.toml b/Cargo.toml
+index 575d1b7..4db18d1 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -33,6 +33,9 @@ members = [
+     "apps/ai-providers/config",
+     "apps/ai-providers/host-service",
+     "apps/appcard/module",
++    "apps/octoscode/client",
++    "apps/octoscode/store",
++    "apps/octoscode/module",
+     "apps/appcard/app/app",
+     "apps/appcard/app/crates/octos-app-store",
+     "apps/appcard/app/crates/octos-app-transport",
+@@ -52,6 +55,7 @@ default-members = ["desktop"]
+ version = "0.1.0"
+ edition = "2021"
+ license = "Apache-2.0"
++publish = false
+ authors = ["octos-app contributors"]
+ 
+ [workspace.dependencies]
+@@ -74,6 +78,7 @@ makepad-aichat = { git = "https://github.com/OctoSense-org/makepad.git", rev = "
+ # (Octoscript-Makepad 6881fb6c, native-runtime.lock.json).
+ octoscript-ui-l0 = { git = "https://github.com/OctoSense-org/Octoscript.git", rev = "68f6a9df55692b5d8ef8873a12721e279a3f40d6" }
+ octoscript-makepad = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "6881fb6c3c3220e407633b0ba5211c3d42c7e625" }
++octoscript-widgets = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "6881fb6c3c3220e407633b0ba5211c3d42c7e625" }
+ octoscript-node = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "6881fb6c3c3220e407633b0ba5211c3d42c7e625" }
+ # --- App Hub: the shells' store/Card runner/system apps crate and the host
+ # service registry the Mail and llm services register into. One revision.
+@@ -103,6 +108,12 @@ octosense-mail-service = { path = "apps/mail/host-service" }
+ octosense-news-service = { path = "apps/news/host-service" }
+ octosense-reference = { path = "apps/reference" }
+ octosense-appcard = { path = "apps/appcard/module" }
++# Phase-1 core: the octoscode client/store/module, vendored at build time from
++# the octoscode-app repo into apps/octoscode/ (with its design/ in apps/design)
++# so they resolve against the in-tree octos-app-transport / -store below.
++octoscode-client = { path = "apps/octoscode/client" }
++octoscode-store = { path = "apps/octoscode/store" }
++octoscode-module = { path = "apps/octoscode/module" }
+ octosense-news = { path = "apps/news/native" }
+ octosense-photos = { path = "apps/photos/native" }
+ octosense-maps = { path = "apps/maps/native" }
+@@ -204,9 +215,15 @@ makepad-code-editor = { path = ".sources/makepad/code_editor" }
+ octoscript-ui-l0 = { path = ".sources/octoscript/crates/octoscript-ui-l0" }
+ 
+ [patch."https://github.com/OctoSense-org/Octoscript-Makepad.git"]
+-octoscript-makepad = { path = ".sources/octoscript-makepad/crates/octoscript-makepad" }
+-octoscript-widgets = { path = ".sources/octoscript-makepad/crates/octoscript-widgets" }
+-octoscript-node = { path = ".sources/octoscript-makepad/crates/octoscript-node" }
++# The octoscode module renders through the octoscode repo's renderer fork
++# (this same rev 6881fb6 + its patches/octoscript-makepad/*, prepared by its
++# tools/prepare-octoscript-makepad-fork.sh): the clean .sources checkout lacks
++# to_makepad_ui_in_slot, which the vendored module calls. The fork sits BESIDE
++# this tree (../octoscript-makepad-fork); the octoscode repo's
++# tools/build-macos.sh --octosense lays the two out that way.
++octoscript-makepad = { path = "../octoscript-makepad-fork/crates/octoscript-makepad" }
++octoscript-widgets = { path = "../octoscript-makepad-fork/crates/octoscript-widgets" }
++octoscript-node = { path = "../octoscript-makepad-fork/crates/octoscript-node" }
+ 
+ # Rinx still takes the app-peers contract by git from OctoSense-System-Apps
+ # (archived; it was imported into this repository): that code lives here
+diff --git a/apps/appcard/app/app/src/app/l0_eval.rs b/apps/appcard/app/app/src/app/l0_eval.rs
+index bf630f0..d8724a0 100644
+--- a/apps/appcard/app/app/src/app/l0_eval.rs
++++ b/apps/appcard/app/app/src/app/l0_eval.rs
+@@ -261,6 +261,11 @@ fn walk_inner(vm: &mut ScriptVm, value: ScriptValue, depth: usize, remaining: &m
+         padtop: f32_prop(vm, value, id!(padtop)),
+         padleft: f32_prop(vm, value, id!(padleft)),
+         padbottom: f32_prop(vm, value, id!(padbottom)),
++        // #18e's `padright` (patches/octoscript-makepad/0006-18e-padright.patch)
++        // added the FIELD to octoscript_node's Attrs, but the fork's own
++        // initializer was never updated, so the crate stopped compiling. Same
++        // shape as its four sibling padding fields above.
++        padright: f32_prop(vm, value, id!(padright)),
+         spacing: f32_prop(vm, value, id!(spacing)),
+         margin: f32_prop(vm, value, id!(margin)),
+         marginx: f32_prop(vm, value, id!(marginx)),
+diff --git a/crates/shell/Cargo.toml b/crates/shell/Cargo.toml
+index 043e04b..a43f63e 100644
+--- a/crates/shell/Cargo.toml
++++ b/crates/shell/Cargo.toml
+@@ -51,6 +51,7 @@ octosense-news-service = { workspace = true, optional = true }
+ rinx = { workspace = true, features = ["octosense-module"], optional = true }
+ # Not shipped for now: strictly opt-in with `app-appcard`, on every target.
+ octosense-appcard = { workspace = true, optional = true }
++octoscode-module = { workspace = true, optional = true }
+ octosense-news = { workspace = true, optional = true }
+ # App Hub's shell integration (store, Card runner, system apps, icons); its
+ # build packs the system apps OCTOSENSE_SYSTEM_APPS names.
+@@ -90,5 +91,7 @@ app-news = ["dep:octosense-news"]
+ app-maps = ["dep:octosense-maps"]
+ # The AppCard module (the assistant in a tile), opt-in only (implies `octos-core`).
+ app-appcard = ["dep:octosense-appcard", "octos-core"]
++# Phase-1 core: the octoscode client module (implies the App Hub host).
++app-octoscode = ["dep:octoscode-module", "app-hub", "octos-core"]
+ # The aichat module, seated in the pane in-process.
+ app-aichat = ["dep:makepad-aichat"]
+diff --git a/crates/shell/src/apps.rs b/crates/shell/src/apps.rs
+index 7b31b67..eb7f84e 100644
+--- a/crates/shell/src/apps.rs
++++ b/crates/shell/src/apps.rs
+@@ -67,6 +67,10 @@ fn linked_modules() -> Vec<&'static dyn AppModule> {
+     // AppCard is opt-in on every target (not shipped by default for now).
+     #[cfg(feature = "app-appcard")]
+     out.push(&octosense_appcard::APPCARD_MODULE);
++    // Phase-1 core: the octoscode client module (opt-in). Its protocol
++    // client, dispatch registry and session store live under apps/octoscode/.
++    #[cfg(feature = "app-octoscode")]
++    out.push(&octoscode_module::OCTOSCODE_MODULE);
+     // The native News and OctosMap modules, for comparison with their
+     // system apps (`os.news`, `os.maps`).
+     #[cfg(feature = "app-news")]
+diff --git a/desktop/Cargo.toml b/desktop/Cargo.toml
+index fac87c5..8ab291f 100644
+--- a/desktop/Cargo.toml
++++ b/desktop/Cargo.toml
+@@ -64,6 +64,8 @@ app-news = ["octosense-shell/app-news"]
+ app-maps = ["octosense-shell/app-maps"]
+ # The AppCard module, opt-in only (implies `octos-core`).
+ app-appcard = ["octosense-shell/app-appcard"]
++# Phase-1 core: the octoscode client module.
++app-octoscode = ["octosense-shell/app-octoscode"]
+ app-aichat = ["octosense-shell/app-aichat"]
+ # Rinx as a module; its assistant is the shell's (implies `octos-core`).
+ app-rinx = ["octosense-shell/app-rinx"]
+diff --git a/phone/Cargo.toml b/phone/Cargo.toml
+index 6f13b8d..5cd66f7 100644
+--- a/phone/Cargo.toml
++++ b/phone/Cargo.toml
+@@ -86,6 +86,8 @@ app-reference = ["dep:octosense-reference", "octosense-shell/app-reference"]
+ app-sheets = ["octosense-shell/app-sheets"]
+ app-photos = ["octosense-shell/app-photos"]
+ app-appcard = ["octosense-shell/app-appcard"]
++# Phase-1 core: the octoscode client module (recipe (i) forwarded to the phone packaging).
++app-octoscode = ["octosense-shell/app-octoscode"]
+ app-news = ["octosense-shell/app-news"]
+ app-maps = ["octosense-shell/app-maps"]
+ app-aichat = ["dep:makepad-aichat", "octosense-shell/app-aichat"]
+-- 
+2.49.0
+

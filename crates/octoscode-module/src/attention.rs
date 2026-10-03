@@ -790,8 +790,8 @@ pub fn newest_terminal(store: &octoscode_store::Store, session: &str) -> Option<
 
 /// makepad's notification API, when this build's makepad carries it
 /// (`cfg(makepad_notifications)`, build.rs: the octosense host, APK and fork
-/// builds compile `$OCTOSENSE_WORKSPACE/makepad` with
-/// patches/makepad/macos-notifications.patch).
+/// builds compile `$OCTOSENSE_WORKSPACE/makepad`, and this workspace (A33) its
+/// `.forks/makepad-fork`, each with patches/makepad/macos-notifications.patch).
 #[cfg(makepad_notifications)]
 mod platform {
     use super::{Authorization, OsEvent};
@@ -859,9 +859,9 @@ mod platform {
     }
 }
 
-/// This workspace compiles the pinned makepad git rev, which has no
-/// notification API: every query answers `Unavailable` (honestly — nothing
-/// can be posted), through the same action round trip.
+/// A makepad without the notification API (an unpatched tree): every query
+/// answers `Unavailable` (honestly — nothing can be posted), through the same
+/// action round trip.
 #[cfg(not(makepad_notifications))]
 mod platform {
     use super::{Authorization, OsEvent};
@@ -1754,8 +1754,9 @@ mod tests {
 
     #[test]
     fn this_workspace_build_reports_the_platform_api_honestly() {
-        // The workspace compiles the pinned makepad git rev (no notification
-        // API); the octosense builds set cfg(makepad_notifications).
+        // Every tree that builds the app now carries the notification API
+        // (this workspace's makepad fork too, A33): cfg(makepad_notifications)
+        // is set wherever the patched makepad is compiled.
         assert_eq!(platform_api(), cfg!(makepad_notifications));
     }
 }

@@ -1,0 +1,13 @@
+PASS the build trees are unreachable for the whole run — 2 directories renamed away
+PASS private octos serve is up (dsflash, a copy of the live-gate data)
+PASS the module mounted in the standalone host
+PASS the design root is under the app's HOME — [octoscode] design root: <PATH>
+PASS the kit faces resolve under that design root — [octoscode] font faces resolve under <PATH>
+PASS a packaged build: the embedded design tree and faces only
+PASS no resource failed to load
+PASS connected: the composer shows
+FAIL the turn starts (Stop shows)
+PASS the turn completes (the composer is idle again)
+PASS the answer renders (it says 5) — 2 + 3 = 5.
+PASS no saved file carries the token
+== 11/12 checks passed (unzipped-app)

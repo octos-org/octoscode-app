@@ -1,0 +1,12 @@
+A33 failing-first (before the build.rs ttf arm is restored), cargo test -p octoscode-module --lib design::
+test design::tests::the_embed_carries_the_kit_faces ... FAILED
+thread 'design::tests::the_embed_carries_the_kit_faces' panicked at crates/octoscode-module/src/design.rs:623:13:
+ux/Inter-400.ttf rides in the design embed
+test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 613 filtered out
+
+A33 failing-first (makepad): with the packaged-file-resource fix line reverted in .forks/makepad-fork (if !is_packaged {),
+cargo test -p makepad-platform --lib script::res::tests::a_packaged
+test script::res::tests::a_packaged_build_still_reads_file_resource_from_its_absolute_path ... FAILED
+panicked at .forks/makepad-fork/platform/src/script/res.rs:911:47 (get_resource(1, handle).unwrap() on None)
+test result: FAILED. 0 passed; 1 failed
+With the fix: test result: ok. 6 passed (script::res::tests)

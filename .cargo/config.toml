@@ -1,0 +1,8 @@
+# A33: the macOS menu-bar name and bundle id of a native launch from this
+# workspace (`cargo run -p octoscode-desktop`). makepad's platform/build.rs
+# writes them into the Info.plist beside the binary; without them it names the
+# app after the checkout directory. The packaged OctosCode.app carries its own
+# Info.plist (tools/package-macos.sh) with the same two values.
+[env]
+MAKEPAD_BUNDLE_NAME = { value = "OctosCode", force = true }
+MAKEPAD_BUNDLE_IDENTIFIER = { value = "org.octos.octoscode", force = true }
