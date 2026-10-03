@@ -859,6 +859,22 @@ struct HistoryRead {
     resynced: bool,
 }
 
+/// What a CLICK on a Session's sidebar row does (lib.rs `thread.open`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RowClick {
+    /// Another Session is on screen: open this one.
+    Open,
+    /// It is the Session on screen: nothing. #34a row 190 — re-selecting the
+    /// current thread never re-opens it (the web treats selecting the active
+    /// Session as a no-op, runtime-recovery.spec.ts counts session/open): a
+    /// re-open reset the store's timeline from the canonical hydrate,
+    /// dropping the live turns (the #33b flake).
+    AlreadyOpen,
+    /// It is the Session on screen and its history could not be read: open it
+    /// again, which reads its history again.
+    Reopen,
+}
+
 /// A19b — how long a history read may stay unanswered before the window says
 /// so (a visible failure instead of an endless "Loading conversation…").
 pub const HISTORY_WAIT: std::time::Duration = std::time::Duration::from_secs(20);
@@ -1288,6 +1304,14 @@ impl Conversation {
             let n = c.take().map(|c| c.staged.len()).unwrap_or(0);
             makepad_widgets::log!("[octoscode] candidate {session}: {why} — {n} buffered events dropped");
         }
+    }
+
+    /// What a CLICK on `id`'s sidebar row does ([`RowClick`]).
+    pub fn row_click(&self, id: &str) -> RowClick {
+        if self.store.active_session().as_deref() != Some(id) {
+            return RowClick::Open;
+        }
+        RowClick::AlreadyOpen
     }
 
     /// A19b — what the conversation of `session` shows before its history is
