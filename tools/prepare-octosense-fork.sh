@@ -7,6 +7,14 @@
 #   0001  the generic `OutboundCommand::Request`            (D10a)
 #   0002  never drop a server reply: every event waits for room in the
 #         transport's event channel                         (D10d)
+#   0003  the shell hosts the octoscode module (`app-octoscode`): workspace
+#         members apps/octoscode/{client,store,module} (vendored at build
+#         time), the shell feature + linked_modules() push, the renderer
+#         fork [patch] (../octoscript-makepad-fork), its Cargo.lock entries
+#         (A33, D10f; tools/build-macos.sh --octosense builds it). The
+#         repo's own workspace uses only the transport crates of this tree:
+#         the extra members and [patch] of a path dependency's workspace are
+#         never loaded by cargo, so 0003 changes nothing for it.
 # This script is IDEMPOTENT: run twice, the second run is a no-op.
 #
 # - A tree already at the pin with the first k patches on top (k < all, e.g.
@@ -37,6 +45,7 @@ BRANCH="feat/transport-generic-request"
 PATCHES=(
   "$REPO/patches/octosense/0001-transport-generic-request.patch"
   "$REPO/patches/octosense/0002-transport-never-drop-a-reply.patch"
+  "$REPO/patches/octosense/0003-shell-octoscode-module.patch"
 )
 TRANSPORT="apps/appcard/app/crates/octos-app-transport"
 REMOTE="https://github.com/OctoSense-org/OctoSense"
@@ -52,6 +61,15 @@ author() { awk '/^From: /{sub(/^From: /,"");print;exit}' "$1"; }
 # Commit one patch with its own subject and author (committer = author).
 apply_patch() {
   local p="$1" who name email
+  if ! git apply --index --check "$p" 2>/dev/null; then
+    echo "prepare-octosense-fork: $(basename "$p") does not apply to $TARGET:" >&2
+    git apply --index --check "$p" 2>&1 | sed 's/^/  /' >&2 || true
+    if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+      echo "  The tree has uncommitted changes (a hand-applied copy of this patch?)." >&2
+      echo "  Commit or stash them, or re-run with --force to recreate the tree from the pin." >&2
+    fi
+    exit 1
+  fi
   who="$(author "$p")"
   name="${who% <*}"
   email="${who##*<}"

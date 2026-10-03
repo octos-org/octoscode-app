@@ -88,3 +88,10 @@ octoscript-node = { path = ".forks/octoscript-makepad-fork/crates/octoscript-nod
 makepad-widgets = { path = ".forks/makepad-fork/widgets" }
 makepad-app-module = { path = ".forks/makepad-fork/libs/app_module" }
 makepad-script = { path = ".forks/makepad-fork/platform/script" }
+
+# A33: the self-contained OctosCode.app (tools/package-macos.sh): release settings in a
+# profile of its own (target/app-bundle/), because that build carries makepad's bundle-only
+# cfg (MAKEPAD=apple_bundle, MAKEPAD_PACKAGE_DIR) and must never overwrite a plain release
+# build, nor be overwritten by one.
+[profile.app-bundle]
+inherits = "release"

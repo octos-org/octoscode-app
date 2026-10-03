@@ -125,3 +125,14 @@ right behind a burst of live events was lost: the Session stayed on "Loading con
 resets the Session's history-read queue and, once, opens the Session again. Record, trees, apply commands, exit:
 `docs/decisions/D10d-transport-never-drop-a-reply.md`; PR text for the operator:
 `docs/upstream/octosense-transport-never-drop-a-reply-PR.md`.
+
+## D10f. OctosCode runs standalone on macOS, built from a fresh clone: DECIDED (A33, operator + supervisor, 2026-10-02)
+"Pull the latest and test on another Mac"; "the app should be able to be ejected out of octosense and run as standalone".
+A standalone host, `crates/octoscode-desktop` (binary `octoscode`), mounts the module the way the shell's `module_host.rs` does
+(own isolate, `register` + `create` in one trusted entry). This workspace builds makepad from `.forks/makepad-fork`
+(`tools/prepare-makepad-fork.sh`: `6cf03859` + every `patches/makepad/*.patch`, root `[patch]`), so the suite compiles the
+notification API, the bridge guard and the ellipsis fix too; one more makepad patch, `packaged-file-resource.patch`, lets a
+packaged build read `file_resource(<absolute path>)`. `tools/package-macos.sh` makes a self-contained, ad-hoc-signed
+`OctosCode.app` + zip; the shell wiring is a tracked fork patch, `patches/octosense/0003-shell-octoscode-module.patch`
+(with its `Cargo.lock` hunk); `tools/build-macos.sh` is the one command; `docs/BUILD-macos.md` the other Mac's guide.
+Record, proof, exit: `docs/decisions/D10f-standalone-desktop-app.md`.
