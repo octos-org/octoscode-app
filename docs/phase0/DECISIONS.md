@@ -114,3 +114,14 @@ Android, with no id, permission or click. We carry ONE patch, `patches/makepad/m
 answers as actions; UserNotifications on macOS — "unavailable" outside an `.app`; NotificationManager +
 `POST_NOTIFICATIONS` on Android), applied to every tree by `scripts/apply-makepad-patches.sh`. Record, trees, exit:
 `docs/decisions/D10b-makepad-macos-notifications.md`; PR text for the operator: `docs/decisions/D10b-upstream-pr.md`.
+
+## D10d. The transport never drops a server reply: DECIDED (supervisor, 2026-10-02)
+"A client must never silently drop a server reply." The fork's transport handed replies, error replies and connection
+states over with `try_emit`, a `try_send` that dropped them when its 64-slot event channel was full. A history reply
+right behind a burst of live events was lost: the Session stayed on "Loading conversation…" and its history-read queue
+(A15) stayed one read behind for good. We carry ONE more fork patch, `patches/octosense/0002-transport-never-drop-a-reply.patch`
+(every event waits for room, as notifications already did; no API change), applied after 0001 by
+`tools/prepare-octosense-fork.sh`. A remaining loss is LOUD and forces a resync: after `HISTORY_WAIT` the app logs it,
+resets the Session's history-read queue and, once, opens the Session again. Record, trees, apply commands, exit:
+`docs/decisions/D10d-transport-never-drop-a-reply.md`; PR text for the operator:
+`docs/upstream/octosense-transport-never-drop-a-reply-PR.md`.
