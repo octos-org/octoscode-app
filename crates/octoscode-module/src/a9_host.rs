@@ -53,6 +53,15 @@ impl OctoscodeView {
         let frame = activity::state().frame;
         let lowered = if crate::screens::a9_boundary::crashed() {
             crate::screens::a9_boundary::lower_crash(&frame)
+        } else if crate::screens::a9_boundary::unavailable()
+            .is_some_and(|u| u.kind == crate::screens::a9_boundary::Kind::Inline)
+            && crate::screens::sidebar::drawer_open()
+        {
+            // The phone drawer slides OVER the conversation column, and the
+            // inline region (drawn last, in a9_dock) would sit above the
+            // drawer and swallow its taps (New chat, the rows, Fleet): while
+            // the drawer is open the region yields; it returns on close.
+            None
         } else if crate::screens::a9_boundary::unavailable().is_some() {
             // An inline failure sits in the conversation column's place,
             // under its header (the header's Review / Settings stay usable).
