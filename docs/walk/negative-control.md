@@ -9,6 +9,10 @@ Command (rc=1):
 
     WALK_SCENARIO=conversation=session python3 tools/walk/run.py --only conversation --port 8370
 
+(A34: a `WALK_SCENARIO` run writes `docs/walk/results-scenario.csv` /
+`results-scenario-checks.csv`; it never touches the official table. The runs
+below predate that and copied the files out to tmp/.)
+
 Result (tmp/33a-negative-control.log, full output; row CSVs kept at
 tmp/33a-negative-results*.csv):
 

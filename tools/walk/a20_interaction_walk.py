@@ -28,8 +28,27 @@ WALK = {
     "name": "a20_interaction",
     "title": "interaction origin: an approval/question belongs to its Session (switch away, keyboard, back, answer)",
     "modes": ["desktop", "phone"],
-    "rows": {250: ["Y: no card", "Y: the keyboard sends nothing", "X's row waits", "X: its approval again",
-                   "wire: approval/respond to X", "Y: its question survived", "wire: user_question/respond to Y"]},
+    # A34: the aggregator's mode, ports and scratch dir. Without an argv every
+    # mode ran as desktop on the walk's default ports (8483/8485) and wrote its
+    # captures over docs/ux/a20/walk.
+    "runs": [{"argv": ["{mode}", "{port}", "{fport}", "{out}"], "env": {"OCTOSCODE_APP_BIN": "{bin}"}}],
+    "needs": ["target/debug/examples/a20_serve"],
+    # Walk rows of docs/walk-rows.csv (A34: this said 250, the PARITY row; its
+    # e2e spec cites walk row 65's case). X owns the approval (the web's
+    # Session A for row 65), Y the question (Session A for row 66).
+    "rows": {
+        65: {"checks": ["X: the approval takes X's composer over", "Y: no card", "Y: the keyboard sends nothing",
+                        "X's row waits", "Y's row does not wait", "wire: X's canonical hydrate read",
+                        "X: its approval again", "wire: exactly one approval/respond, to X with X's ids",
+                        "X: decided, the composer is back", "wire: nothing was ever answered on Y for X"],
+             "partial": "the response's approval id is not compared with the request's, and the completed "
+                        "terminal reaching only X is not asserted"},
+        66: {"checks": ["Y: its own question takes Y's composer over", "never Y's question",
+                        "Y: its question survived", "wire: user_question/respond to Y with Y's ids",
+                        "Y: answered, the composer is back"],
+             "partial": "the response's question id is not compared with the request's, and the completed "
+                        "terminal reaching only Y is not asserted"},
+    },
 }
 
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"

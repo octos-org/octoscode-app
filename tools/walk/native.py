@@ -427,6 +427,85 @@ def row_mapping(spec: dict) -> dict:
     return out
 
 
+def mapped_patterns(spec: dict, rid: int, mode: str):
+    """The check-name substrings that prove row `rid` in `mode`, or None when
+    the walk does not map that row in that mode."""
+    m = row_mapping(spec).get(rid)
+    return None if m is None else m["checks"].get(mode, m["checks"].get("*"))
+
+
+def log_path(name: str, mode: str) -> str:
+    """The evidence log a (walk, mode) run leaves (repo-relative)."""
+    return str((EVIDENCE / f"{name}-{mode}.log").relative_to(ROOT))
+
+
+def add_checks(rows: dict, rid: int, spec: dict, mode: str, checks: list, log: str):
+    """Fold one (walk, mode)'s checks for row `rid` into `rows` (the shape
+    `row_entries` builds). A check is (name, ok, detail, evidence[, extra]);
+    `extra` (a dict) rides along to the per-check row (A34: the provenance of a
+    check carried from the table)."""
+    m = row_mapping(spec)[rid]
+    e = rows.setdefault(rid, {"checks": [], "walks": set(), "partial": {}, "logs": set(), "full": False})
+    if m["partial"]:
+        e["partial"].setdefault(spec["name"], m["partial"])
+    else:
+        e["full"] = True  # one walk covers the whole case
+    e["walks"].add(f"{spec['name']}:{mode}")
+    e["logs"].add(log)
+    modes = list(spec.get("modes", ["desktop"]))
+    # One canonical order — by walk name, then the walk's own mode order — so
+    # a verdict assembled from several runs reads like one full run's.
+    key = (spec["name"], modes.index(mode) if mode in modes else len(modes))
+    e["checks"].extend((key, c) for c in checks)
+
+
+def row_entries(results: list, specs: dict) -> dict:
+    """Every (walk, mode) result's checks, per row it maps (see row_verdicts)."""
+    rows: dict = {}
+    for res in results:
+        spec = specs[res["name"]]
+        for rid in row_mapping(spec):
+            pats = mapped_patterns(spec, rid, res["mode"])
+            if pats is None:
+                continue  # this row is not mapped in this mode
+            hit = [c for c in res["checks"] if any(p in c[0] for p in pats)]
+            checks = []
+            if res.get("error"):
+                checks.append((f"{res['name']} [{res['mode']}]: the walk ran", False,
+                               f"blocked: {res['error']}", res["log"]))
+            elif not hit:
+                checks.append((f"{res['name']} [{res['mode']}]: a check matching {pats}", False,
+                               "no mapped check ran", res["log"]))
+            checks += [(f"{res['name']}: {cname} [{res['mode']}]", ok, detail, ev)
+                       for cname, ok, detail, ev in hit]
+            add_checks(rows, rid, spec, res["mode"], checks, res["log"])
+    return rows
+
+
+def finalize(rows: dict) -> dict:
+    """Per-row verdicts from `row_entries` (+ `add_checks`) entries."""
+    out = {}
+    for rid, e in rows.items():
+        checks = [c for _key, c in sorted(e["checks"], key=lambda kc: kc[0])]
+        failed = [c[0] for c in checks if not c[1]]
+        status = "pass" if checks and not failed else "fail"
+        walks = ", ".join(sorted(e["walks"]))
+        if failed:
+            reason = f"failing native checks: {'; '.join(failed[:4])}" + (" …" if len(failed) > 4 else "")
+        else:
+            reason = f"{len(checks)} native click-walk checks ({walks}), all pass"
+        texts = []
+        for name in sorted(e["partial"]):
+            if e["partial"][name] not in texts:
+                texts.append(e["partial"][name])
+        partial = bool(texts) and not e["full"]
+        if partial:
+            reason += "; not covered: " + " / ".join(texts)
+        out[rid] = {"status": status, "depth": "native-partial" if partial else "native",
+                    "reason": reason, "evidence": ";".join(sorted(e["logs"])), "checks": checks}
+    return out
+
+
 def row_verdicts(results: list, specs: dict) -> dict:
     """Fold every (walk, mode) result into per-row verdicts.
 
@@ -434,45 +513,7 @@ def row_verdicts(results: list, specs: dict) -> dict:
     union over every walk that maps it, in every mode that walk ran; a mode
     in which NO mapped check ran is a failing synthetic check (a walk that
     crashed early can never read green). Returns {row_id: {...}}."""
-    rows: dict = {}
-    for res in results:
-        spec = specs[res["name"]]
-        for rid, m in row_mapping(spec).items():
-            pats = m["checks"].get(res["mode"], m["checks"].get("*"))
-            if pats is None:
-                continue  # this row is not mapped in this mode
-            entry = rows.setdefault(rid, {"checks": [], "walks": set(), "partial": [], "logs": set(),
-                                          "full": False})
-            if m["partial"] and m["partial"] not in entry["partial"]:
-                entry["partial"].append(m["partial"])
-            if not m["partial"]:
-                entry["full"] = True  # one walk covers the whole case
-            entry["walks"].add(f"{res['name']}:{res['mode']}")
-            entry["logs"].add(res["log"])
-            hit = [c for c in res["checks"] if any(p in c[0] for p in pats)]
-            if res.get("error"):
-                entry["checks"].append((f"{res['name']} [{res['mode']}]: the walk ran", False,
-                                        f"blocked: {res['error']}", res["log"]))
-            elif not hit:
-                entry["checks"].append((f"{res['name']} [{res['mode']}]: a check matching {pats}", False,
-                                        "no mapped check ran", res["log"]))
-            for cname, ok, detail, ev in hit:
-                entry["checks"].append((f"{res['name']}: {cname} [{res['mode']}]", ok, detail, ev))
-    out = {}
-    for rid, e in rows.items():
-        failed = [c[0] for c in e["checks"] if not c[1]]
-        status = "pass" if e["checks"] and not failed else "fail"
-        walks = ", ".join(sorted(e["walks"]))
-        if failed:
-            reason = f"failing native checks: {'; '.join(failed[:4])}" + (" …" if len(failed) > 4 else "")
-        else:
-            reason = f"{len(e['checks'])} native click-walk checks ({walks}), all pass"
-        partial = e["partial"] and not e["full"]
-        if partial:
-            reason += "; not covered: " + " / ".join(e["partial"])
-        out[rid] = {"status": status, "depth": "native-partial" if partial else "native",
-                    "reason": reason, "evidence": ";".join(sorted(e["logs"])), "checks": e["checks"]}
-    return out
+    return finalize(row_entries(results, specs))
 
 
 def run_all(binary: str, port: int, fixture_base: int, modes=None, only=None, log=print) -> tuple:

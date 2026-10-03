@@ -31,8 +31,20 @@ WALK = {
     "name": "a20_saved_link",
     "title": "saved conversation link: a different workspace is refused before any open or history read",
     "modes": ["desktop", "phone"],
-    "rows": {247: ["CLICK Open conversation -> refused", "wire: no session/open", "wire: no session/hydrate",
-                   "CLICK Dismiss link", "the exact workspace opens"]},
+    # A34: the aggregator's mode, ports and scratch dir (see a20_interaction_walk.py).
+    "runs": [{"argv": ["{mode}", "{port}", "{fport}", "{out}"], "env": {"OCTOSCODE_APP_BIN": "{bin}"}}],
+    "needs": ["target/debug/examples/a20_serve"],
+    # Walk rows of docs/walk-rows.csv (A34: this said 247, the PARITY row whose
+    # e2e spec is walk row 196's case; 4 of its 5 patterns matched no check).
+    # Launch A proves row 196, launch C row 195 (the native link is handed over
+    # at launch, so the panel keeping or dropping it stands for the address).
+    "rows": {
+        196: ["the panel 'Open saved conversation' is offered", "refused on the panel, with both workspaces",
+              "wire: the precondition read the server's attestation", "wire: NO session/open for the linked",
+              "wire: NO session/hydrate for the linked", "the link stays on the panel"],
+        195: ["C: an invalid link says so", "C: wire: nothing opened for it", "C: CLICK Dismiss link",
+              "C: dismissed, normal entry"],
+    },
 }
 
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"

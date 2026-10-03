@@ -33,7 +33,20 @@ into a non-empty field is inherently non-deterministic (14/20 failures in a tigh
 loop). The checks therefore **focus, clear with backspace, then type**, and wait
 for the observable result — never a fixed sleep.
 
-Run:  python3 tools/walk/run.py [--limit 30] [--only AREA] [--port 8370]
+## Only a complete run regenerates the table; every other run MERGES (A34)
+
+`--full` (every scriptable row, every native walk in every mode) rewrites
+`results.csv` / `results-checks.csv`. Any narrower run — `--only AREA`,
+`--limit N`, `--native-only --walks W`, `--modes desktop`, `--no-native` —
+merges into the committed table: a row is replaced only when a check that
+decides its verdict ran in this run (or its instance failed to start); every
+other row and its per-check lines are copied byte for byte. Each row records
+its provenance (`run_sha` = the HOST build, `run_at` = UTC, `run_scope`), each
+check `run_sha` / `run_at`. `--live`, `WALK_ONLY_ROWS` and `WALK_SCENARIO`
+runs write their own snapshot files (`results_live*`, `results-only*`,
+`results-scenario*`), never the official table.
+
+Run:  python3 tools/walk/run.py [--limit 30] [--only AREA[,AREA]] [--port 8370]
 """
 from __future__ import annotations
 
@@ -65,6 +78,34 @@ DEFAULT_APP_BIN = os.environ.get("OCTOSENSE_BIN", os.path.join(os.path.dirname(_
 BIN = pathlib.Path(os.environ.get("OCTOSCODE_APP_BIN", DEFAULT_APP_BIN))
 REPLAY = pathlib.Path(os.environ.get("CARGO_TARGET_DIR") or (ROOT / "target")) / "debug" / "examples" / "replay_serve"  # honour CARGO_TARGET_DIR like cargo does
 HEADLESS = ROOT / "harness" / "headless.sh"
+
+# The official table's columns. A34: the last three (per check: two) say which
+# run produced the line — the HOST build, when (UTC), and what the run covered.
+RESULT_FIELDS = ["row_id", "area", "spec", "case", "status", "depth", "evidence", "reason",
+                 "run_sha", "run_at", "run_scope"]
+CHECK_FIELDS = ["row_id", "area", "spec", "case", "check", "status", "evidence", "reason",
+                "run_sha", "run_at"]
+
+
+def build_id(bin_path: pathlib.Path | None = None) -> str:
+    """The HOST build being walked, e.g. `octoscode-app@9c4fb794` — for a row's
+    `run_sha`. `WALK_RUN_SHA` overrides; else the stamp
+    outer/scripts/hostbuild.sh writes next to the binary it builds
+    (`<host>/apps/octoscode/BUILT_FROM`: `<lane>@<sha>[+dirty] <time>`);
+    else `unknown` (never a guess)."""
+    forced = os.environ.get("WALK_RUN_SHA", "").strip()
+    if forced:
+        return forced
+    try:
+        for parent in pathlib.Path(bin_path or BIN).resolve().parents:
+            stamp = parent / "apps" / "octoscode" / "BUILT_FROM"
+            if stamp.is_file():
+                words = stamp.read_text().split()
+                if words:
+                    return words[0]
+    except OSError:
+        pass
+    return "unknown"
 
 # The desktop `octosense` binary is EXTERNAL to this repo (built from the
 # OctoSense fork, ~12 min), so the runner never builds it silently — it checks
@@ -2677,13 +2718,17 @@ def decided_status(check_statuses, area_blocked: bool) -> str:
     * `blocked` — the area's server/app failed to start (card #19b, defect 1).
     * `pass` — at least one check ran and every check passed. An EMPTY run can
       never be `pass` (`all([]) == True` was the #19b defect).
+    * `not-run` — (A34) none failed, but a check the row needs did not run
+      (its instance failed to start while the row's other instance ran).
     * `fail` — otherwise.
     """
     if area_blocked:
         return "blocked"
     if not check_statuses:
         return "fail"
-    return "pass" if all(s == "pass" for s in check_statuses) else "fail"
+    if all(s == "pass" for s in check_statuses):
+        return "pass"
+    return "not-run" if all(s in ("pass", "not-run") for s in check_statuses) else "fail"
 
 
 # A11: a check that finds its surface ABSENT by design (not broken) says so by
@@ -2705,9 +2750,12 @@ def row_reason(check_statuses, area_reason: str = "") -> str:
     """The human reason for a row, from its checks."""
     if not check_statuses:
         return area_reason or "no checks ran for this row"
-    failed = [name for name, st in check_statuses if st != "pass"]
-    if failed:
-        return f"failing checks: {'; '.join(failed)}"
+    failed = [name for name, st in check_statuses if st not in ("pass", "not-run")]
+    not_run = [name for name, st in check_statuses if st == "not-run"]
+    parts = ([f"failing checks: {'; '.join(failed)}"] if failed else []) + \
+            ([f"not run: {'; '.join(not_run)}"] if not_run else [])
+    if parts:
+        return "; ".join(parts)
     return f"{len(check_statuses)} checks, all pass"
 
 
@@ -2743,25 +2791,29 @@ def area_of(row):
     return None
 
 
-def select_targets(limit: int | None):
+def select_targets(limit: int | None, areas=None):
     """The first `limit` rows in the scriptable areas, **round-robin by area**.
 
     Pure file order lets `conversation`/`recovery` crowd out `threads` (only 4-5
     eligible rows), so the card's named areas would not all appear. Taking one row
     per area in turn keeps every named area represented while still taking the
     earliest rows within each.
+
+    A34: `areas` (the `--only` filter) narrows the eligible rows FIRST, so the
+    limit counts that area's rows (it used to cut the round-robin over every
+    area, leaving `--only peer` 3 of its 20 rows — row 183 not among them).
     """
     eligible: dict[str, list] = {a: [] for a in AREA_PATTERNS}
     for i, row in enumerate(load_rows(), start=1):
         if (row.get("web_only_reason") or "").strip() or row["needs"] == "real-turn":
             continue
         area = area_of(row)
-        if area and AREA_SCRIPTABLE[area]:
+        if area and AREA_SCRIPTABLE[area] and (not areas or area in areas):
             eligible[area].append((i, area, row))
     order = [a for a in ("conversation", "threads", "composer", "recovery",
                          "peer", "review", "settings", "palette", "keyboard",
                          "longcode")
-             if AREA_SCRIPTABLE[a]]
+             if AREA_SCRIPTABLE[a] and (not areas or a in areas)]
     picked, cursors = [], {a: 0 for a in order}
     while limit is None or len(picked) < limit:
         progressed = False
@@ -2839,12 +2891,13 @@ def parity_reason(row: dict, parity: list):
     return None
 
 
-def relabel_unwalked(out_rows: list, rows: list, parity: list) -> int:
+def relabel_unwalked(out_rows: list, rows: list, parity: list, only=None) -> int:
     """Give every `not-yet-implemented` row the parity matrix's own reason
-    (and `not-walked` when its capabilities are built). Returns the count."""
+    (and `not-walked` when its capabilities are built). Returns the count.
+    `only`: the row ids a partial run may touch (A34; None = every row)."""
     n = 0
     for r in out_rows:
-        if r["status"] != "not-yet-implemented":
+        if r["status"] != "not-yet-implemented" or (only is not None and r["row_id"] not in only):
             continue
         got = parity_reason(rows[r["row_id"] - 1], parity)
         if got:
@@ -2853,16 +2906,19 @@ def relabel_unwalked(out_rows: list, rows: list, parity: list) -> int:
     return n
 
 
-def demote_unbuilt(out_rows: list, rows: list, parity: list) -> int:
+def demote_unbuilt(out_rows: list, rows: list, parity: list, only=None) -> int:
     """A row that PASSES only on run.py's own area-matched checks while a
     capability the parity matrix cites for its case is still C cannot be a
     pass: generic checks (a Phase-3 regex match on the case title) cannot
     prove an unbuilt capability. It becomes `not-yet-implemented`, naming the
     capability, the passing checks kept in the reason. Native rows (re-pointed
-    to click walks) are never demoted here. Returns the count."""
+    to click walks) are never demoted here. Returns the count.
+    `only`: the row ids a partial run may touch (A34; None = every row)."""
     n = 0
     for r in out_rows:
         if r["status"] != "pass" or r.get("depth") not in ("smoke", "specific"):
+            continue
+        if only is not None and r["row_id"] not in only:
             continue
         missing = [p["capability"] for p in parity_hits(rows[r["row_id"] - 1], parity) if final_bucket(p) == "C"]
         if missing:
@@ -2896,12 +2952,16 @@ def merge_native(out_rows: list, check_rows: list, native_rows: dict) -> tuple:
             continue
         own = ([c for c in check_rows if int(c["row_id"]) == rid and is_targeted(c)]
                if rid in partial else [])
-        own_failed = [c["check"] for c in own if c["status"] != "pass"]
-        status = "fail" if (v["status"] != "pass" or own_failed) else "pass"
+        own_failed = [c["check"] for c in own if c["status"] not in ("pass", "not-run")]
+        own_not_run = [c["check"] for c in own if c["status"] == "not-run"]
+        status = ("fail" if (v["status"] != "pass" or own_failed)
+                  else "not-run" if own_not_run else "pass")
         reason = v["reason"]
         if own:
             reason += (f"; with run.py's {len(own)} own checks"
-                       + (f", failing: {'; '.join(own_failed[:2])}" if own_failed else ", all pass"))
+                       + (f", failing: {'; '.join(own_failed[:2])}" if own_failed else "")
+                       + (f", not run: {'; '.join(own_not_run[:2])}" if own_not_run else "")
+                       + ("" if own_failed or own_not_run else ", all pass"))
         r.update(status=status, depth=v["depth"], evidence=v["evidence"], reason=reason)
     kept = [c for c in check_rows
             if int(c["row_id"]) not in native_rows or (int(c["row_id"]) in partial and is_targeted(c))]
@@ -2909,10 +2969,12 @@ def merge_native(out_rows: list, check_rows: list, native_rows: dict) -> tuple:
         r = by_id.get(rid)
         if r is None:
             continue
-        for name, ok, detail, ev in v["checks"]:
+        # A check carried from the table (A34) brings its own provenance as a
+        # fifth element; a check this run produced has none yet.
+        for name, ok, detail, ev, *extra in v["checks"]:
             kept.append({"row_id": rid, "area": r["area"], "spec": r["spec"], "case": r["case"],
                          "check": name, "status": "pass" if ok else "fail", "evidence": ev,
-                         "reason": (detail or "")[:200]})
+                         "reason": (detail or "")[:200], **(extra[0] if extra else {})})
     kept.sort(key=lambda c: int(c["row_id"]))
     return out_rows, kept
 
@@ -2925,37 +2987,196 @@ def read_csv(path: pathlib.Path) -> list:
     return out
 
 
-def run_native(args) -> dict:
-    """Run the native click walks (every `WALK` the convention finds) and
-    fold them into per-row verdicts. Also leaves the raw per-check results in
-    tmp/walk/native/last.json for a later `--native-only` merge."""
+def write_table(suffix: str, out_rows: list, check_rows: list):
+    """`docs/walk/results{suffix}.csv` and `results{suffix}-checks.csv`."""
+    with open(WALK / f"results{suffix}.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=RESULT_FIELDS)
+        w.writeheader()
+        w.writerows(out_rows)
+    with open(WALK / f"results{suffix}-checks.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=CHECK_FIELDS)
+        w.writeheader()
+        w.writerows(check_rows)
+
+
+def merge_base_problem() -> str:
+    """Why the committed table cannot be merged into ('' when it can) — asked
+    BEFORE a partial run spends its time, and the table is re-read at its end."""
+    for name, fields in (("results.csv", RESULT_FIELDS), ("results-checks.csv", CHECK_FIELDS)):
+        path = WALK / name
+        if not path.is_file():
+            return f"there is no {path} to merge a partial run into: run --full first"
+        with open(path, newline="") as f:
+            header = next(csv.reader(f), [])
+        unknown = [h for h in header if h not in fields]
+        if unknown or "row_id" not in header:
+            return f"{path} has columns this run.py does not write: {unknown or header}"
+    return ""
+
+
+def run_native(args) -> tuple:
+    """Run the native click walks `--walks` / `--modes` select. Returns
+    (results, specs): THIS run's (walk, mode) results only — in a partial run
+    the walks that did not run speak through the committed table
+    (`native_verdicts`), never through a local cache. Also leaves
+    tmp/walk/native/last.json (this run's results over the previous file's
+    other walks) for a snapshot run's `--native-json`."""
     import native  # tools/walk/native.py (same directory)
     only = {w.strip() for w in args.walks.split(",") if w.strip()} or None
     modes = [m.strip() for m in args.modes.split(",") if m.strip()]
     results, _ = native.run_all(str(BIN), args.port, args.fixture_port, modes=modes, only=only,
                                 log=lambda s: print(s, flush=True))
+    specs = {s["name"]: s for _, s in native.discover()}
+    results = [r for r in results if r["name"] in specs]
     native.SCRATCH.mkdir(parents=True, exist_ok=True)
     last = native.SCRATCH / "last.json"
-    specs = {s["name"]: s for _, s in native.discover()}
+    saved = results
     if (only or len(modes) < 2) and last.exists():
-        # A subset re-run (`--walks` / `--modes`) replaces only what it ran:
-        # every row is still decided over the LATEST result of EVERY walk
-        # (a row two walks map must not lose the other walk's checks).
-        fresh = {(r["name"], r["mode"]) for r in results}
-        results = [r for r in native.load_json(last)
-                   if (r["name"], r["mode"]) not in fresh] + results
-    results = [r for r in results if r["name"] in specs]
-    native.write_json(results, last)
+        ran = {(r["name"], r["mode"]) for r in results}
+        saved = [r for r in native.load_json(last)
+                 if (r["name"], r["mode"]) not in ran and r["name"] in specs] + results
+    native.write_json(saved, last)
     verdicts = native.row_verdicts(results, specs)
     n_pass = sum(1 for v in verdicts.values() if v["status"] == "pass")
-    print(f"[native] {len(verdicts)} rows re-pointed to native click walks: "
+    print(f"[native] {len(results)} walk runs decide {len(verdicts)} rows on their own: "
           f"{n_pass} pass, {len(verdicts) - n_pass} fail", flush=True)
-    return verdicts
+    return results, specs
 
 
-def native_only(args) -> int:
-    """`--native-only`: the native walks merged into the EXISTING results
-    (the rows they map are re-pointed; every other row keeps its verdict)."""
+# --------------------------------------------------------------------------- #
+# A34 — a partial run MERGES into the official table. The integrator had to
+# restore results.csv by hand after `--only peer` (on 9c4fb794): rows outside
+# the filter had flipped to fail / not-walked / not-yet-implemented, native
+# rows had lost their walks, and row 183's two viewport instances never ran.
+# --------------------------------------------------------------------------- #
+# A recorded native check: `<walk>: <check> [<mode>]`, or a synthetic
+# `<walk> [<mode>]: the walk ran` / `… a check matching …` (native.row_entries).
+NATIVE_CHECK_RE = re.compile(
+    r"^(?P<walk>[A-Za-z0-9_]+)(?: \[(?P<m1>[a-z]+)\])?: .*?(?: \[(?P<m2>[a-z]+)\])?$", re.S)
+
+
+def native_source(name: str, specs: dict):
+    """(walk, mode) of a recorded native check line, or None (a run.py check)."""
+    m = NATIVE_CHECK_RE.match(name)
+    if not m or m["walk"] not in specs:
+        return None
+    mode = m["m1"] or m["m2"]
+    return (m["walk"], mode) if mode in specs[m["walk"]].get("modes", ["desktop"]) else None
+
+
+def native_scope(results: list, specs: dict) -> set:
+    """The rows a (walk, mode) that ran maps."""
+    import native  # tools/walk/native.py
+    return {rid for r in results for rid in native.row_mapping(specs[r["name"]])
+            if native.mapped_patterns(specs[r["name"]], rid, r["mode"]) is not None}
+
+
+def native_verdicts(results: list, specs: dict, old_by_row: dict, scope: set) -> dict:
+    """Native verdicts for the rows in `scope`, as a full run would decide them:
+    this run's (walk, mode) results, plus — for each (walk, mode) that did NOT
+    run — the checks the committed table records for that row from it, each
+    with its provenance. So a row two walks map keeps the other walk's checks,
+    and a native row whose walks did not run is decided by exactly the checks
+    it already had. (A walk whose CURRENT spec no longer maps the row in that
+    mode is not carried: a full run would not ask it either.)"""
+    import native  # tools/walk/native.py
+    entries = native.row_entries(results, specs)
+    ran = {(r["name"], r["mode"]) for r in results}
+    for rid in sorted(scope):
+        for c in old_by_row.get(rid, []):
+            src = native_source(c["check"], specs)
+            if src is None or src in ran or native.mapped_patterns(specs[src[0]], rid, src[1]) is None:
+                continue
+            native.add_checks(entries, rid, specs[src[0]], src[1],
+                              [(c["check"], c["status"] == "pass", c["reason"], c["evidence"],
+                                {"run_sha": c["run_sha"], "run_at": c["run_at"]})],
+                              native.log_path(*src))
+    return {rid: v for rid, v in native.finalize(entries).items() if rid in scope}
+
+
+def _by_row(lines: list) -> dict:
+    out: dict = {}
+    for c in lines:
+        out.setdefault(int(c["row_id"]), []).append(c)
+    return out
+
+
+def official_table(rows: list, out_rows: list, check_rows: list, ran: set, results: list,
+                   specs: dict, prov: dict, complete: bool) -> tuple:
+    """(rows, check lines, re-run row ids) to write as the official table.
+
+    `out_rows` / `check_rows`: run.py's own verdicts (every row), `ran`: the
+    rows whose run.py checks ran (their area's instance started or failed to),
+    `results`: the native (walk, mode) runs of this run.
+
+    A complete run (`--full`, nothing narrowed) owns every row. Any other run
+    MERGES into the committed table:
+    * the rows in `ran` and the rows a walk that ran maps are re-decided as a
+      full run decides them — run.py's checks that ran, the native checks that
+      ran, and for each walk that did not run the checks the table records
+      (`native_verdicts`); the parity relabel / demote passes see only them;
+    * such a row is REPLACED only when a check that decides it ran (or its
+      instance failed to start). A row a native walk decides alone keeps its
+      line when that walk did not run (a full run drops run.py's checks there);
+    * every other row and its per-check lines are copied byte for byte.
+    A replaced row takes this run's provenance; a check line keeps the
+    provenance it carries from the table, or takes this run's."""
+    import native  # tools/walk/native.py
+    parity = load_parity()
+    stamp = {"run_sha": prov["run_sha"], "run_at": prov["run_at"]}
+    if complete:
+        out_rows, check_rows = merge_native(out_rows, check_rows, native.row_verdicts(results, specs))
+        relabel_unwalked(out_rows, rows, parity)
+        demote_unbuilt(out_rows, rows, parity)
+        for r in out_rows:
+            r.update(prov)
+        for c in check_rows:
+            c.update(stamp)
+        return out_rows, check_rows, {r["row_id"] for r in out_rows}
+
+    old_rows = {r["row_id"]: r for r in read_csv(WALK / "results.csv")}
+    old_lines = read_csv(WALK / "results-checks.csv")
+    for r in old_rows.values():      # an older table without provenance: kept blank
+        for k in ("run_sha", "run_at", "run_scope"):
+            r.setdefault(k, "")
+    for c in old_lines:
+        c.setdefault("run_sha", "")
+        c.setdefault("run_at", "")
+    old_by_row = _by_row(old_lines)
+    fresh_rows = {r["row_id"]: r for r in out_rows}
+    fresh_by_row = _by_row(check_rows)
+    ids = sorted(set(old_rows) | set(fresh_rows))
+    walked = native_scope(results, specs) & set(ids)   # a spec mapping no table row decides nothing
+    scope = set(ran) | walked
+    # The table as this run sees it before the native merge: run.py's fresh
+    # verdicts where its checks ran, the committed lines elsewhere.
+    pre = {i: dict(fresh_rows[i] if (i in ran or i not in old_rows) else old_rows[i]) for i in ids}
+    pre_lines = [dict(c) for i in ids
+                 for c in (fresh_by_row.get(i, []) if (i in ran or i not in old_rows) else old_by_row.get(i, []))]
+    pre_rows = [pre[i] for i in ids]
+    _rows, pre_lines = merge_native(pre_rows, pre_lines, native_verdicts(results, specs, old_by_row, scope))
+    relabel_unwalked(pre_rows, rows, parity, only=scope)
+    demote_unbuilt(pre_rows, rows, parity, only=scope)
+    pre_by_row = _by_row(pre_lines)
+    # A fresh line has no provenance yet (a line from the table carries one).
+    rerun = walked | {i for i in ids if i not in old_rows}
+    rerun |= {i for i in ran
+              if pre[i].get("depth") not in ("native", "native-partial")
+              or any("run_sha" not in c for c in pre_by_row.get(i, []))}
+    final_rows, final_lines = [], []
+    for i in ids:
+        if i in rerun:
+            final_rows.append({**pre[i], **prov})
+            final_lines += [c if "run_sha" in c else {**c, **stamp} for c in pre_by_row.get(i, [])]
+        else:
+            final_rows.append(old_rows[i])
+            final_lines += old_by_row.get(i, [])
+    return final_rows, final_lines, rerun
+
+
+def native_only(args, prov: dict) -> int:
+    """`--native-only`: the native walks merged into the committed table (the
+    rows they map are re-decided; every other row keeps its lines)."""
     try:
         if not (BIN.is_file() and os.access(BIN, os.X_OK)):
             raise PrereqError(APP_BIN_HELP)
@@ -2963,34 +3184,96 @@ def native_only(args) -> int:
         print(f"tools/walk: {e}", file=sys.stderr)
         return 2
     rows = load_rows()
-    out_rows = read_csv(WALK / "results.csv")
-    check_rows = read_csv(WALK / "results-checks.csv")
-    native_rows = run_native(args)
-    out_rows, check_rows = merge_native(out_rows, check_rows, native_rows)
-    parity = load_parity()
-    relabel_unwalked(out_rows, rows, parity)
-    demote_unbuilt(out_rows, rows, parity)
-    with open(WALK / "results.csv", "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "status", "depth", "evidence", "reason"])
-        w.writeheader()
-        w.writerows(out_rows)
-    with open(WALK / "results-checks.csv", "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "check", "status", "evidence", "reason"])
-        w.writeheader()
-        w.writerows(check_rows)
+    results, specs = run_native(args)
+    final_rows, final_lines, rerun = official_table(rows, [], [], set(), results, specs, prov,
+                                                    complete=False)
+    write_table("", final_rows, final_lines)
     from collections import Counter
-    counts = Counter(r["status"] for r in out_rows)
-    print("\n== walk results (native merged) ==")
+    counts = Counter(r["status"] for r in final_rows if r["row_id"] in rerun)
+    print(f"\n== native walks merged into docs/walk/results.csv ({prov['run_scope']}, "
+          f"{prov['run_sha']}): {len(rerun)} rows re-decided, "
+          f"{len(final_rows) - len(rerun)} kept as committed ==")
     for k in ("pass", "fail", "not-walked", "not-yet-implemented", "live-only", "blocked", "skipped"):
         if counts.get(k):
             print(f"   {k:20} {counts[k]}")
-    return 1 if any(v["status"] == "fail" for v in native_rows.values()) else 0
+    return 1 if counts.get("fail") or counts.get("not-run") else 0
+
+
+def planned_checks(area: str, gkey, live: bool) -> list:
+    """The checks one instance runs: its area's checks — for an env-group
+    instance only the group's own (the rest assert the CONNECTED app it is
+    not) — and, by mode, exactly the live checks (`--live`, #39a: replay
+    assertions are nonsense against a real gate) or none of them (#40a: the
+    live checks drive REAL turns; against a replay fixture they are nonsense)."""
+    chosen = [c for c in CHECKS if c["area"] == area]
+    if gkey is not None:
+        keep = set(ENV_GROUPS.get(gkey, {}).get("checks") or ())
+        chosen = [c for c in chosen if c["name"] in keep]
+    if live:
+        return [c for c in chosen if c["name"] in LIVE_CHECK_NAMES]
+    return [c for c in chosen if c["name"] not in LIVE_CHECK_NAMES]
+
+
+def snapshot_suffix(args) -> str:
+    """The suffix of a run's OWN files ('' = the official table): `--live`
+    (real turns), `WALK_ONLY_ROWS` (#43b) and `WALK_SCENARIO` (the negative
+    control's deliberately broken fixture) never write the official table."""
+    if args.live:
+        return "_live"
+    if os.environ.get("WALK_ONLY_ROWS", "").strip():
+        return "-only"
+    if os.environ.get("WALK_SCENARIO", "").strip():
+        return "-scenario"
+    return ""
+
+
+def is_complete(args, only_areas: list) -> bool:
+    """Only `--full` with nothing narrowed owns every row of the table."""
+    modes = {m.strip() for m in args.modes.split(",") if m.strip()}
+    return bool(args.full and not args.native_only and not only_areas and args.native
+                and not args.walks.strip() and {"desktop", "phone"} <= modes
+                and not args.native_json and not snapshot_suffix(args))
+
+
+def scope_label(args, only_areas: list, complete: bool) -> str:
+    """What a run covered, for its rows' `run_scope`."""
+    if complete:
+        return "full"
+    if args.native_only:
+        parts = ["native-only"]
+    elif args.live:
+        parts = ["live"]
+    else:
+        rows_env = os.environ.get("WALK_ONLY_ROWS", "").strip()
+        parts = [f"rows={rows_env}"] if rows_env else []
+        if only_areas:
+            parts.append("only=" + ",".join(only_areas))
+        if args.limit is not None and not rows_env:
+            parts.append(f"limit={args.limit}")
+        parts = parts or ["all rows"]
+        if args.native:
+            parts.append("+ native")
+    if args.native_only or (args.native and not args.live):
+        walks = [w.strip() for w in args.walks.split(",") if w.strip()]
+        modes = [m.strip() for m in args.modes.split(",") if m.strip()]
+        if walks:
+            parts.append("walks=" + ",".join(walks))
+        if not {"desktop", "phone"} <= set(modes):
+            parts.append("modes=" + ",".join(modes))
+    scenario = os.environ.get("WALK_SCENARIO", "").strip()
+    if scenario and not args.native_only:
+        parts.append(f"scenario={scenario}")
+    return " ".join(parts)
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--limit", type=int, default=30)
-    ap.add_argument("--only", default=None)
+    ap.add_argument("--limit", type=int, default=None,
+                    help="at most N scriptable rows, round-robin by area (default 30; "
+                         "with --only: every row of those areas)")
+    ap.add_argument("--only", default=None,
+                    help="comma list of areas: run only their rows and MERGE the verdicts "
+                         "into the committed table (every other row keeps its lines)")
     ap.add_argument("--port", type=int, default=APP_PORT)
     ap.add_argument("--no-build", action="store_true",
                     help="do not build the replay server if it is missing; just report it")
@@ -3006,27 +3289,48 @@ def main():
     ap.add_argument("--no-native", dest="native", action="store_false",
                     help="skip the native click walks")
     ap.add_argument("--native-only", action="store_true",
-                    help="run only the native walks and merge them into the EXISTING "
-                         "results.csv / results-checks.csv (the other rows are kept)")
+                    help="run only the native walks and merge them into the committed "
+                         "results.csv / results-checks.csv (only the rows they map change)")
     ap.add_argument("--walks", default="", help="comma list of native walk names (default: all)")
     ap.add_argument("--modes", default="desktop,phone", help="native walk modes")
     ap.add_argument("--fixture-port", type=int, default=8434,
                     help="first port for a native walk's fixture server (one per walk)")
     ap.add_argument("--native-json", default="",
-                    help="merge the native verdicts saved by an earlier run (tmp/walk/native/last.json) "
-                         "instead of running the walks again")
+                    help="a WALK_ONLY_ROWS snapshot run: merge the native verdicts saved by an "
+                         "earlier run (tmp/walk/native/last.json) instead of running the walks")
     ap.add_argument("--scenario-port-base", type=int,
                     default=int(os.environ.get("WALK_SCENARIO_PORT_BASE", "8380")),
                     help="first port of run.py's own replay servers (one per scenario, "
                          f"{len(SCENARIO_PORTS)} in all; default 8380)")
     args = ap.parse_args()
+    started = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     set_scenario_port_base(args.scenario_port_base)
+    only_areas = [a.strip() for a in (args.only or "").split(",") if a.strip()]
+    unknown = [a for a in only_areas if a not in AREA_PATTERNS]
+    if unknown:
+        print(f"tools/walk: unknown area(s) {', '.join(unknown)} for --only "
+              f"(areas: {', '.join(AREA_PATTERNS)})", file=sys.stderr)
+        return 2
     if args.full:
         args.limit = None
         if args.native is None:
             args.native = True
+    elif args.limit is None and not only_areas:
+        args.limit = 30
+    snap_suffix = "" if args.native_only else snapshot_suffix(args)
+    complete = is_complete(args, only_areas)
+    if args.native_json and snap_suffix != "-only":
+        print("tools/walk: --native-json is for a WALK_ONLY_ROWS snapshot run; the official "
+              "table's native verdicts come from the walks a run actually runs "
+              "(a partial run keeps the others from the table)", file=sys.stderr)
+        return 2
+    if not snap_suffix and not complete and (problem := merge_base_problem()):
+        print(f"tools/walk: {problem}", file=sys.stderr)
+        return 2
+    prov = {"run_sha": build_id(), "run_at": started,
+            "run_scope": scope_label(args, only_areas, complete)}
     if args.native_only:
-        return native_only(args)
+        return native_only(args, prov)
 
     # Fail fast on the documented prerequisites, with a message that says exactly
     # what to run (card #19b, defect 2). Building the replay server is cached.
@@ -3039,7 +3343,7 @@ def main():
     WALK.mkdir(parents=True, exist_ok=True)
     EVIDENCE.mkdir(parents=True, exist_ok=True)
     rows = load_rows()
-    targets = select_targets(args.limit)
+    targets = select_targets(args.limit, only_areas or None)
     # #43b: WALK_ONLY_ROWS="106,183,212" narrows a REPLAY run to named rows, the
     # replay-side twin of WALK_LIVE_ROWS. Needed because the three rows this card
     # unblocks each need their OWN app instance (a first run, a viewport width, a
@@ -3082,8 +3386,13 @@ def main():
         return 2
 
     areas = sorted({a for _, a, _ in targets})
-    if args.only:
-        areas = [a for a in areas if a == args.only]
+    if only_areas:
+        # A34: the selected rows of an area this run does not drive are not
+        # this run's (they used to be written as "fail: no checks ran").
+        areas = [a for a in areas if a in only_areas]
+        targets = [t for t in targets if t[1] in areas]
+        if not targets:
+            print(f"[walk] no scriptable row in {', '.join(only_areas)}: nothing to run")
 
     # area -> {"blocked": bool, "reason": str}. A row's checks run against the app
     # for its area; per-check results are recorded per row (card #19c item 3).
@@ -3124,34 +3433,25 @@ def main():
                                  first_run=bool(gspec.get("first_run")),
                                  extra_env=dict(gspec.get("env") or {}))
         except Exception as e:  # noqa: BLE001
-            area_state[(area, gkey)] = {
-                "blocked": True,
-                "reason": f"scenario '{scenario}' failed to start: {e}"}
-            for rid, _a, _r in grows:
-                per_row_checks[rid] = []
+            reason = f"scenario '{scenario}' failed to start: {e}"
+            area_state[(area, gkey)] = {"blocked": True, "reason": reason}
+            # A34: every check this instance owed its rows is recorded
+            # `not-run`, next to what the row's OTHER instance recorded (row
+            # 183's 1280 results used to be wiped when its 720 instance failed,
+            # leaving "fail: no checks ran" — the 720 check silently gone).
+            tag = "" if gkey is None else f" [{gkey[1]}]"
+            for rid, _a, row in my_rows:
+                prev = per_row_checks.get(rid, [])
+                seen = {n for n, _s, _r, _sp in prev}
+                owed = [(c["name"] + tag, "not-run", f"not run: {reason}"[:200], c["specific"])
+                        for c in planned_checks(area, gkey, args.live) if check_applies(c, row)]
+                per_row_checks[rid] = prev + [k for k in owed if k[0] not in seen]
             continue
         app = App(procs.app_port)
         app.env = dict(getattr(procs, "last_env", {}))
-        # Run each check ONCE against this area's app; record its status.
-        area_checks = [c for c in CHECKS if c["area"] == area]
-        if gkey is not None:
-            # Only this group's own checks, and only for its rows: the rest of
-            # the area's checks assert the CONNECTED app this instance is not.
-            keep = set(gspec.get("checks") or ())
-            area_checks = [c for c in area_checks if c["name"] in keep]
-        if args.live:
-            # #39a: --live runs EXACTLY the live-specific set — the replay
-            # checks' assertions (fixture texts, replay counts) are nonsense
-            # against a real gate.
-            area_checks = [c for c in area_checks
-                           if c["name"] in LIVE_CHECK_NAMES]
-        else:
-            # #40a: the mirror direction — the live checks drive REAL model
-            # turns (short prompts, live timing), so against a replay fixture
-            # they are nonsense by construction (the first full walk that
-            # included them lost 2 rows to exactly that).
-            area_checks = [c for c in area_checks
-                           if c["name"] not in LIVE_CHECK_NAMES]
+        # Run each check ONCE against this area's app; record its status. An
+        # env-group instance runs only its group's own checks, for its rows.
+        area_checks = planned_checks(area, gkey, args.live)
         results = []
         evidence = ""
         for chk in area_checks:
@@ -3223,18 +3523,23 @@ def main():
         if i in target_area:
             area = target_area[i]
             # #43b: the state is keyed by (area, env-group), not by area — a
-            # row's verdict comes from the instance it was actually launched
-            # on, so the lookup must use the same key `env_group_for` chose.
-            st = area_state.get((area, env_group_for(row)),
-                                area_state.get((area, None), {}))
+            # row's verdict comes from the instances it was actually launched
+            # on, so the lookup uses the keys `env_groups_for` chose. A34: a
+            # row is `blocked` only when EVERY instance it needs failed to
+            # start; one failed width beside a run one reads `not-run`.
+            sts = [area_state.get((area, k), {}) for k in (env_groups_for(row) or [None])]
+            blocked = all(s.get("blocked", False) for s in sts)
+            start_failure = "; ".join(s["reason"] for s in sts if s.get("blocked"))
             checks = per_row_checks.get(i, [])
-            status = decided_status([s for _, s, _, _ in checks], st.get("blocked", False))
-            reason = row_reason([(n, s) for n, s, _, _ in checks], st.get("reason", ""))
+            status = decided_status([s for _, s, _, _ in checks], blocked)
+            # #19b: a blocked row keeps its start failure as its reason (its
+            # owed checks are listed `not-run` in the per-check table).
+            reason = start_failure if blocked else row_reason([(n, s) for n, s, _, _ in checks])
             nb = not_built_reason(checks) if status == "fail" else ""
             if nb:
                 status, reason = "not-yet-implemented", nb
             depth = "specific" if any(sp for *_, sp in checks) else "smoke"
-            ev = st.get("evidence", "")
+            ev = ";".join(dict.fromkeys(s["evidence"] for s in sts if s.get("evidence")))
             out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
                              "status": status, "depth": depth, "evidence": ev,
                              "reason": reason})
@@ -3266,67 +3571,75 @@ def main():
 
     # A11: the native click walks re-point the rows they map; the rows nothing
     # covers get the parity matrix's own verdict and reason.
-    native_rows: dict = {}
-    if args.native_json and not args.live:
-        import native  # tools/walk/native.py
-        saved = native.load_json(pathlib.Path(args.native_json))
-        specs = {s["name"]: s for _, s in native.discover()}
-        native_rows = native.row_verdicts([r for r in saved if r["name"] in specs], specs)
-        out_rows, check_rows = merge_native(out_rows, check_rows, native_rows)
-    elif args.native and not args.live:
-        native_rows = run_native(args)
-        out_rows, check_rows = merge_native(out_rows, check_rows, native_rows)
-    parity = load_parity()
-    relabel_unwalked(out_rows, rows, parity)
-    demote_unbuilt(out_rows, rows, parity)
+    import native  # tools/walk/native.py
+    results: list = []
+    specs = {s["name"]: s for _, s in native.discover()}
+    if args.native and not args.live and not args.native_json:
+        results, specs = run_native(args)
 
-    live_suffix = "_live" if args.live else ""
-    # #43b: a WALK_ONLY_ROWS run drives a SUBSET of rows, but the loop above
-    # still emits an aggregate row for EVERY walk row — the unselected ones as
-    # `not-yet-implemented`/`live-only`. Writing that to results.csv flipped 113
-    # statuses of the last FULL run (measured), so a targeted run gets its own
-    # files, exactly as --live does.
-    if not args.live and os.environ.get("WALK_ONLY_ROWS", "").strip():
-        live_suffix = "-only"
-    with open(WALK / f"results{live_suffix}.csv", "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "status", "depth", "evidence", "reason"])
-        w.writeheader()
-        w.writerows(out_rows)
-    with open(WALK / f"results{live_suffix}-checks.csv", "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "check", "status", "evidence", "reason"])
-        w.writeheader()
-        w.writerows(check_rows)
+    if snap_suffix:
+        # #43b: a WALK_ONLY_ROWS run drives a SUBSET of rows, but the loop above
+        # still emits an aggregate row for EVERY walk row — the unselected ones as
+        # `not-yet-implemented`/`live-only`. Writing that to results.csv flipped 113
+        # statuses of the last FULL run (measured), so a targeted run gets its own
+        # files, exactly as --live does (and, A34, the negative control's
+        # WALK_SCENARIO run). Its own rows carry this run's provenance.
+        if args.native_json:
+            saved = native.load_json(pathlib.Path(args.native_json))
+            native_rows = native.row_verdicts([r for r in saved if r["name"] in specs], specs)
+        else:
+            native_rows = native.row_verdicts(results, specs)
+        out_rows, check_rows = merge_native(out_rows, check_rows, native_rows)
+        parity = load_parity()
+        relabel_unwalked(out_rows, rows, parity)
+        demote_unbuilt(out_rows, rows, parity)
+        rerun = set(target_area) | native_scope(results, specs)
+        for r in out_rows:
+            r.update(prov if r["row_id"] in rerun else {})
+        for c in check_rows:
+            c.update({k: prov[k] for k in ("run_sha", "run_at")} if c["row_id"] in rerun else {})
+        write_table(snap_suffix, out_rows, check_rows)
+        table = f"docs/walk/results{snap_suffix}.csv"
+    else:
+        out_rows, check_rows, rerun = official_table(rows, out_rows, check_rows, set(target_area),
+                                                     results, specs, prov, complete)
+        write_table("", out_rows, check_rows)
+        table = "docs/walk/results.csv"
 
     from collections import Counter
-    counts = Counter(r["status"] for r in out_rows)
+    mine = [r for r in out_rows if r["row_id"] in rerun]
+    counts = Counter(r["status"] for r in mine)
     areas_seen = sorted({r["area"] for r in out_rows if r["area"]})
-    print("\n== per-area summary (#33a) ==")
+    print(f"\n== per-area summary (#33a) — {table} ==")
     for a in areas_seen:
         c = Counter(r["status"] for r in out_rows if r["area"] == a)
         cells = ", ".join(f"{k}={c[k]}" for k in
                           ("pass", "fail", "live-only", "not-walked", "not-yet-implemented",
-                           "blocked", "skipped") if c.get(k))
+                           "blocked", "not-run", "skipped") if c.get(k))
         print(f"   {a:14} {cells}")
-    infra_blocked = sum(1 for i, r in enumerate(out_rows, start=1)
-                        if i in target_area and r["status"] == "blocked")
-    print("\n== walk-runner summary ==")
+    infra_blocked = sum(1 for r in mine if r["row_id"] in target_area and r["status"] == "blocked")
+    print(f"\n== walk-runner summary — the {len(mine)} rows this run decided "
+          f"({prov['run_scope']}, {prov['run_sha']}, {prov['run_at']}) ==")
+    if not complete and not snap_suffix:
+        print(f"   (merged: the other {len(out_rows) - len(mine)} rows keep their committed lines)")
     for k in ("pass", "fail", "not-walked", "not-yet-implemented", "live-only", "blocked",
               "skipped", "not-run"):
         if counts.get(k):
             print(f"   {k:20} {counts[k]}")
-    print(f"   total                {len(out_rows)}")
+    print(f"   total                {len(mine)}")
     print(f"   scripted rows        {len(targets)}  (areas: {areas})")
-    print(f"   per-check rows       {len(check_rows)}  (docs/walk/results{live_suffix}-checks.csv)")
+    print(f"   per-check rows       {sum(1 for c in check_rows if c['row_id'] in rerun)}"
+          f"  ({table[:-4]}-checks.csv)")
     print(f"   live turns used      {turns_used()} / {LIVE_TURN_BUDGET} (hard cap, #41d)")
-    by_depth = Counter((r["status"], r.get("depth", "")) for r in out_rows)
+    by_depth = Counter((r["status"], r.get("depth", "")) for r in mine)
     print(f"   pass by depth        specific={by_depth.get(('pass', 'specific'), 0)}"
           f" smoke={by_depth.get(('pass', 'smoke'), 0)}"
           f" native={by_depth.get(('pass', 'native'), 0)}"
           f" native-partial={by_depth.get(('pass', 'native-partial'), 0)}"
-          f"  (distinct checks: {len({c['check'] for c in check_rows})})")
+          f"  (distinct checks: {len({c['check'] for c in check_rows if c['row_id'] in rerun})})")
     if infra_blocked:
         print(f"   NOTE: {infra_blocked} selected row(s) blocked by a start failure")
-        reasons = sorted({r["reason"] for r in out_rows
+        reasons = sorted({r["reason"] for r in mine
                           if r["status"] == "blocked" and r["reason"]})
         for reason in reasons[:4]:
             print(f"     - {reason[:160]}")
