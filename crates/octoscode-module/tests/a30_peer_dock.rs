@@ -436,9 +436,15 @@ async fn a_stale_approval_id_sends_nothing() {
     ];
     conv.client().request("test/kick", json!({})).await.expect("kick");
     assert!(wait_until(|| conv.store.domains.peer.row(&alpha).is_some_and(|r| r.request_id.as_deref() == Some(ap("alpha", 2).as_str()))).await);
-    // The tap still carrying the OLD slot is refused (no job)…
+    // The decision still carrying the OLD slot is refused (no job)…
     assert!(matches!(dock::perform(dock::ACTION_APPROVE, drawn, &conv.store, false), Outcome::Refused(_)));
-    assert!(matches!(dock::perform(dock::ACTION_STOP, drawn, &conv.store, false), Outcome::Refused(_)));
+    // (A30 follow-up: Stop targets the TURN, which did not move — it
+    // re-resolves to the current row instead of refusing; its one frame is
+    // `stop_re_resolves_once_when_the_approval_is_reissued_between_the_tap_and_the_send`.)
+    match dock::perform(dock::ACTION_STOP, drawn, &conv.store, false) {
+        Outcome::Spawn(job) => dock::abandon(&job),
+        other => panic!("Stop on the same turn re-resolves: {other:?}"),
+    }
     // …and the early job is refused before the wire.
     assert!(dock::run(early, &conv).await.is_err(), "the pending id changed: refused");
     assert!(server.sent("peer/control").is_empty(), "a stale approval id sends NOTHING");
@@ -654,4 +660,161 @@ fn a_stale_refusal_is_said_once_then_leaves_and_a_cardless_chord_is_silent() {
     assert_eq!(dock::focused_slot(), Some(two));
     assert!(matches!(dock::perform(dock::ACTION_APPROVE, two, &store, false), Outcome::Refused(_)));
     assert!(!dock::lower(&store, now, DESKTOP).unwrap().dsl.contains("pd_row_1_note"), "a card-less chord is silent");
+}
+
+// ------------------------------------------------- A30 follow-up (judge)
+//
+// "Stop sent nothing" under load: a row that CHANGES between the tap and
+// the send (a re-issued approval, a new turn) must never leave the person
+// with a silent no-op. Stop targets the turn: on the SAME operation and turn
+// it re-resolves to the current row and sends exactly once; a decision is
+// bound to the approval it was drawn for, so it is refused — VISIBLY, on the
+// card — and nothing is sent.
+
+/// The re-issue the server can announce: the drawn approval is cancelled
+/// (superseded) and a NEW one, for another command, takes its place on the
+/// same turn.
+fn reissue(session: &str, turn: &str, old: &str, new: &str, command_line: &str) -> Vec<(String, Value)> {
+    vec![
+        (
+            "approval/cancelled".into(),
+            json!({"session_id": session, "approval_id": old, "turn_id": turn, "reason": "superseded"}),
+        ),
+        ("approval/requested".into(), approval(session, turn, new, command_line)),
+    ]
+}
+
+const CHANGED: &str = "This peer changed. Review it and tap again.";
+/// The replacement command the re-issue asks to run.
+const FORCE_PUSH: &str = "git push --force origin main";
+
+/// THE deterministic repro of the load failure: Stop is tapped on Peer
+/// `beta`'s card (drawn for approval 1), the server re-issues beta's
+/// approval (2) on the SAME turn before the job sends — the Stop still
+/// stops beta: exactly ONE interrupt on beta's operation and turn.
+#[tokio::test]
+async fn stop_re_resolves_once_when_the_approval_is_reissued_between_the_tap_and_the_send() {
+    let _s = serial();
+    fresh();
+    let (server, conv) = two_waiting_peers().await;
+    let beta = format!("{SESSION}#peer-beta");
+    let (_, _, beta_turn, beta_op) = server.peer("beta");
+    dock::lower(&conv.store, peers::now_ms(), DESKTOP).expect("the dock shows");
+    // The tap (drawn for approval 1)…
+    let job = job_of(dock::perform(dock::ACTION_STOP, slot(&beta), &conv.store, false));
+    // …then the row changes before the send.
+    server.world.lock().unwrap().kick = reissue(&beta, &beta_turn, &ap("beta", 1), &ap("beta", 2), FORCE_PUSH);
+    conv.client().request("test/kick", json!({})).await.expect("kick");
+    assert!(wait_until(|| conv.store.domains.peer.row(&beta).is_some_and(|r| r.request_id.as_deref() == Some(ap("beta", 2).as_str()))).await);
+    let res = dock::run(job, &conv).await;
+    let c = server.sent("peer/control");
+    assert_eq!(c.len(), 1, "exactly ONE frame (re-resolved to the same turn and operation): {res:?}");
+    assert_eq!(c[0]["command"], json!({"kind": "interrupt"}));
+    assert_eq!((c[0]["target_operation_id"].clone(), c[0]["expected_turn_id"].clone()), (json!(beta_op), json!(beta_turn)));
+}
+
+/// A decision drawn for approval 1 never answers its replacement: refused
+/// at the send (the tap was current) AND at the tap (a stale draw), zero
+/// frames both times, and the card that now shows the new command says so.
+/// The re-drawn card answers the new approval exactly once.
+#[tokio::test]
+async fn a_decision_drawn_for_one_approval_never_answers_its_replacement_and_says_so_on_the_card() {
+    let _s = serial();
+    fresh();
+    let (server, conv) = two_waiting_peers().await;
+    let alpha = format!("{SESSION}#peer-alpha");
+    let (_, _, alpha_turn, _) = server.peer("alpha");
+    let pending = |n: u64| conv.store.domains.peer.row(&alpha).is_some_and(|r| r.request_id.as_deref() == Some(ap("alpha", n).as_str()));
+    // (a) The tap is current; the row changes before the send.
+    dock::lower(&conv.store, peers::now_ms(), DESKTOP).unwrap();
+    let job = job_of(dock::perform(dock::ACTION_APPROVE, slot(&alpha), &conv.store, false));
+    server.world.lock().unwrap().kick = reissue(&alpha, &alpha_turn, &ap("alpha", 1), &ap("alpha", 2), FORCE_PUSH);
+    conv.client().request("test/kick", json!({})).await.expect("kick");
+    assert!(wait_until(|| pending(2)).await);
+    assert!(dock::run(job, &conv).await.is_err(), "the approval it was drawn for is gone");
+    assert!(server.sent("peer/control").is_empty(), "a decision never answers the replacement");
+    let shown = dock::lower(&conv.store, peers::now_ms(), DESKTOP).unwrap();
+    assert!(shown.dsl.contains(FORCE_PUSH), "the card shows the NEW command");
+    let card = shown.dsl.find("pd_row_1_card").expect("alpha's card");
+    let note = shown.dsl.find(CHANGED).expect("the refusal is visible, not silent");
+    assert!(note > card, "…on alpha's card");
+    // (b) A stale draw: the card still shows approval 2 when 3 replaces it.
+    let stale = slot(&alpha);
+    server.world.lock().unwrap().kick = reissue(&alpha, &alpha_turn, &ap("alpha", 2), &ap("alpha", 3), "rm -rf ~/.cache");
+    conv.client().request("test/kick", json!({})).await.expect("kick");
+    assert!(wait_until(|| pending(3)).await);
+    assert!(matches!(dock::perform(dock::ACTION_DENY, stale, &conv.store, false), Outcome::Refused(_)));
+    assert!(server.sent("peer/control").is_empty());
+    assert!(dock::lower(&conv.store, peers::now_ms(), DESKTOP).unwrap().dsl.contains(CHANGED), "said on the card");
+    // (c) The re-drawn card answers the current approval exactly once.
+    let job = job_of(dock::perform(dock::ACTION_APPROVE, slot(&alpha), &conv.store, false));
+    dock::run(job, &conv).await.expect("approve the current approval");
+    let c = server.sent("peer/control");
+    assert_eq!(c.len(), 1);
+    assert_eq!(c[0]["command"]["approval_id"], json!(ap("alpha", 3)));
+}
+
+/// Stop on a peer that started a NEW turn is refused visibly (the turn it
+/// was drawn for is over); nothing is sent and the row says why.
+#[tokio::test]
+async fn stop_refuses_visibly_when_the_peer_started_a_new_turn() {
+    let _s = serial();
+    fresh();
+    let (server, conv) = two_waiting_peers().await;
+    let beta = format!("{SESSION}#peer-beta");
+    dock::lower(&conv.store, peers::now_ms(), DESKTOP).unwrap();
+    let job = job_of(dock::perform(dock::ACTION_STOP, slot(&beta), &conv.store, false));
+    let mut started = fixture_body("turn/started");
+    started["session_id"] = json!(beta);
+    started["turn_id"] = json!("00000000-0000-4000-8000-0000000000e9");
+    server.world.lock().unwrap().kick = vec![("turn/started".into(), started)];
+    conv.client().request("test/kick", json!({})).await.expect("kick");
+    assert!(wait_until(|| conv.store.domains.peer.row(&beta).is_some_and(|r| r.turn_id.ends_with("e9"))).await);
+    assert!(dock::run(job, &conv).await.is_err());
+    assert!(server.sent("peer/control").is_empty(), "the turn it was drawn for is over: nothing sent");
+    let shown = dock::lower(&conv.store, peers::now_ms(), DESKTOP).unwrap();
+    assert!(shown.dsl.contains("pd_row_2_note") && shown.dsl.contains(CHANGED), "the row says why");
+}
+
+/// Judge: on the desktop's 990x603 window a waiting card must not squeeze
+/// the session tree to its header. The dock leaves the tree its group
+/// header and TWO session rows (36 + 2 x 32 px); its rows scroll inside it,
+/// with the waiting peer listed first so its card shows without an
+/// automatic jump. A tall seat (the phone drawer) keeps the roster order.
+#[test]
+fn a_short_desktop_column_keeps_two_session_rows_and_lists_the_waiting_peer_first() {
+    use octoscode_store::domains::peer::{ApprovalDetail, RequestDetail};
+    let _s = serial();
+    fresh();
+    let store = Store::new();
+    store.set_active(Some(SESSION.into()));
+    let p = &store.domains.peer;
+    for id in ["m#peer-one", "m#peer-two", "m#peer-three"] {
+        p.stage_row(row(id, RowStatus::Started), false);
+        p.observe_session_event(id, &PeerSessionEvent::TurnStarted { turn_id: None }, 1);
+    }
+    let detail = RequestDetail::Approval(ApprovalDetail { tool_name: "shell".into(), target: Some("cargo test -p octos-cli".into()), ..Default::default() });
+    p.observe_session_event(
+        "m#peer-two",
+        &PeerSessionEvent::AttentionRequested { request_id: Some("ap-2".into()), kind: Some(RequestKind::Approval), detail: Some(detail) },
+        2,
+    );
+    p.observe_session_event("m#peer-three", &PeerSessionEvent::TurnTerminal { outcome: TurnOutcome::Finished, error: None }, 3);
+    // The desktop column: 279 px between the tree's top and the footer.
+    let room = 279.0;
+    let short = dock::lower(&store, peers::now_ms(), Seat { compact: false, width: 260.0, room }).unwrap();
+    assert!(short.height <= room - (36.0 + 2.0 * 32.0), "the tree keeps its header + 2 session rows: dock {}", short.height);
+    assert!(short.dsl.contains("pd_rows := ScrollYView"), "the rows scroll inside the dock");
+    let (waiting, first) = (short.dsl.find("pd_row_1 :=").unwrap(), short.dsl.find("pd_row_0 :=").unwrap());
+    assert!(waiting < first, "the waiting peer is listed first on a short column (no automatic scroll exists)");
+    // A tall seat has room: the roster order, uncapped — a tall desktop
+    // window, and the phone drawer once it is unfolded (it starts folded).
+    for seat in [Seat { compact: false, width: 260.0, room: 600.0 }, Seat { compact: true, width: 292.0, room: 446.0 }] {
+        if seat.compact {
+            assert!(!dock::toggle(true), "unfold the phone dock");
+        }
+        let tall = dock::lower(&store, peers::now_ms(), seat).unwrap();
+        assert!(!tall.dsl.contains("pd_rows := ScrollYView"), "{seat:?}");
+        assert!(tall.dsl.find("pd_row_0 :=").unwrap() < tall.dsl.find("pd_row_1 :=").unwrap(), "roster order with room: {seat:?}");
+    }
 }

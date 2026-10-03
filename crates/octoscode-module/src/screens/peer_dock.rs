@@ -33,10 +33,18 @@
 //!   ⌥P, "Hide peers" and the pill toggle it. Folded = ONE pill, the web's
 //!   `formatPeerDockPill` in the Fleet's words ("Peers 3 · 1 working ·
 //!   ⚠ 1 waiting · 1/3 finished"), with the "Show peers · ⌥P" hint.
-//! * **Height** — on a short desktop column the dock never takes the whole
-//!   tree: past `room - TREE_MIN` its rows scroll, and the first waiting card
-//!   is brought into view after each remount (a sync that does not remount
-//!   keeps the person's own scroll).
+//! * **Height** — on a short desktop column (990x603) the dock never takes
+//!   the tree: the tree keeps its group header and TWO session rows
+//!   (`TREE_MIN`), the dock's rows scroll inside it, and the peers waiting
+//!   for you are listed first there, so a card shows at the top with no
+//!   automatic jump (content never moves under the pointer). A tall seat
+//!   (the phone drawer) keeps the roster order.
+//! * **Never silent** — a control whose row changed between the draw, the
+//!   tap and the send acts only if it still means the same thing: Stop on
+//!   the same operation and turn re-resolves (one frame); a decision is
+//!   bound to its approval. A refused one says so ON THE CARD
+//!   (`fleet_driver::CHANGED_DRAWN` / `STALE_DRAWN`), whatever the row
+//!   shows now.
 //! * **Live values** — elapsed and the token / acknowledgment tail change
 //!   every second; they are set IN PLACE after the mount (`Lowered::texts`),
 //!   so the mounted tree (and a scroll position, and a press in progress)
@@ -50,7 +58,7 @@ use octoscode_store::Store;
 
 use super::board3::fleetview::{self, Status};
 use super::board3::ui::{self, tok, Dsl, Face, Txt, W};
-use super::fleet_driver::{self, DrawnTarget, STALE_DRAWN};
+use super::fleet_driver::{self, DrawnTarget};
 use super::peers::{self, RowAction};
 use crate::i18n::{keep, tr, tr1, tr_with};
 
@@ -66,10 +74,10 @@ pub fn routes(action: &str) -> bool {
     action.starts_with("pd.")
 }
 
-/// The session tree keeps at least this much of the shared height (a
-/// workspace header and one row); while a card waits, only the header.
-const TREE_MIN: f64 = 68.0;
-const TREE_MIN_WAITING: f64 = 36.0;
+/// The session tree keeps at least this much of the shared height: its
+/// workspace header (36 px, `SbGroupTpl`) and TWO session rows (32 px each,
+/// `SbRowTpl`) — a waiting card never squeezes the tree to its header.
+const TREE_MIN: f64 = 36.0 + 2.0 * 32.0;
 /// Fixed metrics (logical px) — the session tree's own (`chrome.rs`
 /// `SbRowTpl`: rows padded 6 left / 8 right, a 16 px glyph box, 6 px gaps).
 const HEAD_H: f64 = 28.0;
@@ -84,7 +92,9 @@ const GAP: f64 = 6.0;
 const CARD_INSET: f64 = 16.0;
 /// The card's padding (left/right, top/bottom).
 const CARD_PAD_X: f64 = 10.0;
-const CARD_PAD_Y: f64 = 8.0;
+const CARD_PAD_Y: f64 = 6.0;
+/// The card's line spacing (asks / target / buttons / link).
+const CARD_GAP: f64 = 4.0;
 const BTN_H: f64 = 30.0;
 const BTN_PX: f64 = 12.0;
 const BTN_PAD: f64 = 10.0;
@@ -165,8 +175,14 @@ pub struct Lowered {
     pub folded: bool,
     /// The estimated natural height of the dock (logical px).
     pub height: f64,
-    /// Scroll the capped rows region to this offset once (a new waiting card).
-    pub scroll_to: Option<f64>,
+}
+
+/// The in-flight tag of a job: what its one frame targets.
+fn inflight_tag(action: RowAction, drawn: &Drawn) -> String {
+    match action {
+        RowAction::Stop | RowAction::Steer => format!("turn:{}", drawn.turn_id),
+        _ => format!("req:{}", drawn.request_id.as_deref().unwrap_or("")),
+    }
 }
 
 /// One routed action's job (the host spawns `run`).
@@ -199,10 +215,13 @@ struct State {
     /// The last lowering's slot per row key.
     current: HashMap<String, usize>,
     next_slot: usize,
-    /// (row key, request id) of a job in flight: a second press sends nothing.
-    inflight: HashSet<(String, Option<String>)>,
-    /// The last refusal per row: (the request it was for, bounded copy,
-    /// when it was said).
+    /// (row key, target tag) of a job in flight — a decision's request id, a
+    /// Stop's turn: a second press for the same target sends nothing.
+    inflight: HashSet<(String, String)>,
+    /// The last refusal per row: (the request the row showed WHEN it was
+    /// refused, bounded copy, when it was said) — shown while the row still
+    /// shows that request, so a refusal caused by a NEW request appears on
+    /// the new card instead of vanishing.
     notes: HashMap<String, (Option<String>, String, u64)>,
 }
 
@@ -386,17 +405,20 @@ pub fn perform(action: &str, slot: usize, store: &Store, compact: bool) -> Outco
     if d.request_id.is_none() && matches!(act, RowAction::Approve | RowAction::ApproveSession | RowAction::Deny) {
         return Outcome::Refused("no pending approval on this row".to_owned());
     }
-    // The row must still show EXACTLY the ids this control was drawn for.
-    if !fleet_driver::still_drawn(&row, act, &d.target()) {
-        st.notes.insert(d.key.clone(), (d.request_id.clone(), STALE_DRAWN.to_owned(), peers::now_ms()));
-        return Outcome::Refused(tr(STALE_DRAWN).to_owned());
+    // The row must still mean what this control was drawn for: a decision
+    // its approval, Stop its turn (`fleet_driver::drawn_refusal`). A refusal
+    // is SAID on the card the row shows now — never a silent no-op.
+    if let Some(reason) = fleet_driver::drawn_refusal(&row, act, &d.target()) {
+        st.notes.insert(d.key.clone(), (row.request_id.clone(), reason.to_owned(), peers::now_ms()));
+        return Outcome::Refused(tr(reason).to_owned());
     }
     if !peers::row_actions(&row).contains(&act) {
+        st.notes.insert(d.key.clone(), (row.request_id.clone(), "That action is not available right now.".to_owned(), peers::now_ms()));
         return Outcome::Refused(tr("That action is not available right now.").to_owned());
     }
-    // One frame per drawn request: a second press while it is in flight
-    // sends nothing.
-    if !st.inflight.insert((d.key.clone(), d.request_id.clone())) {
+    // One frame per target: a second press while it is in flight sends
+    // nothing (the first one's acknowledgment or refusal shows).
+    if !st.inflight.insert((d.key.clone(), inflight_tag(act, &d))) {
         return Outcome::Done;
     }
     st.notes.remove(&d.key);
@@ -406,7 +428,7 @@ pub fn perform(action: &str, slot: usize, store: &Store, compact: bool) -> Outco
 /// A job the host could not spawn (no connection): release its in-flight
 /// guard, so the card's controls answer the next press.
 pub fn abandon(job: &Job) {
-    state().inflight.remove(&(job.drawn.key.clone(), job.drawn.request_id.clone()));
+    state().inflight.remove(&(job.drawn.key.clone(), inflight_tag(job.action, &job.drawn)));
 }
 
 /// Run ONE dock action through the Fleet's control chain, re-checking the
@@ -420,14 +442,22 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         }
         None => Err("That action is not available right now.".to_owned()),
     };
+    // What the row shows NOW (a refusal caused by a newer request is said
+    // on that request's card).
+    let now_request = job
+        .drawn
+        .identity
+        .as_deref()
+        .and_then(|id| conv.store.domains.peer.row(id))
+        .and_then(|r| r.request_id);
     let mut st = state();
-    st.inflight.remove(&(job.drawn.key.clone(), job.drawn.request_id.clone()));
+    st.inflight.remove(&(job.drawn.key.clone(), inflight_tag(job.action, &job.drawn)));
     match &res {
         Ok(_) => {
             st.notes.remove(&job.drawn.key);
         }
         Err(label) => {
-            st.notes.insert(job.drawn.key.clone(), (job.drawn.request_id.clone(), label.clone(), peers::now_ms()));
+            st.notes.insert(job.drawn.key.clone(), (now_request, label.clone(), peers::now_ms()));
         }
     }
     res
@@ -564,30 +594,36 @@ fn lines(s: &str, w: f64, px: f64, face: Face) -> f64 {
     (ui::text_w(s, px, face) / w.max(1.0)).ceil().max(1.0)
 }
 
-/// The threaded approval card's estimated height.
-fn card_h(r: &DockRow, inner_w: f64, control_ready: bool) -> f64 {
+/// The threaded approval card's estimated height (`note`: a refusal said on
+/// the card).
+fn card_h(r: &DockRow, inner_w: f64, control_ready: bool, note: Option<&str>) -> f64 {
     let Some(a) = &r.approval else { return 0.0 };
     let asks = format!("{} {}", tr("asks to run"), a.tool);
     let mut h = 2.0 * CARD_PAD_Y + 17.0 * lines(&asks, inner_w, 13.0, Face::Regular);
+    if let Some(n) = note {
+        h += 16.0 * lines(n, inner_w, 12.0, Face::Medium) + CARD_GAP;
+    }
     if let Some(t) = &a.target {
-        h += 5.0 + 8.0 + 15.0 * lines(t, inner_w - 14.0, 12.0, Face::Mono);
+        h += CARD_GAP + 8.0 + 15.0 * lines(t, inner_w - 14.0, 12.0, Face::Mono);
     }
     if control_ready && r.control_supported {
-        h += 5.0 + 2.0 + BTN_H + 5.0 + 28.0;
+        h += CARD_GAP + 2.0 + BTN_H + CARD_GAP + 28.0;
     } else {
-        h += 5.0 + 16.0 * 2.0;
+        h += CARD_GAP + 16.0 * 2.0;
     }
     h
 }
 
-/// The note shown under a row: the last refusal for the request it shows,
-/// or a stale refusal once the card is gone — for [`NOTE_MS`].
+/// The refusal said for a row — its last refused control's bounded reason,
+/// for [`NOTE_MS`], while the row still shows the request it showed when it
+/// was refused (a refusal caused by a NEWER request is said on that new
+/// card; a resolved one leaves when another request arrives).
 fn note_for(st: &State, r: &DockRow, now_ms: u64) -> Option<String> {
-    let (req, label, at) = st.notes.get(&r.key)?;
+    let (seen, label, at) = st.notes.get(&r.key)?;
     if now_ms.saturating_sub(*at) > NOTE_MS {
         return None;
     }
-    (req == &r.request_id || (r.request_id.is_none() && label == STALE_DRAWN)).then(|| tr(label).to_owned())
+    (seen == &r.request_id).then(|| tr(label).to_owned())
 }
 
 /// Whether a refusal note is still showing (the dock's clock keeps ticking
@@ -674,7 +710,8 @@ fn row_view(
         d.surface(
             &format!("{id}_card"),
             &format!(
-                "width: Fill height: Fit flow: Down spacing: 5 padding: Inset{{left: {x} right: {x} top: {y} bottom: {y}}}",
+                "width: Fill height: Fit flow: Down spacing: {g} padding: Inset{{left: {x} right: {x} top: {y} bottom: {y}}}",
+                g = fmt(CARD_GAP),
                 x = fmt(CARD_PAD_X),
                 y = fmt(CARD_PAD_Y)
             ),
@@ -683,6 +720,11 @@ fn row_view(
             Some(tok::HAIRLINE),
         );
         let inner_w = seat.width - CARD_INSET - 2.0 * CARD_PAD_X;
+        // A refused control is said here, first, on the card it was tapped
+        // on (or that replaced it).
+        if let Some(n) = &note {
+            d.text(&format!("{id}_note"), n, &Txt::new(12.0, Face::Medium, tok::RED_TEXT).w(W::Fill).wrap());
+        }
         d.text(
             &format!("{id}_asks"),
             &format!("{} {}", tr("asks to run"), a.tool),
@@ -737,9 +779,9 @@ fn row_view(
         }
         d.close(); // card
         d.close(); // wrap
-        h += 4.0 + card_h(r, inner_w, control_ready);
+        h += 4.0 + card_h(r, inner_w, control_ready, note.as_deref());
     }
-    if let Some(n) = note {
+    if let (Some(n), None) = (note, &r.approval) {
         let wrap = d.anon();
         d.view(&wrap, &format!("width: Fill height: Fit flow: Down padding: Inset{{left: {}}}", fmt(CARD_INSET)));
         d.text(&format!("{id}_note"), &n, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
@@ -854,7 +896,6 @@ pub fn lower(store: &Store, now_ms: u64, seat: Seat) -> Option<Lowered> {
     d.view("pd_dock", "width: Fill height: Fit flow: Down");
     rule(&mut d, "pd_rule_top");
     let mut height = 2.0 * RULE_BLOCK;
-    let mut scroll_to = None;
     if is_folded {
         height += pill_view(&mut d, &rows, seat);
     } else {
@@ -872,20 +913,34 @@ pub fn lower(store: &Store, now_ms: u64, seat: Seat) -> Option<Lowered> {
         d.close();
         d.close();
         height += HEAD_H;
-        // ---- the rows (measured first: the cap decides their container)
-        let mut body = Dsl::new();
-        let mut offsets = Vec::with_capacity(rows.len());
-        let mut natural = 0.0;
-        for (i, (r, slot)) in rows.iter().zip(&slots).enumerate() {
-            offsets.push(natural);
-            let focused = st.focused.as_deref() == Some(r.key.as_str());
-            let note = note_for(&st, r, now_ms);
-            natural += row_view(&mut body, &mut texts, i, r, *slot, seat, control_ready, focused, note) + 2.0;
+        // ---- the rows: measured first (the cap decides their container and
+        // their order); each keeps its Fleet index as its id, whatever the
+        // order it is drawn in.
+        let notes: Vec<Option<String>> = rows.iter().map(|r| note_for(&st, r, now_ms)).collect();
+        let focus: Vec<bool> = rows.iter().map(|r| st.focused.as_deref() == Some(r.key.as_str())).collect();
+        let natural: f64 = rows
+            .iter()
+            .enumerate()
+            .map(|(i, r)| {
+                let (mut scratch, mut scratch_texts) = (Dsl::new(), Vec::new());
+                row_view(&mut scratch, &mut scratch_texts, i, r, slots[i], seat, control_ready, focus[i], notes[i].clone()) + 2.0
+            })
+            .sum();
+        let cap = if seat.room > 0.0 { (seat.room - TREE_MIN - height).max(ROW_H + 8.0) } else { f64::INFINITY };
+        let capped = natural > cap;
+        // On a short column the peers waiting for you come first (a stable
+        // sort: then the roster order), so a card shows at the top of the
+        // scrolling rows — no automatic scroll ever moves a control under the
+        // pointer.
+        let mut order: Vec<usize> = (0..rows.len()).collect();
+        if capped {
+            order.sort_by_key(|&i| rows[i].approval.is_none());
         }
-        let waiting = rows.iter().any(|r| r.approval.is_some());
-        let tree_min = if waiting { TREE_MIN_WAITING } else { TREE_MIN };
-        let cap = if seat.room > 0.0 { (seat.room - tree_min - height).max(ROW_H + 8.0) } else { f64::INFINITY };
-        if natural > cap {
+        let mut body = Dsl::new();
+        for &i in &order {
+            row_view(&mut body, &mut texts, i, &rows[i], slots[i], seat, control_ready, focus[i], notes[i].clone());
+        }
+        if capped {
             // A quiet handle in the look's greys (the theme's default handle
             // is near-white: a bright stripe on a dark sidebar) — `fluid.rs`'s
             // code-block bar.
@@ -903,12 +958,6 @@ pub fn lower(store: &Store, now_ms: u64, seat: Seat) -> Option<Lowered> {
                 ),
             );
             height += cap.floor();
-            // A remount puts the region back at its top: the first waiting
-            // card is brought into view after it (a sync that does not
-            // remount keeps the person's own scroll).
-            if let Some(i) = rows.iter().position(|r| r.approval.is_some()) {
-                scroll_to = Some(offsets[i]);
-            }
         } else {
             d.view("pd_rows", "width: Fill height: Fit flow: Down spacing: 2");
             height += natural;
@@ -921,5 +970,5 @@ pub fn lower(store: &Store, now_ms: u64, seat: Seat) -> Option<Lowered> {
     rule(&mut d, "pd_rule_bottom");
     d.close();
     let taps = d.taps.clone();
-    Some(Lowered { dsl: d.finish(), taps, texts, folded: is_folded, height, scroll_to })
+    Some(Lowered { dsl: d.finish(), taps, texts, folded: is_folded, height })
 }

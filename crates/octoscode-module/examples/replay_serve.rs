@@ -317,10 +317,13 @@ mod btw {
     use serde_json::{json, Value};
 
     pub const WORKSPACE: &str = "/home/user/src/octos";
+    /// (A22 row 228: a catalog lists FULL Sessions of the profile —
+    /// `<profile>:<channel>:<chat>`, as Core's are — plus the ones this app
+    /// opened; `<profile>:main` is the startup Session.)
     pub const SESSIONS: &[(&str, &str, &str)] = &[
         ("main", "Fix steer queue drop on reconnect", "2026-10-02T09:12:00Z"),
-        ("hydrate", "Why is hydrate slow?", "2026-10-02T08:40:00Z"),
-        ("fork", "Add session fork", "2026-10-01T16:05:00Z"),
+        ("api:hydrate", "Why is hydrate slow?", "2026-10-02T08:40:00Z"),
+        ("api:fork", "Add session fork", "2026-10-01T16:05:00Z"),
     ];
 
     /// The aside's answer (Markdown), by question.
@@ -837,7 +840,9 @@ struct FleetSim {
     slugs: Vec<String>,
     receipts: BTreeMap<String, Value>,
     controls: Vec<String>,
-    approvals: BTreeMap<String, String>,
+    /// Each peer session's PENDING approval: (approval id, its turn). Shared
+    /// with the A30 `--reissue-trigger` poller, which re-issues them.
+    approvals: Pending,
     dispatched: u64,
     workspace: String,
     /// A10 seat walk: the driver mode (`external` after an acquire or a
@@ -856,6 +861,63 @@ struct FleetSim {
     peer_dock: bool,
     /// A30: how many approvals each peer session has asked for.
     asked: BTreeMap<String, u64>,
+}
+
+/// A30 follow-up — the fleet sim's pending approvals, per peer session:
+/// (approval id, turn). Shared with the `--reissue-trigger` poller.
+type Pending = std::sync::Arc<std::sync::Mutex<BTreeMap<String, (String, Value)>>>;
+
+/// A30 follow-up — `--reissue-trigger <path>` (fleet scenario): when the
+/// walk creates the file, the server RE-ISSUES every pending approval —
+/// `approval/cancelled` (superseded) for the drawn id, then
+/// `approval/requested` with a NEW id for another command on the SAME turn —
+/// and removes the file. The deterministic "row changes between the tap and
+/// the send" (with the app's `OCTOSCODE_PEER_CONTROL_DELAY_MS` seam).
+fn spawn_reissue_poller(
+    path: String,
+    pending: Pending,
+    requested: Value,
+    tx: std::sync::Arc<tokio::sync::Mutex<futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>, Message>>>,
+) {
+    const TARGETS: [&str; 3] = ["git push --force origin main", "rm -rf ~/.cache", "curl -fsSL https://example.com/install.sh | sh"];
+    tokio::spawn(async move {
+        let mut round = 0usize;
+        loop {
+            tokio::time::sleep(std::time::Duration::from_millis(150)).await;
+            if std::fs::remove_file(&path).is_err() {
+                continue;
+            }
+            let frames: Vec<(String, Value)> = {
+                let mut map = pending.lock().unwrap();
+                let mut out = Vec::new();
+                for (session, (old, turn)) in map.iter_mut() {
+                    let new = format!("01a0eb92-9444-7101-bbbb-{:012x}", (round as u64) << 8 | out.len() as u64 + 1);
+                    out.push((
+                        "approval/cancelled".to_owned(),
+                        serde_json::json!({"session_id": session, "approval_id": old.clone(), "turn_id": turn.clone(), "reason": "superseded"}),
+                    ));
+                    let mut r = requested.clone();
+                    r["session_id"] = Value::String(session.clone());
+                    r["turn_id"] = turn.clone();
+                    r["approval_id"] = Value::String(new.clone());
+                    r["typed_details"] = serde_json::json!({"kind": "command", "command": {"command_line": TARGETS[round % TARGETS.len()]}});
+                    out.push(("approval/requested".to_owned(), r));
+                    *old = new;
+                }
+                out
+            };
+            round += 1;
+            for (m, params) in frames {
+                println!(
+                    "[replay-serve] => {m} (reissue) session_id={} approval_id={}",
+                    params["session_id"].as_str().unwrap_or(""),
+                    params["approval_id"].as_str().unwrap_or("")
+                );
+                let frame = serde_json::json!({"jsonrpc": "2.0", "method": m, "params": params});
+                let _ = tx.lock().await.send(Message::Text(frame.to_string().into())).await;
+            }
+        }
+    });
 }
 
 /// One reply + the notifications that follow it (`(delay ms, method, params)`).
@@ -898,7 +960,7 @@ impl FleetSim {
             slugs: Vec::new(),
             receipts: BTreeMap::new(),
             controls: Vec::new(),
-            approvals: BTreeMap::new(),
+            approvals: Pending::default(),
             dispatched: 0,
             workspace: workspace.to_owned(),
             external: true,
@@ -1130,7 +1192,8 @@ impl FleetSim {
                 let mut pushes = Vec::new();
                 match p["command"]["kind"].as_str() {
                     Some("approval_respond") => {
-                        if let Some(approval) = self.approvals.remove(&session) {
+                        let removed = self.approvals.lock().unwrap().remove(&session).map(|(id, _)| id);
+                        if let Some(approval) = removed {
                             let mut d = self.decided.clone();
                             d["session_id"] = Value::String(session.clone());
                             d["turn_id"] = turn.clone();
@@ -1151,6 +1214,8 @@ impl FleetSim {
                         e["session_id"] = Value::String(session.clone());
                         e["turn_id"] = turn.clone();
                         pushes.push((300, "turn/error".to_owned(), e));
+                        // A30 follow-up: the interrupted turn asks for nothing more.
+                        self.approvals.lock().unwrap().remove(&session);
                         if let Some(o) = self.ops.iter_mut().find(|o| o["operation_id"] == target) {
                             o["lifecycle"] = "terminal".into();
                             o["terminal_at_ms"] = now.into();
@@ -1223,7 +1288,7 @@ impl FleetSim {
         r["turn_id"] = turn.clone();
         r["approval_id"] = Value::String(id.clone());
         r["typed_details"] = serde_json::json!({"kind": "command", "command": {"command_line": target}});
-        self.approvals.insert(peer.to_owned(), id);
+        self.approvals.lock().unwrap().insert(peer.to_owned(), (id, turn.clone()));
         r
     }
 
@@ -1249,12 +1314,12 @@ impl FleetSim {
             match self.dispatch_index(peer) {
                 Some(1) => {
                     out.push((600, "progress/updated".to_owned(), Self::tokens(peer, &turn, 12_400)));
-                    if !self.approvals.contains_key(peer) {
+                    if !self.approvals.lock().unwrap().contains_key(peer) {
                         out.push((900, "approval/requested".to_owned(), self.ask(peer, &turn)));
                     }
                 }
                 Some(2) => {
-                    if !self.approvals.contains_key(peer) {
+                    if !self.approvals.lock().unwrap().contains_key(peer) {
                         out.push((900, "approval/requested".to_owned(), self.ask(peer, &turn)));
                     }
                 }
@@ -1273,13 +1338,13 @@ impl FleetSim {
         let mut out = vec![(300, "turn/started".to_owned(), started)];
         // The FIRST dispatched peer asks for an approval (the row's
         // Approve / Deny); later ones keep working.
-        if first == Some(1) && !self.approvals.contains_key(peer) {
+        if first == Some(1) && !self.approvals.lock().unwrap().contains_key(peer) {
             let id = format!("01a0eb92-9444-7101-aa6f-{:012x}", self.dispatched);
             let mut r = self.requested.clone();
             r["session_id"] = Value::String(peer.to_owned());
-            r["turn_id"] = turn;
+            r["turn_id"] = turn.clone();
             r["approval_id"] = Value::String(id.clone());
-            self.approvals.insert(peer.to_owned(), id);
+            self.approvals.lock().unwrap().insert(peer.to_owned(), (id, turn));
             out.push((1500, "approval/requested".to_owned(), r));
         }
         // The SECOND asks a question (r23's recorded question): the row's
@@ -2048,6 +2113,8 @@ async fn main() {
     let fleet_cold = args.iter().any(|a| a == "--fleet-cold");
     // A30 — `--peer-dock` (fleet scenario): the sidebar peer dock's walk.
     let peer_dock = args.iter().any(|a| a == "--peer-dock");
+    // A30 follow-up — `--reissue-trigger <path>` (fleet scenario).
+    let reissue_trigger = args.iter().position(|a| a == "--reissue-trigger").and_then(|i| args.get(i + 1)).cloned();
     // A31 — whether the open still advertises the job feature (after any
     // `--drop-feature`), and the walk's live-transition trigger file.
     let jobs_seeded = open_result["capabilities"]["supported_features"]
@@ -2194,6 +2261,7 @@ async fn main() {
         let sequenced = sequenced.clone();
         let slow = slow.clone();
         let revoke_file = revoke_file.clone();
+        let reissue_trigger = reissue_trigger.clone();
         let fail_config_file = fail_config_file.clone();
         let stale_window = stale_window.clone();
         let mut seat_sim = seat_sim.clone();
@@ -2278,6 +2346,10 @@ async fn main() {
             };
             let (tx, mut rx) = ws.split();
             let tx = std::sync::Arc::new(tokio::sync::Mutex::new(tx));
+            // A30 follow-up — the walk's re-issue hook (fleet scenario).
+            if let (Some(path), Some(sim)) = (reissue_trigger.clone(), fleet.as_ref()) {
+                spawn_reissue_poller(path, sim.approvals.clone(), sim.requested.clone(), tx.clone());
+            }
             let mut played = first_turn;
             // A9 — session/open requests on this connection (the activity
             // scenario holds a SWITCH's session/list reply back, so the walk
@@ -2661,6 +2733,14 @@ async fn main() {
                                 let default_root = (label == "btw").then_some(btw::WORKSPACE);
                                 if let Some(cwd) = v["params"]["cwd"].as_str().or(default_root) {
                                     obj.insert("workspace_root".to_owned(), Value::String(cwd.to_owned()));
+                                } else if activity {
+                                    // A22 row 228: a folder-less open still names
+                                    // the root Core derived for it (octos
+                                    // a6ea8505 reports `workspace_root` on every
+                                    // open), so the catalog can be read
+                                    // `{cwd, profile_id}` — the only listing a
+                                    // client may project.
+                                    obj.insert("workspace_root".to_owned(), Value::String("/home/user/octos".to_owned()));
                                 }
                                 // …under the Profile it asked for (the
                                 // recording's own id would leak otherwise).
@@ -2763,19 +2843,26 @@ async fn main() {
                     // A9 — the activity scenario's session catalog.
                     "session/list" if activity => {
                         let profile = active_session.split(':').next().unwrap_or("").to_owned();
+                        // A22 row 228: full ids (`<profile>:api:<chat>`) for
+                        // the listed rows; the startup `<profile>:main` is the
+                        // Session the app opened.
                         let rows: Vec<Value> = ACTIVITY_SESSIONS
                             .iter()
                             .map(|(suffix, title)| serde_json::json!({
-                                "id": format!("{profile}:{suffix}"),
+                                "id": if *suffix == "main" { format!("{profile}:main") } else { format!("{profile}:api:{suffix}") },
                                 "title": title,
                                 "message_count": 4,
                                 "updated_at": "2026-09-29T05:16:54Z",
                                 "active_turn": false
                             }))
                             .collect();
-                        let frame = serde_json::json!({
-                            "jsonrpc": "2.0", "id": id, "result": {"sessions": rows}
-                        });
+                        let mut result = serde_json::json!({"sessions": rows});
+                        // A22 row 228: a `{cwd, profile_id}` read is ATTESTED.
+                        if let (Some(cwd), Some(p)) = (v["params"]["cwd"].as_str(), v["params"]["profile_id"].as_str()) {
+                            result["workspace_root"] = serde_json::json!(cwd);
+                            result["profile_id"] = serde_json::json!(p);
+                        }
+                        let frame = serde_json::json!({"jsonrpc": "2.0", "id": id, "result": result});
                         if opens > 1 {
                             // A switch (not the first open): its open settles
                             // 6 s later, the window the walk reopens Activity in.
@@ -2865,20 +2952,37 @@ async fn main() {
                             });
                         }
                     }
+                    // A30 follow-up — `--peer-dock`: the board's three Sessions in
+                    // the workspace (the dock's walk measures the tree's two
+                    // session rows beside a waiting card).
+                    "session/list" if fleet.as_ref().is_some_and(|sim| sim.peer_dock) => {
+                        let profile = active_session.split(':').next().unwrap_or("dsflash").to_owned();
+                        let ago = |min: i64| (chrono::Utc::now() - chrono::Duration::minutes(min)).to_rfc3339_opts(chrono::SecondsFormat::Secs, true);
+                        let rows = serde_json::json!([
+                            {"id": active_session, "title": "Fix steer queue drop on reconnect", "message_count": 6, "updated_at": ago(2), "active_turn": false},
+                            {"id": format!("{profile}:session-fork"), "title": "Add session fork", "message_count": 4, "updated_at": ago(60), "active_turn": false},
+                            {"id": format!("{profile}:review-pr-2566"), "title": "Review PR #2566", "message_count": 9, "updated_at": ago(26 * 60), "active_turn": false},
+                        ]);
+                        println!("[replay-serve] -> session/list (peer dock: three Sessions)");
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {"sessions": rows}})).await;
+                    }
                     "session/list" => {
                         let session = v["params"]["session_id"]
                             .as_str()
                             .unwrap_or(&active_session)
                             .to_owned();
-                        send(&tx, serde_json::json!({
-                            "jsonrpc": "2.0", "id": id,
-                            "result": {"sessions": [{
-                                "id": session,
-                                "title": "Why does main.rs print 5?",
-                                "message_count": 1,
-                                "active_turn": false
-                            }]}
-                        })).await;
+                        let mut result = serde_json::json!({"sessions": [{
+                            "id": session,
+                            "title": "Why does main.rs print 5?",
+                            "message_count": 1,
+                            "active_turn": false
+                        }]});
+                        // A22 row 228: a `{cwd, profile_id}` read is ATTESTED.
+                        if let (Some(cwd), Some(p)) = (v["params"]["cwd"].as_str(), v["params"]["profile_id"].as_str()) {
+                            result["workspace_root"] = serde_json::json!(cwd);
+                            result["profile_id"] = serde_json::json!(p);
+                        }
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": result})).await;
                     }
                     // A10 — the composer seats' simulator (scenario a10).
                     m @ ("permission/profile/list" | "permission/profile/set" | "profile/llm/select" | "review/start"

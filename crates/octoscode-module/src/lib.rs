@@ -1393,16 +1393,13 @@ pub struct OctoscodeView {
     toast_timer: Timer,
     #[rust]
     toast_key: String,
-    /// A30 — the peer dock's taps (`peer_dock_splash`), its elapsed clock,
-    /// and the scroll a new waiting card asks for after the next layout.
+    /// A30 — the peer dock's taps (`peer_dock_splash`) and its elapsed clock.
     #[rust]
     peer_dock_taps: Vec<(LiveId, String)>,
     #[rust]
     peer_dock_timer: Timer,
     #[rust]
     peer_dock_ticking: bool,
-    #[rust]
-    peer_dock_scroll: Option<f64>,
 }
 
 impl OctoscodeView {
@@ -1997,8 +1994,10 @@ impl OctoscodeView {
                     // acquire → release(next: internal) with that proof →
                     // send the composer's draft once (`resume_chat`).
                     if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                        // A22 audit — the banner of the Session it was tapped in.
+                        let session = conv.session_id();
                         rt.spawn(async move {
-                            conv.resume_chat().await;
+                            conv.resume_chat_in(&session).await;
                             SignalToUI::set_ui_signal();
                         });
                     }
@@ -2440,19 +2439,20 @@ impl OctoscodeView {
                     }
                 });
             }
-            actions::Effect::Steer(text) => {
+            // A22 — the turn-scoped effects have ONE performer
+            // (`actions::perform_turn`): the Stop button, Escape and `/stop`
+            // all resolve `turn.interrupt` and reach the wire through it.
+            effect @ (actions::Effect::Steer { .. } | actions::Effect::Interrupt { .. }) => {
+                let name = action.to_owned();
+                // A26 — a refused steer / stop reaches the error toast.
+                let op = match effect {
+                    actions::Effect::Steer { .. } => screens::toasts::Op::Steer,
+                    _ => screens::toasts::Op::Stop,
+                };
                 rt.spawn(async move {
-                    if let Err(e) = conv.steer(&text).await {
-                        ::log::warn!("octoscode: turn.steer: {e}");
-                        screens::toasts::failed(screens::toasts::Op::Steer, &e.to_string());
-                    }
-                });
-            }
-            actions::Effect::Interrupt(turn) => {
-                rt.spawn(async move {
-                    if let Err(e) = conv.interrupt(&turn).await {
-                        ::log::warn!("octoscode: turn.interrupt: {e}");
-                        screens::toasts::failed(screens::toasts::Op::Stop, &e.to_string());
+                    if let Some(Err(e)) = actions::perform_turn(effect, &conv).await {
+                        ::log::warn!("octoscode: {name}: {e}");
+                        screens::toasts::failed(op, &e.to_string());
                     }
                 });
             }
@@ -3877,7 +3877,14 @@ impl OctoscodeView {
                 {
                     let mut u = ui.lock().unwrap();
                     if u.draft().trim().is_empty() {
-                        if let Some(text) = u.take_parked_restore(session) {
+                        // A22 row 216 — the record's next restore, whole and
+                        // in order (`consumeRestore`, session-composer-drafts.ts
+                        // :148-166); A7's text-only park is its predecessor.
+                        let returned = conv
+                            .as_ref()
+                            .and_then(|c| screens::composer_drafts::consume_restore(c, session))
+                            .or_else(|| u.take_parked_restore(session));
+                        if let Some(text) = returned {
                             makepad_widgets::log!("[octoscode] composer: not-sent text returned ({} chars)", text.chars().count());
                             u.set_draft_inner(text);
                         } else if self.drafts_restored_for.as_deref() != Some(session.as_str()) {
@@ -4021,25 +4028,29 @@ impl OctoscodeView {
         makepad_widgets::log!("[octoscode] composer extra: {which}");
         match which {
             "steer" => {
+                // A22 — the chip of the Session it was tapped in.
+                let s = session.clone();
                 rt.spawn(async move {
-                    let steered = conv.steer_queued_head().await;
+                    let steered = conv.steer_queued_head_in(&s).await;
                     makepad_widgets::log!("[octoscode] steer now: {}", if steered { "sent" } else { "not admitted" });
                     SignalToUI::set_ui_signal();
                 });
             }
             "remove" => {
                 if let Some(head) = store.domains.composer.snapshot(&session).pending.first() {
-                    let removed = conv.remove_queued(&head.turn_id);
+                    let removed = conv.remove_queued_in(&session, &head.turn_id);
                     makepad_widgets::log!("[octoscode] queued prompt {} removed: {removed}", head.turn_id);
                 }
             }
+            // A22 — the notice of the Session it was tapped in.
             "check" => {
+                let s = session.clone();
                 rt.spawn(async move {
-                    conv.check_turn_state().await;
+                    conv.check_turn_state_in(&s).await;
                     SignalToUI::set_ui_signal();
                 });
             }
-            "continue" => conv.continue_without_turn(),
+            "continue" => conv.continue_without_turn_in(&session),
             _ => {}
         }
     }
@@ -5365,8 +5376,6 @@ impl OctoscodeView {
                 .set_scroll_pos(cx, dvec2(0.0, y));
             self.view.redraw(cx);
         }
-        // A30 — a new waiting card in a capped peer dock, once laid out.
-        self.peer_dock_after_draw(cx);
         DrawStep::done()
     }
 
@@ -6355,17 +6364,20 @@ impl OctoscodeView {
                         }
                     }
                     KeyAction::Interrupt => {
-                        // :245-252 — Esc with a live turn interrupts it.
+                        // :245-252 — Esc with a live turn interrupts it: the
+                        // SAME action as the Stop button (A22: one resolver,
+                        // one performer, `actions::perform_turn`).
                         if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
-                            let turn = ui.lock().unwrap().active_turn();
-                            if let Some(turn) = turn {
-                                rt.spawn(async move {
-                                    if let Err(e) = conv.interrupt(&turn).await {
-                                        ::log::warn!("octoscode: turn.interrupt: {e}");
-                                        screens::toasts::failed(screens::toasts::Op::Stop, &e.to_string());
-                                    }
-                                });
-                            }
+                            let effect = {
+                                let ctx = bindings::Ctx::new(&store, &ui);
+                                actions::resolve(bindings::ACTION_INTERRUPT, 0, &ctx)
+                            };
+                            rt.spawn(async move {
+                                if let Some(Err(e)) = actions::perform_turn(effect, &conv).await {
+                                    ::log::warn!("octoscode: turn.interrupt: {e}");
+                                    screens::toasts::failed(screens::toasts::Op::Stop, &e.to_string());
+                                }
+                            });
                         }
                     }
                     // ApprovalPanel.tsx:46-54 — the keyboard decides the

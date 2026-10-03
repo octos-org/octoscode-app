@@ -1,0 +1,22 @@
+PASS app up against the private live serve
+PASS X: the startup Session is open — dsflash:main
+PASS X: a fresh Session (its empty state shows; nothing from an earlier run)
+PASS X: the long turn streams (Stop shows)
+PASS Y: New chat is on screen
+PASS Y: a different Session — dsflash:main -> dsflash:api:01a0fe9e-7bc9-70c6-8083-dfc72a94b1a3
+PASS Y: no Stop control (Y has no live turn); Send shows
+PASS X keeps working in the background: its sidebar row shows the running dot — ['run']
+PASS X was still streaming when Stop was pressed in Y (no terminal yet) — None
+PASS wire: nothing interrupted from Y (no turn/interrupt at all) — []
+PASS X's turn ended — completed
+PASS X's turn COMPLETED (never interrupted) — completed
+PASS wire: no turn/interrupt names X's turn — []
+PASS X's row reads done (completed in background) while Y is on screen — ['done']
+PASS CLICK X's row in the sidebar
+PASS wire: X re-opened
+PASS wire: exactly one open, X's — ['dsflash:main']
+PASS X: the answer streamed to its end (its last line, 1200, is on screen) — housand one hundred and ninety-nine | one thousand two hundred
+PASS X: a second long turn streams
+PASS positive control: CLICK Stop in X sends turn/interrupt for X's turn under X — [{"session_id": "dsflash:main", "turn_id": "01a0fe9f-395b-70af-a6c1-ff313a446330"}]
+PASS positive control: X's turn ends interrupted — interrupted
+== LIVE a22 stop: 21/21 passed

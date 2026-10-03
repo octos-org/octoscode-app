@@ -1,0 +1,70 @@
+== native walk a8_flows [phone] (tools/walk/a8_flows_walk.py)
+-- run 1: exit 0 in 21 s
+PASS app is up with the strip
+PASS /resume opens 'Resume chat' — Resume chat
+PASS resume: the catalog was read scoped (session/list {cwd, profile_id})
+PASS resume: a bare id is blocked with the grammar reason — This catalog ID does not identify a full Session in the captured Profile. An aut
+PASS resume: the hollow candidate is listed (unverified)
+PASS resume: the exact title arms the primary control
+PASS resume: an empty history of listed messages is refused — Historical identity was not resolved. The listed conversation was not resumed.
+PASS wire: the candidate was opened and its history read
+PASS wire: the previous Session was put back
+PASS resume: a verified candidate opens and the dialog closes
+PASS header: the resumed Session's title — Add session fork
+PASS wire: resuming never starts a turn
+PASS /sessions opens the switcher — Open a different session
+PASS switcher: a non-open row offers delete
+PASS delete asks first ('Delete?')
+PASS wire: ONE session/delete for the confirmed row — [{'session_id': 'a8:api:beta'}]
+PASS delete: the row is gone
+PASS delete: a refusal keeps the row and says why — Couldn't delete the session: session is busy
+PASS delete: the refused row stays
+PASS switcher: the open Session offers no delete
+PASS draft typed in 'Add session fork' — unsent words
+PASS another Session shows its own (empty) draft — ''
+PASS back: the draft returns to its Session — 'unsent words'
+PASS reconnect: the outage is seen (the transport left Live) — conn: Reconnecting { attempt: 5 }   sessions: 4
+PASS reconnect: the active Session is re-opened — a8:api:alpha
+PASS reconnect: and hydrated canonically
+PASS reconnect: Live again — conn: Live   sessions: 6
+PASS strip: back to 'Ready' — Ready
+PASS header: the re-opened Session is the one shown — Add session fork
+PASS the unsent draft survived the outage — 'unsent words'
+
+30/30 passed (phase1)
+-- app restart (state kept)
+-- run 2: exit 0 in 13 s
+PASS app is up again
+PASS restart: the unsent draft is restored, never sent — 'unsent words'
+PASS + Add workspace opens the picker
+PASS wire: the launch asked launch/resolve first — [{'cwd': '/home/user/octos', 'profile_id': 'a8'}]
+PASS the decision panel: 'Choose this workspace’s profile' — Choose this workspace’s profile
+PASS nothing opened before the choice
+PASS wire: the chosen profile opens the new Session
+PASS the panel closes
+PASS the draft moved with the committed launch — 'unsent words'
+PASS wire: one turn/start for the sent text — [{'input': [{'kind': 'text', 'text': 'unsent words'}], 'session_id': 'glm-coder:api:01a0fee8-f258-7789-9251-a446cdc82733', 'turn_id': '01a0fee8-f503-73ed-a572-d373be28f1cb'}]
+PASS strip: the live word follows the turn (Thinking… -> Running shell… -> Thinking… -> Writing…) — ['Responding', 'Thinking…', 'Running shell…', 'Thinking…', 'Writing…', 'Ready']
+PASS strip: back to 'Ready' when the turn completes — ['Responding', 'Thinking…', 'Running shell…', 'Thinking…', 'Writing…', 'Ready']
+PASS parked: opening the Session read its parked interactions (session/hydrate include pending_approvals)
+PASS parked: the restored approval is asked again (the takeover card) — Approve command
+PASS parked: with its recorded command body — 'Run command: cargo test -p octoscode-module' None
+PASS parked: the strip, when shown, waits for the approval — None
+
+16/16 passed (phase2)
+-- fixture log tail:
+[a8-serve] <- session/delete
+[a8-serve] <- session/open
+[a8-serve] <- session/list
+[a8-serve] <- session/driver/get
+[a8-serve] <- session/hydrate
+[a8-serve] <- session/list
+[a8-serve] <- session/status/read
+[a8-serve] <- permission/profile/list
+[a8-serve] <- session/open
+[a8-serve] <- session/list
+[a8-serve] <- session/driver/get
+[a8-serve] <- session/hydrate
+[a8-serve] <- session/list
+[a8-serve] <- session/status/read
+[a8-serve] <- permission/profile/list

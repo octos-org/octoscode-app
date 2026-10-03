@@ -25,6 +25,12 @@ pub mod btw;
 // decision) and the native connection envelope (the web's tab/durable split).
 pub mod bootstrap;
 pub mod browser;
+// A22 row 216: per-record composer inputs (effort, visibility, images) and
+// the ordered restores of what came back to a Session.
+pub mod composer_drafts;
+// A22 row 228: the per-workspace catalog's projection (attested, full
+// Sessions of the requested profile).
+pub mod catalog;
 pub mod connect;
 // A8: the header's "Copy as Markdown" (CopyConversationButton phases).
 pub mod copy_button;

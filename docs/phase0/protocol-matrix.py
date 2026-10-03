@@ -334,6 +334,10 @@ def write_phase4_docs(prow, counts):
             ta += c["A"]; tb += c["B"]; tc += c["C"]
             f.write(f"| {g} | {c['A']} | {c['B']} | {c['C']} | {c['A']+c['B']+c['C']} |\n")
         f.write(f"| **total** | **{ta}** | **{tb}** | **{tc}** | **{ta+tb+tc}** |\n\n")
+        pending = sum(1 for r in prow if final_bucket(r) == "A"
+                      and (r.get("device_verified") or "").startswith("pending"))
+        f.write(f"**A {ta} ({pending} device-pending)** — verified on the Mac only (desktop + the 360x780 phone "
+                "simulator); `device_verified` names each row's on-device status until the operator's device test.\n\n")
         f.write(f"Regenerated {time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime())} by "
                 "phase0/protocol-matrix.py — A rows were flipped to exists with "
                 "screens+test evidence in phase4_bucket/phase4_evidence columns.\n")
@@ -434,7 +438,7 @@ def main():
     counts = regenerate_phase4(prow)
     # Carry the hand-pass columns across the regen (bd6300a/92681ed): keyed
     # by the row's capability, a lane's manual verdicts survive a refresh.
-    carry = ["phase4_bucket_manual", "phase4_evidence_manual", "operator_confirmed"]
+    carry = ["phase4_bucket_manual", "phase4_evidence_manual", "operator_confirmed", "device_verified"]
     prev_path = os.path.join(DOCS, "parity-matrix.csv")
     prev = {}
     if os.path.isfile(prev_path):
@@ -451,6 +455,17 @@ def main():
         else:
             for c in carry:
                 r.setdefault(c, "")
+    # Operator decision 2026-10-02 (Mac-only verification): an A row never
+    # silently claims on-device proof. Every A row is "pending operator device
+    # test" until the operator records a device result here (kept by the carry
+    # above); B rows are web-only; C rows are not built.
+    for r in prow:
+        if not (r.get("device_verified") or "").strip():
+            b = final_bucket(r)
+            r["device_verified"] = {
+                "A": "pending operator device test (desktop + 360x780 simulator only)",
+                "B": "n/a (web-only)",
+            }.get(b, "")
     write_csv(os.path.join(DOCS, "parity-matrix.csv"),
               ph + ["phase4_bucket", "phase4_evidence"] + carry, prow)
     write_phase4_docs(prow, counts)

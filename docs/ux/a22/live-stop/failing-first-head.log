@@ -1,0 +1,20 @@
+# A22 failing-first run: crates/octoscode-module/tests/a22_cross_session.rs at 1699016a (before the fix)
+# cargo test -p octoscode-module --test a22_cross_session
+running 1 test
+test stop_pressed_in_y_never_interrupts_another_sessions_turn ... FAILED
+
+failures:
+
+---- stop_pressed_in_y_never_interrupts_another_sessions_turn stdout ----
+
+thread 'stop_pressed_in_y_never_interrupts_another_sessions_turn' (241688938) panicked at crates/octoscode-module/tests/a22_cross_session.rs:306:5:
+Stop in Y sent an interrupt for Z's turn: [Object {"session_id": String("a22:api:y"), "turn_id": String("01920000-0000-7000-8000-0000000002f1")}]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    stop_pressed_in_y_never_interrupts_another_sessions_turn
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.69s
+
+error: test failed, to rerun pass `-p octoscode-module --test a22_cross_session`

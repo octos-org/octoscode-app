@@ -31,6 +31,16 @@ struct Inner {
     /// keeps a per-thread sequence and a max cursor), so the domain that owns
     /// the turn owns this too.
     envelopes: EnvelopeFold,
+    /// A22 row 236 — every Session's turn terminals in ARRIVAL order, one
+    /// entry per turn: the web reads a record's latest real terminal from its
+    /// timeline's `terminal:<turn>` entries (`background-session-status.ts:
+    /// 16-26`), so later generic activity never changes the answer.
+    session_terminals: HashMap<String, Vec<(String, String)>>,
+    /// A22 row 236 — the Session a live turn belongs to, when its
+    /// `turn/started` named one: a background Session's turn is never the
+    /// selected Session's live work. A turn with no recorded owner keeps the
+    /// old meaning (any Session).
+    owners: HashMap<String, String>,
 }
 
 /// `projection/envelope` ordering state (the web's per-thread sequence +
@@ -81,8 +91,36 @@ impl Turns {
         i.seen.push(turn_id.to_owned());
     }
 
+    /// A22 row 236 — [`Turns::started`] for a turn whose Session is known.
+    pub fn started_in(&self, session: &str, turn_id: &str) {
+        self.started(turn_id);
+        if !session.is_empty() {
+            self.inner.lock().unwrap().owners.insert(turn_id.to_owned(), session.to_owned());
+        }
+    }
+
     pub fn ended(&self, turn_id: &str) {
-        self.inner.lock().unwrap().in_flight.remove(turn_id);
+        let mut i = self.inner.lock().unwrap();
+        i.in_flight.remove(turn_id);
+        i.owners.remove(turn_id);
+    }
+
+    /// A22 — the Session a live turn was started in (its `turn/started`).
+    pub fn owner(&self, turn_id: &str) -> Option<String> {
+        self.inner.lock().unwrap().owners.get(turn_id).cloned()
+    }
+
+    /// A22 — a live turn `session` owns (`turn/started` named it), if any.
+    pub fn in_flight_owned_by(&self, session: &str) -> Option<String> {
+        let i = self.inner.lock().unwrap();
+        i.in_flight.iter().find(|t| i.owners.get(*t).is_some_and(|s| s == session)).cloned()
+    }
+
+    /// A22 row 236 — the live turns of `session`: those it owns, plus any
+    /// whose Session was never named (the old global meaning).
+    pub fn in_flight_in(&self, session: &str) -> usize {
+        let i = self.inner.lock().unwrap();
+        i.in_flight.iter().filter(|t| i.owners.get(*t).is_none_or(|s| s == session)).count()
     }
 
     /// Whether a turn is currently in flight.
@@ -219,6 +257,38 @@ impl Turns {
             .envelopes
             .terminals
             .insert(turn_id.to_owned(), outcome.to_owned());
+    }
+
+    /// A22 row 236 — record `turn_id`'s terminal under its Session, in
+    /// arrival order (a replay of the same terminal keeps its place and takes
+    /// the newer outcome).
+    pub fn note_session_terminal(&self, session: &str, turn_id: &str, outcome: &str) {
+        let mut i = self.inner.lock().unwrap();
+        let log = i.session_terminals.entry(session.to_owned()).or_default();
+        match log.iter_mut().find(|(t, _)| t == turn_id) {
+            Some(entry) => entry.1 = outcome.to_owned(),
+            None => log.push((turn_id.to_owned(), outcome.to_owned())),
+        }
+    }
+
+    /// A22 row 236 — the Session's latest terminal, whatever its outcome:
+    /// `(turn, outcome)` (the selected row's rule, `SessionSidebar.tsx:65-97`).
+    pub fn latest_terminal(&self, session: &str) -> Option<(String, String)> {
+        self.inner.lock().unwrap().session_terminals.get(session).and_then(|l| l.last().cloned())
+    }
+
+    /// A22 row 236 — the Session's latest REAL terminal, a background
+    /// record's rule (`backgroundSessionState`, background-session-status.ts:
+    /// 16-24): an interrupted or rate-limited turn's terminal is `info`
+    /// (timeline/model.ts `settleTimelineTurn`) and is passed over for the
+    /// one before it.
+    pub fn latest_real_terminal(&self, session: &str) -> Option<(String, String)> {
+        self.inner
+            .lock()
+            .unwrap()
+            .session_terminals
+            .get(session)
+            .and_then(|l| l.iter().rev().find(|(_, o)| o != "interrupted" && o != "rate_limited").cloned())
     }
 
     /// The recorded terminal outcome for `turn_id`, if any.

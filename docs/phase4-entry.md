@@ -17,9 +17,11 @@ Counts use the FINAL bucket (phase4_bucket_manual when set, else phase4_bucket).
 | g-settings | 20 | 2 | 1 | 23 |
 | g-timeline | 38 | 9 | 3 | 50 |
 | session:links-resume | 14 | 4 | 0 | 18 |
-| session:list-sidebar | 11 | 6 | 2 | 19 |
-| session:store-hydrate | 11 | 9 | 2 | 22 |
+| session:list-sidebar | 13 | 6 | 0 | 19 |
+| session:store-hydrate | 13 | 9 | 0 | 22 |
 | workspace | 10 | 2 | 0 | 12 |
-| **total** | **309** | **43** | **9** | **361** |
+| **total** | **313** | **43** | **5** | **361** |
 
-Regenerated 2026-10-02 22:53 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.
+**A 313 (313 device-pending)** — verified on the Mac only (desktop + the 360x780 phone simulator); `device_verified` names each row's on-device status until the operator's device test.
+
+Regenerated 2026-10-03 00:12 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.

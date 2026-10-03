@@ -51,9 +51,6 @@ impl OctoscodeView {
                     if compact { "phone" } else { "desktop" },
                     if lowered.dsl.contains("pd_rows := ScrollYView") { ", rows scroll" } else { "" }
                 );
-                if let Some(y) = lowered.scroll_to {
-                    self.peer_dock_scroll = Some(y);
-                }
             }
             Ok(false) => {}
         }
@@ -180,16 +177,5 @@ impl OctoscodeView {
             }
         }
         false
-    }
-
-    /// After a draw laid the new mount out: bring a new waiting card into
-    /// view (a scroll set before the layout clamps to 0).
-    pub(crate) fn peer_dock_after_draw(&mut self, cx: &mut Cx) {
-        if let Some(y) = self.peer_dock_scroll.take() {
-            self.view
-                .view(cx, &[live_id!(peer_dock_splash), live_id!(pd_rows)])
-                .set_scroll_pos(cx, dvec2(0.0, y));
-            self.view.redraw(cx);
-        }
     }
 }
