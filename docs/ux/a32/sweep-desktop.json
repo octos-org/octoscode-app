@@ -1,0 +1,382 @@
+{
+ "mode": "desktop",
+ "states": [
+  {
+   "state": "rows-chip",
+   "size": "default",
+   "rows": [
+    {
+     "title": "Why is hydrate slow?",
+     "r": [
+      92,
+      300,
+      194,
+      17
+     ],
+     "chip": false
+    },
+    {
+     "title": "Add session fork",
+     "r": [
+      92,
+      364,
+      206,
+      17
+     ],
+     "chip": false
+    },
+    {
+     "title": "Fix steer queue drop on reconnect",
+     "r": [
+      92,
+      332,
+      142,
+      17
+     ],
+     "chip": true
+    }
+   ],
+   "dock": [],
+   "hd_title": {
+    "t": "Why is hydrate slow?",
+    "r": [
+     347,
+     87,
+     177,
+     16
+    ]
+   },
+   "hd_left": [
+    335,
+    76,
+    709,
+    52
+   ],
+   "geometry_bad": []
+  },
+  {
+   "state": "header-x",
+   "size": "default",
+   "rows": [
+    {
+     "title": "Fix steer queue drop on reconnect",
+     "r": [
+      92,
+      300,
+      194,
+      17
+     ],
+     "chip": false
+    },
+    {
+     "title": "Add session fork",
+     "r": [
+      92,
+      364,
+      206,
+      17
+     ],
+     "chip": false
+    },
+    {
+     "title": "Why is hydrate slow?",
+     "r": [
+      92,
+      332,
+      194,
+      17
+     ],
+     "chip": false
+    }
+   ],
+   "dock": [],
+   "hd_title": {
+    "t": "Fix steer queue drop on reconnect",
+    "r": [
+     347,
+     87,
+     177,
+     16
+    ]
+   },
+   "hd_left": [
+    335,
+    76,
+    709,
+    52
+   ],
+   "geometry_bad": []
+  },
+  {
+   "state": "header-x-rail",
+   "size": "default",
+   "rows": [],
+   "dock": [],
+   "hd_title": {
+    "t": "Fix steer queue drop on reconnect",
+    "r": [
+     123,
+     87,
+     401,
+     16
+    ]
+   },
+   "hd_left": [
+    111,
+    76,
+    933,
+    52
+   ],
+   "geometry_bad": []
+  },
+  {
+   "state": "rows-chip-again",
+   "size": "default",
+   "rows": [
+    {
+     "title": "Why is hydrate slow?",
+     "r": [
+      92,
+      300,
+      194,
+      17
+     ],
+     "chip": false
+    },
+    {
+     "title": "Add session fork",
+     "r": [
+      92,
+      364,
+      206,
+      17
+     ],
+     "chip": false
+    },
+    {
+     "title": "Fix steer queue drop on reconnect",
+     "r": [
+      92,
+      332,
+      142,
+      17
+     ],
+     "chip": true
+    }
+   ],
+   "dock": [],
+   "hd_title": {
+    "t": "Why is hydrate slow?",
+    "r": [
+     347,
+     87,
+     177,
+     16
+    ]
+   },
+   "hd_left": [
+    335,
+    76,
+    709,
+    52
+   ],
+   "geometry_bad": []
+  },
+  {
+   "state": "peer-dock",
+   "size": "default",
+   "rows": [
+    {
+     "title": "New chat",
+     "r": [
+      92,
+      300,
+      194,
+      17
+     ],
+     "chip": false
+    }
+   ],
+   "dock": [
+    {
+     "id": "pd_row_0_label",
+     "t": "Peer 1 · glm-4.6",
+     "r": [
+      92,
+      396,
+      199,
+      17
+     ]
+    },
+    {
+     "id": "pd_row_0_elapsed",
+     "t": "13s",
+     "r": [
+      297,
+      397,
+      19,
+      15
+     ]
+    },
+    {
+     "id": "pd_row_0_status",
+     "t": "Waiting for your approval",
+     "r": [
+      92,
+      416,
+      142,
+      15
+     ]
+    },
+    {
+     "id": "pd_row_0_meta",
+     "t": " · ↓ 12.4k",
+     "r": [
+      234,
+      416,
+      54,
+      15
+     ]
+    },
+    {
+     "id": "pd_row_0_asks",
+     "t": "asks to run shell",
+     "r": [
+      90,
+      444,
+      224,
+      16
+     ]
+    },
+    {
+     "id": "pd_row_0_target",
+     "t": "cargo build -p octos-core",
+     "r": [
+      97,
+      467,
+      210,
+      14
+     ]
+    },
+    {
+     "id": "pd_row_0_approve_label",
+     "t": "Approve once",
+     "r": [
+      99,
+      499,
+      80,
+      15
+     ]
+    },
+    {
+     "id": "pd_row_0_deny_label",
+     "t": "Deny",
+     "r": [
+      205,
+      499,
+      30,
+      15
+     ]
+    },
+    {
+     "id": "pd_row_0_stop_label",
+     "t": "Stop",
+     "r": [
+      261,
+      499,
+      26,
+      15
+     ]
+    }
+   ],
+   "hd_title": {
+    "t": "New chat",
+    "r": [
+     347,
+     87,
+     177,
+     16
+    ]
+   },
+   "hd_left": [
+    335,
+    76,
+    709,
+    52
+   ],
+   "geometry_bad": []
+  }
+ ],
+ "launches": [
+  {
+   "phase": "btw",
+   "size": "default",
+   "rc": 0,
+   "truncated_geometries": 16,
+   "two_dot_or_outside": [],
+   "kit_geometries": 2,
+   "kit_clipped": [],
+   "checks": [
+    "A32CHECK ok=true start_ok=true inside=true text=\"/home/user/src/octos\" bound=103.437 label=[103.437] origin_x=0.000 prev_end=Some(90.14307) ell_x=Some(90.14307) ell_end=99.650 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"/home/user/src/octos\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(37.07666) ell_x=Some(37.07666) ell_end=46.583 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"/home/user/src/octos\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(59.5708) ell_x=Some(59.5708) ell_end=69.078 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Fix steer queue drop on reconnect\" bound=103.437 label=[103.437] origin_x=0.000 prev_end=Some(88.02295) ell_x=Some(88.02295) ell_end=99.855 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Fix steer queue drop on reconnect\" bound=131.437 label=[131.437] origin_x=0.000 prev_end=Some(111.94092) ell_x=Some(111.94092) ell_end=123.773 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Fix steer queue drop on reconnect\" bound=141.650 label=[141.650] origin_x=0.000 prev_end=Some(127.99609) ell_x=Some(127.99609) ell_end=140.096 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Fix steer queue drop on reconnect\" bound=149.937 label=[149.937] origin_x=0.000 prev_end=Some(127.8291) ell_x=Some(127.8291) ell_end=139.661 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Fix steer queue drop on reconnect\" bound=162.437 label=[162.437] origin_x=0.000 prev_end=Some(146.96729) ell_x=Some(146.96729) ell_end=158.799 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Fix steer queue drop on reconnect\" bound=169.437 label=[169.437] origin_x=0.000 prev_end=Some(155.21289) ell_x=Some(155.21289) ell_end=167.045 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Fix steer queue drop on reconnect\" bound=173.437 label=[173.437] origin_x=0.000 prev_end=Some(155.21289) ell_x=Some(155.21289) ell_end=167.045 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Fix steer queue drop on reconnect\" bound=175.437 label=[175.437] origin_x=0.000 prev_end=Some(162.84912) ell_x=Some(162.84912) ell_end=174.681 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Fix steer queue drop on reconnect\" bound=176.437 label=[176.437] origin_x=0.000 prev_end=Some(162.84912) ell_x=Some(162.84912) ell_end=174.681 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Fix steer queue drop on reconnect\" bound=177.437 label=[177.437] origin_x=0.000 prev_end=Some(162.84912) ell_x=Some(162.84912) ell_end=174.681 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Fix steer queue drop on reconnect\" bound=194.111 label=[194.111] origin_x=0.000 prev_end=Some(174.30957) ell_x=Some(174.30957) ell_end=186.409 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Fix steer queue drop on reconnect\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(32.944336) ell_x=Some(32.944336) ell_end=44.776 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Fix steer queue drop on reconnect\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(53.24414) ell_x=Some(53.24414) ell_end=65.076 rows=1"
+   ],
+   "kits": [
+    "A32KIT fits=true text=\"Answering…\" row_w=82.441 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"Starting…\" row_w=85.792 label=[NaN] rows=1 bound=None"
+   ]
+  },
+  {
+   "phase": "fleet",
+   "size": "default",
+   "rc": 0,
+   "truncated_geometries": 12,
+   "two_dot_or_outside": [],
+   "kit_geometries": 2,
+   "kit_clipped": [],
+   "checks": [
+    "A32CHECK ok=true start_ok=true inside=true text=\"New chat\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(28.03125) ell_x=Some(28.03125) ell_end=39.863 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=105.437 label=[105.437] origin_x=0.000 prev_end=Some(93.34961) ell_x=Some(93.34961) ell_end=102.856 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=145.437 label=[145.437] origin_x=0.000 prev_end=Some(134.98633) ell_x=Some(134.98633) ell_end=144.493 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=160.437 label=[160.437] origin_x=0.000 prev_end=Some(147.29688) ell_x=Some(147.29688) ell_end=156.804 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=167.937 label=[167.937] origin_x=0.000 prev_end=Some(157.9961) ell_x=Some(157.9961) ell_end=167.503 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=172.437 label=[172.437] origin_x=0.000 prev_end=Some(157.9961) ell_x=Some(157.9961) ell_end=167.503 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=174.937 label=[174.937] origin_x=0.000 prev_end=Some(164.17285) ell_x=Some(164.17285) ell_end=173.680 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=176.437 label=[176.437] origin_x=0.000 prev_end=Some(164.17285) ell_x=Some(164.17285) ell_end=173.680 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=176.937 label=[176.937] origin_x=0.000 prev_end=Some(164.17285) ell_x=Some(164.17285) ell_end=173.680 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=177.437 label=[177.437] origin_x=0.000 prev_end=Some(167.8252) ell_x=Some(167.8252) ell_end=177.332 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(34.895996) ell_x=Some(34.895996) ell_end=44.403 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(56.52002) ell_x=Some(56.52002) ell_end=66.027 rows=1"
+   ],
+   "kits": [
+    "A32KIT fits=true text=\"Starting…\" row_w=60.925 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"Starting…\" row_w=85.792 label=[NaN] rows=1 bound=None"
+   ]
+  }
+ ],
+ "totals": {
+  "launches": 2,
+  "states": 5,
+  "rows_measured": 19,
+  "geometry_bad": 0,
+  "truncated_geometries": 28,
+  "two_dot_or_outside": 0,
+  "kit_geometries": 4,
+  "kit_clipped": 0,
+  "trace": true
+ },
+ "note": "A32 trace sweep on the A32 branch merged with main (285bcf7a), host built with the D10d patch AND the trace instrument (docs/ux/a32/trace-instrument.diff; A32_TRACE_TEXT='*'). Verdicts are per distinct geometry (the label's position stripped): A32CHECK = a makepad-truncated text (ok: the ellipsis starts at the kept text's end and ends inside min(label width, bound)); A32KIT = a text carrying a literal '…' makepad did not truncate (fits: its run fits its label). Walk: tools/walk/a32_ellipsis_sweep.py desktop <out> all."
+}

@@ -1,0 +1,294 @@
+{
+ "walks": {
+  "a10_diff_review": {
+   "truncated_geometries": 20,
+   "two_dot_or_outside": [],
+   "kit_geometries": 12,
+   "kit_clipped": [],
+   "texts_truncated": [
+    "\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\"",
+    "\"Ask for approval\"",
+    "\"Select a model\"",
+    "\"Why does main.rs print 5?\""
+   ],
+   "checks": [
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=104.937 label=[104.937] origin_x=0.000 prev_end=Some(90.86279) ell_x=Some(90.86279) ell_end=100.370 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=135.437 label=[135.437] origin_x=0.000 prev_end=Some(122.04736) ell_x=Some(122.04736) ell_end=131.554 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=153.437 label=[153.437] origin_x=0.000 prev_end=Some(140.63672) ell_x=Some(140.63672) ell_end=150.144 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=164.437 label=[164.437] origin_x=0.000 prev_end=Some(150.46582) ell_x=Some(150.46582) ell_end=159.973 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=170.437 label=[170.437] origin_x=0.000 prev_end=Some(160.60645) ell_x=Some(160.60645) ell_end=170.113 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=173.937 label=[173.937] origin_x=0.000 prev_end=Some(160.60645) ell_x=Some(160.60645) ell_end=170.113 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=175.937 label=[175.937] origin_x=0.000 prev_end=Some(160.60645) ell_x=Some(160.60645) ell_end=170.113 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=176.937 label=[176.937] origin_x=0.000 prev_end=Some(167.3418) ell_x=Some(167.3418) ell_end=176.849 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=177.437 label=[177.437] origin_x=0.000 prev_end=Some(167.3418) ell_x=Some(167.3418) ell_end=176.849 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(33.606934) ell_x=Some(33.606934) ell_end=43.114 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(54.16211) ell_x=Some(54.16211) ell_end=63.669 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=86.937 label=[86.937] origin_x=0.000 prev_end=Some(76.02246) ell_x=Some(76.02246) ell_end=85.529 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Ask for approval\" bound=84.000 label=[NaN] origin_x=0.000 prev_end=Some(70.617676) ell_x=Some(70.617676) ell_end=81.853 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Select a model\" bound=84.000 label=[NaN] origin_x=0.000 prev_end=Some(64.7334) ell_x=Some(64.7334) ell_end=76.565 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=104.937 label=[104.937] origin_x=0.000 prev_end=Some(87.79443) ell_x=Some(87.79443) ell_end=99.626 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=135.437 label=[135.437] origin_x=0.000 prev_end=Some(123.0874) ell_x=Some(123.0874) ell_end=134.919 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=153.437 label=[153.437] origin_x=0.000 prev_end=Some(139.31201) ell_x=Some(139.31201) ell_end=151.144 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(28.132813) ell_x=Some(28.132813) ell_end=39.965 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(55.123047) ell_x=Some(55.123047) ell_end=66.955 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=86.937 label=[86.937] origin_x=0.000 prev_end=Some(62.12451) ell_x=Some(62.12451) ell_end=73.957 rows=1"
+   ],
+   "kits": [
+    "A32KIT fits=true text=\"Apply a patch to sr…\" row_w=169.220 label=[181.692] rows=1 bound=Some(181.6919)",
+    "A32KIT fits=true text=\"Code review…\" row_w=88.512 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"Loading the server snapshot…\" row_w=179.441 label=[308.000] rows=1 bound=Some(308.0)",
+    "A32KIT fits=true text=\"Loading the server snapshot…\" row_w=179.441 label=[873.000] rows=1 bound=Some(873.0)",
+    "A32KIT fits=true text=\"Starting…\" row_w=85.792 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"The user asks to run `sudo -n true`. This is a sandbox policy test. Let me ju…\" row_w=473.567 label=[527.504] rows=1 bound=Some(527.504)",
+    "A32KIT fits=true text=\"The user asks to run `sudo -n true`. This is a sandbox policy test. Let me ju…\" row_w=473.567 label=[529.695] rows=1 bound=Some(529.69525)",
+    "A32KIT fits=true text=\"The user asks to run `sud…\" row_w=169.298 label=[197.077] rows=1 bound=Some(197.07727)",
+    "A32KIT fits=true text=\"The user asks to run `su…\" row_w=161.262 label=[194.661] rows=1 bound=Some(194.66132)",
+    "A32KIT fits=true text=\"The user asks to run `su…\" row_w=161.262 label=[195.004] rows=1 bound=Some(195.00404)",
+    "A32KIT fits=true text=\"Thinking…\" row_w=59.150 label=[318.000] rows=1 bound=Some(318.0)",
+    "A32KIT fits=true text=\"Thinking…\" row_w=64.080 label=[201.000] rows=1 bound=Some(201.0)"
+   ]
+  },
+  "a10_fleet": {
+   "truncated_geometries": 25,
+   "two_dot_or_outside": [],
+   "kit_geometries": 9,
+   "kit_clipped": [],
+   "texts_truncated": [
+    "\"Why does main.rs print 5?\"",
+    "\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\""
+   ],
+   "checks": [
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=104.437 label=[104.437] origin_x=0.000 prev_end=Some(87.79443) ell_x=Some(87.79443) ell_end=99.626 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=133.937 label=[133.937] origin_x=0.000 prev_end=Some(111.58545) ell_x=Some(111.58545) ell_end=123.417 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=134.437 label=[134.437] origin_x=0.000 prev_end=Some(111.58545) ell_x=Some(111.58545) ell_end=123.417 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=150.437 label=[150.437] origin_x=0.000 prev_end=Some(131.4917) ell_x=Some(131.4917) ell_end=143.324 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=151.437 label=[151.437] origin_x=0.000 prev_end=Some(139.31201) ell_x=Some(139.31201) ell_end=151.144 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(28.132813) ell_x=Some(28.132813) ell_end=39.965 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(55.123047) ell_x=Some(55.123047) ell_end=66.955 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=86.937 label=[86.937] origin_x=0.000 prev_end=Some(62.12451) ell_x=Some(62.12451) ell_end=73.957 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=104.437 label=[104.437] origin_x=0.000 prev_end=Some(93.34961) ell_x=Some(93.34961) ell_end=102.856 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=133.937 label=[133.937] origin_x=0.000 prev_end=Some(122.07422) ell_x=Some(122.07422) ell_end=131.581 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=134.437 label=[134.437] origin_x=0.000 prev_end=Some(122.07422) ell_x=Some(122.07422) ell_end=131.581 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=150.437 label=[150.437] origin_x=0.000 prev_end=Some(140.79248) ell_x=Some(140.79248) ell_end=150.299 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=151.437 label=[151.437] origin_x=0.000 prev_end=Some(140.79248) ell_x=Some(140.79248) ell_end=150.299 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=162.437 label=[162.437] origin_x=0.000 prev_end=Some(151.26074) ell_x=Some(151.26074) ell_end=160.768 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=163.437 label=[163.437] origin_x=0.000 prev_end=Some(151.26074) ell_x=Some(151.26074) ell_end=160.768 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=169.437 label=[169.437] origin_x=0.000 prev_end=Some(157.9961) ell_x=Some(157.9961) ell_end=167.503 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=169.937 label=[169.937] origin_x=0.000 prev_end=Some(157.9961) ell_x=Some(157.9961) ell_end=167.503 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=173.437 label=[173.437] origin_x=0.000 prev_end=Some(157.9961) ell_x=Some(157.9961) ell_end=167.503 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=175.437 label=[175.437] origin_x=0.000 prev_end=Some(164.17285) ell_x=Some(164.17285) ell_end=173.680 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=176.437 label=[176.437] origin_x=0.000 prev_end=Some(164.17285) ell_x=Some(164.17285) ell_end=173.680 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=176.937 label=[176.937] origin_x=0.000 prev_end=Some(164.17285) ell_x=Some(164.17285) ell_end=173.680 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=177.437 label=[177.437] origin_x=0.000 prev_end=Some(167.8252) ell_x=Some(167.8252) ell_end=177.332 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(34.895996) ell_x=Some(34.895996) ell_end=44.403 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(56.52002) ell_x=Some(56.52002) ell_end=66.027 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=86.937 label=[86.937] origin_x=0.000 prev_end=Some(77.35449) ell_x=Some(77.35449) ell_end=86.861 rows=1"
+   ],
+   "kits": [
+    "A32KIT fits=true text=\"Acquiring…\" row_w=71.862 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"Gathering…\" row_w=73.106 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"Loading models…\" row_w=100.576 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"Sending steer…\" row_w=88.137 label=[300.000] rows=1 bound=Some(300.0)",
+    "A32KIT fits=true text=\"Sending steer…\" row_w=88.137 label=[648.000] rows=1 bound=Some(648.0)",
+    "A32KIT fits=true text=\"Starting…\" row_w=60.925 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"Starting…\" row_w=85.792 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"review-the-reconnect-…\" row_w=158.426 label=[198.135] rows=1 bound=Some(198.13474)",
+    "A32KIT fits=true text=\"run-the-full-test-sui…\" row_w=158.426 label=[225.052] rows=1 bound=Some(225.05246)"
+   ]
+  },
+  "a10_skills": {
+   "truncated_geometries": 18,
+   "two_dot_or_outside": [],
+   "kit_geometries": 3,
+   "kit_clipped": [],
+   "texts_truncated": [
+    "\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\"",
+    "\"Why does main.rs print 5?\""
+   ],
+   "checks": [
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=106.437 label=[106.437] origin_x=0.000 prev_end=Some(90.86279) ell_x=Some(90.86279) ell_end=100.370 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=137.437 label=[137.437] origin_x=0.000 prev_end=Some(124.87256) ell_x=Some(124.87256) ell_end=134.379 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=154.437 label=[154.437] origin_x=0.000 prev_end=Some(141.40479) ell_x=Some(141.40479) ell_end=150.912 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=164.937 label=[164.937] origin_x=0.000 prev_end=Some(153.78516) ell_x=Some(153.78516) ell_end=163.292 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=170.937 label=[170.937] origin_x=0.000 prev_end=Some(158.84473) ell_x=Some(158.84473) ell_end=168.352 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=173.937 label=[173.937] origin_x=0.000 prev_end=Some(158.84473) ell_x=Some(158.84473) ell_end=168.352 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=175.937 label=[175.937] origin_x=0.000 prev_end=Some(165.58008) ell_x=Some(165.58008) ell_end=175.087 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=176.937 label=[176.937] origin_x=0.000 prev_end=Some(165.58008) ell_x=Some(165.58008) ell_end=175.087 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=177.437 label=[177.437] origin_x=0.000 prev_end=Some(165.58008) ell_x=Some(165.58008) ell_end=175.087 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(33.606934) ell_x=Some(33.606934) ell_end=43.114 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(54.16211) ell_x=Some(54.16211) ell_end=63.669 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=86.937 label=[86.937] origin_x=0.000 prev_end=Some(76.02246) ell_x=Some(76.02246) ell_end=85.529 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=106.437 label=[106.437] origin_x=0.000 prev_end=Some(87.79443) ell_x=Some(87.79443) ell_end=99.626 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=137.437 label=[137.437] origin_x=0.000 prev_end=Some(123.0874) ell_x=Some(123.0874) ell_end=134.919 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=154.437 label=[154.437] origin_x=0.000 prev_end=Some(139.31201) ell_x=Some(139.31201) ell_end=151.144 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(28.132813) ell_x=Some(28.132813) ell_end=39.965 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(55.123047) ell_x=Some(55.123047) ell_end=66.955 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=86.937 label=[86.937] origin_x=0.000 prev_end=Some(62.12451) ell_x=Some(62.12451) ell_end=73.957 rows=1"
+   ],
+   "kits": [
+    "A32KIT fits=true text=\"0.3.0 · 1 tool · octos-org/re…\" row_w=159.832 label=[198.000] rows=1 bound=Some(198.0)",
+    "A32KIT fits=true text=\"1.1.0 · 2 tools · octos-org/c…\" row_w=158.783 label=[198.000] rows=1 bound=Some(198.0)",
+    "A32KIT fits=true text=\"Starting…\" row_w=85.792 label=[NaN] rows=1 bound=None"
+   ]
+  },
+  "a28_diff_words": {
+   "truncated_geometries": 20,
+   "two_dot_or_outside": [],
+   "kit_geometries": 15,
+   "kit_clipped": [],
+   "texts_truncated": [
+    "\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\"",
+    "\"Ask for approval\"",
+    "\"Select a model\"",
+    "\"Why does main.rs print 5?\""
+   ],
+   "checks": [
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=107.437 label=[107.437] origin_x=0.000 prev_end=Some(90.86279) ell_x=Some(90.86279) ell_end=100.370 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=134.937 label=[134.937] origin_x=0.000 prev_end=Some(122.04736) ell_x=Some(122.04736) ell_end=131.554 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=153.437 label=[153.437] origin_x=0.000 prev_end=Some(140.63672) ell_x=Some(140.63672) ell_end=150.144 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=163.937 label=[163.937] origin_x=0.000 prev_end=Some(150.46582) ell_x=Some(150.46582) ell_end=159.973 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=170.437 label=[170.437] origin_x=0.000 prev_end=Some(160.60645) ell_x=Some(160.60645) ell_end=170.113 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=173.937 label=[173.937] origin_x=0.000 prev_end=Some(160.60645) ell_x=Some(160.60645) ell_end=170.113 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=175.937 label=[175.937] origin_x=0.000 prev_end=Some(160.60645) ell_x=Some(160.60645) ell_end=170.113 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=176.937 label=[176.937] origin_x=0.000 prev_end=Some(167.3418) ell_x=Some(167.3418) ell_end=176.849 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=177.437 label=[177.437] origin_x=0.000 prev_end=Some(167.3418) ell_x=Some(167.3418) ell_end=176.849 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(33.606934) ell_x=Some(33.606934) ell_end=43.114 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(54.16211) ell_x=Some(54.16211) ell_end=63.669 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r23-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=86.937 label=[86.937] origin_x=0.000 prev_end=Some(76.02246) ell_x=Some(76.02246) ell_end=85.529 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Ask for approval\" bound=84.000 label=[NaN] origin_x=0.000 prev_end=Some(70.617676) ell_x=Some(70.617676) ell_end=81.853 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Select a model\" bound=84.000 label=[NaN] origin_x=0.000 prev_end=Some(64.7334) ell_x=Some(64.7334) ell_end=76.565 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=107.437 label=[107.437] origin_x=0.000 prev_end=Some(87.79443) ell_x=Some(87.79443) ell_end=99.626 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=134.937 label=[134.937] origin_x=0.000 prev_end=Some(123.0874) ell_x=Some(123.0874) ell_end=134.919 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=153.437 label=[153.437] origin_x=0.000 prev_end=Some(139.31201) ell_x=Some(139.31201) ell_end=151.144 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(28.132813) ell_x=Some(28.132813) ell_end=39.965 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(55.123047) ell_x=Some(55.123047) ell_end=66.955 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=86.937 label=[86.937] origin_x=0.000 prev_end=Some(62.12451) ell_x=Some(62.12451) ell_end=73.957 rows=1"
+   ],
+   "kits": [
+    "A32KIT fits=true text=\"Apply a patch to C…\" row_w=166.721 label=[181.692] rows=1 bound=Some(181.6919)",
+    "A32KIT fits=true text=\"Apply a patch to b…\" row_w=164.804 label=[181.692] rows=1 bound=Some(181.6919)",
+    "A32KIT fits=true text=\"Apply a patch to st…\" row_w=169.535 label=[181.692] rows=1 bound=Some(181.6919)",
+    "A32KIT fits=true text=\"Loading the server snapshot…\" row_w=179.441 label=[308.000] rows=1 bound=Some(308.0)",
+    "A32KIT fits=true text=\"Loading the server snapshot…\" row_w=179.441 label=[873.000] rows=1 bound=Some(873.0)",
+    "A32KIT fits=true text=\"Starting…\" row_w=85.792 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"The user asks to run `sudo -n true`. This is a sandbox policy test. Let me ju…\" row_w=473.567 label=[527.504] rows=1 bound=Some(527.504)",
+    "A32KIT fits=true text=\"The user asks to run `sudo -n true`. This is a sandbox policy test. Let me ju…\" row_w=473.567 label=[528.987] rows=1 bound=Some(528.9873)",
+    "A32KIT fits=true text=\"The user asks to run `sud…\" row_w=169.298 label=[196.796] rows=1 bound=Some(196.79634)",
+    "A32KIT fits=true text=\"The user asks to run `sud…\" row_w=169.298 label=[197.077] rows=1 bound=Some(197.07727)",
+    "A32KIT fits=true text=\"The user asks to run `su…\" row_w=161.262 label=[195.004] rows=1 bound=Some(195.00404)",
+    "A32KIT fits=true text=\"Thinking…\" row_w=59.150 label=[318.000] rows=1 bound=Some(318.0)",
+    "A32KIT fits=true text=\"Thinking…\" row_w=64.080 label=[201.000] rows=1 bound=Some(201.0)",
+    "A32KIT fits=true text=\"crates/octos-cli/src/backoff…\" row_w=217.651 label=[237.321] rows=1 bound=Some(237.32056)",
+    "A32KIT fits=true text=\"crates/octos-cli/src/steer_q…\" row_w=217.651 label=[237.321] rows=1 bound=Some(237.32056)"
+   ]
+  },
+  "a30_peer_dock": {
+   "truncated_geometries": 21,
+   "two_dot_or_outside": [],
+   "kit_geometries": 5,
+   "kit_clipped": [],
+   "texts_truncated": [
+    "\"New chat\"",
+    "\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\""
+   ],
+   "checks": [
+    "A32CHECK ok=true start_ok=true inside=true text=\"New chat\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(28.03125) ell_x=Some(28.03125) ell_end=39.863 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=104.437 label=[104.437] origin_x=0.000 prev_end=Some(93.34961) ell_x=Some(93.34961) ell_end=102.856 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=106.937 label=[106.937] origin_x=0.000 prev_end=Some(93.34961) ell_x=Some(93.34961) ell_end=102.856 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=126.000 label=[126.000] origin_x=0.000 prev_end=Some(116.26807) ell_x=Some(116.26807) ell_end=125.775 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=136.437 label=[136.437] origin_x=0.000 prev_end=Some(126.14551) ell_x=Some(126.14551) ell_end=135.652 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=139.937 label=[139.937] origin_x=0.000 prev_end=Some(128.80957) ell_x=Some(128.80957) ell_end=138.316 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=153.937 label=[153.937] origin_x=0.000 prev_end=Some(140.79248) ell_x=Some(140.79248) ell_end=150.299 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=154.437 label=[154.437] origin_x=0.000 prev_end=Some(140.79248) ell_x=Some(140.79248) ell_end=150.299 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=164.937 label=[164.937] origin_x=0.000 prev_end=Some(151.26074) ell_x=Some(151.26074) ell_end=160.768 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=166.437 label=[166.437] origin_x=0.000 prev_end=Some(151.26074) ell_x=Some(151.26074) ell_end=160.768 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=170.437 label=[170.437] origin_x=0.000 prev_end=Some(157.9961) ell_x=Some(157.9961) ell_end=167.503 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=171.937 label=[171.937] origin_x=0.000 prev_end=Some(157.9961) ell_x=Some(157.9961) ell_end=167.503 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=173.937 label=[173.937] origin_x=0.000 prev_end=Some(164.17285) ell_x=Some(164.17285) ell_end=173.680 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=174.437 label=[174.437] origin_x=0.000 prev_end=Some(164.17285) ell_x=Some(164.17285) ell_end=173.680 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=175.937 label=[175.937] origin_x=0.000 prev_end=Some(164.17285) ell_x=Some(164.17285) ell_end=173.680 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=176.937 label=[176.937] origin_x=0.000 prev_end=Some(164.17285) ell_x=Some(164.17285) ell_end=173.680 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=177.437 label=[177.437] origin_x=0.000 prev_end=Some(167.8252) ell_x=Some(167.8252) ell_end=177.332 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=216.500 label=[216.500] origin_x=0.000 prev_end=Some(206.63672) ell_x=Some(206.63672) ell_end=216.144 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(34.895996) ell_x=Some(34.895996) ell_end=44.403 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(56.52002) ell_x=Some(56.52002) ell_end=66.027 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"tmp/r6-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=86.937 label=[86.937] origin_x=0.000 prev_end=Some(77.35449) ell_x=Some(77.35449) ell_end=86.861 rows=1"
+   ],
+   "kits": [
+    "A32KIT fits=true text=\"New chat defaults · Server defaults · …\" row_w=238.228 label=[256.000] rows=1 bound=Some(256.0)",
+    "A32KIT fits=true text=\"New chat defaults · 服务器默认值 · …\" row_w=222.568 label=[256.000] rows=1 bound=Some(256.0)",
+    "A32KIT fits=true text=\"Starting…\" row_w=60.925 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"Starting…\" row_w=85.792 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"Stop server…\" row_w=93.882 label=[NaN] rows=1 bound=None"
+   ]
+  },
+  "a5_dialogs": {
+   "truncated_geometries": 18,
+   "two_dot_or_outside": [],
+   "kit_geometries": 3,
+   "kit_clipped": [],
+   "texts_truncated": [
+    "\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\"",
+    "\"Why does main.rs print 5?\""
+   ],
+   "checks": [
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=105.437 label=[105.437] origin_x=0.000 prev_end=Some(90.86279) ell_x=Some(90.86279) ell_end=100.370 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=133.437 label=[133.437] origin_x=0.000 prev_end=Some(119.81299) ell_x=Some(119.81299) ell_end=129.320 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=149.937 label=[149.937] origin_x=0.000 prev_end=Some(137.0918) ell_x=Some(137.0918) ell_end=146.599 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=162.937 label=[162.937] origin_x=0.000 prev_end=Some(147.37207) ell_x=Some(147.37207) ell_end=156.879 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=169.437 label=[169.437] origin_x=0.000 prev_end=Some(158.84473) ell_x=Some(158.84473) ell_end=168.352 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=173.437 label=[173.437] origin_x=0.000 prev_end=Some(158.84473) ell_x=Some(158.84473) ell_end=168.352 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=175.437 label=[175.437] origin_x=0.000 prev_end=Some(165.58008) ell_x=Some(165.58008) ell_end=175.087 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=176.437 label=[176.437] origin_x=0.000 prev_end=Some(165.58008) ell_x=Some(165.58008) ell_end=175.087 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=177.437 label=[177.437] origin_x=0.000 prev_end=Some(165.58008) ell_x=Some(165.58008) ell_end=175.087 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(33.606934) ell_x=Some(33.606934) ell_end=43.114 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(54.16211) ell_x=Some(54.16211) ell_end=63.669 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"<WORKSPACE>/tmp/r1-serve-data/profiles/dsflash/data/users/dsflash%3Amain/workspace\" bound=86.937 label=[86.937] origin_x=0.000 prev_end=Some(76.02246) ell_x=Some(76.02246) ell_end=85.529 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=105.437 label=[105.437] origin_x=0.000 prev_end=Some(87.79443) ell_x=Some(87.79443) ell_end=99.626 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=133.437 label=[133.437] origin_x=0.000 prev_end=Some(111.58545) ell_x=Some(111.58545) ell_end=123.417 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=149.937 label=[149.937] origin_x=0.000 prev_end=Some(131.4917) ell_x=Some(131.4917) ell_end=143.324 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=48.437 label=[48.437] origin_x=0.000 prev_end=Some(28.132813) ell_x=Some(28.132813) ell_end=39.965 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=70.437 label=[70.437] origin_x=0.000 prev_end=Some(55.123047) ell_x=Some(55.123047) ell_end=66.955 rows=1",
+    "A32CHECK ok=true start_ok=true inside=true text=\"Why does main.rs print 5?\" bound=86.937 label=[86.937] origin_x=0.000 prev_end=Some(62.12451) ell_x=Some(62.12451) ell_end=73.957 rows=1"
+   ],
+   "kits": [
+    "A32KIT fits=true text=\"Starting…\" row_w=85.792 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"Stop server…\" row_w=93.882 label=[NaN] rows=1 bound=None",
+    "A32KIT fits=true text=\"Waiting for output…\" row_w=111.650 label=[NaN] rows=1 bound=None"
+   ]
+  }
+ },
+ "totals": {
+  "truncated_geometries": 122,
+  "bad": 0,
+  "kit_geometries": 47,
+  "kit_bad": 0
+ },
+ "note": "A32 trace sweep on the A32 branch merged with main (285bcf7a), host built with the D10d patch AND the trace instrument (docs/ux/a32/trace-instrument.diff; A32_TRACE_TEXT='*'). Verdicts are per distinct geometry (the label's position stripped): A32CHECK = a makepad-truncated text (ok: the ellipsis starts at the kept text's end and ends inside min(label width, bound)); A32KIT = a text carrying a literal '…' makepad did not truncate (fits: its run fits its label). Walks run through the native aggregator on ports 8624/8626 with the trace on.",
+ "walk_results": {
+  "a5_dialogs": {
+   "desktop": "37/37",
+   "phone": "37/37"
+  },
+  "a10_fleet": {
+   "desktop": "50/51 (the race step: 'the adopted peer waits on approval A — row=None', not an ellipsis check)",
+   "phone": "56/56"
+  },
+  "a28_diff_words": {
+   "desktop": "29/29",
+   "phone": "31/31"
+  },
+  "a10_diff_review": {
+   "desktop": "19/19",
+   "phone": "19/19"
+  },
+  "a10_skills": {
+   "desktop": "17/17",
+   "phone": "17/17"
+  },
+  "a30_peer_dock": {
+   "desktop": "52/58",
+   "phone": "53/60 (every failure is the A30 check 'the tree keeps 2+ session rows': the fleet scenario's tree holds ONE session after the merge — session_rows=1 — not an ellipsis check)"
+  }
+ }
+}

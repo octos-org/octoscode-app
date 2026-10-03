@@ -1,0 +1,116 @@
+A32 TRACE INSTRUMENT — evidence tooling only, NOT a makepad patch: it lives under docs/ux/a32/, so
+scripts/apply-makepad-patches.sh never applies it, and it must never reach a shipped tree.
+
+It is how A32 measured the ellipsis live (docs/ux/a32/trace-before.txt, the sweeps in docs/ux/a32/sweep-*.json).
+Applied by hand to a host tree's makepad (patch -p1 -d <host>/.sources/makepad < this file), it adds to
+DrawText::draw_walk, driven by environment variables of the app:
+- A32_TRACE_TEXT=<substring>: for each drawn text containing it, one log line per row with the width the text was
+  truncated for (max_width_in_lpxs), the label's own turtle rect and the last three glyphs (origin, advance, end);
+- A32_TRACE_TEXT='*': one verdict per distinct geometry —
+  `A32CHECK ok=` for every truncated text: the first ellipsis glyph starts where the last kept glyph ends (|delta| <
+  0.01 px) and the row (origin + ellipsis end) lies inside min(label width, bound);
+  `A32KIT fits=` for every text carrying a literal "…" that makepad did not truncate (our kit's own truncation,
+  board3 `fit_w`): the run's width fits the label's;
+- A32_TRACE_FILE=<file>: the verdict lines are also appended there (the app log is truncated per launch).
+tools/walk/a32_ellipsis_sweep.py reads them.
+
+--- a/draw/src/shader/draw_text.rs
++++ b/draw/src/shader/draw_text.rs
+@@ -2302,10 +2302,97 @@
+ 
+         let wrap = matches!(cx.turtle().layout().flow, Flow::Right { wrap: true, .. });
+ 
++        let text_str = text;
+         let text = self.layout(cx, 0.0, 0.0, max_width_in_lpxs, wrap, align, text);
++        // A32 TEMP TRACE (host tree only, never committed): the truncation
++        // width vs the label's own turtle rect, and the ellipsis geometry.
++        if let Ok(needle) = std::env::var("A32_TRACE_TEXT") {
++            // "*": a numeric verdict for EVERY truncated text, once per geometry.
++            if needle == "*" && text.is_truncated {
++                use std::sync::Mutex;
++                static SEEN: Mutex<Option<std::collections::HashSet<String>>> = Mutex::new(None);
++                let tr = cx.turtle().rect();
++                if let Some(row) = text.rows.last() {
++                    let first_ell = row.glyphs.iter().position(|g| g.cluster >= row.text.len());
++                    let pen = |g: &crate::text::layouter::LaidoutGlyph| g.origin_in_lpxs.x + g.advance_in_lpxs();
++                    let ell_x = first_ell.map(|i| row.glyphs[i].origin_in_lpxs.x);
++                    let prev_end = first_ell.and_then(|i| i.checked_sub(1)).map(|i| pen(&row.glyphs[i]));
++                    let ell_end = row.glyphs.last().map_or(0.0, |g| pen(g));
++                    let bound = max_width_in_lpxs.unwrap_or(f32::NAN);
++                    let label_w = tr.size.x as f32;
++                    let edge = if label_w.is_finite() { label_w.min(bound) } else { bound };
++                    let start_ok = match (ell_x, prev_end) { (Some(x), Some(p)) => (x - p).abs() < 0.01, (Some(_), None) => true, _ => false };
++                    let inside = row.origin_in_lpxs.x >= -0.01 && row.origin_in_lpxs.x + ell_end <= edge + 0.01;
++                    let line = format!(
++                        "A32CHECK ok={} start_ok={} inside={} text={:?} bound={:.3} label=[{:.1},{:.1},{:.3}] origin_x={:.3} prev_end={:?} ell_x={:?} ell_end={:.3} rows={}",
++                        start_ok && inside, start_ok, inside, text_str, bound, tr.pos.x, tr.pos.y, label_w, row.origin_in_lpxs.x,
++                        prev_end, ell_x, ell_end, text.rows.len()
++                    );
++                    let mut seen = SEEN.lock().unwrap();
++                    if seen.get_or_insert_with(Default::default).insert(line.clone()) {
++                        log!("{}", line);
++                        a32_trace_append(&line);
++                    }
++                }
++            }
++            // A text our kit truncated itself (board3 `fit_w`, …): its "…" is
++            // a real character, so the question is whether the run fits the
++            // label that draws it (a clipped tail would cut the ellipsis).
++            if needle == "*" && !text.is_truncated && text_str.contains('\u{2026}') {
++                use std::sync::Mutex;
++                static SEEN_KIT: Mutex<Option<std::collections::HashSet<String>>> = Mutex::new(None);
++                let tr = cx.turtle().rect();
++                let row_w = text.rows.iter().map(|r| r.origin_in_lpxs.x + r.width_in_lpxs).fold(0.0f32, f32::max);
++                let label_w = tr.size.x as f32;
++                let fits = !label_w.is_finite() || row_w <= label_w + 0.01;
++                let line = format!(
++                    "A32KIT fits={} text={:?} row_w={:.3} label=[{:.1},{:.1},{:.3}] rows={} bound={:?}",
++                    fits, text_str, row_w, tr.pos.x, tr.pos.y, label_w, text.rows.len(), max_width_in_lpxs
++                );
++                let mut seen = SEEN_KIT.lock().unwrap();
++                if seen.get_or_insert_with(Default::default).insert(line.clone()) {
++                    log!("{}", line);
++                    a32_trace_append(&line);
++                }
++            }
++            if needle != "*" && !needle.is_empty() && text_str.contains(needle.as_str()) {
++                let tr = cx.turtle().rect();
++                let parent_flow = cx.turtle().layout().flow;
++                for (ri, row) in text.rows.iter().enumerate() {
++                    let n = row.glyphs.len();
++                    let pen_end = row.glyphs.last().map_or(0.0, |g| g.origin_in_lpxs.x + g.advance_in_lpxs());
++                    let tail: Vec<String> = row.glyphs.iter().skip(n.saturating_sub(3)).map(|g| {
++                        let ch = row.text.get(g.cluster..).and_then(|s| s.chars().next()).map_or("ELL".to_string(), |c| format!("{c:?}"));
++                        format!("[{ch} x={:.3} adv={:.3} end={:.3}]", g.origin_in_lpxs.x, g.advance_in_lpxs(), g.origin_in_lpxs.x + g.advance_in_lpxs())
++                    }).collect();
++                    let prev_end = if n >= 2 { let g = &row.glyphs[n - 2]; g.origin_in_lpxs.x + g.advance_in_lpxs() } else { 0.0 };
++                    let last_x = row.glyphs.last().map_or(0.0, |g| g.origin_in_lpxs.x);
++                    log!(
++                        "A32TRACE text={:?} max_width_in_lpxs={:?} wrap={} walk.width={:?} label_turtle_rect=[{:.3},{:.3},{:.3},{:.3}] flow={:?} truncated={} row{} width_in_lpxs={:.3} pen_end={:.3} origin_x={:.3} last_glyph_x={:.3} prev_glyph_end={:.3} overlap={:.3} tail={}",
++                        text_str, max_width_in_lpxs, wrap, walk.width, tr.pos.x, tr.pos.y, tr.size.x, tr.size.y, parent_flow,
++                        text.is_truncated, ri, row.width_in_lpxs, pen_end, row.origin_in_lpxs.x, last_x, prev_end, prev_end - last_x, tail.join(" ")
++                    );
++                }
++            }
++        }
+         self.draw_walk_laidout(cx, walk, &text)
+     }
++}
+ 
++/// A32 TEMP TRACE: append one verdict line to $A32_TRACE_FILE (survives app
++/// restarts within a walk; the app log is truncated per launch).
++fn a32_trace_append(line: &str) {
++    if let Ok(path) = std::env::var("A32_TRACE_FILE") {
++        if !path.is_empty() {
++            use std::io::Write;
++            if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(path) {
++                let _ = writeln!(f, "{line}");
++            }
++        }
++    }
++}
++
++impl DrawText {
+     fn max_layout_width_for_walk(&self, cx: &mut Cx2d, walk: Walk) -> Option<f32> {
+         let width = cx
+             .turtle()
