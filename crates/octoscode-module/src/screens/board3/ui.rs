@@ -515,7 +515,18 @@ impl Dsl {
     /// A text run. `id` names it in /snap (pass `""` for an anonymous id).
     pub fn text(&mut self, id: &str, s: &str, t: &Txt) {
         let id = if id.is_empty() { self.anon() } else { id.to_owned() };
-        let flow = if t.wrap { "flow: Right{wrap: true}" } else { "flow: Right" };
+        // A32 — a run cut by [`fit_w`] ends in "…" measured from estimates;
+        // one the estimate under-measures (capitals, digits, dashes) is wider
+        // than its label, whose clip would cut that "…" to two dots. On a
+        // bounded single line, makepad's own ellipsis cuts such a run again
+        // inside the label (decision D10d); a run that fits draws as before.
+        let flow = if t.wrap {
+            "flow: Right{wrap: true}"
+        } else if t.width != W::Fit && s.ends_with('\u{2026}') && !s.contains('\n') {
+            "flow: Right max_lines: 1 text_overflow: TextOverflow.Ellipsis"
+        } else {
+            "flow: Right"
+        };
         let props = format!(
             "width: {} height: Fit padding: 0 text: {} {flow}\ndraw_text.text_style: {}\ndraw_text.color: {}",
             t.width.dsl(),
