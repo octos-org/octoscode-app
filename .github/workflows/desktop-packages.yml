@@ -35,7 +35,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends build-essential pkg-config clang libssl-dev libx11-dev libxcursor-dev libxkbcommon-dev libxrandr-dev libxi-dev libxinerama-dev libasound2-dev libpulse-dev libwayland-dev libegl1-mesa-dev libgl1-mesa-dev libgles2-mesa-dev libdrm-dev libgbm-dev libgl1-mesa-dri xvfb xauth
+          sudo apt-get install -y --no-install-recommends build-essential pkg-config clang libssl-dev libx11-dev libxcursor-dev libxkbcommon-dev libxrandr-dev libxi-dev libxinerama-dev libasound2-dev libpulse-dev libwayland-dev libegl1-mesa-dev libgl1-mesa-dev libgles2-mesa-dev libdrm-dev libgbm-dev libgl1-mesa-dri xvfb xauth pulseaudio
       - name: Select stable Rust
         run: |
           rustup toolchain install stable --profile minimal --no-self-update
@@ -59,7 +59,9 @@ jobs:
         if: runner.os == 'Linux'
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: xvfb-run -a python tools/smoke-desktop-package.py target/desktop-packages/OctosCode-linux-x86_64.tar.gz
+        run: |
+          pulseaudio --start --exit-idle-time=-1
+          xvfb-run -a python tools/smoke-desktop-package.py target/desktop-packages/OctosCode-linux-x86_64.tar.gz
       - name: Upload release archive
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

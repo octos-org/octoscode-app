@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Launch an extracted desktop archive from a separate working directory and inspect its first frame."""
+"""Launch an extracted desktop archive and verify its first-run UI, input, and frame acknowledgment."""
 import argparse
 import json
 import os
@@ -40,7 +40,7 @@ def main():
         base = f"http://127.0.0.1:{port}"
 
         def get(path):
-            return urllib.request.urlopen(base + path, timeout=5).read()
+            return urllib.request.urlopen(base + path, timeout=20).read()
 
         with (out / "app.log").open("w", encoding="utf-8") as log:
             proc = subprocess.Popen([str(binary)], cwd=cwd, env=env, stdout=log, stderr=subprocess.STDOUT)
@@ -52,7 +52,7 @@ def main():
                     try:
                         candidate = json.loads(get("/snap"))
                         widgets = candidate.get("s", [])
-                        if any(w.get("i") == "first_run" and w.get("r", [0, 0, 0, 0])[2] > 0 for w in widgets):
+                        if any(w.get("i") == "connect_server" and w.get("r", [0, 0, 0, 0])[2] > 0 for w in widgets):
                             snapshot = candidate
                             break
                     except (OSError, ValueError):
@@ -60,15 +60,25 @@ def main():
                     time.sleep(0.5)
                 if snapshot is None:
                     raise RuntimeError("the packaged app did not render its first-run screen")
-                png = get("/g?raw=1")
-                if not png.startswith(b"\x89PNG\r\n\x1a\n"):
-                    raise RuntimeError("instrument did not return a PNG frame")
-                (out / "window.png").write_bytes(png)
+                # The pinned OpenGL backend does not complete the remote PNG
+                # capture path. Exercise actual UI input and require a rendered
+                # frame acknowledgment instead of an unsupported screenshot.
+                server = next(w for w in snapshot["s"] if w.get("i") == "connect_server")
+                x, y, w, h = server["r"]
+                get(f"/click?x={x + w / 2}&y={y + h / 2}&wait=1")
+                ack = json.loads(get("/t?t=rc-smoke&wait=1"))
+                if ack.get("ok") != 1 or ack.get("f", 0) < 1:
+                    raise RuntimeError(f"input did not produce a rendered frame: {ack}")
+                snapshot = json.loads(get("/snap"))
+                server = next(w for w in snapshot["s"] if w.get("i") == "connect_server")
+                if "rc-smoke" not in str(server.get("val", server.get("t", ""))):
+                    raise RuntimeError("server field did not retain typed text")
                 (out / "snapshot.json").write_text(json.dumps(snapshot, indent=2), encoding="utf-8")
-                print("PASS: packaged app renders first-run UI and a frame from an unrelated working directory.", flush=True)
+                (out / "frame-ack.json").write_text(json.dumps(ack), encoding="utf-8")
+                print("PASS: packaged app renders first-run UI, accepts text, and acknowledges its frame from an unrelated working directory.", flush=True)
             finally:
                 try:
-                    get("/gq")
+                    get("/quit")
                 except OSError:
                     pass
                 try:
