@@ -799,8 +799,10 @@ pub fn perform(id: &str, value: Option<&str>) -> Option<Effect> {
 /// live state. On open (`resolve_ancestor`) a typed path that is invalid /
 /// missing / not a folder walks up to its nearest listable ancestor, at most
 /// [`MAX_ASCENT`] steps (`WorkspaceFolderBrowser.tsx` `load`,
-/// `workspaceBrowseRetryPath`, `workspace-browse.ts:208-222`).
-pub async fn list(conv: &crate::flow::Conversation, path: Option<String>, resolve_ancestor: bool) -> Result<(), String> {
+/// `workspaceBrowseRetryPath`, `workspace-browse.ts:208-222`). `Ok` carries
+/// the listed folder's canonical path (A35b: a listing with no path names
+/// the server's working directory).
+pub async fn list(conv: &crate::flow::Conversation, path: Option<String>, resolve_ancestor: bool) -> Result<String, String> {
     let request = begin_request();
     let mut candidate = path;
     for _ in 0..=MAX_ASCENT {
@@ -809,7 +811,7 @@ pub async fn list(conv: &crate::flow::Conversation, path: Option<String>, resolv
                 if is_latest(request) {
                     state().listed(&listing);
                 }
-                return Ok(());
+                return Ok(listing.canonical_path);
             }
             Err(e) => {
                 let refusal = classify(&e);
@@ -862,7 +864,7 @@ pub async fn create(conv: &crate::flow::Conversation, parent: String, name: Stri
         .call::<WorkspaceCreate>(WorkspaceCreateParams { parent: parent.clone(), name })
         .await
     {
-        Ok(created) => list(conv, Some(created.canonical_path), false).await,
+        Ok(created) => list(conv, Some(created.canonical_path), false).await.map(|_| ()),
         Err(e) => {
             let refusal = classify(&e);
             let mut ui = state();

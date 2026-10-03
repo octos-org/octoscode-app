@@ -159,9 +159,13 @@ fn section_of<'a>(text: &'a str, start: &str, end: &str) -> &'a str {
 fn add_workspace_opens_the_browser_over_the_picker() {
     let _s = serial();
     board1::close_all();
+    // No folder chosen yet (another test's "Use this folder" may have run
+    // first): the browser lists the server's working directory, and the
+    // picker under it takes the root from that one listing (A35b).
+    browser::set(browser::BrowserUi::default());
     board1::note_context(&board1::Context { capabilities: vec![browser::BROWSE_FEATURE.into()], ..Default::default() });
     let w = board1::route("b1.open.add", None);
-    assert!(matches!(w.as_slice(), [board1::Work::PickerLoad, board1::Work::BrowserList { resolve_ancestor: true, .. }]), "{w:?}");
+    assert!(matches!(w.as_slice(), [board1::Work::PickerLoad { list_root: false }, board1::Work::BrowserList { resolve_ancestor: true, .. }]), "{w:?}");
     assert_eq!(board1::top(), Some(board1::Surface::Browser));
     assert!(board1::view(990.0, 603.0).unwrap().contains("Choose workspace folder"));
     board1::route("browser.close", None);
@@ -223,7 +227,7 @@ fn the_routing_walk_reaches_every_screen_from_its_entry() {
     assert!(!board1::is_open());
 
     // The new-session picker -> Browse folders (p4-08).
-    assert_eq!(board1::route("b1.open.picker", None), vec![board1::Work::PickerLoad]);
+    assert_eq!(board1::route("b1.open.picker", None), vec![board1::Work::PickerLoad { list_root: true }]);
     // Fail closed: without the advertised feature Browse does nothing.
     board1::note_context(&board1::Context::default());
     assert!(board1::route("picker.browse", None).is_empty());

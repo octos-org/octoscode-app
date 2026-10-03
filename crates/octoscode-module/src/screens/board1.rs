@@ -192,7 +192,12 @@ pub struct PickerUi {
 struct Host {
     /// Open surfaces, the visible one last (Picker → Browser stacks).
     stack: Vec<Surface>,
-    dirty: bool,
+    /// A35b: every change the view must show bumps this generation
+    /// ([`mark_dirty`]); a build records the generation it composed
+    /// (`built`). A bool cleared at the END of a build lost a change that
+    /// landed while it composed (the folder listing, on the runtime).
+    dirty: u64,
+    built: u64,
     size: (f64, f64),
     dsl: String,
     ui: Ui,
@@ -224,7 +229,7 @@ fn host() -> MutexGuard<'static, Host> {
 
 /// Something changed that the next view must show.
 pub fn mark_dirty() {
-    host().dirty = true;
+    host().dirty += 1;
 }
 
 pub fn is_open() -> bool {
@@ -239,7 +244,7 @@ fn push_surface(s: Surface) {
     let mut h = host();
     h.stack.retain(|x| *x != s);
     h.stack.push(s);
-    h.dirty = true;
+    h.dirty += 1;
     h.mounted = None;
 }
 
@@ -247,14 +252,14 @@ fn push_surface(s: Surface) {
 pub fn pop() {
     let mut h = host();
     h.stack.pop();
-    h.dirty = true;
+    h.dirty += 1;
     h.mounted = None;
 }
 
 pub fn close_all() {
     let mut h = host();
     h.stack.clear();
-    h.dirty = true;
+    h.dirty += 1;
     h.mounted = None;
 }
 
@@ -323,8 +328,13 @@ pub enum Work {
     BrowserList { path: Option<String>, resolve_ancestor: bool },
     /// `onboarding/workspace_create`.
     BrowserCreate { parent: String, name: String },
-    /// The picker's server root + recents.
-    PickerLoad,
+    /// The picker's server root + recents. `list_root`: read the server's
+    /// working directory with its own `workspace_list` (no path). A35b:
+    /// false when the folder browser opened over the picker lists that very
+    /// folder anyway — its listing reports the root
+    /// ([`Work::BrowserList`] with no path), so + Add workspace sends ONE
+    /// `workspace_list`, not the same listing twice.
+    PickerLoad { list_root: bool },
     /// Start a new session in `cwd` (`Conversation::new_chat`).
     NewSession { cwd: String },
 }
@@ -415,7 +425,7 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
                 h.picker.starting = None;
             }
             push_surface(Surface::Picker);
-            out.push(Work::PickerLoad);
+            out.push(Work::PickerLoad { list_root: true });
         }
         "b1.open.add" => {
             // The web's + Add workspace opens the picker at its "add" view,
@@ -425,7 +435,24 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
             // picker; fail closed to the picker alone (row 166).
             out.extend(route("b1.open.picker", None));
             if host().picker.browse_advertised {
-                out.extend(route_picker("picker.browse"));
+                let browse = route_picker("picker.browse");
+                // A35b: the browser lists the server's working directory
+                // itself (no folder chosen yet, or the root already known):
+                // the picker under it takes the root from THAT listing
+                // instead of asking for the same folder a second time.
+                let lists_root = browse.iter().any(|w| match w {
+                    Work::BrowserList { path: None, .. } => true,
+                    Work::BrowserList { path: Some(p), .. } => host().picker.server_root.as_deref() == Some(p.as_str()),
+                    _ => false,
+                });
+                if lists_root {
+                    for w in out.iter_mut() {
+                        if let Work::PickerLoad { list_root } = w {
+                            *list_root = false;
+                        }
+                    }
+                }
+                out.extend(browse);
             }
         }
         "b1.open.discovered" => {
@@ -584,6 +611,19 @@ fn route_picker(action: &str) -> Vec<Work> {
                 b.new_folder_open = action == "picker.newfolder";
                 b.new_folder.clear();
                 b.name_problem = None;
+                // A35b: opened at another folder, the last folder's rows are
+                // not this one's — "Loading folders…" until its listing lands
+                // (the web mounts a fresh browser, WorkspaceFolderBrowser.tsx).
+                if open_at.as_deref() != Some(b.path.as_str()) {
+                    b.path = open_at.clone().unwrap_or_default();
+                    b.path_draft = b.path.clone();
+                    b.entries.clear();
+                    b.parent = None;
+                    b.selected = None;
+                    b.writable = false;
+                    b.truncated = false;
+                    b.hidden_skipped = 0;
+                }
             }
             push_surface(Surface::Browser);
             // Walk 223: the browser reopens at the folder chosen last.
@@ -727,25 +767,49 @@ fn wrap(body: Ui, l: &Layout) -> Ui {
 /// rebuilds it (see [`is_typing`]).
 pub fn view(w: f64, h: f64) -> Option<String> {
     let surface = top()?;
-    let (rebuild, structural) = {
-        let hh = host();
-        let structural = hh.dirty || hh.dsl.is_empty();
-        (structural || hh.size != (w, h), structural)
-    };
-    if rebuild {
+    if let Some(ticket) = begin_build(w, h) {
+        crate::perf::note_board1_compose();
         let ui = compose(surface, w, h);
-        let mut hh = host();
-        hh.dsl = ui.dsl.clone();
-        hh.ui = ui;
-        hh.size = (w, h);
-        hh.dirty = false;
-        // Only a structural rebuild drops the keyboard: a window that
-        // resizes FOR the keyboard (adjustResize) must not hide it again.
-        if structural {
-            hh.ime_reset = true;
-        }
+        finish_build(ticket, ui);
     }
     Some(host().dsl.clone())
+}
+
+/// A35b — one rebuild of the dock's view, begun: what it was asked to show.
+/// The surfaces' state changes on the module's runtime (a folder listing
+/// lands while the UI thread composes), so the build is two-phase: [`view`]
+/// reads what changed ([`begin_build`]), composes OUTSIDE the host lock,
+/// then [`finish_build`] stores the result.
+#[derive(Debug)]
+pub struct BuildTicket {
+    size: (f64, f64),
+    structural: bool,
+    /// The change generation this build composes.
+    generation: u64,
+}
+
+/// Whether the open surface must be composed again (and why); `None` when
+/// the mounted view is current.
+pub fn begin_build(w: f64, h: f64) -> Option<BuildTicket> {
+    let hh = host();
+    let structural = hh.dirty != hh.built || hh.dsl.is_empty();
+    (structural || hh.size != (w, h)).then_some(BuildTicket { size: (w, h), structural, generation: hh.dirty })
+}
+
+/// Store a composed view.
+pub fn finish_build(ticket: BuildTicket, ui: Ui) {
+    let mut hh = host();
+    hh.dsl = ui.dsl.clone();
+    hh.ui = ui;
+    hh.size = ticket.size;
+    // Only what this build saw: a change that landed while it composed keeps
+    // the generations apart, so the next sync composes again.
+    hh.built = ticket.generation;
+    // Only a structural rebuild drops the keyboard: a window that
+    // resizes FOR the keyboard (adjustResize) must not hide it again.
+    if ticket.structural {
+        hh.ime_reset = true;
+    }
 }
 
 /// Whether the soft keyboard must go: a surface closed, or its view was
@@ -767,25 +831,35 @@ pub fn controls() -> Ui {
 
 /// The routed events in `actions`: every mounted control's click, every
 /// input's live text and Return, and the platform's QR answer.
-pub fn collect(cx: &mut Cx, root: &View, actions: &Actions) -> Vec<(String, Option<String>)> {
-    let mut ui = if is_open() { host().ui.clone() } else { Ui::default() };
-    // The always-mounted entry points: the Connect screen's link and the
-    // Settings drawer's rows route whether or not a surface is open.
-    ui.buttons.extend(entry_controls());
+///
+/// A35b: the open surface's controls are looked up from `dock` (board 1's
+/// dock is a widget-tree search barrier, so the module `root` never finds
+/// what it holds); the always-mounted entries live elsewhere in the module
+/// and are looked up from `root`. Nothing is looked up while no surface is
+/// open but the entries.
+pub fn collect(cx: &mut Cx, root: &View, dock: &WidgetRef, actions: &Actions) -> Vec<(String, Option<String>)> {
+    let ui = if is_open() { host().ui.clone() } else { Ui::default() };
     let mut out = Vec::new();
     for (id, action) in &ui.inputs {
-        if let Some(text) = root.text_input(cx, &[LiveId::from_str(id)]).changed(actions) {
+        if let Some(text) = dock.text_input(cx, &[LiveId::from_str(id)]).changed(actions) {
             out.push((action.clone(), Some(text)));
         }
     }
     for (id, action) in &ui.returns {
-        if root.text_input(cx, &[LiveId::from_str(id)]).returned(actions).is_some() {
+        if dock.text_input(cx, &[LiveId::from_str(id)]).returned(actions).is_some() {
             out.push((action.clone(), None));
         }
     }
     for (id, action) in &ui.buttons {
-        if root.button(cx, &[LiveId::from_str(id)]).clicked(actions) {
+        if dock.button(cx, &[LiveId::from_str(id)]).clicked(actions) {
             out.push((action.clone(), None));
+        }
+    }
+    // The always-mounted entry points: the Connect screen's link and the
+    // Settings drawer's rows route whether or not a surface is open.
+    for (id, action) in entry_controls() {
+        if root.button(cx, &[LiveId::from_str(&id)]).clicked(actions) {
+            out.push((action, None));
         }
     }
     use makepad_widgets::makepad_platform::event::{NativeQrCancelled, NativeQrScanned};
@@ -843,7 +917,7 @@ pub fn note_context(ctx: &Context) {
         let mut h = host();
         if h.picker.browse_advertised != advertised {
             h.picker.browse_advertised = advertised;
-            h.dirty = true;
+            h.dirty += 1;
         }
         if h.methods != ctx.methods {
             h.methods = ctx.methods.clone();
@@ -1067,13 +1141,20 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
         }
         Work::BrowserList { path, resolve_ancestor } => {
             let Some(conv) = conv else { return need_conv("browse") };
-            browser::list(&conv, path, resolve_ancestor).await
+            let root = path.is_none();
+            let listed = browser::list(&conv, path, resolve_ancestor).await;
+            // A35b: a listing with no path IS the server's working directory
+            // (`profile.rs` WorkspaceListParams) — the picker's first row.
+            if let (true, Ok(canonical)) = (root, &listed) {
+                host().picker.server_root = Some(canonical.clone());
+            }
+            listed.map(|_| ())
         }
         Work::BrowserCreate { parent, name } => {
             let Some(conv) = conv else { return need_conv("create folder") };
             browser::create(&conv, parent, name).await
         }
-        Work::PickerLoad => {
+        Work::PickerLoad { list_root } => {
             let recents: Vec<(String, String)> =
                 super::recents::load_recent_workspaces(&*super::recents::store(), &super::recents::endpoint())
                     .into_iter()
@@ -1083,7 +1164,7 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
             let Some(conv) = conv else {
                 let mut h = host();
                 h.picker.loading = false;
-                h.dirty = true;
+                h.dirty += 1;
                 drop(h);
                 return need_conv("picker");
             };
@@ -1094,18 +1175,26 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
             // lists exactly it (`profile.rs` WorkspaceListParams); without the
             // browse feature, the open session's reported root
             // (`server-working-directory.ts:2-23`).
-            let root = if advertised {
+            let listed = if advertised && list_root {
                 conv.client()
                     .call::<WorkspaceList>(WorkspaceListParams { path: None })
                     .await
                     .ok()
                     .map(|l| l.canonical_path)
-                    .or(session_root)
             } else {
-                session_root
+                None
             };
             let mut h = host();
-            h.picker.server_root = root;
+            if advertised && !list_root {
+                // A35b: the browser's own listing of the root reports it, and
+                // it may land before or after this: never overwrite it (read
+                // and write under this one lock).
+                if h.picker.server_root.is_none() {
+                    h.picker.server_root = session_root;
+                }
+            } else {
+                h.picker.server_root = listed.or(session_root);
+            }
             h.picker.browse_advertised = advertised;
             h.picker.loading = false;
             Ok(())
@@ -1266,6 +1355,34 @@ mod tests {
         LOCK.get_or_init(|| Mutex::new(())).lock().unwrap_or_else(|e| e.into_inner())
     }
 
+    /// A35b — a change that lands WHILE the view is being composed (the
+    /// folder listing, folded in on the runtime by `browser::list`) is
+    /// never lost: the build that started before it must not mark it
+    /// shown. Measured on the standalone app against a local server that
+    /// answers in under a millisecond: the click's own sync composed the
+    /// "loading" view, the listing landed mid-compose, the build cleared
+    /// the dirty flag, and the Signal that followed rebuilt nothing — the
+    /// rows never appeared until an unrelated relayout.
+    #[test]
+    fn a_change_that_lands_mid_compose_is_rebuilt_not_lost() {
+        let _s = live_state();
+        close_all();
+        route("b1.open.picker", None);
+        let built = || Ui { dsl: "View {}".to_owned(), ..Default::default() };
+        let first = begin_build(990.0, 603.0).expect("a fresh surface builds");
+        // The listing lands on the runtime while the UI thread composes.
+        mark_dirty();
+        finish_build(first, built());
+        assert!(
+            begin_build(990.0, 603.0).is_some(),
+            "the change that landed mid-compose must be composed by the next sync"
+        );
+        let second = begin_build(990.0, 603.0).expect("rebuilt");
+        finish_build(second, built());
+        assert!(begin_build(990.0, 603.0).is_none(), "and then the view is current");
+        close_all();
+    }
+
     #[test]
     fn the_keyboard_is_dismissed_when_a_surface_rebuilds_or_closes_not_while_typing() {
         let _s = live_state();
@@ -1290,9 +1407,14 @@ mod tests {
     fn add_workspace_opens_the_browser_over_the_picker_and_fails_closed() {
         let _s = live_state();
         close_all();
+        browser::set(browser::BrowserUi::default());
         note_context(&Context { capabilities: vec![browser::BROWSE_FEATURE.into()], ..Default::default() });
         let w = route("b1.open.add", None);
-        assert!(matches!(w.as_slice(), [Work::PickerLoad, Work::BrowserList { resolve_ancestor: true, .. }]), "{w:?}");
+        // A35b: ONE listing — the browser's; the picker takes the root from it.
+        assert!(
+            matches!(w.as_slice(), [Work::PickerLoad { list_root: false }, Work::BrowserList { resolve_ancestor: true, .. }]),
+            "{w:?}"
+        );
         assert_eq!(top(), Some(Surface::Browser));
         // The browser's back lands on the picker (the web's add -> choose).
         route("browser.close", None);
@@ -1300,7 +1422,7 @@ mod tests {
         close_all();
         // Without the advertised feature: the picker alone, no browse request.
         note_context(&Context::default());
-        assert_eq!(route("b1.open.add", None), vec![Work::PickerLoad]);
+        assert_eq!(route("b1.open.add", None), vec![Work::PickerLoad { list_root: true }]);
         assert_eq!(top(), Some(Surface::Picker));
         close_all();
     }

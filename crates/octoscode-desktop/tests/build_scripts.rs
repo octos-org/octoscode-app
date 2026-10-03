@@ -107,6 +107,29 @@ fn build_macos_runs_every_step_of_both_variants() {
     assert!(s.contains("this script prepares only the forks it owns"));
 }
 
+/// A35b — nobody gets the slow build by default. Measured on the standalone
+/// app with the Makepad instrument (tools/walk/a35_browser_latency_walk.py):
+/// at opt-level 0 the folder browser's open and navigations took 0.3-0.7 s,
+/// optimized well under 0.1 s. The one-command build is release unless
+/// `--debug` asks otherwise, every package is the optimized `app-bundle`
+/// profile, and even a plain `cargo build` (the dev profile) optimizes the
+/// dependencies, where the UI thread's time goes.
+#[test]
+fn the_default_builds_are_optimized() {
+    let s = read("tools/build-macos.sh");
+    assert!(s.contains("\nPROFILE=release\n"), "build-macos.sh builds release by default");
+    assert!(s.contains("--debug) PROFILE=debug;"), "a debug build is opt-in (--debug)");
+    assert!(!s.contains("\nPROFILE=debug\n"), "never the default");
+    assert!(s.contains("cargo build --release -p octoscode-desktop --bin octoscode"));
+    assert!(read("tools/package-macos.sh").contains("cargo build --profile app-bundle -p octoscode-desktop"));
+    assert!(read("tools/package-desktop.py").contains("\"--profile\", \"app-bundle\""));
+    let cargo = read("Cargo.toml");
+    assert!(
+        cargo.contains("[profile.dev.package.\"*\"]\nopt-level = 3\n"),
+        "the dev profile optimizes every dependency"
+    );
+}
+
 #[test]
 fn the_bundle_is_self_contained_and_named_octoscode() {
     let s = read("tools/package-macos.sh");

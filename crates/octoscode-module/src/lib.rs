@@ -68,6 +68,8 @@ pub mod markdown;
 // A7: the driver-seat handover before one send (composer-seat-handover.ts).
 pub mod seat;
 pub mod mount;
+// A35b: the per-event cost probe (OCTOSCODE_PERF=1) and board 1's compose/mount counters.
+pub mod perf;
 pub mod screen;
 pub mod screens;
 
@@ -943,9 +945,18 @@ script_mod! {
         // never shadows the chrome's clicks otherwise. Its content is the
         // native view `screens::board1::view` builds (a centred dialog on a
         // desktop window, a full-width sheet on a phone).
+        // A35b: a widget-tree search barrier. Every surface change (a folder
+        // listed, a row picked) REMOUNTS the splash, and a remount
+        // invalidates the path cache of every ancestor up to the first
+        // barrier: without one, the module root's ~270 per-event lookups
+        // (the chrome sync, the docks) each walked the whole tree again,
+        // ~1000 nodes apiece (measured: 230k nodes, 28 ms release / 300 ms
+        // debug, per Signal after each pick). Its controls are looked up
+        // FROM the dock (`board1_dock_ref`, `screens::board1::collect`).
         board1_dock := View {
             width: Fill height: Fill
             visible: false
+            skip_widget_tree_search: true
             board1_splash := Splash {
                 width: Fill height: Fill
             }
@@ -3131,14 +3142,15 @@ impl OctoscodeView {
         }
         let size = self.view.area().rect(cx).size;
         let open = screens::board1::is_open();
-        self.view.widget(cx, ids!(board1_dock)).set_visible(cx, open);
+        let dock = self.board1_dock_ref(cx);
+        dock.set_visible(cx, open);
         if let Some(dsl) = screens::board1::view(size.x, size.y) {
-            let splash = self.view.splash(cx, ids!(board1_splash));
+            let splash = dock.splash(cx, ids!(board1_splash));
             // A23 — a state change remounts the surface; keep its body's
             // scroll when it is the SAME surface (board 3's rule): read the
             // offset from the body's first child before the remount.
             let keep_scroll = {
-                let sv = self.view.widget(cx, &[live_id!(board1_splash), LiveId::from_str(screens::board1::SCROLL_ID)]);
+                let sv = dock.widget(cx, &[live_id!(board1_splash), LiveId::from_str(screens::board1::SCROLL_ID)]);
                 let top = sv.area().rect(cx).pos.y;
                 let mut first = None;
                 sv.children(&mut |_, child| {
@@ -3149,7 +3161,13 @@ impl OctoscodeView {
                 first.map(|y| (top - y).max(0.0)).unwrap_or(0.0)
             };
             let same_surface = screens::board1::note_mounted();
-            match self.mounts.mount(cx, &splash, &dsl) {
+            let mounted = self.mounts.mount(cx, &splash, &dsl);
+            if let Ok(true) = mounted {
+                // A35b: one line per REAL remount (the browser walk counts them).
+                crate::perf::note_board1_mount();
+                makepad_widgets::log!("[octoscode] board1 remounted ({} bytes)", dsl.len());
+            }
+            match mounted {
                 Err(e) => makepad_widgets::log!("[octoscode] board1 mount: {e}"),
                 Ok(true) if same_surface && keep_scroll > 0.0 => screens::board1::set_pending_scroll(keep_scroll),
                 Ok(_) => {}
@@ -3158,6 +3176,13 @@ impl OctoscodeView {
         if screens::board1::take_ime_reset() {
             cx.hide_text_ime();
         }
+    }
+
+    /// A35b: board 1's dock, a widget-tree search barrier (see its DSL):
+    /// the module root finds the dock itself, never what it holds — every
+    /// lookup of a board-1 control is rooted here.
+    fn board1_dock_ref(&self, cx: &Cx) -> WidgetRef {
+        self.view.widget(cx, ids!(board1_dock))
     }
 
     /// #29a: run one board-2 screen action (`screens::connect::ACTIONS`).
@@ -5536,7 +5561,7 @@ impl OctoscodeView {
         }
         // A23 — the board-1 editor's body likewise.
         if let Some(y) = screens::board1::take_pending_scroll() {
-            self.view
+            self.board1_dock_ref(cx)
                 .view(cx, &[live_id!(board1_splash), LiveId::from_str(screens::board1::SCROLL_ID)])
                 .set_scroll_pos(cx, dvec2(0.0, y));
             self.view.redraw(cx);
@@ -5674,7 +5699,8 @@ impl OctoscodeView {
                 // #A2: board 1's events — the dock's controls and inputs, the
                 // always-mounted entries (the Connect screen's pairing link,
                 // the Settings rows) and the platform's QR answer.
-                let board1_events = screens::board1::collect(cx, &self.view, actions);
+                let board1_dock = self.board1_dock_ref(cx);
+                let board1_events = screens::board1::collect(cx, &self.view, &board1_dock, actions);
                 for (action, value) in board1_events {
                     self.perform_board1(cx, &action, value.as_deref());
                 }

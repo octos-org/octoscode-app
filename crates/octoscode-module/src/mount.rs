@@ -117,6 +117,16 @@ impl MountCache {
         // same line `Splash::eval_styled_body_with_apply` runs
         // (splash.rs:352-355) so rebuilding a body never takes the slot away.
         view.walk = inner.view.walk;
+        // A35b: where the retired view was drawn, read BEFORE the swap. The
+        // new view has never been drawn: its area is empty, so redrawing it
+        // (`inner.redraw` below, `View::redraw` -> `Area::redraw`) names no
+        // draw list and asks for no frame. A mount that rides a click's own
+        // Actions pass was drawn anyway (that pass redraws the whole module),
+        // but one that lands on a Signal — the folder browser's listing after
+        // the server answered — sat in the widget tree undrawn until some
+        // unrelated input redrew the window (measured on the standalone app:
+        // the rows in /snap?all=1, "Loading folders…" on screen).
+        let drawn_at = inner.view.area();
         let old = std::mem::replace(&mut inner.view, view);
         // Reparent the new tree's nodes into the shared widget-tree graph. Do
         // this while the view is still owned by the Splash so its children are
@@ -129,6 +139,18 @@ impl MountCache {
         });
         inner.redraw(cx);
         drop(inner);
+        // Ask for the frame through the draw list the retired view was drawn
+        // in; a slot that was never drawn (no list to name) redraws the
+        // window, so a mount can never wait for unrelated input. Inside a
+        // draw pass (a PortalList row mounted in `draw_walk`) the caller
+        // draws the new view in this very pass: nothing to ask for.
+        if !cx.in_draw_event() {
+            if drawn_at.draw_list_id().is_some() {
+                cx.redraw_area(drawn_at);
+            } else {
+                cx.redraw_all();
+            }
+        }
 
         for (id, child) in children {
             cx.widget_tree_insert_child_deep(WidgetUid(uid), id, child);
