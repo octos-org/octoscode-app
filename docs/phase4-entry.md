@@ -24,4 +24,4 @@ Counts use the FINAL bucket (phase4_bucket_manual when set, else phase4_bucket).
 
 **A 315 (315 device-pending)** — verified on the Mac only (desktop + the 360x780 phone simulator); `device_verified` names each row's on-device status until the operator's device test.
 
-Regenerated 2026-10-03 01:00 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.
+Regenerated 2026-10-03 01:51 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.
