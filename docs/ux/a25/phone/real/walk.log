@@ -1,24 +1,27 @@
     log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
-    log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:413:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/lib.rs:1412:9 - [octoscode] a24 language at launch: en
+    log: [I] apps/octoscode/module/src/screens/bootstrap.rs:169:5 - [octoscode] bootstrap: Harness(http://127.0.0.1:8524, token: true) (remembered server: false, saved token: false, restore target: false, auto-connect: None)
     log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
-    log: [I] apps/octoscode/module/src/attention.rs:938:9 - [octoscode] attention: start (platform api true, focused false)
-    log: [I] apps/octoscode/module/src/lib.rs:1585:13 - [octoscode] startup: Explicit("dsflash:main")
-    log: [I] apps/octoscode/module/src/flow.rs:1022:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
-    log: [I] apps/octoscode/module/src/lib.rs:3289:17 - [octoscode] composer remounted
-    log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
-    log: [I] apps/octoscode/module/src/lib.rs:3387:38 - [octoscode] chrome: 3 profile reads folded
-    log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+    log: [I] apps/octoscode/module/src/attention.rs:1032:9 - [octoscode] attention: start (platform api true, focused false)
+    log: [I] apps/octoscode/module/src/lib.rs:1687:13 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/flow.rs:1375:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
+    log: [I] apps/octoscode/module/src/lib.rs:3481:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4363:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
+    log: [I] apps/octoscode/module/src/lib.rs:3585:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4363:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
     log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
-    log: [I] apps/octoscode/module/src/lib.rs:3704:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
-    log: [I] apps/octoscode/module/src/attention.rs:984:9 - [octoscode] attention: os Authorization { status: Unavailable, requested: false, error: None }
-    log: [I] apps/octoscode/module/src/lib.rs:3289:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3928:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:3986:17 - [octoscode] aside panel: hidden
+    log: [I] apps/octoscode/module/src/attention.rs:1092:9 - [octoscode] attention: os Authorization { status: Unavailable, requested: false, error: None }
+    log: [I] apps/octoscode/module/src/lib.rs:3481:17 - [octoscode] composer remounted
 PASS real: the platform layer reported this process unavailable — macOS UNUserNotificationCenter needs an .app bundle
 CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
 PASS real: Settings > General shows the Desktop notifications row
 PASS real: the row reads Unavailable, no toggle to press (the web's disabled button) — {"toggle": false, "on": false, "state": "Unavailable", "help": "Desktop notifications are unavailable here.", "alert": ""}
 PASS real: the message says so — Desktop notifications are unavailable here.
-    log: [I] apps/octoscode/module/src/lib.rs:4175:13 - [octoscode] chrome: OpenSettings
-    log: [I] apps/octoscode/module/src/lib.rs:1806:13 - [octoscode] settings action: settings.panel.open
+    log: [I] apps/octoscode/module/src/lib.rs:4449:13 - [octoscode] chrome: OpenSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1922:13 - [octoscode] settings action: settings.panel.open
 PASS real: clicking there asks nothing
 SHOT row-unavailable
 PASS ux row-unavailable: 9/9 numeric checks — failed=[] rects={'row': [81, 135, 255, 94], 'title': [81, 152, 150, 18], 'control': [259, 153, 77, 17], 'message': [81, 179, 191, 36]}

@@ -21,6 +21,8 @@
 //! * **"Reopen it from the sidebar"** — "History hiccup" (`a22:api:hiccup`):
 //!   its first two history reads are refused ("history store busy", then
 //!   "history store still busy"), the third is answered with its history.
+//! * **A25** (background attention) — `[stop]` a turn stopped elsewhere
+//!   after 3 s (`interrupted`), `[limit]` a rate-limited turn after 3 s.
 //!
 //! Every request is appended to `--log <file>` as one JSON line
 //! `{"method", "params"}`, and every notification the server pushes as
@@ -233,6 +235,12 @@ async fn run_turn(out: UnboundedSender<String>, cfg: Cfg, world: Arc<Mutex<World
         ("Running the suite…", "errored", 3, false)
     } else if prompt.contains("[ask]") {
         ("I need one answer first.", "", 4, true)
+    } else if prompt.contains("[stop]") {
+        // A25: a turn stopped elsewhere (another client's Stop) after 3 s.
+        ("Stopping here.", "interrupted", 3, false)
+    } else if prompt.contains("[limit]") {
+        // A25: a turn the provider rate-limits after 3 s.
+        ("Waiting for quota.", "rate_limited", 3, false)
     } else {
         ("Done.", "completed", 1, false)
     };

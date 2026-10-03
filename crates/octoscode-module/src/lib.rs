@@ -3594,8 +3594,10 @@ impl OctoscodeView {
                 let b = self.bridge.lock().unwrap();
                 (b.store.clone(), b.ui.clone())
             };
-            let active_turn = ui.lock().ok().and_then(|u| u.active_turn());
-            attention::observe(cx, &store, active_turn);
+            // A25: the SELECTED Session's live turn (A22: per Session); the
+            // background records' turns come from their own queues.
+            let live_turn = store.active_session().and_then(|s| ui.lock().ok().and_then(|u| u.live_turn_in(&s)));
+            attention::observe(cx, &store, live_turn);
         }
         // A3: `+ Add workspace` opens the workspace picker (the web's
         // "Add workspace", ProductSidebar.tsx:578 -> App.tsx onAddWorkspace ->

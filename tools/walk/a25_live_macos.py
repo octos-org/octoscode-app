@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """A25 — the REAL macOS round trip of a desktop notification (rows 322/323).
 
-    python3 tools/walk/a25_live_macos.py <host-bin> <outdir> [--request]
+    python3 tools/walk/a25_live_macos.py <host-bin> <outdir> [--request] [--background]
 
 1. Wraps the host binary in this agent's OWN app bundle, `tmp/a25-macos/
    OctosCode A25.app` (bundle id `dev.octoscode.desktop.a25`, ad-hoc signed;
@@ -27,6 +27,11 @@
    screen). A New chat is opened, then the banner is CLICKED for real
    (Accessibility AXPress on the element carrying our notice text): the app
    is brought forward and the notice's Session reopens. Exit 0 on success.
+   With --background the person leaves the prompted Session for a New chat
+   one second after sending (a prompt that takes a few seconds), so its turn
+   finishes in the BACKGROUND (e2e/attention.spec.ts:231-269): the banner
+   must name THAT Session while another is on screen, and the click reopens
+   it. Use the default first; --background is the stronger proof.
 6. Always: stops the app and the serve, deletes the data copy, scrubs machine
    paths from the saved log and trace, and checks no saved file carries the
    token.
@@ -46,6 +51,7 @@ import socket
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
@@ -57,6 +63,7 @@ from a10_lib import scrub as scrub_paths  # noqa: E402
 BIN = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else None
 OUT = pathlib.Path(sys.argv[2]) if len(sys.argv) > 2 else ROOT / "docs" / "ux" / "a25" / "live-macos"
 REQUEST = "--request" in sys.argv
+BACKGROUND = "--background" in sys.argv
 WORK = ROOT / "tmp" / "a25-macos"
 APP = WORK / "OctosCode A25.app"
 BUNDLE_ID = "dev.octoscode.desktop.a25"
@@ -67,6 +74,8 @@ OCTOS = pathlib.Path(os.environ.get("A25_OCTOS_BIN", HOME / "home/oa.noindex/p0-
 LIVE_DATA = pathlib.Path(os.environ.get("A25_LIVE_DATA", HOME / "home/oa.noindex/live-gate/data"))
 NOTICE_TEXT = "Return to OctosCode to review it."
 PROMPT_A = "Reply with exactly the two words: notice test"
+# --background: an answer that takes a few seconds, so the person can leave the Session first.
+PROMPT_BG = "Write five short numbered sentences about the colour blue."
 
 RESULTS: list[tuple[str, bool, str]] = []
 NOTES: list[str] = []
@@ -162,8 +171,21 @@ BASE = f"http://127.0.0.1:{APP_PORT}"
 
 
 def get(path: str, timeout: float = 20) -> bytes:
-    with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
-        return r.read()
+    """A read retries a missed frame; an INPUT is never re-sent — the bridge
+    may have applied it already (bridgeauth.input_was_queued: its 404 then
+    means "applied, no frame acknowledgement"), and a second click lands on
+    whatever moved under the pointer."""
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            if bridgeauth.input_was_queued(path, e):
+                return b""
+            if path.startswith(bridgeauth.INPUT_ROUTES) or attempt == 2:
+                raise
+            time.sleep(1.0)
+    return b""
 
 
 def snap() -> list[dict]:
@@ -181,22 +203,16 @@ def find(wid: str):
 
 
 def click(wid: str) -> bool:
-    """CLICK at the widget's rect; a transient instrument error (a 404 while
-    the window re-lays out) is retried, never fatal."""
-    for attempt in range(3):
+    """CLICK once at the widget's rect (waiting a little for it to be drawn)."""
+    for _ in range(5):
         w = find(wid)
-        if not w:
-            time.sleep(0.6)
-            continue
-        x, y, ww, hh = w["r"]
-        try:
+        if w:
+            x, y, ww, hh = w["r"]
             get(f"/click?x={x + ww / 2}&y={y + hh / 2}&wait=1")
             time.sleep(0.4)
             return True
-        except Exception as e:  # noqa: BLE001
-            note(f"CLICK {wid}: retry after {e}")
-            time.sleep(0.8)
-    note(f"CLICK {wid}: not visible or not clickable")
+        time.sleep(0.6)
+    note(f"CLICK {wid}: not visible")
     return False
 
 
@@ -363,12 +379,22 @@ def run_granted() -> None:
     composer = find("i0_composer_0")
     if not check("granted: the composer is ready", bool(composer)):
         return
+    title_a = header()
     click("i0_composer_0")
-    get("/t?" + urllib.parse.urlencode({"t": PROMPT_A, "wait": 1}))
+    get("/t?" + urllib.parse.urlencode({"t": PROMPT_BG if BACKGROUND else PROMPT_A, "wait": 1}))
     get("/k?c=Return&wait=1")
+    if BACKGROUND:
+        # Leave the Session at once: its turn finishes in the BACKGROUND
+        # (e2e/attention.spec.ts:231-269 natively).
+        time.sleep(1.0)
+        click("sb_new_chat_hit")
+        note(f"background: left {title_a!r} for a New chat while its turn runs")
     posted = wait_log("attention: notice octoscode-attention:", 120, mark)
     check("granted: the finished turn posted the notice (window unfocused)", bool(posted),
           scrub_paths(posted or "")[-200:])
+    if BACKGROUND:
+        check("background: the notice names the Session that was left (another one is on screen)",
+              bool(posted) and header() != title_a, f"on screen {header()!r}, the notice's Session {title_a!r}")
     session_a = re.search(r"notice (octoscode-attention:\S+)", posted or "")
     failed = wait_log("was not shown", 3, mark)
     check("granted: macOS accepted it (no add error)", failed is None, scrub_paths(failed or ""))
@@ -377,10 +403,10 @@ def run_granted() -> None:
     check("granted: the banner is on screen (Notification Center)", bool(frames), json.dumps(frames))
     if frames:
         check("granted: banner captured (its own frame only)", capture_region(frames[0], "banner"))
-    title_a = header()
-    # Another Session in front, so the click must route.
-    click("sb_new_chat_hit")
-    time.sleep(3)
+    if not BACKGROUND:
+        # Another Session in front, so the click must route.
+        click("sb_new_chat_hit")
+        time.sleep(3)
     note(f"header before the click: {header()!r} (the notice names {title_a!r})")
     mark = len(LOG)
     pressed = nc("press", NOTICE_TEXT)

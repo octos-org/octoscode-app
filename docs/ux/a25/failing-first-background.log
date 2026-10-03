@@ -1,0 +1,17 @@
+test a_stopped_or_rate_limited_background_turn_never_notifies ... ok
+test a_background_session_finishing_while_another_is_selected_notifies_once_and_selecting_it_acknowledges ... FAILED
+test a_click_on_a_background_notice_opens_that_session_and_acknowledges ... FAILED
+test a_background_session_that_waits_for_an_answer_notifies_needs_input ... FAILED
+thread 'a_background_session_finishing_while_another_is_selected_notifies_once_and_selecting_it_acknowledges' (246447117) panicked at crates/octoscode-module/tests/a25_background_attention.rs:322:5:
+assertion `left == right` failed: one signal: []
+  left: 0
+ right: 1
+thread 'a_click_on_a_background_notice_opens_that_session_and_acknowledges' (246447119) panicked at crates/octoscode-module/tests/a25_background_attention.rs:368:5:
+assertion `left == right` failed
+  left: []
+ right: [("octoscode-attention:a25:api:tests", "Run the test suite", "A background response needs attention. Return to OctosCode to review it.")]
+thread 'a_background_session_that_waits_for_an_answer_notifies_needs_input' (246447118) panicked at crates/octoscode-module/tests/a25_background_attention.rs:434:5:
+assertion `left == right` failed
+  left: []
+ right: [("octoscode-attention:a25:api:ask", "Pick a branch", "A background response needs your input. Return to OctosCode to review it.")]
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.81s
