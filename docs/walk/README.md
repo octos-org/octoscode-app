@@ -22,6 +22,34 @@ moves run.py's own replay servers (default 8380.., one per scenario) into the
 port block you were given; `--fixture-port` does the same for the native
 walks' fixtures.
 
+**Only that complete run regenerates the table; every narrower run MERGES
+(A34).** `--only AREA[,AREA]`, `--limit N`, `--native-only --walks …`,
+`--modes desktop`, `--no-native` re-decide the rows they touch exactly as a
+full run would, and write a row only when a check that decides it ran (or its
+app instance failed to start). Every other row — and its lines in
+`results-checks.csv` — is copied byte for byte:
+
+- `--only peer` runs every scriptable `peer` row (the limit counts that
+  area's rows), including the env-group rows' instances (row 183 at 1280 and
+  at 720); an instance that cannot start leaves its checks `not-run` for the
+  row instead of dropping them. A native row whose walks did not run keeps
+  its line (a full run decides it from the walks alone); a native-partial row
+  takes the fresh run.py checks next to its walk checks from the table.
+- `--native-only --walks W` re-decides the rows W maps; a row that another
+  walk also maps keeps that walk's checks from the table.
+- the parity relabel / demote passes touch only the re-decided rows.
+
+Provenance: each row of `results.csv` records `run_sha` (the HOST build, read
+from the `BUILT_FROM` stamp `outer/scripts/hostbuild.sh` writes next to the
+binary, e.g. `octoscode-app@9c4fb794`; `WALK_RUN_SHA` overrides), `run_at`
+(UTC, when the run started) and `run_scope` (`full`, `only=peer`,
+`native-only walks=…`, …); each line of `results-checks.csv` its own
+`run_sha` / `run_at` — a line carried from the table keeps its provenance, so
+a merged row shows which of its checks are older. The rows of the official
+`--full` run on 9c4fb794 were backfilled with `octoscode-app@9c4fb794`,
+`2026-10-03T03:29:08Z` (the time of the commit that recorded them, e3073df0;
+the run's own start was not recorded) and `full (recorded in e3073df0)`.
+
 run.py's replay servers run with `--adopt-turn-ids`: each replayed turn plays
 as the app's own `turn/start` id and prompt (a real server adopts the client's
 turn id; A7's turn controller settles — and drains its queue past — only the
@@ -76,10 +104,10 @@ walk mapping it ran; a mode in which no mapped check ran, a walk that could
 not start, or a run that CRASHED (an uncaught Python traceback, even after
 some checks passed) is a failing check — a crashed walk never reads green.
 
-Iterate on one walk without re-running everything (merges into the existing
-results; every native row is recomputed from the LATEST result of EVERY walk
-in `tmp/walk/native/last.json`, so a row two walks map keeps the other's
-checks):
+Iterate on one walk without re-running everything (merges into the committed
+results: only the rows the walk maps are re-decided, and a row two walks map
+keeps the other walk's checks — and the phone checks, with `--modes
+desktop` — from the table):
 
 ```sh
 python3 tools/walk/run.py --native-only --walks a11_offer --modes desktop --port <port>
@@ -90,10 +118,13 @@ machine paths scrubbed); a check's evidence cell points at its line.
 
 A targeted run (`WALK_ONLY_ROWS=…` → `results-only*.csv`) can merge the last
 native run's verdicts without walking again:
-`--native-json tmp/walk/native/last.json` (every native run leaves it). The
-official files are `results.csv` / `results-checks.csv` from `--full`;
-`results_live*.csv` is the last `--live` run (real model turns), whose other
-rows are not maintained by it.
+`--native-json tmp/walk/native/last.json` (every native run leaves it; the
+flag is refused outside such a snapshot run). The official files are
+`results.csv` / `results-checks.csv`; `results_live*.csv` is the last `--live`
+run (real model turns), whose other rows are not maintained by it, and
+`results-scenario*.csv` the last `WALK_SCENARIO=…` run (the negative
+control's deliberately broken fixture, `negative-control.md`). Those
+snapshot files stamp provenance on the rows their run selected.
 
 ---
 
@@ -105,11 +136,13 @@ source .peer/env.sh
 # 1) the native desktop app binary (see Prerequisites — external to this repo)
 export OCTOSCODE_APP_BIN=<fork>/tmp/octosense-target/debug/octosense
 
-# 2) run the first 30 scripted rows (all named areas)
+# 2) run the first 30 scripted rows (all named areas), merged into the table
 #    the scenario server is built for you on first run.
 python3 tools/walk/run.py
 
-# one area only, a smaller batch
+# one area only (every row of it), merged into the table
+python3 tools/walk/run.py --only conversation
+# ... or its first 10 rows
 python3 tools/walk/run.py --only conversation --limit 10
 
 # a different app port (the block is 8370-8379)
@@ -118,10 +151,13 @@ python3 tools/walk/run.py --port 8371
 
 The runner prints each check's result and a summary, then writes
 `docs/walk/results.csv` (one verdict per row) **and**
-`docs/walk/results-checks.csv` (one row per check that ran for a row). Exit code
-is 0 iff no row is `fail` and none is `not-run`; **1** when a check failed, a row
-was not run, or a *selected* row was blocked by a start failure; **2** when a
-documented prerequisite is missing (the message names the command to run).
+`docs/walk/results-checks.csv` (one row per check that ran for a row) — the
+whole table for `--full`, merged otherwise (the summary counts the rows this
+run decided). Exit code is 0 iff none of the rows the run decided is `fail` or
+`not-run`; **1** when a check failed, a check did not run, or a *selected* row
+was blocked by a start failure; **2** when a documented prerequisite is
+missing (the message names the command to run), `--only` names an unknown
+area, or a partial run has no committed table to merge into.
 
 ---
 
@@ -181,7 +217,9 @@ Environment knobs:
    on port 8370 (this card's block), pointed at that scenario's backend.
 4. **Drives real input** — `/click`, `/t` — and **asserts from `/snap`**. A
    failure writes `/g` + the snap JSON into `docs/walk/evidence/`.
-5. **Writes a verdict for all 234 rows**, then stops the app and the servers.
+5. **Stops the app and the servers, then writes the verdicts**: all 234 rows
+   for a complete `--full` run, otherwise merged into the committed table
+   (only the rows it re-decided change).
 
 ---
 
@@ -229,13 +267,17 @@ the one the app actually requested in `session/open`, across every served frame
 | `not-walked` | (A11) the capabilities the parity matrix cites for this case are all built (A), but no click-walk check covers the case yet |
 | `not-yet-implemented` | the native capability is missing; `reason` names the parity matrix's C capability citing this case — also (A11) when run.py's area-matched checks passed but a capability the matrix cites for the case is still C (generic checks cannot prove an unbuilt capability; the reason keeps them), and when every failing check of the row found its surface absent BY DESIGN (its reason starts `not built:`, e.g. Alt+P with no native peer dock) |
 | `live-only` | needs state the replay fixtures cannot produce (a real model turn, browser-only state) |
-| `blocked` | a selected row whose area failed to start |
+| `blocked` | a selected row whose area failed to start (every app instance the row needs) |
+| `not-run` | (A34) no check failed, but one the row needs did not run: one of its instances failed to start (row 183 at one width); the per-check line says `not-run` with the start failure |
 | `skipped` | the web-only rows — operator-confirmation-pending |
 
 The `depth` column: `specific` / `smoke` for run.py's own checks (#33a), and
 (A11) `native` — the row's case is proven by native click-walk checks — or
 `native-partial` — the native checks cover part of the case and `reason` says
 which part they do not.
+
+`run_sha` / `run_at` / `run_scope` (A34): the run that wrote the row — the HOST
+build, the run's UTC start, what it covered (see "The official run" above).
 
 ### Per-check results (`docs/walk/results-checks.csv`)
 
@@ -244,7 +286,7 @@ lowercase substrings matched against the row's `case` + `protocol_methods`. A ro
 is `pass` iff **every check mapped to it** passed, so one broken check fails only
 the rows that actually use it — not its whole area (card #19c item 3). The
 per-check CSV has columns `row_id, area, spec, case, check, status, evidence,
-reason`; per-row check counts currently range 1–7.
+reason, run_sha, run_at`; a check is `pass`, `fail` or (A34) `not-run`.
 
 ## The composer input checks are deterministic (card #19c)
 
