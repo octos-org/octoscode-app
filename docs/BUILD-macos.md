@@ -68,8 +68,8 @@ What it does (every step is a no-op when already done, so re-run it after a `git
    into the shell), its framework sources from OctoSense's own `tools/setup.py`, our makepad patches on them, the
    octoscode crates and `design/` vendored into `apps/`, then `cargo build -p octosense --features app-octoscode`.
 
-Measured on this repository's build Mac (Apple Silicon, from an empty directory and an empty cargo cache):
-see section 6.
+From a fresh clone with an empty cargo cache it took 10 minutes and 10 GB here (4.5 minutes and about 6 GB without
+`--octosense`); section 6 has the breakdown.
 
 ## 3. Run it
 
@@ -110,8 +110,8 @@ export OCTOS_AUTH_TOKEN=$(openssl rand -hex 24)      # keep it; the app asks for
 octos serve --port 50190                              # --host 0.0.0.0 to accept other machines
 ```
 
-The server needs a profile with a model provider and its key (configured in octos; the app's Settings >
-Providers can add one once connected). The app sends turns to that profile's model.
+The server needs a profile with a model provider and its key (configured in octos, or from the app once connected:
+Settings > Model providers > Add provider). The app sends turns to that profile's model.
 
 ## 5. Troubleshooting
 
@@ -132,4 +132,18 @@ Providers can add one once connected). The app sends turns to that profile's mod
 
 ## 6. Measured (A33, clean room)
 
-Filled in by the A33 clean-room run: see `docs/ux/a33/clean-room.md`.
+A fresh clone under another user's HOME with an empty cargo cache, Apple Silicon, 6 build jobs,
+`tools/build-macos.sh --package --octosense` (details and the two live checks: `docs/ux/a33/clean-room.md`):
+
+| | time | disk |
+|---|---|---|
+| clone | 6 s | 2.3 GB (the repo's own files) |
+| the three forks | 1.5 min | 0.9 GB |
+| the standalone app (debug) | 1 min | |
+| `--package` (release build, bundle, zip) | 2 min | `target/` 2.0 GB in all |
+| `--octosense` | 5.5 min | 3.8 GB |
+| cargo download cache | | 1.2 GB |
+| **in all** | **10 min** (4.5 min without `--octosense`) | **10 GB** (about 6 GB without `--octosense`) |
+
+The bundle is 116 MB (zip 61 MB). A Mac building with all its cores is faster; a later build after a `git pull`
+takes seconds to a minute.

@@ -1,0 +1,1 @@
+serve stopped, the data copy and the token file deleted

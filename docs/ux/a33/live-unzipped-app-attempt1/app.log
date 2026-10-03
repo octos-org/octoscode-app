@@ -1,0 +1,27 @@
+[I] .forks/makepad-fork/platform/src/remote.rs:555:9 - [makepad-remote] listening on 127.0.0.1:8733 pid=22510 app=octoscode grabs=<TMP>
+[I] crates/octoscode-module/src/design.rs:243:13 - [octoscode] design: packaged build — the embedded design tree and faces only
+[I] crates/octoscode-module/src/design.rs:164:9 - [octoscode] design root: <PATH>
+[I] crates/octoscode-module/src/design.rs:203:13 - [octoscode] design embed: 7 font face(s) under <PATH> (e.g. <PATH>
+[I] crates/octoscode-module/src/design.rs:448:9 - [octoscode] font faces resolve under <PATH>
+[I] crates/octoscode-desktop/src/lib.rs:185:9 - [octoscode-desktop] module octoscode (OctosCode) mounted in isolate SplashVmId(1)
+[I] crates/octoscode-module/src/lib.rs:1412:9 - [octoscode] a24 language at launch: en
+[I] crates/octoscode-module/src/screens/bootstrap.rs:169:5 - [octoscode] bootstrap: Harness(http://127.0.0.1:8735, token: true) (remembered server: false, saved token: false, restore target: false, auto-connect: None)
+[I] crates/octoscode-module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+[I] crates/octoscode-module/src/attention.rs:1032:9 - [octoscode] attention: start (platform api true, focused false)
+[I] crates/octoscode-module/src/lib.rs:3476:17 - [octoscode] composer remounted
+[I] crates/octoscode-module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+[I] crates/octoscode-module/src/lib.rs:3923:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+[I] crates/octoscode-module/src/lib.rs:3981:17 - [octoscode] aside panel: hidden
+[I] crates/octoscode-module/src/screens/drafts.rs:338:5 - [octoscode] drafts: the principal's scope is bound (0 stored, nothing restored)
+[I] crates/octoscode-module/src/flow.rs:1305:13 - [octoscode] candidate dsflash:main: the server opened another workspace — 0 buffered events dropped
+[I] crates/octoscode-module/src/flow.rs:1414:9 - [octoscode] history of dsflash:main could not be read: The server opened a different workspace from this conversation's.
+[I] crates/octoscode-module/src/lib.rs:1687:13 - [octoscode] startup: Explicit("dsflash:main")
+[I] crates/octoscode-module/src/lib.rs:3580:38 - [octoscode] chrome: 3 profile reads folded
+[I] crates/octoscode-module/src/attention.rs:1092:9 - [octoscode] attention: os Authorization { status: NotDetermined, requested: false, error: None }
+[I] crates/octoscode-module/src/lib.rs:3476:17 - [octoscode] composer remounted
+[I] crates/octoscode-module/src/lib.rs:4357:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+[I] crates/octoscode-module/src/lib.rs:5605:21 - [octoscode] draft synced: 45 chars
+[I] crates/octoscode-module/src/lib.rs:6323:17 - [octoscode] key ReturnKey -> ComposerSubmit
+[I] crates/octoscode-module/src/flow_controller.rs:205:9 - [octoscode] turn/start 01a0ffee-8877-73da-9aff-1b4f102aead9: Accepted
+[I] crates/octoscode-module/src/flow.rs:3124:43 - [octoscode] turn started: 01a0ffee-8877-73da-9aff-1b4f102aead9
+[I] crates/octoscode-module/src/attention.rs:1049:13 - [octoscode] attention: completed turn 01a0ffee-8877-73da-9aff-1b4f102aead9 of dsflash:main needs attention (focused false)

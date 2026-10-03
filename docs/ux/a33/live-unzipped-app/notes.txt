@@ -1,0 +1,2 @@
+serve stopped, the data copy, the workspace and the token file deleted
+restored 2 hidden directories
