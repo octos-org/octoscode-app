@@ -476,6 +476,8 @@ async fn show_all_opens_long_term_memory_and_says_when_the_server_cut_it() {
     let d = dsl(&conv.store);
     assert!(d.contains("MEMORY.md"), "{}", &d[..400.min(d.len())]);
     assert!(d.contains("Showing the first 96 KB of 140 KB. The rest stays on the server."), "never a cut page shown as whole");
+    // Said BEFORE the page is read (96 KB of it would bury a notice at the end).
+    assert!(d.find("b3_mem_lt_cut").unwrap() < d.find("b3_mem_lt_full").unwrap(), "the notice leads the page");
 }
 
 // ----------------------------------------------------------- add a note

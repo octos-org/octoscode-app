@@ -432,6 +432,7 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ),
     ("Loading memory…", "正在加载记忆…"),
     ("Showing the first {value0} of {value1}. The rest stays on the server.", "仅显示前 {value0}，共 {value1}。其余内容保留在服务器上。"),
+    ("Showing the first {value0} of this page. The rest stays on the server.", "仅显示此页面的前 {value0}。其余内容保留在服务器上。"),
     ("Couldn't read memory.", "无法读取记忆。"),
     ("Couldn't search memory.", "无法搜索记忆。"),
     ("Couldn't open this record.", "无法打开此记录。"),

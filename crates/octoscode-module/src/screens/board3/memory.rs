@@ -125,6 +125,7 @@ const EMPTY_TITLE: &str = "No memory yet";
 const EMPTY_BODY: &str = "Octos writes long-term memory and daily notes as you work with this profile.";
 const LOADING: &str = "Loading memory…";
 const TRUNCATED: &str = "Showing the first {value0} of {value1}. The rest stays on the server.";
+const TRUNCATED_PART: &str = "Showing the first {value0} of this page. The rest stays on the server.";
 const TRY_AGAIN: &str = "Try again";
 const SERVER_PROFILE: &str = "Server Profile:";
 
@@ -1491,7 +1492,9 @@ fn centred_note(d: &mut Dsl, id: &str, text: &str, spinner: bool) {
 }
 
 /// The amber truncation notice (frame 8): never a cut page shown as whole.
-fn cut_notice(d: &mut Dsl, id: &str, shown: u64, total: u64) {
+/// `total`: the full size when the server reports it (`memory/load`'s page
+/// carries only `page_truncated`).
+fn cut_notice(d: &mut Dsl, id: &str, shown: u64, total: Option<u64>) {
     d.surface(
         id,
         "width: Fill height: Fit flow: Right spacing: 10 padding: Inset{left: 12 right: 12 top: 10 bottom: 10}",
@@ -1500,7 +1503,10 @@ fn cut_notice(d: &mut Dsl, id: &str, shown: u64, total: u64) {
         Some(tok::AMBER_LINE),
     );
     icon_ink(d, &format!("{id}_icon"), "b3_warning.svg", 16.0, tok::AMBER);
-    let text = tr_with(TRUNCATED, &[("value0", &size_label(shown)), ("value1", &size_label(total))]);
+    let text = match total {
+        Some(total) => tr_with(TRUNCATED, &[("value0", &size_label(shown)), ("value1", &size_label(total))]),
+        None => tr1(TRUNCATED_PART, &size_label(shown)),
+    };
     d.text(&format!("{id}_text"), &text, &Txt::new(12.5, Face::Regular, tok::TEXT).w(W::Fill).wrap());
     d.close();
 }
@@ -1640,11 +1646,19 @@ fn overview_body(d: &mut Dsl, st: &MemState, sheet: bool, inner_w: f64) {
     if o.is_empty() {
         d.view("b3_mem_empty", "width: Fill height: Fit flow: Down align: Align{x: 0.5 y: 0.0} spacing: 6 padding: Inset{top: 16 bottom: 16 left: 12 right: 12}");
         d.text("b3_mem_empty_title", tr(EMPTY_TITLE), &Txt::new(15.0, Face::Semibold, tok::TEXT));
-        d.text(
+        // Centred lines (board 5 frame 10a): a wrapping Label aligned at x 0.5.
+        let w = (inner_w - 24.0).min(300.0).floor();
+        d.open(
             "b3_mem_empty_body",
-            tr(EMPTY_BODY),
-            &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Px((inner_w - 24.0).min(300.0))).wrap(),
+            "Label",
+            &format!(
+                "width: {w} height: Fit padding: 0 text: {} flow: Right{{wrap: true}} align: Align{{x: 0.5 y: 0.0}}\ndraw_text.text_style: {}\ndraw_text.color: {}",
+                ui::lit(tr(EMPTY_BODY)),
+                ui::text_style(Face::Regular, 12.5),
+                tok::MUTED
+            ),
         );
+        d.close();
         d.close();
         staging_line(d, o);
         return;
@@ -1817,11 +1831,11 @@ fn record_body(d: &mut Dsl, st: &MemState, inner_w: f64) {
     match (&l.page, r.trust) {
         // A trusted bank page: rendered like the entity page (frame 7).
         (Some(page), Trust::Trusted) => {
-            markdown(d, "b3_mem_rec_page", page, 14.0, 1.45, 12.0, true);
             if l.page_truncated {
+                cut_notice(d, "b3_mem_rec_cut", page.len() as u64, None);
                 d.gap(W::Fill, 12.0);
-                cut_notice(d, "b3_mem_rec_cut", page.len() as u64, page.len() as u64);
             }
+            markdown(d, "b3_mem_rec_page", page, 14.0, 1.45, 12.0, true);
         }
         // Everything else is shown as data: plain text, never Markdown.
         _ => {
@@ -1877,11 +1891,11 @@ fn entity_body(d: &mut Dsl, st: &MemState) {
         return;
     }
     let Some(p) = &st.entity else { return };
-    markdown(d, "b3_mem_ent_md", &p.content, 14.0, 1.45, 12.0, true);
     if p.truncated {
+        cut_notice(d, "b3_mem_ent_cut", p.content.len() as u64, Some(p.total_bytes));
         d.gap(W::Fill, 14.0);
-        cut_notice(d, "b3_mem_ent_cut", p.content.len() as u64, p.total_bytes);
     }
+    markdown(d, "b3_mem_ent_md", &p.content, 14.0, 1.45, 12.0, true);
 }
 
 fn long_term_body(d: &mut Dsl, st: &MemState) {
@@ -1894,11 +1908,14 @@ fn long_term_body(d: &mut Dsl, st: &MemState) {
         .map(|t| format!("· {}", tr1(UPDATED_LOWER, &ui::rel_ago(now, t))))
         .unwrap_or_default();
     page_title(d, "b3_mem_lt_page", tr(LONG_TERM), &updated, Some("MEMORY.md"));
-    markdown(d, "b3_mem_lt_full", &o.long_term, 14.0, 1.45, 12.0, true);
+    // A cut page says so BEFORE it is read: at the end of 96 KB the notice
+    // would sit a thousand lines down (the board's short frame 8 draws it
+    // under its content).
     if o.long_term_truncated {
+        cut_notice(d, "b3_mem_lt_cut", o.long_term.len() as u64, Some(o.long_term_total_bytes));
         d.gap(W::Fill, 14.0);
-        cut_notice(d, "b3_mem_lt_cut", o.long_term.len() as u64, o.long_term_total_bytes);
     }
+    markdown(d, "b3_mem_lt_full", &o.long_term, 14.0, 1.45, 12.0, true);
 }
 
 fn day_body(d: &mut Dsl, st: &MemState, which: Option<usize>) {
@@ -1920,11 +1937,11 @@ fn day_body(d: &mut Dsl, st: &MemState, which: Option<usize>) {
         Some(_) => String::new(),
     };
     page_title(d, "b3_mem_day", &title, &sub, None);
-    markdown(d, "b3_mem_day_md", note, 14.0, 1.45, 12.0, true);
     if cut {
+        cut_notice(d, "b3_mem_day_cut", note.len() as u64, Some(total));
         d.gap(W::Fill, 14.0);
-        cut_notice(d, "b3_mem_day_cut", note.len() as u64, total);
     }
+    markdown(d, "b3_mem_day_md", note, 14.0, 1.45, 12.0, true);
 }
 
 fn add_body(d: &mut Dsl, st: &MemState, sheet: bool) {
