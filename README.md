@@ -19,8 +19,8 @@ for downloads and platform availability. This is a prerelease for testing.
 | Platform | Package |
 |---|---|
 | macOS, Apple Silicon | `OctosCode-macos-arm64.zip` |
-| Linux, x86_64 | `OctosCode-linux-x86_64.tar.gz` — packaging and validation pending |
-| Windows, x86_64 | `OctosCode-windows-x86_64.zip` — availability pending; may be deferred from this RC |
+| Linux, x86_64 | `OctosCode-linux-x86_64.tar.gz` (Ubuntu 22.04 or newer) |
+| Windows, x86_64 | Build succeeds; release deferred pending native startup and data-directory validation |
 
 On macOS, unzip the download, move `OctosCode.app` to Applications, and launch it.
 The bundle includes its UI resources; it does not require Rust, a source checkout,

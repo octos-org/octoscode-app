@@ -8,7 +8,8 @@ OctosCode 是独立桌面**客户端**，还需要连接一个 Octos 服务器�
 ## 1. 安装应用
 
 前往 [v0.1.0-rc.1 发布页](https://github.com/octos-org/octoscode-app/releases/tag/v0.1.0-rc.1)
-查看可用的平台下载。macOS ARM64 应用包已通过验证；Linux 正在准备打包，Windows 暂未确认。
+下载 macOS ARM64 和 Linux x86_64 应用包。Windows 已成功构建，但原生启动和持久化数据目录
+仍需验证，因此暂不提供 Windows 发布包。
 
 在 Apple Silicon Mac 上：
 
@@ -18,7 +19,7 @@ OctosCode 是独立桌面**客户端**，还需要连接一个 Octos 服务器�
    如果 macOS 阻止打开从本仓库下载的应用，请先尝试打开一次，再进入
    **系统设置 → 隐私与安全性 → 仍要打开**。
 
-Linux 应用包发布后，可下载面向 Ubuntu 22.04 或更新版本 x86_64 环境的
+在 Linux 上，可下载面向 Ubuntu 22.04 或更新版本 x86_64 环境的
 `OctosCode-linux-x86_64.tar.gz`，解压后在图形桌面中启动：
 
 ```sh
@@ -27,9 +28,9 @@ cd OctosCode
 ./octoscode
 ```
 
-请保持 `makepad/` 目录与可执行文件位于同一目录。若 Windows 应用包发布，请解压
-`OctosCode-windows-x86_64.zip`，打开 `OctosCode/octoscode.exe`，并同样保留旁边的
-`makepad/` 目录。最终的平台验证状态以发布说明为准。
+请保持 `makepad/` 目录与可执行文件位于同一目录。CI 生成的 Windows 包暂时仅供开发测试：
+部分持久化路径仍依赖 `HOME`，而从资源管理器启动时可能没有这个环境变量。
+本次 RC 不包含 Windows 下载包。
 
 下载包包含客户端及界面资源，不会自动启动服务器。运行应用无需源码目录、Rust 或 OctoSense。
 

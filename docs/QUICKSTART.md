@@ -8,8 +8,8 @@ the same machine or at an address supplied by its administrator. OctoSense is op
 ## 1. Install the app
 
 Open the [v0.1.0-rc.1 release page](https://github.com/octos-org/octoscode-app/releases/tag/v0.1.0-rc.1)
-for the available platform downloads. The macOS ARM64 package is validated; Linux
-packaging is pending, and Windows availability is not yet confirmed.
+for the macOS ARM64 and Linux x86_64 downloads. The Windows build succeeds, but its
+public release is deferred until native startup and persistent data directories are validated.
 
 On an Apple Silicon Mac:
 
@@ -19,7 +19,7 @@ On an Apple Silicon Mac:
    go to **System Settings → Privacy & Security → Open Anyway** after attempting to
    open the copy downloaded from this repository.
 
-When the Linux package is available, download `OctosCode-linux-x86_64.tar.gz` for the
+On Linux, download `OctosCode-linux-x86_64.tar.gz` for the
 Ubuntu 22.04 or newer x86_64 target, extract it, and launch from a graphical desktop:
 
 ```sh
@@ -28,9 +28,9 @@ cd OctosCode
 ./octoscode
 ```
 
-Keep the `makepad/` directory beside the executable. If the Windows package is published,
-extract `OctosCode-windows-x86_64.zip` and open `OctosCode/octoscode.exe`, keeping its
-`makepad/` directory alongside it. Check the release notes for final platform validation.
+Keep the `makepad/` directory beside the executable. Windows packages produced by CI
+are development artifacts for now: several persistence paths still rely on `HOME`,
+which may be absent when launching from Explorer. They are not part of this RC download.
 
 The download contains the app and its resources. It does not start a server, and it does
 not require a source checkout, Rust, or OctoSense to run.

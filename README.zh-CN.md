@@ -17,8 +17,8 @@ OctosCode 是使用 Makepad 和 Octoscript 构建的 [Octos](https://github.com/
 | 平台 | 安装包 |
 |---|---|
 | macOS，Apple Silicon | `OctosCode-macos-arm64.zip` |
-| Linux，x86_64 | `OctosCode-linux-x86_64.tar.gz` — 正在准备打包和验证 |
-| Windows，x86_64 | `OctosCode-windows-x86_64.zip` — 待确认，可能推迟至后续版本 |
+| Linux，x86_64 | `OctosCode-linux-x86_64.tar.gz`（Ubuntu 22.04 或更新版本） |
+| Windows，x86_64 | 已成功构建；原生启动及数据目录验证完成后再发布 |
 
 在 macOS 上，解压后将 `OctosCode.app` 移入“应用程序”并打开。应用包自带界面资源，
 运行时无需安装 Rust、保留源码目录或安装 OctoSense。该版本采用临时签名（ad-hoc），

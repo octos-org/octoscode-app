@@ -60,21 +60,38 @@ def main():
                     time.sleep(0.5)
                 if snapshot is None:
                     raise RuntimeError("the packaged app did not render its first-run screen")
+                # The first visible input can still move while the initial
+                # column measurements and font layout settle. Click only after
+                # its rectangle is stable across successive UI snapshots.
+                previous, stable = None, 0
+                for _ in range(40):
+                    snapshot = json.loads(get("/snap"))
+                    server = next(w for w in snapshot["s"] if w.get("i") == "connect_server")
+                    rect = (server["w"], *server["r"])
+                    stable = stable + 1 if rect == previous else 0
+                    previous = rect
+                    if stable >= 3:
+                        break
+                    time.sleep(0.25)
+                else:
+                    raise RuntimeError("server input layout did not settle")
+                (out / "before-input.json").write_text(json.dumps(snapshot, indent=2), encoding="utf-8")
                 # The pinned OpenGL backend does not complete the remote PNG
                 # capture path. Exercise actual UI input and require a rendered
                 # frame acknowledgment instead of an unsupported screenshot.
                 server = next(w for w in snapshot["s"] if w.get("i") == "connect_server")
                 x, y, w, h = server["r"]
-                get(f"/click?x={x + w / 2}&y={y + h / 2}&wait=1")
-                ack = json.loads(get("/t?t=rc-smoke&wait=1"))
+                window = server["w"]
+                get(f"/click?x={x + w / 2}&y={y + h / 2}&w={window}&wait=1")
+                ack = json.loads(get(f"/t?t=rc-smoke&w={window}&wait=1"))
                 if ack.get("ok") != 1 or ack.get("f", 0) < 1:
                     raise RuntimeError(f"input did not produce a rendered frame: {ack}")
                 snapshot = json.loads(get("/snap"))
-                server = next(w for w in snapshot["s"] if w.get("i") == "connect_server")
-                if "rc-smoke" not in str(server.get("val", server.get("t", ""))):
-                    raise RuntimeError("server field did not retain typed text")
                 (out / "snapshot.json").write_text(json.dumps(snapshot, indent=2), encoding="utf-8")
                 (out / "frame-ack.json").write_text(json.dumps(ack), encoding="utf-8")
+                server = next(w for w in snapshot["s"] if w.get("i") == "connect_server")
+                if "rc-smoke" not in str(server.get("val", server.get("t", ""))):
+                    raise RuntimeError(f"server field did not retain typed text: {server}")
                 print("PASS: packaged app renders first-run UI, accepts text, and acknowledges its frame from an unrelated working directory.", flush=True)
             finally:
                 try:
