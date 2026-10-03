@@ -107,6 +107,9 @@ PROJECTS = sorted([
     "vendor", "web-app", "wiki", "zig-play",
 ], key=str.lower)
 USUAL = ["assets", "docs", "scripts", "src", "tests"]
+# A folder the server refuses: the fixture's /private (permission denied); a
+# real serve lists /private on macOS, so a folder that is not there.
+REFUSED = f"{WORK}/no-such-folder" if LIVE else "/private"
 MONOREPO = ["apps", "docs", "packages", "scripts", "tools"]
 HANG = re.compile(r"\[ui-hang\] (\d+) ms · phase=(\S+)")
 RESULTS: list = []
@@ -287,6 +290,23 @@ def type_text(t: str) -> None:
     get("/t?" + urllib.parse.urlencode({"t": t, "wait": 1}))
 
 
+def set_path(path: str) -> None:
+    """Replace the path box's text by keys: select-all and type; where the
+    host keeps Cmd+A for itself (the OctoSense shell), erase it instead."""
+    click("b1_br_path")
+    time.sleep(0.3)
+    key("KeyA", cmd=True)
+    type_text(path)
+    time.sleep(0.3)
+    if text("b1_br_path") != path:
+        cur = text("b1_br_path") or ""
+        key("End")
+        for _ in range(len(cur)):
+            key("Backspace")
+        type_text(path)
+        time.sleep(0.3)
+
+
 LOG_SEQ = [0]
 
 
@@ -298,6 +318,14 @@ def app_log() -> list:
 
 def remounts(lines: list) -> int:
     return sum(1 for l in lines if "[octoscode] board1 remounted" in l)
+
+
+ANSWERED = re.compile(r"workspace_list answered in ([\d.]+) ms")
+
+
+def server_ms(lines: list) -> float:
+    """The `workspace_list` round trips a step waited for (OCTOSCODE_PERF)."""
+    return round(sum(float(m.group(1)) for l in lines for m in [ANSWERED.search(l)] if m), 1)
 
 
 def hangs(lines: list) -> list:
@@ -338,6 +366,10 @@ def timed(name: str, action, wid: str, want, budget: float, fx: Fixture, lists: 
     lines = app_log()
     rec["remounts"] = remounts(lines)
     rec["ui_hangs"] = hangs(lines)
+    # The server's part, on the app's clock (the listing's round trip).
+    rec["server_ms"] = server_ms(lines)
+    if ms is not None:
+        rec["client_ms"] = round(ms - rec["server_ms"], 1)
     after = fx.lists()
     if lists is not None and before is not None and after is not None:
         rec["workspace_list_requests"] = after - before
@@ -345,7 +377,12 @@ def timed(name: str, action, wid: str, want, budget: float, fx: Fixture, lists: 
     detail = (f"{ms} ms (bar {budget:g} ms)" if ms is not None else
               f"not drawn within {secs:g} s" + (" — the listing is in the widget tree but no frame drew it"
                                                  if rec.get("in_widget_tree_but_not_drawn") else ""))
-    report(f"{name}: drawn within {budget:g} ms", ms is not None and ms < budget, detail)
+    if ms is not None and rec["server_ms"] >= 1.0:
+        detail += f"; the server answered in {rec['server_ms']} ms, the client's part {rec['client_ms']} ms"
+    # A real serve's listing time is the server's: the bar holds the client's part.
+    kept = rec.get("client_ms") if LIVE else ms
+    report(f"{name}: drawn within {budget:g} ms" + (" (the client's part)" if LIVE else ""),
+           kept is not None and kept < budget, detail)
     if "workspace_list_requests" in rec:
         report(f"{name}: {lists} workspace_list request(s)", rec["workspace_list_requests"] == lists,
                f"{rec['workspace_list_requests']} sent")
@@ -479,13 +516,18 @@ def unpolled(fx: Fixture) -> None:
         lines = app_log()
         ms = app_clock(lines)
         after = fx.lists()
-        rec = {"step": f"unpolled {name}", "app_clock_ms": ms, "budget_ms": nav, "remounts": remounts(lines),
-               "ui_hangs": hangs(lines)}
+        server = server_ms(lines)
+        rec = {"step": f"unpolled {name}", "app_clock_ms": ms, "server_ms": server, "budget_ms": nav,
+               "remounts": remounts(lines), "ui_hangs": hangs(lines)}
+        if ms is not None:
+            rec["client_ms"] = round(ms - server, 1)
         if lists is not None and before is not None and after is not None:
             rec["workspace_list_requests"] = after - before
         TIMINGS.append(rec)
-        report(f"unpolled {name}: drawn within {nav:g} ms on the app's clock", ms is not None and ms < nav,
-               f"{ms} ms, {rec['remounts']} remount(s)")
+        kept = rec.get("client_ms") if LIVE else ms
+        report(f"unpolled {name}: drawn within {nav:g} ms on the app's clock" + (" (the client's part)" if LIVE else ""),
+               kept is not None and kept < nav,
+               f"{ms} ms (the server {server} ms), {rec['remounts']} remount(s)")
 
     # Back at the server's folder (the last polled step). A throwaway pick
     # first: it absorbs the cache the last /snap cleared.
@@ -494,6 +536,26 @@ def unpolled(fx: Fixture) -> None:
     step("pick: a first tap", [at("b1_br_row_2")], 0)
     step("drill: a second tap opens the folder", [at("b1_br_row_2")], 1)
     step("up: the breadcrumb opens the parent", [at("crumb_parent")], 1)
+    if not ARGS.host:
+        # The longest listing: the path typed (select-all, the standalone's
+        # keys), then Return.
+        get(at("b1_br_path"))
+        time.sleep(0.3)
+        get("/k?k=down&c=KeyA&cmd=1&wait=1")
+        get("/k?k=up&c=KeyA&cmd=1&wait=1")
+        get("/t?" + urllib.parse.urlencode({"t": f"{WORK}/frontend/node_modules", "wait": 1}))
+        time.sleep(0.4)
+        step("go: node_modules (the server's page of 500)",
+             ["/k?k=down&c=ReturnKey&wait=1", "/k?k=up&c=ReturnKey&wait=1"], 1)
+        # Back up to the server's folder for the open below.
+        get(at("b1_br_path"))
+        time.sleep(0.3)
+        get("/k?k=down&c=KeyA&cmd=1&wait=1")
+        get("/k?k=up&c=KeyA&cmd=1&wait=1")
+        get("/t?" + urllib.parse.urlencode({"t": WORK, "wait": 1}))
+        get("/k?k=down&c=ReturnKey&wait=1")
+        get("/k?k=up&c=ReturnKey&wait=1")
+        time.sleep(0.6)
     # Escape twice closes the browser and the picker; then + Add workspace.
     for _ in range(2):
         get("/k?k=down&c=Escape&wait=1")
@@ -528,7 +590,10 @@ def walk(fx: Fixture) -> int:
         if row:
             RECTS[f"b1_br_row_{i}"] = row["r"]
     note = text("b1_br_notice") or ""
-    report("open: the server's hidden folders are reported", "5 hidden by the server" in note, repr(note))
+    # (a real serve also hides what it keeps in its working directory)
+    report("open: the server's hidden folders are reported",
+           ("5 hidden by the server" in note) if not LIVE else bool(re.search(r"\d+ hidden by the server", note)),
+           repr(note))
     layout["open"] = layout_checks("open")
     capture("open")
     # 2. a first tap picks: the path box fills, nothing is requested.
@@ -602,11 +667,7 @@ def walk(fx: Fixture) -> int:
         layout["packages, scrolled"] = layout_checks("packages, scrolled")
         capture("packages")
     # 8. 650 folders: the server's page of 500, truncated and said so.
-    click("b1_br_path")
-    time.sleep(0.3)
-    key("KeyA", cmd=True)
-    type_text(f"{WORK}/frontend/node_modules")
-    time.sleep(0.3)
+    set_path(f"{WORK}/frontend/node_modules")
     timed("go: node_modules (650 folders, the server pages 500)", lambda: key("ReturnKey"), "b1_br_row_t0",
           "dep-000", nav, fx, lists=1)
     note = text("b1_br_notice") or ""
@@ -615,12 +676,8 @@ def walk(fx: Fixture) -> int:
     layout["node_modules"] = layout_checks("node_modules")
     capture("node-modules")
     # 9. a refused folder -> p4-09, then back without a request.
-    click("b1_br_path")
-    time.sleep(0.3)
-    key("KeyA", cmd=True)
-    type_text("/private")
-    time.sleep(0.3)
-    timed("refused: /private -> the bounded refusal", lambda: key("ReturnKey"), "b1_br_backto",
+    set_path(REFUSED)
+    timed("refused: a folder the server refuses -> the bounded refusal", lambda: key("ReturnKey"), "b1_br_backto",
           # the whole path where the pill holds it, else the folder's name
           (f"Back to {WORK}/frontend/node_modules", "Back to node_modules"), nav, fx, lists=1)
     layout["refused"] = layout_checks("refused")

@@ -875,7 +875,21 @@ pub async fn list(conv: &crate::flow::Conversation, path: Option<String>, resolv
     let request = begin_request();
     let mut candidate = path;
     for _ in 0..=MAX_ASCENT {
-        match conv.client().call::<WorkspaceList>(WorkspaceListParams { path: candidate.clone() }).await {
+        let asked = std::time::Instant::now();
+        let answer = conv.client().call::<WorkspaceList>(WorkspaceListParams { path: candidate.clone() }).await;
+        if crate::perf::enabled() {
+            // A35b: the server's part of a navigation, on the app's clock
+            // (the round trip; never the path, which names the server's disk).
+            makepad_widgets::log!(
+                "[octoscode] perf: workspace_list answered in {:.1} ms ({})",
+                asked.elapsed().as_secs_f64() * 1000.0,
+                match &answer {
+                    Ok(l) => format!("{} entries", l.entries.len()),
+                    Err(_) => "refused".to_owned(),
+                }
+            );
+        }
+        match answer {
             Ok(listing) => {
                 if is_latest(request) {
                     state().listed(&listing);
