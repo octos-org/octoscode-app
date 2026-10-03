@@ -4882,6 +4882,11 @@ impl OctoscodeView {
         let mut model = self
             .view
             .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_4)]);
+        // Startup defers the composer until its column has been measured.
+        // An empty widget has no script source to apply the layout to.
+        if approval.is_empty() || model.is_empty() {
+            return;
+        }
         // A13: the room splits by what the two live labels need.
         let fit = fluid::composer_row_fit_for(&conv_layout::current(), &approval.text(), &model.text());
         let (approval_max, model_max) = (fit.approval_max, fit.model_max);
