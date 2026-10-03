@@ -1531,6 +1531,8 @@ pub enum Section {
     General,
     Permissions,
     Model,
+    /// A36 — Skills, the MCP status (and, after board 5, Memory) by a click.
+    Capabilities,
     Sandbox,
     Connection,
     /// A9: the web's Browser preferences (Vim editing; Save).
@@ -1554,6 +1556,7 @@ impl Section {
             Section::General => "General",
             Section::Permissions => "Permissions",
             Section::Model => "Model",
+            Section::Capabilities => "Capabilities",
             Section::Sandbox => "Sandbox",
             Section::Connection => "Connection",
             Section::Preferences => "Preferences",
@@ -1567,6 +1570,7 @@ impl Section {
             Section::General => "general",
             Section::Permissions => "permissions",
             Section::Model => "model",
+            Section::Capabilities => "capabilities",
             Section::Sandbox => "sandbox",
             Section::Connection => "connection",
             Section::Preferences => "preferences",
@@ -2397,6 +2401,7 @@ fn section_action(s: Section) -> &'static str {
         Section::General => "settings.section.general",
         Section::Permissions => "settings.section.permissions",
         Section::Model => "settings.section.model",
+        Section::Capabilities => "settings.section.capabilities",
         Section::Sandbox => "settings.section.sandbox",
         Section::Connection => "settings.section.connection",
         Section::Preferences => "settings.section.preferences",

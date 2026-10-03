@@ -119,6 +119,27 @@ pub fn owns(action: &str) -> bool {
     ACTIONS.contains(&action)
 }
 
+/// A36 — one Settings > Capabilities row: the surface a CLICK opens.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct CapabilityRow {
+    /// The row key (`set_cap_<id>_row`).
+    pub id: &'static str,
+    /// The row's hit (its "Open" pill).
+    pub hit: &'static str,
+    /// The action the click performs (owned by the surface's own table).
+    pub action: &'static str,
+    /// The row shows when the server advertises any of these.
+    pub methods: &'static [&'static str],
+}
+
+/// A36 — the Capabilities rows, in order (stub: none yet).
+pub const CAPABILITY_ROWS: &[CapabilityRow] = &[];
+
+/// A36 — the ids of the rows this server can serve (stub: none).
+pub fn capability_rows(_store: &Store) -> Vec<&'static str> {
+    Vec::new()
+}
+
 /// The web renders the Stop row ONLY when the session's capabilities advertise
 /// `server/shutdown` (App.tsx:3454) AND the connection is up
 /// (GeneralSettingsContent.tsx:129-130). The native half reads the SAME

@@ -37,6 +37,11 @@ pub const TOOLS_FAILED: &str = "Couldn't read the tools for this session.";
 pub const MCP_FAILED: &str = "Couldn't read the MCP servers for this session.";
 pub const INVENTORY_FAILED: &str = "Couldn't read the runtime inventory.";
 
+/// A36 — where MCP servers are managed (the protocol has no method to add,
+/// remove or configure one). Stub: not drawn yet.
+pub const MCP_MANAGED_ON_SERVER: &str =
+    "MCP servers are configured on the server. This app shows the status the server reports and can't add or remove servers.";
+
 /// The two web modes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Tab {
