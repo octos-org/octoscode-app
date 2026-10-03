@@ -41,20 +41,20 @@ gone now.
 ## Trees
 
 Every tree that builds the transport needs 0002. On 2026-10-02 all of these carried exactly the shared fork's
-transport files, so the patch applies as is:
+transport files, so the patch applies as is (`N` = the oa.noindex work root):
 
-- `~/home/oa.noindex/octosense-fork`: the shared fork, at `ca62dfa` = pin + 0001, with unrelated uncommitted edits;
-- every `~/home/oa.noindex/host-*` copy (21 lanes): `apps/appcard/app/crates/octos-app-transport`;
-- `~/home/oa.noindex/apk-build`: the same path; not a git checkout.
+- `$N/octosense-fork`: the shared fork, at `ca62dfa` = pin + 0001, with unrelated uncommitted edits;
+- every `$N/host-*` copy (21 lanes): `apps/appcard/app/crates/octos-app-transport`;
+- `$N/apk-build`: the same path; not a git checkout.
 
 Commands (each was run on a scratch tree in the same state; the shared trees are the integrator's to change):
 
 ```
 P=<repo>/patches/octosense/0002-transport-never-drop-a-reply.patch
 # the shared fork: applies ONLY 0002, as a commit; leaves its other uncommitted edits alone
-bash <repo>/tools/prepare-octosense-fork.sh ~/home/oa.noindex/octosense-fork
+bash <repo>/tools/prepare-octosense-fork.sh "$N/octosense-fork"
 # every host copy and the APK tree (a second run says "previously applied" and changes nothing)
-for t in ~/home/oa.noindex/host-* ~/home/oa.noindex/apk-build; do
+for t in "$N"/host-* "$N/apk-build"; do
   patch -p1 --forward --dry-run -d "$t" < "$P" >/dev/null && patch -p1 --forward -d "$t" < "$P"
 done
 ```
