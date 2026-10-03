@@ -2958,13 +2958,22 @@ async fn main() {
                     "session/list" if fleet.as_ref().is_some_and(|sim| sim.peer_dock) => {
                         let profile = active_session.split(':').next().unwrap_or("dsflash").to_owned();
                         let ago = |min: i64| (chrono::Utc::now() - chrono::Duration::minutes(min)).to_rfc3339_opts(chrono::SecondsFormat::Secs, true);
+                        // A22 row 228: a catalog lists FULL Sessions of the
+                        // profile (`<profile>:<channel>:<chat>`, as Core's are)
+                        // and a `{cwd, profile_id}` read is ATTESTED — else the
+                        // app projects none of them.
                         let rows = serde_json::json!([
                             {"id": active_session, "title": "Fix steer queue drop on reconnect", "message_count": 6, "updated_at": ago(2), "active_turn": false},
-                            {"id": format!("{profile}:session-fork"), "title": "Add session fork", "message_count": 4, "updated_at": ago(60), "active_turn": false},
-                            {"id": format!("{profile}:review-pr-2566"), "title": "Review PR #2566", "message_count": 9, "updated_at": ago(26 * 60), "active_turn": false},
+                            {"id": format!("{profile}:api:session-fork"), "title": "Add session fork", "message_count": 4, "updated_at": ago(60), "active_turn": false},
+                            {"id": format!("{profile}:api:review-pr-2566"), "title": "Review PR #2566", "message_count": 9, "updated_at": ago(26 * 60), "active_turn": false},
                         ]);
+                        let mut result = serde_json::json!({"sessions": rows});
+                        if let (Some(cwd), Some(p)) = (v["params"]["cwd"].as_str(), v["params"]["profile_id"].as_str()) {
+                            result["workspace_root"] = serde_json::json!(cwd);
+                            result["profile_id"] = serde_json::json!(p);
+                        }
                         println!("[replay-serve] -> session/list (peer dock: three Sessions)");
-                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {"sessions": rows}})).await;
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": result})).await;
                     }
                     "session/list" => {
                         let session = v["params"]["session_id"]
