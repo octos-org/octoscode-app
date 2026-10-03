@@ -32,6 +32,8 @@ pub mod host;
 pub mod images;
 pub mod inspector;
 pub mod inventory;
+// A36 — Memory (board 5): the Session profile's memory, by Settings > Capabilities.
+pub mod memory;
 pub mod resume;
 pub mod rows;
 // A8 — the Session settings pane (session-config rows).

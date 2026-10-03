@@ -1,0 +1,30 @@
+{"at_ms": 1144, "body": {}, "dir": "out", "method": "auth/me", "wall_ms": 1791061740338}
+{"at_ms": 1144, "body": {"email": "unknown account", "profile_id": "_main"}, "dir": "in", "method": "auth/me", "wall_ms": 1791061740338}
+{"at_ms": 1144, "body": {}, "dir": "out", "method": "auth/status", "wall_ms": 1791061740338}
+{"at_ms": 1144, "body": {"admin_token_login_enabled": false, "allow_self_registration": true, "authenticated": true, "bootstrap_mode": false, "email_login_enabled": true, "email_otp": true, "profile_id": "_main", "scoped_profile": {"email_login_enabled": true, "id": "_main", "name": "_main"}, "token_login": false}, "dir": "in", "method": "auth/status", "wall_ms": 1791061740338}
+{"at_ms": 1144, "body": {}, "dir": "out", "method": "memory/overview", "wall_ms": 1791061740338}
+{"at_ms": 1145, "body": {"overview": {"entities": [], "entities_truncated": false, "long_term": "", "long_term_total_bytes": 0, "long_term_truncated": false, "ok": true, "recent": [], "refresh_enabled": true, "staging_notes": 0, "staging_truncated": false, "today": "", "today_total_bytes": 0, "today_truncated": false}}, "dir": "in", "method": "memory/overview", "wall_ms": 1791061740338}
+{"at_ms": 1145, "body": {"name": "a36-missing-page"}, "dir": "out", "method": "memory/entity", "wall_ms": 1791061740338}
+{"at_ms": 1145, "body": {"error": {"code": -32170, "data": {"identifier": "a36-missing-page", "kind": "not_found", "resource_type": "memory_entity", "rest_status": 404}, "message": "memory_entity not found: a36-missing-page"}}, "dir": "in", "method": "memory/entity", "wall_ms": 1791061740339}
+{"at_ms": 1145, "body": {"query": "dentist"}, "dir": "out", "method": "memory/search", "wall_ms": 1791061740339}
+{"at_ms": 1145, "body": {"error": {"code": -32603, "data": {"kind": "runtime_unavailable"}, "message": "No ProfileRuntime registered for profile 'admin'. Set up the profile with an API key in the dashboard."}}, "dir": "in", "method": "memory/search", "wall_ms": 1791061740339}
+{"at_ms": 1145, "body": {"query": "   "}, "dir": "out", "method": "memory/search", "wall_ms": 1791061740339}
+{"at_ms": 1145, "body": {"error": {"code": -32602, "message": "memory/search: `query` must not be empty"}}, "dir": "in", "method": "memory/search", "wall_ms": 1791061740339}
+{"at_ms": 1146, "body": {"records": [{"abstract": "Dentist on Tuesday 14 October at 9:30 with Dr. Lin, Elm Street clinic.", "id": "doc:octoscode:a36-probe-1", "kind": "document", "source": "octoscode", "timestamp": "2026-10-03T21:09:00Z", "title": "Dentist appointment"}]}, "dir": "out", "method": "memory/ingest", "wall_ms": 1791061740339}
+{"at_ms": 1146, "body": {"error": {"code": -32603, "data": {"kind": "runtime_unavailable"}, "message": "No ProfileRuntime registered for profile 'admin'. Set up the profile with an API key in the dashboard."}}, "dir": "in", "method": "memory/ingest", "wall_ms": 1791061740339}
+{"at_ms": 1146, "body": {"records": [{"abstract": "y", "id": "bank:a36", "kind": "knowledge", "source": "bank", "timestamp": "2026-10-03T21:09:00Z", "title": "x"}]}, "dir": "out", "method": "memory/ingest", "wall_ms": 1791061740339}
+{"at_ms": 1146, "body": {"error": {"code": -32602, "message": "memory/ingest: records[0]: knowledge pages are written through save_memory / the memory bank, not ingest"}}, "dir": "in", "method": "memory/ingest", "wall_ms": 1791061740340}
+{"at_ms": 1146, "body": {"query": "dentist"}, "dir": "out", "method": "memory/search", "wall_ms": 1791061740340}
+{"at_ms": 1146, "body": {"error": {"code": -32603, "data": {"kind": "runtime_unavailable"}, "message": "No ProfileRuntime registered for profile 'admin'. Set up the profile with an API key in the dashboard."}}, "dir": "in", "method": "memory/search", "wall_ms": 1791061740340}
+{"at_ms": 1146, "body": {"kinds": ["document"], "limit": 5, "query": "dentist"}, "dir": "out", "method": "memory/search", "wall_ms": 1791061740340}
+{"at_ms": 1146, "body": {"error": {"code": -32603, "data": {"kind": "runtime_unavailable"}, "message": "No ProfileRuntime registered for profile 'admin'. Set up the profile with an API key in the dashboard."}}, "dir": "in", "method": "memory/search", "wall_ms": 1791061740340}
+{"at_ms": 1146, "body": {"id": "doc:octoscode:a36-probe-1"}, "dir": "out", "method": "memory/load", "wall_ms": 1791061740340}
+{"at_ms": 1146, "body": {"error": {"code": -32603, "data": {"kind": "runtime_unavailable"}, "message": "No ProfileRuntime registered for profile 'admin'. Set up the profile with an API key in the dashboard."}}, "dir": "in", "method": "memory/load", "wall_ms": 1791061740340}
+{"at_ms": 1146, "body": {"id": "doc:octoscode:a36-missing"}, "dir": "out", "method": "memory/load", "wall_ms": 1791061740340}
+{"at_ms": 1147, "body": {"error": {"code": -32603, "data": {"kind": "runtime_unavailable"}, "message": "No ProfileRuntime registered for profile 'admin'. Set up the profile with an API key in the dashboard."}}, "dir": "in", "method": "memory/load", "wall_ms": 1791061740340}
+{"at_ms": 1147, "body": {}, "dir": "out", "method": "memory/overview", "wall_ms": 1791061740340}
+{"at_ms": 1147, "body": {"overview": {"entities": [], "entities_truncated": false, "long_term": "", "long_term_total_bytes": 0, "long_term_truncated": false, "ok": true, "recent": [], "refresh_enabled": true, "staging_notes": 0, "staging_truncated": false, "today": "", "today_total_bytes": 0, "today_truncated": false}}, "dir": "in", "method": "memory/overview", "wall_ms": 1791061740341}
+{"at_ms": 1147, "body": {"profile_id": "dsflash", "session_id": "dsflash:a36probe"}, "dir": "out", "method": "mcp/status/list", "wall_ms": 1791061740341}
+{"at_ms": 1147, "body": {"profile_id": "dsflash", "servers": [], "session_id": "dsflash:a36probe", "summary": {"connected": 0, "connecting": 0, "disabled": 0, "failed": 0}}, "dir": "in", "method": "mcp/status/list", "wall_ms": 1791061740341}
+{"at_ms": 1148, "body": {"profile_id": "dsflash"}, "dir": "out", "method": "profile/skills/list", "wall_ms": 1791061740341}
+{"at_ms": 1148, "body": {"count": 0, "profile_id": "dsflash", "skills": []}, "dir": "in", "method": "profile/skills/list", "wall_ms": 1791061740342}

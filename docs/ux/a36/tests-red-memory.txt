@@ -1,0 +1,47 @@
+# A36b failing-first: tests/a36_memory.rs on 4e8683ae + compile-only stubs (screens/board3/memory.rs: every parse None, no Memory row, b3.open.memory unrouted, nothing drawn, no job)
+# cargo test -p octoscode-module --test a36_memory
+test refusals_are_classified_from_the_server_code_and_kind ... FAILED
+test a_note_is_one_document_record_the_server_accepts ... FAILED
+test add_note_needs_a_confirmed_profile_and_the_ingest_method ... FAILED
+test a_reply_for_another_profile_is_refused ... FAILED
+test add_note_writes_one_record_and_reports_the_receipt ... FAILED
+test a_refused_search_explains_the_problem_and_the_next_step_never_the_raw_error ... FAILED
+test a_refused_note_keeps_the_draft ... FAILED
+test capabilities_offers_memory_only_when_the_server_advertises_it ... FAILED
+test an_entity_row_opens_its_page ... FAILED
+test the_receipt_follows_the_server_counts ... FAILED
+test an_empty_profile_says_so ... FAILED
+test memory_follows_the_app_theme_and_reads_in_chinese ... FAILED
+test opening_a_hit_loads_the_record_and_shows_untrusted_content_as_data ... FAILED
+test the_overview_asks_for_the_session_profile_and_draws_board_5 ... FAILED
+test show_all_opens_long_term_memory_and_says_when_the_server_cut_it ... FAILED
+test search_sends_the_query_the_kind_and_the_limit_and_lists_the_hits ... FAILED
+test the_scope_line_is_plain_text_in_the_muted_ink ... FAILED
+test todays_server_answers_for_the_signed_in_account_so_the_dialog_refuses_honestly ... FAILED
+test todays_server_refuses_search_for_the_scope_reason ... FAILED
+thread 'refusals_are_classified_from_the_server_code_and_kind' (263589559) panicked at crates/octoscode-module/tests/a36_memory.rs:605:5:
+  left: Failed
+ right: Scope
+thread 'a_note_is_one_document_record_the_server_accepts' (263589548) panicked at crates/octoscode-module/tests/a36_memory.rs:485:106:
+thread 'add_note_needs_a_confirmed_profile_and_the_ingest_method' (263589552) panicked at crates/octoscode-module/tests/a36_memory.rs:589:5:
+thread 'a_reply_for_another_profile_is_refused' (263589551) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+thread 'add_note_writes_one_record_and_reports_the_receipt' (263589553) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+thread 'a_refused_search_explains_the_problem_and_the_next_step_never_the_raw_error' (263589550) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+thread 'a_refused_note_keeps_the_draft' (263589549) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+thread 'capabilities_offers_memory_only_when_the_server_advertises_it' (263589556) panicked at crates/octoscode-module/tests/a36_memory.rs:197:5:
+  left: []
+ right: ["memory"]
+thread 'an_entity_row_opens_its_page' (263589555) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+thread 'the_receipt_follows_the_server_counts' (263589563) panicked at crates/octoscode-module/tests/a36_memory.rs:554:5:
+  left: None
+ right: Some((1, 0, 0))
+thread 'an_empty_profile_says_so' (263589554) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+thread 'memory_follows_the_app_theme_and_reads_in_chinese' (263589557) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+thread 'opening_a_hit_loads_the_record_and_shows_untrusted_content_as_data' (263589558) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+thread 'the_overview_asks_for_the_session_profile_and_draws_board_5' (263589562) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+thread 'show_all_opens_long_term_memory_and_says_when_the_server_cut_it' (263589561) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+thread 'search_sends_the_query_the_kind_and_the_limit_and_lists_the_hits' (263589560) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+thread 'the_scope_line_is_plain_text_in_the_muted_ink' (263589564) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+thread 'todays_server_answers_for_the_signed_in_account_so_the_dialog_refuses_honestly' (263589565) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+thread 'todays_server_refuses_search_for_the_scope_reason' (263589566) panicked at crates/octoscode-module/tests/a36_memory.rs:178:5:
+test result: FAILED. 0 passed; 19 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s

@@ -63,6 +63,8 @@ pub enum Dialog {
     /// A20 — the "Open saved conversation" panel (web
     /// `SavedSessionLinkPanel`; `screens::saved_link`).
     SavedLink,
+    /// A36 — Memory (board 5): Settings > Capabilities > Memory.
+    Memory,
 }
 
 impl Dialog {
@@ -86,6 +88,7 @@ impl Dialog {
             "launch" => Dialog::Launch,
             "diff_review" | "review_changes" => Dialog::DiffReview,
             "saved_link" | "conversation_link" => Dialog::SavedLink,
+            "memory" => Dialog::Memory,
             _ => return None,
         })
     }
@@ -118,6 +121,8 @@ pub struct State {
     pub pane: super::session_pane::PaneState,
     /// A10 — the header Review entry's diff preview.
     pub diff: super::diff_review::DiffReviewState,
+    /// A36 — the Memory dialog.
+    pub mem: super::memory::MemState,
     /// A8 — the dialog the board-3 splash last mounted (None after an open or
     /// a close), so a remount of the SAME dialog keeps its scroll position.
     pub mounted: Option<Dialog>,
@@ -146,6 +151,7 @@ impl Default for State {
             routes: Default::default(),
             pane: Default::default(),
             diff: Default::default(),
+            mem: Default::default(),
             mounted: None,
             pending_clipboard: None,
         }
@@ -294,6 +300,7 @@ pub fn lower_open(store: &Store) -> Option<Lowered> {
         Dialog::Launch => crate::screens::launch::build(&mut d, &st.frame),
         Dialog::DiffReview => super::diff_review::build(&mut d, &st.diff, &st.frame, store),
         Dialog::SavedLink => crate::screens::saved_link::build(&mut d, &st.frame),
+        Dialog::Memory => super::memory::build(&mut d, &st.mem, &st.frame, store),
         Dialog::Images => {
             let session = store.domains.session.active().unwrap_or_default();
             let drafts = crate::screens::media::drafts_for_session(&session);
@@ -426,6 +433,16 @@ pub enum Job {
     /// A20 — "Open conversation" on the saved-link panel: the pre-open
     /// workspace precondition, then the exact-workspace open.
     SavedLinkOpen,
+    /// A36 — `memory/overview {profile_id}` (the reply's generation).
+    MemoryOverview(u64),
+    /// A36 — `memory/search` with the dialog's query and kind filter.
+    MemorySearch(u64),
+    /// A36 — `memory/load {id}` (a search hit opened).
+    MemoryLoad(u64, String),
+    /// A36 — `memory/entity {name}` (an entity row opened).
+    MemoryEntity(u64, String),
+    /// A36 — `memory/ingest` the Add-a-note form (read when it runs).
+    MemoryIngest(u64),
 }
 
 /// What a routed action asks of the host.
@@ -537,6 +554,7 @@ pub fn open(dialog: Dialog) -> Outcome {
         Dialog::Launch => Outcome::Done,
         Dialog::DiffReview => super::diff_review::on_open(&mut st.diff),
         Dialog::SavedLink => Outcome::Done,
+        Dialog::Memory => super::memory::on_open(&mut st.mem),
     }
 }
 
@@ -734,6 +752,10 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
         drop(st);
         return crate::screens::onboarding::perform(action, index);
     }
+    // A36 — the Memory dialog.
+    if action.starts_with("b3.mem.") {
+        return super::memory::perform(&mut st.mem, action, index, store);
+    }
     Outcome::Unrouted
 }
 
@@ -751,6 +773,8 @@ pub fn input_changed(key: &str, text: &str) {
         "ck" => super::checkpoints::input_changed(&mut st.ck, key, text),
         // A17 — the onboarding form (its own state; the key never leaves it).
         "onb" => crate::screens::onboarding::input_changed(key, text),
+        // A36 — the Memory search and the Add-a-note form.
+        "mem" => super::memory::input_changed(&mut st.mem, key, text),
         _ => {}
     }
 }
@@ -764,6 +788,8 @@ pub fn input_returned(key: &str, store: &Store) -> Outcome {
             // A17 — Return in an onboarding field submits the form (when its
             // submit button is enabled).
             "onb" => crate::screens::onboarding::input_returned(key),
+            // A36 — Enter in the Memory search runs it.
+            "mem" => super::memory::input_returned(&mut st.mem, key, store),
             _ => Outcome::Done,
         }
     };
@@ -785,6 +811,7 @@ pub fn live_visibility(store: &Store) -> Vec<(String, bool)> {
         Some(Dialog::Research) => super::research::visibility(&st.research),
         Some(Dialog::Routes) => super::routes::visibility(&st.routes),
         Some(Dialog::History) => super::checkpoints::visibility(&st.ck),
+        Some(Dialog::Memory) => super::memory::visibility(&st.mem),
         // A17 — the onboarding submit's enabled / disabled variants.
         Some(Dialog::Launch) if crate::screens::launch::is_no_profile(&crate::screens::launch::snapshot()) => {
             crate::screens::onboarding::visibility()
@@ -1009,6 +1036,11 @@ pub fn job_unavailable(job: &Job) {
         Job::LaunchChoose(_) | Job::LaunchCreateProfile => crate::screens::launch::cancel(),
         Job::OnboardingPrepare | Job::OnboardingSubmit => crate::screens::onboarding::job_unavailable(job),
         Job::SavedLinkOpen => crate::screens::saved_link::job_unavailable(),
+        Job::MemoryOverview(_)
+        | Job::MemorySearch(_)
+        | Job::MemoryLoad(..)
+        | Job::MemoryEntity(..)
+        | Job::MemoryIngest(_) => super::memory::job_unavailable(&mut st.mem, job),
         Job::FileFetch(id, _) => {
             drop(st);
             let mut f = super::rows::file_state();
@@ -1139,6 +1171,11 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
             }
         }
         Job::SavedLinkOpen => crate::screens::saved_link::open(conv).await,
+        Job::MemoryOverview(ticket) => super::memory::load_overview(conv, ticket).await,
+        Job::MemorySearch(ticket) => super::memory::search(conv, ticket).await,
+        Job::MemoryLoad(ticket, id) => super::memory::open_record(conv, ticket, id).await,
+        Job::MemoryEntity(ticket, name) => super::memory::open_entity(conv, ticket, name).await,
+        Job::MemoryIngest(ticket) => super::memory::add_note(conv, ticket).await,
     }
 }
 
