@@ -1,13 +1,24 @@
 # Stage A · phase 4 · board 5: Memory (and where Capabilities live in Settings)
 
-Status: **waiting for operator approval**. No Memory UI is built or wired from this board until it is approved.
+Status: **signed off by the operator, 2026-10-03** (verbatim: "D1 yes D2 A, D3 capabilties D4 fowllow app theme"):
+
+- **D1 yes**, with two fixes: the "Server Profile: dsflash" line is plain text in the theme's muted ink (not monospace);
+  the refused state explains the problem and the next step in bounded copy, never the server's raw error (this
+  supersedes frame 10c's "the server's own message as the cause" below).
+- **D2 A**: Memory is built for the Session's profile; the upstream proposal `docs/proposals/memory-profile-scope.md`
+  stays; until octos takes it, the refused state shows honestly.
+- **D3**: the Settings section is named "Capabilities".
+- **D4**: the Memory dialog follows the app theme, light and dark (frame 11 is the dark reference).
+
+Built by A36b: `crates/octoscode-module/src/screens/board3/memory.rs`; the Stage B cards are
+`design/stage-b/phase4-new5/` (each frame's state in the app, judged against its crop).
 
 The operator asked: "also check how to manage skills, memories, mcps, if no, need to add those". Skills and the MCP status already exist as dialogs, but you can only reach them by typing `/skills` or `/mcp`. Memory has no UI at all, in the native app or in the web. This board shows:
 
 - **the click entry for all three**: Settings gets a **Capabilities** section with the rows Skills, MCP servers and Memory (frames 1 and 3);
 - **the new Memory surface** in all of its states, on desktop and on a 360 × 780 phone, plus one dark and one Chinese frame (frames 2 and 4–12).
 
-The Skills and MCP rows are being built now, from existing components only (the nav cell, the rail chip and the Settings row with an "Open" pill). They open the existing Skills dialog and the inventory dialog's MCP tab. The **Memory row appears only after this board is approved.**
+The Skills and MCP rows are built from existing components only (the nav cell, the rail chip and the Settings row with an "Open" pill). They open the existing Skills dialog and the inventory dialog's MCP tab. The Memory row (built after the sign-off) opens the Memory dialog, and shows only when the server advertises `memory/overview`.
 
 ![board 5](atlas.png)
 

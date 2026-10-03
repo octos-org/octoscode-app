@@ -22,7 +22,7 @@ I measured this on a private serve at a6ea8505 (a copy of live-gate data, a fres
 | `memory/load {"id":…}` | same `runtime_unavailable` |
 | `auth/me {}` | `{"email":"unknown account","profile_id":"_main"}`, so the client cannot even learn that memory answered for `admin` |
 
-The Skills family does not have this gap: `profile/skills/*` take `profile_id` and authorize it (`raw_profile_skill_profile_id`). octos main 3916c6a8 is unchanged here.
+The Skills family does not have this gap: `profile/skills/*` take `profile_id` and authorize it (`raw_profile_skill_profile_id`). octos main is unchanged here (3916c6a8, and dde76555 fetched 2026-10-03).
 
 ## Change
 
@@ -44,8 +44,25 @@ The Skills family does not have this gap: `profile/skills/*` take `profile_id` a
 - `memory_results_echo_the_profile`: each method's result carries the answering `profile_id`.
 - `memory_search_uses_the_named_profile_runtime`: search on `dsflash` succeeds where the identity's own profile has no runtime.
 
-## Client behaviour once it lands (board 5)
+## Client behaviour (built, A36b — the operator chose D2 A: Memory is for the Session's profile)
 
-- The Memory surface sends the Session's profile (`conv.profile()`), the same value Skills use.
-- The scope line reads "Server Profile: <echoed profile_id>".
-- Against an older server (no echo), the line reads "Server Profile: not reported", and refusals show the server's message (board 5, frame 10c).
+The native client already speaks the proposal (`crates/octoscode-module/src/screens/board3/memory.rs`):
+
+- Every `memory/*` call names the Session's profile (`conv.profile()`, the same value Skills use): `{profile_id}` on
+  `memory/overview`, `{profile_id, query, kinds?, limit: 20}` on `memory/search`, `{profile_id, id}` on `memory/load`,
+  `{profile_id, name}` on `memory/entity`, `{profile_id, records: [...]}` on `memory/ingest`.
+  - a6ea8505 accepts and ignores the parameter (re-probed on a private serve, 2026-10-03: the same replies as without
+    it, no `-32602`), so sending it is safe today.
+- A result is shown as the profile's memory only when it echoes that `profile_id`. The scope line reads
+  "Server Profile: dsflash" (plain text, the muted ink — D1).
+- An older server (no echo, today's octos): the dialog shows the refusal with bounded copy — "Couldn't read memory." /
+  "This server reads memory for the account you signed in with, not for dsflash." / "Update octos to a version that
+  reads memory per profile." — never the server's raw message (D1), never the account's memory presented as the
+  profile's, and no "Add note" (a note must never land in memory the server cannot attribute). A search refused with
+  `runtime_unavailable` reads the same way.
+- An echo naming another profile: "The server answered for <p>, not for dsflash."
+- Once the echo matches, `runtime_unavailable` means the profile itself has no runtime: "The server isn't running
+  dsflash yet, so its memory isn't available." / "Add a model provider for this profile, then try again."
+
+octos main dde76555 (fetched 2026-10-03) still resolves every `memory/*` call through `resolve_my_profile_id`
+(`resolve_memory_profile_runtime`, `ui_protocol_transport.rs:32958`); the memory params and results are unchanged.

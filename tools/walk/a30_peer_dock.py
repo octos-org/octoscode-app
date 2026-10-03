@@ -624,7 +624,7 @@ def zh_phase(W: Walk) -> None:
     dock expanded (a waiting card) and folded, the CJK labels unclipped."""
     mode = W.mode
     cell = "rl_hit" if mode == "phone" else "nv_hit"
-    sections = ["general", "permissions", "model", "sandbox", "connection", "preferences", "about"]
+    sections = ["general", "permissions", "model", "capabilities", "sandbox", "connection", "preferences", "about"]
 
     def open_prefs() -> bool:
         drawer_open(W)

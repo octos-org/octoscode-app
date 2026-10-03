@@ -374,7 +374,7 @@ def main():
     wait("settings_open_hit", 10)
     click_until("settings_open_hit", "settings_drawer")
     cell = "rl_hit" if MODE == "phone" else "nv_hit"
-    click_nth_until(cell, 4, "b1_set_connection")
+    click_nth_until(cell, 5, "b1_set_connection")  # A36: Capabilities sits after Model
     capture_entry("entry_settings_connection", "b1_set_connection")
     click_until("b1_set_connection", "b1_pair_forget")
     capture("p4-05_connection")

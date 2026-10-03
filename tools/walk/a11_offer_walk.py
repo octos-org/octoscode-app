@@ -248,7 +248,8 @@ def forget(app):
     if not app.click_until("settings_open_hit", lambda: app.find("settings_drawer")):
         return False
     cell = "rl_hit" if PHONE else "nv_hit"
-    if not app.click_until(cell, lambda: app.find("b1_set_connection"), nth=4):
+    # Connection (A36: Capabilities sits after Model, so Connection is the sixth cell).
+    if not app.click_until(cell, lambda: app.find("b1_set_connection"), nth=5):
         return False
     if not app.click_until("b1_set_connection", lambda: app.find("b1_pair_forget")):
         return False

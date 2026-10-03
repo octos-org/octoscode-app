@@ -6,7 +6,7 @@
 
 ## 1. What exists today
 
-All citations are at the pinned octos `a6ea8505`. octos `main` (3916c6a8, 7 commits later) has the same code in every place cited.
+All citations are at the pinned octos `a6ea8505`. octos `main` has the same code in every place cited (3916c6a8; and dde76555, fetched 2026-10-03, 144 commits later: `mcp_status_list_result` still passes `servers: &[]` at `ui_protocol_transport.rs:11643-11653`, the policy stamp `mcp_servers: &[]` at `:11720`).
 
 | What | Where | Behaviour |
 |---|---|---|

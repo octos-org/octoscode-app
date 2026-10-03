@@ -297,7 +297,7 @@ def tour_live():
         capture("settings-general")
         # By id: the desktop nav row (set_nav_<id>) or, on phone, the icon-only
         # rail (set_rail_<id>) — the rail has no text to click.
-        for sec in ("permissions", "model", "sandbox", "connection", "preferences", "about"):
+        for sec in ("permissions", "model", "capabilities", "sandbox", "connection", "preferences", "about"):
             if click(f"set_nav_{sec}") or click(f"set_rail_{sec}"):
                 capture(f"settings-{sec}")
         close_overlays()
