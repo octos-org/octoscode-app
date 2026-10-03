@@ -371,7 +371,7 @@ def layout(name, card_id, buttons, labels, frame_id=None):
 # Validation 330786aa: the first prompt is typed at launch, inside this hold
 # of the chrome's start-up profile reads (boot, send_prompt).
 EARLY_HOLD_MS = 3000
-EARLY = {"typed": None, "reads_before": False, "before": []}
+EARLY = {"typed": None, "reads_before": False, "before": [], "first_rect": None}
 
 
 def clear_composer():
@@ -471,17 +471,21 @@ def boot():
     # chrome's profile reads EARLY_HOLD_MS). While the seat labels rode the
     # composer's DSL, a start-up read's landing re-mounted the composer and
     # the typing vanished (focus, caret and text).
-    # Click where the composer IS: under load the first layouts can still
-    # move it (the phone shell settles a frame or two after the mount), and a
-    # click at a stale rect focuses nothing — not what a person does.
-    settled = [None]
-    def composer_still():
-        r = rect("i0_composer_0")
-        same = r is not None and r == settled[0]
-        settled[0] = r
-        return same
+    # The composer is drawn in its final place: its rect at the first frame is
+    # asserted unchanged below, after the start-up settles. On the phone shell,
+    # the app opens under OctoSense's launch effect: the tapped icon grows over
+    # a dimming scrim for 0.26 s (shell mobile.rs `launch.t += dt / 0.26`,
+    # drawn over the app in mobile_surface.rs), and the shell owns the input
+    # meanwhile. A person sees the icon, not the composer, until it ends. So the
+    # phone's first tap waits out that effect (0.35 s from the composer's first
+    # frame); the desktop types at once.
+    EARLY["first_rect"] = rect("i0_composer_0") if ok else None
+    if ok and PHONE:
+        time.sleep(0.35)
     if ok:
-        wait(composer_still, 4, 0.25)
+        at_tap = rect("i0_composer_0")
+        check("start-up: at the first tap the composer is where its first frame drew it",
+              at_tap == EARLY["first_rect"], f"{EARLY['first_rect']} -> {at_tap}")
     if ok and click("i0_composer_0"):
         before = app_logs()  # drained: what landed before the typing
         type_text(PROMPTS[0])
@@ -501,6 +505,12 @@ def boot():
               "already folded before the typing" if EARLY["reads_before"] else "")
         check("start-up: the prompt typed at launch survived the start-up reads",
               text("i0_composer_0") == EARLY["typed"], f"{text('i0_composer_0')!r} re-mounts {remounts}")
+        # The typed prompt may wrap: the input grows UPWARD (its bottom edge,
+        # x and width stay); anything else is a layout shift.
+        first, now = EARLY["first_rect"], rect("i0_composer_0")
+        anchored = bool(first and now) and (now[0], now[2], now[1] + now[3]) == (first[0], first[2], first[1] + first[3])
+        check("start-up: the composer only grew with its text (bottom edge, x and width unchanged since the first frame)",
+              anchored, f"{first} -> {now}")
         # Deterministic whatever the typing's timing: ONE composer mount from
         # launch to the settled start-up (any re-mount replaces the TextInput).
         mounts = [l.split("composer remounted", 1)[1][:120] for l in EARLY["before"] + seen
@@ -705,10 +715,16 @@ def walk_questions():
     shot("question-answered")
     key("return")
     gone = wait(lambda: not shown("cv_q_title") or text("cv_q_title") != "Which color would you like to pick?", 10)
-    logs = app_logs()
     wire = wait(lambda: "<- user_question/respond" in replay_log(), 5)
+    # The reply settles the card ("answer accepted") — or, when the server's
+    # next question lands first (under load), the reply finds its question
+    # replaced and settles nothing (A20 `isCurrent()`, surfaces/mod.rs).
+    # Either way the answer was sent once and the card moved on.
+    logs = []
+    settled = wait(lambda: logs.extend(app_logs()) or any(
+        "answer accepted" in l or "the question changed meanwhile" in l for l in logs), 8)
     check("Return (inside the Other field) -> user_question/respond on the wire, card settles",
-          gone and wire and any("answer accepted" in l for l in logs))
+          gone and wire and bool(settled), f"gone={bool(gone)} wire={bool(wire)} settled={bool(settled)}")
     # Question 2 — multi-select: the keyboard moves within the group.
     multi = wait(lambda: text("cv_q_title") == "Which accents should the theme use?", 10)
     if check("next: a multi-select question", multi, repr(text("cv_q_title"))):
