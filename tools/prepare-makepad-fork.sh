@@ -58,10 +58,15 @@ PATCHES=("$REPO"/patches/makepad/*.patch)
 [ ${#PATCHES[@]} -gt 0 ] || { echo "prepare-makepad-fork: no patches/makepad/*.patch" >&2; exit 1; }
 
 # One line per patch: its name and the first 16 hex of its sha256.
+sha256_file() {
+  if command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1"
+  else sha256sum "$1"; fi
+}
+
 stamp() {
   local p
   for p in "${PATCHES[@]}"; do
-    echo "$(basename "$p") $(shasum -a 256 "$p" | cut -c1-16)"
+    echo "$(basename "$p") $(sha256_file "$p" | cut -c1-16)"
   done
 }
 

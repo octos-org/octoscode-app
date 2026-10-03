@@ -43,6 +43,10 @@ tree_of() {
 }
 
 touched() { sed -n 's|^+++ b/\([^[:space:]]*\).*|\1|p' "$1"; }
+sha256_file() {
+  if command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1"
+  else sha256sum "$1"; fi
+}
 
 status=0
 for root in "$@"; do
@@ -74,7 +78,7 @@ for p in "${PATCHES[@]}"; do
     for root in "$@"; do
       tree="$(tree_of "$root")"
       if [ -f "$tree/$f" ]; then
-        line="$line $(shasum -a 256 "$tree/$f" | cut -c1-12)"
+        line="$line $(sha256_file "$tree/$f" | cut -c1-12)"
       else
         line="$line ------------"
       fi
