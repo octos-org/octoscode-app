@@ -696,6 +696,7 @@ def run_dock(W: Walk):
             repr(W.text("pd_row_0_label")))
     surface(W, "zh-peer-dock", ["peer_dock_row", "pd_dock"], "Peer dock (sidebar)")
     dock_word = text_any(W, "pd_row_0_status")
+    dock_label = text_any(W, "pd_row_0_label")
     if MODE == "phone" and W.visible("drawer_close"):
         W.click("drawer_close")
         W.wait(lambda: not W.visible("drawer_scrim"), 6)
@@ -705,6 +706,9 @@ def run_dock(W: Walk):
     word = chip.split(" ", 1)[1] if " " in chip else chip
     W.check("dock: the dock's status word is the Fleet chip's (row 117)", bool(dock_word) and word == dock_word and is_cjk(word),
             f"dock={dock_word!r} fleet={chip!r}")
+    fleet_label = text_any(W, "b3_fleet_row_0_label")
+    W.check("dock: the dock names the peer as the Fleet does (同侪 1 · glm-4.6)",
+            dock_label == fleet_label and dock_label.startswith("同侪 1"), f"dock={dock_label!r} fleet={fleet_label!r}")
     escape_fleet(W)
 
 
