@@ -1,0 +1,501 @@
+From 06ce11e3346d6c50ae6d867c031c6eea3b6dda53 Mon Sep 17 00:00:00 2001
+From: ymote <151983+ymote@users.noreply.github.com>
+Date: Fri, 2 Oct 2026 17:03:35 -0700
+Subject: [PATCH] fix(transport): never drop a server reply
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+A reply, an error reply or a connection-state change was handed to the
+consumer with `try_send` (`try_emit`) and dropped with a warning whenever
+the bounded event channel (`CHANNEL_BUFFER` = 64) was full; notifications
+already waited for room (`send().await`). A consumer that counts its
+requests never heard the dropped reply and stayed one reply behind for
+good. Seen in a client of this crate (OctosCode): another client streams
+into a Session while it is being opened, the history reply lands on a full
+channel and is dropped, the Session never leaves "Loading conversation…",
+and its next history reply is judged against the lost read.
+
+Every event now goes through `emit`, which waits for room in the channel.
+When the consumer is slow, the read loop waits and TCP flow control
+reaches the server, as it already did for notifications. Delivery ends
+only when the consumer is gone (the receiver dropped), and then there is
+nobody left to tell. `handle_response` and `fail_all_pending` become
+async; the ws and kernel loops await their state changes.
+
+Tests (proto.rs): a reply that finds the channel full waits and is
+delivered; replies of every kind (history reads, an error reply,
+session/list, turn/start) arrive in the server's order through a one-slot
+channel and a slow consumer, interleaved with notifications. Both fail
+before this change: every reply is dropped.
+---
+ .../crates/octos-app-transport/src/kernel.rs  |  19 +-
+ .../crates/octos-app-transport/src/proto.rs   | 208 ++++++++++++++----
+ .../crates/octos-app-transport/src/ws/mod.rs  |  18 +-
+ 3 files changed, 189 insertions(+), 56 deletions(-)
+
+diff --git a/apps/appcard/app/crates/octos-app-transport/src/kernel.rs b/apps/appcard/app/crates/octos-app-transport/src/kernel.rs
+index 3ae3072..79182b5 100644
+--- a/apps/appcard/app/crates/octos-app-transport/src/kernel.rs
++++ b/apps/appcard/app/crates/octos-app-transport/src/kernel.rs
+@@ -25,7 +25,7 @@ use octosense_kernel::CloseReason;
+ use tokio::sync::mpsc;
+ 
+ use crate::proto::{
+-    build_outbound, build_reopens, fail_all_pending, handle_inbound_text, try_emit, Outbound,
++    build_outbound, build_reopens, fail_all_pending, handle_inbound_text, emit, Outbound,
+     SharedState, CHANNEL_BUFFER,
+ };
+ use crate::{ConnectionState, OutboundCommand, TransportConfig, TransportEvent};
+@@ -77,8 +77,8 @@ async fn run(
+     mut commands: mpsc::Receiver<OutboundCommand>,
+     events: mpsc::Sender<TransportEvent>,
+ ) {
+-    try_emit(&events, TransportEvent::ConnectionState(ConnectionState::Idle));
+-    try_emit(&events, TransportEvent::ConnectionState(ConnectionState::Dialing));
++    emit(&events, TransportEvent::ConnectionState(ConnectionState::Idle)).await;
++    emit(&events, TransportEvent::ConnectionState(ConnectionState::Dialing)).await;
+     let persist = cfg.cursor_file.clone().map(|p| {
+         Arc::new(crate::cursor::FileCursorPersist::new(p)) as Arc<dyn crate::cursor::CursorPersist>
+     });
+@@ -89,13 +89,13 @@ async fn run(
+             Ok(conn) => conn,
+             Err(e) => {
+                 log::error!("kernel: {e}");
+-                try_emit(&events, TransportEvent::ConnectionState(ConnectionState::Failed));
++                emit(&events, TransportEvent::ConnectionState(ConnectionState::Failed)).await;
+                 return;
+             }
+         };
+         log::info!("kernel: connected to octos kernel {}", conn.generation());
+         let mut state = ConnectionState::Handshaking;
+-        try_emit(&events, TransportEvent::ConnectionState(ConnectionState::Handshaking));
++        emit(&events, TransportEvent::ConnectionState(ConnectionState::Handshaking)).await;
+         // After a restart: the sessions this connection had, again.
+         let mut exit = None;
+         if attempt > 0 {
+@@ -133,7 +133,7 @@ async fn run(
+                                 continue;
+                             }
+                             if let Some(t) = handle_inbound_text(&text, &mut shared, &events, &mut state).await {
+-                                try_emit(&events, TransportEvent::ConnectionState(t));
++                                emit(&events, TransportEvent::ConnectionState(t)).await;
+                             }
+                         }
+                         Err(reason) => break Exit::Closed(reason),
+@@ -152,15 +152,16 @@ async fn run(
+                     &mut shared,
+                     &events,
+                     RpcError::new(KERNEL_RESTARTED, "the octos kernel restarted (its AI providers changed); try again"),
+-                );
++                )
++                .await;
+                 attempt += 1;
+-                try_emit(&events, TransportEvent::ConnectionState(ConnectionState::Reconnecting { attempt }));
++                emit(&events, TransportEvent::ConnectionState(ConnectionState::Reconnecting { attempt })).await;
+             }
+             Exit::Closed(reason) => {
+                 log::warn!("kernel: {reason}");
+                 shared.registry.cancel_all();
+                 shared.pending.clear();
+-                try_emit(&events, TransportEvent::ConnectionState(ConnectionState::Failed));
++                emit(&events, TransportEvent::ConnectionState(ConnectionState::Failed)).await;
+                 break;
+             }
+         }
+diff --git a/apps/appcard/app/crates/octos-app-transport/src/proto.rs b/apps/appcard/app/crates/octos-app-transport/src/proto.rs
+index c075791..c941461 100644
+--- a/apps/appcard/app/crates/octos-app-transport/src/proto.rs
++++ b/apps/appcard/app/crates/octos-app-transport/src/proto.rs
+@@ -227,13 +227,14 @@ pub(crate) fn build_reopens(shared: &mut SharedState) -> Vec<(JsonRpcId, String,
+ /// Fail every request still waiting for a reply: the kernel that would have
+ /// answered is gone. Lifecycle requests surface as `TransportEvent::RpcError`
+ /// (the app shows a turn that could not start), the rest through their reply.
+-pub(crate) fn fail_all_pending(shared: &mut SharedState, events: &mpsc::Sender<TransportEvent>, error: RpcError) {
+-    for (id, pending) in shared.pending.drain() {
++pub(crate) async fn fail_all_pending(shared: &mut SharedState, events: &mpsc::Sender<TransportEvent>, error: RpcError) {
++    let pending: Vec<_> = shared.pending.drain().collect();
++    for (id, pending) in pending {
+         let method = pending.method.to_owned();
+         let surface = matches!(pending.reply, PendingReply::Lifecycle);
+         fail_pending(pending, error.clone());
+         if surface {
+-            try_emit(events, TransportEvent::RpcError { request_id: id, method, error: error.clone() });
++            emit(events, TransportEvent::RpcError { request_id: id, method, error: error.clone() }).await;
+         }
+     }
+ }
+@@ -244,29 +245,33 @@ pub(crate) fn is_ephemeral_method(method: &str) -> bool {
+     method == methods::MESSAGE_DELTA
+ }
+ 
+-/// Try to send an event without blocking. Logs a warning if the receiver
+-/// can't keep up — backpressure protects the read loop from a slow UI.
+-pub(crate) fn try_emit(events: &mpsc::Sender<TransportEvent>, evt: TransportEvent) {
+-    match events.try_send(evt) {
+-        Ok(()) => {}
+-        Err(mpsc::error::TrySendError::Full(_)) => {
+-            log::warn!("transport: event channel full, dropping frame");
+-        }
+-        Err(mpsc::error::TrySendError::Closed(_)) => {}
++/// Hand `evt` to the consumer, WAITING for room in the bounded event channel.
++///
++/// Nothing is dropped: not a reply, an error reply, a notification or a
++/// connection-state change. A reply in particular may be the only answer to a
++/// request the consumer is counting on — a history read, a `session/open` —
++/// and a consumer that never hears it stays one reply behind for good. When
++/// the consumer is slow, the read loop waits here and TCP flow control
++/// reaches the server, which is how notifications were already delivered.
++/// Only a consumer that is gone (the receiver dropped) ends delivery, and
++/// then there is nobody left to tell.
++pub(crate) async fn emit(events: &mpsc::Sender<TransportEvent>, evt: TransportEvent) {
++    if let Err(mpsc::error::SendError(evt)) = events.send(evt).await {
++        log::debug!("transport: event receiver closed; {} not delivered", event_kind(&evt));
+     }
+ }
+ 
+-async fn emit_durable_notification(
+-    events: &mpsc::Sender<TransportEvent>,
+-    payload: UiNotification,
+-    cursor: Option<UiCursor>,
+-) {
+-    if events
+-        .send(TransportEvent::DurableNotification { payload, cursor })
+-        .await
+-        .is_err()
+-    {
+-        log::debug!("transport: event receiver closed while sending durable notification");
++/// A short name for an event (logs; a reply's payload can be large).
++fn event_kind(evt: &TransportEvent) -> &'static str {
++    match evt {
++        TransportEvent::ConnectionState(_) => "a connection state",
++        TransportEvent::DurableNotification { .. } => "a notification",
++        TransportEvent::EphemeralNotification { .. } => "a live delta",
++        TransportEvent::RpcResult(_) => "a reply",
++        TransportEvent::RpcError { .. } => "an error reply",
++        TransportEvent::CapabilityNegotiated(_) => "the capabilities",
++        TransportEvent::SessionsListed { .. } => "a session/list reply",
++        TransportEvent::SessionHydrated { .. } => "a session/hydrate reply",
+     }
+ }
+ 
+@@ -291,7 +296,7 @@ pub(crate) async fn handle_inbound_text(
+             None
+         }
+         RpcEnvelope::Response(r) => match shared.pending.remove(&r.id) {
+-            Some(p) => handle_response(p, r.result, events, state),
++            Some(p) => handle_response(p, r.result, events, state).await,
+             None => {
+                 log::warn!("transport: response for unknown id {}", r.id);
+                 None
+@@ -304,14 +309,15 @@ pub(crate) async fn handle_inbound_text(
+                     let reopen = matches!(pending.reply, PendingReply::Reopen);
+                     fail_pending(pending, er.error.clone());
+                     if !reopen {
+-                        try_emit(
++                        emit(
+                             events,
+                             TransportEvent::RpcError {
+                                 request_id: id,
+                                 method,
+                                 error: er.error,
+                             },
+-                        );
++                        )
++                        .await;
+                     }
+                 }
+             } else {
+@@ -326,7 +332,7 @@ pub(crate) async fn handle_inbound_text(
+     }
+ }
+ 
+-fn handle_response(
++async fn handle_response(
+     pending: PendingRequest,
+     result_value: Value,
+     events: &mpsc::Sender<TransportEvent>,
+@@ -345,8 +351,8 @@ fn handle_response(
+             match UiRpcResult::from_method_and_result(&method, result_value.clone()) {
+                 Ok(UiRpcResult::SessionOpen(open)) => {
+                     let caps = Capabilities::parse(&result_value);
+-                    try_emit(events, TransportEvent::CapabilityNegotiated(caps));
+-                    try_emit(events, TransportEvent::RpcResult(LifecycleResult::SessionOpen(open)));
++                    emit(events, TransportEvent::CapabilityNegotiated(caps)).await;
++                    emit(events, TransportEvent::RpcResult(LifecycleResult::SessionOpen(open))).await;
+                     if !matches!(state, ConnectionState::Live) {
+                         *state = ConnectionState::Live;
+                         return Some(ConnectionState::Live);
+@@ -354,11 +360,11 @@ fn handle_response(
+                     None
+                 }
+                 Ok(UiRpcResult::TurnStart(r)) => {
+-                    try_emit(events, TransportEvent::RpcResult(LifecycleResult::TurnStart(r)));
++                    emit(events, TransportEvent::RpcResult(LifecycleResult::TurnStart(r))).await;
+                     None
+                 }
+                 Ok(UiRpcResult::TurnInterrupt(r)) => {
+-                    try_emit(events, TransportEvent::RpcResult(LifecycleResult::TurnInterrupt(r)));
++                    emit(events, TransportEvent::RpcResult(LifecycleResult::TurnInterrupt(r))).await;
+                     None
+                 }
+                 Ok(other) => {
+@@ -395,7 +401,7 @@ fn handle_response(
+         PendingReply::SessionList => {
+             match serde_json::from_value::<octos_core::ui_protocol::SessionListResult>(result_value)
+             {
+-                Ok(r) => try_emit(events, TransportEvent::SessionsListed { sessions: r.sessions }),
++                Ok(r) => emit(events, TransportEvent::SessionsListed { sessions: r.sessions }).await,
+                 Err(e) => log::warn!("transport: decode session/list result: {e}"),
+             }
+             None
+@@ -403,7 +409,7 @@ fn handle_response(
+         PendingReply::SessionHydrate { session_id } => {
+             // Raw pass-through: the backend decodes `SessionHydrateResult`
+             // (it owns the chat-store routing; keeps the transport thin).
+-            try_emit(events, TransportEvent::SessionHydrated { session_id, result: result_value });
++            emit(events, TransportEvent::SessionHydrated { session_id, result: result_value }).await;
+             None
+         }
+         PendingReply::Generic(reply) => {
+@@ -465,7 +471,7 @@ async fn handle_notification(
+         // These are text deltas, not replaceable status snapshots. A fast
+         // cached response can outpace mobile rendering. Apply backpressure
+         // instead of dropping bytes and corrupting the generated card.
+-        let _ = events.send(TransportEvent::EphemeralNotification { payload }).await;
++        emit(events, TransportEvent::EphemeralNotification { payload }).await;
+         return;
+     }
+     let cursor = params
+@@ -481,7 +487,7 @@ async fn handle_notification(
+             shared.cursors.set(session, c);
+         }
+     }
+-    emit_durable_notification(events, payload, cursor).await;
++    emit(events, TransportEvent::DurableNotification { payload, cursor }).await;
+ }
+ 
+ #[cfg(test)]
+@@ -523,8 +529,8 @@ mod tests {
+     /// A generic `Request` rides the same serialize path as the typed
+     /// commands: the frame is well-formed JSON-RPC 2.0 with the caller's
+     /// method + params, and its reply oneshot is recorded under the frame's id.
+-    #[test]
+-    fn generic_request_builds_a_jsonrpc_frame_and_registers_its_reply() {
++    #[tokio::test]
++    async fn generic_request_builds_a_jsonrpc_frame_and_registers_its_reply() {
+         let mut shared = SharedState::new(None, None);
+         let (tx, mut rx) = oneshot::channel::<Result<Value, RpcError>>();
+         let out = build_outbound(
+@@ -548,10 +554,136 @@ mod tests {
+ 
+         // Delivery: a server result reaches the caller's oneshot verbatim.
+         let value = serde_json::json!({"tools": []});
+-        let _ = handle_response(pending, value.clone(), &mpsc::channel(1).0, &mut ConnectionState::Live);
++        let _ = handle_response(pending, value.clone(), &mpsc::channel(1).0, &mut ConnectionState::Live).await;
+         assert_eq!(rx.try_recv().expect("reply sent").expect("ok"), value);
+     }
+ 
++    /// Record `cmd` as sent (as the ws / kernel loops do) and return its id.
++    fn sent(cmd: OutboundCommand, shared: &mut SharedState) -> String {
++        let Outbound::Send { id, pending, .. } = build_outbound(cmd, shared) else {
++            panic!("expected Outbound::Send");
++        };
++        shared.pending.insert(id.clone(), pending.expect("a reply is awaited"));
++        id.as_str().to_owned()
++    }
++
++    fn hydrate_reply(id: &str, session: &str, seq: u64) -> String {
++        serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {
++            "session_id": session, "cursor": {"stream": session, "seq": seq}, "messages": []
++        }})
++        .to_string()
++    }
++
++    fn envelope(session: &str, seq: u64) -> String {
++        serde_json::json!({"jsonrpc": "2.0", "method": "projection/envelope", "params": {
++            "session_id": session, "thread_id": "01920000-0000-7000-8000-000000000001",
++            "turn_id": "01920000-0000-7000-8000-000000000001", "seq": seq,
++            "cursor": {"stream": session, "seq": seq},
++            "payload": {"type": "assistant_delta", "data": {"text": "x", "assistant_segment_id": "s"}}
++        }})
++        .to_string()
++    }
++
++    /// What the consumer saw, in order: `reply <session>` for a history
++    /// reply, `error <method>` for an error reply, `listed` / `turn` for the
++    /// typed replies, `n<seq>` for a notification.
++    fn label(evt: &TransportEvent) -> String {
++        match evt {
++            TransportEvent::SessionHydrated { session_id, .. } => format!("reply {session_id}"),
++            TransportEvent::RpcError { method, .. } => format!("error {method}"),
++            TransportEvent::SessionsListed { .. } => "listed".to_owned(),
++            TransportEvent::RpcResult(LifecycleResult::TurnStart(_)) => "turn".to_owned(),
++            TransportEvent::DurableNotification { cursor, .. } => {
++                format!("n{}", cursor.as_ref().map(|c| c.seq).unwrap_or_default())
++            }
++            other => format!("{other:?}"),
++        }
++    }
++
++    /// A server reply that finds the event channel full WAITS for room — it
++    /// is never dropped. (Before: `try_emit` dropped it with a warning, and a
++    /// consumer counting its history reads stayed one read behind for good.)
++    #[tokio::test]
++    async fn a_reply_that_finds_the_event_channel_full_waits_and_is_never_dropped() {
++        let (tx, mut rx) = mpsc::channel(1);
++        // The consumer has not taken the last event yet: the channel is full.
++        tx.send(TransportEvent::ConnectionState(ConnectionState::Live)).await.unwrap();
++        let mut shared = SharedState::new(None, None);
++        let id = sent(OutboundCommand::HydrateSession { session_id: "p:api:b".into() }, &mut shared);
++        let frame = hydrate_reply(&id, "p:api:b", 3);
++        let reader = tokio::spawn(async move {
++            let mut state = ConnectionState::Live;
++            handle_inbound_text(&frame, &mut shared, &tx, &mut state).await;
++        });
++        tokio::time::sleep(std::time::Duration::from_millis(50)).await;
++        let mut seen = Vec::new();
++        while let Some(evt) = rx.recv().await {
++            seen.push(label(&evt));
++        }
++        reader.await.unwrap();
++        assert_eq!(seen, vec!["ConnectionState(Live)".to_owned(), "reply p:api:b".to_owned()], "the reply was dropped");
++    }
++
++    /// Replies of every kind — history reads for three Sessions, an error
++    /// reply, a typed `session/list` and `turn/start` result — arrive through
++    /// a one-slot channel and a slow consumer interleaved with notifications,
++    /// all of them, in the order the server sent them.
++    #[tokio::test]
++    async fn every_reply_arrives_in_order_through_a_full_channel() {
++        let (tx, mut rx) = mpsc::channel(1);
++        let mut shared = SharedState::new(None, None);
++        let h1 = sent(OutboundCommand::HydrateSession { session_id: "p:api:a".into() }, &mut shared);
++        let h2 = sent(OutboundCommand::HydrateSession { session_id: "p:api:b".into() }, &mut shared);
++        let h3 = sent(OutboundCommand::HydrateSession { session_id: "p:api:c".into() }, &mut shared);
++        let h4 = sent(OutboundCommand::HydrateSession { session_id: "p:api:d".into() }, &mut shared);
++        let ls = sent(OutboundCommand::ListSessions, &mut shared);
++        let ts = sent(
++            OutboundCommand::StartTurn(serde_json::from_value(serde_json::json!({
++                "session_id": "p:api:a", "turn_id": "01920000-0000-7000-8000-000000000002",
++                "input": [{"kind": "text", "text": "go"}]
++            })).expect("turn/start params")),
++            &mut shared,
++        );
++        let mut frames = Vec::new();
++        let mut want = Vec::new();
++        for n in 1..=5 {
++            frames.push(envelope("p:api:a", n));
++            want.push(format!("n{n}"));
++        }
++        frames.push(hydrate_reply(&h1, "p:api:a", 5));
++        want.push("reply p:api:a".to_owned());
++        for n in 6..=8 {
++            frames.push(envelope("p:api:a", n));
++            want.push(format!("n{n}"));
++        }
++        frames.push(hydrate_reply(&h2, "p:api:b", 1));
++        want.push("reply p:api:b".to_owned());
++        frames.push(serde_json::json!({"jsonrpc": "2.0", "id": h3, "error": {"code": -32603, "message": "busy"}}).to_string());
++        want.push("error session/hydrate".to_owned());
++        frames.push(serde_json::json!({"jsonrpc": "2.0", "id": ls, "result": {"sessions": []}}).to_string());
++        want.push("listed".to_owned());
++        frames.push(envelope("p:api:a", 9));
++        want.push("n9".to_owned());
++        frames.push(serde_json::json!({"jsonrpc": "2.0", "id": ts, "result": {"accepted": true}}).to_string());
++        want.push("turn".to_owned());
++        frames.push(hydrate_reply(&h4, "p:api:d", 2));
++        want.push("reply p:api:d".to_owned());
++        let reader = tokio::spawn(async move {
++            let mut state = ConnectionState::Live;
++            for f in frames {
++                handle_inbound_text(&f, &mut shared, &tx, &mut state).await;
++            }
++        });
++        let mut seen = Vec::new();
++        while let Some(evt) = rx.recv().await {
++            seen.push(label(&evt));
++            // A slow consumer (a busy UI thread).
++            tokio::time::sleep(std::time::Duration::from_millis(5)).await;
++        }
++        reader.await.unwrap();
++        assert_eq!(seen, want, "every reply, in the server's order");
++    }
++
+     /// An RPC error on a generic request reaches the caller's oneshot as an
+     /// `Err`, not as an event.
+     #[test]
+diff --git a/apps/appcard/app/crates/octos-app-transport/src/ws/mod.rs b/apps/appcard/app/crates/octos-app-transport/src/ws/mod.rs
+index 4a6de13..b967d53 100644
+--- a/apps/appcard/app/crates/octos-app-transport/src/ws/mod.rs
++++ b/apps/appcard/app/crates/octos-app-transport/src/ws/mod.rs
+@@ -17,7 +17,7 @@ use tokio_tungstenite::tungstenite::Message as WsMessage;
+ 
+ use crate::capability::Capabilities;
+ use crate::proto::{
+-    build_outbound, handle_inbound_text, try_emit, Outbound, SharedState, CHANNEL_BUFFER,
++    build_outbound, handle_inbound_text, emit, Outbound, SharedState, CHANNEL_BUFFER,
+ };
+ use crate::{
+     ConnectionState, OutboundCommand, ProfileId, SecretString, TransportConfig, TransportEvent,
+@@ -138,11 +138,11 @@ async fn run_state_machine(
+     let mut total_wait = Duration::ZERO;
+ 
+     log::info!("ws: state machine up (base_url={})", cfg.base_url);
+-    try_emit(&events, TransportEvent::ConnectionState(ConnectionState::Idle));
++    emit(&events, TransportEvent::ConnectionState(ConnectionState::Idle)).await;
+ 
+     loop {
+         log::info!("ws: dialing");
+-        try_emit(&events, TransportEvent::ConnectionState(ConnectionState::Dialing));
++        emit(&events, TransportEvent::ConnectionState(ConnectionState::Dialing)).await;
+         let req = match build_request(
+             &cfg.base_url,
+             &cfg.bearer,
+@@ -152,7 +152,7 @@ async fn run_state_machine(
+             Ok(r) => r,
+             Err(e) => {
+                 log::error!("ws: bad upgrade request: {e}");
+-                try_emit(&events, TransportEvent::ConnectionState(ConnectionState::Failed));
++                emit(&events, TransportEvent::ConnectionState(ConnectionState::Failed)).await;
+                 break;
+             }
+         };
+@@ -169,7 +169,7 @@ async fn run_state_machine(
+         attempt = 0;
+         total_wait = Duration::ZERO;
+         log::info!("ws: connected; handshaking");
+-        try_emit(&events, TransportEvent::ConnectionState(ConnectionState::Handshaking));
++        emit(&events, TransportEvent::ConnectionState(ConnectionState::Handshaking)).await;
+         match run_live(socket, &mut shared, &mut commands, &events).await {
+             LiveExit::Disconnect => break,
+             LiveExit::Reconnect => {
+@@ -229,7 +229,7 @@ async fn run_live(
+                 match frame {
+                     Ok(WsMessage::Text(text)) => {
+                         if let Some(t) = handle_inbound_text(&text, shared, events, &mut state).await {
+-                            try_emit(events, TransportEvent::ConnectionState(t));
++                            emit(events, TransportEvent::ConnectionState(t)).await;
+                         }
+                     }
+                     Ok(WsMessage::Binary(_)) => log::warn!("ws: unexpected binary; ignoring"),
+@@ -299,13 +299,13 @@ async fn run_reconnect(
+     *total_wait += delay;
+     if *total_wait > RECONNECT_BUDGET {
+         log::error!("ws: reconnect budget exhausted ({:.1?})", *total_wait);
+-        try_emit(events, TransportEvent::ConnectionState(ConnectionState::Failed));
++        emit(events, TransportEvent::ConnectionState(ConnectionState::Failed)).await;
+         return false;
+     }
+-    try_emit(
++    emit(
+         events,
+         TransportEvent::ConnectionState(ConnectionState::Reconnecting { attempt: *attempt }),
+-    );
++    ).await;
+     let start = Instant::now();
+     tokio::time::sleep(delay).await;
+     log::debug!("ws: reconnect waited {:.2?} (#{}.)", start.elapsed(), *attempt);
+-- 
+2.49.0
+

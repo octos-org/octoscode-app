@@ -1,8 +1,8 @@
 == native walk a12_reconnect [desktop] (tools/walk/a12_reconnect_walk.py)
--- run 1: exit 0 in 40 s
+-- run 1: exit 0 in 24 s
 PASS server up — port 8498
-[makepad-remote] listening on 127.0.0.1:8494 pid=1851 app=octosense grabs=<abs>/octosense-1851 token_file=<abs>/port-8494.token
-[headless] up: pid 1851  port 8494  log <abs>/port-8494.log
+[makepad-remote] listening on 127.0.0.1:8494 pid=28320 app=octosense grabs=<abs>/octosense-28320 token_file=<abs>/port-8494.token
+[headless] up: pid 28320  port 8494  log <abs>/port-8494.log
 PASS app launched (hidden, isolated state)
 PASS the shell is up and live
 PASS strip Ready — None
@@ -11,7 +11,7 @@ PASS the unsent draft is in the composer — 'unsent words survive the outage'
 PASS outage: the banner appears — after 0.3s
 PASS outage: the banner shows — [359, 431, 661, 56]
 PASS outage: 'Reconnecting to Octos' — 'Reconnecting to Octos'
-PASS outage: the detail names the server in use + the retry count — 'Connection lost · retry 7 · 127.0.0.1:8498'
+PASS outage: the detail names the server in use + the retry count — 'Connection lost · retry 6 · 127.0.0.1:8498'
 PASS outage: the shell stays (no Connect card)
 PASS outage: the sidebar stays (desktop)
 PASS outage: the strip says Reconnecting — 'Reconnecting'
@@ -35,7 +35,7 @@ PASS Retry now is clickable
 PASS Retry now re-dials (a fresh transport)
 PASS …and the banner stays while the server is down
 PASS server back on the same port
-PASS recovered: the banner goes by itself (the transport's own re-dial) — 18.6s
+PASS recovered: the banner goes by itself (the transport's own re-dial) — 2.5s
 PASS recovered: strip Ready — 'Ready'
 PASS recovered: the SAME Session re-opened ({reconnect: true}) — [{'cwd': '/home/user/octos', 'reconnect': True, 'session_id': 'a12walk:main'}] vs 'a12walk:main'
 PASS recovered: and re-hydrated (the canonical history came back) — 1 hydrate replies
@@ -57,4 +57,4 @@ PASS server back
 PASS the card's Connect dials that same server and the shell returns
   shot <repo>/tmp/a22-regress/scratch/a12_reconnect-desktop/out/desktop-9-reconnected-from-card.png
 == WALK a12 reconnect desktop (replay, TERM): 46/46 passed
-   state dir (trace, serve log): <abs>/a12walk.5sk796m7
+   state dir (trace, serve log): <abs>/a12walk.xk9ls1c_

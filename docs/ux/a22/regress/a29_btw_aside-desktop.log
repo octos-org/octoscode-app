@@ -1,7 +1,7 @@
 == native walk a29_btw_aside [desktop] (tools/walk/a29_btw_aside.py)
--- run 1: exit 1 in 113 s
+-- run 1: exit 0 in 87 s
 PASS the app opened X (the composer is ready)
-FAIL the sidebar lists X and Y
+PASS the sidebar lists X and Y
 TYPE 'In one short paragraph: what does main.rs print, and why?'
 KEY Return
 PASS the main prompt started a turn
@@ -16,20 +16,20 @@ PASS X: the main turn keeps working above the aside
 PASS answering: panel frame=661x173 centre_dx=140.5 margins L=16 R=18 labels=4 outside=0 overlaps=0 controls=2 under28=0 composer-width=True above=True h<=302=True desktop-width>=600=True — {"frame": [359, 331, 661, 173], "composer": [359, 571, 661, 92], "c": {"ok": true, "frame": [359, 331, 661, 173], "centre_dx": 140.5, "margins": [16, 18], "labels": 4, "outside": [], "overlaps": [], "controls": 2, "under28": []}}
 SHOT desktop-1-answering
 PASS the main turn settles
-CLICK row 'Why is hydrate slow?' — not visible
-FAIL CLICK Y's row while X's aside answers
-FAIL Y is on screen (the header names Y) — 'Fix steer queue drop on reconnect'
-FAIL Y: no aside (Y holds none)
-FAIL X's row marks its answering aside (blue dot) — chip=None run=False
+CLICK row 'Why is hydrate slow?' r=[92, 332, 199, 17]
+PASS CLICK Y's row while X's aside answers
+PASS Y is on screen (the header names Y) — 'Why is hydrate slow?'
+PASS Y: no aside (Y holds none)
+PASS X's row marks its answering aside (blue dot) — chip=[240, 331, 46, 18] run=True
 PASS Y's row carries no marker — None
-FAIL layout: Fix steer queu…'s marker is on its row — chip=None row=[92, 300, 194, 17]
+PASS layout: Fix steer queu…'s marker sits on its row (centred, after the title, before the time) — chip=[240, 331, 46, 18] title=[92, 332, 142, 17] time=[[292, 333, 24, 15]]
 SHOT desktop-2-switched-marker
 PASS wire: session/btw #1 answered (X's id echoed) — [replay-serve] -> session/btw #1 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main
-FAIL the answer never shows in Y
-FAIL X's row marks an answered aside (no dot) — chip=None run=False
-FAIL layout: Fix steer queu…'s marker is on its row — chip=None row=[92, 300, 194, 17]
+PASS the answer never shows in Y
+PASS X's row marks an answered aside (no dot) — chip=[250, 331, 36, 18] run=False
+PASS layout: Fix steer queu…'s marker sits on its row (centred, after the title, before the time) — chip=[250, 331, 36, 18] title=[92, 332, 152, 17] time=[[292, 333, 24, 15]]
 SHOT desktop-3-answered-in-x-marker
-CLICK row 'Fix steer queue drop on reconnect' r=[92, 300, 194, 17]
+CLICK row 'Fix steer queue drop on reconnect' r=[92, 332, 152, 17]
 PASS CLICK X's row
 PASS back on X: the whole answer — 'Draining first keeps the order stable: `redeliver` resends from a snapshot, so a message that arrives mid-resend waits 
 PASS back on X: no Answering… once answered
@@ -107,20 +107,20 @@ PASS zh: CLICK the chevron
 PASS zh folded: 旁问 — /btw · question · 已回答 · 关闭 — '已回答'
 PASS zh folded: panel frame=661x48 centre_dx=140.5 margins L=12 R=22 labels=4 outside=0 overlaps=0 controls=2 under28=0 composer-width=True above=True h<=302=True desktop-width>=600=True — {"frame": [359, 456, 661, 48], "composer": [359, 571, 661, 92], "c": {"ok": true, "frame": [359, 456, 661, 48], "centre_dx": 140.5, "margins": [12, 22], "labels": 4, "outside": [], "overlaps": [], "controls": 2, "under28": []}}
 SHOT desktop-11-zh-folded
-== 58/67 checks passed
+== 67/67 checks passed
 -- fixture log tail:
 [replay-serve] session/btw #3 asked: session_id=dsflash:main question="is the queue persisted across restarts?"
 [replay-serve] -> session/btw #3 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=error
-[replay-serve] <- session/btw (id=20)
+[replay-serve] <- session/btw (id=34)
 [replay-serve] session/btw #4 asked: session_id=dsflash:main question="what does steer_dropped count?"
 [replay-serve] -> session/btw #4 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main
-[replay-serve] <- session/btw (id=21)
+[replay-serve] <- session/btw (id=35)
 [replay-serve] session/btw #5 asked: session_id=dsflash:main question="which test covers redeliver?"
 [replay-serve] -> session/btw #5 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main
-[replay-serve] <- turn/start (id=22)
-[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 as 01a0fef0-cd61-742f-af5f-650d5fa0f237 (163 recorded frames)
-[replay-serve] <- session/list (id=23)
-[replay-serve] <- session/list (id=24)
-[replay-serve] <- session/btw (id=25)
+[replay-serve] <- turn/start (id=36)
+[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 as 01a0ff33-52ff-75d5-ba45-7dcdc1085f04 (163 recorded frames)
+[replay-serve] <- session/list (id=37)
+[replay-serve] <- session/list (id=38)
+[replay-serve] <- session/btw (id=39)
 [replay-serve] session/btw #6 asked: session_id=dsflash:main question="为什么要先排空队列？"
 [replay-serve] -> session/btw #6 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main

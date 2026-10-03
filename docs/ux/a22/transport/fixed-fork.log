@@ -1,0 +1,9 @@
+# A22 — the OctoSense fork (pinned 6e9bfd40 + 0001): octos-app-transport/src/proto.rs tests AFTER the fix
+# cargo test --locked -p octos-app-transport --lib proto::   (from the fork root)
+test proto::tests::ephemeral_helper_only_message_delta ... ok
+test proto::tests::generic_request_error_reaches_the_caller ... ok
+test proto::tests::generic_request_builds_a_jsonrpc_frame_and_registers_its_reply ... ok
+test proto::tests::slow_consumer_receives_every_text_fragment_in_order ... ok
+test proto::tests::a_reply_that_finds_the_event_channel_full_waits_and_is_never_dropped ... ok
+test proto::tests::every_reply_arrives_in_order_through_a_full_channel ... ok
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.11s

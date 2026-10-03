@@ -1,0 +1,21 @@
+# A22 — the OctoSense fork (pinned 6e9bfd40 + 0001): octos-app-transport/src/proto.rs tests BEFORE the fix
+# cargo test --locked -p octos-app-transport --lib proto::   (from the fork root)
+test proto::tests::ephemeral_helper_only_message_delta ... ok
+test proto::tests::generic_request_error_reaches_the_caller ... ok
+test proto::tests::generic_request_builds_a_jsonrpc_frame_and_registers_its_reply ... ok
+test proto::tests::slow_consumer_receives_every_text_fragment_in_order ... ok
+test proto::tests::a_reply_that_finds_the_event_channel_full_waits_and_is_never_dropped ... FAILED
+test proto::tests::every_reply_arrives_in_order_through_a_full_channel ... FAILED
+failures:
+thread 'proto::tests::a_reply_that_finds_the_event_channel_full_waits_and_is_never_dropped' (246411660) panicked at apps/appcard/app/crates/octos-app-transport/src/proto.rs:618:9:
+assertion `left == right` failed: the reply was dropped
+  left: ["ConnectionState(Live)"]
+ right: ["ConnectionState(Live)", "reply p:api:b"]
+thread 'proto::tests::every_reply_arrives_in_order_through_a_full_channel' (246411662) panicked at apps/appcard/app/crates/octos-app-transport/src/proto.rs:678:9:
+assertion `left == right` failed: every reply, in the server's order
+  left: ["n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9"]
+ right: ["n1", "n2", "n3", "n4", "n5", "reply p:api:a", "n6", "n7", "n8", "reply p:api:b", "error session/hydrate", "listed", "n9", "turn", "reply p:api:d"]
+failures:
+    proto::tests::a_reply_that_finds_the_event_channel_full_waits_and_is_never_dropped
+    proto::tests::every_reply_arrives_in_order_through_a_full_channel
+test result: FAILED. 4 passed; 2 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.07s

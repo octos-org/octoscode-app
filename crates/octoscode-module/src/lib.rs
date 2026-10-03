@@ -2457,23 +2457,18 @@ impl OctoscodeView {
                 });
             }
             actions::Effect::Open(session) => {
-                // #34a row 190 — re-selecting the CURRENT thread must not
-                // re-open the session: the web treats selecting the active
-                // session as a no-op (runtime-recovery.spec.ts counts
-                // session/open and asserts the transcript is never reset).
-                // Re-opening here RESET the store's timeline from the
-                // canonical hydrate, dropping the live turns (instrumented:
-                // after a reselect the whole timeline emptied; sometimes the
-                // reset raced the live rows — the #33b flake).
-                let already_active = {
-                    let b = self.bridge.lock().unwrap();
-                    b.store.active_session().as_deref() == Some(session.as_str())
-                };
-                if already_active {
-                    ::log::info!(
-                        "octoscode: thread.open {session} — already active, no re-open"
-                    );
-                    return;
+                // The row CLICK's decision is the Conversation's
+                // (`flow::RowClick`): #34a row 190 — re-selecting the CURRENT
+                // thread never re-opens it.
+                match conv.row_click(&session) {
+                    crate::flow::RowClick::AlreadyOpen => {
+                        ::log::info!("octoscode: thread.open {session} — already active, no re-open");
+                        return;
+                    }
+                    crate::flow::RowClick::Reopen => {
+                        ::log::info!("octoscode: thread.open {session} — its history could not be read: opening it again");
+                    }
+                    crate::flow::RowClick::Open => {}
                 }
                 // A19b — a listed Session opens WITH its workspace, as the web
                 // opens a catalog row (`App.tsx:1778-1783`): a folder-less open

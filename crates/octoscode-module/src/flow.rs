@@ -854,6 +854,25 @@ struct HistoryRead {
     /// The one retry with the Session's folder was spent.
     retried: bool,
     failed: Option<String>,
+    /// D10d — the one forced resync of a lost read was spent (survives a
+    /// re-ask; the entry goes when the history settles).
+    resynced: bool,
+}
+
+/// What a CLICK on a Session's sidebar row does (lib.rs `thread.open`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RowClick {
+    /// Another Session is on screen: open this one.
+    Open,
+    /// It is the Session on screen: nothing. #34a row 190 — re-selecting the
+    /// current thread never re-opens it (the web treats selecting the active
+    /// Session as a no-op, runtime-recovery.spec.ts counts session/open): a
+    /// re-open reset the store's timeline from the canonical hydrate,
+    /// dropping the live turns (the #33b flake).
+    AlreadyOpen,
+    /// It is the Session on screen and its history could not be read: open it
+    /// again, which reads its history again.
+    Reopen,
 }
 
 /// A19b — how long a history read may stay unanswered before the window says
@@ -1287,6 +1306,20 @@ impl Conversation {
         }
     }
 
+    /// What a CLICK on `id`'s sidebar row does ([`RowClick`]).
+    pub fn row_click(&self, id: &str) -> RowClick {
+        if self.store.active_session().as_deref() != Some(id) {
+            return RowClick::Open;
+        }
+        // A19b's notice for a history that could not be read says "Reopen it
+        // from the sidebar to try again" — and the Session's row is the
+        // selected one. There is no transcript to lose: the CLICK re-opens it.
+        if matches!(self.history(id), History::Failed(_)) {
+            return RowClick::Reopen;
+        }
+        RowClick::AlreadyOpen
+    }
+
     /// A19b — what the conversation of `session` shows before its history is
     /// on screen: still loading, failed (with the reason), or settled.
     pub fn history(&self, session: &str) -> History {
@@ -1317,15 +1350,21 @@ impl Conversation {
                 started: Instant::now(),
                 retried: false,
                 failed: None,
+                resynced: false,
             });
             e.started = Instant::now();
             e.failed = None;
         }
         // A wake when the wait runs out, so an unanswered read turns into its
-        // visible failure without another event.
+        // visible failure without another event — D10d: or, the first time,
+        // into a resync (its read presumed lost).
         if let Ok(handle) = tokio::runtime::Handle::try_current() {
-            handle.spawn(async {
+            let me = self.weak_self.lock().unwrap().clone();
+            handle.spawn(async move {
                 tokio::time::sleep(HISTORY_WAIT + std::time::Duration::from_millis(200)).await;
+                if let Some(me) = me.upgrade() {
+                    me.resync_lost_history_reads(HISTORY_WAIT);
+                }
                 makepad_widgets::SignalToUI::set_ui_signal();
             });
         }
@@ -1379,6 +1418,7 @@ impl Conversation {
                 started: Instant::now(),
                 retried: true,
                 failed: None,
+                resynced: false,
             });
             e.failed = Some(reason);
         }
@@ -1432,6 +1472,7 @@ impl Conversation {
                 started: Instant::now(),
                 retried: false,
                 failed: None,
+                resynced: false,
             });
             if unknown && !e.retried {
                 e.retried = true;
@@ -1647,6 +1688,84 @@ impl Conversation {
     /// reconnect re-open).
     pub fn generation(&self) -> u64 {
         *self.open_seq.lock().unwrap()
+    }
+
+    /// D10d — what the [`HISTORY_WAIT`] wake does: a history read with no
+    /// reply for `older_than` is presumed LOST (a server that never answered,
+    /// a read that could not be sent, a reply lost on the way). For each
+    /// such Session, said in the log: its history-read queue is reset — a
+    /// lost read would stand in front of every later one, A15 judging a reply
+    /// by the OLDEST read — and, once per Session until its history settles
+    /// and only for the Session on screen, it is opened again, which reads its
+    /// history again (another lost read then shows A19b's failure). Nothing
+    /// while disconnected: the reconnect re-opens and re-reads. Returns the
+    /// Sessions opened again.
+    pub fn resync_lost_history_reads(&self, older_than: std::time::Duration) -> Vec<String> {
+        if !self.store.is_live() {
+            return Vec::new();
+        }
+        let active = self.store.active_session();
+        let lost: Vec<(String, bool)> = {
+            let mut h = self.history.lock().unwrap();
+            h.iter_mut()
+                .filter(|(_, e)| e.failed.is_none() && e.started.elapsed() >= older_than)
+                .map(|(session, e)| {
+                    let reopen = !e.resynced && active.as_deref() == Some(session.as_str());
+                    if reopen {
+                        e.resynced = true;
+                    }
+                    (session.clone(), reopen)
+                })
+                .collect()
+        };
+        let mut reopened = Vec::new();
+        for (session, reopen) in lost {
+            let unanswered = self.hydrate_gen.lock().unwrap().remove(&session).map_or(0, |q| q.len());
+            if unanswered == 0 && !reopen {
+                continue; // already reset, and its one resync is spent (or it is not on screen)
+            }
+            let line = format!(
+                "[octoscode] history of {session}: no reply to its history read in {older_than:?} — \
+                 presumed LOST ({unanswered} read(s) unanswered); its history-read queue is reset{}",
+                if reopen { " and the Session is opened again" } else { "" }
+            );
+            makepad_widgets::log!("{line}");
+            ::log::warn!("{line}");
+            if reopen {
+                self.spawn_reopen(session.clone());
+                reopened.push(session);
+            }
+        }
+        reopened
+    }
+
+    /// D10d — open `session` again (its history is read again), unless the
+    /// person moved on meanwhile.
+    fn spawn_reopen(&self, session: String) {
+        let (Some(me), Ok(handle)) =
+            (self.weak_self.lock().unwrap().upgrade(), tokio::runtime::Handle::try_current())
+        else {
+            return;
+        };
+        let cwd = self.resume_cwd(&session);
+        handle.spawn(async move {
+            if me.store.active_session().as_deref() != Some(session.as_str()) {
+                return;
+            }
+            if let Err(e) = me.open_session(&session, cwd).await {
+                me.history_failed(&session, e);
+            }
+            makepad_widgets::SignalToUI::set_ui_signal();
+        });
+    }
+
+    /// The history reads of `session` still waiting for their reply — the
+    /// per-Session history-read queue (A15: one socket answers in order, so
+    /// each reply is judged by the oldest read in it). 0 once every read was
+    /// answered; a read that never gets its reply would leave the queue one
+    /// read behind. Diagnostics and tests.
+    pub fn history_reads_in_flight(&self, session: &str) -> usize {
+        self.hydrate_gen.lock().unwrap().get(session).map_or(0, |q| q.len())
     }
 
     /// A8 — ask for the canonical `session/hydrate` of `session` under the
