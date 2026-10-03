@@ -1661,6 +1661,51 @@ pub fn clicked<W: Widget>(cx: &mut Cx, root: &W, path: &[LiveId], actions: &Acti
 /// use-compact-layout.ts:3).
 pub const COMPACT_MAX: f64 = 760.0;
 
+/// The session title's least width beside the header's tabs and actions.
+pub const HEADER_TITLE_MIN: f64 = 140.0;
+
+/// The header's right-hand actions (`hd_actions`): the room they reserve over
+/// the title row (`hd_left`'s right padding — the two rows overlay), and
+/// whether the pills keep their labels. The labels need the session title
+/// [`HEADER_TITLE_MIN`], the view tabs and the labelled pills side by side;
+/// below that the pills go icon-only, the phone header's rule, so they never
+/// cover the tabs. A desktop pane gets that narrow when the resizable sidebar
+/// (PR #1) is widened — judged at a 469 px pane: "Copy as Markdown" covered
+/// "Trajectory" and the title was gone. `copy`: the copy pill's label when it
+/// shows, and whether its phase is not idle (that short word — "Copied",
+/// "Copy failed" — stays beside the icon: the click's only feedback).
+pub fn header_actions_fit(pane_w: f64, compact: bool, copy: Option<(&str, bool)>, tabs: bool) -> (f64, bool) {
+    use crate::screens::board3::ui::{text_w, Face};
+    // A pill: padding 10 + the 14 px icon + padding 12, then 6 + its label.
+    const PILL_ICON: f64 = 36.0;
+    const LABEL_GAP: f64 = 6.0;
+    // `hd_actions`: 8 between pills, 16 at the right edge, + 8 to the title row.
+    const SPACING: f64 = 8.0;
+    const EDGE: f64 = 24.0;
+    let label = |s: &str| (text_w(s, 13.0, Face::Regular) * 1.06 + 4.0).ceil();
+    let pill = |text: Option<&str>| PILL_ICON + text.map_or(0.0, |t| LABEL_GAP + label(t));
+    let reserve = |labelled: bool| {
+        let mut w = pill(labelled.then(|| tr("Review"))) + SPACING + pill(labelled.then(|| tr("Settings")));
+        if let Some((text, busy)) = copy {
+            w += SPACING + pill((labelled || busy).then_some(text));
+        }
+        w + EDGE
+    };
+    let tabs_w = if tabs { header_tabs_w(false) } else { 0.0 };
+    let labelled = !compact && pane_w >= 12.0 + HEADER_TITLE_MIN + tabs_w + reserve(true);
+    (reserve(labelled).ceil(), labelled)
+}
+
+/// The view tabs' width ("Chat | Trajectory"): 10 px padding beside labelled
+/// pills, the phone's 4 px once the pills go icon-only (the tabs' padding
+/// gives way before the session title does).
+pub fn header_tabs_w(narrow: bool) -> f64 {
+    use crate::screens::board3::ui::{text_w, Face};
+    let label = |s: &str| (text_w(s, 13.0, Face::Regular) * 1.06 + 4.0).ceil();
+    let pad = if narrow { 4.0 } else { 10.0 };
+    2.0 * 2.0 * pad + 2.0 + label(tr("Chat")) + label(tr("Trajectory"))
+}
+
 /// Whether a screen name docks into `screen_dock` (#D2a's root cause: the
 /// mount arm and the dock's visibility must agree — one predicate). The
 /// setup trio mounts through the first-run path, never the dock.
@@ -2053,7 +2098,15 @@ impl ChromeRuntime {
             (24.0, 800.0, (window_h - 48.0).clamp(320.0, 800.0), 16.0)
         };
         let copy_offered = crate::screens::copy_button::offered(store, compact);
-        let key = format!("{sidebar_w}|{frame_margin}|{max_w}|{max_h}|{compact}|{copy_offered}");
+        // The header actions fit the MEASURED conversation pane (the
+        // resizable sidebar narrows it on a desktop window).
+        let copy_phase = copy_offered
+            .then(|| crate::screens::copy_button::phase(&store.active_session().unwrap_or_default()));
+        let copy_pill = copy_phase.map(|p| (tr(p.label()), p != crate::screens::copy_button::Phase::Idle));
+        let tabs_shown = view.widget(cx, ids!(hd_tabs)).visible();
+        let (left_pad, labelled) =
+            header_actions_fit(crate::conv_layout::current().pane_w, compact, copy_pill, tabs_shown);
+        let key = format!("{sidebar_w}|{frame_margin}|{max_w}|{max_h}|{compact}|{copy_offered}|{left_pad}");
         if self.applied != key {
             self.applied = key;
             let mut col = view.widget(cx, ids!(threads_column));
@@ -2088,9 +2141,9 @@ impl ChromeRuntime {
             let search_h = if compact { 44.0 } else { 34.0 };
             let mut search = view.widget(cx, ids!(sb_search_box));
             script_apply_eval!(cx, search, { height: #(search_h) });
-            // The header actions: labels on desktop, icon-only on compact.
-            // A8: + the copy pill (~150 px + 8 spacing) when it shows.
-            let left_pad = if compact { 104.0 } else if copy_offered { 380.0 } else { 220.0 };
+            // The header actions' reserve (`header_actions_fit`): labelled
+            // pills when the pane holds them beside the tabs and the title,
+            // icon-only otherwise (always on compact).
             let mut left = view.widget(cx, ids!(hd_left));
             let pad = Inset { left: 12.0, right: left_pad, top: 0.0, bottom: 0.0 };
             script_apply_eval!(cx, left, { padding: #(pad) });
@@ -2098,7 +2151,7 @@ impl ChromeRuntime {
             // 400px: `.conversationTabs button { padding: 0 4px }`): the tabs'
             // padding gives way before the session title does (measured at
             // 360 px: the title had 63 px, "Why do..").
-            let (tab, bar) = if compact { (4.0, 3.0) } else { (10.0, 9.0) };
+            let (tab, bar) = if compact || !labelled { (4.0, 3.0) } else { (10.0, 9.0) };
             let tab = Inset { left: tab, right: tab, top: 0.0, bottom: 0.0 };
             let bar = Inset { left: bar, right: bar, top: 0.0, bottom: 0.0 };
             let mut v = view.widget(cx, ids!(hd_tab_chat_pad));
@@ -2110,13 +2163,14 @@ impl ChromeRuntime {
             let mut v = view.widget(cx, ids!(hd_tab_traj_barpad));
             script_apply_eval!(cx, v, { padding: #(bar) });
         }
-        show(cx, view, ids!(hd_review_label), !compact);
-        show(cx, view, ids!(hd_settings_label), !compact);
-        // A8: the copy pill's phase label, keyed by the active Session.
+        show(cx, view, ids!(hd_review_label), labelled);
+        show(cx, view, ids!(hd_settings_label), labelled);
+        // A8: the copy pill's phase label, keyed by the active Session — kept
+        // beside the icon while a result shows (icon-only when idle and narrow).
         show(cx, view, ids!(hd_copy), copy_offered);
-        if copy_offered {
-            let sid = store.active_session().unwrap_or_default();
-            text(cx, view, ids!(hd_copy_label), tr(crate::screens::copy_button::phase(&sid).label()));
+        if let Some((label, busy)) = copy_pill {
+            text(cx, view, ids!(hd_copy_label), label);
+            show(cx, view, ids!(hd_copy_label), labelled || busy);
         }
 
         // ---- header: the active session's title + its workspace path.
@@ -2822,6 +2876,31 @@ mod tests {
         assert!(text_w(&phone, 13.0, Face::Regular) <= 256.0, "{phone}");
         assert_eq!(fit_segments(line, 900.0), line, "a line that fits stays whole");
         assert_eq!(fit_segments("New chat defaults", 10.0), "New chat defaults", "the first segment stays");
+    }
+
+    #[test]
+    fn the_header_actions_never_cover_the_tabs_or_the_title() {
+        // PR #1's resizable sidebar narrows a desktop pane: judged at 469 px
+        // (the sidebar at its 520 bound) "Copy as Markdown" covered
+        // "Trajectory" and the session title was gone; at 569 px the title had
+        // 37 px (tools/walk/sidebar_resize_walk.py).
+        // 420 px: the narrowest pane the sidebar's bound leaves.
+        for pane in [420.0, 469.0, 520.0, 569.0, 640.0, 709.0, 900.0, 1200.0] {
+            for copy in [Some(("Copy as Markdown", false)), Some(("Copied", true)), None] {
+                let (reserve, labelled) = header_actions_fit(pane, false, copy, true);
+                let title = pane - 12.0 - header_tabs_w(!labelled) - reserve;
+                // A copy result's word shows for 1.5 s beside the icon: the
+                // title gives way meanwhile, never the tabs.
+                let need = if copy.is_some_and(|(_, busy)| busy) { 60.0 } else { 120.0 };
+                assert!(
+                    title >= need,
+                    "a {pane} px pane leaves the title {title} px (reserve {reserve}, labelled {labelled}, copy {copy:?})"
+                );
+            }
+        }
+        // A wide pane keeps every label; the phone stays icon-only.
+        assert!(header_actions_fit(1200.0, false, Some(("Copy as Markdown", false)), true).1);
+        assert_eq!(header_actions_fit(360.0, true, None, true), (104.0, false));
     }
 
     /// A25 — GeneralSettingsContent.tsx:213-247 on board 2's toggle.

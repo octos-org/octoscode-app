@@ -1,0 +1,28 @@
+== sidebar resize walk (desktop) — app :8690, replay :8691
+PASS module up: the composer is shown
+PASS the grip sits on the sidebar's right edge — [331, 76, 8, 603] vs [54, 76, 280, 603]
+PASS 280 px (default): the sidebar is 280 px — [54, 76, 280, 603]
+PASS 280 px (default): the conversation column starts after the sidebar — [54, 76, 280, 603] | [335, 76, 709, 603]
+PASS 280 px (default): the composer stays inside the conversation column — [375, 585, 629, 28] in [335, 76, 709, 603]
+PASS 280 px (default): no action pill covers a view tab — 2 tabs, 3 pills
+PASS 280 px (default): the session title keeps >= 100 px — [347, 87, 148, 16]
+PASS 280 px (default): every action pill sits inside the conversation column
+PASS +140 px drag: the sidebar is 420 px — [54, 76, 420, 603]
+PASS +140 px drag: the conversation column starts after the sidebar — [54, 76, 420, 603] | [475, 76, 569, 603]
+PASS +140 px drag: the composer stays inside the conversation column — [515, 585, 489, 28] in [475, 76, 569, 603]
+PASS +140 px drag: no action pill covers a view tab — 2 tabs, 3 pills
+PASS +140 px drag: the session title keeps >= 100 px — [487, 87, 293, 16]
+PASS +140 px drag: every action pill sits inside the conversation column
+PASS +600 px drag (past the bound): the conversation column starts after the sidebar — [54, 76, 520, 603] | [575, 76, 469, 603]
+PASS +600 px drag (past the bound): the composer stays inside the conversation column — [615, 585, 389, 28] in [575, 76, 469, 603]
+PASS +600 px drag (past the bound): no action pill covers a view tab — 2 tabs, 3 pills
+PASS +600 px drag (past the bound): the session title keeps >= 100 px — [587, 87, 193, 16]
+PASS +600 px drag (past the bound): every action pill sits inside the conversation column
+PASS past the bound: the sidebar stops at 520 px or leaves the conversation >= 420 px — sidebar [54, 76, 520, 603], conversation [575, 76, 469, 603]
+PASS a drag back past the minimum: the sidebar is 280 px — [54, 76, 280, 603]
+PASS a drag back past the minimum: the conversation column starts after the sidebar — [54, 76, 280, 603] | [335, 76, 709, 603]
+PASS a drag back past the minimum: the composer stays inside the conversation column — [375, 585, 629, 28] in [335, 76, 709, 603]
+PASS a drag back past the minimum: no action pill covers a view tab — 2 tabs, 3 pills
+PASS a drag back past the minimum: the session title keeps >= 100 px — [347, 87, 148, 16]
+PASS a drag back past the minimum: every action pill sits inside the conversation column
+== 26/26 passed (desktop)

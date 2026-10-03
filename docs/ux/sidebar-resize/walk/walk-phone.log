@@ -1,0 +1,4 @@
+== sidebar resize walk (phone) — app :8690, replay :8691
+PASS module up: the composer is shown
+PASS phone: no resize grip on the compact shell — None
+== 2/2 passed (phone)
