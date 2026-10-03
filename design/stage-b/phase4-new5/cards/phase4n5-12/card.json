@@ -1,0 +1,51 @@
+{
+  "card": "phase4n5-12",
+  "board": "design/stage-a/phase4-new5",
+  "frame": 12,
+  "frame_title": "Memory · 中文",
+  "atlas_box": [
+    3365,
+    143,
+    3747,
+    1204
+  ],
+  "state": "the overview in Chinese (Noto Sans SC)",
+  "reached_by": "Settings > Preferences > 简体中文",
+  "native_ids": [
+    "b3_mem_title",
+    "b3_mem_scope"
+  ],
+  "methods": [
+    "memory/overview"
+  ],
+  "kit": "crates/octoscode-module/src/screens/board3/memory.rs (board-3 dialog kit, ui.rs)",
+  "evidence": [
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/zh/22-zh-overview-phone.png",
+      "snap": "docs/ux/a36/memory/phone/zh/22-zh-overview-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-12-review-phone-zh-overview.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "zh",
+      "capture": "22-zh-overview-phone"
+    },
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/zh/23-zh-add-phone.png",
+      "snap": "docs/ux/a36/memory/phone/zh/23-zh-add-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-12-review-phone-zh-add.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "zh",
+      "capture": "23-zh-add-phone"
+    },
+    {
+      "window": "desktop",
+      "native": "docs/ux/a36/memory/desktop/zh/22-zh-overview-desktop.png",
+      "snap": "docs/ux/a36/memory/desktop/zh/22-zh-overview-desktop.snap.json",
+      "review": "evidence/gate-b/phase4n5-12-review-desktop-zh-overview.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "zh",
+      "capture": "22-zh-overview-desktop"
+    }
+  ]
+}

@@ -14,9 +14,9 @@ This tool writes, per card, from a walk output tree:
 
   cards/phase4n5-NN/reference.png   the frame cut from atlas.png (README box)
   cards/phase4n5-NN/card.json       frame, state, how it is reached, ids, methods
-  evidence/gate-b/phase4n5-NN-native-<window>.png   the app's capture
-  evidence/gate-b/phase4n5-NN-review-<window>.png   reference | native
-  evidence/gate-b/phase4n5-NN-snap-<window>.json    its /snap (scrubbed)
+  evidence/gate-b/phase4n5-NN-review-<window>-<tag>.png   reference | native
+  (the app's capture and its scrubbed /snap stay where the walk wrote them,
+   docs/ux/a36/..., named in card.json)
 
 Run from the repo root after the walks:
   python3 design/stage-b/phase4-new5/tools/cards.py <memory walk out> <capabilities walk out>
@@ -153,14 +153,11 @@ def main():
                 report.append(f"{card}: MISSING {src}")
                 continue
             tag = cap.split("-", 1)[1].rsplit("-", 1)[0]
-            native = GATE / f"{card}-native-{window}-{tag}.png"
-            shutil.copy(src, native)
-            review(ref, Image.open(native)).save(GATE / f"{card}-review-{window}-{tag}.png")
-            snap = src.with_suffix("").with_suffix(".snap.json")
+            review(ref, Image.open(src)).save(GATE / f"{card}-review-{window}-{tag}.png")
             snap = src.parent / f"{cap}.snap.json"
-            if snap.exists():
-                (GATE / f"{card}-snap-{window}-{tag}.json").write_text(scrub(snap.read_text()))
-            evidence.append({"window": window, "native": native.name, "review": f"{card}-review-{window}-{tag}.png",
+            rel = lambda f: str(f.resolve().relative_to(ROOT)) if f.exists() else None
+            evidence.append({"window": window, "native": rel(src), "snap": rel(snap),
+                             "review": f"evidence/gate-b/{card}-review-{window}-{tag}.png",
                              "walk": f"tools/walk/a36_{'memory' if walk == 'mem' else 'capabilities'}.py",
                              "phase": phase, "capture": cap})
         (d / "card.json").write_text(json.dumps({

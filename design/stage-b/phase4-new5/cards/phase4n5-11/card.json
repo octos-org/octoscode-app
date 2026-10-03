@@ -1,0 +1,51 @@
+{
+  "card": "phase4n5-11",
+  "board": "design/stage-a/phase4-new5",
+  "frame": 11,
+  "frame_title": "Memory · dark",
+  "atlas_box": [
+    2949,
+    141,
+    3327,
+    1174
+  ],
+  "state": "the overview in the dark theme (D4)",
+  "reached_by": "the app theme set to Dark",
+  "native_ids": [
+    "b3_dialog",
+    "b3_mem_lt"
+  ],
+  "methods": [
+    "memory/overview"
+  ],
+  "kit": "crates/octoscode-module/src/screens/board3/memory.rs (board-3 dialog kit, ui.rs)",
+  "evidence": [
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/dark/19-dark-overview-phone.png",
+      "snap": "docs/ux/a36/memory/phone/dark/19-dark-overview-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-11-review-phone-dark-overview.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "dark",
+      "capture": "19-dark-overview-phone"
+    },
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/dark/21-dark-record-phone.png",
+      "snap": "docs/ux/a36/memory/phone/dark/21-dark-record-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-11-review-phone-dark-record.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "dark",
+      "capture": "21-dark-record-phone"
+    },
+    {
+      "window": "desktop",
+      "native": "docs/ux/a36/memory/desktop/dark/19-dark-overview-desktop.png",
+      "snap": "docs/ux/a36/memory/desktop/dark/19-dark-overview-desktop.snap.json",
+      "review": "evidence/gate-b/phase4n5-11-review-desktop-dark-overview.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "dark",
+      "capture": "19-dark-overview-desktop"
+    }
+  ]
+}

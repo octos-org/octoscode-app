@@ -36,11 +36,11 @@ loop/list,request,,,,octos-core/src/ui_protocol.rs:1092,apps/web/src/features/co
 loop/pause,request,,,,octos-core/src/ui_protocol.rs:1094,packages/client/src/autonomy.ts,1,handled,octoscode-client/src/domains/autonomy.rs;octoscode-module/src/screens/autonomy.rs;octoscode-module/src/screens/dialog.rs,
 loop/resume,request,,,,octos-core/src/ui_protocol.rs:1095,packages/client/src/autonomy.ts,1,handled,octoscode-client/src/domains/autonomy.rs;octoscode-module/src/screens/autonomy.rs;octoscode-module/src/screens/dialog.rs,
 loop/updated,notification,,,,octos-core/src/ui_protocol.rs:1303,packages/client/src/autonomy.ts,3,handled,octoscode-client/src/domains/autonomy.rs;octoscode-module/src/screens/autonomy.rs,
-memory/entity,request,,,,octos-core/src/ui_protocol.rs:1249,,0,absent,,
-memory/ingest,request,,,,octos-core/src/ui_protocol.rs:1261,,0,absent,,
-memory/load,request,,,,octos-core/src/ui_protocol.rs:1258,,0,absent,,
-memory/overview,request,,,,octos-core/src/ui_protocol.rs:1247,,0,absent,,
-memory/search,request,,,,octos-core/src/ui_protocol.rs:1254,,0,absent,,
+memory/entity,request,,,,octos-core/src/ui_protocol.rs:1249,,0,handled,octoscode-module/src/screens/board3/memory.rs,"A36b (board 5 Memory, a native extra: the web has no memory UI); every call names the Session's profile_id; tests: a36_memory.rs; walk: tools/walk/a36_memory.py"
+memory/ingest,request,,,,octos-core/src/ui_protocol.rs:1261,,0,handled,octoscode-module/src/screens/board3/memory.rs,"A36b (board 5 Memory, a native extra: the web has no memory UI); every call names the Session's profile_id; tests: a36_memory.rs; walk: tools/walk/a36_memory.py"
+memory/load,request,,,,octos-core/src/ui_protocol.rs:1258,,0,handled,octoscode-module/src/screens/board3/memory.rs,"A36b (board 5 Memory, a native extra: the web has no memory UI); every call names the Session's profile_id; tests: a36_memory.rs; walk: tools/walk/a36_memory.py"
+memory/overview,request,,,,octos-core/src/ui_protocol.rs:1247,,0,handled,octoscode-module/src/screens/board3/memory.rs,"A36b (board 5 Memory, a native extra: the web has no memory UI); every call names the Session's profile_id; tests: a36_memory.rs; walk: tools/walk/a36_memory.py"
+memory/search,request,,,,octos-core/src/ui_protocol.rs:1254,,0,handled,octoscode-module/src/screens/board3/memory.rs,"A36b (board 5 Memory, a native extra: the web has no memory UI); every call names the Session's profile_id; tests: a36_memory.rs; walk: tools/walk/a36_memory.py"
 message/delta,notification,,,,octos-core/src/ui_protocol.rs:1123,apps/web/src/features/session/session-record-manager.ts;apps/web/src/features/timeline/model.ts,1,handled,octoscode-client/src/domains/turn.rs;octoscode-client/src/registry.rs;octoscode-client/src/trace.rs,
 message/reasoning_delta,notification,,,,octos-core/src/ui_protocol.rs:1124,apps/web/src/features/session/session-record-manager.ts;apps/web/src/features/timeline/model.ts,1,handled,octoscode-client/src/domains/turn.rs,
 monitor/create,request,,,,octos-core/src/ui_protocol.rs:1099,apps/web/src/features/commands/registry.ts;packages/client/src/autonomy.ts,3,handled,octoscode-client/src/domains/autonomy.rs;octoscode-module/src/screens/autonomy.rs;octoscode-module/src/screens/dialog.rs,

@@ -1,0 +1,36 @@
+{
+  "card": "phase4n5-03",
+  "board": "design/stage-a/phase4-new5",
+  "frame": 3,
+  "frame_title": "Settings · phone",
+  "atlas_box": [
+    1296,
+    141,
+    1670,
+    1173
+  ],
+  "state": "Settings > Capabilities on the phone (the rail chip)",
+  "reached_by": "Settings > the puzzle rail chip",
+  "native_ids": [
+    "set_rail_capabilities",
+    "sec_capabilities",
+    "set_cap_memory"
+  ],
+  "methods": [
+    "profile/skills/list",
+    "mcp/status/list",
+    "memory/overview"
+  ],
+  "kit": "crates/octoscode-module/src/screens/board3/memory.rs (board-3 dialog kit, ui.rs)",
+  "evidence": [
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/capabilities/phone/main/01-capabilities-main-phone.png",
+      "snap": "docs/ux/a36/capabilities/phone/main/01-capabilities-main-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-03-review-phone-capabilities-main.png",
+      "walk": "tools/walk/a36_capabilities.py",
+      "phase": "main",
+      "capture": "01-capabilities-main-phone"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "card": "phase4n5-08",
+  "board": "design/stage-a/phase4-new5",
+  "frame": 8,
+  "frame_title": "Long-term memory",
+  "atlas_box": [
+    1702,
+    1277,
+    2070,
+    2076
+  ],
+  "state": "long-term memory, cut by the server: the notice",
+  "reached_by": "Show all",
+  "native_ids": [
+    "b3_mem_lt_page_title",
+    "b3_mem_lt_full",
+    "b3_mem_lt_cut"
+  ],
+  "methods": [
+    "memory/overview"
+  ],
+  "kit": "crates/octoscode-module/src/screens/board3/memory.rs (board-3 dialog kit, ui.rs)",
+  "evidence": [
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/truncated/10-long-term-truncated-phone.png",
+      "snap": "docs/ux/a36/memory/phone/truncated/10-long-term-truncated-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-08-review-phone-long-term-truncated.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "truncated",
+      "capture": "10-long-term-truncated-phone"
+    },
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/main/02-long-term-phone.png",
+      "snap": "docs/ux/a36/memory/phone/main/02-long-term-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-08-review-phone-long-term.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "main",
+      "capture": "02-long-term-phone"
+    },
+    {
+      "window": "desktop",
+      "native": "docs/ux/a36/memory/desktop/main/02-long-term-desktop.png",
+      "snap": "docs/ux/a36/memory/desktop/main/02-long-term-desktop.snap.json",
+      "review": "evidence/gate-b/phase4n5-08-review-desktop-long-term.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "main",
+      "capture": "02-long-term-desktop"
+    }
+  ]
+}

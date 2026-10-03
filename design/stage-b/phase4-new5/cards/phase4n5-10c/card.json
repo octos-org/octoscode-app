@@ -1,0 +1,62 @@
+{
+  "card": "phase4n5-10c",
+  "board": "design/stage-a/phase4-new5",
+  "frame": 10,
+  "frame_title": "Memory · states",
+  "atlas_box": [
+    2534,
+    1277,
+    2900,
+    2080
+  ],
+  "state": "(c) refused — D1's bounded problem + next step (today's server)",
+  "reached_by": "a6ea8505: open, then search",
+  "native_ids": [
+    "b3_mem_error",
+    "b3_mem_error_detail",
+    "b3_mem_error_next"
+  ],
+  "methods": [
+    "memory/overview",
+    "memory/search"
+  ],
+  "kit": "crates/octoscode-module/src/screens/board3/memory.rs (board-3 dialog kit, ui.rs)",
+  "evidence": [
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/today/16-today-search-refused-phone.png",
+      "snap": "docs/ux/a36/memory/phone/today/16-today-search-refused-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-10c-review-phone-today-search-refused.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "today",
+      "capture": "16-today-search-refused-phone"
+    },
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/today/15-today-refused-phone.png",
+      "snap": "docs/ux/a36/memory/phone/today/15-today-refused-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-10c-review-phone-today-refused.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "today",
+      "capture": "15-today-refused-phone"
+    },
+    {
+      "window": "desktop",
+      "native": "docs/ux/a36/memory/desktop/today/16-today-search-refused-desktop.png",
+      "snap": "docs/ux/a36/memory/desktop/today/16-today-search-refused-desktop.snap.json",
+      "review": "evidence/gate-b/phase4n5-10c-review-desktop-today-search-refused.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "today",
+      "capture": "16-today-search-refused-desktop"
+    },
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/notrunning/17-search-not-running-phone.png",
+      "snap": "docs/ux/a36/memory/phone/notrunning/17-search-not-running-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-10c-review-phone-search-not-running.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "notrunning",
+      "capture": "17-search-not-running-phone"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "card": "phase4n5-01",
+  "board": "design/stage-a/phase4-new5",
+  "frame": 1,
+  "frame_title": "Settings · Capabilities (desktop)",
+  "atlas_box": [
+    26,
+    129,
+    1227,
+    1044
+  ],
+  "state": "Settings > Capabilities: Skills, MCP servers, Memory",
+  "reached_by": "Settings (header) > Capabilities",
+  "native_ids": [
+    "set_nav_capabilities",
+    "sec_capabilities",
+    "set_cap_skills",
+    "set_cap_mcp",
+    "set_cap_memory"
+  ],
+  "methods": [
+    "profile/skills/list",
+    "mcp/status/list",
+    "memory/overview"
+  ],
+  "kit": "crates/octoscode-module/src/screens/board3/memory.rs (board-3 dialog kit, ui.rs)",
+  "evidence": [
+    {
+      "window": "desktop",
+      "native": "docs/ux/a36/capabilities/desktop/main/01-capabilities-main-desktop.png",
+      "snap": "docs/ux/a36/capabilities/desktop/main/01-capabilities-main-desktop.snap.json",
+      "review": "evidence/gate-b/phase4n5-01-review-desktop-capabilities-main.png",
+      "walk": "tools/walk/a36_capabilities.py",
+      "phase": "main",
+      "capture": "01-capabilities-main-desktop"
+    }
+  ]
+}

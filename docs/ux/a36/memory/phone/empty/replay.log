@@ -1,0 +1,25 @@
+[replay-serve] screens: 52 recorded replies: ["agent/artifact/list", "agent/interrupt", "agent/list", "agent/output/read", "agent/status/read", "config/capabilities/list", "content/list", "launch/resolve", "loop/create", "loop/delete", "loop/fire_now", "loop/list", "loop/pause", "loop/resume", "mcp/status/list", "monitor/create", "monitor/delete", "monitor/list", "monitor/pause", "monitor/resume", "onboarding/workspace_create", "onboarding/workspace_list", "peer/gather", "peer/prepare", "permission/profile/list", "permission/profile/set", "profile/llm/catalog", "profile/llm/delete", "profile/llm/list", "profile/llm/select", "profile/llm/upsert", "profile/local/create", "profile/skills/list", "profile/skills/remove", "profile/sub_providers/list", "profile/sub_providers/remove", "profile/sub_providers/upsert", "server/shutdown", "session/compact", "session/compact/mode/set", "session/delete", "session/files.list", "session/fork", "session/goal/clear", "session/goal/get", "session/goal/set", "session/list", "session/rollback", "session/status/read", "snapshot/list", "task/list", "turn/start"]
+[replay-serve] memory: mode=Empty recent=false truncated=false refuse=[] (3 hits, 3 records, 3 pages)
+[replay-serve] scenario=memory fixture=r1-autonomy-a6ea8505.jsonl: 91 frames; recorded session `dsflash:main`; 2 recorded turns ["01a0e769-55e5-7d40-be9c-9e340e3afb97", "01a0e769-67b9-7753-a1a7-da2d5fbbb444"]; 0 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8476/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- session/hydrate (id=2)
+[replay-serve] <- session/list (id=3)
+[replay-serve] <- session/hydrate (id=4)
+[replay-serve] <- permission/profile/list (id=5)
+[replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] <- profile/llm/list (id=6)
+[replay-serve] -> profile/llm/list (recorded reply)
+[replay-serve] <- profile/skills/list (id=7)
+[replay-serve] -> profile/skills/list (recorded reply)
+[replay-serve] <- profile/sub_providers/list (id=8)
+[replay-serve] -> profile/sub_providers/list (recorded reply)
+[replay-serve] <- session/status/read (id=9)
+[replay-serve] -> session/status/read (recorded reply)
+[replay-serve] <- permission/profile/list (id=10)
+[replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] <- memory/overview (id=11)
+[replay-serve] -> memory/overview (memory) {"profile_id":"dsflash"}

@@ -1,0 +1,46 @@
+{
+  "card": "phase4n5-06",
+  "board": "design/stage-a/phase4-new5",
+  "frame": 6,
+  "frame_title": "Search result · opened",
+  "atlas_box": [
+    2534,
+    141,
+    2905,
+    1173
+  ],
+  "state": "a hit opened: the record, untrusted content as data",
+  "reached_by": "the 'Backoff for redelivery' hit",
+  "native_ids": [
+    "b3_mem_back",
+    "b3_mem_rec_title",
+    "b3_mem_rec_meta",
+    "b3_mem_rec_body",
+    "b3_mem_rec_trust",
+    "b3_mem_rec_id"
+  ],
+  "methods": [
+    "memory/load"
+  ],
+  "kit": "crates/octoscode-module/src/screens/board3/memory.rs (board-3 dialog kit, ui.rs)",
+  "evidence": [
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/main/06-record-phone.png",
+      "snap": "docs/ux/a36/memory/phone/main/06-record-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-06-review-phone-record.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "main",
+      "capture": "06-record-phone"
+    },
+    {
+      "window": "desktop",
+      "native": "docs/ux/a36/memory/desktop/main/06-record-desktop.png",
+      "snap": "docs/ux/a36/memory/desktop/main/06-record-desktop.snap.json",
+      "review": "evidence/gate-b/phase4n5-06-review-desktop-record.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "main",
+      "capture": "06-record-desktop"
+    }
+  ]
+}

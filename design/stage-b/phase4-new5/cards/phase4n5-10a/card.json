@@ -1,0 +1,41 @@
+{
+  "card": "phase4n5-10a",
+  "board": "design/stage-a/phase4-new5",
+  "frame": 10,
+  "frame_title": "Memory · states",
+  "atlas_box": [
+    2534,
+    1277,
+    2900,
+    2080
+  ],
+  "state": "(a) an empty profile",
+  "reached_by": "open on an empty profile",
+  "native_ids": [
+    "b3_mem_empty"
+  ],
+  "methods": [
+    "memory/overview"
+  ],
+  "kit": "crates/octoscode-module/src/screens/board3/memory.rs (board-3 dialog kit, ui.rs)",
+  "evidence": [
+    {
+      "window": "phone",
+      "native": "docs/ux/a36/memory/phone/empty/13-empty-phone.png",
+      "snap": "docs/ux/a36/memory/phone/empty/13-empty-phone.snap.json",
+      "review": "evidence/gate-b/phase4n5-10a-review-phone-empty.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "empty",
+      "capture": "13-empty-phone"
+    },
+    {
+      "window": "desktop",
+      "native": "docs/ux/a36/memory/desktop/empty/13-empty-desktop.png",
+      "snap": "docs/ux/a36/memory/desktop/empty/13-empty-desktop.snap.json",
+      "review": "evidence/gate-b/phase4n5-10a-review-desktop-empty.png",
+      "walk": "tools/walk/a36_memory.py",
+      "phase": "empty",
+      "capture": "13-empty-desktop"
+    }
+  ]
+}
