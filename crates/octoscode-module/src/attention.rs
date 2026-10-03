@@ -7,7 +7,8 @@
 //! | `attention/model.ts:101-131` `foregroundAttentionTurns` | [`foreground_turns`] |
 //! | `attention/desktop-notifications.ts:27-141` `DesktopNotifications` | [`DesktopNotifications`] |
 //! | `attention/desktop-notifications.ts:17-24` `DesktopEnvironment` | [`NotifyOs`] (production: makepad's notification API, `patches/makepad/macos-notifications.patch`) |
-//! | `attention/use-attention.ts:27-99` `useAttention` | [`Controller`] + the host's event arms (lib.rs) |
+//! | `attention/use-attention.ts:27-99` `useAttention` | [`Controller`] + [`sync`] + the host's event arms (lib.rs) |
+//! | `session/use-octos-session.ts:2714-2763` `publishBackgroundTurns` (the attention half) | [`observation`]: every background record's own turns (A22's per-Session records), then the selected Session's |
 //! | `product-settings/GeneralSettingsContent.tsx:213-247` the toggle row | `chrome.rs` General > Desktop notifications, fed by [`settings`] |
 //!
 //! Native mapping (decided here, cited in docs/decisions/D10b-makepad-macos-notifications.md):
@@ -482,7 +483,7 @@ impl DesktopNotifications {
         self.clear(os);
         let id = notice_id(&scope.session_id);
         let title = label.map(str::trim).filter(|l| !l.is_empty()).unwrap_or(NOTICE_TITLE);
-        os.post(&id, title, notice_body(state));
+        os.post(&id, title, crate::i18n::tr(notice_body(state)));
         self.notice = Some(id);
     }
 

@@ -1631,10 +1631,10 @@ pub fn sync_notify_row<W: Widget>(cx: &mut Cx, view: &W, s: &crate::attention::A
     show(cx, view, ids!(tg_notify), row.toggle.is_some());
     set_toggle(cx, view, live_id!(tg_notify), row.toggle == Some(true));
     show(cx, view, ids!(notify_state), !row.state.is_empty());
-    text(cx, view, ids!(notify_state), row.state);
+    text(cx, view, ids!(notify_state), tr(row.state));
     show(cx, view, ids!(notify_help), !row.alert);
     show(cx, view, ids!(notify_alert), row.alert);
-    text(cx, view, if row.alert { ids!(notify_alert) } else { ids!(notify_help) }, &row.message);
+    text(cx, view, if row.alert { ids!(notify_alert) } else { ids!(notify_help) }, tr(&row.message));
 }
 
 /// Flip a radio's two layers.

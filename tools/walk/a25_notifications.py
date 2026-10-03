@@ -23,7 +23,16 @@ likewise uses `octoscode.attention.focus:1|0`, which calls the
 WindowGotFocus/WindowLostFocus handler (a hidden window never gains focus).
 The real OS round trip is tools/walk/a25_live_macos.py.
 
+Phase `background` (e2e/attention.spec.ts:231-269) runs against A22's scripted
+`a22_serve` instead of the replay server, on the same port: three Sessions
+start work ([slow] completes after ~20 s, [stop] ends interrupted, [limit]
+rate-limited) and the person goes back to "Startup chat" with the window
+focused; the build's row gets its done mark, ONE notice names it (a Session
+that is not selected is never being read, model.ts:64), the stopped and
+rate-limited ones never notify, and selecting the build acknowledges it.
+
 Captures (PNG <= 1400 px + scrubbed /snap) and walk.log under <outdir>/<mode>/.
+`A25_PHASES=a,b` runs only those phases.
 """
 from __future__ import annotations
 
@@ -47,7 +56,7 @@ WALK = {
     "modes": ["desktop", "phone"],
     "app": "self",
     "runs": [{"argv": ["{mode}", "{out}"], "env": {"A10_PORT": "{port}", "A10_REPLAY_PORT": "{fport}"}}],
-    "needs": ["target/debug/examples/replay_serve"],
+    "needs": ["target/debug/examples/replay_serve", "target/debug/examples/a22_serve"],
     "timeout": 1500,
     "rows": {
         4: {"checks": ["granted: off until the Settings action", "granted: the toggle asks the OS once and turns on",
@@ -60,6 +69,9 @@ WALK = {
         6: {"checks": ["denied: the toggle stays off and the message is an alert"],
             "partial": "Disconnect clearing attention is unit-tested "
                        "(attention::tests::disconnect_and_identity_change_reset_and_withdraw), not walked"},
+        7: {"checks": ["background: its row reads 'Completed in background'", "background: ONE notice, naming THAT Session",
+                       "background: selecting it acknowledges it", "background: a stopped or a rate-limited turn never notifies"],
+            "partial": "the title count is not a native surface (row 319); the window's focus is the test-only hook"},
     },
 }
 
@@ -422,16 +434,175 @@ def phase_click(w: a10_lib.Walk) -> None:
             log.wait(m, f"closed {NOTICE_A}", 4) and log.wait(m, "window focused — acknowledged", 2))
 
 
-def header_title(w: a10_lib.Walk) -> str:
+def header_title(w: a10_lib.Walk, names=None) -> str:
     sn = w.snap()
     t = w.text("hd_title", sn)
     if t:
         return t
     # The phone header names the Session in its title row.
+    names = names or (TITLE_A, TITLE_B)
     for x in sn:
-        if x.get("ty") == "Label" and w.shown(x) and x["r"][1] < 140 and x.get("t") in (TITLE_A, TITLE_B):
+        if x.get("ty") == "Label" and w.shown(x) and x["r"][1] < 140 and x.get("t") in names:
             return x["t"]
     return ""
+
+
+# ------------------------------------------- background Sessions (A22 row 236)
+# e2e/attention.spec.ts:231-269 "a background Session completing while another
+# is selected signals and acknowledges on return", against A22's scripted
+# server: its attested catalog names five Sessions and a prompt's marker drives
+# the work — [slow] completes after ~20 s, [stop] ends interrupted after 3 s (a
+# Stop from elsewhere), [limit] ends rate-limited after 3 s.
+A22_SERVE = ROOT / "target" / "debug" / "examples" / "a22_serve"
+A22_CWD = "/home/user/a22-ws"
+BG_START, BG_BUILD, BG_STOP, BG_LIMIT = "Startup chat", "Build the release", "Run the test suite", "Pick a branch"
+BG_NAMES = (BG_START, BG_BUILD, BG_STOP, BG_LIMIT)
+NOTICE_BUILD = "octoscode-attention:a22:api:build"
+
+
+def sidebar_row(w: a10_lib.Walk, title: str, sn=None):
+    """(row rect, its status dot name) of the sidebar row titled `title`."""
+    sn = sn if sn is not None else w.snap()
+    for row in w.visible("sb_r_open", sn):
+        r = row["r"]
+        if any(x.get("t") == title and inside(x["r"], r, 2.0) for x in w.visible("sb_r_title", sn)):
+            dot = next((name for name in ("run", "wait", "done", "fail", "idle")
+                        if any(inside(x["r"], r, 2.0) for x in w.visible(f"sb_st_{name}", sn))), None)
+            return r, dot
+    return None, None
+
+
+def open_sidebar(w: a10_lib.Walk) -> None:
+    if w.mode == "phone" and not w.visible("sb_new_chat_hit"):
+        w.click("sidebar_toggle_hit")
+        w.wait(lambda: bool(w.visible("sb_new_chat_hit")), 4)
+
+
+def close_sidebar(w: a10_lib.Walk) -> None:
+    if w.mode == "phone" and w.visible("drawer_scrim"):
+        w.click("drawer_close")
+        w.wait(lambda: not w.visible("drawer_scrim"), 4)
+
+
+def open_row(w: a10_lib.Walk, title: str) -> bool:
+    """CLICK the sidebar row titled `title`; true once its Session is shown."""
+    open_sidebar(w)
+    r, _ = sidebar_row(w, title)
+    if not r:
+        w.note(f"no sidebar row {title!r}")
+        return False
+    w.note(f"CLICK the {title!r} row at ({r[0] + r[2] / 2:.0f},{r[1] + r[3] / 2:.0f})")
+    w.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
+    ok = w.wait(lambda: header_title(w, BG_NAMES) == title, 8)
+    close_sidebar(w)
+    return ok
+
+
+def send_prompt(w: a10_lib.Walk, text: str) -> None:
+    close_sidebar(w)
+    w.click("i0_composer_0")
+    w.type_text(text)
+    w.key("Return")
+    time.sleep(0.6)
+
+
+def phase_background(w: a10_lib.Walk) -> None:
+    log = Log(w)
+    if not w.check("background: Settings > General shows the row", open_settings(w)):
+        return
+    w.click("tg_notify")
+    w.wait(lambda: row(w)["on"], 5)
+    w.check("background: notifications opted in", row(w)["on"])
+    close_settings(w)
+    # The person is in the app: the window has focus (the e2e's page stays
+    # visible). A hidden test window never gains focus: the test-only hook
+    # calls the WindowGotFocus handler.
+    hook(w, "octoscode.attention.focus:1")
+    m = log.mark()
+    for title, prompt in ((BG_BUILD, "[slow] build the release"), (BG_STOP, "[stop] try the refactor"),
+                          (BG_LIMIT, "[limit] summarize the logs")):
+        if not w.check(f"background: CLICK {title!r}", open_row(w, title)):
+            return
+        send_prompt(w, prompt)
+    w.check(f"background: CLICK {BG_START!r} — the work goes on in the background", open_row(w, BG_START))
+    # The stopped and rate-limited turns end (after ~3 s): no notice.
+    time.sleep(5.0)
+    stray = [l for l in log.since(m, "attention(fake os): posted") if "a22:api:tests" in l or "a22:api:ask" in l]
+    w.check("background: a stopped or a rate-limited turn never notifies", not stray, str(stray)[:200])
+    # The build completes in the background (~20 s): its mark and ONE notice naming it.
+    posted = log.wait(m, f"posted {NOTICE_BUILD}", 40)
+    open_sidebar(w)
+    # The notice is posted in the sync that saw the terminal; the row's dot
+    # is drawn by the next frame — read the mark once it is drawn.
+    w.wait(lambda: sidebar_row(w, BG_BUILD)[1] == "done", 6)
+    sn = w.snap()
+    _, dot = sidebar_row(w, BG_BUILD, sn)
+    w.check("background: its row reads 'Completed in background' (the done mark)", dot == "done", f"dot={dot}")
+    w.check(f"background: the Session on screen is still {BG_START!r}", header_title(w, BG_NAMES) == BG_START,
+            repr(header_title(w, BG_NAMES)))
+    lines = log.since(m, "attention(fake os): posted")
+    w.check("background: ONE notice, naming THAT Session (though the window is focused: it is not the one read)",
+            posted and len(lines) == 1 and f"posted {NOTICE_BUILD} | {BG_BUILD} | {FINISHED}" in lines[0],
+            lines[0][-170:] if lines else "none")
+    # The marked row's numbers (A22's row geometry, measured here).
+    r, _ = sidebar_row(w, BG_BUILD, sn)
+    dot = next((x["r"] for x in w.visible("sb_st_done", sn) if r and inside(x["r"], r, 2.0)), None)
+    title = next((x["r"] for x in w.visible("sb_r_title", sn) if r and inside(x["r"], r, 2.0)), None)
+    c = {
+        "mark inside its row": bool(r and dot and inside(dot, r, 0.5)),
+        "mark left of the title": bool(dot and title and dot[0] + dot[2] <= title[0] + 1),
+        "mark centred on the row (±2.5 px)": bool(dot and r and abs((dot[1] + dot[3] / 2) - (r[1] + r[3] / 2)) <= 2.5),
+        "title inside its row (not clipped)": bool(title and r and inside(title, r, 0.5)),
+        "row >= 28 px high": bool(r and r[3] >= 28),
+        "_rects": {"row": r, "mark": dot, "title": title},
+    }
+    named = {k: v for k, v in c.items() if not k.startswith("_")}
+    w.check(f"ux background-done: {sum(named.values())}/{len(named)} numeric checks", all(named.values()), str(c["_rects"]))
+    UX[(w.mode, "background")] = c
+    w.shot("background-done")
+    close_sidebar(w)
+    time.sleep(2.0)
+    w.check("background: later syncs do not repeat it", len(log.since(m, "attention(fake os): posted")) == 1)
+    # Selecting it acknowledges it: the notice is withdrawn, nothing new posts.
+    m = log.mark()
+    w.check(f"background: CLICK {BG_BUILD!r}", open_row(w, BG_BUILD))
+    w.check("background: selecting it acknowledges it — the notice is withdrawn",
+            log.wait(m, f"closed {NOTICE_BUILD}", 6))
+    time.sleep(1.5)
+    w.check("background: no new notice after the acknowledgement", not log.since(m, "attention(fake os): posted"))
+    w.shot("background-acknowledged")
+
+
+def run_background(mode: str) -> int:
+    """The background phase: A22's scripted server on the replay port (this
+    phase runs no replay server), always stopped."""
+    import subprocess
+
+    sport = int(os.environ.get("A10_REPLAY_PORT", "8514"))
+    serve_log = ROOT / "tmp" / "a25" / f"{mode}-a22-serve.jsonl"
+    serve_log.parent.mkdir(parents=True, exist_ok=True)
+    serve_log.unlink(missing_ok=True)
+    pref = ROOT / "tmp" / "a25" / f"{mode}-background-notifications.json"
+    pref.unlink(missing_ok=True)
+    PREF["path"] = str(pref)
+    serve = subprocess.Popen([str(A22_SERVE), str(sport), "--log", str(serve_log)],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    time.sleep(1.0)
+    try:
+        if serve.poll() is not None:
+            print(f"FAIL background: a22_serve did not start on {sport}", flush=True)
+            return 1
+        env = {"OCTOSCODE_NOTIFY_FAKE": "granted", "OCTOSCODE_NOTIFICATIONS_FILE": str(pref),
+               "OCTOS_BASE_URL": f"http://127.0.0.1:{sport}", "OCTOS_BEARER": "walk-dummy-token",
+               "OCTOS_PROFILE_ID": "a22", "OCTOS_WORKSPACE_CWD": A22_CWD}
+        return a10_lib.run_session(phase_background, mode=mode, outdir=str(OUT / mode / "background"),
+                                   port=int(os.environ.get("A10_PORT", "8512")), replay_port=None, env=env)
+    finally:
+        serve.terminate()
+        try:
+            serve.wait(5)
+        except Exception:
+            serve.kill()
 
 
 PHASES = {
@@ -442,6 +613,7 @@ PHASES = {
     "error": (lambda: phase_alert("error", FAILED), "error"),
     "dismissed": (lambda: phase_alert("dismissed", DISMISSED), "default"),
     "click": (lambda: phase_click, "granted"),
+    "background": (None, "granted"),
 }
 
 
@@ -451,6 +623,9 @@ def main() -> int:
     rc = 0
     for mode in modes:
         for phase in only:
+            if phase == "background":
+                rc |= run_background(mode)
+                continue
             fn, fake = PHASES[phase]
             rc |= run(mode, phase, fn(), fake)
     summary = {f"{m}/{s}": {k: v for k, v in c.items()} for (m, s), c in UX.items()}

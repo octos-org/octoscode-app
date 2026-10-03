@@ -18,6 +18,8 @@
 //!   containing `[refuse]` is refused (`-32000`), `[busy]` runs ~18 s.
 //! * **row 236** — prompts drive background work: `[slow]` a ~20 s turn,
 //!   `[fail]` a turn that errors after 3 s, `[ask]` a user question after 4 s.
+//! * **A25** (background attention) — `[stop]` a turn stopped elsewhere
+//!   after 3 s (`interrupted`), `[limit]` a rate-limited turn after 3 s.
 //!
 //! Every request is appended to `--log <file>` as one JSON line
 //! `{"method", "params"}`, and every notification the server pushes as
@@ -221,6 +223,12 @@ async fn run_turn(out: UnboundedSender<String>, cfg: Cfg, world: Arc<Mutex<World
         ("Running the suite…", "errored", 3, false)
     } else if prompt.contains("[ask]") {
         ("I need one answer first.", "", 4, true)
+    } else if prompt.contains("[stop]") {
+        // A25: a turn stopped elsewhere (another client's Stop) after 3 s.
+        ("Stopping here.", "interrupted", 3, false)
+    } else if prompt.contains("[limit]") {
+        // A25: a turn the provider rate-limits after 3 s.
+        ("Waiting for quota.", "rate_limited", 3, false)
     } else {
         ("Done.", "completed", 1, false)
     };
