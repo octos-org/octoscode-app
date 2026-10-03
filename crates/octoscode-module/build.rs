@@ -41,6 +41,12 @@ fn main() {
     // the root carrying `resources/` makes EVERY literal work on the phone
     // without text rewriting.
     for (rel, path) in &res_rows {
+        // A33: the faces ride once, under `ux/` (font_file's shape): nothing
+        // resolves `resources/ux/*.ttf` against the materialized root, and a
+        // second copy would add 5 MB to every binary.
+        if rel.ends_with(".ttf") {
+            continue;
+        }
         rows.push((format!("resources/{rel}"), path.clone()));
     }
     rows.append(&mut res_rows);
@@ -74,14 +80,22 @@ fn main() {
 /// A25 — `cfg(makepad_notifications)`: this build's makepad carries the
 /// notification API (patches/makepad/macos-notifications.patch). The OctoSense
 /// builds (the host copy, the APK tree, the fork) compile makepad from
-/// `$OCTOSENSE_WORKSPACE/makepad` (their `.cargo/config.toml` sets it); this
-/// repo's workspace compiles the pinned git rev, which has no such API, and
-/// the app then reports notifications unavailable (src/attention.rs).
+/// `$OCTOSENSE_WORKSPACE/makepad` (their `.cargo/config.toml` sets it). A33:
+/// this repo's workspace compiles its own makepad fork (the root Cargo.toml's
+/// `[patch]` to `.forks/makepad-fork`, tools/prepare-makepad-fork.sh), which
+/// carries the same patch. A makepad without the file reports notifications
+/// unavailable (src/attention.rs).
 fn makepad_notifications_cfg() {
     println!("cargo:rustc-check-cfg=cfg(makepad_notifications)");
     println!("cargo:rerun-if-env-changed=OCTOSENSE_WORKSPACE");
-    let Some(ws) = std::env::var_os("OCTOSENSE_WORKSPACE") else { return };
-    let src = PathBuf::from(ws).join("makepad/platform/src");
+    let makepad = match std::env::var_os("OCTOSENSE_WORKSPACE") {
+        Some(ws) => PathBuf::from(ws).join("makepad"),
+        None => {
+            let manifest = PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap());
+            manifest.join("../../.forks/makepad-fork")
+        }
+    };
+    let src = makepad.join("platform/src");
     // The directory (present with or without the patch): a re-applied or
     // reverted patch reruns this probe.
     println!("cargo:rerun-if-changed={}", src.display());
@@ -106,6 +120,11 @@ fn wanted(rel: &str) -> bool {
     }
     match p.extension().and_then(|e| e.to_str()).unwrap_or("") {
         "card" | "l0" | "splash" => true,
+        // #32g / A33: the module's kit faces (resources/ux/, Inter, Liberation
+        // Mono, the Noto Sans SC subsets). 66c865ad dropped this arm as dead
+        // and a fresh HOME then materialized no face: font_file fell back to
+        // the BUILD machine's checkout (design.rs the_embed_carries_the_kit_faces).
+        "ttf" => rel.starts_with("ux/"),
         // #32h: the module's own kit faces AND icons ride the embed (ux/,
         // icons/, plus the cards'/kit/components/ svgs from #32e — this arm
         // is a superset of the original svg arm, which it replaces).

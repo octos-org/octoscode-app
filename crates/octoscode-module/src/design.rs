@@ -17,6 +17,7 @@
 
 use std::borrow::Cow;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{OnceLock, RwLock};
 
 /// The generated embed table (path relative to `design/` -> bytes).
@@ -224,21 +225,53 @@ pub fn path(rel: &str) -> PathBuf {
     root().join(rel)
 }
 
+/// A33: the host loads its resources from an app package (`Cx::package_root`
+/// is set: the standalone OctosCode.app, the phone). Recorded by the
+/// module's `register` before any design read.
+static PACKAGED: AtomicBool = AtomicBool::new(false);
+
+/// Called from the module's `register` (with `Cx::package_root.is_some()`):
+/// a packaged build never reads the build machine's checkout — not the
+/// design tree ([`dir`]), not the faces ([`font_file`]) — only the embed,
+/// materialized under [`root`]. An unpackaged desktop build keeps the
+/// checkout as live reload and last resort.
+pub fn set_packaged(on: bool) {
+    PACKAGED.store(on, Ordering::Relaxed);
+    if on {
+        static LOGGED: OnceLock<()> = OnceLock::new();
+        LOGGED.get_or_init(|| {
+            makepad_widgets::log!("[octoscode] design: packaged build — the embedded design tree and faces only");
+        });
+    }
+}
+
+/// Whether [`set_packaged`] recorded a packaged host.
+pub fn packaged() -> bool {
+    PACKAGED.load(Ordering::Relaxed)
+}
+
 /// The design tree beside this crate (the dev checkout), when present.
 fn repo_tree() -> Option<PathBuf> {
     let base = Path::new(manifest_dir()).join("../../design");
     base.is_dir().then_some(base)
 }
 
-/// The design subtree `rel` resolves to: the CHECKOUT's tree while it exists
-/// (dev live edits), else the materialized embed (the phone). Every screen's
-/// card dir resolves through this one accessor, so the kit packs the
-/// renderer reads itself land in the same tree.
-pub fn dir(rel: &str) -> PathBuf {
-    match repo_tree() {
-        Some(base) if base.join(rel).is_dir() => base.join(rel),
-        _ => root().join(rel),
+/// The checkout's design subtree for `rel` when one may be used: never in a
+/// packaged build (pure, for tests).
+fn pick_tree(checkout: Option<PathBuf>, rel: &str, packaged: bool) -> Option<PathBuf> {
+    if packaged {
+        return None;
     }
+    checkout.map(|base| base.join(rel)).filter(|d| d.is_dir())
+}
+
+/// The design subtree `rel` resolves to: the CHECKOUT's tree while it exists
+/// (dev live edits, unpackaged builds only), else the materialized embed (the
+/// phone, the packaged app). Every screen's card dir resolves through this
+/// one accessor, so the kit packs the renderer reads itself land in the same
+/// tree.
+pub fn dir(rel: &str) -> PathBuf {
+    pick_tree(repo_tree(), rel, packaged()).unwrap_or_else(|| root().join(rel))
 }
 
 /// #32g item 1: the lowered DSL names kit faces as
@@ -387,6 +420,16 @@ pub fn icon_resource(name: &str) -> String {
     font_file(&format!("icons/{name}")).display().to_string()
 }
 
+/// The face file for one kit face: the materialized root's copy, else (an
+/// unpackaged build only) the checkout's own (pure, for tests).
+fn pick_font(from_root: PathBuf, own: PathBuf, packaged: bool) -> PathBuf {
+    if from_root.is_file() || packaged || !own.is_file() {
+        from_root
+    } else {
+        own
+    }
+}
+
 /// The absolute file for a kit face (`ux/<file>.ttf`): the MATERIALIZED
 /// design root first — it exists on every target (desktop: `$HOME`/host
 /// files dir; phone: the app's own storage, device-verified in #32f) and is
@@ -395,19 +438,11 @@ pub fn icon_resource(name: &str) -> String {
 /// where the APK was built). The dev checkout is the LAST resort. The first
 /// resolution is logged once — the device log then shows which tree won.
 pub fn font_file(rel: &str) -> PathBuf {
-    let resolved = {
-        let from_root = root().join(rel);
-        if from_root.is_file() {
-            from_root
-        } else {
-            let own = Path::new(manifest_dir()).join("resources").join(rel);
-            if own.is_file() {
-                own
-            } else {
-                from_root
-            }
-        }
-    };
+    let resolved = pick_font(
+        root().join(rel),
+        Path::new(manifest_dir()).join("resources").join(rel),
+        packaged(),
+    );
     static LOGGED: OnceLock<()> = OnceLock::new();
     LOGGED.get_or_init(|| {
         makepad_widgets::log!(
@@ -566,6 +601,46 @@ mod tests {
                 p.display()
             );
         }
+    }
+
+    /// A33: the kit faces ride in the embed. #32g put them there (`ux/*.ttf`),
+    /// and 66c865ad's "dead-arm cleanup" dropped the `ttf` arm of the
+    /// whitelist. A HOME that had never materialized an older embed (another
+    /// Mac, a reinstalled phone) then got NO face under the design root, and
+    /// `font_file` fell back to the build machine's checkout, a path that
+    /// exists only where the binary was built. FAILS before A33.
+    #[test]
+    fn the_embed_carries_the_kit_faces() {
+        for face in [
+            "ux/Inter-400.ttf",
+            "ux/Inter-500.ttf",
+            "ux/Inter-600.ttf",
+            "ux/Inter-700.ttf",
+            "ux/LiberationMono-Regular.ttf",
+            "ux/NotoSansSC-Regular.ttf",
+            "ux/NotoSansSC-SemiBold.ttf",
+        ] {
+            assert!(embedded(face), "{face} rides in the design embed");
+        }
+    }
+
+    /// A33: a packaged build (the standalone OctosCode.app, the phone) never
+    /// reads the build machine's checkout: not the design tree, not the faces.
+    /// An unpackaged desktop build keeps the checkout as live reload / last
+    /// resort, as before.
+    #[test]
+    fn a_packaged_build_never_reads_the_build_checkout() {
+        let dir = std::env::temp_dir().join(format!("octoscode-a33-pick-{}", std::process::id()));
+        let own = dir.join("own.ttf");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(&own, b"face").unwrap();
+        let missing = dir.join("root/ux/face.ttf");
+        assert_eq!(pick_font(missing.clone(), own.clone(), false), own, "unpackaged: the checkout is the last resort");
+        assert_eq!(pick_font(missing.clone(), own.clone(), true), missing, "packaged: the materialized root only");
+        assert_eq!(pick_tree(Some(dir.clone()), "", false), Some(dir.clone()), "unpackaged: the checkout's design tree");
+        assert_eq!(pick_tree(Some(dir.clone()), "", true), None, "packaged: never the checkout's design tree");
+        assert_eq!(pick_tree(None, "", false), None);
+        std::fs::remove_dir_all(&dir).ok();
     }
 
     #[test]

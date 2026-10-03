@@ -13,6 +13,9 @@ members = [
     "crates/octoscode-client",
     "crates/octoscode-store",
     "crates/octoscode-module",
+    # A33: the standalone desktop app (binary `octoscode`), hosting the module
+    # without the OctoSense shell.
+    "crates/octoscode-desktop",
 ]
 # Local forks (tools/prepare-*-fork.sh) live in .forks/; they are their own workspaces.
 exclude = [".forks"]
@@ -73,3 +76,15 @@ octos-app-store = { path = ".forks/octosense-fork/apps/appcard/app/crates/octos-
 octoscript-makepad = { path = ".forks/octoscript-makepad-fork/crates/octoscript-makepad" }
 octoscript-widgets = { path = ".forks/octoscript-makepad-fork/crates/octoscript-widgets" }
 octoscript-node = { path = ".forks/octoscript-makepad-fork/crates/octoscript-node" }
+
+# A33 (decision D10f): makepad WITH our patches/makepad/*.patch — the same
+# patches every OctoSense tree gets (the notification API, so
+# cfg(makepad_notifications) is on here too; the --remote token guard; the
+# ellipsis fix; file_resource in a packaged build). The pinned rev
+# (6cf03859, the `rev` above) + those patches, one commit:
+# `tools/prepare-makepad-fork.sh` recreates the fork. Every crate this graph
+# names by this URL is redirected, so the graph keeps ONE makepad.
+[patch."https://github.com/OctoSense-org/makepad.git"]
+makepad-widgets = { path = ".forks/makepad-fork/widgets" }
+makepad-app-module = { path = ".forks/makepad-fork/libs/app_module" }
+makepad-script = { path = ".forks/makepad-fork/platform/script" }

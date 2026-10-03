@@ -6531,6 +6531,11 @@ impl AppModule for OctoscodeModule {
         // Same source OctoSense's ai-host uses (`Host::platform(
         // cx.get_data_dir())` -> /data/user/0/<pkg>/files/octos-home).
         crate::design::set_host_dir(vm.cx_mut().get_data_dir());
+        // A33: a host that loads its resources from an app package (the
+        // standalone OctosCode.app, the phone) never reads the build
+        // machine's checkout: the design tree and the faces come from the
+        // embed only.
+        crate::design::set_packaged(vm.cx_mut().package_root.is_some());
         // #32h item 1: the lowered cards' buttons emit `on_click: || { NAV(t:
         // "…") }` (fork lib.rs:450) and NAV is "a global the host registers"
         // (fork lib.rs:359) — nobody did. An unregistered global evaluates to

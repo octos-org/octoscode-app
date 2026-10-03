@@ -1,0 +1,84 @@
+makepad script resources: a packaged build still reads file_resource(<absolute path>) (decision D10f, A33).
+
+A packaged desktop build (MAKEPAD_PACKAGE_DIR set at build time, so `Cx::package_root` is Some) loaded a script
+resource from the dependency table, then only from `<package_root>/<dependency path>`, and never from the
+filesystem. That is right for a CRATE resource (`crate_resource("makepad_widgets:resources/…")`): its build-tree
+path does not exist on another machine and the package carries a copy under its dependency path. It is wrong for a
+`file_resource("<absolute path>")`, which has no dependency path at all: the app named a file it wrote or
+materialized itself at run time, and packaging never moves it. Such a resource always failed once packaged
+("Failed to load resource … (dep: None, packaged: true)"), so every SVG icon the OctosCode module names by its
+materialized path (`design::icon_resource`, the lowered kits' icons) drew nothing in the self-contained
+OctosCode.app. (Fonts were spared only because the text layer reads a member's path directly before it asks the
+resource table, cx_api.rs `get_resource_font_bytes_by_path`.)
+
+Now a resource WITHOUT a dependency path is read from its absolute path in a packaged build too; a crate resource
+still loads only from the package (its build-tree path is not read even where it exists), and an unpackaged build
+is unchanged. Unit test: a_packaged_build_still_reads_file_resource_from_its_absolute_path.
+Applied to every tree by scripts/apply-makepad-patches.sh; tests/a33_packaged_resources.rs checks its shape.
+--- a/platform/src/script/res.rs
++++ b/platform/src/script/res.rs
+@@ -674,12 +674,20 @@ fn load_script_resource_impl(
+                             return;
+                         }
+                     }
+-                } else if let Some(result) = load_file_direct(&res.abs_path) {
+-                    res.data = match result {
+-                        Ok(data) => CxScriptResourceData::Loaded(data),
+-                        Err(e) => CxScriptResourceData::Error(e),
+-                    };
+-                    return;
++                }
++                // Packaging relocates CRATE resources (they have a dependency
++                // path). A `file_resource` has none: the app named a file by
++                // its absolute path at run time (one it wrote or materialized
++                // itself), which packaging never moves, so it is read from the
++                // filesystem in a packaged build too.
++                if !is_packaged || res.dependency_path.is_none() {
++                    if let Some(result) = load_file_direct(&res.abs_path) {
++                        res.data = match result {
++                            Ok(data) => CxScriptResourceData::Loaded(data),
++                            Err(e) => CxScriptResourceData::Error(e),
++                        };
++                        return;
++                    }
+                 }
+             }
+ 
+@@ -877,6 +885,37 @@ fn collecting_a_heap_keeps_other_heaps_equal_resource_handles() {
+         assert!(resources.resources.borrow().is_empty());
+     }
+ 
++    #[test]
++    fn a_packaged_build_still_reads_file_resource_from_its_absolute_path() {
++        use super::*;
++        // An app names a file it materialized at run time (an icon under its
++        // data dir) with file_resource(<absolute path>): no dependency path.
++        let dir = std::env::temp_dir().join(format!("makepad-file-resource-{}", std::process::id()));
++        std::fs::create_dir_all(&dir).unwrap();
++        let icon = dir.join("icon.svg");
++        let crate_icon = dir.join("crate-icon.svg");
++        std::fs::write(&icon, b"<svg/>").unwrap();
++        std::fs::write(&crate_icon, b"<svg crate/>").unwrap();
++        let (icon, crate_icon) = (icon.to_string_lossy().into_owned(), crate_icon.to_string_lossy().into_owned());
++        let mut cx = Cx::new(Box::new(|_, _| {}));
++        cx.package_root = Some("makepad".to_string());
++        let handle = ScriptHandle::ZERO;
++        for (heap, abs_path, dependency_path) in [(1, &icon, None), (2, &crate_icon, Some("demo/resources/crate-icon.svg"))] {
++            cx.script_data.resources.insert_resource(heap, CxScriptResource {
++                abs_path: abs_path.clone(), dependency_path: dependency_path.map(Into::into), web_url: None,
++                data: CxScriptResourceData::NotLoaded, handles: vec![(heap, handle)],
++            });
++        }
++        cx.load_script_resource_by_path(&icon);
++        cx.load_script_resource_by_path(&crate_icon);
++        assert_eq!(cx.get_resource(1, handle).unwrap().as_slice(), b"<svg/>", "file_resource reads its absolute path");
++        // A crate resource still loads only from the package once packaged:
++        // its build-tree path is not read even where it exists.
++        assert!(cx.get_resource(2, handle).is_none(), "a crate resource comes from the package");
++        assert!(cx.script_resource_unavailable(&crate_icon));
++        std::fs::remove_dir_all(&dir).ok();
++    }
++
+     #[test]
+     fn eager_resource_loading_defers_the_selected_font_policy() {
+         assert!(font_policy_declares_path(
