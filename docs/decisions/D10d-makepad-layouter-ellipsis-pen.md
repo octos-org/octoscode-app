@@ -85,24 +85,43 @@ Not chosen:
   - the row fits the bound.
 
   It requires more than 500 truncations and more than 20 rows broken at a space.
-- **Live, A29's marker state** (`tools/walk/a29_btw_aside.py`: desktop 67/67, phone 67/67), same rects as before:
-  - the title reads "Fix steer queue dro…": the ellipsis at 127.996 = the "o"'s end, ending at 140.096 ≤ 145.811;
-  - captures: `docs/ux/a32/desktop-2-switched-marker.png`, `docs/ux/a32/phone-2-switched-marker.png`, and
+- **Live, A29's marker state** (`tools/walk/a29_btw_aside.py`: desktop 67/67, phone 67/67).
+  - Before the merge, with A29's rects (title [92,300,146,17]), the title reads "Fix steer queue dro…": the ellipsis
+    at 127.996 = the "o"'s end, ending at 140.096 ≤ 145.811.
+  - On the final clean host, merged with main, the title is [92,332,142,17] (bound 141.650, the bug's band again),
+    the chip [240,331,46,18] and the time [292,333,24,15]. The title still reads "Fix steer queue dro…", with three
+    dots.
+  - Captures: `docs/ux/a32/desktop-2-switched-marker.png`, `docs/ux/a32/phone-2-switched-marker.png` (drawer: "Fix
+    steer queue drop on r…"), the answered states `*-3-answered-in-x-marker.png`, and
     `docs/ux/a32/marker-title-before-after.png`.
 - **Live sweep** (`tools/walk/a32_ellipsis_sweep.py` with the trace instrument; every truncated text drawn gets a
   verdict per geometry). Zero two-dot or outside-the-label endings:
-  - desktop (`docs/ux/a32/sweep-desktop.json`): sidebar rows with and without the chip, the header with the
-    sidebar and with the rail, the peer dock; each window-opening animation sweeps the title bounds frame by frame;
-    32 truncation geometries;
-  - phone frames 300–368 px (`docs/ux/a32/sweep-phone.json`): the drawer is min(320, w−48), so the drawer rows'
-    bound runs from 117.8 to 220.3 px; 19 states, 92 rows measured, 70 truncation geometries, 0 bad; 23
-    kit-truncated texts, all fitting their labels;
-  - the dialog family and the peer dock (`docs/ux/a32/sweep-dialogs.json`), with the trace on, desktop and phone:
-    `a5_dialogs` 37/37, `a10_fleet` 49/49, `a28_diff_words` 29/29 and 31/31, `a10_diff_review` 19/19, `a10_skills`
-    17/17, `a30_peer_dock` 46/46 and 48/48;
-    - 117 makepad truncation geometries, 0 bad;
-    - 46 kit-truncated texts (dialog titles "Apply a patch to sr…", fleet slugs "review-the-reconnect-…", skill rows
-      "0.3.0 · 1 tool · octos-org/re…", diff paths), every one inside its label.
+  - desktop (`docs/ux/a32/sweep-desktop.json`, on the branch merged with main): the sidebar rows with and without
+    the chip, the header with the sidebar (177.4 px) and with the rail (401 px), and the peer dock; each
+    window-opening animation sweeps the title bounds frame by frame. 2 launches, 5 states, 19 rows measured, 28
+    truncation geometries, 0 bad.
+
+    After the merge the chip row's bound is 141.650 px, again inside the bug's band: it keeps "drop " (140.506) but
+    not the "o" (148.90). It draws "Fix steer queue dro…" with the ellipsis at the "o"'s end, 127.996;
+  - phone frames 300–368 px (`docs/ux/a32/sweep-phone.json`, merged): the drawer is min(320, w−48), so X's row
+    title is truncated at 23 distinct bounds, from 113.7 to 226.1 px (with and without the chip). 11 launches, 19
+    states, 84 rows measured, 70 truncation geometries, 0 bad; 23 kit-truncated texts, all fitting their labels;
+  - the dialog family and the peer dock (`docs/ux/a32/sweep-dialogs.json`, merged, with the kit fix), with the trace
+    on, desktop and phone:
+    - 122 makepad truncation geometries, 0 bad;
+    - 47 kit-truncated texts, every one inside its label: dialog titles "Apply a patch to sr…" (169.2 px in a 181.7 px
+      label), fleet slugs "review-the-reconnect-…", skill rows "0.3.0 · 1 tool · octos-org/re…", diff paths;
+    - walk results: `a5_dialogs` 37/37 + 37/37, `a28_diff_words` 29/29 + 31/31, `a10_diff_review` 19/19 + 19/19,
+      `a10_skills` 17/17 + 17/17, `a10_fleet` 50/51 + 56/56. The one fleet miss is its race step, not an ellipsis
+      check; it passed 56/56 on the final clean host.
+    - `a30_peer_dock`: 52/58 desktop, 53/60 phone. Every miss is A30's check "the tree keeps 2+ session rows". On
+      the merged branch the fleet scenario's tree holds ONE session, "New chat" (session_rows=1). A30's own evidence,
+      from before main merged A22, reads 2–3.
+      - Likely cause, not proven here: A22's row 228, "only full Sessions of the requested profile projected", for
+        which 38374b47 fixed the btw scenario's fixture.
+      - It reproduces on the final clean host. The dock's own geometry passes: no label outside or overlapping, and
+        aligned to the tree's grid.
+      - Nothing in this change touches session data; it is left to the integrator.
 - `tests/a32_makepad_ellipsis.rs` pins the patch's shape and, with `MAKEPAD_PATCH_TREES`, that it is applied in
   every tree.
 
