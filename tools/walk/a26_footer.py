@@ -1,16 +1,9 @@
 #!/usr/bin/env python3
-"""A26 — the sidebar footer walk (parity row shell/g-settings "Sidebar footer
-entries: Fleet navigation entry, theme toggle (System/Light/Dark), Settings
-entry"), in the WEB's layout (ProductSidebar.tsx:969-1016), by CLICKS.
+"""Sidebar footer routing by native clicks, desktop and phone.
 
-Desktop: + Add workspace, Fleet, the theme toggle and Settings stack in the
-column's footer (one row height, one left edge); the toggle cycles Light ->
-System -> Dark -> Light, re-theming the whole app at once (the sidebar's own
-background is sampled from the /g capture) and saving the choice; Settings
-opens Settings; Fleet opens the Fleet pane; the collapsed rail keeps the three
-icons only, centred on the rail buttons' line, and they still work.
-Phone: the same rows at the bottom of the drawer; the toggle keeps the drawer
-open; Settings closes the drawer first and opens the Settings sheet.
+Theme opens the unified Preferences selector, closing the phone drawer first.
+Its label/icon follow the selected choice; Save writes the same display file.
+Fleet, Settings, and collapsed-rail targets keep their existing placement.
 """
 import json
 import os
@@ -22,7 +15,7 @@ import a26_lib as L  # noqa: E402
 
 WALK = {
     "name": "a26_footer",
-    "title": "Sidebar footer: Fleet, the theme toggle (live re-theme, saved), Settings — the web's order; icons only in the rail",
+    "title": "Sidebar footer: Fleet, the unified Theme shortcut, Settings — the web's order; icons only in the rail",
     "modes": ["desktop", "phone"],
     "fixture": {"argv": ["{examples}/replay_serve", "{fport}", "--scenario", "history"]},
     "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_PROFILE_ID": "dsflash",
@@ -34,7 +27,7 @@ WALK = {
     "rows": {},
 }
 
-PREF = os.environ.get("OCTOSCODE_PREF_PATH", "")
+PREF = os.environ.get("OCTOSCODE_DISPLAY_PREFS_PATH", "")
 ROWS = ["sb_add_hit", "fleet_nav_hit", "sb_theme_hit", "sb_settings_hit"]
 
 
@@ -74,22 +67,28 @@ def theme_icon(w, sn=None):
     return on
 
 
-def cycle_to(w, label, look=None):
-    """Click the theme toggle once; check the label, the icon and (for a
-    light / dark result) the drawn look and the saved file."""
-    w.mark()
+def choose_theme(w, label, look=None):
+    L.open_drawer(w)
     w.click("sb_theme_hit")
-    ok = w.wait(lambda: w.text("sb_theme_label") == label, 6)
-    w.check(f"the theme toggle cycles to {label}", ok and w.logged(f"theme -> {label.lower()}", 4), repr(w.text("sb_theme_label")))
-    want_icon = {"System": "sb_theme_ic_system", "Light": "sb_theme_ic_light", "Dark": "sb_theme_ic_dark"}[label]
-    w.check(f"{label}: the toggle shows its icon ({want_icon[12:]})", theme_icon(w) == [want_icon], f"{theme_icon(w)}")
-    want_saved = {"System": None, "Light": "light", "Dark": "dark"}[label]
+    w.check("Theme opens Preferences", w.wait(lambda: w.text("set_title") == "Preferences", 6))
+    if w.mode == "phone":
+        w.check("Theme closes the phone drawer", not w.visible("drawer_scrim"))
+    w.click("pal_" + label.lower())
+    def selected():
+        sn = w.snap()
+        row = w.rect("pal_" + label.lower(), sn=sn)
+        return bool(row and any(x.get("i") == "rd_on" and w.shown(x) and L.inside(x["r"], row) for x in sn))
+    w.check(f"one selector chooses {label}", w.wait(selected, 6))
+    w.click("prefs_save")
     if PREF:
-        w.check(f"{label}: the choice is saved at once (system removes it)", stored_theme() == want_saved, f"{stored_theme()!r}")
+        w.check(f"{label}: the shared preference stores the choice", stored_theme() == label.lower())
+    L.close_settings(w)
     if look:
-        time.sleep(0.6)
         ok, detail = L.draws_look(w, look)
         w.check(f"{label}: the whole app re-themes live", ok, detail)
+    L.open_drawer(w)
+    want_icon = {"System": "sb_theme_ic_system", "Light": "sb_theme_ic_light", "Dark": "sb_theme_ic_dark"}[label]
+    w.check(f"{label}: the shortcut shows its icon", theme_icon(w) == [want_icon])
 
 
 def main():
@@ -99,15 +98,13 @@ def main():
     if mode == "phone":
         w.check("the drawer opens from the header's menu", L.open_drawer(w))
     sn = footer_checks(w, "light")
-    w.check("the toggle reads the current theme (Light)", w.text("sb_theme_label", sn=sn) == "Light" and theme_icon(w, sn) == ["sb_theme_ic_light"])
+    w.check("the shortcut reads the initial System preference", w.text("sb_theme_label", sn=sn) == "System" and theme_icon(w, sn) == ["sb_theme_ic_system"])
     w.shot(f"{mode}-footer-light")
-    cycle_to(w, "System")
-    cycle_to(w, "Dark", "dark")
-    if mode == "phone":
-        w.check("the drawer stays open on the toggle", bool(w.visible("sb_settings_hit")))
+    choose_theme(w, "System")
+    choose_theme(w, "Dark", "dark")
     footer_checks(w, "dark")
     w.shot(f"{mode}-footer-dark")
-    cycle_to(w, "Light", "light")
+    choose_theme(w, "Light", "light")
     # Settings from the footer.
     w.mark()
     w.click("sb_settings_hit")
@@ -152,18 +149,12 @@ def main():
         w.check("rail: the footer icons sit on the rail buttons' centre line",
                 len(foot_icons) == 3 and all(abs(o) <= 1.5 for o in offs), f"centre={centre} offsets={offs}")
         w.shot(f"{mode}-rail-light")
-        w.mark()
-        w.click("sb_theme_hit")
-        w.check("rail: the theme icon still cycles (Light -> System)", w.logged("theme -> system", 6))
-        w.click("sb_theme_hit")
-        w.check("rail: …and again (System -> Dark)", w.logged("theme -> dark", 6))
-        time.sleep(0.6)
+        choose_theme(w, "Dark", "dark")
         w.shot(f"{mode}-rail-dark")
         w.click("sb_settings_hit")
-        w.check("rail: the Settings icon opens Settings", w.wait(lambda: bool(w.visible("set_title")), 6))
+        w.check("rail: Settings opens", w.wait(lambda: bool(w.visible("set_title")), 6))
         L.close_settings(w)
-        w.click("sb_theme_hit")
-        w.check("rail: back to Light", w.logged("theme -> light", 6))
+        choose_theme(w, "Light", "light")
         w.click("rail_expand")
         w.check("the column expands back with its labels", w.wait(lambda: bool(w.visible("sb_theme_label")), 6))
     sys.exit(w.summary())

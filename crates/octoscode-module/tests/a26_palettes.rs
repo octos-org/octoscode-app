@@ -1,18 +1,6 @@
-//! A26 — parity row `preferences/g-timeline` "Choose one of five named display
-//! palettes (terminal, codex, claude, slate, solarized); Terminal follows the
-//! browser appearance" (web `features/preferences/model.ts:2-8`,
-//! `PreferencesDialog.tsx:55-75`, `app/theme.css:122-258`,
-//! `palettes.test.ts`), on the production path a palette row's click takes:
-//!
-//!   the row's action id (`a9.prefs.palette.<id>`, chrome.rs `pl_hit`)
-//!   -> `a9_prefs::routes` -> `a9_prefs::choose_palette` (the whitelist's
-//!   `theme`, unsaved) + `theme::set_palette` -> the host re-themes
-//!   (`a26_host::retheme`): the shell roles, the shell inks and every
-//!   lowered surface's retint read the palette; Save writes the whitelist;
-//!   the next launch adopts it (`theme::init_persistence`).
-//!
-//! The contrast guard over every palette lives with the guard
-//! (`screens::theme::contrast_tests`).
+//! The unified Theme selector applies System/Light/Dark or one named palette.
+//! Save and restart retain one complete choice; legacy palette/appearance
+//! documents migrate without losing language or Vim settings.
 use std::sync::Mutex;
 
 use octoscode_module::screens::a9_prefs;
@@ -194,16 +182,55 @@ fn an_unknown_palette_is_refused_and_changes_nothing() {
     let _g = serial();
     let dir = temp("unknown");
     fresh(&dir);
-    for bad in ["a9.prefs.palette.neon", "a9.prefs.palette.CODEX", "a9.prefs.palette.", "a9.prefs.palette.system"] {
+    for bad in ["a9.prefs.palette.neon", "a9.prefs.palette.CODEX", "a9.prefs.palette.", "a9.prefs.palette.unknown"] {
         assert!(!a9_prefs::routes(bad), "{bad}");
         assert_eq!(a9_prefs::choose_palette(bad), None, "{bad}");
     }
     assert_eq!(theme::palette(), Palette::Terminal);
-    assert_eq!(a9_prefs::snapshot().current.theme, "terminal");
+    assert_eq!(a9_prefs::snapshot().current.theme, "system");
     assert!(!a9_prefs::snapshot().dirty());
     // Choosing the palette already in effect is no change (no re-theme).
     assert_eq!(a9_prefs::choose_palette("a9.prefs.palette.terminal"), None);
     theme::reset_state();
     a9_prefs::reset();
     let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn unified_theme_choices_replace_each_other_and_survive_restart() {
+    let _g = serial();
+    let dir = temp("unified-theme");
+    fresh(&dir);
+    for (choice, expected) in [("codex", Look::Named(Palette::Codex)), ("light", Look::Light), ("dark", Look::Dark)] {
+        let action = format!("a9.prefs.palette.{choice}");
+        assert!(a9_prefs::routes(&action));
+        assert!(a9_prefs::choose_palette(&action).is_some());
+        assert_eq!(theme::current_look(), expected);
+        assert_eq!(a9_prefs::snapshot().current.theme, choice);
+        assert!(a9_prefs::save());
+        a9_prefs::reset();
+        theme::reset_state();
+        theme::init_persistence();
+        assert_eq!(theme::current_look(), expected, "one saved theme controls the whole look");
+    }
+    theme::clear_os_reader();
+    a9_prefs::reset();
+    theme::reset_state();
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn unified_theme_migrates_legacy_appearance_without_losing_preferences() {
+    let _g = serial();
+    let legacy = a9_prefs::DisplayPrefs { theme: "terminal".into(), language: "zh".into(), vim_mode: true };
+    let migrated = a9_prefs::migrate(Some(legacy), Some(theme::Theme::Light));
+    assert_eq!(migrated.theme, "light");
+    assert_eq!(migrated.language, "zh");
+    assert!(migrated.vim_mode);
+    let named = a9_prefs::DisplayPrefs { theme: "solarized".into(), language: "en".into(), vim_mode: false };
+    assert_eq!(a9_prefs::migrate(Some(named), Some(theme::Theme::Light)).theme, "solarized");
+    let explicit = a9_prefs::parse(r#"{"version":2,"theme":"dark","language":"en","vimMode":false}"#).unwrap();
+    assert_eq!(a9_prefs::migrate(Some(explicit), Some(theme::Theme::Light)).theme, "dark");
+    assert_eq!(a9_prefs::migrate(None, Some(theme::Theme::Light)).theme, "light");
+    assert_eq!(a9_prefs::migrate(None, None).theme, "system");
 }

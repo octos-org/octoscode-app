@@ -30,8 +30,8 @@ SURFACE = {
     "slate": "#141923",
     "solarized": "#002b36",
 }
-PALETTES = ["terminal", "codex", "claude", "slate", "solarized"]
-LABELS = {"terminal": "Terminal", "codex": "Codex", "claude": "Claude", "slate": "Slate", "solarized": "Solarized"}
+PALETTES = ["system", "light", "dark", "codex", "claude", "slate", "solarized"]
+LABELS = {"system": "System", "light": "Light", "dark": "Dark", "codex": "Codex", "claude": "Claude", "slate": "Slate", "solarized": "Solarized"}
 
 
 def walk_from_argv(default_mode: str = "desktop") -> a10_lib.Walk:

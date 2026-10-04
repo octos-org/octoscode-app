@@ -2238,7 +2238,9 @@ impl OctoscodeView {
                     );
                     // A26: the web saves the choice at once (`use-theme.ts:
                     // 35-42`) and the whole app follows it live.
-                    screens::theme::save_preference();
+                    screens::theme::select(&preference);
+                    screens::a9_prefs::set_palette(&preference);
+                    screens::a9_prefs::save();
                     makepad_widgets::log!("[octoscode] theme -> {preference}");
                     self.retheme(cx);
                 }
@@ -4272,7 +4274,11 @@ impl OctoscodeView {
             dvec2(0.0, first.map(|y| (top - y).max(0.0)).unwrap_or(0.0))
         };
         let same_dialog = screens::board3::host::note_mounted();
-        match self.mounts.mount(cx, &splash, &lowered.dsl) {
+        // The native clicked() path owns every board-3 tap. Do not also
+        // enqueue its script callback: the action can remount this dialog before
+        // that callback runs, replacing the bytecode its function refers to.
+        let native_dsl = screens::taps::native_clicks_only(&lowered.dsl);
+        match self.mounts.mount(cx, &splash, &native_dsl) {
             Err(e) => makepad_widgets::log!("[octoscode] board3 mount: {e}"),
             Ok(true) => {
                 if same_dialog && keep_scroll.y > 0.0 {
@@ -5603,6 +5609,24 @@ impl OctoscodeView {
                     );
                 }
             });
+        }
+        // A modal owns the whole wheel/trackpad event, including its backdrop
+        // and scroll boundaries. Makepad's scroll hits do not consume the event,
+        // so traversing the whole root also scrolls the transcript underneath.
+        if matches!(event, Event::Scroll(_)) {
+            // Topmost first, matching the overlay paint order. A dialog opened
+            // over Settings must not scroll Settings either.
+            for id in [
+                live_id!(a9_dock), live_id!(surfaces_dock), live_id!(board3_dock),
+                live_id!(board1_dock), live_id!(dialog_dock), live_id!(palette_dock),
+                live_id!(settings_dock),
+            ] {
+                let dock = self.view.widget(cx, &[id]);
+                if dock.visible() {
+                    dock.handle_event(cx, event, scope);
+                    return;
+                }
+            }
         }
         self.handle_sidebar_resize(cx, event);
         self.view.handle_event(cx, event, scope);

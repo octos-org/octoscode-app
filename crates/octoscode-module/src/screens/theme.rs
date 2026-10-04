@@ -366,6 +366,29 @@ pub fn set_palette(p: Palette) {
     *PALETTE.lock().unwrap_or_else(|p| p.into_inner()) = p;
 }
 
+/// The single choice displayed by Preferences and the sidebar shortcut.
+pub fn selection() -> String {
+    match palette() {
+        Palette::Terminal => preference(),
+        named => named.id().to_owned(),
+    }
+}
+
+/// Apply one complete theme choice. Light/dark always leave a named palette,
+/// so a stale palette can never override a newly selected appearance.
+pub fn select(choice: &str) -> bool {
+    if Theme::parse(choice).is_some() {
+        set_preference(choice);
+        set_palette(Palette::Terminal);
+        true
+    } else if let Some(named) = Palette::parse(choice).filter(|p| *p != Palette::Terminal) {
+        set_palette(named);
+        true
+    } else {
+        false
+    }
+}
+
 /// What the screens are drawn in: Terminal's light or dark appearance, or a
 /// named palette.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -913,12 +936,8 @@ fn pref_path() -> std::path::PathBuf {
 /// the platform OS-appearance reader. The shell calls this once at mount; tests
 /// never do.
 pub fn init_persistence() {
-    if let Some(t) = load_preference() {
-        theme().lock().unwrap().pref = t;
-    }
-    // A26: the saved display palette (the A9 whitelist's `theme`, Settings >
-    // Preferences > Save); a fresh profile is Terminal (`model.ts:86`).
-    set_palette(Palette::parse(&crate::screens::a9_prefs::init().theme).unwrap_or(Palette::Terminal));
+    // The display preferences own migration and the single saved theme value.
+    select(&crate::screens::a9_prefs::init().theme);
     #[cfg(target_os = "macos")]
     {
         set_os_reader(os_is_dark_macos);

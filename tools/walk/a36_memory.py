@@ -264,6 +264,17 @@ def empty_phase(W: Walk):
             has(W, "No memory yet", "Octos writes long-term memory and daily notes as you work with this profile."))
     numeric(W, "empty")
     W.shot(f"13-empty-{MODE}")
+    # Regression: rebuilding a dialog during a click must not leave a second
+    # script callback pointing at the replaced body. No note is submitted.
+    since = json.loads(W.get("/log?since=0")).get("n", 0)
+    W.click("b3_mem_add")
+    W.check("empty: Add note opens", W.wait(lambda: bool(W.visible("b3_mem_add_note")), 5))
+    W.click("b3_mem_add_cancel")
+    W.check("empty: Cancel returns to Memory", W.wait(lambda: bool(W.visible("b3_mem_add")), 5))
+    time.sleep(0.4)
+    lines = json.loads(W.get(f"/log?since={since}")).get("l", [])
+    errors = [line for line in lines if "[E]" in line or "empty stack" in line or "mes empty" in line]
+    W.check("empty: navigation has no deferred script errors", not errors, f"{len(errors)} errors")
     close_all(W)
 
 

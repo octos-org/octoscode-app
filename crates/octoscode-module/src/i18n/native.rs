@@ -26,6 +26,7 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Preferences", "偏好设置"),
     ("About", "关于"),
     ("Palette", "配色方案"),
+    ("Choose System, Light, Dark, or a named dark theme. Save remembers your choice.", "选择跟随系统、浅色、深色或命名深色主题。保存后，下次启动仍使用此选择。"),
     ("Terminal follows the light or dark theme; named palettes are dark.", "终端配色跟随浅色或深色主题；命名配色方案均为深色。"),
     (
         "Changes apply immediately. Save remembers them on this device; no server configuration, credentials or conversations are stored.",
