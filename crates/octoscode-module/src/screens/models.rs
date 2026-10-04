@@ -655,8 +655,12 @@ pub struct EffectiveSkills {
 }
 pub fn effective_skills(store: &Store) -> EffectiveSkills {
     let Some(value) = store.domains.profile.effective_skills() else { return EffectiveSkills::default() };
+    // Older servers mixed tool plugins into this catalog. Skills are the
+    // instruction entries; executable tools and MCP have their own inventory.
+    let rows = value["effective_skills"].as_array().map(|rows| rows.iter()
+        .filter(|row| row["kind"] == "instructions").cloned().collect()).unwrap_or_default();
     EffectiveSkills { session:value["session_id"].as_str().unwrap_or_default().into(),
-        available:value["effective_skills"].is_array(), rows:value["effective_skills"].as_array().cloned().unwrap_or_default() }
+        available:value["effective_skills"].is_array(), rows }
 }
 pub fn invalidate_resources(store: &Store) {
     store.domains.profile.set_effective_skills(None);

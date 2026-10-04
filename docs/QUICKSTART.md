@@ -157,9 +157,11 @@ Profile history and known projects. Each row names its Profile and workspace;
 been opened on this client. The catalog reports unavailable paths and never
 assumes it has scanned the server's entire filesystem.
 
-**Settings → Capabilities → Skills** shows built-in, global deployment, Profile
-and project sources for the current session. Project skills appear only when
-the server runtime loads that project layer. The separate Installed list manages
+**Settings → Capabilities → Skills** shows instruction skills backed by `SKILL.md`,
+grouped by the sources actually loaded for the current session. Tools and MCP
+servers have separate inventories; loading a tool plugin does not make it a skill.
+Global/project groups may be empty when the server does not load instruction
+skills from those layers. The separate Installed list manages
 Profile packages; global or built-in entries cannot be removed from that list.
 
 **Memory** shows the current session's authorized storage scope. Ordinary
