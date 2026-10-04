@@ -10,8 +10,7 @@
 //!
 //! The MCP view states the truth about management: octos has no UI-protocol
 //! method to add, remove or configure an MCP server (servers come from the
-//! server's config; a6ea8505 and main 3916c6a8 answer `mcp/status/list` with
-//! a hard-coded empty list), so the view says servers are configured on the
+//! server's config), so the view says servers are configured on the
 //! server and offers no add/remove.
 //!
 //! The click itself (the laid-out row hit -> the action) is proven by the walk
@@ -129,4 +128,33 @@ fn the_mcp_view_says_servers_are_configured_on_the_server_and_offers_no_manageme
     }
     // The copy reads in Chinese too (the native supplement).
     assert_ne!(octoscode_module::i18n::zh_for(inventory::MCP_MANAGED_ON_SERVER), None);
+}
+
+#[test]
+fn mcp_and_tools_tabs_show_only_their_own_inventory() {
+    let _g = lock();
+    let store = store_with(&["mcp/status/list", "tool/status/list"]);
+    host::perform("b3.open.mcp", 0, &store);
+    {
+        let mut st = host::state();
+        st.inv.loading = false;
+        st.inv.servers = inventory::parse_mcp(&serde_json::json!({
+            "profile_id":"dsflash", "session_id":"dsflash:a36probe",
+            "servers":[{"id":"server-1","display_name":"Test MCP","transport":"stdio","status":"connected","tool_count":0,"tools":[]}],
+            "summary":{"connected":1,"connecting":0,"failed":0,"disabled":0}
+        }), "dsflash:a36probe", "dsflash");
+        st.inv.tools = Some(("default".into(), vec![inventory::ToolRow {
+            name:"builtin-demo".into(), category:"runtime".into(),
+            status:"enabled".into(), policy:"allow".into(), aliases:vec![], backend:None, detail:None,
+        }]));
+    }
+    let mcp = host::lower_open(&store).unwrap();
+    assert!(mcp.dsl.contains("Test MCP"));
+    assert!(!mcp.dsl.contains("builtin-demo"));
+    assert!(!mcp.dsl.contains("b3_inv_count"));
+    host::state().inv.tab = inventory::Tab::Tools;
+    let tools = host::lower_open(&store).unwrap();
+    assert!(tools.dsl.contains("builtin-demo"));
+    assert!(!tools.dsl.contains("Test MCP"));
+    assert!(!tools.dsl.contains("b3_inv_summary"));
 }

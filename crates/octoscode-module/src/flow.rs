@@ -1908,6 +1908,7 @@ impl Conversation {
             *seq += 1;
         }
         crate::screens::board3::memory::invalidate();
+        crate::screens::board3::inventory::invalidate();
         crate::screens::models::invalidate_resources(&self.store);
         // A22 row 203 — the opened Session is a candidate until its history
         // commits: its live events wait (see `Candidate`).
@@ -2343,6 +2344,7 @@ impl Conversation {
                 None => self.store.domains.session.clear_workspace_root(&target.session),
             }
             crate::screens::board3::memory::invalidate();
+            crate::screens::board3::inventory::invalidate();
             crate::screens::models::invalidate_resources(&self.store);
             self.history_pending(&target.session);
             let started = if self.link.header_profile() != target.profile {

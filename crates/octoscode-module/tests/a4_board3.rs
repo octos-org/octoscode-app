@@ -354,7 +354,7 @@ fn spawn_of(o: Outcome) -> Job {
 }
 
 #[tokio::test]
-async fn tools_reads_both_inventories_scoped_and_the_search_filters_without_a_reload() {
+async fn inventory_reads_only_the_selected_mode_and_search_filters_without_a_reload() {
     let _g = lock();
     let server = FakeServer::start().await;
     let (conv, _ev) = connected(&server).await;
@@ -368,23 +368,28 @@ async fn tools_reads_both_inventories_scoped_and_the_search_filters_without_a_re
     let mcp = server.params_of("mcp/status/list");
     assert_eq!(tools.len(), 1, "one tools read");
     assert_eq!(tools[0], json!({"session_id": session, "profile_id": PROFILE, "include_denied": true}));
-    assert_eq!(mcp[0], json!({"session_id": session, "profile_id": PROFILE, "include_disabled": true}));
+    assert!(mcp.is_empty(), "opening Tools must not read the MCP inventory");
     {
         let st = host::state();
         let (policy, rows) = st.inv.tools.as_ref().expect("tools folded");
         assert_eq!(policy, "profile");
         assert_eq!(rows.iter().map(|r| r.name.as_str()).collect::<Vec<_>>(), ["apply_patch", "bash"]);
-        assert_eq!(st.inv.servers.as_ref().expect("servers folded").0[0].id, "github");
+        assert!(st.inv.servers.is_none());
     }
     // Typing filters the mounted rows (visibility only, no new request).
     host::input_changed("inv.search", "shell");
     let vis = host::live_visibility(&conv.store);
     assert!(vis.contains(&("b3_inv_tool_0".to_owned(), false)));
     assert!(vis.contains(&("b3_inv_tool_1".to_owned(), true)), "the alias matched bash");
-    assert!(vis.contains(&("b3_inv_servers_empty".to_owned(), true)));
     assert_eq!(server.params_of("tool/status/list").len(), 1, "filtering never re-reads");
-    // The MCP tab only switches the order; Refresh re-reads both.
-    assert_eq!(host::perform("b3.inv.tab.mcp", 0, &conv.store), Outcome::Done);
+    // Selecting MCP reads only MCP; it never appends the generic tools table.
+    let job = spawn_of(host::perform("b3.inv.tab.mcp", 0, &conv.store));
+    host::run(job, &conv).await.expect("MCP inventory load");
+    let mcp = server.params_of("mcp/status/list");
+    assert_eq!(mcp.len(), 1);
+    assert_eq!(mcp[0], json!({"session_id": session, "profile_id": PROFILE, "include_disabled": true}));
+    assert_eq!(host::state().inv.servers.as_ref().unwrap().0[0].id, "github");
+    assert_eq!(server.params_of("tool/status/list").len(), 1);
     assert_eq!(host::state().inv.tab, inventory::Tab::Mcp);
     assert_eq!(spawn_of(host::perform("b3.inv.refresh", 0, &conv.store)), Job::InventoryLoad);
 }

@@ -1786,6 +1786,8 @@ impl OctoscodeView {
                 if matches!(&e, crate::flow::FlowEvent::WorkspaceOpened(_)) {
                     let resource_conv = drv.clone();
                     tokio::spawn(async move {
+                        let inventory_open = screens::board3::host::state().open == Some(screens::board3::host::Dialog::Inventory);
+                        if inventory_open { let _ = screens::board3::inventory::load(&resource_conv).await; }
                         let _ = screens::models::refresh(&resource_conv, &resource_conv.store).await;
                         let memory_ticket = {
                             let mut state = screens::board3::host::state();

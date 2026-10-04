@@ -37,11 +37,8 @@ pub const TOOLS_FAILED: &str = "Couldn't read the tools for this session.";
 pub const MCP_FAILED: &str = "Couldn't read the MCP servers for this session.";
 pub const INVENTORY_FAILED: &str = "Couldn't read the runtime inventory.";
 
-/// A36 — where MCP servers are managed. The UI protocol has no method to add,
-/// remove or configure one (octos a6ea8505 and main 3916c6a8: servers come
-/// from the server's and the profile's `mcp_servers` config, and
-/// `mcp/status/list` answers with a hard-coded empty list), so the MCP view
-/// says so under its summary instead of implying the list is the whole truth.
+/// MCP connection status is reported by the server runtime. Configuration
+/// remains on the server; this panel does not add or remove connections.
 /// The upstream draft: `docs/proposals/mcp-management.md`.
 pub const MCP_MANAGED_ON_SERVER: &str =
     "MCP servers are configured on the server. This app shows the status the server reports and can't add or remove servers.";
@@ -261,58 +258,55 @@ async fn read_mode(
         .map_err(|e| e.to_string().chars().take(512).collect())
 }
 
-/// Load BOTH runtime inventories (the board's one dialog shows the two web
-/// modes together) through the production client.
+/// Load only the selected inventory. A slow tools read cannot delay MCP status.
 pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
-    let ticket = {
+    let identity = conv.resource_identity();
+    let (ticket, tab) = {
         let mut st = super::host::state();
         st.inv.ticket += 1;
         st.inv.loading = true;
         st.inv.error = None;
-        st.inv.ticket
+        st.inv.tools_error = None;
+        st.inv.mcp_error = None;
+        match st.inv.tab { Tab::Tools => st.inv.tools = None, Tab::Mcp => st.inv.servers = None }
+        (st.inv.ticket, st.inv.tab)
     };
     let session = conv.session_id();
     let profile = conv.profile();
     let supported = conv.store.domains.config.supported_methods();
-    let tools = read_mode(conv, Tab::Tools, &session, &profile, &supported).await;
-    let mcp = read_mode(conv, Tab::Mcp, &session, &profile, &supported).await;
+    let result = read_mode(conv, tab, &session, &profile, &supported).await;
     let mut st = super::host::state();
-    if st.inv.ticket != ticket {
+    if st.inv.ticket != ticket || st.inv.tab != tab || conv.resource_identity() != identity {
         return Ok("stale inventory reply dropped".into());
     }
     st.inv.loading = false;
     st.inv.scope = format!("{profile} · {session}");
-    st.inv.tools_error = None;
-    st.inv.mcp_error = None;
-    match tools.map(|v| parse_tools(&v, &session, &profile)) {
-        Ok(Some((policy, rows))) => {
-            // The store's tool domain keeps the last inventory seen.
-            conv.store.domains.tool.set(
-                rows.iter()
-                    .map(|r| octoscode_store::domains::tool::RuntimeTool {
-                        name: r.name.clone(),
-                        category: Some(r.category.clone()),
-                        status: Some(r.status.clone()),
-                        policy: Some(r.policy.clone()),
-                        aliases: r.aliases.clone(),
-                    })
-                    .collect(),
-            );
-            st.inv.tools = Some((policy, rows));
-        }
-        Ok(None) => st.inv.tools_error = Some("Invalid or wrong-scope tool status".into()),
-        Err(e) => st.inv.tools_error = Some(e),
+    match tab {
+        Tab::Tools => match result.map(|v| parse_tools(&v, &session, &profile)) {
+            Ok(Some((policy, rows))) => {
+                conv.store.domains.tool.set(rows.iter().map(|r| octoscode_store::domains::tool::RuntimeTool {
+                    name:r.name.clone(), category:Some(r.category.clone()), status:Some(r.status.clone()),
+                    policy:Some(r.policy.clone()), aliases:r.aliases.clone(),
+                }).collect());
+                st.inv.tools = Some((policy, rows));
+            }
+            Ok(None) => st.inv.tools_error = Some("Invalid or wrong-scope tool status".into()),
+            Err(e) => st.inv.tools_error = Some(e),
+        },
+        Tab::Mcp => match result.map(|v| parse_mcp(&v, &session, &profile)) {
+            Ok(Some(value)) => st.inv.servers = Some(value),
+            Ok(None) => st.inv.mcp_error = Some("Invalid or wrong-scope MCP status".into()),
+            Err(e) => st.inv.mcp_error = Some(e),
+        },
     }
-    match mcp.map(|v| parse_mcp(&v, &session, &profile)) {
-        Ok(Some((rows, summary))) => st.inv.servers = Some((rows, summary)),
-        Ok(None) => st.inv.mcp_error = Some("Invalid or wrong-scope MCP status".into()),
-        Err(e) => st.inv.mcp_error = Some(e),
-    }
-    Ok(format!(
-        "{} tools, {} servers",
-        st.inv.tools.as_ref().map(|t| t.1.len()).unwrap_or(0),
-        st.inv.servers.as_ref().map(|s| s.0.len()).unwrap_or(0)
-    ))
+    Ok("inventory refreshed".into())
+}
+
+pub fn invalidate() {
+    let mut st = super::host::state();
+    let ticket = st.inv.ticket + 1;
+    let tab = st.inv.tab;
+    st.inv = InvState { ticket, tab, ..Default::default() };
 }
 
 // ------------------------------------------------------------------ actions
@@ -320,11 +314,10 @@ pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
 pub fn perform(st: &mut InvState, action: &str, _index: usize) -> Outcome {
     match action {
         "b3.inv.tab.tools" | "b3.inv.tab.mcp" => {
-            // Both modes are loaded; the selected segment leads (`/tools`
-            // vs `/mcp`) — no refetch on a switch.
             st.tab = if action.ends_with("tools") { Tab::Tools } else { Tab::Mcp };
             st.query_snap = st.query.clone();
-            Outcome::Done
+            st.loading = true;
+            Outcome::Spawn(super::host::Job::InventoryLoad)
         }
         "b3.inv.refresh" => {
             if st.loading {
@@ -377,7 +370,7 @@ pub fn build(d: &mut Dsl, st: &InvState, frame: &Frame, _store: &Store) {
     // Header: title + refresh + close (`InventoryDialog.tsx:109-119`).
     let row = d.anon();
     d.view(&row, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4");
-    d.text("b3_title", tr("Runtime inventory"), &ui::title().w(W::Fill));
+    d.text("b3_title", tr(match st.tab { Tab::Tools => "Tools", Tab::Mcp => "MCP servers" }), &ui::title().w(W::Fill));
     ui::icon_button(d, "b3_inv_refresh", "b3_refresh.svg", 16.0, "b3.inv.refresh");
     ui::close_glyph(d, "b3.close");
     d.close();
@@ -421,26 +414,11 @@ pub fn build(d: &mut Dsl, st: &InvState, frame: &Frame, _store: &Store) {
         ui::error_line(d, "b3_inv_error", INVENTORY_FAILED, e);
     }
     match st.tab {
-        Tab::Tools => {
-            tools_section(d, st, compact, inner_w);
-            section_rule(d);
-            servers_section(d, st, compact, inner_w);
-        }
-        Tab::Mcp => {
-            servers_section(d, st, compact, inner_w);
-            section_rule(d);
-            tools_section(d, st, compact, inner_w);
-        }
+        Tab::Tools => tools_section(d, st, compact, inner_w),
+        Tab::Mcp => servers_section(d, st, compact, inner_w),
     }
     ui::body_close(d);
     ui::shell_close(d);
-}
-
-/// The full-width rule between the two inventories.
-fn section_rule(d: &mut Dsl) {
-    d.gap(W::Fill, 12.0);
-    d.hairline();
-    d.gap(W::Fill, 12.0);
 }
 
 /// A table header row between two hairlines (the board's column heads).
@@ -771,19 +749,21 @@ mod tests {
             ..Default::default()
         };
         for frame in [Frame::DESKTOP, Frame { avail_w: 360.0, avail_h: 780.0 }] {
-            let mut d = Dsl::new();
-            build(&mut d, &st, &frame, &Store::new());
-            let dsl = d.finish();
-            for (id, lead, cause) in [
-                ("b3_inv_tools_error", TOOLS_FAILED, "Invalid or wrong-scope tool status"),
-                ("b3_inv_mcp_error", MCP_FAILED, "mcp/status/list: rpc error -32601 (method not found)"),
+            for (tab, id, lead, cause) in [
+                (Tab::Tools, "b3_inv_tools_error", TOOLS_FAILED, "Invalid or wrong-scope tool status"),
+                (Tab::Mcp, "b3_inv_mcp_error", MCP_FAILED, "mcp/status/list: rpc error -32601 (method not found)"),
             ] {
+                let mut selected = st.clone();
+                selected.tab = tab;
+                let mut d = Dsl::new();
+                build(&mut d, &selected, &frame, &Store::new());
+                let dsl = d.finish();
+                assert_eq!(dsl.matches('{').count(), dsl.matches('}').count(), "balanced");
                 let at = dsl.find(&format!("{id} := Label")).expect(id);
                 let detail = dsl.find(&format!("{id}_detail := Label")).expect("the cause");
                 assert!(at < detail && dsl[at..detail].contains(&ui::lit(lead)) && dsl[at..detail].contains(tok::RED_TEXT));
                 assert!(dsl[detail..].contains(&ui::lit(cause)) && dsl[detail..].contains(tok::MUTED));
             }
-            assert_eq!(dsl.matches('{').count(), dsl.matches('}').count(), "balanced");
         }
     }
 }
