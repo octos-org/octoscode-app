@@ -685,7 +685,30 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         b.gap(6.0);
         b.text("skills_locked", tr(dlg::SKILLS_LOCKED), &Txt::new(12.5, Face::Medium, tok::AMBER).w(W::Fill).wrap());
     }
-    // A31 — the Background jobs section at the top (parity row 15).
+    let catalog = crate::screens::models::effective_skills(store);
+    b.gap(12.0);
+    let zh = crate::i18n::is_zh();
+    b.text("effective_head", tr("Skills for this session"), &ui::heading().w(W::Fill));
+    if catalog.available {
+        b.text("effective_session", &catalog.session, &ui::meta().w(W::Fill).wrap());
+        for (scope, en, cn) in [("builtin","Built-in","内置"),("global","Global · server deployment","Global · 服务端共享"),("profile","Profile","Profile"),("project","Project","项目")] {
+            let entries: Vec<_> = catalog.rows.iter().filter(|r| r["scope"].as_str() == Some(scope)).collect();
+            b.gap(8.0);
+            b.text(&format!("effective_{scope}"), &format!("{} ({})", if zh {cn} else {en}, entries.len()), &ui::meta().w(W::Fill));
+            for (i, entry) in entries.iter().enumerate() {
+                let name = entry["name"].as_str().unwrap_or("");
+                let kind = if entry["kind"] == "instructions" {if zh {"指引"} else {"instructions"}} else {if zh {"工具 / 插件"} else {"tools / plugin"}};
+                let status = if entry["available"] == true {if zh {"可用"} else {"available"}} else {if zh {"不可用"} else {"unavailable"}};
+                b.text(&format!("effective_{scope}_{i}"), &format!("{name} · {kind} · {status}"), &para(tok::TEXT));
+                if let Some(path) = entry["path"].as_str().filter(|p| !p.starts_with("<builtin>")) {
+                    b.text(&format!("effective_{scope}_{i}_path"), path, &ui::meta().w(W::Fill).wrap());
+                }
+            }
+        }
+    } else {
+        b.text("effective_unavailable", tr("Loading, or this server does not offer a session skill catalog."), &para(tok::MUTED));
+    }
+    // Profile installation management remains separate from effective skills.
     skill_jobs_section(b, ctx);
     if dlg::advertises(store, "profile/skills/registry/search") {
         b.gap(12.0);

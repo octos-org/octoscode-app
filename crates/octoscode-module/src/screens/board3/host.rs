@@ -529,6 +529,7 @@ pub fn open(dialog: Dialog) -> Outcome {
             Outcome::Spawn(Job::CheckpointsLoad)
         }
         Dialog::Switcher => {
+            st.switch.offset = 0;
             st.switch.error = None;
             Outcome::Spawn(Job::SwitchLoad)
         }

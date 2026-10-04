@@ -148,3 +148,26 @@ and its SHA-256 checksum to `target/desktop-packages/`. It does not cross-compil
 | Sidebar, typing or the folder browser feels slow | Use the release bundle or an optimized executable (`tools/build-macos.sh` builds one by default; `--release` on the RC tag). A `--debug` build is substantially slower. |
 | Missing fonts or icons after copying a binary | Copy the packaged `.app` or release ZIP; a bare source-build executable is not the portable bundle. |
 | macOS blocks launch | Follow the per-app approval in step 1 for the download from this repository. |
+
+## Session history, memory and skills in current source builds
+
+Open **Session history** in the sidebar (or `/sessions`) to browse the server's
+Profile history and known projects. Each row names its Profile and workspace;
+**Load more** pages through older sessions. Add an older workspace if it has not
+been opened on this client. The catalog reports unavailable paths and never
+assumes it has scanned the server's entire filesystem.
+
+**Settings → Capabilities → Skills** shows built-in, global deployment, Profile
+and project sources for the current session. Project skills appear only when
+the server runtime loads that project layer. The separate Installed list manages
+Profile packages; global or built-in entries cannot be removed from that list.
+
+**Memory** shows the current session's authorized storage scope. Ordinary
+sessions share persistent memory within a Profile, across projects. App-owned
+namespaces are isolated and require the owning app's credential. Changing sessions
+refreshes resource panels and rejects late replies from the previous session.
+Viewing a memory record does not increment model retrieval statistics.
+
+These additions require a matching server advertising `session/history/list`,
+`memory.session_scope.v1` and `skills.effective_catalog.v1`. They are source-build
+features and are not included in the older RC download linked above.

@@ -153,6 +153,21 @@ impl Storage for MemoryStore {
     }
 }
 
+/// Workspace addresses only; transcript metadata is always fetched from Core.
+/// This longer-lived history index is independent of the 20-item recents menu.
+pub fn history_workspaces(storage: &dyn Storage, endpoint: &str) -> Vec<String> {
+    let key = format!("octoscode.history-workspaces.v1:{endpoint}");
+    let mut roots: Vec<String> = storage.get_item(&key).and_then(|s| serde_json::from_str(&s).ok()).unwrap_or_default();
+    roots.extend(load_recent_workspaces(storage, endpoint).into_iter().map(|r| r.path));
+    roots.retain(|p| !p.trim().is_empty()); roots.sort(); roots.dedup(); roots.truncate(128);
+    roots
+}
+fn remember_history_workspace(storage: &dyn Storage, endpoint: &str, path: &str) {
+    let mut roots = history_workspaces(storage, endpoint);
+    roots.retain(|p| p != path); roots.insert(0, path.to_owned()); roots.truncate(128);
+    if let Ok(json) = serde_json::to_string(&roots) { let _ = storage.set_item(&format!("octoscode.history-workspaces.v1:{endpoint}"), &json); }
+}
+
 /// The v2 key prefix (`workspace-recents.ts:11`).
 pub const STORAGE_PREFIX: &str = "octoscode.product.workspace-recents.v2";
 /// The v1 key prefix (`:12`) — the legacy cache that held session metadata
@@ -240,6 +255,7 @@ pub fn remember_workspace(
     if canonical_path.is_empty() {
         return load_recent_workspaces(storage, endpoint);
     }
+    remember_history_workspace(storage, endpoint, canonical_path);
     let current = load_recent_workspaces(storage, endpoint);
     let workspace = RecentWorkspace {
         id: canonical_path.to_owned(),

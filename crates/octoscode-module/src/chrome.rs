@@ -1829,7 +1829,7 @@ pub struct ChromeRuntime {
 
 /// A24 — the NAMED shell labels whose DSL text is static copy (code never
 /// sets them); anonymous labels are static by construction.
-pub fn static_named() -> [LiveId; 8] {
+pub fn static_named() -> [LiveId; 9] {
     [
         // The Settings nav cells' labels (`OcNavCell{… nv_label +: {text: …}}`).
         live_id!(nv_label),
@@ -1840,6 +1840,7 @@ pub fn static_named() -> [LiveId; 8] {
         live_id!(hd_review_label),
         live_id!(hd_settings_label),
         live_id!(fleet_nav_label),
+        live_id!(history_nav_label),
     ]
 }
 
@@ -2158,6 +2159,7 @@ impl ChromeRuntime {
         // The collapsed rail keeps the Fleet entry as its icon only; the web
         // drops the label (ProductSidebar.tsx:980). Left in, it clipped to 3 px.
         show(cx, view, ids!(fleet_nav_label), !rail);
+        show(cx, view, ids!(history_nav_label), !rail);
         // A26 — the footer's theme toggle and Settings: icons only in the
         // rail too (ProductSidebar.tsx:995/1015); the toggle's icon and label
         // follow the appearance preference (System / Light / Dark).

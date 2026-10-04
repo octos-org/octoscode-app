@@ -1665,6 +1665,11 @@ impl Conversation {
         format!("{}#{}", self.profile(), seq)
     }
 
+    /// Full authority for asynchronous resource panels, including socket owner.
+    pub fn resource_identity(&self) -> String {
+        format!("{}#{}", self.scope_key(), self.generation())
+    }
+
     /// A8 — the active Session's runtime scope (endpoint, workspace root,
     /// profile, session, authority epoch).
     pub fn scope(&self) -> SessionScope {
@@ -1902,6 +1907,8 @@ impl Conversation {
             let mut seq = self.open_seq.lock().unwrap();
             *seq += 1;
         }
+        crate::screens::board3::memory::invalidate();
+        crate::screens::models::invalidate_resources(&self.store);
         // A22 row 203 — the opened Session is a candidate until its history
         // commits: its live events wait (see `Candidate`).
         self.begin_candidate(&session_id.0);
@@ -2305,6 +2312,55 @@ impl Conversation {
     /// or a freshly minted one from [`Conversation::fresh_session_id`].
     pub async fn open_session(&self, id: &str, cwd: Option<String>) -> Result<String, String> {
         self.open_workspace_as(id, cwd).await
+    }
+
+    /// Open a server-attested history row with its complete storage identity.
+    /// A same-id/different-workspace row retires the old socket and transcript;
+    /// its replay cursor must never be reused for another store.
+    pub async fn open_history_target(&self, target: &crate::screens::board3::switcher::HistoryTarget) -> Result<String, String> {
+        if self.in_outage() { return Err(link::NOT_CONNECTED.into()); }
+        let previous_root = self.store.domains.session.workspace_root(&target.session);
+        let collision = self.store.domains.session.is_known(&target.session) && previous_root != target.cwd;
+        if collision && self.live_turn_of(&target.session).is_some() {
+            return Err("Wait for this session's running turn before opening the same id in another workspace.".into());
+        }
+        let outcome = self.watch_next_open();
+        let previous_profile = self.profile();
+        self.adopt_profile(target.profile.clone());
+        if collision {
+            self.store.domains.session.timeline.forget_session(&target.session);
+            self.history.lock().unwrap().remove(&target.session);
+            crate::screens::composer_drafts::retire(self, &target.session);
+        }
+        let redial = collision || self.link.header_profile() != target.profile;
+        if redial {
+            *self.session_id.lock().unwrap() = target.session.clone();
+            self.store.note_session_opened(&target.session, None);
+            self.store.set_active(Some(target.session.clone()));
+            self.store.domains.profile.set_current(target.profile.clone());
+            match &target.cwd {
+                Some(root) => self.store.domains.session.set_workspace_root(&target.session, root),
+                None => self.store.domains.session.clear_workspace_root(&target.session),
+            }
+            crate::screens::board3::memory::invalidate();
+            crate::screens::models::invalidate_resources(&self.store);
+            self.history_pending(&target.session);
+            let started = if self.link.header_profile() != target.profile {
+                self.link.carry_profile(&target.profile)
+            } else { self.link.respawn() };
+            if !started { self.adopt_profile(previous_profile); return Err("Could not switch the connection profile.".into()); }
+        } else if let Err(e) = self.open_session(&target.session, target.cwd.clone()).await {
+            self.adopt_profile(previous_profile);
+            return Err(e);
+        }
+        match tokio::time::timeout(HISTORY_WAIT, outcome).await {
+            Ok(Ok(Ok(id))) if id == target.session => {
+                crate::screens::remembered::note_opened(&self.http_base, &target.profile, &target.session, target.cwd.as_deref());
+                Ok(id)
+            }
+            Ok(Ok(Err(e))) => Err(e),
+            _ => Err("The server has not confirmed this history session. Retry after the connection recovers.".into()),
+        }
     }
 
     /// `session.new` — a **New chat**: mint a fresh session id, adopt it, and
@@ -3290,6 +3346,7 @@ impl Conversation {
                 // .active_profile_id`, Settings > General's Profile row); the
                 // `session/open` notification handler folds the same field.
                 if let Some(profile) = &r.opened.active_profile_id {
+                    *self.profile.lock().unwrap() = profile.clone();
                     self.store.domains.profile.set_current(profile.clone());
                 }
                 // A4 — the Session's initial thinking effort is the open

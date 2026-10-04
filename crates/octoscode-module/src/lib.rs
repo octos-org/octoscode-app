@@ -384,6 +384,52 @@ script_mod! {
                 // `{label: "Fleet", icon: "✦"}`, ProductSidebar.tsx:970-983) —
                 // opens the board-3 Fleet pane. Same row metrics as the
                 // `+ Add workspace` row above it.
+                history_nav := View {
+                    width: Fill height: 34 flow: Overlay
+                    history_nav_row := View {
+                        width: Fill height: Fill flow: Right spacing: 10
+                        align: Align{y: 0.5}
+                        padding: Inset{left: 8}
+                        Svg {
+                            width: 15 height: 15
+                            animating: false
+                            draw_svg.svg: file_resource(#(crate::design::icon_resource("b3_clock.svg")))
+                            draw_svg.preserve_viewbox: true
+                            // A26: the look's glyph ink (the file's #1D1D1F
+                            // vanished on a dark sidebar).
+                            draw_svg.color: #(crate::chrome::ink("glyph"))
+                        }
+                        history_nav_label := Label {
+                            width: Fit height: Fit padding: 0 text: "Session history"
+                            draw_text.text_style: theme.oc_text_row
+                            draw_text.text_style.font_size: 10.5
+                            draw_text.color: theme.color_fg_app
+                        }
+                    }
+                    // Flat states (no bevel gradient, no focus fill), as the
+                    // chrome's own hits.
+                    history_nav_hit := Button {
+                        width: Fill height: Fill text: "" padding: 0 margin: 0
+                        draw_bg.color: #00000000
+                        draw_bg.color_hover: #00000000
+                        draw_bg.color_down: #8080801F
+                        draw_bg.color_focus: #00000000
+                        draw_bg.color_2: #00000000
+                        draw_bg.color_2_hover: #00000000
+                        draw_bg.color_2_down: #8080801F
+                        draw_bg.color_2_focus: #00000000
+                        draw_bg.border_size: 0.0
+                        draw_bg.border_radius: 8.0
+                        draw_bg.border_color: #00000000
+                        draw_bg.border_color_hover: #00000000
+                        draw_bg.border_color_down: #00000000
+                        draw_bg.border_color_focus: #00000000
+                        draw_bg.border_color_2: #00000000
+                        draw_bg.border_color_2_hover: #00000000
+                        draw_bg.border_color_2_down: #00000000
+                        draw_bg.border_color_2_focus: #00000000
+                    }
+                }
                 fleet_nav := View {
                     width: Fill height: 34 flow: Overlay
                     fleet_nav_row := View {
@@ -1737,6 +1783,22 @@ impl OctoscodeView {
                 // A10 — peer/staged + peer/closed drive the peer manager.
                 screens::peers::note_transport_event(&drv, &evt);
                 let e = drv.on_event(evt);
+                if matches!(&e, crate::flow::FlowEvent::WorkspaceOpened(_)) {
+                    let resource_conv = drv.clone();
+                    tokio::spawn(async move {
+                        let _ = screens::models::refresh(&resource_conv, &resource_conv.store).await;
+                        let memory_ticket = {
+                            let mut state = screens::board3::host::state();
+                            if state.open == Some(screens::board3::host::Dialog::Memory) {
+                                state.mem.ticket += 1;
+                                state.mem.loading = true;
+                                Some(state.mem.ticket)
+                            } else { None }
+                        };
+                        if let Some(ticket) = memory_ticket { let _ = screens::board3::memory::load_overview(&resource_conv, ticket).await; }
+                        SignalToUI::set_ui_signal();
+                    });
+                }
                 ::log::debug!("[octoscode] {e:?}");
                 SignalToUI::set_ui_signal();
             }
@@ -6042,6 +6104,15 @@ impl OctoscodeView {
                 // A4 — the sidebar footer's Fleet entry. A hidden Button still
                 // reports MouseUp, so the click counts only while the sidebar
                 // dock is shown.
+                if self.view.widget(cx, ids!(sidebar_dock)).visible()
+                    && self.view.button(cx, ids!(history_nav_hit)).clicked(actions)
+                {
+                    makepad_widgets::log!("[octoscode] sidebar: history");
+                    self.perform_action(cx, "b3.open.switcher", 0);
+                    // A destination closes the phone drawer (a no-op on the
+                    // desktop column).
+                    self.perform_action(cx, "drawer.close", 0);
+                }
                 if self.view.widget(cx, ids!(sidebar_dock)).visible()
                     && self.view.button(cx, ids!(fleet_nav_hit)).clicked(actions)
                 {

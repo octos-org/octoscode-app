@@ -63,12 +63,14 @@ fn runtime_unavailable() -> Value {
 }
 
 fn recorded_open() -> Value {
-    frames("r1-autonomy-a6ea8505.jsonl")
+    let mut value = frames("r1-autonomy-a6ea8505.jsonl")
         .into_iter()
         .filter(|f| f["dir"] == "in" && f["method"] == "session/open")
         .map(|f| f["body"].clone())
         .find(|b| b.get("active_profile_id").is_some())
-        .expect("r1 open")
+        .expect("r1 open");
+    value["capabilities"]["supported_features"].as_array_mut().unwrap().push(json!("memory.session_scope.v1"));
+    value
 }
 
 fn proposal_overview() -> Value {
@@ -111,7 +113,7 @@ impl Server {
                 let method = v["method"].as_str().unwrap_or("").to_owned();
                 let id = v["id"].as_str().unwrap_or("").to_owned();
                 log.lock().unwrap().push((method.clone(), v["params"].clone()));
-                let body = match queues.get(&method) {
+                let mut body = match queues.get(&method) {
                     Some(list) => {
                         let k = pos.entry(method.clone()).or_insert(0);
                         let b = list[(*k).min(list.len() - 1)].clone();
@@ -120,6 +122,10 @@ impl Server {
                     }
                     None => json!({}),
                 };
+                if let Some(delay) = body["__delay_ms"].as_u64() { tokio::time::sleep(std::time::Duration::from_millis(delay)).await; }
+                if method.starts_with("memory/") && body["profile_id"].is_string() && body.get("scope").is_none() {
+                    body["scope"] = json!({"kind":"profile","namespace":null,"session_id":v["params"]["context"]["session_id"]});
+                }
                 let frame = match body.get("__error").or_else(|| body.get("error")) {
                     Some(e) => json!({"jsonrpc": "2.0", "id": id, "error": e}),
                     None => json!({"jsonrpc": "2.0", "id": id, "result": body}),
@@ -223,7 +229,7 @@ async fn the_overview_asks_for_the_session_profile_and_draws_board_5() {
     let server = Server::start(vec![("session/open", json!({"opened": recorded_open()})), ("memory/overview", proposal_overview())]).await;
     let conv = connect(&server, ALL_MEMORY).await;
     open_memory(&conv).await;
-    assert_eq!(server.sent("memory/overview"), vec![json!({"profile_id": "dsflash"})], "D2 A: the Session's profile");
+    assert_eq!(server.sent("memory/overview"), vec![json!({"profile_id": "dsflash", "context":{"session_id":conv.session_id()}})], "D2 A: the Session's profile");
     let d = dsl(&conv.store);
     for want in [
         "Memory",
@@ -281,7 +287,7 @@ async fn todays_server_answers_for_the_signed_in_account_so_the_dialog_refuses_h
     assert!(d.contains(&problem) && d.contains(&next), "the bounded problem + next step: {problem} / {next}");
     assert!(problem.contains("dsflash"), "it names the profile asked for: {problem}");
     // Never another profile's memory presented as this one's, never a write.
-    assert!(!d.contains("No memory yet"), "admin's empty memory is not dsflash's");
+    assert!(!d.contains("No knowledge pages yet"), "admin's empty memory is not dsflash's");
     assert!(!d.contains("b3_mem_add"), "no Add note while the profile is unconfirmed");
     assert!(!host::state().mem.confirmed);
     assert_eq!(host::perform("b3.mem.add", 0, &conv.store), Outcome::Done);
@@ -297,8 +303,8 @@ async fn an_empty_profile_says_so() {
     let conv = connect(&server, ALL_MEMORY).await;
     open_memory(&conv).await;
     let d = dsl(&conv.store);
-    assert!(d.contains("No memory yet") && d.contains("b3_mem_empty"), "{d}");
-    assert!(d.contains("Octos writes long-term memory and daily notes as you work with this profile."));
+    assert!(d.contains("No knowledge pages yet") && d.contains("b3_mem_empty"), "{d}");
+    assert!(d.contains("No long-term pages or daily notes here yet. Recall records may still be available through search."));
     assert!(!d.contains("Long-term memory"), "no empty section headings");
 }
 
@@ -327,7 +333,7 @@ async fn search_sends_the_query_the_kind_and_the_limit_and_lists_the_hits() {
     searched(&server, &conv, "  steer queue ").await;
     assert_eq!(
         server.sent("memory/search")[0],
-        json!({"profile_id": "dsflash", "query": "steer queue", "limit": 20}),
+        json!({"profile_id": "dsflash", "context":{"session_id":conv.session_id()}, "query": "steer queue", "limit": 20}),
         "All sends no kinds; the query is trimmed"
     );
     let d = dsl(&conv.store);
@@ -415,7 +421,7 @@ async fn opening_a_hit_loads_the_record_and_shows_untrusted_content_as_data() {
     let out = host::perform("b3.mem.open", 2, &conv.store);
     assert!(matches!(&out, Outcome::Spawn(Job::MemoryLoad(_, id)) if id == DOC_ID), "{out:?}");
     run(&conv, out).await.ok();
-    assert_eq!(server.sent("memory/load")[0], json!({"profile_id": "dsflash", "id": DOC_ID}));
+    assert_eq!(server.sent("memory/load")[0], json!({"profile_id": "dsflash", "context":{"session_id":conv.session_id()}, "count_visit":false, "id": DOC_ID}));
     assert_eq!(host::state().mem.page, Page::Record);
     let d = dsl(&conv.store);
     for want in ["Backoff for redelivery", "Document", "octoscode", "untrusted", "opened 3 times", "Applies to every redeliver attempt after a reconnect.", "Added from an app", "Octos reads it as data, never as instructions.", DOC_ID, "Results"] {
@@ -451,7 +457,7 @@ async fn an_entity_row_opens_its_page() {
     let out = host::perform("b3.mem.entity", 2, &conv.store);
     assert!(matches!(&out, Outcome::Spawn(Job::MemoryEntity(_, n)) if n == "steer-queue"), "{out:?}");
     run(&conv, out).await.ok();
-    assert_eq!(server.sent("memory/entity")[0], json!({"profile_id": "dsflash", "name": "steer-queue"}));
+    assert_eq!(server.sent("memory/entity")[0], json!({"profile_id": "dsflash", "context":{"session_id":conv.session_id()}, "name": "steer-queue"}));
     assert_eq!(host::state().mem.page, Page::Entity);
     let d = dsl(&conv.store);
     assert!(d.contains("Entity page") && d.contains("Markdown{") && d.contains("Backoff starts at 250 ms"), "{d}");
@@ -727,4 +733,32 @@ async fn memory_follows_the_app_theme_and_reads_in_chinese() {
         assert!(zh.contains(want), "zh: missing {want:?}");
     }
     assert!(zh.contains("NotoSansSC") || zh.contains("Noto"), "CJK text in Noto Sans SC");
+}
+
+#[tokio::test]
+async fn an_old_overview_cannot_repopulate_memory_after_a_session_switch() {
+    let _g = serial();
+    let mut body = proposal_overview(); body["__delay_ms"] = json!(80);
+    let server = Server::start(vec![("session/open", json!({"opened": recorded_open()})), ("memory/overview",body)]).await;
+    let conv = connect(&server, ALL_MEMORY).await;
+    let out = host::perform("b3.open.memory",0,&conv.store);
+    let old = conv.clone();
+    let pending = tokio::spawn(async move { run(&old, out).await });
+    for _ in 0..50 { if !server.sent("memory/overview").is_empty() { break; } tokio::time::sleep(std::time::Duration::from_millis(2)).await; }
+    assert!(!server.sent("memory/overview").is_empty());
+    memory::invalidate(); conv.adopt_profile("other".into());
+    pending.await.unwrap().unwrap();
+    let state = host::state();
+    assert!(state.mem.overview.is_none() && !state.mem.confirmed && state.mem.profile.is_empty());
+}
+
+#[tokio::test]
+async fn a_matching_profile_with_the_wrong_session_echo_is_refused() {
+    let _g = serial();
+    let mut body = proposal_overview(); body["scope"] = json!({"kind":"profile","namespace":null,"session_id":"dsflash:api:other"});
+    let server = Server::start(vec![("session/open", json!({"opened": recorded_open()})), ("memory/overview",body)]).await;
+    let conv = connect(&server, ALL_MEMORY).await;
+    open_memory(&conv).await;
+    let state = host::state();
+    assert!(state.mem.overview.is_none() && !state.mem.confirmed);
 }

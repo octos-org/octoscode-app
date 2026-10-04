@@ -260,8 +260,8 @@ def recent_phase(W: Walk):
 
 def empty_phase(W: Walk):
     W.check("empty: open", open_memory(W))
-    W.check("empty: 'No memory yet' with its line (frame 10a)",
-            has(W, "No memory yet", "Octos writes long-term memory and daily notes as you work with this profile."))
+    W.check("empty: 'No knowledge pages yet' with its line (frame 10a)",
+            has(W, "No knowledge pages yet", "No long-term pages or daily notes here yet. Recall records may still be available through search."))
     numeric(W, "empty")
     W.shot(f"13-empty-{MODE}")
     # Regression: rebuilding a dialog during a click must not leave a second
@@ -295,9 +295,9 @@ def loading_phase(W: Walk):
 def today_phase(W: Walk):
     W.check("today: open (a6ea8505 answers the signed-in account's memory)", open_memory(W))
     W.check("today: the honest refusal — the problem and the next step, no raw error (D1, D2 A)",
-            has(W, "Couldn't read memory.", "This server reads memory for the account you signed in with, not for dsflash.",
-                "Update octos to a version that reads memory per profile.")
-            and not any(x in " ".join(texts(W)) for x in ("ProfileRuntime", "admin", "No memory yet")))
+            has(W, "Couldn't read memory.", "The server did not confirm the memory scope for this session in dsflash.",
+                "Update octos to a version that reports session memory scope.")
+            and not any(x in " ".join(texts(W)) for x in ("ProfileRuntime", "admin", "No knowledge pages yet")))
     W.check("today: no Add note (a note must never land in memory the server cannot attribute)",
             not W.visible("b3_mem_add"))
     scope_ok(W, "today")

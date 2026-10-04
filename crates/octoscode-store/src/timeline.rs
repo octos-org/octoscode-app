@@ -144,6 +144,12 @@ pub struct Timeline {
 }
 
 impl Timeline {
+    /// Retire an in-memory transcript before a wire id is rebound to another
+    /// workspace. Persisted server history is unaffected.
+    pub fn forget_session(&self, session: &str) {
+        self.inner.lock().unwrap().remove(session);
+    }
+
     /// Append a new entry of `kind` and return its id.
     pub fn append(&self, session: &str, turn_id: Option<String>, kind: EntryKind, text: String) -> u64 {
         let id = self.next_id.fetch_add(1, Ordering::Relaxed);

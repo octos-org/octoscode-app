@@ -92,11 +92,11 @@ def walk(W: Walk):
     W.click("set_cap_memory")
     W.check("live: Memory 'Open' -> the dialog", W.logged("b3.open.memory", 4) and W.wait(lambda: bool(W.visible("b3_mem_title")), 8))
     W.check("live: the honest refusal — a6ea8505 answered for the signed-in account, not dsflash (D2 A)",
-            has(W, "Couldn't read memory.", "This server reads memory for the account you signed in with, not for dsflash.",
-                "Update octos to a version that reads memory per profile.", secs=12))
+            has(W, "Couldn't read memory.", "The server did not confirm the memory scope for this session in dsflash.",
+                "Update octos to a version that reports session memory scope.", secs=12))
     joined = " ".join(texts(W))
     W.check("live: no raw server error, no admin memory shown as dsflash's, no Add note (D1)",
-            not any(x in joined for x in ("ProfileRuntime", "admin", "No memory yet")) and not W.visible("b3_mem_add"))
+            not any(x in joined for x in ("ProfileRuntime", "admin", "No knowledge pages yet")) and not W.visible("b3_mem_add"))
     W.check("live: the scope line names the Session's profile in plain text (D1)", W.text("b3_mem_scope") == "Server Profile: dsflash")
     numeric(W, "live refused")
     W.shot(f"04-memory-refused-live-{MODE}")

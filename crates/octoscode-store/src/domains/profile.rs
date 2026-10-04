@@ -178,6 +178,7 @@ pub struct Profiles {
 
 #[derive(Debug, Default)]
 struct Inner {
+    effective_skills: Option<serde_json::Value>,
     /// The profile the connection is using (from `session/open`).
     current: Option<String>,
     /// LLM provider ids the server listed.
@@ -204,6 +205,13 @@ struct Inner {
 }
 
 impl Profiles {
+    pub fn effective_skills(&self) -> Option<serde_json::Value> {
+        self.inner.lock().unwrap().effective_skills.clone()
+    }
+    pub fn set_effective_skills(&self, value: Option<serde_json::Value>) {
+        self.inner.lock().unwrap().effective_skills = value;
+    }
+
     pub fn set_current(&self, profile_id: String) {
         self.inner.lock().unwrap().current = Some(profile_id);
     }
