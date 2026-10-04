@@ -680,12 +680,35 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     let store = ctx.store;
     open(b, "t_title", tr("Skills"), &scope_line(b.dlg, ctx), notice);
     let locked = dlg::profile_locked(ctx);
+    b.text("skills_explanation", tr("Skills provide reusable instructions from SKILL.md. Tools and MCP servers have their own inventory."), &para(tok::MUTED));
     b.text("skills_warning", tr(dlg::SKILLS_WARNING), &para(tok::MUTED));
     if locked {
         b.gap(6.0);
         b.text("skills_locked", tr(dlg::SKILLS_LOCKED), &Txt::new(12.5, Face::Medium, tok::AMBER).w(W::Fill).wrap());
     }
-    // A31 — the Background jobs section at the top (parity row 15).
+    let catalog = crate::screens::models::effective_skills(store);
+    b.gap(12.0);
+    let zh = crate::i18n::is_zh();
+    b.text("effective_head", tr("Skills for this session"), &ui::heading().w(W::Fill));
+    if catalog.available {
+        b.text("effective_session", &catalog.session, &ui::meta().w(W::Fill).wrap());
+        for (scope, en, cn) in [("builtin","Built-in","内置"),("global","Global · server deployment","Global · 服务端共享"),("profile","Profile","Profile"),("project","Project","项目")] {
+            let entries: Vec<_> = catalog.rows.iter().filter(|r| r["scope"].as_str() == Some(scope)).collect();
+            b.gap(8.0);
+            b.text(&format!("effective_{scope}"), &format!("{} ({})", if zh {cn} else {en}, entries.len()), &ui::meta().w(W::Fill));
+            for (i, entry) in entries.iter().enumerate() {
+                let name = entry["name"].as_str().unwrap_or("");
+                let status = if entry["available"] == true {if zh {"可用"} else {"available"}} else {if zh {"不可用"} else {"unavailable"}};
+                b.text(&format!("effective_{scope}_{i}"), &crate::i18n::tr_with("{value0} · SKILL.md · {value1}", &[("value0", name), ("value1", status)]), &para(tok::TEXT));
+                if let Some(path) = entry["path"].as_str().filter(|p| !p.starts_with("<builtin>")) {
+                    b.text(&format!("effective_{scope}_{i}_path"), path, &ui::meta().w(W::Fill).wrap());
+                }
+            }
+        }
+    } else {
+        b.text("effective_unavailable", tr("Loading, or this server does not offer a session skill catalog."), &para(tok::MUTED));
+    }
+    // Profile installation management remains separate from effective skills.
     skill_jobs_section(b, ctx);
     if dlg::advertises(store, "profile/skills/registry/search") {
         b.gap(12.0);
@@ -695,7 +718,7 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     }
     // ---- Installed.
     b.gap(16.0);
-    b.text("t_inst_head", tr("Installed"), &ui::heading().w(W::Fill));
+    b.text("t_inst_head", tr("Installed instruction skills"), &ui::heading().w(W::Fill));
     b.gap(8.0);
     let installed = store.domains.profile.installed_skills();
     b.list_card("card_installed");
@@ -714,13 +737,7 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         let c = b.d.anon();
         b.d.view(&c, "width: Fill height: Fit flow: Down spacing: 3");
         b.text(&format!("t_name{}", 3 + i), &ui::fit_w(&s.name, line_w, 13.5, Face::Semibold), &row_title().w(W::Fill));
-        // The web's `{n} {t("tools")}` in Chinese; English keeps its singular.
-        let tools = match (s.tool_count, crate::i18n::is_zh()) {
-            (n, true) => format!("{n} {}", tr("tools")),
-            (1, false) => "1 tool".to_owned(),
-            (n, false) => format!("{n} tools"),
-        };
-        let mut line = format!("{} · {tools}", s.version.as_deref().unwrap_or(tr("Version not reported")));
+        let mut line = format!("{} · SKILL.md", s.version.as_deref().unwrap_or(tr("Version not reported")));
         if let Some(repo) = s.source_repo.as_deref().filter(|r| !r.is_empty()) {
             line = format!("{line} · {repo}");
         }

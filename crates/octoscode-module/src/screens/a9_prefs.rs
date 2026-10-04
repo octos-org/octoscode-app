@@ -1,40 +1,17 @@
-//! A9 — display preferences (the web's "Browser preferences",
-//! `features/preferences/model.ts` + `PreferencesDialog.tsx`), natively a
-//! Settings section.
+//! Display preferences: one theme choice, language and Vim editing.
 //!
-//! The contract kept from the web (`model.ts:1-181`):
-//! - ONLY the display whitelist is stored, as `{version: 1, theme, language,
-//!   vimMode}` — exactly those four keys; a document with any other field
-//!   (e.g. an accidentally supplied credential), another version, an unknown
-//!   palette/language or a non-boolean vimMode is rejected and the defaults
-//!   apply (`parseDisplayPreferences`, :35-62).
-//! - Changes apply at once; only **Save** writes them; a store that cannot
-//!   be read or written never blocks the app — the choice stays in effect and
-//!   the section says "Preferences could not be saved." (`SAVE_ERROR`).
-//! - Defaults: palette `terminal`, language from the device (`zh*` -> zh),
-//!   vimMode off (:102-107).
-//!
-//! The file is the native counterpart of `octoscode.web.display.v1`:
-//! `$HOME/.octoscode/display-v1.json` (`OCTOSCODE_DISPLAY_PREFS_PATH`
-//! overrides). The System/Light/Dark appearance stays where it was
-//! (`screens::theme`, the web's separate `dsw-theme` key).
-//!
-//! What the section offers natively: **Vim editing** (the composer's Vim
-//! subset, `screens::board3::vim`), applied at once and restored at launch;
-//! (A26) the **display palette** — the five named palettes of
-//! `screens::theme::Palette`, applied at once to the whole app
-//! (`a26_host::retheme`) and restored at launch (`theme::init_persistence`);
-//! and (A24) the **Language** — English / 简体中文, the web dialog's first
-//! field (`PreferencesDialog.tsx:42-55`): a choice re-renders every surface
-//! at once through `crate::i18n` (the web's catalog), unsaved until Save, and
-//! the saved choice is published before the first frame ([`adopt_language`]).
+//! System/Light/Dark and named themes share one selector and persisted `theme`
+//! value. Changes apply immediately; Save writes the four-key version-2 document.
+//! Legacy version-1 palette documents and the separate appearance file are read
+//! once at startup. Named palettes win; Terminal adopts the old appearance.
+//! The storage path stays display-v1.json so existing installations migrate in place.
 use std::path::PathBuf;
 use std::sync::Mutex;
 
 use serde_json::Value;
 
-/// The five named palettes (`DISPLAY_THEMES`, model.ts:2-8).
-pub const DISPLAY_THEMES: [&str; 5] = ["terminal", "codex", "claude", "slate", "solarized"];
+/// The mutually exclusive choices in the unified Theme selector.
+pub const DISPLAY_THEMES: [&str; 7] = ["system", "light", "dark", "codex", "claude", "slate", "solarized"];
 
 /// The saved / current display preferences.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -47,7 +24,7 @@ pub struct DisplayPrefs {
 /// `SAVE_ERROR` (model.ts:24), native wording.
 pub const SAVE_ERROR: &str = "Preferences could not be saved.";
 
-/// The defaults (`model.ts:102-107`): terminal, the device language, Vim off.
+/// Defaults: follow the system appearance, device language, Vim off.
 pub fn defaults() -> DisplayPrefs {
     defaults_for(&crate::i18n::device_locale())
 }
@@ -55,21 +32,22 @@ pub fn defaults() -> DisplayPrefs {
 /// The defaults for a device locale (`/^zh(?:-|_|$)/i` -> zh, model.ts:104).
 pub fn defaults_for(locale: &str) -> DisplayPrefs {
     let language = crate::i18n::Lang::for_locale(locale).code().to_owned();
-    DisplayPrefs { theme: "terminal".into(), language, vim_mode: false }
+    DisplayPrefs { theme: "system".into(), language, vim_mode: false }
 }
 
 /// `parseDisplayPreferences` (model.ts:35-62): exactly the four keys,
-/// version 1, a known palette and language, a boolean vimMode; else `None`.
+/// versions 1/2, a known theme and language, a boolean vimMode; else `None`.
 pub fn parse(raw: &str) -> Option<DisplayPrefs> {
     let v: Value = serde_json::from_str(raw).ok()?;
     let o = v.as_object()?;
-    if o.len() != 4 || o.get("version")? != &Value::from(1) {
+    if o.len() != 4 || !matches!(o.get("version")?.as_u64(), Some(1 | 2)) {
         return None;
     }
     let theme = o.get("theme")?.as_str()?;
     let language = o.get("language")?.as_str()?;
     let vim = o.get("vimMode")?.as_bool()?;
-    if !DISPLAY_THEMES.contains(&theme) || !matches!(language, "en" | "zh") {
+    let legacy_terminal = o.get("version")? == &Value::from(1) && theme == "terminal";
+    if (!DISPLAY_THEMES.contains(&theme) && !legacy_terminal) || !matches!(language, "en" | "zh") {
         return None;
     }
     Some(DisplayPrefs { theme: theme.to_owned(), language: language.to_owned(), vim_mode: vim })
@@ -78,7 +56,7 @@ pub fn parse(raw: &str) -> Option<DisplayPrefs> {
 /// The document written on Save (only the whitelist).
 pub fn document(p: &DisplayPrefs) -> String {
     serde_json::json!({
-        "version": 1,
+        "version": 2,
         "theme": p.theme,
         "language": p.language,
         "vimMode": p.vim_mode,
@@ -140,11 +118,22 @@ pub fn load_from(path: &std::path::Path) -> DisplayPrefs {
         .unwrap_or_else(defaults)
 }
 
+/// Merge the old palette + appearance without losing language or Vim settings.
+pub fn migrate(loaded: Option<DisplayPrefs>, legacy: Option<crate::screens::theme::Theme>) -> DisplayPrefs {
+    let needs_appearance = loaded.as_ref().is_none_or(|p| p.theme == "terminal");
+    let mut prefs = loaded.unwrap_or_else(defaults);
+    if needs_appearance {
+        prefs.theme = legacy.and_then(|t| t.stored()).unwrap_or("system").to_owned();
+    }
+    prefs
+}
+
 /// Load once (the launch path) and return the current preferences.
 pub fn init() -> DisplayPrefs {
     let mut g = lock();
     if g.is_none() {
-        let saved = load_from(&path());
+        let loaded = std::fs::read_to_string(path()).ok().and_then(|raw| parse(&raw));
+        let saved = migrate(loaded, crate::screens::theme::load_preference());
         *g = Some(Prefs { saved: saved.clone(), current: saved, error: None, just_saved: false });
     }
     g.as_ref().map(|p| p.current.clone()).unwrap_or_else(defaults)
@@ -172,8 +161,7 @@ pub fn set_vim(on: bool) {
     }
 }
 
-/// A26 — the display palette changed (Settings > Preferences): applies now,
-/// unsaved (`setTheme`, model.ts:124-126 — only a known palette).
+/// The unified theme changed (Settings > Preferences): applies now, unsaved.
 pub fn set_palette(id: &str) -> bool {
     if !DISPLAY_THEMES.contains(&id) {
         return false;
@@ -256,9 +244,11 @@ pub const ACTION_LANG_ZH: &str = "a9.prefs.lang.zh";
 
 /// A26 — `a9.prefs.palette.<id>`: one per palette row.
 pub const ACTION_PALETTE: &str = "a9.prefs.palette.";
-/// The five palette rows' action ids, in `DISPLAY_THEMES` order.
-pub const PALETTE_ACTIONS: [&str; 5] = [
-    "a9.prefs.palette.terminal",
+/// Theme row action ids, in `DISPLAY_THEMES` order.
+pub const PALETTE_ACTIONS: [&str; 7] = [
+    "a9.prefs.palette.system",
+    "a9.prefs.palette.light",
+    "a9.prefs.palette.dark",
     "a9.prefs.palette.codex",
     "a9.prefs.palette.claude",
     "a9.prefs.palette.slate",
@@ -271,20 +261,20 @@ pub const PALETTE_ACTIONS: [&str; 5] = [
 /// look in effect changed (the host then re-themes the app), `None` for an
 /// unknown id or the palette already in effect.
 pub fn choose_palette(action: &str) -> Option<crate::screens::theme::Palette> {
-    use crate::screens::theme::{self, Palette};
+    use crate::screens::theme;
     let id = palette_of(action)?;
-    set_palette(id);
-    let next = Palette::parse(id)?;
-    if theme::palette() == next {
-        return None;
-    }
-    theme::set_palette(next);
-    Some(next)
+    // Keep old recorded actions usable while the product offers one selector.
+    let choice = if id == "terminal" { theme::preference() } else { id.to_owned() };
+    let before = theme::selection();
+    set_palette(&choice);
+    theme::select(&choice);
+    (before != choice).then(theme::palette)
 }
 
 /// The palette a palette action names (`a9.prefs.palette.codex` -> codex).
 pub fn palette_of(action: &str) -> Option<&'static str> {
     let id = action.strip_prefix(ACTION_PALETTE)?;
+    if id == "terminal" { return Some("terminal"); }
     DISPLAY_THEMES.into_iter().find(|t| *t == id)
 }
 
@@ -323,7 +313,7 @@ mod tests {
         );
         // An extra field (a credential that slipped in) rejects the document.
         assert_eq!(parse(r#"{"version":1,"theme":"slate","language":"en","vimMode":false,"token":"x"}"#), None);
-        assert_eq!(parse(r#"{"version":2,"theme":"slate","language":"en","vimMode":false}"#), None);
+        assert_eq!(parse(r#"{"version":3,"theme":"slate","language":"en","vimMode":false}"#), None);
         assert_eq!(parse(r#"{"version":1,"theme":"neon","language":"en","vimMode":false}"#), None);
         assert_eq!(parse(r#"{"version":1,"theme":"slate","language":"fr","vimMode":false}"#), None);
         assert_eq!(parse(r#"{"version":1,"theme":"slate","language":"en","vimMode":"yes"}"#), None);
@@ -342,7 +332,7 @@ mod tests {
         assert!(save_to(&p));
         let doc: Value = serde_json::from_str(&std::fs::read_to_string(&p).unwrap()).unwrap();
         assert_eq!(doc.as_object().unwrap().len(), 4, "only the whitelist");
-        assert_eq!(doc["version"], 1);
+        assert_eq!(doc["version"], 2);
         assert_eq!(doc["vimMode"], true);
         assert_eq!(snapshot().status(), "Preferences saved.");
         assert!(load_from(&p).vim_mode, "the next launch adopts it");

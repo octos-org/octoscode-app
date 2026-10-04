@@ -220,6 +220,23 @@ pub fn wired_taps(dsl: &str) -> Vec<(String, String)> {
     out
 }
 
+/// Mount a dialog whose host already routes its ButtonAction::Clicked events.
+/// Keep the original DSL for `wired_taps`, but omit its redundant NAV closures
+/// from evaluation. A click may replace the shared script body before Makepad
+/// drains those deferred closures, leaving them pointing at unrelated bytecode.
+pub fn native_clicks_only(dsl: &str) -> String {
+    let mut out = String::with_capacity(dsl.len());
+    for line in dsl.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with("on_click: || { NAV(t: ") && trimmed.ends_with(") }") {
+            out.push_str("// ");
+        }
+        out.push_str(line);
+        out.push('\n');
+    }
+    out
+}
+
 /// #FX1 — the row a control name addresses, or `None` for a non-row control.
 ///
 /// The card's control names carry the row they belong to: `thread_1`,

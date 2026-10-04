@@ -2108,6 +2108,9 @@ async fn main() {
         }
     }
     let mut open_result = recorded_open_result(&frames).expect("the fixture has a session/open result");
+    if label == "memory" && !args.windows(2).any(|w| w[0] == "--memory-mode" && w[1] == "today") {
+        open_result["capabilities"]["supported_features"].as_array_mut().unwrap().push(serde_json::json!("memory.session_scope.v1"));
+    }
     // A31 — a6ea8505 advertises the job feature to a client that asks.
     if label == "skill-jobs" {
         skill_jobs::advertise(&mut open_result);
@@ -2730,7 +2733,10 @@ async fn main() {
                     m if label == "memory" && memory::MemorySim::handles(m) => {
                         let reply = memory_sim.lock().unwrap().reply(m, &v["params"], &active_session);
                         let frame = match reply {
-                            Ok(r) => {
+                            Ok(mut r) => {
+                                if m.starts_with("memory/") && v["params"]["context"].is_object() {
+                                    r["scope"] = serde_json::json!({"kind":"profile","namespace":null,"session_id":v["params"]["context"]["session_id"]});
+                                }
                                 println!("[replay-serve] -> {m} (memory) {}", v["params"]);
                                 serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r})
                             }

@@ -19,6 +19,26 @@ use octoscode_module::bindings::Ctx;
 use octoscode_module::flow::{Conversation, FlowUi};
 use octoscode_module::screens::{dialog, models};
 
+#[test]
+fn skills_catalog_does_not_render_plugins_or_mcp_as_instruction_skills() {
+    let _s = serial();
+    let store = Arc::new(octoscode_store::Store::new());
+    store.domains.profile.set_effective_skills(Some(json!({
+        "session_id":"dev:api:chat", "effective_skills":[
+            {"name":"review-guide","kind":"instructions","scope":"profile","path":"/profile/skills/review-guide/SKILL.md","available":true},
+            {"name":"tool-plugin-only","kind":"plugin","scope":"global","path":"/plugins/tool-plugin-only","available":true},
+            {"name":"mcp-server-only","kind":"mcp","scope":"global","available":true}
+        ]
+    })));
+    let ui = Mutex::new(FlowUi::default());
+    let ctx = Ctx::new(&store, &ui);
+    let view = dialog::lower(dialog::Dialog::Skills, &ctx, 990.0, 760.0).unwrap();
+    assert!(view.dsl.contains("review-guide"));
+    assert!(!view.dsl.contains("tool-plugin-only"));
+    assert!(!view.dsl.contains("mcp-server-only"));
+    assert!(!view.dsl.contains("tools / plugin"));
+}
+
 fn frames(name: &str) -> Vec<Value> {
     let path = format!("{}/../octoscode-client/tests/fixtures/{name}", env!("CARGO_MANIFEST_DIR"));
     std::fs::read_to_string(&path)

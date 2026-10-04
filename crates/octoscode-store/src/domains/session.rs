@@ -408,6 +408,10 @@ impl Sessions {
             .insert(id.to_owned(), root.to_owned());
     }
 
+    pub fn clear_workspace_root(&self, id: &str) {
+        self.inner.lock().unwrap().workspace_roots.remove(id);
+    }
+
     pub fn workspace_root(&self, id: &str) -> Option<String> {
         self.inner.lock().unwrap().workspace_roots.get(id).cloned()
     }

@@ -26,6 +26,7 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Preferences", "偏好设置"),
     ("About", "关于"),
     ("Palette", "配色方案"),
+    ("Choose System, Light, Dark, or a named dark theme. Save remembers your choice.", "选择跟随系统、浅色、深色或命名深色主题。保存后，下次启动仍使用此选择。"),
     ("Terminal follows the light or dark theme; named palettes are dark.", "终端配色跟随浅色或深色主题；命名配色方案均为深色。"),
     (
         "Changes apply immediately. Save remembers them on this device; no server configuration, credentials or conversations are stored.",
@@ -369,6 +370,7 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     // ---- A36: Settings > Capabilities (chrome.rs) and the MCP view's note
     ("Installed skills, the skill registry and background jobs.", "已安装的技能、技能注册表和后台任务。"),
     ("The status this server reports. Servers are configured on the server.", "此服务器报告的状态。服务器在服务器端配置。"),
+    ("Executable tools available to this session.", "当前会话可使用的可执行工具。"),
     (
         "MCP servers are configured on the server. This app shows the status the server reports and can't add or remove servers.",
         "MCP 服务器在服务器端配置。此应用显示服务器报告的状态，无法添加或删除服务器。",
@@ -377,7 +379,7 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     // its Capabilities row. Profile is 配置档案 (GLOSSARY).
     ("Memory", "记忆"),
     ("What Octos remembers for this profile: notes, entities and search.", "Octos 为此配置档案记住的内容：笔记、实体和搜索。"),
-    ("This server offers no skills, MCP status or memory.", "此服务器不提供技能、MCP 状态或记忆。"),
+    ("This server offers no skills, MCP status, tools or memory.", "此服务器不提供技能、MCP 状态、工具或记忆。"),
     (
         "What Octos remembers for this profile. Octos writes it as it works; search it or add a note.",
         "Octos 为此配置档案记住的内容。Octos 在工作时写入；你可以搜索它或添加笔记。",
@@ -426,6 +428,19 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Added to memory.", "已添加到记忆。"),
     ("Updated in memory.", "已在记忆中更新。"),
     ("Already in memory.", "已在记忆中。"),
+    ("The server did not confirm the memory scope for this session in {value0}.", "服务器未确认 {value0} 中当前会话的记忆范围。"),
+    ("Update octos to a version that reports session memory scope.", "请更新 octos，使其支持返回当前会话的记忆范围。"),
+    ("This session uses isolated app memory.", "此会话使用应用隔离的记忆。"),
+    ("Open its memory in the app that owns this session.", "请在拥有此会话的应用中查看其记忆。"),
+    ("Refresh history", "刷新历史"),
+    ("Session history", "会话历史"),
+    ("Skills for this session", "当前会话可用的技能"),
+    ("Skills provide reusable instructions from SKILL.md. Tools and MCP servers have their own inventory.", "技能提供 SKILL.md 中的可复用指引。工具和 MCP 服务器使用各自的清单。"),
+    ("Installed instruction skills", "已安装的指引技能"),
+    ("{value0} · SKILL.md · {value1}", "{value0} · SKILL.md · {value1}"),
+    ("Loading, or this server does not offer a session skill catalog.", "正在读取，或此服务器未提供会话技能清单。"),
+    ("No knowledge pages yet", "暂无知识页"),
+    ("No long-term pages or daily notes here yet. Recall records may still be available through search.", "暂无长期记忆页或每日笔记。Recall 记录仍可通过搜索查看。"),
     ("No memory yet", "暂无记忆"),
     (
         "Octos writes long-term memory and daily notes as you work with this profile.",

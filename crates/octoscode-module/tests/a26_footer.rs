@@ -1,17 +1,6 @@
-//! A26 — parity row `shell/g-settings` "Sidebar footer entries: Fleet
-//! navigation entry, theme toggle (System/Light/Dark), Settings entry" in the
-//! web's layout (`ProductSidebar.tsx:969-1016`; the operator chose the web's
-//! placement over board 2's): after + Add workspace, the footer is Fleet,
-//! then the theme toggle, then Settings; the collapsed rail keeps the icons.
-//!
-//! The production path a footer click takes: the row's hit (`sb_theme_hit`,
-//! `sb_settings_hit`) -> `chrome::ChromeRuntime::clicks` ->
-//! `chrome::footer_intents` -> the host (`theme.cycle` -> `theme::resolve`
-//! -> `save_preference` + the live re-theme; `OpenSettings` ->
-//! `settings.panel.open`, the phone drawer closed first, as the web's
-//! `if (compact) setSidebarCollapsed(true)`). The footer's DSL and its order
-//! are checked on the shell's own template (chrome.rs / lib.rs); the click
-//! itself is the walk's (tools/walk/a26_footer.py).
+//! Sidebar footer routing: Fleet, the unified Theme shortcut, and Settings.
+//! Theme opens Preferences on desktop and closes the phone drawer before
+//! opening Preferences. The legacy cycle resolver remains covered separately.
 use std::sync::Mutex;
 
 use octoscode_module::chrome::{self, FooterEntry, Intent};
@@ -33,17 +22,21 @@ fn ctx() -> octoscode_module::bindings::Ctx<'static> {
 }
 
 #[test]
-fn the_footer_entries_are_the_webs_in_its_order_and_route_like_it() {
+fn the_footer_entries_keep_their_order_and_open_the_shared_theme_selector() {
     // ProductSidebar.tsx:969-1016: Fleet, the theme toggle, Settings.
     assert_eq!(FooterEntry::ALL, [FooterEntry::Fleet, FooterEntry::Theme, FooterEntry::Settings]);
     assert_eq!(
         FooterEntry::ALL.map(FooterEntry::hit),
         ["fleet_nav_hit", "sb_theme_hit", "sb_settings_hit"]
     );
-    // The theme toggle cycles the appearance (App.tsx:2343 onThemeToggle =
-    // cycleTheme), on the desktop column and in the phone drawer alike.
+    // The shortcut opens the same Preferences selector at both densities.
     for compact in [false, true] {
-        assert_eq!(chrome::footer_intents(FooterEntry::Theme, compact), vec![Intent::Action("theme.cycle", 0)]);
+        let expected = if compact {
+            vec![Intent::Action("drawer.close", 0), Intent::Action("settings.section.preferences", 0)]
+        } else {
+            vec![Intent::Action("settings.section.preferences", 0)]
+        };
+        assert_eq!(chrome::footer_intents(FooterEntry::Theme, compact), expected);
     }
     // Settings opens Settings; on a phone the drawer closes first
     // (App.tsx:2333-2336).
@@ -64,7 +57,7 @@ fn the_footer_entries_are_the_webs_in_its_order_and_route_like_it() {
 }
 
 #[test]
-fn the_theme_toggle_cycles_saves_and_relabels_like_the_web() {
+fn legacy_theme_actions_still_cycle_and_relabel() {
     let _g = serial();
     let dir = std::env::temp_dir().join(format!("a26-footer-theme-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
@@ -76,8 +69,7 @@ fn the_theme_toggle_cycles_saves_and_relabels_like_the_web() {
     assert_eq!(chrome::footer_theme_icon("system"), "sb_theme_ic_system");
     // system -> dark -> light -> system (use-theme.ts:44-49), through the
     // footer's own action id and the theme table the host routes it to.
-    let footer = chrome::footer_intents(FooterEntry::Theme, false);
-    let Intent::Action(action, index) = footer[0].clone() else { panic!("{footer:?}") };
+    let (action, index) = ("theme.cycle", 0);
     for (want, label, icon, stored) in [
         ("dark", "Dark", "sb_theme_ic_dark", Some("dark")),
         ("light", "Light", "sb_theme_ic_light", Some("light")),

@@ -529,6 +529,7 @@ pub fn open(dialog: Dialog) -> Outcome {
             Outcome::Spawn(Job::CheckpointsLoad)
         }
         Dialog::Switcher => {
+            st.switch.offset = 0;
             st.switch.error = None;
             Outcome::Spawn(Job::SwitchLoad)
         }
@@ -651,6 +652,17 @@ pub fn perform(action: &str, index: usize, store: &Store) -> Outcome {
     out
 }
 
+fn open_inventory(tab: super::inventory::Tab) -> Outcome {
+    {
+        let mut st = state();
+        if st.inv.tab != tab {
+            st.inv.query.clear();
+        }
+        st.inv.tab = tab;
+    }
+    open(Dialog::Inventory)
+}
+
 fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
     if action == "b3.close" {
         close();
@@ -660,11 +672,12 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
     if action == "b3.noop" {
         return Outcome::Done;
     }
-    // A36 — Settings > Capabilities > MCP servers: the inventory on its MCP
-    // tab, exactly as `/mcp` opens it (`command("mcp")`).
+    // Settings > Capabilities opens each inventory category independently.
     if action == "b3.open.mcp" {
-        state().inv.tab = super::inventory::Tab::Mcp;
-        return open(Dialog::Inventory);
+        return open_inventory(super::inventory::Tab::Mcp);
+    }
+    if action == "b3.open.tools" {
+        return open_inventory(super::inventory::Tab::Tools);
     }
     if let Some(rest) = action.strip_prefix("b3.open.") {
         return match Dialog::from_id(rest) {
@@ -852,14 +865,8 @@ pub fn command(name: &str, args: &str, conv: &crate::flow::Conversation) -> Opti
     let store = &conv.store;
     let session = conv.session_id();
     match name {
-        "tools" | "tool-settings" => {
-            state().inv.tab = super::inventory::Tab::Tools;
-            Some(open(Dialog::Inventory))
-        }
-        "mcp" => {
-            state().inv.tab = super::inventory::Tab::Mcp;
-            Some(open(Dialog::Inventory))
-        }
+        "tools" | "tool-settings" => Some(open_inventory(super::inventory::Tab::Tools)),
+        "mcp" => Some(open_inventory(super::inventory::Tab::Mcp)),
         "threads" | "thread" | "turn" | "permissions" | "permission" => {
             let active = conv.ui().lock().unwrap().active_turn();
             match super::inspector::parse(name, args, active.as_deref()) {

@@ -1020,12 +1020,6 @@ script_mod! {
                         }
                     }
                     OcRule{}
-                    View{
-                        width: Fill height: 52 flow: Right align: Align{y: 0.5}
-                        OcRowTitle{text: "Theme"}
-                        OcRowSlot{set_theme := OcValueButton{}}
-                    }
-                    OcRule{}
                     // A9: the web's "Octos server" row (GeneralSettingsContent
                     // .tsx:150-168): the title over the connection state (a
                     // status dot + one of five states), the origin on the
@@ -1250,8 +1244,7 @@ script_mod! {
                     }
                 }
 
-                // ----- Capabilities (A36): Skills and the MCP status by a CLICK
-                // (they were reachable only by typing `/skills` / `/mcp`).
+                // ----- Capabilities: separate entries for Skills, MCP, Tools and Memory.
                 // Each row is Settings > Model's "All models" row (title, an
                 // "Open" pill, help under it) and opens the EXISTING surface
                 // (`settings::CAPABILITY_ROWS`); a row shows only when the
@@ -1299,6 +1292,27 @@ script_mod! {
                             OcRowHelp{text: "The status this server reports. Servers are configured on the server."}
                         }
                     }
+                    set_cap_rule_tools := View{width: Fill height: Fit OcRule{}}
+                    set_cap_tools_row := View{
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        View{
+                            width: Fill height: 34 flow: Overlay
+                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Tools"}}
+                            View{
+                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                View{
+                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                    OcLabel{text: "Open" draw_text +: {text_style +: {font_size: 9.75}}}
+                                    set_cap_tools := OcHit{draw_bg.border_radius: 9.0}
+                                }
+                            }
+                        }
+                        View{
+                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                            OcRowHelp{text: "Executable tools available to this session."}
+                        }
+                    }
                     // A36b (board 5) — Memory: the Session profile's memory dialog.
                     set_cap_rule_memory := View{width: Fill height: Fit OcRule{}}
                     set_cap_memory_row := View{
@@ -1324,7 +1338,7 @@ script_mod! {
                     // Nothing advertised: say so instead of an empty section.
                     set_cap_none := View{
                         width: Fill height: Fit flow: Down padding: Inset{top: 14 bottom: 14} visible: false
-                        OcRowHelp{text: "This server offers no skills, MCP status or memory."}
+                        OcRowHelp{text: "This server offers no skills, MCP status, tools or memory."}
                     }
                 }
 
@@ -1472,21 +1486,26 @@ script_mod! {
                         }
                     }
                     OcRule{}
-                    // A26 — the display palette (the web's Theme select,
-                    // PreferencesDialog.tsx:55-75, `DISPLAY_THEMES` order).
-                    // Applies at once; Save below remembers it. Titled
-                    // "Palette": General's "Theme" row is the System /
-                    // Light / Dark appearance Terminal follows.
+                    // Appearance modes and named themes are one choice. Save
+                    // remembers the selected value along with language and Vim.
                     View{
                         width: Fill height: Fit flow: Down spacing: 0 padding: Inset{top: 8 bottom: 6}
-                        pal_title := OcRowTitle{width: Fit text: "Palette"}
+                        pal_title := OcRowTitle{width: Fit text: "Theme"}
                         View{
                             width: Fill height: Fit flow: Down padding: Inset{top: 2 bottom: 2 right: 24}
-                            pal_help := OcRowHelp{text: "Terminal follows the light or dark theme; named palettes are dark."}
+                            pal_help := OcRowHelp{text: "Choose System, Light, Dark, or a named dark theme. Save remembers your choice."}
                         }
-                        pal_terminal := OcPaletteRow{
-                            pl_left +: {pl_title +: {text: "Terminal"}}
+                        pal_system := OcPaletteRow{
+                            pl_left +: {pl_title +: {text: "System"}}
                             pl_right +: {pl_sw_1 +: {draw_bg +: {color: #FFFFFF}} pl_sw_2 +: {draw_bg +: {color: #2F6FEB}} pl_sw_3 +: {draw_bg +: {color: #1C1F22}}}
+                        }
+                        pal_light := OcPaletteRow{
+                            pl_left +: {pl_title +: {text: "Light"}}
+                            pl_right +: {pl_sw_1 +: {draw_bg +: {color: #FFFFFF}} pl_sw_2 +: {draw_bg +: {color: #2F6FEB}} pl_sw_3 +: {draw_bg +: {color: #F7F7F8}}}
+                        }
+                        pal_dark := OcPaletteRow{
+                            pl_left +: {pl_title +: {text: "Dark"}}
+                            pl_right +: {pl_sw_1 +: {draw_bg +: {color: #1C1F22}} pl_sw_2 +: {draw_bg +: {color: #x679EFE}} pl_sw_3 +: {draw_bg +: {color: #F5F5F7}}}
                         }
                         pal_codex := OcPaletteRow{
                             pl_left +: {pl_title +: {text: "Codex"}}
@@ -1830,7 +1849,7 @@ pub struct ChromeRuntime {
 
 /// A24 — the NAMED shell labels whose DSL text is static copy (code never
 /// sets them); anonymous labels are static by construction.
-pub fn static_named() -> [LiveId; 8] {
+pub fn static_named() -> [LiveId; 9] {
     [
         // The Settings nav cells' labels (`OcNavCell{… nv_label +: {text: …}}`).
         live_id!(nv_label),
@@ -1841,6 +1860,7 @@ pub fn static_named() -> [LiveId; 8] {
         live_id!(hd_review_label),
         live_id!(hd_settings_label),
         live_id!(fleet_nav_label),
+        live_id!(history_nav_label),
     ]
 }
 
@@ -1940,9 +1960,6 @@ impl ChromeRuntime {
             }
             if toggle_hit(cx, view, live_id!(tg_notify), actions) {
                 out.push(Intent::Action("notifications_toggle.toggle", 0));
-            }
-            if clicked(cx, view, &[live_id!(set_theme), live_id!(vb_hit)], actions) {
-                out.push(Intent::Action("theme.cycle", 0));
             }
             if c(cx, live_id!(server_stop_request)) {
                 out.push(Intent::Action("server.stop.request", 0));
@@ -2162,6 +2179,7 @@ impl ChromeRuntime {
         // The collapsed rail keeps the Fleet entry as its icon only; the web
         // drops the label (ProductSidebar.tsx:980). Left in, it clipped to 3 px.
         show(cx, view, ids!(fleet_nav_label), !rail);
+        show(cx, view, ids!(history_nav_label), !rail);
         // A26 — the footer's theme toggle and Settings: icons only in the
         // rail too (ProductSidebar.tsx:995/1015); the toggle's icon and label
         // follow the appearance preference (System / Light / Dark).
@@ -2169,7 +2187,7 @@ impl ChromeRuntime {
             show(cx, view, &[LiveId::from_str(entry.label())], !rail);
         }
         {
-            let pref = crate::screens::theme::preference();
+            let pref = crate::screens::theme::selection();
             let on = footer_theme_icon(&pref);
             for layer in ["sb_theme_ic_system", "sb_theme_ic_light", "sb_theme_ic_dark"] {
                 show(cx, view, &[LiveId::from_str(layer)], layer == on);
@@ -2363,8 +2381,6 @@ impl ChromeRuntime {
         text(cx, view, ids!(set_title), tr(st.section.title()));
         // General.
         sync_notify_row(cx, view, &crate::attention::settings());
-        let theme = theme_label(&crate::screens::theme::preference());
-        text(cx, view, &[live_id!(set_theme), live_id!(vb_text)], crate::i18n::tr_ctx("theme", theme));
         let endpoint = server_label();
         // A9: the web's five connection states (a9_settings::status_of) with
         // the status dot; the origin on the right.
@@ -2425,9 +2441,11 @@ impl ChromeRuntime {
             show(cx, view, ids!(set_cap_skills_row), on("skills"));
             show(cx, view, ids!(set_cap_mcp_row), on("mcp"));
             show(cx, view, ids!(set_cap_rule_mcp), on("skills") && on("mcp"));
+            show(cx, view, ids!(set_cap_tools_row), on("tools"));
+            show(cx, view, ids!(set_cap_rule_tools), on("tools") && (on("skills") || on("mcp")));
             // A36b — Memory, ruled off from whichever row stands above it.
             show(cx, view, ids!(set_cap_memory_row), on("memory"));
-            show(cx, view, ids!(set_cap_rule_memory), on("memory") && (on("skills") || on("mcp")));
+            show(cx, view, ids!(set_cap_rule_memory), on("memory") && (on("skills") || on("mcp") || on("tools")));
             show(cx, view, ids!(set_cap_none), rows.is_empty());
         }
         // Sandbox (new-chat defaults).
@@ -2456,12 +2474,12 @@ impl ChromeRuntime {
             // A26 — the display palette: the chosen row's radio is on.
             text(cx, view, ids!(pal_title), tr(a26_copy::PALETTE_TITLE));
             text(cx, view, ids!(pal_help), tr(a26_copy::PALETTE_HELP));
-            for p in crate::screens::theme::Palette::ALL {
-                let row = LiveId::from_str(&format!("pal_{}", p.id()));
-                let on = prefs.current.theme == p.id();
+            for id in crate::screens::a9_prefs::DISPLAY_THEMES {
+                let row = LiveId::from_str(&format!("pal_{id}"));
+                let on = prefs.current.theme == id;
                 show(cx, view, &[row, live_id!(rd_on)], on);
                 show(cx, view, &[row, live_id!(rd_off)], !on);
-                text(cx, view, &[row, live_id!(pl_title)], tr(p.label()));
+                text(cx, view, &[row, live_id!(pl_title)], crate::i18n::tr_ctx("theme", theme_label(id)));
             }
         }
         text(cx, view, ids!(set_about_version), &tr_with("Version {version}", &[("version", env!("CARGO_PKG_VERSION"))]));
@@ -2553,6 +2571,10 @@ pub fn theme_label(pref: &str) -> &'static str {
     match pref {
         "dark" => "Dark",
         "light" => "Light",
+        "codex" => "Codex",
+        "claude" => "Claude",
+        "slate" => "Slate",
+        "solarized" => "Solarized",
         _ => "System",
     }
 }
@@ -2562,11 +2584,10 @@ pub fn theme_label(pref: &str) -> &'static str {
 pub mod a26_copy {
     /// The footer's Settings entry (ProductSidebar.tsx:1010-1015).
     pub const SETTINGS: &str = "Settings";
-    /// Settings > Preferences: the palette block's title (the web's Theme
-    /// select — General's "Theme" row is the appearance Terminal follows).
-    pub const PALETTE_TITLE: &str = "Palette";
+    /// Settings > Preferences: the single theme selector.
+    pub const PALETTE_TITLE: &str = "Theme";
     /// The note under it (PreferencesDialog.tsx:71-75, native wording).
-    pub const PALETTE_HELP: &str = "Terminal follows the light or dark theme; named palettes are dark.";
+    pub const PALETTE_HELP: &str = "Choose System, Light, Dark, or a named dark theme. Save remembers your choice.";
 }
 
 /// A26 — the sidebar footer's entries after + Add workspace, in the web's
@@ -2603,14 +2624,15 @@ impl FooterEntry {
 }
 
 /// A26 — what a click on a footer entry asks the host to do (`App.tsx:
-/// 2333-2343`): the theme toggle cycles the appearance (`cycleTheme`);
+/// 2333-2343`): the theme shortcut opens the unified Preferences selector;
 /// Settings opens the Settings surface, closing the phone drawer first
 /// (`if (compact) setSidebarCollapsed(true)`). Fleet is the shell's
 /// `fleet_nav_hit` arm (it opens the Fleet pane and closes the drawer).
 pub fn footer_intents(entry: FooterEntry, compact: bool) -> Vec<Intent> {
     match entry {
         FooterEntry::Fleet => Vec::new(),
-        FooterEntry::Theme => vec![Intent::Action("theme.cycle", 0)],
+        FooterEntry::Theme if compact => vec![Intent::Action("drawer.close", 0), Intent::Action("settings.section.preferences", 0)],
+        FooterEntry::Theme => vec![Intent::Action("settings.section.preferences", 0)],
         FooterEntry::Settings if compact => vec![Intent::Action("drawer.close", 0), Intent::OpenSettings],
         FooterEntry::Settings => vec![Intent::OpenSettings],
     }
@@ -2621,7 +2643,7 @@ pub fn footer_intents(entry: FooterEntry, compact: bool) -> Vec<Intent> {
 /// layer the footer shows.
 pub fn footer_theme_icon(pref: &str) -> &'static str {
     match pref {
-        "dark" => "sb_theme_ic_dark",
+        "dark" | "codex" | "claude" | "slate" | "solarized" => "sb_theme_ic_dark",
         "light" => "sb_theme_ic_light",
         _ => "sb_theme_ic_system",
     }

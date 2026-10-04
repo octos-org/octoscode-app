@@ -20,6 +20,12 @@ use crate::i18n::{tr, tr1, tr_with};
 
 #[derive(Debug, Clone, Default)]
 pub struct SwitchState {
+    pub catalog: Option<Vec<HistoryItem>>,
+    pub next_offset: Option<usize>,
+    pub offset: usize,
+    pub total: usize,
+    pub ticket: u64,
+    pub coverage: String,
     pub loading: bool,
     pub error: Option<String>,
     pub opening: Option<String>,
@@ -30,6 +36,48 @@ pub struct SwitchState {
     /// A13 — what failed, in plain words, with the cause it was recorded
     /// for (`ui::dialog_error`).
     pub failed: Option<(&'static str, String)>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct HistoryTarget {
+    pub profile: String,
+    pub session: String,
+    pub cwd: Option<String>,
+}
+impl HistoryTarget {
+    pub fn key(&self) -> String { serde_json::to_string(self).unwrap_or_default() }
+}
+#[derive(Debug, Clone)]
+pub struct HistoryItem { pub target: HistoryTarget, pub title: String, pub updated_at: Option<String> }
+
+fn catalog_rows(st: &SwitchState, store: &Store) -> Vec<Row> {
+    let Some(catalog) = st.catalog.as_ref() else { return rows(store) };
+    let active = store.active_session();
+    let current_root = active.as_deref().and_then(|id| store.domains.session.workspace_root(id));
+    let current_profile = store.domains.profile.current();
+    catalog.iter().map(|item| Row {
+        id: item.target.key(), title:item.title.clone(),
+        tag:format!("{} · {}", item.target.profile, item.target.cwd.as_deref().unwrap_or("Profile history")),
+        when:item.updated_at.as_deref().and_then(ui::parse_iso_ms).map(|ms| ui::rel_time(ui::now_ms(), ms)).unwrap_or_default(),
+        current:active.as_deref() == Some(item.target.session.as_str()) && current_profile.as_deref() == Some(item.target.profile.as_str()) && item.target.cwd == current_root,
+    }).collect()
+}
+
+fn parse_history(v: &serde_json::Value) -> Result<Vec<HistoryItem>, String> {
+    let rows = v["sessions"].as_array().ok_or("Invalid history catalog")?;
+    rows.iter().map(|row| {
+        let profile = row["profile_id"].as_str().ok_or("Missing history profile")?;
+        let session = row["id"].as_str().ok_or("Missing history session")?;
+        if !session.starts_with(&format!("{profile}:")) { return Err("History scope mismatch".into()); }
+        let cwd = match &row["workspace_root"] {
+            serde_json::Value::Null => None,
+            serde_json::Value::String(p) if !p.is_empty() => Some(p.clone()),
+            _ => return Err("Invalid history workspace".into()),
+        };
+        let title = row["title"].as_str().or_else(|| row["last_prompt"].as_str()).filter(|s| !s.is_empty()).map(str::to_owned).unwrap_or_else(|| known_session_title(session));
+        Ok(HistoryItem { target:HistoryTarget {profile:profile.into(),session:session.into(),cwd}, title,
+            updated_at:row["updated_at"].as_str().map(str::to_owned) })
+    }).collect()
 }
 
 /// A13 — the plain lead over a failed open (the cause shows muted under it).
@@ -101,26 +149,64 @@ pub fn rows(store: &Store) -> Vec<Row> {
 }
 
 pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
-    {
-        super::host::state().switch.loading = true;
-    }
-    let r = conv.refresh_sessions().await;
-    let mut st = super::host::state();
-    st.switch.loading = false;
-    match r {
-        Ok(n) => Ok(format!("{n} sessions")),
-        Err(e) => {
-            st.switch.error = Some("Could not load sessions.".into());
-            Err(e.to_string())
+    let identity = conv.resource_identity();
+    let (ticket, offset) = {
+        let mut st = super::host::state();
+        st.switch.loading = true; st.switch.ticket += 1;
+        (st.switch.ticket, st.switch.offset)
+    };
+    if conv.store.domains.config.supported_methods().iter().any(|m| m == "session/history/list") {
+        let mut roots = crate::screens::recents::history_workspaces(&*crate::screens::recents::store(), &crate::screens::recents::endpoint());
+        if let Some(root) = conv.store.domains.session.workspace_root(&conv.session_id()) { roots.push(root); }
+        roots.sort(); roots.dedup(); roots.truncate(128);
+        let result = conv.client().request("session/history/list", serde_json::json!({"workspaces":roots,"offset":offset,"limit":100})).await;
+        let mut st = super::host::state();
+        if st.switch.ticket != ticket || conv.resource_identity() != identity { return Ok("stale history reply discarded".into()); }
+        st.switch.loading = false;
+        match result {
+            Ok(v) => {
+                let items = parse_history(&v)?;
+                if offset == 0 { st.switch.catalog = Some(items); }
+                else { st.switch.catalog.get_or_insert_with(Vec::new).extend(items); }
+                st.switch.next_offset = v["next_offset"].as_u64().map(|n| n as usize);
+                st.switch.total = v["total"].as_u64().unwrap_or_default() as usize;
+                let skipped = v["unavailable_workspaces"].as_array().map(Vec::len).unwrap_or(0);
+                st.switch.coverage = if crate::i18n::is_zh() {
+                    format!("已授权 Profile 与已知项目的会话，共 {} 个。未列出的旧项目可通过添加工作区查找。{} 个路径暂不可用。", st.switch.total, skipped)
+                } else {
+                    format!("{} sessions in authorized Profiles and known projects. Add a workspace to include an older project. {skipped} paths unavailable.", st.switch.total)
+                };
+                st.switch.error = None;
+                Ok(format!("{} history rows", st.switch.catalog.as_ref().map(Vec::len).unwrap_or(0)))
+            }
+            Err(e) => { st.switch.error = Some("Could not load session history.".into()); Err(e.to_string()) }
         }
+    } else {
+        let r = conv.refresh_sessions().await;
+        let mut st = super::host::state();
+        if conv.resource_identity() != identity || st.switch.ticket != ticket { return Ok("stale history reply discarded".into()); }
+        st.switch.loading = false;
+        st.switch.catalog = None;
+        st.switch.coverage = "This server lists the current workspace only; update the server for history across projects.".into();
+        r.map(|n| format!("{n} sessions")).map_err(|e| e.to_string())
     }
 }
 
 /// Open `id` fresh (no replay cursor: `open_workspace_as` sends `after:
 /// None`), in its own workspace when the store knows it.
 pub async fn open(conv: &crate::flow::Conversation, id: String) -> Result<String, String> {
-    let cwd = conv.store.domains.session.workspace_root(&id);
-    let r = conv.open_session(&id, cwd).await;
+    let target = {
+        let st = super::host::state();
+        st.switch.catalog.as_ref().and_then(|rows| rows.iter().find(|r| r.target.key() == id)).map(|r| r.target.clone())
+    };
+    let r = if let Some(target) = target {
+        conv.open_history_target(&target).await
+    } else if id.starts_with('{') {
+        Err("History catalog changed; refresh and select the session again.".into())
+    } else {
+        let cwd = conv.store.domains.session.workspace_root(&id);
+        conv.open_session(&id, cwd).await
+    };
     let mut st = super::host::state();
     st.switch.opening = None;
     match r {
@@ -174,9 +260,16 @@ pub async fn delete(conv: &crate::flow::Conversation, id: String) -> Result<Stri
 }
 
 pub fn perform(st: &mut SwitchState, action: &str, index: usize, store: &Store) -> Outcome {
+    if action.starts_with("b3.switch.delete") && st.catalog.is_some() { return Outcome::Done; }
     match action {
+        "b3.switch.more" => {
+            if st.loading { return Outcome::Done; }
+            if let Some(offset) = st.next_offset { st.offset = offset; return Outcome::Spawn(super::host::Job::SwitchLoad); }
+            return Outcome::Done;
+        }
+        "b3.switch.refresh" => { st.offset = 0; return Outcome::Spawn(super::host::Job::SwitchLoad); }
         "b3.switch.delete" => {
-            let rows = rows(store);
+            let rows = catalog_rows(st, store);
             let Some(row) = rows.get(index) else { return Outcome::Done };
             if row.current || !delete_offered(store) || st.deleting.is_some() {
                 return Outcome::Done;
@@ -201,7 +294,7 @@ pub fn perform(st: &mut SwitchState, action: &str, index: usize, store: &Store) 
     }
     match action {
         "b3.switch.open" => {
-            let rows = rows(store);
+            let rows = catalog_rows(st, store);
             let Some(row) = rows.get(index) else { return Outcome::Done };
             if row.current {
                 // Selecting the current session is a no-op (`App.tsx:1758`).
@@ -217,7 +310,12 @@ pub fn perform(st: &mut SwitchState, action: &str, index: usize, store: &Store) 
 
 /// The panel body (shared by the dialog and the vim split view).
 pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
-    let rows = rows(store);
+    let rows = catalog_rows(st, store);
+    if !st.coverage.is_empty() { d.text("b3_switch_coverage", &st.coverage, &ui::meta().w(W::Fill).wrap()); d.gap(W::Fill, 8.0); }
+    d.button("b3_switch_refresh", tr("Refresh history"), "b3.switch.refresh", ui::Btn::Outline, W::Fit, 30.0);
+    if st.next_offset.is_some() {
+        d.button("b3_switch_more", tr("Load more"), "b3.switch.more", ui::Btn::Outline, W::Fit, 30.0);
+    }
     // A phone-narrow list: the delete confirmation sits on the row's meta
     // line (bottom right), so the title keeps its width.
     let narrow = inner_w > 0.0 && inner_w < 360.0;
@@ -246,7 +344,7 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
         // "Delete? Cancel Delete" pill): the right inset is the control's
         // width plus its 8 px edge and a 6 px gap.
         let confirming = st.confirm_delete.as_deref() == Some(r.id.as_str());
-        let trailing = if !r.current && delete_offered(store) {
+        let trailing = if !r.current && st.catalog.is_none() && delete_offered(store) {
             if st.deleting.as_deref() == Some(r.id.as_str()) {
                 ui::text_w(tr("Deleting…"), 12.0, Face::Regular) + 14.0
             } else if confirming && !narrow {
@@ -295,7 +393,7 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
         // A8 — delete: a trailing × above the row's open target (never on the
         // open Session; only when `session/delete` is advertised), then an
         // explicit confirmation in place.
-        if !r.current && delete_offered(store) {
+        if !r.current && st.catalog.is_none() && delete_offered(store) {
             let layer = d.anon();
             if confirming && narrow {
                 d.view(&layer, "width: Fill height: Fill flow: Right align: Align{x: 1.0 y: 1.0} padding: Inset{right: 8 bottom: 8}");
@@ -486,5 +584,23 @@ mod tests {
             perform(&mut st, "b3.switch.open", 0, &store),
             Outcome::Spawn(super::super::host::Job::SwitchOpen("dsflash:b".into()))
         );
+    }
+}
+
+#[cfg(test)]
+mod history_scope_tests {
+    use super::*;
+    #[test]
+    fn same_wire_id_in_two_projects_is_two_history_rows() {
+        let value = serde_json::json!({"sessions":[
+            {"id":"dev:main","profile_id":"dev","workspace_root":"/project/a","title":"First"},
+            {"id":"dev:main","profile_id":"dev","workspace_root":"/project/b","title":"Second"},
+            {"id":"dev:main","profile_id":"dev","workspace_root":null,"title":"Profile"}]});
+        let rows = parse_history(&value).unwrap();
+        assert_eq!(rows.len(),3);
+        let keys: std::collections::HashSet<_> = rows.iter().map(|r| r.target.key()).collect();
+        assert_eq!(keys.len(),3);
+        assert_eq!(rows[2].target.cwd,None);
+        assert!(parse_history(&serde_json::json!({"sessions":[{"id":"other:main","profile_id":"dev","workspace_root":null}]})).is_err());
     }
 }

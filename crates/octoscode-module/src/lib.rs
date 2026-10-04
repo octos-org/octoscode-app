@@ -384,6 +384,52 @@ script_mod! {
                 // `{label: "Fleet", icon: "✦"}`, ProductSidebar.tsx:970-983) —
                 // opens the board-3 Fleet pane. Same row metrics as the
                 // `+ Add workspace` row above it.
+                history_nav := View {
+                    width: Fill height: 34 flow: Overlay
+                    history_nav_row := View {
+                        width: Fill height: Fill flow: Right spacing: 10
+                        align: Align{y: 0.5}
+                        padding: Inset{left: 8}
+                        Svg {
+                            width: 15 height: 15
+                            animating: false
+                            draw_svg.svg: file_resource(#(crate::design::icon_resource("b3_clock.svg")))
+                            draw_svg.preserve_viewbox: true
+                            // A26: the look's glyph ink (the file's #1D1D1F
+                            // vanished on a dark sidebar).
+                            draw_svg.color: #(crate::chrome::ink("glyph"))
+                        }
+                        history_nav_label := Label {
+                            width: Fit height: Fit padding: 0 text: "Session history"
+                            draw_text.text_style: theme.oc_text_row
+                            draw_text.text_style.font_size: 10.5
+                            draw_text.color: theme.color_fg_app
+                        }
+                    }
+                    // Flat states (no bevel gradient, no focus fill), as the
+                    // chrome's own hits.
+                    history_nav_hit := Button {
+                        width: Fill height: Fill text: "" padding: 0 margin: 0
+                        draw_bg.color: #00000000
+                        draw_bg.color_hover: #00000000
+                        draw_bg.color_down: #8080801F
+                        draw_bg.color_focus: #00000000
+                        draw_bg.color_2: #00000000
+                        draw_bg.color_2_hover: #00000000
+                        draw_bg.color_2_down: #8080801F
+                        draw_bg.color_2_focus: #00000000
+                        draw_bg.border_size: 0.0
+                        draw_bg.border_radius: 8.0
+                        draw_bg.border_color: #00000000
+                        draw_bg.border_color_hover: #00000000
+                        draw_bg.border_color_down: #00000000
+                        draw_bg.border_color_focus: #00000000
+                        draw_bg.border_color_2: #00000000
+                        draw_bg.border_color_2_hover: #00000000
+                        draw_bg.border_color_2_down: #00000000
+                        draw_bg.border_color_2_focus: #00000000
+                    }
+                }
                 fleet_nav := View {
                     width: Fill height: 34 flow: Overlay
                     fleet_nav_row := View {
@@ -1304,6 +1350,10 @@ pub struct OctoscodeView {
     /// A1 — the conversation geometry last applied to the dock/rows.
     #[rust]
     applied_metrics: Option<ConvMetrics>,
+    /// Only the OctoSense adapter reserves space for its shell's floating dock.
+    /// Standalone windows use the full conversation height.
+    #[rust]
+    embedded_in_octosense: bool,
     /// A1 — how far the shell's dock reaches into the module (px), added
     /// under the composer.
     #[rust]
@@ -1737,6 +1787,24 @@ impl OctoscodeView {
                 // A10 — peer/staged + peer/closed drive the peer manager.
                 screens::peers::note_transport_event(&drv, &evt);
                 let e = drv.on_event(evt);
+                if matches!(&e, crate::flow::FlowEvent::WorkspaceOpened(_)) {
+                    let resource_conv = drv.clone();
+                    tokio::spawn(async move {
+                        let inventory_open = screens::board3::host::state().open == Some(screens::board3::host::Dialog::Inventory);
+                        if inventory_open { let _ = screens::board3::inventory::load(&resource_conv).await; }
+                        let _ = screens::models::refresh(&resource_conv, &resource_conv.store).await;
+                        let memory_ticket = {
+                            let mut state = screens::board3::host::state();
+                            if state.open == Some(screens::board3::host::Dialog::Memory) {
+                                state.mem.ticket += 1;
+                                state.mem.loading = true;
+                                Some(state.mem.ticket)
+                            } else { None }
+                        };
+                        if let Some(ticket) = memory_ticket { let _ = screens::board3::memory::load_overview(&resource_conv, ticket).await; }
+                        SignalToUI::set_ui_signal();
+                    });
+                }
                 ::log::debug!("[octoscode] {e:?}");
                 SignalToUI::set_ui_signal();
             }
@@ -2238,7 +2306,9 @@ impl OctoscodeView {
                     );
                     // A26: the web saves the choice at once (`use-theme.ts:
                     // 35-42`) and the whole app follows it live.
-                    screens::theme::save_preference();
+                    screens::theme::select(&preference);
+                    screens::a9_prefs::set_palette(&preference);
+                    screens::a9_prefs::save();
                     makepad_widgets::log!("[octoscode] theme -> {preference}");
                     self.retheme(cx);
                 }
@@ -4272,7 +4342,11 @@ impl OctoscodeView {
             dvec2(0.0, first.map(|y| (top - y).max(0.0)).unwrap_or(0.0))
         };
         let same_dialog = screens::board3::host::note_mounted();
-        match self.mounts.mount(cx, &splash, &lowered.dsl) {
+        // The native clicked() path owns every board-3 tap. Do not also
+        // enqueue its script callback: the action can remount this dialog before
+        // that callback runs, replacing the bytecode its function refers to.
+        let native_dsl = screens::taps::native_clicks_only(&lowered.dsl);
+        match self.mounts.mount(cx, &splash, &native_dsl) {
             Err(e) => makepad_widgets::log!("[octoscode] board3 mount: {e}"),
             Ok(true) => {
                 if same_dialog && keep_scroll.y > 0.0 {
@@ -4956,13 +5030,18 @@ impl OctoscodeView {
         // `env_frame` draws it in that WxH frame, so this is the phone width.
         let module = self.view.area().rect(cx);
         let win_w = module.size.x;
-        // The desktop shell's dock floats over the bottom ~90 px of its window
+        // An embedded desktop shell's dock floats over the bottom ~90 px of its window
         // (#28e2: dock top y≈810 at 900 tall). A floating module window ends
         // above it; a MAXIMIZED one reaches into it and the dock covered the
         // composer (measured: module bottom 888 of 900). Inset the composer
-        // by exactly the overlap — never on the phone shell (no dock).
+        // by exactly the overlap. Standalone windows and the phone shell
+        // have no such dock, so they only need the normal composer padding.
         const DOCK_ZONE: f64 = 92.0;
-        let dock_overlap = if shell.x > conv_layout::PHONE_BREAKPOINT && shell.y > 0.0 && module.size.y > 0.0 {
+        let dock_overlap = if self.embedded_in_octosense
+            && shell.x > conv_layout::PHONE_BREAKPOINT
+            && shell.y > 0.0
+            && module.size.y > 0.0
+        {
             (DOCK_ZONE - (shell.y - (module.pos.y + module.size.y))).clamp(0.0, DOCK_ZONE)
         } else {
             0.0
@@ -5604,6 +5683,24 @@ impl OctoscodeView {
                 }
             });
         }
+        // A modal owns the whole wheel/trackpad event, including its backdrop
+        // and scroll boundaries. Makepad's scroll hits do not consume the event,
+        // so traversing the whole root also scrolls the transcript underneath.
+        if matches!(event, Event::Scroll(_)) {
+            // Topmost first, matching the overlay paint order. A dialog opened
+            // over Settings must not scroll Settings either.
+            for id in [
+                live_id!(a9_dock), live_id!(surfaces_dock), live_id!(board3_dock),
+                live_id!(board1_dock), live_id!(dialog_dock), live_id!(palette_dock),
+                live_id!(settings_dock),
+            ] {
+                let dock = self.view.widget(cx, &[id]);
+                if dock.visible() {
+                    dock.handle_event(cx, event, scope);
+                    return;
+                }
+            }
+        }
         self.handle_sidebar_resize(cx, event);
         self.view.handle_event(cx, event, scope);
         // A29 — a scroll in the transcript, or a press inside it, ends the
@@ -6018,6 +6115,15 @@ impl OctoscodeView {
                 // A4 — the sidebar footer's Fleet entry. A hidden Button still
                 // reports MouseUp, so the click counts only while the sidebar
                 // dock is shown.
+                if self.view.widget(cx, ids!(sidebar_dock)).visible()
+                    && self.view.button(cx, ids!(history_nav_hit)).clicked(actions)
+                {
+                    makepad_widgets::log!("[octoscode] sidebar: history");
+                    self.perform_action(cx, "b3.open.switcher", 0);
+                    // A destination closes the phone drawer (a no-op on the
+                    // desktop column).
+                    self.perform_action(cx, "drawer.close", 0);
+                }
                 if self.view.widget(cx, ids!(sidebar_dock)).visible()
                     && self.view.button(cx, ids!(fleet_nav_hit)).clicked(actions)
                 {

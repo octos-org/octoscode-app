@@ -121,8 +121,8 @@ const CANCEL: &str = "Cancel";
 pub const ADDED: &str = "Added to memory.";
 pub const UPDATED_RECEIPT: &str = "Updated in memory.";
 pub const UNCHANGED: &str = "Already in memory.";
-const EMPTY_TITLE: &str = "No memory yet";
-const EMPTY_BODY: &str = "Octos writes long-term memory and daily notes as you work with this profile.";
+const EMPTY_TITLE: &str = "No knowledge pages yet";
+const EMPTY_BODY: &str = "No long-term pages or daily notes here yet. Recall records may still be available through search.";
 const LOADING: &str = "Loading memory…";
 const TRUNCATED: &str = "Showing the first {value0} of {value1}. The rest stays on the server.";
 const TRUNCATED_PART: &str = "Showing the first {value0} of this page. The rest stays on the server.";
@@ -135,8 +135,8 @@ const LEAD_OPEN: &str = "Couldn't open this record.";
 const LEAD_PAGE: &str = "Couldn't open this page.";
 const LEAD_ADD: &str = "Couldn't add the note.";
 
-const SCOPE: &str = "This server reads memory for the account you signed in with, not for {value0}.";
-const SCOPE_NEXT: &str = "Update octos to a version that reads memory per profile.";
+const SCOPE: &str = "The server did not confirm the memory scope for this session in {value0}.";
+const SCOPE_NEXT: &str = "Update octos to a version that reports session memory scope.";
 const OTHER: &str = "The server answered for {value0}, not for {value1}.";
 const OTHER_NEXT: &str = "Open Memory from a chat on that profile.";
 const NOT_RUNNING: &str = "The server isn't running {value0} yet, so its memory isn't available.";
@@ -345,6 +345,7 @@ pub enum Refusal {
     NotRunning,
     NotFound,
     Forbidden,
+    AppMemoryLocked,
     Invalid,
     /// The method is not advertised / not supported.
     Unavailable,
@@ -387,6 +388,9 @@ pub enum Page {
 
 #[derive(Debug, Clone, Default)]
 pub struct MemState {
+    pub identity: String,
+    pub session_id: String,
+    pub namespace: Option<String>,
     pub page: Page,
     /// The Session's profile every call names (set when a job runs).
     pub profile: String,
@@ -657,6 +661,7 @@ pub fn classify(e: &octoscode_client::ClientError, confirmed: bool) -> Refusal {
                         Refusal::Scope
                     }
                 }
+                (_, "peer_host_token_mismatch") => Refusal::AppMemoryLocked,
                 (_, "not_found") | (-32170, _) => Refusal::NotFound,
                 (_, "forbidden" | "permission_denied") | (-32003 | -32120, _) => Refusal::Forbidden,
                 (_, "method_not_supported" | "unsupported_capability") | (-32601 | -32004 | -32130, _) => Refusal::Unavailable,
@@ -687,6 +692,7 @@ pub fn copy(f: &Failure, profile: &str) -> (&'static str, String, String) {
         Refusal::NotRunning => (tr1(NOT_RUNNING, profile), tr(NOT_RUNNING_NEXT).to_owned()),
         Refusal::NotFound => two(NOT_FOUND, NOT_FOUND_NEXT),
         Refusal::Forbidden => (tr1(FORBIDDEN, profile), tr(FORBIDDEN_NEXT).to_owned()),
+        Refusal::AppMemoryLocked => two("This session uses isolated app memory.", "Open its memory in the app that owns this session."),
         Refusal::Invalid => two(INVALID, INVALID_NEXT),
         Refusal::Unavailable => two(UNAVAILABLE, UNAVAILABLE_NEXT),
         Refusal::Offline => two(OFFLINE, OFFLINE_NEXT),
@@ -944,11 +950,37 @@ pub fn job_unavailable(st: &mut MemState, job: &Job) {
 // ---------------------------------------------------------------- the jobs
 
 /// One call: the capability gate, the request, the refusal class.
-async fn call(conv: &crate::flow::Conversation, method: &str, params: Value, confirmed: bool) -> Result<Value, Refusal> {
-    if !advertised(&conv.store, method) {
-        return Err(Refusal::Unavailable);
+async fn call(conv: &crate::flow::Conversation, method: &str, mut params: Value, confirmed: bool) -> Result<Value, Refusal> {
+    if !advertised(&conv.store, method) { return Err(Refusal::Unavailable); }
+    // Old servers ignore unknown params; require the capability AND reply echo
+    // before treating a profile-only result as the selected session's memory.
+    if !conv.store.domains.config.supported_features().iter().any(|f| f == "memory.session_scope.v1") {
+        return Err(Refusal::Scope);
     }
-    conv.client().request(method, params).await.map_err(|e| classify(&e, confirmed))
+    let session = conv.session_id();
+    params["context"] = serde_json::json!({"session_id":session});
+    if method == LOAD { params["count_visit"] = serde_json::json!(false); }
+    let value = conv.client().request(method, params).await.map_err(|e| classify(&e, confirmed))?;
+    if value["scope"]["session_id"].as_str() != Some(session.as_str()) {
+        return Err(Refusal::Scope);
+    }
+    Ok(value)
+}
+
+/// Clear data immediately when an open begins, including late-job tickets.
+/// Keeping counters monotonic prevents A -> B -> A replies from matching again.
+pub fn invalidate() {
+    let mut state = super::host::state();
+    invalidate_state(&mut state.mem);
+    super::host::wake();
+}
+
+fn invalidate_state(state: &mut MemState) {
+    let old = &*state;
+    let next = MemState { ticket:old.ticket+1, search_ticket:old.search_ticket+1,
+        record_ticket:old.record_ticket+1, entity_ticket:old.entity_ticket+1,
+        add_ticket:old.add_ticket+1, ..Default::default() };
+    *state = next;
 }
 
 /// The reply is this profile's, or the refusal that says whose it is not.
@@ -960,25 +992,29 @@ fn attributed(v: &Value, profile: &str) -> Result<(), Refusal> {
     }
 }
 
-fn begin(conv: &crate::flow::Conversation) -> (String, bool) {
+fn begin(conv: &crate::flow::Conversation) -> (String, bool, String) {
     let profile = conv.profile();
     let mut st = super::host::state();
     st.mem.profile = profile.clone();
-    (profile, st.mem.confirmed)
+    st.mem.session_id = conv.session_id();
+    st.mem.identity = conv.resource_identity();
+    (profile, st.mem.confirmed, conv.resource_identity())
 }
 
 pub async fn load_overview(conv: &crate::flow::Conversation, ticket: u64) -> Result<String, String> {
-    let (profile, _) = begin(conv);
+    if super::host::state().mem.ticket != ticket { return Ok("stale memory job dropped".into()); }
+    let (profile, _, identity) = begin(conv);
     // The overview decides the scope: a refusal before it is the scope's.
     let res = call(conv, OVERVIEW, overview_params(&profile), false).await;
     let mut st = super::host::state();
     let m = &mut st.mem;
-    if m.ticket != ticket {
+    if m.ticket != ticket || m.identity != identity || conv.resource_identity() != identity {
         return Ok("stale memory/overview reply dropped".into());
     }
     m.loading = false;
     let out = res.and_then(|v| {
         attributed(&v, &profile)?;
+        m.namespace = v["scope"]["namespace"].as_str().map(str::to_owned);
         parse_overview(&v).ok_or(Refusal::Failed)
     });
     super::host::wake();
@@ -1001,14 +1037,15 @@ pub async fn load_overview(conv: &crate::flow::Conversation, ticket: u64) -> Res
 }
 
 pub async fn search(conv: &crate::flow::Conversation, ticket: u64) -> Result<String, String> {
-    let (profile, confirmed) = begin(conv);
+    if super::host::state().mem.search_ticket != ticket { return Ok("stale memory job dropped".into()); }
+    let (profile, confirmed, identity) = begin(conv);
     let Some((query, kind)) = super::host::state().mem.searched.clone() else {
         return Ok("no search".into());
     };
     let res = call(conv, SEARCH, search_params(&profile, &query, kind), confirmed).await;
     let mut st = super::host::state();
     let m = &mut st.mem;
-    if m.search_ticket != ticket {
+    if m.search_ticket != ticket || m.identity != identity || conv.resource_identity() != identity {
         return Ok("stale memory/search reply dropped".into());
     }
     m.searching = false;
@@ -1034,11 +1071,12 @@ pub async fn search(conv: &crate::flow::Conversation, ticket: u64) -> Result<Str
 }
 
 pub async fn open_record(conv: &crate::flow::Conversation, ticket: u64, id: String) -> Result<String, String> {
-    let (profile, confirmed) = begin(conv);
+    if super::host::state().mem.record_ticket != ticket { return Ok("stale memory job dropped".into()); }
+    let (profile, confirmed, identity) = begin(conv);
     let res = call(conv, LOAD, load_params(&profile, &id), confirmed).await;
     let mut st = super::host::state();
     let m = &mut st.mem;
-    if m.record_ticket != ticket {
+    if m.record_ticket != ticket || m.identity != identity || conv.resource_identity() != identity {
         return Ok("stale memory/load reply dropped".into());
     }
     m.record_loading = false;
@@ -1062,11 +1100,12 @@ pub async fn open_record(conv: &crate::flow::Conversation, ticket: u64, id: Stri
 }
 
 pub async fn open_entity(conv: &crate::flow::Conversation, ticket: u64, name: String) -> Result<String, String> {
-    let (profile, confirmed) = begin(conv);
+    if super::host::state().mem.entity_ticket != ticket { return Ok("stale memory job dropped".into()); }
+    let (profile, confirmed, identity) = begin(conv);
     let res = call(conv, ENTITY, entity_params(&profile, &name), confirmed).await;
     let mut st = super::host::state();
     let m = &mut st.mem;
-    if m.entity_ticket != ticket {
+    if m.entity_ticket != ticket || m.identity != identity || conv.resource_identity() != identity {
         return Ok("stale memory/entity reply dropped".into());
     }
     m.entity_loading = false;
@@ -1090,7 +1129,8 @@ pub async fn open_entity(conv: &crate::flow::Conversation, ticket: u64, name: St
 }
 
 pub async fn add_note(conv: &crate::flow::Conversation, ticket: u64) -> Result<String, String> {
-    let (profile, confirmed) = begin(conv);
+    if super::host::state().mem.add_ticket != ticket { return Ok("stale memory job dropped".into()); }
+    let (profile, confirmed, identity) = begin(conv);
     let (title, note) = {
         let st = super::host::state();
         (st.mem.add_title.clone(), st.mem.add_note.clone())
@@ -1105,7 +1145,7 @@ pub async fn add_note(conv: &crate::flow::Conversation, ticket: u64) -> Result<S
     let landed = {
         let mut st = super::host::state();
         let m = &mut st.mem;
-        if m.add_ticket != ticket {
+        if m.add_ticket != ticket || m.identity != identity || conv.resource_identity() != identity {
             return Ok("stale memory/ingest reply dropped".into());
         }
         m.adding = false;
@@ -1307,6 +1347,13 @@ fn header_main(d: &mut Dsl, st: &MemState, store: &Store) {
     // D1: plain text in the theme's muted ink (not monospace).
     let profile = if st.profile.is_empty() { "…".to_owned() } else { st.profile.clone() };
     d.text("b3_mem_scope", &scope_line(&profile), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill));
+    let detail = match st.namespace.as_deref() {
+        Some(ns) => format!("Namespace: {ns}"),
+        None if st.confirmed => if crate::i18n::is_zh() {"此 Profile 的会话共享记忆；不按项目划分。".into()} else {"Shared across this Profile's sessions and projects.".into()},
+        None => String::new(),
+    };
+    if !detail.is_empty() { d.text("b3_mem_scope_detail", &detail, &ui::meta().w(W::Fill).wrap()); }
+
 }
 
 /// Header of a sub-page: "‹ Back" (blue) and close.
@@ -2008,4 +2055,22 @@ fn add_body(d: &mut Dsl, st: &MemState, sheet: bool) {
     d.close();
     d.close();
     d.gap(W::Fill, 8.0);
+}
+
+#[cfg(test)]
+mod session_scope_tests {
+    use super::*;
+    #[test]
+    fn a_session_switch_clears_all_resource_data_and_retires_in_flight_work() {
+        let mut state = MemState { profile:"old".into(), session_id:"old:api:chat".into(),
+            identity:"old#1".into(), confirmed:true, query:"old search".into(),
+            add_note:"old private draft".into(), ticket:7, search_ticket:11,
+            record_ticket:13, entity_ticket:17, add_ticket:19, ..Default::default() };
+        invalidate_state(&mut state);
+        assert_eq!((state.ticket,state.search_ticket,state.record_ticket,state.entity_ticket,state.add_ticket),(8,12,14,18,20));
+        assert!(!state.confirmed && state.profile.is_empty() && state.identity.is_empty());
+        assert!(state.query.is_empty() && state.add_note.is_empty() && state.overview.is_none());
+        invalidate_state(&mut state);
+        assert_eq!(state.ticket,9); // A -> B -> A never reuses a ticket.
+    }
 }

@@ -647,6 +647,27 @@ pub const SKILLS_MUTATION_FAILED: &str = "Could not confirm the server change. I
 /// `btn_3_install` sits on the row bearing `t_name10_text`).
 const INSTALL_BASE: usize = 3;
 
+#[derive(Clone, Default)]
+pub struct EffectiveSkills {
+    pub session: String,
+    pub rows: Vec<Value>,
+    pub available: bool,
+}
+pub fn effective_skills(store: &Store) -> EffectiveSkills {
+    let Some(value) = store.domains.profile.effective_skills() else { return EffectiveSkills::default() };
+    // Older servers mixed tool plugins into this catalog. Skills are the
+    // instruction entries; executable tools and MCP have their own inventory.
+    let rows = value["effective_skills"].as_array().map(|rows| rows.iter()
+        .filter(|row| row["kind"] == "instructions").cloned().collect()).unwrap_or_default();
+    EffectiveSkills { session:value["session_id"].as_str().unwrap_or_default().into(),
+        available:value["effective_skills"].is_array(), rows }
+}
+pub fn invalidate_resources(store: &Store) {
+    store.domains.profile.set_effective_skills(None);
+    store.domains.profile.set_installed_skills(Vec::new());
+    store.domains.profile.set_llm_models(Vec::new());
+}
+
 // --------------------------------------------------------------------- refresh
 
 /// Pull the three profile reads and fold them into the store — the web's
@@ -657,6 +678,8 @@ const INSTALL_BASE: usize = 3;
 /// the f29c replay test calls it directly against the recorded frames.
 pub async fn refresh(conv: &Conversation, store: &Store) -> Result<usize, String> {
     let client = conv.client();
+    let identity = conv.resource_identity();
+    let session = conv.session_id();
     let mut done = 0usize;
     let mut errs = Vec::new();
     // A10: the reads are scoped to the connection's Profile (the r2
@@ -666,14 +689,24 @@ pub async fn refresh(conv: &Conversation, store: &Store) -> Result<usize, String
     if store.domains.profile.current().is_none() {
         store.domains.profile.set_current(conv.profile());
     }
-    let profile = store.domains.profile.current().unwrap_or_else(|| conv.profile());
+    let profile = conv.profile();
     for (method, fold) in [
         ("profile/llm/list", fold_llm_list as fn(Value, &Store)),
         ("profile/skills/list", fold_skills_list),
         ("profile/sub_providers/list", fold_sub_providers),
     ] {
-        match client.request(method, json!({ "profile_id": profile })).await {
+        let mut params = json!({ "profile_id": profile });
+        let effective = method == "profile/skills/list" && store.domains.config.supported_features().iter().any(|f| f == "skills.effective_catalog.v1");
+        if effective { params["session_id"] = json!(session); }
+        let result = client.request(method, params).await;
+        if conv.resource_identity() != identity { return Err("Session changed; stale resource reply discarded".into()); }
+        match result {
             Ok(v) => {
+                if effective {
+                    let valid = v["profile_id"].as_str() == Some(profile.as_str()) && v["session_id"].as_str() == Some(session.as_str());
+                    let rows = if valid { v["effective_skills"].as_array().cloned() } else { None };
+                    store.domains.profile.set_effective_skills(rows.map(|rows| json!({"session_id":session,"effective_skills":rows})));
+                }
                 fold(v, store);
                 done += 1;
             }
