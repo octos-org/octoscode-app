@@ -4,10 +4,8 @@
 //! `tools` (`tool/status/list`) and `mcp` (`mcp/status/list`), reached from the
 //! `/tools` and `/mcp` commands (`features/commands/registry.ts`, intents
 //! "tools"/"mcp"); one dialog shape: header, scope, search, the mode's list,
-//! the empty state. The approved board draws the two modes as one dialog with
-//! a "Tools | MCP servers" segmented control, so each segment IS a web mode:
-//! switching reloads that mode exactly as the web re-keys the dialog by mode
-//! (`InventoryDialog.tsx:66-73`).
+//! the empty state. Settings > Capabilities also opens each panel through
+//! its own entry. The panels share this renderer, without a tab switcher.
 //!
 //! Search is the web's client-side filter (`:74-101`): the trimmed,
 //! lower-cased query must occur in the space-joined
@@ -313,12 +311,6 @@ pub fn invalidate() {
 
 pub fn perform(st: &mut InvState, action: &str, _index: usize) -> Outcome {
     match action {
-        "b3.inv.tab.tools" | "b3.inv.tab.mcp" => {
-            st.tab = if action.ends_with("tools") { Tab::Tools } else { Tab::Mcp };
-            st.query_snap = st.query.clone();
-            st.loading = true;
-            Outcome::Spawn(super::host::Job::InventoryLoad)
-        }
         "b3.inv.refresh" => {
             if st.loading {
                 return Outcome::Done; // the web disables Refresh while loading
@@ -392,20 +384,7 @@ pub fn build(d: &mut Dsl, st: &InvState, frame: &Frame, _store: &Store) {
     d.close();
     d.gap(W::Fill, 12.0);
 
-    // The board's segmented control: the selected web mode leads.
-    d.segmented(
-        "b3_inv_tab",
-        &[
-            (tr("Tools"), "b3.inv.tab.tools".to_owned()),
-            (tr("MCP servers"), "b3.inv.tab.mcp".to_owned()),
-        ],
-        if st.tab == Tab::Tools { 0 } else { 1 },
-        W::Fill,
-        ui::Seg::Tab,
-    );
-    d.gap(W::Fill, 12.0);
-
-    ui::body_open(d, frame, width, 160.0);
+    ui::body_open(d, frame, width, 116.0);
     if st.loading {
         d.text("b3_inv_loading", tr("Loading runtime inventory…"), &ui::meta());
         d.gap(W::Fill, 6.0);
@@ -730,9 +709,10 @@ mod tests {
             let dsl = d.finish();
             let wired = crate::screens::taps::wired_taps(&dsl);
             assert_eq!(wired, taps);
-            for ev in ["b3.close", "b3.inv.refresh", "b3.inv.tab.tools", "b3.inv.tab.mcp"] {
+            for ev in ["b3.close", "b3.inv.refresh"] {
                 assert!(wired.iter().any(|(_, e)| e == ev), "{ev} wired");
             }
+            assert!(!dsl.contains("b3_inv_tab"), "categories have separate entry points");
             assert!(dsl.contains("fs.read"));
             assert_eq!(dsl.matches('{').count(), dsl.matches('}').count(), "balanced");
         }

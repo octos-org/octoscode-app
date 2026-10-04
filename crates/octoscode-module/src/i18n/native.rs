@@ -370,6 +370,7 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     // ---- A36: Settings > Capabilities (chrome.rs) and the MCP view's note
     ("Installed skills, the skill registry and background jobs.", "已安装的技能、技能注册表和后台任务。"),
     ("The status this server reports. Servers are configured on the server.", "此服务器报告的状态。服务器在服务器端配置。"),
+    ("Executable tools available to this session.", "当前会话可使用的可执行工具。"),
     (
         "MCP servers are configured on the server. This app shows the status the server reports and can't add or remove servers.",
         "MCP 服务器在服务器端配置。此应用显示服务器报告的状态，无法添加或删除服务器。",
@@ -378,7 +379,7 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     // its Capabilities row. Profile is 配置档案 (GLOSSARY).
     ("Memory", "记忆"),
     ("What Octos remembers for this profile: notes, entities and search.", "Octos 为此配置档案记住的内容：笔记、实体和搜索。"),
-    ("This server offers no skills, MCP status or memory.", "此服务器不提供技能、MCP 状态或记忆。"),
+    ("This server offers no skills, MCP status, tools or memory.", "此服务器不提供技能、MCP 状态、工具或记忆。"),
     (
         "What Octos remembers for this profile. Octos writes it as it works; search it or add a note.",
         "Octos 为此配置档案记住的内容。Octos 在工作时写入；你可以搜索它或添加笔记。",

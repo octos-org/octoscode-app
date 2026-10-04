@@ -136,8 +136,8 @@ pub struct CapabilityRow {
 /// A36 — the Capabilities rows, in order. Each opens a surface that already
 /// exists and is otherwise reached only by a slash command: the Skills dialog
 /// (`/skills`, `screens::dialog` `Dialog::Skills`, which loads
-/// `profile/skills/list` on open) and the runtime inventory on its MCP tab
-/// (`/mcp`, `board3::host` `b3.open.mcp`, which reads `mcp/status/list`).
+/// `profile/skills/list` on open), MCP servers (`/mcp`, `mcp/status/list`),
+/// and Tools (`/tools`, `tool/status/list`). MCP and Tools open separate panels.
 pub const CAPABILITY_ROWS: &[CapabilityRow] = &[
     CapabilityRow {
         id: "skills",
@@ -146,6 +146,7 @@ pub const CAPABILITY_ROWS: &[CapabilityRow] = &[
         methods: &["profile/skills/list"],
     },
     CapabilityRow { id: "mcp", hit: "set_cap_mcp", action: "b3.open.mcp", methods: &["mcp/status/list"] },
+    CapabilityRow { id: "tools", hit: "set_cap_tools", action: "b3.open.tools", methods: &["tool/status/list"] },
     // A36 (board 5, D2 A) — the Memory dialog (`board3::memory`), which reads
     // `memory/overview` for the Session's profile on open.
     CapabilityRow { id: "memory", hit: "set_cap_memory", action: "b3.open.memory", methods: &["memory/overview"] },

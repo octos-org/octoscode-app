@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression: an already-open MCP/Tools dialog must own wheel scrolling.
+"""Regression: the separate MCP and Tools panels must own wheel scrolling.
 
 Run against an OWNED --remote app with a scrollable restored conversation and
 an open inventory dialog: mcp_tools_scroll.py <port> <report.json>.
@@ -41,7 +41,8 @@ def run(port):
         return [(w['i'], w['r']) for w in snap() if w['i'].startswith('b3_inv_tool_')]
 
     checks = []
-    click('b3_inv_tab_0')
+    click('b3_close')
+    click('set_cap_tools')
     # Give the live inventory read time to finish.
     for _ in range(60):
         if tools():
@@ -59,12 +60,13 @@ def run(port):
         checks.append({'check': label + ': chat stays fixed', 'pass': same})
         if label == 'tools down':
             checks.append({'check': 'tools list scrolls', 'pass': tools() != first_tools})
-    click('b3_inv_tab_1')
+    click('b3_close')
+    click('set_cap_mcp')
     time.sleep(.5)
     x, y, w, h = item('b3_scroll')['r']
     get(f'/m?k=scroll&x={x+w/2}&y={y+50}&dy=-240&wait=1')
     time.sleep(.3)
-    checks.append({'check': 'MCP tab: chat stays fixed', 'pass': chat() == baseline})
+    checks.append({'check': 'MCP panel: chat stays fixed', 'pass': chat() == baseline})
     # The modal backdrop also blocks scroll, even outside its card.
     get('/m?k=scroll&x=1150&y=350&dy=-240&wait=1')
     time.sleep(.3)

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""A36 — Settings > Capabilities by CLICK: Skills, MCP servers and Memory are
+"""A36 — Settings > Capabilities by CLICK: Skills, MCP servers, Tools and Memory are
 reachable from Settings, not only by typing `/skills` or `/mcp`.
 
 Phases (A36_PHASE; unset runs them all):
   main  : the server advertises every row's method. Settings (header) ->
           Capabilities (the nav cell on desktop, the rail chip on the phone)
-          -> the three rows; Skills "Open" -> the Skills dialog over Settings;
-          MCP servers "Open" -> the runtime inventory on its MCP tab with the
-          "configured on the server" note and no add/remove control; Memory
+          -> four rows; Skills "Open" -> the Skills dialog over Settings;
+          MCP servers "Open" -> its own panel with the
+          "configured on the server" note; Tools "Open" -> the Tools panel; Memory
           "Open" -> the Memory dialog (it reads memory/overview).
-  none  : the open withdraws profile/skills/list, mcp/status/list and the
+  none  : the open withdraws profile/skills/list, mcp/status/list, tool/status/list and the
           memory methods: no row, the section's note instead.
   dark  : the same section in the dark theme (Settings follows the theme).
   zh    : the same section in Chinese (Noto Sans SC), rows unclipped.
@@ -28,9 +28,9 @@ from a10_lib import Walk, inside, overlap, run_session
 # A11: the walk aggregator's convention (tools/walk/native.py; read with ast).
 WALK = {
     "name": "a36_capabilities",
-    "title": "Settings > Capabilities (A36): Skills / MCP servers / Memory rows by CLICK, each gated by the "
-             "advertised method; Skills -> the Skills dialog, MCP -> the inventory's MCP tab (configured on the "
-             "server, no add/remove), Memory -> the Memory dialog; none advertised -> the note; dark; Chinese",
+    "title": "Settings > Capabilities (A36): Skills / MCP servers / Tools / Memory rows by CLICK, each gated by the "
+             "advertised method; MCP and Tools open separate panels; "
+             "none advertised -> the note; dark; Chinese",
     "modes": ["desktop", "phone"],
     "app": "self",
     "runs": [
@@ -50,6 +50,7 @@ PHASE = os.environ.get("A36_PHASE", "")
 PHONE = MODE == "phone"
 NAV = "set_rail_capabilities" if PHONE else "set_nav_capabilities"
 ROWS = [("skills", "set_cap_skills_row", "set_cap_skills"), ("mcp", "set_cap_mcp_row", "set_cap_mcp"),
+        ("tools", "set_cap_tools_row", "set_cap_tools"),
         ("memory", "set_cap_memory_row", "set_cap_memory")]
 MEMORY_METHODS = ["memory/overview", "memory/entity", "memory/search", "memory/load", "memory/ingest"]
 
@@ -120,12 +121,12 @@ def main_phase(W: Walk, tag: str = "main", zh: bool = False, dark: bool = False)
     W.note(f"== {tag}: Settings > Capabilities by CLICK")
     W.check(f"{tag}: Settings > Capabilities CLICK shows the section",
             open_capabilities(W) and W.logged("settings.section.capabilities", 4))
-    W.check(f"{tag}: the three rows are offered (each method advertised)",
+    W.check(f"{tag}: the four rows are offered (each method advertised)",
             all(W.visible(r) for _, r, _ in ROWS) and not W.visible("set_cap_none"),
             f"{[(r, bool(W.visible(r))) for _, r, _ in ROWS]}")
-    section_checks(W, tag, {"skills", "mcp", "memory"})
+    section_checks(W, tag, {"skills", "mcp", "tools", "memory"})
     if zh:
-        want = ["可用能力", "技能", "MCP 服务器", "记忆", "打开"]
+        want = ["可用能力", "技能", "MCP 服务器", "工具", "记忆", "打开"]
         texts = [w.get("t") or "" for w in W.snap() if W.shown(w)]
         W.check(f"{tag}: the section reads Chinese", all(any(x == t or x in t for t in texts) for x in want),
                 f"{[x for x in want if not any(x == t or x in t for t in texts)]}")
@@ -145,10 +146,10 @@ def main_phase(W: Walk, tag: str = "main", zh: bool = False, dark: bool = False)
     W.check("skills: the dialog closes back to Settings > Capabilities",
             W.wait(lambda: not W.visible("dlg_skills_t_title") and bool(W.visible("sec_capabilities")), 6))
 
-    W.note("== MCP servers: Open -> the runtime inventory on its MCP tab")
+    W.note("== MCP servers: Open -> the MCP servers panel")
     W.mark()
     W.click("set_cap_mcp")
-    W.check("mcp: Open CLICK -> b3.open.mcp -> the inventory on the MCP tab",
+    W.check("mcp: Open CLICK -> b3.open.mcp -> the MCP servers panel",
             W.logged("b3.open.mcp", 4) and W.wait(lambda: bool(W.visible("b3_inv_mcp_note")), 8))
     note = W.text("b3_inv_mcp_note")
     W.check("mcp: the view says servers are configured on the server, no add/remove",
@@ -160,6 +161,19 @@ def main_phase(W: Walk, tag: str = "main", zh: bool = False, dark: bool = False)
     W.click("b3_close")
     W.check("mcp: the inventory closes back to Settings",
             W.wait(lambda: not W.visible("b3_inv_mcp_note") and bool(W.visible("sec_capabilities")), 6))
+
+    W.note("== Tools: Open -> a separate Tools panel")
+    W.mark()
+    W.click("set_cap_tools")
+    W.check("tools: Open CLICK -> b3.open.tools -> the Tools panel",
+            W.logged("b3.open.tools", 4) and W.wait(lambda: bool(W.visible("b3_inv_count")), 8))
+    W.check("tools: no MCP table or shared tab switcher",
+            not W.visible("b3_inv_summary") and not W.visible("b3_inv_tab_0"))
+    W.check("wire: the Tools panel read tool/status/list", W.replay_saw("tool/status/list", 4) >= 1)
+    W.shot(f"03-tools-from-settings-{MODE}")
+    W.click("b3_close")
+    W.check("tools: the panel closes back to Settings",
+            W.wait(lambda: not W.visible("b3_inv_count") and bool(W.visible("sec_capabilities")), 6))
 
     W.note("== Memory: Open -> the Memory dialog")
     W.mark()
@@ -189,7 +203,7 @@ def run_phase(phase: str) -> int:
     out.mkdir(parents=True, exist_ok=True)
     args, env = [], {}
     if phase == "none":
-        for m in ["profile/skills/list", "mcp/status/list"] + MEMORY_METHODS:
+        for m in ["profile/skills/list", "mcp/status/list", "tool/status/list"] + MEMORY_METHODS:
             args += ["--drop-method", m]
     tmp = []
     if phase == "zh":

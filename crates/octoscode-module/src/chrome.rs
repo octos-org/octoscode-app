@@ -1244,8 +1244,7 @@ script_mod! {
                     }
                 }
 
-                // ----- Capabilities (A36): Skills and the MCP status by a CLICK
-                // (they were reachable only by typing `/skills` / `/mcp`).
+                // ----- Capabilities: separate entries for Skills, MCP, Tools and Memory.
                 // Each row is Settings > Model's "All models" row (title, an
                 // "Open" pill, help under it) and opens the EXISTING surface
                 // (`settings::CAPABILITY_ROWS`); a row shows only when the
@@ -1293,6 +1292,27 @@ script_mod! {
                             OcRowHelp{text: "The status this server reports. Servers are configured on the server."}
                         }
                     }
+                    set_cap_rule_tools := View{width: Fill height: Fit OcRule{}}
+                    set_cap_tools_row := View{
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        View{
+                            width: Fill height: 34 flow: Overlay
+                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Tools"}}
+                            View{
+                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                View{
+                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                    OcLabel{text: "Open" draw_text +: {text_style +: {font_size: 9.75}}}
+                                    set_cap_tools := OcHit{draw_bg.border_radius: 9.0}
+                                }
+                            }
+                        }
+                        View{
+                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                            OcRowHelp{text: "Executable tools available to this session."}
+                        }
+                    }
                     // A36b (board 5) — Memory: the Session profile's memory dialog.
                     set_cap_rule_memory := View{width: Fill height: Fit OcRule{}}
                     set_cap_memory_row := View{
@@ -1318,7 +1338,7 @@ script_mod! {
                     // Nothing advertised: say so instead of an empty section.
                     set_cap_none := View{
                         width: Fill height: Fit flow: Down padding: Inset{top: 14 bottom: 14} visible: false
-                        OcRowHelp{text: "This server offers no skills, MCP status or memory."}
+                        OcRowHelp{text: "This server offers no skills, MCP status, tools or memory."}
                     }
                 }
 
@@ -2421,9 +2441,11 @@ impl ChromeRuntime {
             show(cx, view, ids!(set_cap_skills_row), on("skills"));
             show(cx, view, ids!(set_cap_mcp_row), on("mcp"));
             show(cx, view, ids!(set_cap_rule_mcp), on("skills") && on("mcp"));
+            show(cx, view, ids!(set_cap_tools_row), on("tools"));
+            show(cx, view, ids!(set_cap_rule_tools), on("tools") && (on("skills") || on("mcp")));
             // A36b — Memory, ruled off from whichever row stands above it.
             show(cx, view, ids!(set_cap_memory_row), on("memory"));
-            show(cx, view, ids!(set_cap_rule_memory), on("memory") && (on("skills") || on("mcp")));
+            show(cx, view, ids!(set_cap_rule_memory), on("memory") && (on("skills") || on("mcp") || on("tools")));
             show(cx, view, ids!(set_cap_none), rows.is_empty());
         }
         // Sandbox (new-chat defaults).

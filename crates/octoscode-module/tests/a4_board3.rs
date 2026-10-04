@@ -383,7 +383,7 @@ async fn inventory_reads_only_the_selected_mode_and_search_filters_without_a_rel
     assert!(vis.contains(&("b3_inv_tool_1".to_owned(), true)), "the alias matched bash");
     assert_eq!(server.params_of("tool/status/list").len(), 1, "filtering never re-reads");
     // Selecting MCP reads only MCP; it never appends the generic tools table.
-    let job = spawn_of(host::perform("b3.inv.tab.mcp", 0, &conv.store));
+    let job = spawn_of(host::perform("b3.open.mcp", 0, &conv.store));
     host::run(job, &conv).await.expect("MCP inventory load");
     let mcp = server.params_of("mcp/status/list");
     assert_eq!(mcp.len(), 1);

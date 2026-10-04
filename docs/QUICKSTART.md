@@ -166,7 +166,8 @@ Profile packages; global or built-in entries cannot be removed from that list.
 
 **MCP servers** lists the selected session's MCP connections with their transport,
 connection status and discovered tool count. Failed starts and servers with zero
-tools remain visible. The **Tools** tab lists executable tools separately.
+tools remain visible. **Settings → Capabilities → Tools** opens a separate panel
+listing executable tools. MCP servers and Tools each have their own entry and search.
 Refresh reads current connection status; MCP configuration remains on the server.
 
 **Memory** shows the current session's authorized storage scope. Ordinary

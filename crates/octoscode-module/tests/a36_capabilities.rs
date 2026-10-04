@@ -4,8 +4,8 @@
 //! Settings gains a **Capabilities** section (after Model) whose rows open the
 //! EXISTING surfaces: Skills -> the A5/A10/A31 Skills dialog
 //! (`dialog.open.skills`), MCP servers -> the board-3 runtime inventory on its
-//! MCP tab (`b3.open.mcp`). Each row shows only when the server advertises the
-//! method its surface reads (`profile/skills/list`, `mcp/status/list`), like
+//! panel (`b3.open.mcp`), Tools -> a separate Tools panel (`b3.open.tools`).
+//! Each row shows only when the server advertises the method its surface reads, like
 //! Settings > Model's "All models" row (`profile/llm/list`).
 //!
 //! The MCP view states the truth about management: octos has no UI-protocol
@@ -56,6 +56,8 @@ fn capability_rows_show_only_what_the_server_advertises() {
     let _g = lock();
     assert!(settings::capability_rows(&store_with(&[])).is_empty(), "nothing advertised: no row");
     assert_eq!(settings::capability_rows(&store_with(&["profile/skills/list"])), vec!["skills"]);
+    assert_eq!(settings::capability_rows(&store_with(&["tool/status/list"])), vec!["tools"]);
+    assert_eq!(settings::capability_rows(&store_with(&["mcp/status/list"])), vec!["mcp"]);
     assert_eq!(
         settings::capability_rows(&store_with(&["mcp/status/list", "profile/skills/list"])),
         vec!["skills", "mcp"],
@@ -69,7 +71,7 @@ fn capability_rows_show_only_what_the_server_advertises() {
         vec![
             ("skills", "set_cap_skills", "dialog.open.skills"),
             ("mcp", "set_cap_mcp", "b3.open.mcp"),
-            // A36b — board 5's third row.
+            ("tools", "set_cap_tools", "b3.open.tools"),
             ("memory", "set_cap_memory", "b3.open.memory"),
         ]
     );
@@ -86,17 +88,21 @@ fn the_skills_row_opens_the_existing_skills_dialog() {
 }
 
 #[test]
-fn the_mcp_row_opens_the_inventory_on_its_mcp_tab() {
+fn mcp_and_tools_rows_open_their_own_panels_without_carrying_the_other_search() {
     let _g = lock();
     let store = store_with(&["mcp/status/list", "tool/status/list"]);
-    let row = settings::CAPABILITY_ROWS.iter().find(|r| r.id == "mcp").expect("mcp row");
-    assert!(host::routes(row.action), "a board-3 id");
-    assert!(!dialog::is_action(row.action));
-    // Even when the dialog was last left on Tools, the row lands on MCP.
-    host::state().inv.tab = inventory::Tab::Tools;
-    assert_eq!(host::perform(row.action, 0, &store), host::Outcome::Spawn(host::Job::InventoryLoad));
-    assert_eq!(host::open_dialog(), Some(host::Dialog::Inventory));
-    assert_eq!(host::state().inv.tab, inventory::Tab::Mcp);
+    for (id, mode) in [("mcp", inventory::Tab::Mcp), ("tools", inventory::Tab::Tools)] {
+        let row = settings::CAPABILITY_ROWS.iter().find(|r| r.id == id).expect("category row");
+        assert!(host::routes(row.action), "a board-3 id");
+        assert!(!dialog::is_action(row.action));
+        host::input_changed("inv.search", "previous category's query");
+        assert_eq!(host::perform(row.action, 0, &store), host::Outcome::Spawn(host::Job::InventoryLoad));
+        assert_eq!(host::open_dialog(), Some(host::Dialog::Inventory));
+        let st = host::state();
+        assert_eq!(st.inv.tab, mode);
+        assert!(st.inv.query.is_empty());
+        assert!(st.inv.query_snap.is_empty());
+    }
 }
 
 /// The live octos reply (private serve, a6ea8505): no servers, all counts 0.
@@ -131,7 +137,7 @@ fn the_mcp_view_says_servers_are_configured_on_the_server_and_offers_no_manageme
 }
 
 #[test]
-fn mcp_and_tools_tabs_show_only_their_own_inventory() {
+fn mcp_and_tools_panels_show_only_their_own_inventory() {
     let _g = lock();
     let store = store_with(&["mcp/status/list", "tool/status/list"]);
     host::perform("b3.open.mcp", 0, &store);
@@ -152,9 +158,11 @@ fn mcp_and_tools_tabs_show_only_their_own_inventory() {
     assert!(mcp.dsl.contains("Test MCP"));
     assert!(!mcp.dsl.contains("builtin-demo"));
     assert!(!mcp.dsl.contains("b3_inv_count"));
-    host::state().inv.tab = inventory::Tab::Tools;
+    assert!(!mcp.dsl.contains("b3_inv_tab"));
+    host::perform("b3.open.tools", 0, &store);
     let tools = host::lower_open(&store).unwrap();
     assert!(tools.dsl.contains("builtin-demo"));
     assert!(!tools.dsl.contains("Test MCP"));
     assert!(!tools.dsl.contains("b3_inv_summary"));
+    assert!(!tools.dsl.contains("b3_inv_tab"));
 }
