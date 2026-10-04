@@ -1350,6 +1350,10 @@ pub struct OctoscodeView {
     /// A1 — the conversation geometry last applied to the dock/rows.
     #[rust]
     applied_metrics: Option<ConvMetrics>,
+    /// Only the OctoSense adapter reserves space for its shell's floating dock.
+    /// Standalone windows use the full conversation height.
+    #[rust]
+    embedded_in_octosense: bool,
     /// A1 — how far the shell's dock reaches into the module (px), added
     /// under the composer.
     #[rust]
@@ -5026,13 +5030,18 @@ impl OctoscodeView {
         // `env_frame` draws it in that WxH frame, so this is the phone width.
         let module = self.view.area().rect(cx);
         let win_w = module.size.x;
-        // The desktop shell's dock floats over the bottom ~90 px of its window
+        // An embedded desktop shell's dock floats over the bottom ~90 px of its window
         // (#28e2: dock top y≈810 at 900 tall). A floating module window ends
         // above it; a MAXIMIZED one reaches into it and the dock covered the
         // composer (measured: module bottom 888 of 900). Inset the composer
-        // by exactly the overlap — never on the phone shell (no dock).
+        // by exactly the overlap. Standalone windows and the phone shell
+        // have no such dock, so they only need the normal composer padding.
         const DOCK_ZONE: f64 = 92.0;
-        let dock_overlap = if shell.x > conv_layout::PHONE_BREAKPOINT && shell.y > 0.0 && module.size.y > 0.0 {
+        let dock_overlap = if self.embedded_in_octosense
+            && shell.x > conv_layout::PHONE_BREAKPOINT
+            && shell.y > 0.0
+            && module.size.y > 0.0
+        {
             (DOCK_ZONE - (shell.y - (module.pos.y + module.size.y))).clamp(0.0, DOCK_ZONE)
         } else {
             0.0

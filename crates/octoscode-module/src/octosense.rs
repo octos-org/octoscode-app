@@ -31,8 +31,12 @@ impl AppModule for OctoscodeModule {
         _open: ValidatedOpen,
         _handles: InstanceHandles,
     ) -> InstanceParts {
+        let root = crate::create_view(vm);
+        if let Some(mut view) = root.borrow_mut::<crate::OctoscodeView>() {
+            view.embedded_in_octosense = true;
+        }
         InstanceParts {
-            root: crate::create_view(vm),
+            root,
             executor: Box::new(OctoscodeExecutor),
             shutdown: Box::new(|_| {}),
         }
