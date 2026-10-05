@@ -471,17 +471,20 @@ def boot():
     # chrome's profile reads EARLY_HOLD_MS). While the seat labels rode the
     # composer's DSL, a start-up read's landing re-mounted the composer and
     # the typing vanished (focus, caret and text).
-    # The composer is drawn in its final place: its rect at the first frame is
-    # asserted unchanged below, after the start-up settles. On the phone shell,
-    # the app opens under OctoSense's launch effect: the tapped icon grows over
-    # a dimming scrim for 0.26 s (shell mobile.rs `launch.t += dt / 0.26`,
-    # drawn over the app in mobile_surface.rs), and the shell owns the input
-    # meanwhile. A person sees the icon, not the composer, until it ends. So the
-    # phone's first tap waits out that effect (0.35 s from the composer's first
-    # frame); the desktop types at once.
+    # The composer never moves inside its window: its rect when the shell's
+    # opening animation ends is asserted unchanged below, after the start-up
+    # settles. The OctoSense shells animate a window open: on the phone the
+    # tapped icon grows over a dimming scrim for 0.26 s (shell mobile.rs
+    # `launch.t += dt / 0.26`, drawn over the app; the shell owns the input
+    # meanwhile); on the desktop the window pops in from 87% to full size over
+    # 0.41 s (shell desk.rs `DUR_WINDOWS_IN`, `POPIN_SCALE`; the app is laid
+    # out at each step's size). A person sees the animation, not a settled
+    # composer, until it ends. So the first tap waits out that animation
+    # (0.35 s phone / 0.5 s desktop from the composer's first frame), then
+    # types at once. The standalone app has no such animation.
+    if ok:
+        time.sleep(0.35 if PHONE else 0.5)
     EARLY["first_rect"] = rect("i0_composer_0") if ok else None
-    if ok and PHONE:
-        time.sleep(0.35)
     if ok:
         at_tap = rect("i0_composer_0")
         check("start-up: at the first tap the composer is where its first frame drew it",

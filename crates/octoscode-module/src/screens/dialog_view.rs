@@ -680,7 +680,7 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     let store = ctx.store;
     open(b, "t_title", tr("Skills"), &scope_line(b.dlg, ctx), notice);
     let locked = dlg::profile_locked(ctx);
-    b.text("skills_explanation", tr("Skills provide reusable instructions from SKILL.md. Tools and MCP servers have their own inventory."), &para(tok::MUTED));
+    b.text("skills_explanation", tr("Skills provide reusable instructions from SKILL.md, and some add tools. MCP servers and the full tool list have their own inventory."), &para(tok::MUTED));
     b.text("skills_warning", tr(dlg::SKILLS_WARNING), &para(tok::MUTED));
     if locked {
         b.gap(6.0);
@@ -699,7 +699,9 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
             for (i, entry) in entries.iter().enumerate() {
                 let name = entry["name"].as_str().unwrap_or("");
                 let status = if entry["available"] == true {if zh {"可用"} else {"available"}} else {if zh {"不可用"} else {"unavailable"}};
-                b.text(&format!("effective_{scope}_{i}"), &crate::i18n::tr_with("{value0} · SKILL.md · {value1}", &[("value0", name), ("value1", status)]), &para(tok::TEXT));
+                // Data only: the skill's name, its file and the status word chosen above.
+                let line = [name, "SKILL.md", status].join(" · ");
+                b.text(&format!("effective_{scope}_{i}"), &line, &para(tok::TEXT));
                 if let Some(path) = entry["path"].as_str().filter(|p| !p.starts_with("<builtin>")) {
                     b.text(&format!("effective_{scope}_{i}_path"), path, &ui::meta().w(W::Fill).wrap());
                 }
@@ -737,7 +739,14 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         let c = b.d.anon();
         b.d.view(&c, "width: Fill height: Fit flow: Down spacing: 3");
         b.text(&format!("t_name{}", 3 + i), &ui::fit_w(&s.name, line_w, 13.5, Face::Semibold), &row_title().w(W::Fill));
-        let mut line = format!("{} · SKILL.md", s.version.as_deref().unwrap_or(tr("Version not reported")));
+        // The web's `{n} {t("tools")}` (operator 2026-10-05: a skill can add
+        // tools, and the count is what tells one skill from another).
+        let tools = match (s.tool_count, crate::i18n::is_zh()) {
+            (n, true) => format!("{n} {}", tr("tools")),
+            (1, false) => "1 tool".to_owned(),
+            (n, false) => format!("{n} tools"),
+        };
+        let mut line = format!("{} · {tools}", s.version.as_deref().unwrap_or(tr("Version not reported")));
         if let Some(repo) = s.source_repo.as_deref().filter(|r| !r.is_empty()) {
             line = format!("{line} · {repo}");
         }

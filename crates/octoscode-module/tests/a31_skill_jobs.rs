@@ -344,7 +344,7 @@ async fn opening_skills_seeds_the_section_for_its_profile_and_session() {
     let dsl = skills_dsl(&conv, 990.0, 603.0);
     let all = texts(&dsl);
     let head = all.iter().position(|t| t == "Background jobs").expect("the section heading");
-    let installed = all.iter().position(|t| t == "Installed").expect("Installed");
+    let installed = all.iter().position(|t| t == "Installed instruction skills").expect("the Installed heading");
     assert!(head < installed, "the section sits at the top, above Installed: {all:?}");
     assert_eq!(text_of(&dsl, "dlg_skills_jobs_count").as_deref(), Some("1 running · 1 queued"));
     // Newest first (updated_at): report 12 s, notes 30 s, q3 2 m, scan 5 m, deck 20 m, archive 1 h.

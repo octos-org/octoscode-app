@@ -305,9 +305,12 @@ def today_phase(W: Walk):
     W.shot(f"15-today-refused-{MODE}")
     search(W, "steer queue")
     W.check("today: a search is refused for the same reason (frame 10c)",
-            has(W, "Couldn't search memory.", "not for dsflash.") and "ProfileRuntime" not in " ".join(texts(W)))
-    W.check("wire: the recorded refusal came back (-32603 runtime_unavailable)",
-            any("-32603" in l for l in replay_lines(W, "-> memory/search refused")))
+            has(W, "Couldn't search memory.", "The server did not confirm the memory scope for this session in dsflash.")
+            and "ProfileRuntime" not in " ".join(texts(W)))
+    # PR #3: without memory.session_scope.v1 the app refuses BEFORE asking — a
+    # server that cannot attribute the answer is never sent the query.
+    W.check("wire: no memory/search was sent (the server does not offer memory.session_scope.v1)",
+            not replay_lines(W, "<- memory/search"))
     W.dismiss_keyboard("b3_mem_title")
     numeric(W, "today search refused")
     W.shot(f"16-today-search-refused-{MODE}")
