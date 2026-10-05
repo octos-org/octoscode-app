@@ -200,6 +200,10 @@ pub struct FlowUi {
     /// the defect the gate showed: turn 1 (completed) rendered "Interrupted"
     /// once turn 2's terminal landed.
     turn_ends: HashMap<String, TurnEnd>,
+    /// Turns a terminal ended: a frame of theirs that arrives later (octos
+    /// can write a terminal ahead of its turn's last deltas) never makes one
+    /// live again.
+    ended_turns: std::collections::HashSet<String>,
     /// The turn whose terminal most recently settled. The **global** `answer.*`
     /// bindings project this turn; the timeline's settled rows are per-turn and
     /// carry their own turn id instead (`screen::Row::turn`).
@@ -761,6 +765,8 @@ pub struct Conversation {
     /// `/api/upload`, `/api/files`, `packages/client/src/media.ts:14-35`) and
     /// the credential the socket carries. Never logged.
     http_base: String,
+    /// Over a shell's port ([`Conversation::connect_host`]), not a server.
+    hosted: bool,
     bearer: String,
     /// A7 — the shared handle (set by [`Conversation::attach`]) so a transport
     /// event can start the next queued prompt on the runtime.
@@ -925,6 +931,10 @@ pub fn is_live_turn(store: &Store, ui: &FlowUi, session: &str, turn: &str) -> bo
 /// `http`, `wss` -> `https`, no query, and a socket path
 /// (`…/api/ui-protocol/ws`) or `/` reduced to the origin prefix; no trailing
 /// slash.
+/// The stand-in origin of a conversation over a shell's port
+/// ([`Conversation::connect_host`]): `.invalid` never resolves.
+pub const HOST_ORIGIN: &str = "http://kernel.octosense.invalid";
+
 pub fn http_base_of(base: &str) -> String {
     let Ok(mut u) = Url::parse(base) else { return base.trim_end_matches('/').to_owned() };
     let scheme = match u.scheme() {
@@ -1060,6 +1070,42 @@ impl Conversation {
         // A12 — the link owns the transport (and replaces it when it gives
         // up); the app holds its stable channels.
         let (link, cmd_tx, evt_rx) = link::Link::start(cfg, waker);
+        Ok(Self::over(link, cmd_tx, evt_rx, base, bearer, profile))
+    }
+
+    /// [`Conversation::connect`] inside a shell that hands the app a port to
+    /// its own octos kernel (OctoSense): no server to dial and no token. The
+    /// shell decides what the port may do. Its stand-in origin
+    /// ([`HOST_ORIGIN`]) keys what the app remembers, and never resolves, so
+    /// a REST request (uploads, file lists) fails at once.
+    pub fn connect_host(
+        port: octos_app_transport::host::HostPort,
+        profile: &str,
+        workspace_cwd: Option<String>,
+        waker: Option<Arc<dyn Fn() + Send + Sync>>,
+    ) -> Result<(Self, tokio::sync::mpsc::Receiver<TransportEvent>), String> {
+        let cfg = TransportConfig {
+            base_url: Url::parse(HOST_ORIGIN).map_err(|e| format!("host origin: {e}"))?,
+            bearer: SecretString::new(String::new()),
+            profile_id: ProfileId::new(profile.to_owned()),
+            cursor: None,
+            cursor_file: None,
+            requested_capabilities: octoscode_client::features::requested_capabilities(),
+            workspace_cwd,
+            local_kernel: true,
+        };
+        let (link, cmd_tx, evt_rx) = link::Link::start_host(cfg, port, waker);
+        Ok(Self::over(link, cmd_tx, evt_rx, HOST_ORIGIN, "", profile))
+    }
+
+    fn over(
+        link: Arc<link::Link>,
+        cmd_tx: tokio::sync::mpsc::Sender<OutboundCommand>,
+        evt_rx: tokio::sync::mpsc::Receiver<TransportEvent>,
+        base: &str,
+        bearer: &str,
+        profile: &str,
+    ) -> (Self, tokio::sync::mpsc::Receiver<TransportEvent>) {
         let store = Arc::new(Store::new());
         let mut registry = Registry::new();
         octoscode_client::domains::register_all(&mut registry, store.clone());
@@ -1075,7 +1121,7 @@ impl Conversation {
             None,
             Some(format!("features={}", octoscode_client::features::requested_ui_features().count())),
         );
-        Ok((
+        (
             Self {
                 store,
                 trace,
@@ -1086,7 +1132,13 @@ impl Conversation {
                 cmd_tx,
                 registry: Mutex::new(registry),
                 profile: Mutex::new(profile.to_owned()),
-                session_id: Mutex::new(format!("{profile}:main")),
+                // Over a shell's port the fixed `<profile>:main` is never the
+                // app's: its default is a session of its own.
+                session_id: Mutex::new(if base == HOST_ORIGIN {
+                    Self::fresh_session_id_for(profile)
+                } else {
+                    format!("{profile}:main")
+                }),
                 workspace_opened: Mutex::new(false),
                 pending_open_cwd: Mutex::new(None),
                 creation_defaults: crate::screens::session_defaults::Pending::new(),
@@ -1096,6 +1148,7 @@ impl Conversation {
                 open_seq: Arc::new(Mutex::new(0)),
                 started: Instant::now(),
                 http_base: http_base_of(base),
+                hosted: base == HOST_ORIGIN,
                 bearer: bearer.to_owned(),
                 weak_self: Mutex::new(std::sync::Weak::new()),
                 pending_starts: Mutex::new(Vec::new()),
@@ -1112,7 +1165,7 @@ impl Conversation {
                 overflowed: Mutex::new(None),
             },
             evt_rx,
-        ))
+        )
     }
 
     // ------------------------------------------------ A22 row 203: candidates
@@ -1645,6 +1698,12 @@ impl Conversation {
     }
 
     /// A8 — the server's HTTP origin (the drafts' principal read, REST).
+    /// Whether the conversation runs over a shell's port: no server-side
+    /// folder browsing or uploads, and the shell decides where it may work.
+    pub fn is_hosted(&self) -> bool {
+        self.hosted
+    }
+
     pub fn http_base(&self) -> String {
         self.http_base.clone()
     }
@@ -2306,7 +2365,9 @@ impl Conversation {
         // A8 — a FULL Session id (`<profile>:api:<chat>`, the web's
         // `bindWebSessionIdToProfile` shape), so the identity grammar
         // (`screens::session_identity`) recognises what this app created.
-        crate::screens::session_identity::fresh_full_id(profile, &TurnId::new().0.to_string())
+        // Its chat id says it is OctosCode's (`code-<uuid>`, as the web's is
+        // `web-<uuid>`): inside OctoSense, the sessions it may use.
+        crate::screens::session_identity::fresh_full_id(profile, &format!("code-{}", TurnId::new().0))
     }
 
     /// Open a specific session id — the resume path (an id the server listed),
@@ -3971,6 +4032,9 @@ impl FlowUi {
     /// never hijacks the live one — the live L1/L2 defect was a stale frame
     /// clearing/replacing a running turn (LESSONS 5).
     fn touch_turn_in(&mut self, session: &str, turn_id: &str) {
+        if self.ended_turns.contains(turn_id) {
+            return;
+        }
         match &self.active_turn {
             None => {
                 self.active_turn = Some((turn_id.to_owned(), Instant::now()));
@@ -3988,6 +4052,7 @@ impl FlowUi {
     /// cleared by a different turn's terminal, so `turn.interrupt` resolved to
     /// `Unhandled`.
     fn end_turn(&mut self, turn_id: &str, _ok: bool) {
+        self.ended_turns.insert(turn_id.to_owned());
         match &self.active_turn {
             Some((id, started)) if id == turn_id => {
                 let started = *started;
@@ -4238,6 +4303,26 @@ mod tests {
         assert_eq!(format_completed_at_offset(at, later, 0), "Oct 2, 4:09 AM");
     }
 
+    /// octos can write a turn's terminal ahead of the turn's last deltas: a
+    /// delta that arrives after the terminal never makes the ended turn live
+    /// again (the strip stayed on "Writing…").
+    #[test]
+    fn a_delta_after_its_turns_terminal_does_not_revive_the_turn() {
+        let mut ui = FlowUi::default();
+        ui.touch_turn_in("s", "t1");
+        assert_eq!(ui.active_turn().as_deref(), Some("t1"));
+        ui.end_turn_for_test("t1", true);
+        assert_eq!(ui.active_turn(), None);
+        ui.touch_turn_in("s", "t1");
+        assert_eq!(ui.active_turn(), None, "a late frame of an ended turn");
+        // A terminal ahead of every frame of its turn ends it all the same.
+        ui.end_turn_for_test("t2", true);
+        ui.touch_turn_in("s", "t2");
+        assert_eq!(ui.active_turn(), None);
+        ui.touch_turn_in("s", "t3");
+        assert_eq!(ui.active_turn().as_deref(), Some("t3"), "the next turn is live as ever");
+    }
+
     /// Card #14 defect 4: a new chat gets a FRESH id (never the reused
     /// `<profile>:main`), profile-scoped like the web's
     /// `bindWebSessionIdToProfile` (`session-identity.ts:23`).
@@ -4251,5 +4336,6 @@ mod tests {
             a.starts_with("dsflash:"),
             "the id is profile-scoped, like the web's bindWebSessionIdToProfile; got {a:?}"
         );
+        assert!(a.starts_with("dsflash:api:code-"), "OctosCode's own chat id, as the web's is web-<uuid>; got {a:?}");
     }
 }

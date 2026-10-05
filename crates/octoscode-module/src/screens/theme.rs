@@ -1176,6 +1176,33 @@ fn read_stock_roles(vm: &mut makepad_widgets::ScriptVm) -> String {
 /// A26: the seed and the persisted state are read ONCE per process — a live
 /// re-theme re-runs this evaluator, and must keep the person's new choice
 /// (the env seed would otherwise reset it).
+/// Inside OctoSense the shell's palette is the app's: its base roles are the
+/// shell's (it restyles every app it hosts alike), and the app adds only the
+/// role the stock theme lacks ([`embedded_roles`]).
+static EMBEDDED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// The roles the app assigns inside OctoSense, from the shell's: its chrome
+/// writes with `color_fg_app` (the shell's text colour), and its secondary
+/// text is `color_text_muted` (the shell's `color_text_meta`, a role the stock
+/// theme lacks). Read here and assigned as values (as [`read_stock_roles`]
+/// does). The shell's own palette roles stay as the shell set them.
+pub fn embedded_roles(vm: &mut makepad_widgets::ScriptVm) -> String {
+    use makepad_widgets::{script_eval, ScriptMod};
+    let text = script_eval!(vm, { mod.theme.color_text }).as_color();
+    let meta = script_eval!(vm, { mod.theme.color_text_meta }).as_color();
+    let _ = vm.take_errors();
+    format!(
+        "mod.theme.color_fg_app = #{:08x}\nmod.theme.color_text_muted = #{:08x}\n",
+        text.unwrap_or(0x1d1d1fff),
+        meta.unwrap_or(0x61666bff)
+    )
+}
+
+/// Follow the embedding shell's palette from now on (the OctoSense module).
+pub fn set_embedded(on: bool) {
+    EMBEDDED.store(on, std::sync::atomic::Ordering::Relaxed);
+}
+
 pub fn eval_roles(vm: &mut makepad_widgets::ScriptVm) -> bool {
     use makepad_widgets::ScriptMod;
     static SEEDED: std::sync::Once = std::sync::Once::new();
@@ -1185,11 +1212,20 @@ pub fn eval_roles(vm: &mut makepad_widgets::ScriptVm) -> bool {
         }
         init_persistence();
     });
-    let stock = STOCK_ROLES.get_or_init(|| read_stock_roles(vm)).clone();
-    let mut code = role_assignments();
-    if current_look() == Look::Light {
-        code.push_str(&stock);
-    }
+    let mut code = if EMBEDDED.load(std::sync::atomic::Ordering::Relaxed) {
+        embedded_roles(vm)
+    } else {
+        let stock = STOCK_ROLES.get_or_init(|| read_stock_roles(vm)).clone();
+        let mut code = role_assignments();
+        if current_look() == Look::Light {
+            code.push_str(&stock);
+        }
+        code
+    };
+    // A script's last statement is its value, and an assignment there is not
+    // applied (the dark look's window clear colour was lost that way, and a
+    // lone new role was never added): end with a statement of its own.
+    code.push_str("nil\n");
     let script_mod_id = ScriptMod {
         cargo_manifest_path: crate::design::manifest_dir().to_string(),
         module_path: "octoscode_theme".to_string(),

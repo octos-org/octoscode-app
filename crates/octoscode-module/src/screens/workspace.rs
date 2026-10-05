@@ -272,10 +272,15 @@ pub fn spawn(effect: Effect, rt: &tokio::runtime::Runtime, conv: Arc<Conversatio
 /// The picker's read set: workspace list + permission profile + llm list.
 async fn refresh(conv: &Conversation) -> Result<(), String> {
     let client = conv.client();
-    let list = client
-        .request("onboarding/workspace_list", json!({}))
-        .await
-        .map_err(|e| e.to_string())?;
+    let list = if conv.is_hosted() {
+        let listed = super::browser::local::list(None).map_err(|e| e.to_string())?;
+        json!({"canonical_path": listed.canonical_path, "entries": listed.entries.iter().map(|e| json!({"name": e.name, "path": e.path, "writable": e.writable})).collect::<Vec<_>>()})
+    } else {
+        client
+            .request("onboarding/workspace_list", json!({}))
+            .await
+            .map_err(|e| e.to_string())?
+    };
     conv.trace.record(
         Instant::now(),
         Direction::Out,

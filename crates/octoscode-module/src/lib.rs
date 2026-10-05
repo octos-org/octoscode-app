@@ -1354,6 +1354,10 @@ pub struct OctoscodeView {
     /// Standalone windows use the full conversation height.
     #[rust]
     embedded_in_octosense: bool,
+    /// Inside OctoSense: the shell's port to its own octos kernel, taken by
+    /// `start` (no server to dial, no token, no pairing).
+    #[rust]
+    host_port: Option<octos_app_transport::host::HostPort>,
     /// A1 — how far the shell's dock reaches into the module (px), added
     /// under the composer.
     #[rust]
@@ -1623,7 +1627,10 @@ impl OctoscodeView {
         // (screens/discovery.rs). Not in the capture seeds above (no card).
         // A21 — never while a restore runs (the web probes only when the tab
         // is not restoring, `ConnectionGate.tsx:247-252`).
-        if !matches!(boot.auto, screens::bootstrap::AutoStart::Restore { .. }) {
+        // In a shell with a port to its own kernel (OctoSense), the port is
+        // the connection: nothing to discover, pair, migrate or remember.
+        let host_port = self.host_port.take();
+        if host_port.is_none() && !matches!(boot.auto, screens::bootstrap::AutoStart::Restore { .. }) {
             let _ = screens::discovery::start_once();
         }
         // Card #28e item 6 (board 4 frame 4): the first-run frame needs NO
@@ -1641,6 +1648,7 @@ impl OctoscodeView {
         // for the server this launch dials, else the Connect card's (a
         // Connect pressed later runs the same launch, then offers it).
         let link_server = match &boot.auto {
+            _ if host_port.is_some() => crate::flow::HOST_ORIGIN.to_owned(),
             screens::bootstrap::AutoStart::Restore { server, .. }
             | screens::bootstrap::AutoStart::Harness { server, .. } => server.clone(),
             screens::bootstrap::AutoStart::None => boot.server.clone(),
@@ -1664,6 +1672,7 @@ impl OctoscodeView {
         // OCTOS_PROFILE_ID); otherwise the Connect card waits for Connect
         // (`autoStartKind` null — no socket at all).
         let (base, bearer) = match boot.auto {
+            _ if host_port.is_some() => (crate::flow::HOST_ORIGIN.to_owned(), String::new()),
             screens::bootstrap::AutoStart::Restore { server, token }
             | screens::bootstrap::AutoStart::Harness { server, token } => (server, token),
             screens::bootstrap::AutoStart::None => {
@@ -1686,7 +1695,7 @@ impl OctoscodeView {
         // socket, so the connection carries it (Core finds `<profile>:main`'s
         // history only through the connection's profile). Bounded: once per
         // server, after an upgrade; unresolved, the migration resolves later.
-        let start = if start == screens::launch::Start::Migrate {
+        let start = if start == screens::launch::Start::Migrate && host_port.is_none() {
             runtime
                 .block_on(async {
                     tokio::time::timeout(
@@ -1699,17 +1708,17 @@ impl OctoscodeView {
         } else {
             start
         };
-        let profile = start.profile();
+        // Over a shell's port the session's profile is the person's
+        // assistant's (`_main`): the shell allows no other.
+        let profile = if host_port.is_some() { "_main".to_owned() } else { start.profile() };
 
         let connected = {
             let _guard = runtime.enter();
-            Conversation::connect(
-                &base,
-                &bearer,
-                &profile,
-                cwd.clone(),
-                Some(Arc::new(|| SignalToUI::set_ui_signal())),
-            )
+            let waker: Arc<dyn Fn() + Send + Sync> = Arc::new(|| SignalToUI::set_ui_signal());
+            match host_port {
+                Some(port) => Conversation::connect_host(port, &profile, cwd.clone(), Some(waker)),
+                None => Conversation::connect(&base, &bearer, &profile, cwd.clone(), Some(waker)),
+            }
         };
 
         let (conv, mut evt_rx) = match connected {
