@@ -27,9 +27,11 @@ octoscript-makepad = { workspace = true }
 octoscript-widgets = { workspace = true }
 octoscript-ui-l0 = { workspace = true }
 # #32h item 1: register the NAV global the lowered cards' on_click handlers
-# call (add_global_fn / string_prop live here; the fork's octoscript-makepad
-# depends on this same path, so cargo unifies the copy).
-octoscript-render = { path = "../../.forks/octoscript-makepad-fork/crates/octoscript-render" }
+# call (add_global_fn / string_prop live here). By the workspace's git
+# dependency, the one octoscript-makepad takes too: a root `[patch]` (this
+# workspace's fork, or an embedding shell's checkout) redirects both, so cargo
+# links one copy.
+octoscript-render = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["time"] }

@@ -130,6 +130,7 @@ async fn live_smoke_session_open_and_turn() {
             reasoning_effort: None,
             tool_context: None,
             live_video: false,
+            origin: None,
         }))
         .await
         .expect("send StartTurn");

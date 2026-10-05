@@ -107,4 +107,10 @@ pub fn register_ignored(registry: &mut Registry) {
         "agent/artifact/updated",
         "web ignores; artifact metadata read via agent/artifact/list",
     );
+    // The host's own frames: a host tool's call and cancel, and input for an
+    // app peer. octos sends them on the host's connection only (in OctoSense
+    // the shell's relay answers them; its router never gives them to an app).
+    registry.ignore("peer/tool/call", "the host's own: a host tool's call (never a client's)");
+    registry.ignore("peer/tool/cancel", "the host's own: a host tool's cancel (never a client's)");
+    registry.ignore("peer/input", "the host's own: input for an app peer (never a client's)");
 }
