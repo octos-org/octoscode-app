@@ -10,14 +10,17 @@
 //! domain (`store.domains.turn`) and appends to the transcript with an
 //! [`EntryKind`] tag — never a shared enum. `message/delta` uses
 //! `append_delta`, which folds streamed text into ONE assistant entry.
-use std::sync::Arc;
+use std::collections::{BTreeMap, HashMap, HashSet};
+use std::sync::{Arc, Mutex};
 
 use serde::{Deserialize, Serialize};
 
 use octos_core::app_ui::AppUiBackendEvent as UiNotification;
 use octos_core::ui_protocol::{
-    methods, AttachmentOwnerV2, EnvelopeToolEndStatus, InputItem, PayloadV2, TurnTerminalOutcome,
+    methods, AttachmentOwnerV2, EnvelopeToolEndStatus, EnvelopeV2Notification, InputItem, PayloadV2,
+    TurnTerminalOutcome,
 };
+use octoscode_store::domains::turn::EnvelopeOrder;
 use octoscode_store::{EntryKind, Store};
 
 use crate::method::Method;
@@ -253,11 +256,44 @@ impl NotificationHandler for TurnSteerDroppedHandler {
 /// `src-web/apps/web/src/features/timeline/model.ts:326-360` (payload kind →
 /// entry) and `session/durable-session.ts:140-195` (ordering).
 ///
-/// Ordering rules (`durable-session.ts:174-195`): per-thread `seq` must be
-/// strictly increasing (a `seq <=` the last accepted is dropped), and the
-/// canonical cursor advances to the max. Both live in `store.domains.turn`.
+/// Ordering (`durable-session.ts:174-195`, and the protocol's own contract:
+/// per thread, `seq` is strictly monotonic and gap-free): an envelope at or
+/// below the thread's last applied `seq` is stale and dropped; the next one is
+/// applied, then any held behind it; one past a gap is held until the gap
+/// fills, so the canonical cursor never skips a frame. octos can write a
+/// turn's terminal ahead of its last deltas (on a connection without
+/// `projection.envelope.v2` its direct lane overtakes the ordered one, as
+/// inside OctoSense): held, the terminal lands after them. A gap still open
+/// after [`GAP_WAIT`] is accepted, and what is held is applied in order. Both
+/// cursors live in `store.domains.turn`.
 pub struct ProjectionEnvelopeHandler {
-    pub store: Arc<Store>,
+    fold: Arc<EnvelopeFold>,
+}
+
+impl ProjectionEnvelopeHandler {
+    pub fn new(store: Arc<Store>) -> Self {
+        Self { fold: Arc::new(EnvelopeFold { store, held: Mutex::new(Held::default()) }) }
+    }
+}
+
+/// How long an envelope past a gap waits for the frames before it.
+pub const GAP_WAIT: std::time::Duration = std::time::Duration::from_secs(3);
+
+/// The most envelopes one thread holds; past it the gap is accepted.
+const MAX_HELD: usize = 1024;
+
+/// The store envelopes fold into, and the envelopes waiting their turn.
+struct EnvelopeFold {
+    store: Arc<Store>,
+    held: Mutex<Held>,
+}
+
+#[derive(Default)]
+struct Held {
+    /// Per thread, the envelopes past a gap, by `seq`.
+    frames: HashMap<String, BTreeMap<u64, EnvelopeV2Notification>>,
+    /// Segments whose persisted text replaced the streamed text.
+    persisted: HashSet<String>,
 }
 
 impl NotificationHandler for ProjectionEnvelopeHandler {
@@ -267,7 +303,86 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
         let UiNotification::EnvelopeV2(frame) = notification else {
             return;
         };
-        self.store.note_seen(Self::METHOD);
+        let fold = &self.fold;
+        fold.store.note_seen(Self::METHOD);
+        let thread = &frame.envelope.thread_id;
+        match fold.store.domains.turn.envelope_order(thread, frame.envelope.seq) {
+            EnvelopeOrder::Stale => {
+                log::debug!("octoscode: dropped stale projection seq {} for thread {thread}", frame.envelope.seq);
+                fold.store.domains.turn.note_dropped(thread, frame.envelope.seq);
+            }
+            EnvelopeOrder::Ahead => fold.hold(frame.clone()),
+            EnvelopeOrder::Next => {
+                fold.apply(frame);
+                fold.release(thread);
+            }
+        }
+    }
+}
+
+impl EnvelopeFold {
+    /// Keep `frame` until the frames before it arrive, and accept the gap
+    /// [`GAP_WAIT`] later if they have not.
+    fn hold(self: &Arc<Self>, frame: EnvelopeV2Notification) {
+        let thread = frame.envelope.thread_id.clone();
+        let (first, full) = {
+            let mut held = self.held.lock().unwrap();
+            let frames = held.frames.entry(thread.clone()).or_default();
+            let first = frames.is_empty();
+            frames.insert(frame.envelope.seq, frame);
+            (first, frames.len() > MAX_HELD)
+        };
+        if full {
+            self.accept_gap(&thread);
+        } else if first {
+            if let Ok(runtime) = tokio::runtime::Handle::try_current() {
+                let fold = self.clone();
+                runtime.spawn(async move {
+                    tokio::time::sleep(GAP_WAIT).await;
+                    fold.accept_gap(&thread);
+                });
+            }
+        }
+    }
+
+    /// Apply the held envelopes of `thread` that now come next.
+    fn release(&self, thread: &str) {
+        loop {
+            let next = {
+                let mut held = self.held.lock().unwrap();
+                let Some(frames) = held.frames.get_mut(thread) else { return };
+                let Some(seq) = frames.keys().next().copied() else {
+                    held.frames.remove(thread);
+                    return;
+                };
+                match self.store.domains.turn.envelope_order(thread, seq) {
+                    EnvelopeOrder::Ahead => return,
+                    EnvelopeOrder::Stale => {
+                        frames.remove(&seq);
+                        None
+                    }
+                    EnvelopeOrder::Next => frames.remove(&seq),
+                }
+            };
+            if let Some(frame) = next {
+                self.apply(&frame);
+            }
+        }
+    }
+
+    /// The gap of `thread` did not fill: apply what is held, in order.
+    fn accept_gap(&self, thread: &str) {
+        let frames = self.held.lock().unwrap().frames.remove(thread).unwrap_or_default();
+        if !frames.is_empty() {
+            log::warn!("octoscode: accepted a projection gap on thread {thread} ({} envelope(s) held)", frames.len());
+        }
+        for frame in frames.into_values() {
+            self.apply(&frame);
+        }
+    }
+
+    /// Fold one envelope, in its thread's order, into the store.
+    fn apply(&self, frame: &EnvelopeV2Notification) {
         let env = &frame.envelope;
         let session = frame.session_id.0.clone();
         let turn_id = env.turn_id.clone();
@@ -314,8 +429,14 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
             }
             // Streamed assistant text folds into ONE entry, exactly like
             // `message/delta` (the web maps both to the same segment).
-            PayloadV2::AssistantDelta { text, .. } => {
-                timeline.append_delta(&session, Some(&turn_id), EntryKind::ASSISTANT_TEXT, text);
+            PayloadV2::AssistantDelta { text, assistant_segment_id } => {
+                // A delta of a segment already persisted is in its text
+                // (octos can sequence the persisted row before its segment's
+                // last deltas; spec §14.2: the persisted text replaces the
+                // streamed one).
+                if !self.held.lock().unwrap().persisted.contains(assistant_segment_id) {
+                    timeline.append_delta(&session, Some(&turn_id), EntryKind::ASSISTANT_TEXT, text);
+                }
             }
             // Reasoning is its own entry kind, never the answer text.
             // A6: timed — the folded header's `12 s · 340 words` needs the
@@ -326,7 +447,8 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
             // Finalizes the segment its deltas wrote: our `finalize_assistant`
             // keeps the streamed text and closes the entry (falling back to
             // the persisted text if the deltas never arrived).
-            PayloadV2::AssistantPersisted { text, meta, .. } => {
+            PayloadV2::AssistantPersisted { text, meta, assistant_segment_id } => {
+                self.held.lock().unwrap().persisted.insert(assistant_segment_id.clone());
                 timeline.finalize_assistant(&session, &turn_id, text);
                 // A4 — delivered files ride the persisted answer's
                 // `meta.media` (web `timeline/model.ts:502-523`); each becomes
@@ -634,7 +756,7 @@ pub fn register(reg: &mut Registry, store: Arc<Store>) {
     reg.register(TurnSteerDroppedHandler { store: store.clone() });
     // Card #13 §2: the v2 projection stream is owned by turn (one owner —
     // the registry panics on a duplicate).
-    reg.register(ProjectionEnvelopeHandler { store: store.clone() });
+    reg.register(ProjectionEnvelopeHandler::new(store.clone()));
     reg.register(ReasoningDeltaHandler { store: store.clone() });
     reg.register(ProgressUpdatedHandler { store });
 }

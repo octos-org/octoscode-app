@@ -6,6 +6,18 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
 
+/// Where a projection envelope's `seq` falls in its thread
+/// ([`Turns::envelope_order`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EnvelopeOrder {
+    /// At or below the last accepted: already applied.
+    Stale,
+    /// The thread's first, or the one after the last accepted.
+    Next,
+    /// Past a gap: frames before it have not arrived.
+    Ahead,
+}
+
 /// The turn domain: the turns this store has seen, per session.
 #[derive(Debug, Default)]
 pub struct Turns {
@@ -177,6 +189,24 @@ impl Turns {
     /// it is stale (`seq <=` the last accepted for that thread) — the web
     /// drops those (`durable-session.ts:185`). On acceptance, advances the
     /// per-thread sequence and the canonical cursor to the max.
+    /// Where `seq` falls in `thread_id`: the thread's first or the one after
+    /// the last accepted is next; at or below it, stale; past it, ahead of a
+    /// gap.
+    pub fn envelope_order(&self, thread_id: &str, seq: u64) -> EnvelopeOrder {
+        let i = self.inner.lock().unwrap();
+        match i.envelopes.last_seq.get(thread_id) {
+            None => EnvelopeOrder::Next,
+            Some(&prev) if seq <= prev => EnvelopeOrder::Stale,
+            Some(&prev) if seq == prev + 1 => EnvelopeOrder::Next,
+            Some(_) => EnvelopeOrder::Ahead,
+        }
+    }
+
+    /// Record a stale envelope that was dropped.
+    pub fn note_dropped(&self, thread_id: &str, seq: u64) {
+        self.inner.lock().unwrap().envelopes.dropped.push((thread_id.to_owned(), seq));
+    }
+
     pub fn accept_envelope(
         &self,
         thread_id: &str,
