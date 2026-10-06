@@ -25,7 +25,7 @@ publish = false
 [workspace.dependencies]
 # Protocol types (RpcError, Capabilities, the method-name constants, the
 # `*Params`/`*Result` shapes). The octos revision is OctoSense's own pin.
-octos-core = { git = "https://github.com/octos-org/octos.git", rev = "a6ea8505170735f191a12bb47629a6728415d417" }
+octos-core = { git = "https://github.com/octos-org/octos.git", rev = "39e22d457c47df57d7c7c9fa64539979c9da93fd" }
 # The extracted WebSocket client has no OctoSense kernel dependency.
 octos-app-transport = { package = "octoscode-transport", path = "crates/octoscode-transport" }
 # Our crates.
@@ -42,6 +42,7 @@ octoscode-module = { path = "crates/octoscode-module" }
 # DesignNativeButton, …); `octoscript-ui-l0` realizes + lowers the card.
 octoscript-makepad = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "6881fb6c3c3220e407633b0ba5211c3d42c7e625" }
 octoscript-widgets = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "6881fb6c3c3220e407633b0ba5211c3d42c7e625" }
+octoscript-render = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "6881fb6c3c3220e407633b0ba5211c3d42c7e625" }
 octoscript-ui-l0 = { git = "https://github.com/OctoSense-org/Octoscript.git", rev = "68f6a9df55692b5d8ef8873a12721e279a3f40d6" }
 
 # Makepad renderer and optional AppModule adapter, pinned to compatible revisions.
@@ -62,6 +63,7 @@ log = "0.4"
 octoscript-makepad = { path = ".forks/octoscript-makepad-fork/crates/octoscript-makepad" }
 octoscript-widgets = { path = ".forks/octoscript-makepad-fork/crates/octoscript-widgets" }
 octoscript-node = { path = ".forks/octoscript-makepad-fork/crates/octoscript-node" }
+octoscript-render = { path = ".forks/octoscript-makepad-fork/crates/octoscript-render" }
 
 # A33 (decision D10f): makepad WITH our patches/makepad/*.patch — the same
 # patches every OctoSense tree gets (the notification API, so

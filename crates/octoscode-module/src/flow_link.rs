@@ -21,6 +21,7 @@
 //!   turn controller treats as an UNCONFIRMED start, never as a rejection).
 use std::sync::{Arc, Mutex};
 
+use octos_app_transport::host::{self, HostPort};
 use octos_app_transport::{ws, ConnectionState, OutboundCommand, TransportConfig, TransportEvent};
 use octos_core::ui_protocol::RpcError;
 use tokio::sync::{mpsc, oneshot, watch};
@@ -87,6 +88,12 @@ pub struct Link {
     gen_tx: watch::Sender<u64>,
     /// Bumped whenever an UP socket drops (in-flight requests fail on it).
     epoch_tx: watch::Sender<u64>,
+    /// Inside a shell that hands the app a port to its own kernel
+    /// ([`Link::start_host`]): the port, until the first transport takes it.
+    /// Nothing replaces that transport: the port outlives a kernel restart,
+    /// so a port that closed means the kernel is gone or the app is closing.
+    host: Mutex<Option<HostPort>>,
+    hosted: bool,
 }
 
 impl Link {
@@ -96,6 +103,23 @@ impl Link {
     pub fn start(
         cfg: TransportConfig,
         waker: Option<Arc<dyn Fn() + Send + Sync>>,
+    ) -> (Arc<Self>, mpsc::Sender<OutboundCommand>, mpsc::Receiver<TransportEvent>) {
+        Self::start_with(cfg, waker, None)
+    }
+
+    /// [`Link::start`] over the shell's port instead of a socket.
+    pub fn start_host(
+        cfg: TransportConfig,
+        port: HostPort,
+        waker: Option<Arc<dyn Fn() + Send + Sync>>,
+    ) -> (Arc<Self>, mpsc::Sender<OutboundCommand>, mpsc::Receiver<TransportEvent>) {
+        Self::start_with(cfg, waker, Some(port))
+    }
+
+    fn start_with(
+        cfg: TransportConfig,
+        waker: Option<Arc<dyn Fn() + Send + Sync>>,
+        port: Option<HostPort>,
     ) -> (Arc<Self>, mpsc::Sender<OutboundCommand>, mpsc::Receiver<TransportEvent>) {
         let (events, evt_rx) = mpsc::channel::<TransportEvent>(64);
         let (cmd_tx, cmd_rx) = mpsc::channel::<OutboundCommand>(64);
@@ -109,6 +133,8 @@ impl Link {
             state: Mutex::new(State::default()),
             gen_tx,
             epoch_tx,
+            hosted: port.is_some(),
+            host: Mutex::new(port),
         });
         link.spawn_transport();
         let relay = link.clone();
@@ -122,7 +148,11 @@ impl Link {
     fn spawn_transport(self: &Arc<Self>) {
         let (t_tx, t_rx) = {
             let _guard = self.handle.enter();
-            ws::spawn(self.cfg.lock().unwrap().clone())
+            let cfg = self.cfg.lock().unwrap().clone();
+            match self.host.lock().unwrap().take() {
+                Some(port) => host::spawn_with_waker(cfg, port, None),
+                None => ws::spawn(cfg),
+            }
         };
         let mut st = self.state.lock().unwrap();
         if let Some(old) = st.pump.take() {
@@ -141,6 +171,10 @@ impl Link {
     /// A12 — replace the transport now (the banner's "Retry now", or the
     /// current one gave up). Refused after a voluntary disconnect.
     pub fn respawn(self: &Arc<Self>) -> bool {
+        if self.hosted {
+            ::log::info!("octoscode: link — the shell's port is not replaced");
+            return false;
+        }
         {
             let mut st = self.state.lock().unwrap();
             if st.closed {
@@ -167,6 +201,10 @@ impl Link {
     /// the new socket). False when it already carries it, or after a
     /// voluntary disconnect.
     pub fn carry_profile(self: &Arc<Self>, profile: &str) -> bool {
+        // A shell's port carries no header: the shell decides the profile.
+        if self.hosted {
+            return false;
+        }
         {
             let mut cfg = self.cfg.lock().unwrap();
             if cfg.profile_id.0 == profile {

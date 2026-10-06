@@ -2,6 +2,10 @@ method,reason
 agent/artifact/updated,web ignores; artifact metadata read via agent/artifact/list
 agent/output/delta,web ignores; agent tail has no consumer
 background/activity,feature not negotiated; no store projection yet
+context/state_reported,feature not negotiated (context.state.v1); no live gauge projection yet
+peer/input,the host's own: input for an app peer (never a client's)
+peer/tool/call,the host's own: a host tool's call (never a client's)
+peer/tool/cancel,the host's own: a host tool's cancel (never a client's)
 queue/state,client-manufactured; server never emits it
 router/failover,web ignores; routing shown in logs only
 router/status,web ignores; routing shown in logs only

@@ -876,7 +876,11 @@ pub async fn list(conv: &crate::flow::Conversation, path: Option<String>, resolv
     let mut candidate = path;
     for _ in 0..=MAX_ASCENT {
         let asked = std::time::Instant::now();
-        let answer = conv.client().call::<WorkspaceList>(WorkspaceListParams { path: candidate.clone() }).await;
+        let answer = if conv.is_hosted() {
+            local::list(candidate.as_deref())
+        } else {
+            conv.client().call::<WorkspaceList>(WorkspaceListParams { path: candidate.clone() }).await
+        };
         if crate::perf::enabled() {
             // A35b: the server's part of a navigation, on the app's clock
             // (the round trip; never the path, which names the server's disk).
@@ -942,11 +946,12 @@ fn is_latest(request: u64) -> bool {
 /// `submitNewFolder`, `WorkspaceFolderBrowser.tsx`: "creating a folder MOVES
 /// INTO it"). `created: false` is an idempotent success.
 pub async fn create(conv: &crate::flow::Conversation, parent: String, name: String) -> Result<(), String> {
-    match conv
-        .client()
-        .call::<WorkspaceCreate>(WorkspaceCreateParams { parent: parent.clone(), name })
-        .await
-    {
+    let created = if conv.is_hosted() {
+        local::create(&parent, &name)
+    } else {
+        conv.client().call::<WorkspaceCreate>(WorkspaceCreateParams { parent: parent.clone(), name }).await
+    };
+    match created {
         Ok(created) => list(conv, Some(created.canonical_path), false).await.map(|_| ()),
         Err(e) => {
             let refusal = classify(&e);
@@ -956,6 +961,144 @@ pub async fn create(conv: &crate::flow::Conversation, parent: String, name: Stri
             // A create refusal is shown inline under the name field.
             ui.name_problem = Some(refusal_copy(&refusal.kind).0);
             Err(format!("onboarding/workspace_create: {}", refusal.kind))
+        }
+    }
+}
+
+/// Inside OctoSense the module runs in the shell's process and lists the
+/// person's folders itself: the shell's port offers no `onboarding/*`
+/// (octos browses folders only for a solo server), and whether a session may
+/// work in a folder is the shell's to decide when the session opens there.
+/// The answers and refusals have the server's shapes, so the browser is the
+/// same either way.
+pub mod local {
+    use std::path::{Path, PathBuf};
+
+    use octos_core::ui_protocol::RpcError;
+    use octoscode_client::domains::profile::{WorkspaceCreateResult, WorkspaceFolderEntry, WorkspaceListResult};
+    use octoscode_client::ClientError;
+
+    /// The most folders one listing names (`truncated` beyond).
+    pub const PAGE: usize = 500;
+
+    fn refused(method: &str, kind: &str, message: String) -> ClientError {
+        ClientError::Rpc {
+            method: method.to_owned(),
+            error: RpcError::new(-32602, message).with_data(serde_json::json!({ "kind": kind })),
+        }
+    }
+
+    fn home() -> Option<PathBuf> {
+        std::env::var_os(if cfg!(windows) { "USERPROFILE" } else { "HOME" }).filter(|h| !h.is_empty()).map(PathBuf::from)
+    }
+
+    /// `path` (`~` expanded) resolved to a folder, or the refusal octos
+    /// would give.
+    fn folder(method: &str, path: &str) -> Result<PathBuf, ClientError> {
+        let path = match (path.strip_prefix('~'), home()) {
+            (Some(rest), Some(home)) if rest.is_empty() || rest.starts_with('/') => home.join(rest.trim_start_matches('/')),
+            _ => PathBuf::from(path),
+        };
+        if !path.is_absolute() {
+            return Err(refused(method, "workspace_list_invalid_path", format!("{} is not an absolute path", path.display())));
+        }
+        let canonical = std::fs::canonicalize(&path).map_err(|e| match e.kind() {
+            std::io::ErrorKind::NotFound => refused(method, "workspace_list_not_found", e.to_string()),
+            std::io::ErrorKind::PermissionDenied => refused(method, "workspace_list_permission_denied", e.to_string()),
+            _ => refused(method, "workspace_list_invalid_path", e.to_string()),
+        })?;
+        if !canonical.is_dir() {
+            return Err(refused(method, "workspace_list_not_a_directory", format!("{} is not a folder", canonical.display())));
+        }
+        Ok(canonical)
+    }
+
+    fn writable(path: &Path) -> bool {
+        std::fs::metadata(path).is_ok_and(|m| !m.permissions().readonly())
+    }
+
+    /// `onboarding/workspace_list`, answered here: the folders in `path`
+    /// (the person's home without one), hidden ones counted, not listed.
+    pub fn list(path: Option<&str>) -> Result<WorkspaceListResult, ClientError> {
+        const METHOD: &str = "onboarding/workspace_list";
+        let start = match path.filter(|p| !p.trim().is_empty()) {
+            Some(path) => path.to_owned(),
+            None => home().map(|h| h.to_string_lossy().into_owned()).unwrap_or_else(|| "/".to_owned()),
+        };
+        let canonical = folder(METHOD, &start)?;
+        let read = std::fs::read_dir(&canonical).map_err(|e| refused(METHOD, "workspace_list_permission_denied", e.to_string()))?;
+        let mut entries = Vec::new();
+        let mut hidden_skipped = 0u64;
+        for entry in read.flatten() {
+            let name = entry.file_name().to_string_lossy().into_owned();
+            let path = entry.path();
+            if !path.is_dir() {
+                continue;
+            }
+            if name.starts_with('.') {
+                hidden_skipped += 1;
+                continue;
+            }
+            let path = std::fs::canonicalize(&path).unwrap_or(path);
+            entries.push(WorkspaceFolderEntry { name, writable: writable(&path), path: path.to_string_lossy().into_owned() });
+        }
+        entries.sort_by_key(|e| e.name.to_lowercase());
+        let truncated = entries.len() > PAGE;
+        entries.truncate(PAGE);
+        Ok(WorkspaceListResult {
+            parent_path: canonical.parent().map(|p| p.to_string_lossy().into_owned()),
+            writable: writable(&canonical),
+            canonical_path: canonical.to_string_lossy().into_owned(),
+            entries,
+            truncated,
+            hidden_skipped,
+        })
+    }
+
+    /// `onboarding/workspace_create`, answered here: the folder `name` in
+    /// `parent` (`created: false` when it was there already).
+    pub fn create(parent: &str, name: &str) -> Result<WorkspaceCreateResult, ClientError> {
+        const METHOD: &str = "onboarding/workspace_create";
+        let name = name.trim();
+        if name.is_empty() || name.starts_with('.') || name.contains(['/', '\\']) {
+            return Err(refused(METHOD, "workspace_create_invalid_name", format!("{name:?} is not a folder name")));
+        }
+        let dir = folder(METHOD, parent)?.join(name);
+        if dir.is_dir() {
+            return Ok(WorkspaceCreateResult { canonical_path: dir.to_string_lossy().into_owned(), created: false });
+        }
+        std::fs::create_dir(&dir).map_err(|e| refused(METHOD, "workspace_create_failed", e.to_string()))?;
+        Ok(WorkspaceCreateResult { canonical_path: std::fs::canonicalize(&dir).unwrap_or(dir).to_string_lossy().into_owned(), created: true })
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn a_local_listing_names_folders_counts_hidden_ones_and_refuses_as_octos_does() {
+            let root = std::env::temp_dir().join(format!("octoscode-local-browse-{}", std::process::id()));
+            let _ = std::fs::remove_dir_all(&root);
+            for dir in ["b", "A", ".hidden"] {
+                std::fs::create_dir_all(root.join(dir)).unwrap();
+            }
+            std::fs::write(root.join("file.txt"), "x").unwrap();
+            let listed = list(Some(&root.to_string_lossy())).unwrap();
+            assert_eq!(listed.entries.iter().map(|e| e.name.as_str()).collect::<Vec<_>>(), ["A", "b"], "folders only, sorted");
+            assert_eq!(listed.hidden_skipped, 1);
+            assert!(listed.parent_path.is_some());
+            let kind = |e: ClientError| match e {
+                ClientError::Rpc { error, .. } => error.data.unwrap()["kind"].as_str().unwrap().to_owned(),
+                other => panic!("{other}"),
+            };
+            assert_eq!(kind(list(Some(&root.join("missing").to_string_lossy())).unwrap_err()), "workspace_list_not_found");
+            assert_eq!(kind(list(Some(&root.join("file.txt").to_string_lossy())).unwrap_err()), "workspace_list_not_a_directory");
+            assert_eq!(kind(list(Some("relative/path")).unwrap_err()), "workspace_list_invalid_path");
+            let made = create(&root.to_string_lossy(), "new").unwrap();
+            assert!(made.created && root.join("new").is_dir());
+            assert!(!create(&root.to_string_lossy(), "new").unwrap().created, "idempotent");
+            assert!(create(&root.to_string_lossy(), "../escape").is_err());
+            let _ = std::fs::remove_dir_all(&root);
         }
     }
 }

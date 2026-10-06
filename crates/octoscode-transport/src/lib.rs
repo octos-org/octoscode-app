@@ -1,8 +1,10 @@
-//! OctosCode WebSocket and REST transport for the Octos UI Protocol.
+//! OctosCode WebSocket and REST transport for the Octos UI Protocol, and the
+//! host-port transport an embedding shell hands it ([`host`]).
 //! Extracted from OctoSense; see ORIGIN.txt for provenance and changes.
 
 pub mod capability;
 pub mod cursor;
+pub mod host;
 pub mod jsonrpc;
 /// JSON-RPC core used by the WebSocket transport.
 mod proto;

@@ -718,6 +718,16 @@ async fn launch_in_folder(conv: &std::sync::Arc<crate::flow::Conversation>, cwd:
             );
             Started::Launched(create(conv, f).await)
         }
+        // On a phone inside OctoSense the app works only in a folder the
+        // kernel keeps for each session (the shell allows no other), so
+        // there is nothing to pick.
+        None if conv.is_hosted() && cfg!(any(target_os = "android", target_os = "ios", target_env = "ohos")) => {
+            makepad_widgets::log!("[octoscode] launch at connect: a session in the kernel's own folder");
+            match conv.new_chat(None).await {
+                Ok(id) => Started::Launched(Launched::Opened(id)),
+                Err(e) => Started::Failed(e),
+            }
+        }
         None => {
             makepad_widgets::log!("[octoscode] launch at connect: no folder reported — the workspace picker");
             for work in super::board1::route("b1.open.picker", None) {
