@@ -270,9 +270,18 @@ async fn the_model_seat_groups_selects_and_keeps_the_notice_board() {
     let _s = serial();
     let mut canned = base();
     let list = dir(SEATS, "in", "profile/llm/list").remove(0);
-    canned.push(("profile/llm/list".into(), list));
+    canned.push(("profile/llm/list".into(), list.clone()));
+    for selected in [1, 2] {
+        let mut refreshed = list.clone();
+        for (i, row) in refreshed["models"].as_array_mut().unwrap().iter_mut().enumerate() {
+            row["selected"] = json!(i == selected);
+        }
+        canned.push(("profile/llm/list".into(), refreshed));
+    }
     canned.push(("profile/llm/select".into(), dir(R2, "in", "profile/llm/select").remove(0)));
     canned.push(("profile/llm/select".into(), dir(SEATS, "in", "profile/llm/select").remove(0)));
+    canned.push(("session/status/read".into(), json!({"session_id": "dsflash:main", "model": {"model": "deepseek-v4-flash", "provider": "deepseek"}})));
+    canned.push(("session/status/read".into(), json!({"session_id": "dsflash:main", "model": {"model": "kimi-k3", "provider": "moonshot"}})));
     let server = Server::start(canned).await;
     let conv = connect(&server).await;
     let store = conv.store.clone();
@@ -291,6 +300,10 @@ async fn the_model_seat_groups_selects_and_keeps_the_notice_board() {
     assert_eq!(host::perform("b3.model.choose", 0, &store), Outcome::Done);
     assert!(!t.contains(&"b3.model.choose#3".to_owned()), "an unavailable model routes nothing");
     assert_eq!(seats::model_seat_label(&store), "DeepSeek V4 Flash");
+    assert!(host::strip_status_needed(&session, &store, None));
+    host::run(Job::StatusRead, &conv).await.expect("initial runtime");
+    // A running turn keeps its model; the next-turn selection remains available.
+    host::state().seats.turn_busy = true;
     // The r2-route fallback: the recorded select, exactly.
     let out = host::perform("b3.model.choose", 1, &store);
     assert_eq!(out, Outcome::Spawn(Job::ModelSelect(1)));
@@ -310,6 +323,10 @@ async fn the_model_seat_groups_selects_and_keeps_the_notice_board() {
     assert_eq!(kinds, [Disposition::RestartRequired, Disposition::Reloaded]);
     assert_eq!(board.latest().unwrap().message, "Saved. Your next message uses kimi-k3");
     assert!(!board.saving);
+    assert_eq!(seats::model_seat_label(&store), "Kimi K3");
+    assert!(host::strip_status_needed(&session, &store, None), "selection refreshes the composer's runtime line");
+    host::run(Job::StatusRead, &conv).await.expect("reloaded runtime");
+    assert_eq!(octoscode_module::screens::board3::strip::facts(&store, &host::state().strip, None, None).0, "kimi-k3");
 }
 
 /// A refused select (applied:false) is "Couldn't save: …", the selection

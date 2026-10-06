@@ -1082,15 +1082,9 @@ pub fn set_strip_width(w: f64) {
     state().strip.width = if w > 0.0 { Some(w.floor()) } else { None };
 }
 
-/// Whether the strip still needs this Session's `session/status/read` (asked
-/// once per Session; the web polls the status pill, the strip reads it once).
-pub fn strip_status_needed(session: &str) -> bool {
-    let mut st = state();
-    if st.strip.status_for.as_deref() == Some(session) {
-        return false;
-    }
-    st.strip.status_for = Some(session.to_owned());
-    true
+/// Refresh on session, selected model/route, and foreground-turn changes.
+pub fn strip_status_needed(session: &str, store: &Store, turn: Option<&str>) -> bool {
+    state().strip.needs_status(session, &store.domains.profile.llm_models(), turn)
 }
 
 /// Run a job through the production client. The result is folded into the

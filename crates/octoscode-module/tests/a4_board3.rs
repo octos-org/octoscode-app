@@ -541,8 +541,8 @@ async fn the_strip_reads_the_session_model_once_and_shows_it() {
     let server = FakeServer::start().await;
     let (conv, _ev) = connected(&server).await;
     let session = conv.session_id();
-    assert!(host::strip_status_needed(&session));
-    assert!(!host::strip_status_needed(&session), "asked once per session");
+    assert!(host::strip_status_needed(&session, &conv.store, None));
+    assert!(!host::strip_status_needed(&session, &conv.store, None), "unchanged status is cached");
     host::run(Job::StatusRead, &conv).await.expect("status read");
     // A15 — the read names the Profile (the server's `raw_profile_id` takes
     // `profile_id` first; a `<profile>:main` id embeds none).

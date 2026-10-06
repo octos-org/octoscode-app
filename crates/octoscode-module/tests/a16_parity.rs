@@ -276,7 +276,7 @@ async fn open_pane(conv: &Conversation) -> String {
 /// Profile default; after the model menu's selection of the r2-route
 /// fallback answers r2's recorded restart_required, the pane opened from the
 /// strip shows the web's notice; a reloaded answer puts the hint out; a
-/// runtime that is not the Profile default needs the restart on its own.
+/// runtime that differs from the Profile default does not imply a restart.
 #[tokio::test]
 async fn the_pane_shows_the_restart_truth_of_the_runtime_and_the_last_answer() {
     let _s = serial();
@@ -319,13 +319,11 @@ async fn the_pane_shows_the_restart_truth_of_the_runtime_and_the_last_answer() {
     let pane = open_pane(&conv).await;
     assert!(!pane.contains("Restart Octos"), "a reloaded answer puts the hint out");
     host::close();
-    // The status now reports another runtime model: the restart truth needs
-    // no hint.
+    // A different runtime can be an admitted turn or a pending refresh. It
+    // does not override the server's explicit successful reload response.
     let pane = open_pane(&conv).await;
-    assert!(
-        pane.contains("Profile default is DeepSeek V4 Flash. This Octos process is still serving glm-5. Restart Octos to apply the new default."),
-        "{pane}"
-    );
+    assert!(pane.contains("glm-5"), "the actual runtime remains visible: {pane}");
+    assert!(!pane.contains("Restart Octos"), "a model mismatch alone must not infer a restart: {pane}");
     assert_eq!(server.sent("session/status/read").len(), 4);
     assert_eq!(server.sent("profile/llm/select").len(), 2);
     host::close();

@@ -4281,7 +4281,7 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] strip mount: {e}");
             }
             if let Some(session) = store.active_session().filter(|_| store.is_live()) {
-                if screens::board3::host::strip_status_needed(&session) {
+                if screens::board3::host::strip_status_needed(&session, &store, active_turn.as_deref()) {
                     self.board3_outcome(
                         cx,
                         screens::board3::host::Outcome::Spawn(screens::board3::host::Job::StatusRead),

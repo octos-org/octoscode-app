@@ -172,17 +172,11 @@ pub fn profile_default_needs_restart(runtime: Option<(&str, &str)>, models: &[Pr
     needs_restart(runtime, models.iter().find(|m| m.selected).map(|m| (m.model.as_str(), m.provider.as_str())), server_hint)
 }
 
-/// The restart truth from two identities, each `(model, provider)`: the
-/// Session runtime (`session/status/read` `model`) and the Profile default.
-/// Without both the server's hint decides; with both, a different provider
-/// or model needs a restart — and equal strings never disprove the hint (the
-/// status carries no route or policy revision, so a route-only change reads
-/// equal).
-pub fn needs_restart(runtime: Option<(&str, &str)>, profile_default: Option<(&str, &str)>, server_hint: bool) -> bool {
-    match (runtime, profile_default) {
-        (Some((rm, rp)), Some((dm, dp))) => server_hint || rp != dp || rm != dm,
-        _ => server_hint,
-    }
+/// Only the server can require a restart. A cached status or an active
+/// response may still name the previous model after a successful reload.
+/// Equal model strings also cannot disprove an explicit route-change hint.
+pub fn needs_restart(_runtime: Option<(&str, &str)>, _profile_default: Option<(&str, &str)>, server_hint: bool) -> bool {
+    server_hint
 }
 
 /// The server's restart hint a selection answer leaves (`restartHint`,
@@ -339,7 +333,7 @@ pub fn permission_locked(st: &SeatsState, store: &Store) -> bool {
 }
 
 pub fn model_locked(st: &SeatsState, store: &Store) -> bool {
-    st.turn_busy || st.models_busy || !has(store, "profile/llm/select")
+    st.models_busy || !has(store, "profile/llm/select")
 }
 
 fn session_of(store: &Store) -> String {
@@ -644,7 +638,7 @@ pub async fn select_model(conv: &crate::flow::Conversation, index: usize) -> Res
         return Ok("refused (no such model)".into());
     };
     let ticket = with(|st| {
-        if st.models_busy || st.turn_busy || !target.available {
+        if st.models_busy || !target.available {
             return None;
         }
         st.models_gen += 1; // a selection retires an older list read
@@ -1204,13 +1198,14 @@ mod tests {
         assert_eq!(perform(&mut st, "b3.model.choose", 0, &s), Outcome::Done, "already selected");
         assert_eq!(perform(&mut st, "b3.model.choose", 2, &s), Outcome::Done, "unavailable");
         assert_eq!(perform(&mut st, "b3.model.choose", 1, &s), Outcome::Spawn(Job::ModelSelect(1)));
+        st.turn_busy = true;
+        assert_eq!(perform(&mut st, "b3.model.choose", 1, &s), Outcome::Spawn(Job::ModelSelect(1)), "a running turn does not block selection for the next turn");
         assert_eq!(model_seat_label(&s), "GLM-5.2");
     }
 
-    /// `product-projection.test.ts:53-82` ("derives restart truth from
-    /// runtime and Profile default identities"), case for case.
+    /// Runtime/default mismatches can be normal next-turn transitions.
     #[test]
-    fn restart_truth_is_the_webs() {
+    fn restart_requires_an_explicit_server_hint() {
         let glm = ProfileLlmModel {
             model: "glm-5.2".into(),
             provider: "zai".into(),
@@ -1221,7 +1216,7 @@ mod tests {
             available: true,
         };
         let models = vec![glm];
-        assert!(profile_default_needs_restart(Some(("deepseek-v4", "deepseek")), &models, false), "another runtime model");
+        assert!(!profile_default_needs_restart(Some(("deepseek-v4", "deepseek")), &models, false), "an old turn or cached status does not require a restart");
         assert!(profile_default_needs_restart(Some(("glm-5.2", "zai")), &models, true), "equal strings never disprove the hint");
         assert!(profile_default_needs_restart(None, &models, true), "no runtime: the hint decides");
         assert!(!profile_default_needs_restart(Some(("glm-5.2", "zai")), &models, false), "the runtime IS the default");
