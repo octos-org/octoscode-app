@@ -31,3 +31,6 @@ pane receives the same current status for its session.
 - `composer_runtime_refreshes_after_model_and_route_selection`
 - `composer_runtime_rejects_status_from_before_the_switch`
 - `composer_runtime_waits_for_live_status_and_refreshes_when_turn_finishes`
+- `the_pane_shows_the_restart_truth_of_the_runtime_and_the_last_answer` checks
+  explicit restart guidance and rejects an inferred warning when runtime and
+  saved model differ after a successful reload, over the real client transport.
