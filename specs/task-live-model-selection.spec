@@ -15,6 +15,12 @@ warning. A saved profile default differing from a cached runtime or an active
 response's model does not prove a restart is necessary. Explicit hints remain
 authoritative even when model strings match (for example, a route change).
 
+The composer runtime status refreshes when the selected model, provider, route,
+or foreground turn changes. The runtime label comes from a checked server status
+reply, not from the saved selection. Older replies cannot overwrite a newer
+selection's status; an absent runtime clears the old label. The session settings
+pane receives the same current status for its session.
+
 ## Verification
 
 - `restart_requires_an_explicit_server_hint`
@@ -22,3 +28,6 @@ authoritative even when model strings match (for example, a route change).
 - `the_model_groups_are_the_webs`
 - `the_model_seat_groups_selects_and_keeps_the_notice_board` sends a real client
   selection to the fake OUP server while the UI marks the turn busy.
+- `composer_runtime_refreshes_after_model_and_route_selection`
+- `composer_runtime_rejects_status_from_before_the_switch`
+- `composer_runtime_waits_for_live_status_and_refreshes_when_turn_finishes`

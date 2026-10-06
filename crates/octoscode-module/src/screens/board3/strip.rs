@@ -20,6 +20,8 @@
 //! the current permission profile mode ("Read only" / "Workspace write" /
 //! "Full access", `App.tsx:2037-2045`).
 use octoscode_store::timeline::EntryKind;
+use octoscode_store::domains::models::Identity;
+use octoscode_store::domains::profile::ProfileLlmModel;
 use octoscode_store::Store;
 
 use super::ui::{tok, Dsl, Face, Txt, W};
@@ -30,6 +32,9 @@ pub struct StripState {
     /// session id -> the status read's model label.
     pub model: Option<(String, String)>,
     pub status_for: Option<String>,
+    pub status_model: Option<Identity>,
+    pub status_turn: Option<String>,
+    pub status_generation: u64,
     pub handover: Option<String>,
     /// The composer's measured width (the strip aligns to it).
     pub width: Option<f64>,
@@ -42,6 +47,46 @@ pub struct StripState {
     /// (`runtime_policy_stamp.approval_policy`: `on-request` | `never`), the
     /// web's approval readback (`App.tsx:3228-3234`).
     pub approval: Option<(String, String)>,
+}
+
+fn selected_model(models: &[ProfileLlmModel]) -> Option<Identity> {
+    models.iter().find(|m| m.selected).map(|m| Identity {
+        model: m.model.clone(),
+        provider: m.provider.clone(),
+        route: m.route.clone(),
+    })
+}
+
+impl StripState {
+    /// Re-read after a selection or turn changes, including the end of a
+    /// response that was still using the previous model. The selected model
+    /// invalidates the cache; only a server status reply supplies its label.
+    pub fn needs_status(&mut self, session: &str, models: &[ProfileLlmModel], turn: Option<&str>) -> bool {
+        let selected = selected_model(models);
+        if self.status_for.as_deref() == Some(session)
+            && self.status_model == selected
+            && self.status_turn.as_deref() == turn
+        {
+            return false;
+        }
+        self.status_for = Some(session.to_owned());
+        self.status_model = selected;
+        self.status_turn = turn.map(str::to_owned);
+        self.status_generation += 1;
+        true
+    }
+
+    fn apply_status(&mut self, session: &str, generation: u64, value: &serde_json::Value) -> Option<super::session_pane::StatusFacts> {
+        if self.status_generation != generation {
+            return None;
+        }
+        let facts = super::session_pane::parse_status(value, session)?;
+        // A missing runtime is meaningful (for example a failed reload),
+        // so it must clear the old model instead of keeping a stale label.
+        self.model = facts.model.as_ref().map(|m| (session.to_owned(), m.clone()));
+        self.approval = facts.approval_policy.as_ref().map(|a| (session.to_owned(), a.clone()));
+        Some(facts)
+    }
 }
 
 /// A15 — the approval policy the last status read reported for `session`.
@@ -201,6 +246,9 @@ pub fn facts(store: &Store, st: &StripState, active_turn: Option<&str>, mode: Op
 /// context read already send it (`session_pane.rs`, `models.rs`).
 pub async fn load_status(conv: &crate::flow::Conversation) -> Result<String, String> {
     let session = conv.session_id();
+    let scope = conv.resource_identity();
+    let generation = super::host::state().strip.status_generation;
+    let selected = selected_model(&conv.store.domains.profile.llm_models());
     let v = conv
         .client()
         .request("session/status/read", serde_json::json!({ "session_id": session, "profile_id": conv.profile() }))
@@ -210,22 +258,20 @@ pub async fn load_status(conv: &crate::flow::Conversation) -> Result<String, Str
     if v.get("session_id").and_then(|s| s.as_str()) != Some(session.as_str()) {
         return Err("status belongs to another Session".into());
     }
-    let model = v.get("model").and_then(|m| {
-        m.get("title")
-            .and_then(|t| t.as_str())
-            .or_else(|| m.get("model").and_then(|t| t.as_str()))
-            .map(str::to_owned)
-    });
-    {
-        let mut st = super::host::state();
-        if let Some(m) = &model {
-            st.strip.model = Some((session.clone(), m.clone()));
-        }
-        // A15 — the stamp's approval policy (Settings > Permissions' readback).
-        if let Some(a) = v.pointer("/runtime_policy_stamp/approval_policy").and_then(|a| a.as_str()) {
-            st.strip.approval = Some((session.clone(), a.to_owned()));
-        }
+    if conv.resource_identity() != scope || selected_model(&conv.store.domains.profile.llm_models()) != selected {
+        return Ok("stale status read dropped".into());
     }
+    let model = {
+        let mut st = super::host::state();
+        let Some(facts) = st.strip.apply_status(&session, generation, &v) else {
+            return Ok("stale status read dropped".into());
+        };
+        let model = facts.model.clone();
+        if st.pane.session == session {
+            st.pane.status = Some(facts);
+        }
+        model
+    };
     // A8 — the permission fact: the web reads the session's permission
     // profile when it opens (`refreshPermission`, use-octos-session's open
     // path), so the strip names the mode from the start instead of
@@ -239,7 +285,8 @@ pub async fn load_status(conv: &crate::flow::Conversation) -> Result<String, Str
             })
             .await
         {
-            if r.session_id.0 == session {
+            if r.session_id.0 == session && conv.resource_identity() == scope
+                && super::host::state().strip.status_generation == generation {
                 use octoscode_store::domains::profile::PermissionProfileSelection as Sel;
                 let sel = |s: &octos_core::ui_protocol::PermissionProfileSelection| {
                     serde_json::to_value(s).ok().and_then(|v| serde_json::from_value::<Sel>(v).ok())
@@ -393,6 +440,76 @@ mod tests {
         s.set_connection("Live".into(), true);
         s.set_active(Some("s".into()));
         s
+    }
+
+    fn select(store: &Store, model: &str, provider: &str, route: &str) {
+        store.domains.profile.set_llm_models(vec![ProfileLlmModel {
+            model: model.into(), provider: provider.into(), title: model.into(),
+            family: Some(provider.into()), route: Some(route.into()),
+            selected: true, available: true,
+        }]);
+    }
+
+    fn status(model: &str, provider: &str) -> serde_json::Value {
+        serde_json::json!({"session_id": "s", "model": {"model": model, "provider": provider}})
+    }
+
+    #[test]
+    fn composer_runtime_refreshes_after_model_and_route_selection() {
+        let store = live_store();
+        let mut strip = StripState::default();
+        select(&store, "deepseek-v4-flash", "deepseek", "official");
+        assert!(strip.needs_status("s", &store.domains.profile.llm_models(), None));
+        strip.apply_status("s", strip.status_generation, &status("deepseek-v4-flash", "deepseek")).unwrap();
+        assert!(!strip.needs_status("s", &store.domains.profile.llm_models(), None));
+
+        select(&store, "k3", "moonshot-coding", "coding");
+        assert_eq!(super::super::seats::model_seat_label(&store), "k3");
+        assert!(strip.needs_status("s", &store.domains.profile.llm_models(), None), "the selected model invalidates runtime status");
+        // Persisted selection alone is not evidence of a live reload.
+        assert_eq!(facts(&store, &strip, None, None).0, "deepseek-v4-flash");
+        strip.apply_status("s", strip.status_generation, &status("k3", "moonshot-coding")).unwrap();
+        assert_eq!(facts(&store, &strip, None, None).0, "k3");
+        assert!(!strip.needs_status("s", &store.domains.profile.llm_models(), None));
+
+        select(&store, "k3", "moonshot-coding", "other-route");
+        assert!(strip.needs_status("s", &store.domains.profile.llm_models(), None), "route-only changes refresh too");
+        select(&store, "k3", "other-provider", "other-route");
+        assert!(strip.needs_status("s", &store.domains.profile.llm_models(), None), "provider identity is significant");
+    }
+
+    #[test]
+    fn composer_runtime_rejects_status_from_before_the_switch() {
+        let store = live_store();
+        let mut strip = StripState::default();
+        select(&store, "deepseek-v4-flash", "deepseek", "official");
+        strip.needs_status("s", &store.domains.profile.llm_models(), None);
+        let old = strip.status_generation;
+        select(&store, "k3", "moonshot-coding", "coding");
+        strip.needs_status("s", &store.domains.profile.llm_models(), None);
+        strip.apply_status("s", strip.status_generation, &status("k3", "moonshot-coding")).unwrap();
+        assert!(strip.apply_status("s", old, &status("deepseek-v4-flash", "deepseek")).is_none());
+        assert_eq!(facts(&store, &strip, None, None).0, "k3");
+        let other = serde_json::json!({"session_id": "other", "model": {"model": "wrong", "provider": "other"}});
+        assert!(strip.apply_status("s", strip.status_generation, &other).is_none());
+        assert_eq!(facts(&store, &strip, None, None).0, "k3");
+    }
+
+    #[test]
+    fn composer_runtime_waits_for_live_status_and_refreshes_when_turn_finishes() {
+        let store = live_store();
+        let mut strip = StripState::default();
+        select(&store, "k3", "moonshot-coding", "coding");
+        assert!(strip.needs_status("s", &store.domains.profile.llm_models(), Some("old-turn")));
+        // Deferred/restart-required changes must keep the runtime the server reports.
+        strip.apply_status("s", strip.status_generation, &status("deepseek-v4-flash", "deepseek")).unwrap();
+        assert_eq!(facts(&store, &strip, Some("old-turn"), None).0, "deepseek-v4-flash");
+        assert!(strip.needs_status("s", &store.domains.profile.llm_models(), None));
+        strip.apply_status("s", strip.status_generation, &status("k3", "moonshot-coding")).unwrap();
+        assert_eq!(facts(&store, &strip, None, None).0, "k3");
+        assert!(strip.needs_status("s", &store.domains.profile.llm_models(), Some("next-turn")));
+        strip.apply_status("s", strip.status_generation, &serde_json::json!({"session_id": "s"})).unwrap();
+        assert_eq!(facts(&store, &strip, None, None).0, "Model not reported", "a missing runtime clears the stale model");
     }
 
     #[test]
