@@ -113,4 +113,10 @@ pub fn register_ignored(registry: &mut Registry) {
     registry.ignore("peer/tool/call", "the host's own: a host tool's call (never a client's)");
     registry.ignore("peer/tool/cancel", "the host's own: a host tool's cancel (never a client's)");
     registry.ignore("peer/input", "the host's own: input for an app peer (never a client's)");
+    // Live context fullness mid-turn: octos sends it only to a client that
+    // asks for `context.state.v1`, which this one does not request.
+    registry.ignore(
+        "context/state_reported",
+        "feature not negotiated (context.state.v1); no live gauge projection yet",
+    );
 }
