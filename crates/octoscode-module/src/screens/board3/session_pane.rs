@@ -1460,11 +1460,10 @@ mod tests {
     }
 
     /// The restart truth in the Model card: the session list's rows (route
-    /// as a plain id string) and the status's runtime identity — no notice
-    /// while the runtime IS the Profile default; the notice when it is not,
-    /// or when the last selection answered restart_required.
+    /// as a plain id string) and the status's runtime identity. Only an
+    /// explicit server restart requirement lights the notice.
     #[test]
-    fn the_restart_notice_follows_the_runtime_and_the_hint() {
+    fn the_restart_notice_requires_the_server_hint() {
         let store = Store::new();
         store.set_active(Some("s".into()));
         store.domains.config.set_supported_methods(vec![PERM_SET.into(), LLM_LIST.into(), STATUS_METHOD.into()]);
@@ -1496,8 +1495,8 @@ mod tests {
         st.restart_hints.insert("s".into(), false);
         st.status = Some(StatusFacts { model: Some("glm-5".into()), runtime_model: Some("glm-5".into()), runtime_provider: Some("zhipu".into()), ..Default::default() });
         assert!(
-            lower(&st).contains("Profile default is DeepSeek V4 Flash. This Octos process is still serving glm-5."),
-            "another runtime model needs a restart without any hint"
+            !lower(&st).contains("Restart Octos"),
+            "stale runtime status does not invent a restart requirement"
         );
     }
 

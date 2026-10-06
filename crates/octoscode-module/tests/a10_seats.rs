@@ -291,6 +291,8 @@ async fn the_model_seat_groups_selects_and_keeps_the_notice_board() {
     assert_eq!(host::perform("b3.model.choose", 0, &store), Outcome::Done);
     assert!(!t.contains(&"b3.model.choose#3".to_owned()), "an unavailable model routes nothing");
     assert_eq!(seats::model_seat_label(&store), "DeepSeek V4 Flash");
+    // A running turn keeps its model; the next-turn selection remains available.
+    host::state().seats.turn_busy = true;
     // The r2-route fallback: the recorded select, exactly.
     let out = host::perform("b3.model.choose", 1, &store);
     assert_eq!(out, Outcome::Spawn(Job::ModelSelect(1)));
