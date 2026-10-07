@@ -1075,6 +1075,8 @@ dependencies = [
  "makepad-live-id",
  "makepad-micro-serde",
  "makepad-script",
+ "rustls",
+ "webpki-roots",
  "windows",
 ]
 
@@ -1523,9 +1525,10 @@ dependencies = [
 [[package]]
 name = "octoscript-ui-l0"
 version = "0.1.0"
-source = "git+https://github.com/OctoSense-org/Octoscript.git?rev=68f6a9df55692b5d8ef8873a12721e279a3f40d6#68f6a9df55692b5d8ef8873a12721e279a3f40d6"
+source = "git+https://github.com/OctoSense-org/Octoscript.git?rev=2e37d9e657a246f16718d9a475e167ccd2d5b5fa#2e37d9e657a246f16718d9a475e167ccd2d5b5fa"
 dependencies = [
  "blake3",
+ "serde",
  "serde_json",
 ]
 

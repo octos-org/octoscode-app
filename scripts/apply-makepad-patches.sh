@@ -5,8 +5,9 @@
 #
 # Each <root> is a directory holding `makepad/` (an OctoSense `.sources`, or
 # the APK tree's cargo-makepad checkout `.mk`) or a makepad checkout itself.
-# The patches are unified diffs against makepad rev 6cf03859 (the rev
-# OctoSense pins, native-runtime.lock.json / runtime-patches.lock.json).
+# The patches are unified diffs that apply to makepad main 68d1f4ec (the rev
+# OctoSense pins, native-runtime.lock.json / runtime-patches.lock.json, and the
+# standalone fork's base) and to 6cf03859 (the legacy --octosense host tree's).
 #
 # IDEMPOTENT: a patch already applied (it reverse-applies cleanly) is skipped;
 # a patch that applies neither way stops the script before touching that

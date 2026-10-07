@@ -40,36 +40,38 @@ octoscode-module = { path = "crates/octoscode-module" }
 # `octoscript_makepad::l0::prepare` then `design::to_makepad_ui`).
 # `octoscript-widgets` registers the DSL's widget names (DesignSurface,
 # DesignNativeButton, …); `octoscript-ui-l0` realizes + lowers the card.
-octoscript-makepad = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "6881fb6c3c3220e407633b0ba5211c3d42c7e625" }
-octoscript-widgets = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "6881fb6c3c3220e407633b0ba5211c3d42c7e625" }
-octoscript-render = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "6881fb6c3c3220e407633b0ba5211c3d42c7e625" }
-octoscript-ui-l0 = { git = "https://github.com/OctoSense-org/Octoscript.git", rev = "68f6a9df55692b5d8ef8873a12721e279a3f40d6" }
+# Octoscript-Makepad main, with the measured-design lowering this app's
+# components are authored against (flows, fill/fit, markdown, right anchors,
+# in-slot: Octoscript-Makepad #77), and the Octoscript its runtime.json pins.
+octoscript-makepad = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "aa80f72c509c767faf04822b939d44b2f34fbc81" }
+octoscript-widgets = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "aa80f72c509c767faf04822b939d44b2f34fbc81" }
+octoscript-render = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "aa80f72c509c767faf04822b939d44b2f34fbc81" }
+octoscript-ui-l0 = { git = "https://github.com/OctoSense-org/Octoscript.git", rev = "2e37d9e657a246f16718d9a475e167ccd2d5b5fa" }
 
 # Makepad renderer and optional AppModule adapter, pinned to compatible revisions.
-makepad-widgets = { git = "https://github.com/OctoSense-org/makepad.git", rev = "6cf03859630761f5cb99ce7fcdfd8c30475d9ab8" }
-makepad-app-module = { git = "https://github.com/OctoSense-org/makepad.git", rev = "6cf03859630761f5cb99ce7fcdfd8c30475d9ab8" }
+makepad-widgets = { git = "https://github.com/OctoSense-org/makepad.git", rev = "68d1f4ecc111daa90c50530e77df3245f05fc2cf" }
+makepad-app-module = { git = "https://github.com/OctoSense-org/makepad.git", rev = "68d1f4ecc111daa90c50530e77df3245f05fc2cf" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread"] }
 log = "0.4"
 
-# The renderer the #16/#18 components are authored against (card #21b step 1).
-# The pinned rev's `design.rs` lacks the flow/fill lowering: a `fillw` node
-# resolves to a 0×0 extent and a flowing child is pinned at its measured
-# `abs_pos`. Redirect the renderer crates to the local fork branch;
-# `tools/prepare-octoscript-makepad-fork.sh` recreates that fork from this same
-# rev + `patches/octoscript-makepad/000{1..6}-*.patch`.
+# Octoscript-Makepad at the `rev` above, unpatched: the plain checkout
+# `tools/prepare-octoscript-makepad.sh` makes. makepad-widgets takes
+# `octoscript-node` from Octoscript-Makepad too (an older rev); redirecting
+# every Octoscript-Makepad crate to this one checkout keeps ONE octoscript-node,
+# as makepad's own workspace and OctoSense's `.sources` do.
 [patch."https://github.com/OctoSense-org/Octoscript-Makepad.git"]
-octoscript-makepad = { path = ".forks/octoscript-makepad-fork/crates/octoscript-makepad" }
-octoscript-widgets = { path = ".forks/octoscript-makepad-fork/crates/octoscript-widgets" }
-octoscript-node = { path = ".forks/octoscript-makepad-fork/crates/octoscript-node" }
-octoscript-render = { path = ".forks/octoscript-makepad-fork/crates/octoscript-render" }
+octoscript-makepad = { path = ".forks/octoscript-makepad/crates/octoscript-makepad" }
+octoscript-widgets = { path = ".forks/octoscript-makepad/crates/octoscript-widgets" }
+octoscript-node = { path = ".forks/octoscript-makepad/crates/octoscript-node" }
+octoscript-render = { path = ".forks/octoscript-makepad/crates/octoscript-render" }
 
 # A33 (decision D10f): makepad WITH our patches/makepad/*.patch — the same
 # patches every OctoSense tree gets (the notification API, so
 # cfg(makepad_notifications) is on here too; the --remote token guard; the
 # ellipsis fix; file_resource in a packaged build). The pinned rev
-# (6cf03859, the `rev` above) + those patches, one commit:
+# (68d1f4ec, makepad main, the `rev` above) + those patches, one commit:
 # `tools/prepare-makepad-fork.sh` recreates the fork. Every crate this graph
 # names by this URL is redirected, so the graph keeps ONE makepad.
 [patch."https://github.com/OctoSense-org/makepad.git"]

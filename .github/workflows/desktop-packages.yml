@@ -50,10 +50,10 @@ jobs:
             ~/.cargo/git
             target
           key: ${{ runner.os }}-desktop-${{ hashFiles('Cargo.lock', 'patches/**') }}
-      - name: Prepare pinned renderer forks
+      - name: Prepare the pinned framework sources
         run: |
           bash tools/prepare-makepad-fork.sh
-          bash tools/prepare-octoscript-makepad-fork.sh
+          bash tools/prepare-octoscript-makepad.sh
       - name: Build and package native app
         id: package
         run: python tools/package-desktop.py
