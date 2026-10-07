@@ -6,3 +6,12 @@
 [env]
 MAKEPAD_BUNDLE_NAME = { value = "OctosCode", force = true }
 MAKEPAD_BUNDLE_IDENTIFIER = { value = "org.octos.octoscode", force = true }
+
+# Product icons for plain cargo launches and packaged builds.
+MAKEPAD_APP_ICON_32 = { value = "crates/octoscode-desktop/resources/icon_32.png", relative = true }
+MAKEPAD_APP_ICON_64 = { value = "crates/octoscode-desktop/resources/icon_64.png", relative = true }
+MAKEPAD_APP_ICON_128 = { value = "crates/octoscode-desktop/resources/icon_128.png", relative = true }
+MAKEPAD_APP_ICON_256 = { value = "crates/octoscode-desktop/resources/icon_256.png", relative = true }
+MAKEPAD_APP_ICON_512 = { value = "crates/octoscode-desktop/resources/icon_512.png", relative = true }
+MAKEPAD_APP_ICON_1024 = { value = "crates/octoscode-desktop/resources/icon_1024.png", relative = true }
+MAKEPAD_APP_ICON_ICO = { value = "crates/octoscode-desktop/resources/icon.ico", relative = true }
