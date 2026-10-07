@@ -5,14 +5,16 @@
 #   tools/build-macos.sh [--package] [--octosense] [--debug] [--work <dir>]
 #
 # Default: the STANDALONE desktop app (crates/octoscode-desktop, binary `octoscode`), OPTIMIZED:
-#   1. prepares the two renderer forks the root Cargo.toml [patch]es, in <work> (default
-#      <repo>/.forks; a fork kept elsewhere is symlinked into .forks/):
-#        makepad-fork             OctoSense-org/makepad@6cf03859 + patches/makepad/*      (tools/prepare-makepad-fork.sh)
-#        octoscript-makepad-fork  Octoscript-Makepad@6881fb6c + patches/octoscript-makepad/* (tools/prepare-octoscript-makepad-fork.sh)
+#   1. prepares the framework sources the root Cargo.toml [patch]es, in <work> (default
+#      <repo>/.forks; a checkout kept elsewhere is symlinked into .forks/):
+#        makepad-fork             OctoSense-org/makepad@68d1f4ec + patches/makepad/*      (tools/prepare-makepad-fork.sh)
+#        octoscript-makepad       Octoscript-Makepad@aa80f72c, unpatched                  (tools/prepare-octoscript-makepad.sh)
 #   2. cargo build --release -p octoscode-desktop       -> target/release/octoscode (target/debug with --debug)
 # --package    also tools/package-macos.sh              -> target/macos-app/OctosCode.app + OctosCode-macos-<arch>.zip
 # --octosense  also the OctoSense-HOSTED variant (the module inside the OctoSense shell), in <work>/octosense-host:
-#              OctoSense at the pin + patches/octosense/0001-0003 (0003 wires the module into the shell), its
+#              OctoSense at the pin + patches/octosense/0001-0003 (0003 wires the module into the shell, and
+#              names the renderer fork beside the host tree: octoscript-makepad-fork, Octoscript-Makepad@6881fb6c
+#              + patches/octoscript-makepad/*, tools/prepare-octoscript-makepad-fork.sh), its
 #              framework sources via OctoSense's own tools/setup.py, our makepad patches on them
 #              (scripts/apply-makepad-patches.sh), the octoscode crates and design/ vendored into apps/
 #              (as outer/scripts/hostbuild.sh does), then
@@ -92,9 +94,9 @@ fork_path() {
 step "1/3 forks"
 # (assignments, so a refusal inside fork_path stops the script under set -e)
 MAKEPAD_FORK="$(fork_path makepad-fork)"
-RENDERER_FORK="$(fork_path octoscript-makepad-fork)"
+RENDERER_SOURCE="$(fork_path octoscript-makepad)"
 bash "$HERE/prepare-makepad-fork.sh" "$MAKEPAD_FORK"
-bash "$HERE/prepare-octoscript-makepad-fork.sh" "$RENDERER_FORK"
+bash "$HERE/prepare-octoscript-makepad.sh" "$RENDERER_SOURCE"
 
 step "2/3 the standalone app (cargo build -p octoscode-desktop, $PROFILE)"
 started=$(date +%s)
@@ -119,8 +121,10 @@ if [ "$OCTOSENSE" = 1 ]; then
   bash "$HERE/prepare-octosense-fork.sh" "$HOST"
   # The renderer fork must sit BESIDE the host tree: patch 0003's [patch] and the vendored
   # module's octoscript-render path name ../octoscript-makepad-fork.
+  RENDERER_FORK="$(fork_path octoscript-makepad-fork)"
+  bash "$HERE/prepare-octoscript-makepad-fork.sh" "$RENDERER_FORK"
   RENDERER="$(dirname "$HOST")/octoscript-makepad-fork"
-  [ -d "$RENDERER/crates/octoscript-makepad" ] || die "$RENDERER is missing (step 1 prepares it in <work>)"
+  [ -d "$RENDERER/crates/octoscript-makepad" ] || die "$RENDERER is missing (it is prepared in <work>)"
   # OctoSense's framework checkouts (.sources: makepad + its reviewed runtime patch,
   # octoscript, octoscript-makepad), exactly as OctoSense's own README builds. setup.py
   # refuses to run over local changes, and our makepad patches below are local changes

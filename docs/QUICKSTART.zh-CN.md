@@ -42,7 +42,7 @@ cd OctosCode
 
 ```sh
 cargo install --git https://github.com/octos-org/octos \
-  --rev a6ea8505170735f191a12bb47629a6728415d417 --features api octos-cli
+  --rev 39e22d457c47df57d7c7c9fa64539979c9da93fd --features api octos-cli
 octos serve --solo --host 127.0.0.1 --port 50190
 ```
 
@@ -119,7 +119,7 @@ MAKEPAD_WM_TEST_APP=octoscode OCTOSCODE_DESIGN_DIR="$PWD/design" \
 
 ```sh
 bash tools/prepare-makepad-fork.sh
-bash tools/prepare-octoscript-makepad-fork.sh
+bash tools/prepare-octoscript-makepad.sh
 python3 tools/package-desktop.py
 ```
 

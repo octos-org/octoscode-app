@@ -62,7 +62,7 @@ fn the_workspace_builds_makepad_from_the_patched_fork() {
         );
     }
     let script = read("tools/prepare-makepad-fork.sh");
-    assert!(script.contains("PIN=\"6cf03859630761f5cb99ce7fcdfd8c30475d9ab8\""), "the pin OctoSense uses");
+    assert!(script.contains("PIN=\"68d1f4ecc111daa90c50530e77df3245f05fc2cf\""), "makepad main, the pin OctoSense uses");
     assert!(script.contains("scripts/apply-makepad-patches.sh"), "the same apply script every tree uses");
     // The fork exists wherever this test compiles (the [patch] needs it):
     // every patch is applied in it (reverse-applies cleanly).

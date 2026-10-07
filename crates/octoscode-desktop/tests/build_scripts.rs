@@ -27,6 +27,7 @@ fn every_build_script_parses() {
         "tools/prepare-makepad-fork.sh",
         "tools/prepare-octosense-fork.sh",
         "tools/prepare-octoscript-makepad-fork.sh",
+        "tools/prepare-octoscript-makepad.sh",
         "scripts/apply-makepad-patches.sh",
     ] {
         let out = Command::new("bash").arg("-n").arg(repo().join(script)).output().expect("bash");
@@ -89,6 +90,7 @@ fn build_macos_runs_every_step_of_both_variants() {
         "prepare-makepad-fork.sh",
         "prepare-octosense-fork.sh",
         "prepare-octoscript-makepad-fork.sh",
+        "prepare-octoscript-makepad.sh",
         "cargo build -p octoscode-desktop --bin octoscode",
         "package-macos.sh",
         // --octosense: OctoSense's own setup.py, our makepad patches on its
@@ -105,6 +107,23 @@ fn build_macos_runs_every_step_of_both_variants() {
     }
     // It never prepares a fork it does not own (a shared checkout linked into .forks/).
     assert!(s.contains("this script prepares only the forks it owns"));
+}
+
+/// The standalone app's renderer is Octoscript-Makepad unpatched, at the rev
+/// the root Cargo.toml pins: the checkout script and the pin cannot drift.
+#[test]
+fn the_renderer_checkout_is_the_pinned_rev() {
+    let cargo = read("Cargo.toml");
+    let pin = cargo
+        .lines()
+        .find(|l| l.starts_with("octoscript-makepad = { git = "))
+        .and_then(|l| l.split("rev = \"").nth(1))
+        .and_then(|r| r.split('"').next())
+        .expect("octoscript-makepad is pinned by rev");
+    let script = read("tools/prepare-octoscript-makepad.sh");
+    assert!(script.contains(&format!("PIN=\"{pin}\"")), "the checkout script takes the pinned rev {pin}");
+    assert!(!script.contains("git apply"), "and patches nothing");
+    assert!(cargo.contains("octoscript-node = { path = \".forks/octoscript-makepad/crates/octoscript-node\" }"), "one octoscript-node");
 }
 
 /// A35b — nobody gets the slow build by default. Measured on the standalone

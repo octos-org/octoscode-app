@@ -83,6 +83,30 @@ fn read(rel: &str) -> String {
         .unwrap_or_else(|e| panic!("read {rel}: {e}"))
 }
 
+/// A file of the renderer (`octoscript-makepad`) the workspace builds against,
+/// wherever Cargo resolved it: its git checkout, or a `[patch]`ed path.
+fn read_renderer(rel: &str) -> String {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .ancestors()
+        .nth(2)
+        .expect("workspace root");
+    let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".to_owned());
+    let out = std::process::Command::new(cargo)
+        .args(["metadata", "--format-version", "1", "--locked"])
+        .current_dir(root)
+        .output()
+        .expect("cargo metadata");
+    assert!(out.status.success(), "cargo metadata: {}", String::from_utf8_lossy(&out.stderr));
+    let meta: serde_json::Value = serde_json::from_slice(&out.stdout).expect("cargo metadata's JSON");
+    let manifest = meta["packages"]
+        .as_array()
+        .and_then(|packages| packages.iter().find(|p| p["name"] == "octoscript-makepad"))
+        .and_then(|p| p["manifest_path"].as_str())
+        .expect("octoscript-makepad is in the graph");
+    let path = Path::new(manifest).parent().expect("its crate folder").join(rel);
+    std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {}: {e}", path.display()))
+}
+
 /// THE guard. Fails on main: 12 colourless blocks, including two that carried
 /// authored text (`"Session settings"`, `"Octos server"`) and ten runtime-fed
 /// `text: ""` slots.
@@ -153,9 +177,7 @@ fn the_measured_meta_labels_carry_a_colour_too() {
 /// emitter that drops the colour fails here rather than on device.
 #[test]
 fn the_lowered_dsl_emitter_always_writes_a_colour() {
-    let emitter = read(
-        ".forks/octoscript-makepad-fork/crates/octoscript-makepad/src/design.rs",
-    );
+    let emitter = read_renderer("src/design.rs");
     assert!(
         emitter.contains("draw_text.color: {}"),
         "the design emitter must keep writing draw_text.color for every Text node"
