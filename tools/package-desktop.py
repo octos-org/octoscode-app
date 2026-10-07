@@ -49,6 +49,9 @@ def main():
         input=metadata, check=True,
     )
     shutil.copy2(repo / "LICENSE", bundle / "LICENSE")
+    icons = repo / "crates/octoscode-desktop/resources"
+    shutil.copy2(icons / "icon_256.png", bundle / "octoscode.png")
+    shutil.copy2(icons / "icon.ico", bundle / "octoscode.ico")
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip()
     version = next(p["version"] for p in meta["packages"] if p["name"] == "octoscode-desktop")
     info = {"version": version, "commit": commit, "platform": system, "architecture": arch,

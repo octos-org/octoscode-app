@@ -332,6 +332,12 @@ script_mod! {
                 sidebar_header := View {
                     width: Fill height: 46 flow: Right align: Align{y: 0.5}
                     padding: Inset{left: 8}
+                    Svg {
+                        width: 24 height: 24 margin: Inset{right: 8}
+                        animating: false
+                        draw_svg.svg: file_resource(#(crate::chrome::icon("brand")))
+                        draw_svg.preserve_viewbox: true
+                    }
                     Label {
                         width: Fill height: Fit text: "OctosCode" padding: 0
                         draw_text.text_style: theme.oc_text_brand
@@ -892,10 +898,19 @@ script_mod! {
                 width: 260 height: Fill flow: Down spacing: 6
                 draw_bg.color: theme.color_bg_odd
                 padding: Inset{left: 12 right: 10 top: 12 bottom: 12}
-                Label {
-                    width: Fill height: Fit text: "OctosCode"
-                    draw_text.text_style.font_size: 13
-                    draw_text.color: theme.color_fg_app
+                View {
+                    width: Fill height: 32 flow: Right spacing: 8 align: Align{y: 0.5}
+                    Svg {
+                        width: 24 height: 24
+                        animating: false
+                        draw_svg.svg: file_resource(#(crate::chrome::icon("brand")))
+                        draw_svg.preserve_viewbox: true
+                    }
+                    Label {
+                        width: Fill height: Fit text: "OctosCode"
+                        draw_text.text_style.font_size: 13
+                        draw_text.color: theme.color_fg_app
+                    }
                 }
                 Label {
                     width: Fill height: Fit text: "No threads yet"

@@ -65,6 +65,7 @@ APP="$OUT/$APP_NAME.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources/makepad"
 cp "$BIN" "$APP/Contents/MacOS/$BIN_NAME"
+cp "$REPO/crates/octoscode-desktop/resources/icon.icns" "$APP/Contents/Resources/OctosCode.icns"
 
 # Every resources/ directory of the app's dependency graph (host platform), under the
 # crate's library name: what makepad's packaged loader asks for
@@ -81,6 +82,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <key>CFBundleIdentifier</key><string>$BUNDLE_ID</string>
     <key>CFBundleName</key><string>$APP_NAME</string>
     <key>CFBundleDisplayName</key><string>$APP_NAME</string>
+    <key>CFBundleIconFile</key><string>OctosCode.icns</string>
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
     <key>CFBundleShortVersionString</key><string>$VERSION</string>
