@@ -57,8 +57,8 @@ tools/build-macos.sh --debug      # development only: debug builds in target/deb
 What it does (every step is a no-op when already done, so re-run it after a `git pull`):
 
 1. Prepares the framework sources the root `Cargo.toml` `[patch]`es, in `.forks/` (or `--work <dir>`, linked into `.forks/`):
-   - `makepad-fork`: OctoSense-org/makepad main at `68d1f4ec` + `patches/makepad/*.patch` (`tools/prepare-makepad-fork.sh`);
-   - `octoscript-makepad`: Octoscript-Makepad main at `aa80f72c`, unpatched (`tools/prepare-octoscript-makepad.sh`).
+   - `makepad-fork`: OctoSense-org/makepad main at `32d6415f` + `patches/makepad/*.patch` (`tools/prepare-makepad-fork.sh`);
+   - `octoscript-makepad`: Octoscript-Makepad main at `33dea2f1`, unpatched (`tools/prepare-octoscript-makepad.sh`).
 
    Only `--octosense` still prepares `octoscript-makepad-fork` (Octoscript-Makepad at `6881fb6c` + `patches/octoscript-makepad/*`), which that host tree's patch 0003 names.
 2. `cargo build --release -p octoscode-desktop`: the optimized app. `--debug` builds the dev profile instead
@@ -120,7 +120,7 @@ OCTOS_BASE_URL=http://127.0.0.1:50190 OCTOS_BEARER=<token> OCTOS_PROFILE_ID=<pro
 No server yet? octos is one Rust binary. On the same or another Mac, at the protocol revision this app pins:
 
 ```sh
-cargo install --git https://github.com/octos-org/octos --rev 39e22d457c47df57d7c7c9fa64539979c9da93fd --features api octos-cli
+cargo install --git https://github.com/octos-org/octos --rev b0759a57719fd35b3a2da1c5d969bc67538ed516 --features api octos-cli
 export OCTOS_AUTH_TOKEN=$(openssl rand -hex 24)      # keep it; the app asks for it
 octos serve --port 50190                              # --host 0.0.0.0 to accept other machines
 ```

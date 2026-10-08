@@ -7,8 +7,8 @@
 # Default: the STANDALONE desktop app (crates/octoscode-desktop, binary `octoscode`), OPTIMIZED:
 #   1. prepares the framework sources the root Cargo.toml [patch]es, in <work> (default
 #      <repo>/.forks; a checkout kept elsewhere is symlinked into .forks/):
-#        makepad-fork             OctoSense-org/makepad@68d1f4ec + patches/makepad/*      (tools/prepare-makepad-fork.sh)
-#        octoscript-makepad       Octoscript-Makepad@aa80f72c, unpatched                  (tools/prepare-octoscript-makepad.sh)
+#        makepad-fork             OctoSense-org/makepad@32d6415f + patches/makepad/*      (tools/prepare-makepad-fork.sh)
+#        octoscript-makepad       Octoscript-Makepad@33dea2f1, unpatched                  (tools/prepare-octoscript-makepad.sh)
 #   2. cargo build --release -p octoscode-desktop       -> target/release/octoscode (target/debug with --debug)
 # --package    also tools/package-macos.sh              -> target/macos-app/OctosCode.app + OctosCode-macos-<arch>.zip
 # --octosense  also the OctoSense-HOSTED variant (the module inside the OctoSense shell), in <work>/octosense-host:
