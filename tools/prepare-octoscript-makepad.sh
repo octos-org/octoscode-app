@@ -20,7 +20,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
 TARGET="${1:-${OCTO_FORKS_DIR:-$REPO/.forks}/octoscript-makepad}"
-PIN="aa80f72c509c767faf04822b939d44b2f34fbc81"
+PIN="33dea2f1f3ad3f1346a219aa8cf6e91b31361e23"
 REMOTE="https://github.com/OctoSense-org/Octoscript-Makepad.git"
 
 command -v git >/dev/null || { echo "prepare-octoscript-makepad: git not found" >&2; exit 1; }

@@ -44,7 +44,7 @@ protocol dependency:
 
 ```sh
 cargo install --git https://github.com/octos-org/octos \
-  --rev 39e22d457c47df57d7c7c9fa64539979c9da93fd --features api octos-cli
+  --rev b0759a57719fd35b3a2da1c5d969bc67538ed516 --features api octos-cli
 octos serve --solo --host 127.0.0.1 --port 50190
 ```
 

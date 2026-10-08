@@ -3,7 +3,7 @@
 # standalone OctosCode app, crates/octoscode-desktop, and the test suite).
 #
 # The fork is `OctoSense-org/makepad` at the rev OctoSense pins
-# (`68d1f4ec`, makepad main: its native-runtime.lock.json / runtime-patches.lock.json, and
+# (`32d6415f`, makepad main: its native-runtime.lock.json / runtime-patches.lock.json, and
 # the `rev` in this repo's root Cargo.toml) with ONE commit on top: every
 # `patches/makepad/*.patch`, applied by scripts/apply-makepad-patches.sh (the
 # same files every other tree that builds the app gets, decision D10b):
@@ -46,7 +46,7 @@ fi
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
 TARGET="${1:-${OCTO_FORKS_DIR:-$REPO/.forks}/makepad-fork}"
-PIN="68d1f4ecc111daa90c50530e77df3245f05fc2cf"
+PIN="32d6415fb7476345ad36ee4f98d6f844d1f07fd2"
 BRANCH="octoscode/makepad-patches"
 REMOTE="https://github.com/OctoSense-org/makepad.git"
 SUBJECT="octoscode: makepad patches (patches/makepad, scripts/apply-makepad-patches.sh)"

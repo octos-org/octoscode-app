@@ -25,7 +25,7 @@ publish = false
 [workspace.dependencies]
 # Protocol types (RpcError, Capabilities, the method-name constants, the
 # `*Params`/`*Result` shapes). The octos revision is OctoSense's own pin.
-octos-core = { git = "https://github.com/octos-org/octos.git", rev = "39e22d457c47df57d7c7c9fa64539979c9da93fd" }
+octos-core = { git = "https://github.com/octos-org/octos.git", rev = "b0759a57719fd35b3a2da1c5d969bc67538ed516" }
 # The extracted WebSocket client has no OctoSense kernel dependency.
 octos-app-transport = { package = "octoscode-transport", path = "crates/octoscode-transport" }
 # Our crates.
@@ -43,14 +43,14 @@ octoscode-module = { path = "crates/octoscode-module" }
 # Octoscript-Makepad main, with the measured-design lowering this app's
 # components are authored against (flows, fill/fit, markdown, right anchors,
 # in-slot: Octoscript-Makepad #77), and the Octoscript its runtime.json pins.
-octoscript-makepad = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "aa80f72c509c767faf04822b939d44b2f34fbc81" }
-octoscript-widgets = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "aa80f72c509c767faf04822b939d44b2f34fbc81" }
-octoscript-render = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "aa80f72c509c767faf04822b939d44b2f34fbc81" }
+octoscript-makepad = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "33dea2f1f3ad3f1346a219aa8cf6e91b31361e23" }
+octoscript-widgets = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "33dea2f1f3ad3f1346a219aa8cf6e91b31361e23" }
+octoscript-render = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "33dea2f1f3ad3f1346a219aa8cf6e91b31361e23" }
 octoscript-ui-l0 = { git = "https://github.com/OctoSense-org/Octoscript.git", rev = "2e37d9e657a246f16718d9a475e167ccd2d5b5fa" }
 
 # Makepad renderer and optional AppModule adapter, pinned to compatible revisions.
-makepad-widgets = { git = "https://github.com/OctoSense-org/makepad.git", rev = "68d1f4ecc111daa90c50530e77df3245f05fc2cf" }
-makepad-app-module = { git = "https://github.com/OctoSense-org/makepad.git", rev = "68d1f4ecc111daa90c50530e77df3245f05fc2cf" }
+makepad-widgets = { git = "https://github.com/OctoSense-org/makepad.git", rev = "32d6415fb7476345ad36ee4f98d6f844d1f07fd2" }
+makepad-app-module = { git = "https://github.com/OctoSense-org/makepad.git", rev = "32d6415fb7476345ad36ee4f98d6f844d1f07fd2" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread"] }
@@ -71,7 +71,7 @@ octoscript-render = { path = ".forks/octoscript-makepad/crates/octoscript-render
 # patches every OctoSense tree gets (the notification API, so
 # cfg(makepad_notifications) is on here too; the --remote token guard; the
 # ellipsis fix; file_resource in a packaged build). The pinned rev
-# (68d1f4ec, makepad main, the `rev` above) + those patches, one commit:
+# (32d6415f, makepad main, the `rev` above) + those patches, one commit:
 # `tools/prepare-makepad-fork.sh` recreates the fork. Every crate this graph
 # names by this URL is redirected, so the graph keeps ONE makepad.
 [patch."https://github.com/OctoSense-org/makepad.git"]
