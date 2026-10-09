@@ -113,6 +113,8 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Model unavailable", "模型不可用"),
     ("No models are configured for this profile.", "此配置档案未配置模型。"),
     ("This configured model is unavailable.", "此已配置的模型不可用。"),
+    ("Queue (Tab)", "排队（Tab）"),
+    ("Send now (Ctrl+X)", "立即发送（Ctrl+X）"),
     ("Steer now", "立即引导"),
     ("\u{21b3} read-only peer \u{b7} {value0} \u{b7} steer from the master", "\u{21b3} 只读同侪 \u{b7} {value0} \u{b7} 请从主会话引导"),
     ("Couldn't confirm \u{2014} waiting for the previous attempt to expire", "无法确认 \u{2014} 正在等待上一次尝试过期"),

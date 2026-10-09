@@ -42,3 +42,5 @@ receipt from `examples/keys_probe.rs` (the real shell + an in-process protocol s
   per-key semantics are still proven per key.
 - The real desktop host owns a real key focus surface; the probe proves the resolver + arm on the same
   widget the host mounts, not the OS focus ring (unverified on device, per RULES).
+
+While a response is running, Enter steers eligible text into that response by default. Tab explicitly queues the current draft for a later turn. `/steer off` restores queue-only submission. Image attachments and changes to the active reasoning effort remain queued. Ctrl+X or **Send now** requests interruption and sends pending input after the old turn stops, preserving the unfinished draft. Only inputs returned by `turn/steer_dropped` are replayed. Ctrl+X keeps its normal cut behavior when text is selected; Command+X always cuts.

@@ -4106,6 +4106,8 @@ impl OctoscodeView {
                 use octoscode_store::domains::composer::RecoveryPhase;
                 fluid::ComposerExtras {
                     queued: snap.pending.len(),
+                    send_now: composer.can_send_pending_now(session),
+                    queue_draft: snap.active.is_some() && conv.as_ref().is_some_and(|c| !c.ui().lock().unwrap().draft().trim().is_empty()),
                     steer: conv.as_ref().is_some_and(|c| c.can_steer()) && composer.can_steer_now(session),
                     recovery: composer.recovery(session).map(|r| {
                         match r.phase {
@@ -4229,6 +4231,22 @@ impl OctoscodeView {
         let session = conv.session_id();
         makepad_widgets::log!("[octoscode] composer extra: {which}");
         match which {
+            "queue_draft" => {
+                rt.spawn(async move {
+                    if let Err(e) = conv.queue_composer().await {
+                        screens::toasts::failed(screens::toasts::Op::Send, &e.to_string());
+                    }
+                    SignalToUI::set_ui_signal();
+                });
+            }
+            "send_now" => {
+                rt.spawn(async move {
+                    if let Err(e) = conv.send_pending_now_in(&session).await {
+                        screens::toasts::failed(screens::toasts::Op::Stop, &e.to_string());
+                    }
+                    SignalToUI::set_ui_signal();
+                });
+            }
             "steer" => {
                 // A22 — the chip of the Session it was tapped in.
                 let s = session.clone();
@@ -5725,6 +5743,25 @@ impl OctoscodeView {
                 }
             }
         }
+        // Inspect selection BEFORE TextInput handles Ctrl+X. After a native
+        // cut the selection is empty, which would incorrectly send pending work.
+        if let Event::KeyDown(e) = event {
+            if e.key_code == KeyCode::KeyX && !e.is_repeat && e.modifiers.control
+                && !e.modifiers.logo && !e.modifiers.alt && !e.modifiers.shift {
+                let input = self.view.text_input(cx, &[live_id!(i0_composer_0)]);
+                let selection = input.selection();
+                let available = {
+                    let b = self.bridge.lock().unwrap();
+                    let u = b.ui.lock().unwrap();
+                    !u.palette_open() && b.conv.as_ref().is_some_and(|c|
+                        b.store.domains.composer.can_send_pending_now(&c.session_id()))
+                };
+                if available && input.key_focus(cx) && selection.anchor == selection.cursor {
+                    self.composer_extra_tap("send_now");
+                    return;
+                }
+            }
+        }
         self.handle_sidebar_resize(cx, event);
         self.view.handle_event(cx, event, scope);
         // A29 — a scroll in the transcript, or a press inside it, ends the
@@ -6106,6 +6143,8 @@ impl OctoscodeView {
                 // Check status / Continue without it.
                 for (id, which) in [
                     (live_id!(queue_steer_hit), "steer"),
+                    (live_id!(queue_send_now_hit), "send_now"),
+                    (live_id!(queue_draft_hit), "queue_draft"),
                     (live_id!(queue_remove_hit), "remove"),
                     (live_id!(recovery_check_hit), "check"),
                     (live_id!(recovery_continue_hit), "continue"),
@@ -6682,7 +6721,14 @@ impl OctoscodeView {
                         }
                         open_changed = true;
                     }
-                    KeyAction::ComposerSubmit => {
+                    // Handled before TextInput so selecting and cutting never
+                    // becomes an interrupt after the selection collapses.
+                    KeyAction::SendPendingNow => {}
+                    KeyAction::ComposerSubmit | KeyAction::ComposerQueue => {
+                        let queue_only = action == KeyAction::ComposerQueue;
+                        if queue_only && !self.view.text_input(cx, &[live_id!(i0_composer_0)]).key_focus(cx) {
+                            return;
+                        }
                         // :237-243 — the bare Enter sends the draft (the same
                         // production path the composer's send affordance takes).
                         // A1: and re-follows the latest turn, like the send click.
@@ -6691,7 +6737,8 @@ impl OctoscodeView {
                         match (handle, conv) {
                             (Some(handle), Some(conv)) => {
                                 handle.spawn(async move {
-                                    if let Err(e) = conv.submit_composer().await {
+                                    let result = if queue_only { conv.queue_composer().await } else { conv.submit_composer().await };
+                                    if let Err(e) = result {
                                         makepad_widgets::log!("[octoscode] submit dropped: {e}");
                                         screens::toasts::failed(screens::toasts::Op::Send, &e.to_string());
                                     }

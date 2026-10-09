@@ -1190,6 +1190,8 @@ pub struct ComposerExtras {
     pub queued: usize,
     /// "Steer now" is offered (an accepted turn runs and the server steers).
     pub steer: bool,
+    pub send_now: bool,
+    pub queue_draft: bool,
     /// The held turn's recovery phase: `checking` / `unknown` /
     /// `unavailable` / `error` (`TurnRecoveryState.phase`).
     pub recovery: Option<String>,
@@ -1215,6 +1217,16 @@ pub fn composer_extras(x: &ComposerExtras, m: &Metrics) -> String {
     }
     if let Some(phase) = &x.recovery {
         out.push_str(&recovery_notice(phase, x.queued > 0, m));
+    }
+    if x.queue_draft {
+        out.push_str(&format!("queue_draft := View{{width: Fit height: 32 flow: Overlay align: Align{{y: 0.5}}\n{}{} }}\n",
+            label("queue_draft_label", tr("Queue (Tab)"), &style(Face::Medium, 13.0, 20.0), INK, "width: Fit height: Fit"),
+            hit("queue_draft_hit", 6.0)));
+    }
+    if x.send_now {
+        out.push_str(&format!("queue_send_now := View{{width: Fit height: 32 flow: Overlay align: Align{{y: 0.5}}\n{}{} }}\n",
+            label("queue_send_now_label", tr("Send now (Ctrl+X)"), &style(Face::Medium, 13.0, 20.0), INK, "width: Fit height: Fit"),
+            hit("queue_send_now_hit", 6.0)));
     }
     if x.queued > 0 {
         out.push_str(&queue_chip(x.queued, x.steer, m));
