@@ -5746,7 +5746,7 @@ impl OctoscodeView {
         // Inspect selection BEFORE TextInput handles Ctrl+X. After a native
         // cut the selection is empty, which would incorrectly send pending work.
         if let Event::KeyDown(e) = event {
-            if e.key_code == KeyCode::KeyX && e.modifiers.control
+            if e.key_code == KeyCode::KeyX && !e.is_repeat && e.modifiers.control
                 && !e.modifiers.logo && !e.modifiers.alt && !e.modifiers.shift {
                 let input = self.view.text_input(cx, &[live_id!(i0_composer_0)]);
                 let selection = input.selection();
