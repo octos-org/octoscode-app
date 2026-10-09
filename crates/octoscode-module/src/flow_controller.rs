@@ -50,6 +50,12 @@ impl Conversation {
         text: String,
         media: Vec<crate::screens::media::TurnMedia>,
     ) -> Result<String, ClientError> {
+        self.submit_prompt_with_delivery(text, media, false).await
+    }
+
+    pub(super) async fn submit_prompt_with_delivery(
+        &self, text: String, media: Vec<crate::screens::media::TurnMedia>, queue_only: bool,
+    ) -> Result<String, ClientError> {
         let session = self.session_id();
         let turn = PromptTurn {
             turn_id: TurnId::new().0.to_string(),
@@ -58,7 +64,11 @@ impl Conversation {
             media: media.iter().map(|m| m.to_value()).collect(),
             ..Default::default()
         };
-        let admitted = self.store.domains.composer.submit(&session, turn);
+        let admitted = if queue_only || !self.can_steer() {
+            self.store.domains.composer.enqueue(&session, turn)
+        } else {
+            self.store.domains.composer.submit(&session, turn)
+        };
         if !matches!(admitted, Submit::Refused) {
             // The composer clears when the prompt is admitted (queued or
             // started); the saved draft goes with it (`draft-recovery.spec.ts`:
@@ -475,7 +485,7 @@ impl Conversation {
         methods.iter().any(|m| m == "turn/steer") && features.iter().any(|f| f == "event.turn_steer_dropped.v1")
     }
 
-    /// `/steer [on|off]`: flip / set the Session's steering opt-in and say
+    /// `/steer [on|off]`: flip / set the Session's steering preference and say
     /// what it means here (`App.tsx:2849-2858`'s field note copy).
     pub(super) fn steer_command(&self, args: &str) -> String {
         let session = self.session_id();

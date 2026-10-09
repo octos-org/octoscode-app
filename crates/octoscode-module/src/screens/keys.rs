@@ -32,6 +32,8 @@ use crate::Store;
 pub enum KeyAction {
     /// Send the draft (the composer's bare Enter).
     ComposerSubmit,
+    ComposerQueue,
+    SendPendingNow,
     /// Close the palette overlay (Esc while open).
     PaletteClose,
     /// Toggle the palette (Cmd/Ctrl+K).
@@ -94,6 +96,8 @@ pub fn resolve(
     draft_empty: bool,
 ) -> KeyAction {
     match key_code {
+        KeyCode::KeyX if ctrl && !shift && !alt && !logo && !palette_open && turn_active => KeyAction::SendPendingNow,
+        KeyCode::Tab if !ctrl && !shift && !alt && !logo && !palette_open && turn_active && !draft_empty => KeyAction::ComposerQueue,
         KeyCode::ReturnKey if !ctrl && !alt && !logo => {
             if shift {
                 // :237's `!shiftKey` guard — Shift+Enter is the newline; the

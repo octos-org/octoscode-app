@@ -2255,6 +2255,17 @@ impl Conversation {
     /// when `turn_id` is a live turn OF `session` ([`is_live_turn`]); on a
     /// mismatch nothing is sent — a Stop never reaches another Session's turn.
     pub async fn interrupt_in(&self, session: &str, turn_id: &str) -> Result<serde_json::Value, ClientError> {
+        self.interrupt_with_delivery(session, turn_id, false).await
+    }
+
+    pub async fn send_pending_now_in(&self, session: &str) -> Result<serde_json::Value, ClientError> {
+        let Some(active) = self.store.domains.composer.snapshot(session).active else {
+            return Ok(serde_json::Value::Null);
+        };
+        self.interrupt_with_delivery(session, &active.turn_id, true).await
+    }
+
+    async fn interrupt_with_delivery(&self, session: &str, turn_id: &str, send_pending: bool) -> Result<serde_json::Value, ClientError> {
         if !self.is_live_turn_of(session, turn_id) {
             makepad_widgets::log!(
                 "[octoscode] turn/interrupt not sent: {turn_id} is not a live turn of {session}"
@@ -2269,6 +2280,9 @@ impl Conversation {
         let session = session.to_owned();
         let composer = &self.store.domains.composer;
         let known = composer.snapshot(&session).active.map(|a| a.turn_id).as_deref() == Some(turn_id);
+        if send_pending && !known {
+            return Ok(serde_json::Value::Null);
+        }
         if known {
             if composer.dispatching_turn(&session).as_deref() == Some(turn_id) {
                 self.store.domains.session.timeline.upsert_notice(
@@ -2282,7 +2296,12 @@ impl Conversation {
                 makepad_widgets::SignalToUI::set_ui_signal();
                 return Ok(serde_json::Value::Null);
             }
-            if !composer.begin_interrupt(&session, turn_id) {
+            let admitted = if send_pending {
+                composer.begin_send_pending_now(&session, turn_id)
+            } else {
+                composer.begin_interrupt(&session, turn_id)
+            };
+            if !admitted {
                 return Ok(serde_json::Value::Null);
             }
         }
@@ -3001,6 +3020,14 @@ impl Conversation {
     /// turn. Returns an empty id (no turn) rather than an error: refusing an
     /// empty prompt is not a failure.
     pub async fn submit_draft(&self) -> Result<String, ClientError> {
+        self.submit_draft_with_delivery(false).await
+    }
+
+    pub async fn queue_composer(&self) -> Result<String, ClientError> {
+        self.submit_draft_with_delivery(true).await
+    }
+
+    async fn submit_draft_with_delivery(&self, queue_only: bool) -> Result<String, ClientError> {
         let text = self.ui.lock().unwrap().draft();
         if text.trim().is_empty() {
             // #32h: this was ::log::debug! + Ok — the invisible silent drop
@@ -3072,7 +3099,7 @@ impl Conversation {
             return Ok(String::new());
         }
         // A7 — `/steer [on|off]` (`intent.ts:96-108`, `set-steer`): the
-        // Session's local steering opt-in. Never sent to the model.
+        // Session's local steering preference. Never sent to the model.
         if let Some((name, args)) = crate::screens::palette::parse_command_invocation(&text) {
             if matches!(name.to_ascii_lowercase().as_str(), "steer" | "steer-mid-turn" | "steermode") {
                 let receipt = self.steer_command(&args);
@@ -3205,7 +3232,7 @@ impl Conversation {
                 return Ok(String::new());
             }
         };
-        self.submit_prompt(text, media).await
+        self.submit_prompt_with_delivery(text, media, queue_only).await
     }
 
     /// Flush the in-memory [`TraceSink`] transitions into the frame file
