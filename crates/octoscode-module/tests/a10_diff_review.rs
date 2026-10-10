@@ -177,9 +177,8 @@ fn job_of(o: Outcome) -> Job {
     }
 }
 
-/// The native entry exists before any preview does (the web hides its
-/// "Review changes" until one is announced): the dialog says so — never a
-/// blank sheet — reads nothing, and offers the server's native code review.
+/// Changes is usable before any session preview exists. Its workspace read
+/// carries the legacy session's profile and never becomes a turn preview.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn with_no_preview_changes_reads_workspace_and_preserves_turn_identity() {
     let _g = lock();
@@ -187,7 +186,7 @@ async fn with_no_preview_changes_reads_workspace_and_preserves_turn_identity() {
     let conv = connected(&server).await;
     let job = job_of(host::perform("b3.open.diff_review", 0, &conv.store));
     host::run(job, &conv).await.expect("workspace read");
-    assert_eq!(server.sent("diff/workspace/get"), vec![json!({"session_id": conv.session_id()})]);
+    assert_eq!(server.sent("diff/workspace/get"), vec![json!({"session_id": conv.session_id(), "profile_id": conv.profile()})]);
     assert!(server.sent("diff/preview/get").is_empty());
     assert!(host::state().diff.workspace);
     assert!(review::ui().preview_id.is_none(), "workspace snapshot is never announced as a turn preview");

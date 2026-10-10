@@ -205,7 +205,7 @@ pub async fn load(conv: &crate::flow::Conversation, generation: u64) -> Result<S
         }
         return Ok(format!("{method} not advertised"));
     }
-    let params = if workspace { json!({"session_id": session}) }
+    let params = if workspace { json!({"session_id": session, "profile_id": conv.profile()}) }
         else { json!({"session_id": session, "preview_id": preview_id}) };
     let reply = conv.client().request(method, params).await;
     let outcome: Result<DiffPreviewGetResult, String> = match reply {
