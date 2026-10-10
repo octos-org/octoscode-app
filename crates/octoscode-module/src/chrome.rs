@@ -758,7 +758,7 @@ script_mod! {
                             draw_svg.svg: file_resource(#(crate::chrome::icon("diff")))
                             draw_svg.preserve_viewbox: true
                         }
-                        hd_review_label := OcLabel{text: "Review" draw_text +: {text_style +: {font_size: 9.75}}}
+                        hd_review_label := OcLabel{text: "Changes" draw_text +: {text_style +: {font_size: 9.75}}}
                     }
                     review_open_hit := OcHit{draw_bg.border_radius: 9.0}
                 }
@@ -1789,7 +1789,7 @@ pub fn header_actions_fit(pane_w: f64, compact: bool, copy: Option<(&str, bool)>
     let label = |s: &str| (text_w(s, 13.0, Face::Regular) * 1.06 + 4.0).ceil();
     let pill = |text: Option<&str>| PILL_ICON + text.map_or(0.0, |t| LABEL_GAP + label(t));
     let reserve = |labelled: bool| {
-        let mut w = pill(labelled.then(|| tr("Review"))) + SPACING + pill(labelled.then(|| tr("Settings")));
+        let mut w = pill(labelled.then(|| tr("Changes"))) + SPACING + pill(labelled.then(|| tr("Settings")));
         if let Some((text, busy)) = copy {
             w += SPACING + pill((labelled || busy).then_some(text));
         }

@@ -17,7 +17,7 @@ use tokio_tungstenite::tungstenite::Message;
 
 use octoscode_module::flow::{Conversation, FlowEvent};
 use octoscode_module::screens::board3::diff_review as dr;
-use octoscode_module::screens::board3::host::{self, Dialog, Job, Outcome};
+use octoscode_module::screens::board3::host::{self, Job, Outcome};
 use octoscode_module::screens::review;
 
 const PREVIEW: &str = "01920000-0000-7000-8000-0000000000f1";
@@ -99,12 +99,13 @@ impl Server {
                                     "version": {"protocol": "octos-ui/v1alpha1", "schema_version": 1, "jsonrpc": "2.0"},
                                     "capabilities_schema_version": 1,
                                     "supported_methods": ["session/open", "session/list", "session/hydrate", "turn/start",
-                                        "turn/interrupt", "diff/preview/get", "review/start"],
+                                        "turn/interrupt", "diff/preview/get", "diff/workspace/get", "review/start"],
                                     "supported_notifications": ["turn/started", "turn/completed"],
                                     "supported_features": ["review.start.v1"]
                                 }
                             }})),
                             "session/list" => Ok(json!({"sessions": []})),
+                            "diff/workspace/get" => Ok(preview(&session, &json!("01920000-0000-7000-8000-0000000000bb"), true)),
                             "diff/preview/get" => match *answer.lock().unwrap() {
                                 Answer::Preview => Ok(preview(&session, &p["preview_id"], true)),
                                 Answer::Empty => Ok(preview(&session, &p["preview_id"], false)),
@@ -180,25 +181,54 @@ fn job_of(o: Outcome) -> Job {
 /// "Review changes" until one is announced): the dialog says so — never a
 /// blank sheet — reads nothing, and offers the server's native code review.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn with_no_preview_the_entry_says_so_and_offers_code_review() {
+async fn with_no_preview_changes_reads_workspace_and_preserves_turn_identity() {
     let _g = lock();
     let server = Server::start().await;
     let conv = connected(&server).await;
-    assert_eq!(host::perform("b3.open.diff_review", 0, &conv.store), Outcome::Done, "no preview: nothing to read");
-    assert_eq!(host::open_dialog(), Some(Dialog::DiffReview));
+    let job = job_of(host::perform("b3.open.diff_review", 0, &conv.store));
+    host::run(job, &conv).await.expect("workspace read");
+    assert_eq!(server.sent("diff/workspace/get"), vec![json!({"session_id": conv.session_id()})]);
+    assert!(server.sent("diff/preview/get").is_empty());
+    assert!(host::state().diff.workspace);
+    assert!(review::ui().preview_id.is_none(), "workspace snapshot is never announced as a turn preview");
     let d = dsl(&conv);
-    for copy in [dr::EYEBROW, dr::TITLE, dr::NO_PREVIEW_HEAD, dr::NO_PREVIEW_BODY, dr::NATIVE_REVIEW] {
-        assert!(d.contains(copy), "{copy}");
-    }
-    assert!(d.contains("b3_close_box") && d.contains("width: 28 height: 28"), "a 28 px close");
-    assert!(server.sent("diff/preview/get").is_empty(), "no read without a preview id");
-    assert_eq!(host::perform("b3.diff.refresh", 0, &conv.store), Outcome::Done, "Refresh is inert");
-    assert_eq!(
-        host::perform("b3.diff.native", 0, &conv.store),
-        Outcome::Action("dialog.open.review".into()),
-        "the Code review dialog (/review) takes over"
-    );
-    assert_eq!(host::open_dialog(), None, "one modal at a time");
+    assert!(d.contains("Workspace uncommitted changes"));
+    assert!(d.contains("src/main.rs"));
+    host::perform("b3.diff.turn", 0, &conv.store);
+    assert!(!host::state().diff.workspace);
+    assert!(dsl(&conv).contains(dr::NO_PREVIEW_BODY));
+    assert!(!dsl(&conv).contains("src/main.rs"));
+    let stale = job_of(host::perform("b3.diff.workspace", 0, &conv.store));
+    host::perform("b3.diff.turn", 0, &conv.store);
+    host::run(stale, &conv).await.expect("stale scope read discarded");
+    assert!(host::state().diff.result.is_none());
+    assert_eq!(server.sent("diff/workspace/get").len(), 1);
+    let stale = job_of(host::perform("b3.diff.workspace", 0, &conv.store));
+    let old_generation = host::state().diff.generation;
+    host::reset();
+    let fresh = job_of(host::perform("b3.open.diff_review", 0, &conv.store));
+    assert_ne!(host::state().diff.generation, old_generation);
+    host::run(stale, &conv).await.expect("reset cannot reuse a pending read identity");
+    assert!(host::state().diff.result.is_none());
+    host::run(fresh, &conv).await.expect("new open still works");
+    host::close();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn old_server_keeps_changes_entry_without_sending_unsupported_method() {
+    let _g = lock();
+    let server = Server::start().await;
+    let conv = connected(&server).await;
+    let caps = conv.store.capabilities().into_iter().filter(|c| c != "diff/workspace/get").collect();
+    conv.store.set_capabilities(caps);
+    let methods = conv.store.domains.config.supported_methods().into_iter().filter(|m| m != "diff/workspace/get").collect();
+    conv.store.domains.config.set_supported_methods(methods);
+    let job = job_of(host::perform("b3.open.diff_review", 0, &conv.store));
+    host::run(job, &conv).await.expect("unavailable state");
+    assert!(dsl(&conv).contains(dr::NO_METHOD));
+    assert!(server.sent("diff/workspace/get").is_empty());
+    assert_eq!(host::perform("b3.diff.refresh", 0, &conv.store), Outcome::Done);
+    host::close();
 }
 
 /// An announced preview (an approval's typed diff) is read ONCE through
@@ -219,13 +249,10 @@ async fn an_announced_preview_is_read_once_and_rendered_like_the_web_dialog() {
     assert_eq!(server.sent("diff/preview/get"), vec![json!({"session_id": conv.session_id(), "preview_id": PREVIEW})]);
     let d = dsl(&conv);
     for copy in [
-        dr::EYEBROW,
+        "Session change preview",
         "Add a --version flag",
         "+4",
         "−1",
-        "ready",
-        "pending_store",
-        PREVIEW,
         "src/main.rs",
         "modified",
         "@@ -10,6 +10,9 @@ fn main() {",
