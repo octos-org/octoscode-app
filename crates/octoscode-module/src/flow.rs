@@ -971,27 +971,7 @@ impl Conversation {
     /// chain still guards the session.
     pub async fn discover_solo_profile(base: &str) -> Option<String> {
         // Step 1: the solo login (anonymous) mints an admin session token.
-        let url = format!("{}/api/auth/solo", base.trim_end_matches('/'));
-        let call = reqwest::Client::new()
-            .post(&url)
-            .json(&serde_json::json!({}))
-            .send();
-        let resp = tokio::time::timeout(std::time::Duration::from_secs(15), call)
-            .await
-            .ok()?
-            .ok()?;
-        let body: serde_json::Value = tokio::time::timeout(
-            std::time::Duration::from_secs(15),
-            resp.json(),
-        )
-        .await
-        .ok()?
-        .ok()?;
-        let token = body.get("token")?.as_str()?.to_owned();
-        let solo_id = body.get("user")?.get("id")?.as_str()?.to_owned();
-        if solo_id.is_empty() {
-            return None;
-        }
+        let (token, solo_id) = Self::solo_login(base).await?;
         // Step 2 (the outer loop's device finding): an EXISTING profile can
         // still have NO runtime — turn/start dies with -32603 "No
         // ProfileRuntime registered" (the device: 'octoscode-desktop' had no
@@ -1026,6 +1006,36 @@ impl Conversation {
             }
         }
         Some(solo_id)
+    }
+
+    /// The solo login (`POST api/auth/solo`): an anonymous, loopback-only
+    /// login an `octos serve --solo` answers with a session token and its
+    /// local user. Returns `(token, user id)`; None when the server offers
+    /// no solo login (not `--solo`, not loopback, no local user yet) or the
+    /// answer is malformed. The token is a credential: never logged.
+    pub async fn solo_login(base: &str) -> Option<(String, String)> {
+        let url = format!("{}/api/auth/solo", http_base_of(base));
+        let call = reqwest::Client::new()
+            .post(&url)
+            .json(&serde_json::json!({}))
+            .send();
+        let resp = tokio::time::timeout(std::time::Duration::from_secs(15), call)
+            .await
+            .ok()?
+            .ok()?;
+        let body: serde_json::Value = tokio::time::timeout(
+            std::time::Duration::from_secs(15),
+            resp.json(),
+        )
+        .await
+        .ok()?
+        .ok()?;
+        let token = body.get("token")?.as_str()?.to_owned();
+        let solo_id = body.get("user")?.get("id")?.as_str()?.to_owned();
+        if token.is_empty() || solo_id.is_empty() {
+            return None;
+        }
+        Some((token, solo_id))
     }
 
     pub fn connect(
@@ -4364,5 +4374,62 @@ mod tests {
             "the id is profile-scoped, like the web's bindWebSessionIdToProfile; got {a:?}"
         );
         assert!(a.starts_with("dsflash:api:code-"), "OctosCode's own chat id, as the web's is web-<uuid>; got {a:?}");
+    }
+
+    /// A loopback HTTP stub: answers ONE request with `status` and `body`,
+    /// and returns the request line it saw.
+    fn one_shot_http(
+        status: &'static str,
+        body: &'static str,
+    ) -> (String, std::thread::JoinHandle<String>) {
+        use std::io::{Read, Write};
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").expect("bind");
+        let addr = listener.local_addr().expect("addr").to_string();
+        let server = std::thread::spawn(move || {
+            let (mut stream, _) = listener.accept().expect("accept");
+            let mut buf = [0u8; 4096];
+            let n = stream.read(&mut buf).unwrap_or(0);
+            let line = String::from_utf8_lossy(&buf[..n])
+                .lines()
+                .next()
+                .unwrap_or_default()
+                .to_owned();
+            let resp = format!(
+                "HTTP/1.1 {status}\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{body}",
+                body.len()
+            );
+            let _ = stream.write_all(resp.as_bytes());
+            line
+        });
+        (addr, server)
+    }
+
+    /// The solo login a tokenless connect carries: the session token and
+    /// the local user, from the HTTP origin of whatever address was typed
+    /// (here the socket URL).
+    #[tokio::test]
+    async fn the_solo_login_returns_the_session_token_and_user() {
+        let (addr, server) = one_shot_http(
+            "200 OK",
+            r#"{"token":"solo-session","user":{"id":"solotest"}}"#,
+        );
+        let got = Conversation::solo_login(&format!("ws://{addr}/api/ui-protocol/ws")).await;
+        assert_eq!(
+            got,
+            Some(("solo-session".to_owned(), "solotest".to_owned()))
+        );
+        assert_eq!(server.join().unwrap(), "POST /api/auth/solo HTTP/1.1");
+    }
+
+    /// A server without solo login (not `--solo`, not loopback): None, so the
+    /// connect keeps its empty token.
+    #[tokio::test]
+    async fn a_server_without_solo_login_gives_no_session() {
+        let (addr, server) = one_shot_http("404 Not Found", "{}");
+        assert_eq!(
+            Conversation::solo_login(&format!("http://{addr}")).await,
+            None
+        );
+        server.join().unwrap();
     }
 }

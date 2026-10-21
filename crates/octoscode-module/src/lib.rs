@@ -3340,6 +3340,23 @@ impl OctoscodeView {
                 // so the connection carries it (as the previous build's did).
                 let start = screens::launch::resolve_migration(&server, start).await;
                 let profile = start.profile();
+                // The socket refuses an empty bearer (401), so "Use local solo
+                // server" — and any connect with no token — logs in to a
+                // `--solo` server first and carries its session token. Only
+                // for this connection: it is not stored (credentials.rs keeps
+                // typed tokens); a server without solo login keeps the old
+                // empty-token attempt and its failure classification.
+                let token = if token.trim().is_empty() {
+                    match Conversation::solo_login(&server).await {
+                        Some((solo, _)) => {
+                            makepad_widgets::log!("[octoscode] connect: solo login session");
+                            solo
+                        }
+                        None => token,
+                    }
+                } else {
+                    token
+                };
                 match Conversation::connect(&server, &token, &profile, cwd.clone(), Some(waker.clone())) {
                     Ok((conv, evt_rx)) => {
                         screens::recents::set_connected_endpoint(&server);
