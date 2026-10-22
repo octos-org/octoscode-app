@@ -11,15 +11,15 @@
 #        octoscript-makepad       Octoscript-Makepad@33dea2f1, unpatched                  (tools/prepare-octoscript-makepad.sh)
 #   2. cargo build --release -p octoscode-desktop       -> target/release/octoscode (target/debug with --debug)
 # --package    also tools/package-macos.sh              -> target/macos-app/OctosCode.app + OctosCode-macos-<arch>.zip
-# --octosense  also the OctoSense-HOSTED variant (the module inside the OctoSense shell), in <work>/octosense-host:
-#              OctoSense at the pin + patches/octosense/0001-0003 (0003 wires the module into the shell, and
-#              names the renderer fork beside the host tree: octoscript-makepad-fork, Octoscript-Makepad@6881fb6c
-#              + patches/octoscript-makepad/*, tools/prepare-octoscript-makepad-fork.sh), its
-#              framework sources via OctoSense's own tools/setup.py, our makepad patches on them
-#              (scripts/apply-makepad-patches.sh), the octoscode crates and design/ vendored into apps/
-#              (as outer/scripts/hostbuild.sh does), then
-#              cargo build --release -p octosense --features app-octoscode
-#              -> <work>/octosense-host/target/release/octosense (target/debug with --debug)
+# --octosense  also the OctoSense-HOSTED variant (the module inside the OctoSense shell), in <work>/octosense:
+#              OctoSense main at its pin, unpatched (tools/prepare-octosense.sh): it links the module itself
+#              (its shell's `app-octoscode` feature). Its framework sources via its own tools/setup.py, our
+#              makepad patches on them (scripts/apply-makepad-patches.sh), its desktop octos kernel staged
+#              beside the binary (its tools/kernel-artifact.py; the first build takes minutes), then
+#              cargo build --release -p octosense --features app-octoscode --config "$MODULE_PATCH"
+#              where MODULE_PATCH is the cargo [patch] that builds the module from this checkout's
+#              crates/octoscode-module instead of the revision OctoSense pins
+#              -> <work>/octosense/target/release/octosense (target/debug with --debug)
 # --debug      unoptimized-workspace (dev profile) builds of both instead, for development only: the
 #              UI is measurably slower (A35b: the folder browser's open/navigation took 0.3-0.7 s at
 #              opt-level 0 against < 0.1 s optimized). The root Cargo.toml's dev profile optimizes the
@@ -117,14 +117,8 @@ fi
 HOST_BIN=""
 if [ "$OCTOSENSE" = 1 ]; then
   step "3/3 the OctoSense-hosted variant ($PROFILE)"
-  HOST="$WORK/octosense-host"
-  bash "$HERE/prepare-octosense-fork.sh" "$HOST"
-  # The renderer fork must sit BESIDE the host tree: patch 0003's [patch] and the vendored
-  # module's octoscript-render path name ../octoscript-makepad-fork.
-  RENDERER_FORK="$(fork_path octoscript-makepad-fork)"
-  bash "$HERE/prepare-octoscript-makepad-fork.sh" "$RENDERER_FORK"
-  RENDERER="$(dirname "$HOST")/octoscript-makepad-fork"
-  [ -d "$RENDERER/crates/octoscript-makepad" ] || die "$RENDERER is missing (it is prepared in <work>)"
+  HOST="$(fork_path octosense)"
+  bash "$HERE/prepare-octosense.sh" "$HOST"
   # OctoSense's framework checkouts (.sources: makepad + its reviewed runtime patch,
   # octoscript, octoscript-makepad), exactly as OctoSense's own README builds. setup.py
   # refuses to run over local changes, and our makepad patches below are local changes
@@ -137,19 +131,31 @@ if [ "$OCTOSENSE" = 1 ]; then
     echo "build-macos: $HOST/.sources prepared by OctoSense's tools/setup.py"
   fi
   bash "$REPO/scripts/apply-makepad-patches.sh" "$HOST/.sources" | grep -v '^sha256 '
-  # Vendor the module, client and store + design/ (outer/scripts/hostbuild.sh).
-  for c in module client store; do
-    rsync -a --delete --exclude target "$REPO/crates/octoscode-$c/" "$HOST/apps/octoscode/$c/"
-  done
-  sed -i '' 's|path = "../../.forks/octoscript-makepad-fork/|path = "../../../../octoscript-makepad-fork/|' \
-    "$HOST/apps/octoscode/module/Cargo.toml"
-  rsync -a --delete "$REPO/design/" "$HOST/apps/design/"
+  # The desktop shell runs the octos kernel staged beside its binary (OctoSense's
+  # crates/kernel/src/launch.rs: octos-kernel + its receipt, at the octos revision its
+  # Cargo.lock pins); without one the module's kernel port never answers. OctoSense's
+  # own tool builds and stages it (in its target/octos-kernel/), once per revision.
+  KERNEL_DIR="$HOST/target/$PROFILE"
+  kernel_rev="$(cd "$HOST" && python3 tools/kernel-artifact.py --host --stage "$KERNEL_DIR" --plan \
+    | python3 -c 'import json, sys; print(json.load(sys.stdin)["source"].rsplit("@", 1)[1])')"
+  staged_rev="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["revision"])' \
+    "$KERNEL_DIR/octos-kernel.json" 2>/dev/null || true)"
+  if [ -x "$KERNEL_DIR/octos-kernel" ] && [ "$staged_rev" = "$kernel_rev" ]; then
+    echo "build-macos: the octos kernel at $kernel_rev is already staged in $KERNEL_DIR"
+  else
+    (cd "$HOST" && python3 tools/kernel-artifact.py --host --stage "$KERNEL_DIR")
+  fi
+  # OctoSense depends on the module by git; build it from THIS checkout instead. Only
+  # that crate is redirected: its workspace dependencies resolve in this repository,
+  # and OctoSense's own [patch]es still give the graph one makepad and one renderer.
+  MODULE_PATCH="patch.\"https://github.com/octos-org/octoscode-app.git\".octoscode-module.path=\"$REPO/crates/octoscode-module\""
+  mkdir -p "$HOST/apps/octoscode"
   echo "$(git -C "$REPO" rev-parse --short HEAD) $(date +%Y-%m-%dT%H:%M:%S)" > "$HOST/apps/octoscode/BUILT_FROM"
   started=$(date +%s)
   if [ "$PROFILE" = release ]; then
-    (cd "$HOST" && cargo build --release -p octosense --features app-octoscode)
+    (cd "$HOST" && cargo build --release -p octosense --features app-octoscode --config "$MODULE_PATCH")
   else
-    (cd "$HOST" && cargo build -p octosense --features app-octoscode)
+    (cd "$HOST" && cargo build -p octosense --features app-octoscode --config "$MODULE_PATCH")
   fi
   HOST_BIN="$HOST/target/$PROFILE/octosense"
   [ -x "$HOST_BIN" ] || die "the host build finished but $HOST_BIN is missing"

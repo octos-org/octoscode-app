@@ -177,24 +177,23 @@ never fails with a mystery `0 pass` result.
    Pass `--no-build` to skip the auto-build and be told to run that yourself.
 
 2. **The native desktop `octosense` binary** — **external to this repo.** It is
-   the OctoSense desktop shell with the `octoscode` module linked, built from the
-   OctoSense fork (this repo's `[patch]` already points `octos-app-transport` /
-   `octos-app-store` at that fork). Point `OCTOSCODE_APP_BIN` at an existing
-   build, or make one:
+   the OctoSense desktop shell with the `octoscode` module linked, built from
+   OctoSense main, which links the module itself (`app-octoscode`);
+   `tools/build-macos.sh --octosense` builds it with this checkout's
+   `crates/octoscode-module`. Point `OCTOSCODE_APP_BIN` at an existing build, or
+   make one (idempotent):
 
    ```sh
-   tools/prepare-octosense-fork.sh            # recreate the [patch] fork (idempotent)
-   cd <fork> && python3 tools/setup.py        # framework sources (`.sources/`)
-   cd <fork> && CARGO_TARGET_DIR=$PWD/tmp/octosense-target \
-       cargo build --features app-appcard -p octosense
-   export OCTOSCODE_APP_BIN=<fork>/tmp/octosense-target/debug/octosense
+   tools/build-macos.sh --octosense --debug   # OctoSense + this checkout's module, in .forks/octosense
+   export OCTOSCODE_APP_BIN=$PWD/.forks/octosense/target/debug/octosense
    ```
 
    A prebuilt copy may already exist read-only at
    `<WORKSPACE>/p0-build/tmp/octosense-target/debug/octosense`
    (set `OCTOSCODE_APP_BIN` to that instead of rebuilding). The desktop *crate*
-   directory (`<fork>/desktop`) is derived from the binary's path; override it
-   with `OCTOSCODE_SHELL_CWD` if your layout differs. Building it takes ~12 min.
+   directory (`.forks/octosense/desktop`) is derived from the binary's path;
+   override it with `OCTOSCODE_SHELL_CWD` if your layout differs. The first
+   build takes about 20 minutes (the OctoSense desktop and its octos kernel).
 
 Environment knobs:
 

@@ -4,9 +4,9 @@
 //! fresh `git clone`, `tools/build-macos.sh --package --octosense` from an
 //! empty cargo cache, both variants built, the unzipped app run with every
 //! build tree unreadable). This suite pins the pieces that run proves, so a
-//! later edit cannot silently drop one: the fork patch stack (0003 included,
-//! its lock hunk additive), what build-macos.sh runs, what the bundle is built
-//! with, and that every script still parses.
+//! later edit cannot silently drop one: the OctoSense checkout (upstream, with
+//! the module redirected to this checkout), what build-macos.sh runs, what the
+//! bundle is built with, and that every script still parses.
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -25,8 +25,7 @@ fn every_build_script_parses() {
         "tools/check-fresh-clone-macos.sh",
         "tools/package-macos.sh",
         "tools/prepare-makepad-fork.sh",
-        "tools/prepare-octosense-fork.sh",
-        "tools/prepare-octoscript-makepad-fork.sh",
+        "tools/prepare-octosense.sh",
         "tools/prepare-octoscript-makepad.sh",
         "scripts/apply-makepad-patches.sh",
     ] {
@@ -35,51 +34,32 @@ fn every_build_script_parses() {
     }
 }
 
+/// OctoSense main links the module itself (`app-octoscode`, by git): the host
+/// is upstream at a pinned revision, unpatched, and only the module is built
+/// from this checkout, by a cargo `--config` [patch] on that git source.
 #[test]
-fn the_octosense_fork_carries_the_shell_wiring_as_patch_0003() {
-    let script = read("tools/prepare-octosense-fork.sh");
-    let order: Vec<usize> = ["0001-transport-generic-request.patch", "0002-transport-never-drop-a-reply.patch", "0003-shell-octoscode-module.patch"]
-        .iter()
-        .map(|p| script.find(&format!("patches/octosense/{p}")).unwrap_or_else(|| panic!("{p} is in the stack")))
-        .collect();
-    assert!(order.windows(2).all(|w| w[0] < w[1]), "applied in order 0001, 0002, 0003");
-    let patch = read("patches/octosense/0003-shell-octoscode-module.patch");
-    assert!(patch.starts_with("From "), "a git format-patch (the script commits its Subject and author)");
-    assert!(patch.contains("\nSubject: [PATCH] feat(shell): host the octoscode module (app-octoscode)\n"));
-    let touched: Vec<&str> = patch.lines().filter_map(|l| l.strip_prefix("+++ b/")).collect();
-    assert_eq!(
-        touched,
-        [
-            "Cargo.lock",
-            "Cargo.toml",
-            "apps/appcard/app/app/src/app/l0_eval.rs",
-            "crates/shell/Cargo.toml",
-            "crates/shell/src/apps.rs",
-            "desktop/Cargo.toml",
-            "phone/Cargo.toml",
-        ]
-    );
-    for needle in [
-        "+    \"apps/octoscode/module\",",
-        "+octoscode-module = { path = \"apps/octoscode/module\" }",
-        "+octoscript-makepad = { path = \"../octoscript-makepad-fork/crates/octoscript-makepad\" }",
-        "+app-octoscode = [\"dep:octoscode-module\", \"app-hub\", \"octos-core\"]",
-        "+    out.push(&octoscode_module::OCTOSCODE_MODULE);",
-        "+app-octoscode = [\"octosense-shell/app-octoscode\"]",
-        "+        padright: f32_prop(vm, value, id!(padright)),",
-    ] {
-        assert!(patch.contains(needle), "0003 carries {needle}");
-    }
-    // The lock hunk only ADDS entries (the three crates, the shell's new
-    // dependency): it pins no new version of anything OctoSense locks.
-    let lock = patch.split("diff --git a/Cargo.lock b/Cargo.lock").nth(1).unwrap();
-    let lock = lock.split("\ndiff --git ").next().unwrap();
+fn the_octosense_host_is_upstream_with_the_module_redirected_here() {
+    let script = read("tools/prepare-octosense.sh");
+    let pin = script
+        .lines()
+        .find_map(|l| l.strip_prefix("PIN=\""))
+        .and_then(|r| r.strip_suffix('"'))
+        .expect("prepare-octosense.sh pins a revision");
+    assert!(pin.len() == 40 && pin.chars().all(|c| c.is_ascii_hexdigit()), "a full commit id: {pin}");
+    assert!(script.contains("REMOTE=\"https://github.com/OctoSense-org/OctoSense\""));
+    assert!(!script.contains("git apply") && !script.contains("patches/"), "and patches nothing");
+    let build = read("tools/build-macos.sh");
     assert!(
-        !lock.lines().any(|l| l.starts_with('-') && !l.starts_with("---")),
-        "the Cargo.lock hunk removes nothing"
+        build.contains(
+            "MODULE_PATCH=\"patch.\\\"https://github.com/octos-org/octoscode-app.git\\\".octoscode-module.path=\\\"$REPO/crates/octoscode-module\\\"\""
+        ),
+        "the module's git source is redirected to this checkout's crate"
     );
-    for krate in ["octoscode-client", "octoscode-module", "octoscode-store"] {
-        assert!(lock.contains(&format!("+name = \"{krate}\"")), "{krate} is locked");
+    for profile in ["cargo build --release -p octosense", "cargo build -p octosense"] {
+        assert!(
+            build.contains(&format!("{profile} --features app-octoscode --config \"$MODULE_PATCH\"")),
+            "{profile} builds with the redirect"
+        );
     }
 }
 
@@ -88,18 +68,16 @@ fn build_macos_runs_every_step_of_both_variants() {
     let s = read("tools/build-macos.sh");
     for needle in [
         "prepare-makepad-fork.sh",
-        "prepare-octosense-fork.sh",
-        "prepare-octoscript-makepad-fork.sh",
+        "prepare-octosense.sh",
         "prepare-octoscript-makepad.sh",
         "cargo build -p octoscode-desktop --bin octoscode",
         "package-macos.sh",
         // --octosense: OctoSense's own setup.py, our makepad patches on its
-        // .sources, the vendored crates + design (hostbuild.sh's steps), the host.
+        // .sources, its desktop kernel staged beside the binary, the host.
         "python3 tools/setup.py",
         "scripts/apply-makepad-patches.sh\" \"$HOST/.sources\"",
-        "\"$HOST/apps/octoscode/$c/\"",
-        "s|path = \"../../.forks/octoscript-makepad-fork/|path = \"../../../../octoscript-makepad-fork/|",
-        "rsync -a --delete \"$REPO/design/\" \"$HOST/apps/design/\"",
+        "python3 tools/kernel-artifact.py --host --stage \"$KERNEL_DIR\"",
+        "\"$HOST/apps/octoscode/BUILT_FROM\"",
         "cargo build -p octosense --features app-octoscode",
         "xcode-select -p",
     ] {
@@ -147,6 +125,26 @@ fn the_default_builds_are_optimized() {
         cargo.contains("[profile.dev.package.\"*\"]\nopt-level = 3\n"),
         "the dev profile optimizes every dependency"
     );
+}
+
+/// `--package` builds the standalone app against the forks the root
+/// Cargo.toml patches, so that is what it checks for: `tools/build-macos.sh`
+/// alone prepares them (no renderer fork).
+#[test]
+fn package_macos_checks_the_forks_the_workspace_patches() {
+    let s = read("tools/package-macos.sh");
+    let cargo = read("Cargo.toml");
+    for (checked, patched) in [
+        ("makepad-fork/widgets/Cargo.toml", "path = \".forks/makepad-fork/widgets\""),
+        (
+            "octoscript-makepad/crates/octoscript-makepad/Cargo.toml",
+            "octoscript-makepad = { path = \".forks/octoscript-makepad/crates/octoscript-makepad\" }",
+        ),
+    ] {
+        assert!(s.contains(checked), "package-macos.sh checks .forks/{checked}");
+        assert!(cargo.contains(patched), "the root Cargo.toml patches it: {patched}");
+    }
+    assert!(!s.contains("octoscript-makepad-fork"), "no renderer fork");
 }
 
 #[test]
