@@ -265,6 +265,7 @@ pub(crate) async fn emit(events: &mpsc::Sender<TransportEvent>, evt: TransportEv
 fn event_kind(evt: &TransportEvent) -> &'static str {
     match evt {
         TransportEvent::ConnectionState(_) => "a connection state",
+        TransportEvent::AuthExpired => "auth_expired",
         TransportEvent::DurableNotification { .. } => "a notification",
         TransportEvent::EphemeralNotification { .. } => "a live delta",
         TransportEvent::RpcResult(_) => "a reply",

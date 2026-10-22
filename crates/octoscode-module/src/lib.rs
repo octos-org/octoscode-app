@@ -4833,6 +4833,15 @@ impl OctoscodeView {
             let b = self.bridge.lock().unwrap();
             let state = b.store.connection();
             let mut ui = b.screens.lock().unwrap();
+            // The server closed the connection with auth_expired: say so once
+            // (the transport stopped re-dialing; a probe would only repeat the
+            // refused credential).
+            if b.conv.as_ref().is_some_and(|c| c.take_auth_expired()) {
+                ui.note_connect_error(
+                    screens::a9_connect::AUTH_EXPIRED,
+                    &screens::connect::clock_12h(),
+                );
+            }
             let gave_up = state == "Failed"
                 || state
                     .strip_prefix("Reconnecting { attempt: ")

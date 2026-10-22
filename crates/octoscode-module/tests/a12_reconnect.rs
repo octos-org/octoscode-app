@@ -35,6 +35,8 @@ struct Server {
     turns: Arc<Mutex<Vec<(String, String)>>>,
     /// `session/open` requests to REFUSE with a JSON-RPC error.
     refuse_opens: Arc<Mutex<usize>>,
+    /// A kick closes with 1008 `auth_expired` instead of a plain close.
+    expire_auth: Arc<Mutex<bool>>,
 }
 
 impl Server {
@@ -51,6 +53,7 @@ impl Server {
             swallow_opens: Arc::new(Mutex::new(0)),
             turns: Arc::new(Mutex::new(Vec::new())),
             refuse_opens: Arc::new(Mutex::new(0)),
+            expire_auth: Arc::new(Mutex::new(false)),
         });
         s.serve(listener);
         s
@@ -70,6 +73,7 @@ impl Server {
                 let swallow = me.swallow_opens.clone();
                 let turns = me.turns.clone();
                 let refuse = me.refuse_opens.clone();
+                let expire = me.expire_auth.clone();
                 let mut kicked = me.kick.subscribe();
                 tokio::spawn(async move {
                     let Ok(ws) = tokio_tungstenite::accept_async(stream).await else { return };
@@ -79,7 +83,15 @@ impl Server {
                         let msg = tokio::select! {
                             m = rx.next() => m,
                             _ = kicked.recv() => {
-                                let _ = tx.lock().await.close().await;
+                                if *expire.lock().unwrap() {
+                                    let frame = tokio_tungstenite::tungstenite::protocol::CloseFrame {
+                                        code: tokio_tungstenite::tungstenite::protocol::frame::coding::CloseCode::Policy,
+                                        reason: "auth_expired".into(),
+                                    };
+                                    let _ = tx.lock().await.send(Message::Close(Some(frame))).await;
+                                } else {
+                                    let _ = tx.lock().await.close().await;
+                                }
                                 return;
                             }
                         };
@@ -543,4 +555,34 @@ async fn a_voluntary_disconnect_during_an_outage_is_final() {
     })
     .await;
     assert!(ended.is_ok(), "the event stream closed after the leave");
+}
+
+/// The server ends a live connection with 1008 `auth_expired` (a revoked
+/// session, or an identity outside the Session's scope): nothing re-dials
+/// with the refused credential, no outage is retained, and the window
+/// returns to the Connect card, which reports it once.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn an_auth_expired_close_returns_to_the_connect_card_without_a_redial() {
+    let server = Server::start().await;
+    let (conv, mut events) = connected(&server).await;
+    let sockets = *server.sockets.lock().unwrap();
+    *server.expire_auth.lock().unwrap() = true;
+    let _ = server.kick.send(());
+    assert!(
+        fold_until(&conv, &mut events, 10, |c| c.store.connection() == "Failed").await,
+        "the transport stops: {:?}",
+        conv.store.connection()
+    );
+    assert!(!conv.store.keeps_shell(), "the Connect card returns");
+    assert!(conv.store.outage().is_none(), "no outage to retain");
+    assert!(conv.take_auth_expired(), "the Connect card reports it");
+    assert!(!conv.take_auth_expired(), "once");
+    fold_until(&conv, &mut events, 3, |_| false).await;
+    assert_eq!(
+        *server.sockets.lock().unwrap(),
+        sockets,
+        "no re-dial with the refused credential"
+    );
+    assert!(!conv.store.is_live());
+    assert!(!conv.retry_now(), "nothing to retry");
 }

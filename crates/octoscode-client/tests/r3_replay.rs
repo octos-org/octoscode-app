@@ -177,6 +177,9 @@ fn record_inbound(trace: &FrameTrace, evt: &TransportEvent) {
         TransportEvent::ConnectionState(s) => {
             trace.inbound(&format!("state:{s:?}"), &serde_json::json!({}));
         }
+        TransportEvent::AuthExpired => {
+            trace.inbound("auth_expired", &serde_json::json!({}));
+        }
         TransportEvent::CapabilityNegotiated(caps) => {
             trace.inbound(
                 "capabilities",
