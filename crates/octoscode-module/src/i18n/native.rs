@@ -195,6 +195,10 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Stored for this server only", "仅为此服务器保存"),
     ("Pair with a link instead", "改用链接配对"),
     ("Use local solo server", "使用本地单人服务器"),
+    (
+        "This solo server has no local profile yet. Create one in the server's web app (/app/ on the same address), then connect again.",
+        "此单人服务器还没有本地配置档案。请先在服务器的网页应用（同一地址下的 /app/）中创建，然后重新连接。",
+    ),
     ("Last tried {value0} \u{b7}", "上次尝试 {value0} \u{b7}"),
     ("Can't reach {value0}", "无法连接 {value0}"),
     ("check the address", "检查地址"),
