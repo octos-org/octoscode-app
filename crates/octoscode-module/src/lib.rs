@@ -3342,17 +3342,33 @@ impl OctoscodeView {
                 let profile = start.profile();
                 // The socket refuses an empty bearer (401), so "Use local solo
                 // server" — and any connect with no token — logs in to a
-                // `--solo` server first and carries its session token. Only
-                // for this connection: it is not stored (credentials.rs keeps
-                // typed tokens); a server without solo login keeps the old
-                // empty-token attempt and its failure classification.
+                // loopback `--solo` server first and carries its session
+                // token. Only for this connection: it is not stored
+                // (credentials.rs keeps typed tokens); a server without solo
+                // login keeps the old empty-token attempt and its failure
+                // classification.
                 let token = if token.trim().is_empty() {
                     match Conversation::solo_login(&server).await {
-                        Some((solo, _)) => {
+                        flow::SoloLogin::Session { token: solo, .. } => {
                             makepad_widgets::log!("[octoscode] connect: solo login session");
                             solo
                         }
-                        None => token,
+                        // Nothing to log in to: dialing with no token would
+                        // only be refused as a bad token.
+                        flow::SoloLogin::NoProfile => {
+                            makepad_widgets::log!(
+                                "[octoscode] connect: the solo server has no local profile yet"
+                            );
+                            if let Ok(mut ui) = screens.lock() {
+                                ui.note_connect_error(
+                                    screens::connect::NO_SOLO_PROFILE,
+                                    &screens::connect::clock_12h(),
+                                );
+                            }
+                            waker();
+                            return;
+                        }
+                        flow::SoloLogin::Unavailable => token,
                     }
                 } else {
                     token
@@ -3500,6 +3516,9 @@ impl OctoscodeView {
                     )
                 };
                 let client = conv.client().clone();
+                // The reconnect keeps this connection's credential (a typed
+                // token or the solo login's session), not an empty one.
+                let bearer = conv.bearer();
                 let screens2 = screens.clone();
                 let store2 = store.clone();
                 rt.spawn(async move {
@@ -3515,7 +3534,7 @@ impl OctoscodeView {
                             }
                             connect_now(
                                 handle, bridge, store2, screens2, server,
-                                String::new(), screens::launch::Start::Created(out.profile_id),
+                                bearer, screens::launch::Start::Created(out.profile_id),
                             );
                         }
                         Err(e) => {

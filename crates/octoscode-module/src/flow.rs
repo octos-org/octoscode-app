@@ -952,6 +952,18 @@ pub fn http_base_of(base: &str) -> String {
     u.to_string().trim_end_matches('/').to_owned()
 }
 
+/// What a solo login ([`Conversation::solo_login`]) answered.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SoloLogin {
+    /// A session token for the local solo owner, and the owner's user id.
+    Session { token: String, user: String },
+    /// A `--solo` server with no local profile yet: nothing to log in to.
+    NoProfile,
+    /// No solo login here: not a loopback address, not a `--solo` server,
+    /// unreachable, or a malformed answer.
+    Unavailable,
+}
+
 impl Conversation {
     /// Build a conversation and spawn its transport. `waker` wakes the UI
     /// thread (makepad's `SignalToUI`) after each event is queued.
@@ -971,7 +983,13 @@ impl Conversation {
     /// chain still guards the session.
     pub async fn discover_solo_profile(base: &str) -> Option<String> {
         // Step 1: the solo login (anonymous) mints an admin session token.
-        let (token, solo_id) = Self::solo_login(base).await?;
+        let SoloLogin::Session {
+            token,
+            user: solo_id,
+        } = Self::solo_login(base).await
+        else {
+            return None;
+        };
         // Step 2 (the outer loop's device finding): an EXISTING profile can
         // still have NO runtime — turn/start dies with -32603 "No
         // ProfileRuntime registered" (the device: 'octoscode-desktop' had no
@@ -1008,34 +1026,47 @@ impl Conversation {
         Some(solo_id)
     }
 
-    /// The solo login (`POST api/auth/solo`): an anonymous, loopback-only
-    /// login an `octos serve --solo` answers with a session token and its
-    /// local user. Returns `(token, user id)`; None when the server offers
-    /// no solo login (not `--solo`, not loopback, no local user yet) or the
-    /// answer is malformed. The token is a credential: never logged.
-    pub async fn solo_login(base: &str) -> Option<(String, String)> {
-        let url = format!("{}/api/auth/solo", http_base_of(base));
+    /// The solo login (`POST api/auth/solo`): an anonymous login an
+    /// `octos serve --solo` answers for loopback requests only, with a
+    /// session token and its local user. A non-loopback address is never
+    /// asked (the server would refuse it, and an unreachable host would hold
+    /// the connect until the timeout). The token is a credential: never
+    /// logged.
+    pub async fn solo_login(base: &str) -> SoloLogin {
+        let base = http_base_of(base);
+        if octoscode_client::pairing::loopback_origin(&base).is_none() {
+            return SoloLogin::Unavailable;
+        }
         let call = reqwest::Client::new()
-            .post(&url)
+            .post(format!("{base}/api/auth/solo"))
             .json(&serde_json::json!({}))
             .send();
-        let resp = tokio::time::timeout(std::time::Duration::from_secs(15), call)
-            .await
-            .ok()?
-            .ok()?;
-        let body: serde_json::Value = tokio::time::timeout(
-            std::time::Duration::from_secs(15),
-            resp.json(),
-        )
-        .await
-        .ok()?
-        .ok()?;
-        let token = body.get("token")?.as_str()?.to_owned();
-        let solo_id = body.get("user")?.get("id")?.as_str()?.to_owned();
-        if token.is_empty() || solo_id.is_empty() {
-            return None;
+        let Ok(Ok(resp)) = tokio::time::timeout(std::time::Duration::from_secs(15), call).await
+        else {
+            return SoloLogin::Unavailable;
+        };
+        // octos-cli `solo_auth.rs`: a `--solo` server with no local owner yet
+        // answers 404 (the web's login page then shows its create form).
+        if resp.status() == reqwest::StatusCode::NOT_FOUND {
+            return SoloLogin::NoProfile;
         }
-        Some((token, solo_id))
+        let body = tokio::time::timeout(
+            std::time::Duration::from_secs(15),
+            resp.json::<serde_json::Value>(),
+        )
+        .await;
+        let Ok(Ok(body)) = body else {
+            return SoloLogin::Unavailable;
+        };
+        let field = |v: Option<&serde_json::Value>| {
+            v.and_then(|v| v.as_str()).unwrap_or_default().to_owned()
+        };
+        let token = field(body.get("token"));
+        let user = field(body.get("user").and_then(|u| u.get("id")));
+        if token.is_empty() || user.is_empty() {
+            return SoloLogin::Unavailable;
+        }
+        SoloLogin::Session { token, user }
     }
 
     pub fn connect(
@@ -4416,20 +4447,48 @@ mod tests {
         let got = Conversation::solo_login(&format!("ws://{addr}/api/ui-protocol/ws")).await;
         assert_eq!(
             got,
-            Some(("solo-session".to_owned(), "solotest".to_owned()))
+            SoloLogin::Session {
+                token: "solo-session".to_owned(),
+                user: "solotest".to_owned(),
+            }
         );
         assert_eq!(server.join().unwrap(), "POST /api/auth/solo HTTP/1.1");
     }
 
-    /// A server without solo login (not `--solo`, not loopback): None, so the
-    /// connect keeps its empty token.
+    /// A `--solo` server with no local owner yet answers 404: the connect
+    /// says so instead of dialing with an empty token.
     #[tokio::test]
-    async fn a_server_without_solo_login_gives_no_session() {
+    async fn a_solo_server_without_a_profile_answers_no_profile() {
         let (addr, server) = one_shot_http("404 Not Found", "{}");
         assert_eq!(
             Conversation::solo_login(&format!("http://{addr}")).await,
-            None
+            SoloLogin::NoProfile
         );
         server.join().unwrap();
+    }
+
+    /// A server that refuses the solo login (not `--solo`): no session, so
+    /// the connect keeps its empty token.
+    #[tokio::test]
+    async fn a_refused_solo_login_is_unavailable() {
+        let (addr, server) = one_shot_http("403 Forbidden", "{}");
+        assert_eq!(
+            Conversation::solo_login(&format!("http://{addr}")).await,
+            SoloLogin::Unavailable
+        );
+        server.join().unwrap();
+    }
+
+    /// A non-loopback address is never asked: the server only honours a
+    /// loopback solo login, and an unreachable host would hold the connect
+    /// until the timeout (192.0.2.1 is TEST-NET-1, it never answers).
+    #[tokio::test]
+    async fn a_remote_address_is_not_asked() {
+        let started = std::time::Instant::now();
+        assert_eq!(
+            Conversation::solo_login("http://192.0.2.1:50190").await,
+            SoloLogin::Unavailable
+        );
+        assert!(started.elapsed() < std::time::Duration::from_secs(1));
     }
 }
