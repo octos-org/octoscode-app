@@ -41,6 +41,12 @@ pub enum Verdict {
     Inconclusive,
 }
 
+/// The Connect card's line when the server closed the socket with
+/// `auth_expired` ([`crate::flow::Conversation::take_auth_expired`]): the
+/// credential this connection carried is no longer accepted.
+pub const AUTH_EXPIRED: &str =
+    "The server no longer accepts this connection's credentials. Connect again, or check your token.";
+
 /// The raw error the verdict stands for (classified by `connect::failure_for`).
 pub fn raw_error(v: Verdict) -> &'static str {
     match v {

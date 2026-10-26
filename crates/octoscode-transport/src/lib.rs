@@ -167,6 +167,12 @@ pub enum OutboundCommand {
 pub enum TransportEvent {
     /// Connection state machine transition.
     ConnectionState(ConnectionState),
+    /// The server closed the socket with 1008 `auth_expired`: the bearer is
+    /// no longer accepted for this connection (a revoked or expired session,
+    /// or an identity outside the requested Session's scope). Re-dialing
+    /// with the same credential cannot succeed, so the transport stops; this
+    /// event precedes its `ConnectionState(Failed)`.
+    AuthExpired,
     /// Durable, cursor-bearing notification (W01 § "Ephemeral vs durable
     /// routing"). The store treats these as commits.
     DurableNotification {

@@ -784,6 +784,14 @@ pub struct Conversation {
     /// A12 — the outage's attempt count before the current transport
     /// started (each transport counts its own re-dials from 1).
     attempt_base: Mutex<u32>,
+    /// The server closed the socket with `auth_expired`
+    /// ([`TransportEvent::AuthExpired`]): the transport stopped, and nothing
+    /// re-dials with the refused credential. The Connect card reads it once
+    /// ([`Conversation::take_auth_expired`]).
+    auth_expired: std::sync::atomic::AtomicBool,
+    /// Whether the Connect card already reported `auth_expired` (a separate
+    /// flag: the link's no-re-dial decision must keep reading the first).
+    auth_expired_reported: std::sync::atomic::AtomicBool,
     /// A15 — the last turn edge (`<turn>:start|end`) that re-listed the
     /// catalog (a turn's end arrives both bare and as an envelope).
     catalog_edge: Mutex<Option<String>>,
@@ -1197,6 +1205,8 @@ impl Conversation {
                 transport_suspended: Mutex::new(false),
                 link,
                 attempt_base: Mutex::new(0),
+                auth_expired: std::sync::atomic::AtomicBool::new(false),
+                auth_expired_reported: std::sync::atomic::AtomicBool::new(false),
                 catalog_edge: Mutex::new(None),
                 remember_opens: Mutex::new(false),
                 open_watch: Mutex::new(None),
@@ -2827,6 +2837,12 @@ impl Conversation {
                     conn.note_outage(&self.http_base, None, false);
                 }
             }
+            (C::Failed, _) if self.auth_expired.load(std::sync::atomic::Ordering::SeqCst) => {
+                // A fresh transport would carry the same refused credential:
+                // no outage to retain, the window returns to the Connect card.
+                conn.end_outage();
+                self.link.mark_dead();
+            }
             (C::Failed, _) => {
                 if conn.ever_live() && conn.note_outage(&self.http_base, None, false) {
                     // Retained: a fresh transport keeps re-dialing (its own
@@ -2845,6 +2861,13 @@ impl Conversation {
             }
             _ => {}
         }
+    }
+
+    /// Whether the server ended this connection with `auth_expired`, once:
+    /// the Connect card reports it a single time.
+    pub fn take_auth_expired(&self) -> bool {
+        use std::sync::atomic::Ordering::SeqCst;
+        self.auth_expired.load(SeqCst) && !self.auth_expired_reported.swap(true, SeqCst)
     }
 
     /// A12 — the banner's "Retry now": re-dial at once instead of waiting
@@ -3342,6 +3365,15 @@ impl Conversation {
 
     fn dispatch(&self, evt: &TransportEvent) -> FlowEvent {
         match evt {
+            TransportEvent::AuthExpired => {
+                self.auth_expired
+                    .store(true, std::sync::atomic::Ordering::SeqCst);
+                makepad_widgets::log!(
+                    "[octoscode] link: {} closed the connection (auth_expired)",
+                    self.http_base
+                );
+                FlowEvent::Other("auth_expired".to_owned())
+            }
             TransportEvent::ConnectionState(s) => {
                 // A12 — a voluntary leave (Disconnect / Forget / a confirmed
                 // stop: the store reads Offline) is final for this
@@ -4186,6 +4218,7 @@ fn trace_params(evt: &TransportEvent) -> serde_json::Value {
 fn trace_method(evt: &TransportEvent) -> String {
     match evt {
         TransportEvent::ConnectionState(s) => format!("state:{s:?}"),
+        TransportEvent::AuthExpired => "auth_expired".to_owned(),
         TransportEvent::CapabilityNegotiated(_) => "capabilities".to_owned(),
         TransportEvent::RpcResult(LifecycleResult::SessionOpen(_)) => "session/open".to_owned(),
         TransportEvent::RpcResult(LifecycleResult::TurnStart(_)) => "turn/start".to_owned(),

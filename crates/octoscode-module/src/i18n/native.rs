@@ -223,6 +223,10 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
         "请确认服务器正在运行。如需认证，请在上方输入其令牌。",
     ),
     ("Check that your server is running and your token is current.", "请确认服务器正在运行且令牌仍然有效。"),
+    (
+        "The server no longer accepts this connection's credentials. Connect again, or check your token.",
+        "服务器已不再接受此连接的凭据。请重新连接，或检查令牌。",
+    ),
     ("Connect to a server first.", "请先连接服务器。"),
     // ---- board 1: pairing (screens/pairing.rs, screens/board1.rs)
     ("Pair with Octos", "与 Octos 配对"),
