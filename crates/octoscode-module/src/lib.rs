@@ -2209,6 +2209,16 @@ impl OctoscodeView {
                     // session-defaults.ts:5-7) — the same `new_chat` path the
                     // router's `session.new` takes, scoped by the group's path.
                     let conv = { self.bridge.lock().unwrap().conv.clone() };
+                    // #19 — this workspace's active chat is still empty: it
+                    // stays, focused. Another workspace's gets a new chat.
+                    if let Some(id) = conv
+                        .as_ref()
+                        .and_then(|c| c.empty_chat_to_keep(flow::NewChatScope::Workspace(path.as_deref())))
+                    {
+                        makepad_widgets::log!("[octoscode] new chat in {workspace}: kept the empty chat {id}");
+                        self.focus_composer(cx);
+                        return;
+                    }
                     if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                         rt.spawn(async move {
                             // A8 — a workspace launch resolves first when advertised.
@@ -2578,6 +2588,13 @@ impl OctoscodeView {
             // Card #14 defect 4: "New chat" mints a FRESH session id, so a new
             // chat never reuses the previous run's context.
             actions::Effect::NewChat => {
+                // #19 — the active chat is still empty: it stays, focused,
+                // instead of another empty chat piling up in the sidebar.
+                if let Some(id) = conv.empty_chat_to_keep(flow::NewChatScope::Any) {
+                    makepad_widgets::log!("[octoscode] new chat: kept the empty chat {id}");
+                    self.focus_composer(cx);
+                    return;
+                }
                 let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
                 rt.spawn(async move {
                     match conv.new_chat(cwd).await {
@@ -5052,6 +5069,15 @@ impl OctoscodeView {
         self.composer_seats = Some(want);
         // A13: the room splits by what the two live labels need.
         self.apply_composer_fit(cx);
+    }
+
+    /// #19 — a New chat that kept the empty chat puts the person in its
+    /// composer, the caret after anything already there.
+    fn focus_composer(&mut self, cx: &mut Cx) {
+        let input = self.view.text_input(cx, &[live_id!(composer_splash), live_id!(i0_composer_0)]);
+        input.take_key_focus(cx);
+        let index = input.text().len();
+        input.set_cursor(cx, makepad_widgets::text::selection::Cursor { index, prefer_next_row: false }, false);
     }
 
     /// Give the focus and the caret back to a re-mounted composer once its
