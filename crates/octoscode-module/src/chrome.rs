@@ -483,10 +483,11 @@ script_mod! {
                 }
                 // #18 — the explicit confirmation in place of the row (and
                 // "Deleting…" while it runs); the title stays so the chat
-                // being deleted is never in doubt.
+                // being deleted is never in doubt. Its left inset is the
+                // body's 6 + the 16 px status box + 6, so the title stays put.
                 sb_r_ask := View{
                     width: Fill height: Fill flow: Right spacing: 4 align: Align{y: 0.5}
-                    padding: Inset{left: 6 right: 4} visible: false
+                    padding: Inset{left: 28 right: 4} visible: false
                     sb_r_ask_title := OcMuted{
                         width: Fill text: ""
                         max_lines: 1 text_overflow: TextOverflow.Ellipsis
