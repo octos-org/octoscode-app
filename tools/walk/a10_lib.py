@@ -540,6 +540,8 @@ def run_session(walk_fn, *, mode: str, outdir: str, port: int | None = None, rep
         # A19: the remembered profile/Session/workspace per server origin.
         "OCTOSCODE_CONNECTION_FILE": str(iso / "connection-v1.json"),
         "OCTOSCODE_DISPLAY_PREFS_PATH": str(iso / "display-v1.json"),
+        # The Flow tab: where the person dragged its cards.
+        "OCTOSCODE_FLOW_LAYOUT_FILE": str(iso / "flow-layout-v1.json"),
     })
     if replay_port:
         bin_ = pathlib.Path(os.environ.get("CARGO_TARGET_DIR") or (ROOT / "target")) / "debug" / "examples" / "replay_serve"

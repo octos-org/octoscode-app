@@ -763,6 +763,23 @@ script_mod! {
                         }
                         hd_tab_traj_hit := OcHit{draw_bg.border_radius: 6.0}
                     }
+                    // The Flow: the session and the work it sent out, as a
+                    // graph (`screens::flow_graph`), while there is any.
+                    hd_tab_flow := View{
+                        width: Fit height: Fill flow: Overlay visible: false
+                        hd_tab_flow_pad := View{
+                            width: Fit height: Fill flow: Right align: Align{y: 0.5}
+                            padding: Inset{left: 10 right: 10}
+                            hd_tab_flow_on := OcLabel{text: "Flow" visible: false draw_text +: {text_style +: {font_size: 9.75}}}
+                            hd_tab_flow_off := OcMuted{text: "Flow" draw_text +: {text_style +: {font_size: 9.75}}}
+                        }
+                        hd_tab_flow_barpad := View{
+                            width: Fill height: Fill flow: Down align: Align{y: 1.0}
+                            padding: Inset{left: 9 right: 9}
+                            hd_tab_flow_bar := RoundedView{width: Fill height: 2 visible: false draw_bg +: {color: #2F6FEB border_radius: 1.0}}
+                        }
+                        hd_tab_flow_hit := OcHit{draw_bg.border_radius: 6.0}
+                    }
                 }
             }
             hd_actions := View{
@@ -1837,7 +1854,7 @@ pub const HEADER_TITLE_MIN: f64 = 140.0;
 /// "Trajectory" and the title was gone. `copy`: the copy pill's label when it
 /// shows, and whether its phase is not idle (that short word — "Copied",
 /// "Copy failed" — stays beside the icon: the click's only feedback).
-pub fn header_actions_fit(pane_w: f64, compact: bool, copy: Option<(&str, bool)>, tabs: bool) -> (f64, bool) {
+pub fn header_actions_fit(pane_w: f64, compact: bool, copy: Option<(&str, bool)>, tabs: &[&str]) -> (f64, bool) {
     use crate::screens::board3::ui::{text_w, Face};
     // A pill: padding 10 + the 14 px icon + padding 12, then 6 + its label.
     const PILL_ICON: f64 = 36.0;
@@ -1854,19 +1871,49 @@ pub fn header_actions_fit(pane_w: f64, compact: bool, copy: Option<(&str, bool)>
         }
         w + EDGE
     };
-    let tabs_w = if tabs { header_tabs_w(false) } else { 0.0 };
+    let tabs_w = if tabs.is_empty() { 0.0 } else { header_tabs_w(false, tabs) };
     let labelled = !compact && pane_w >= 12.0 + HEADER_TITLE_MIN + tabs_w + reserve(true);
     (reserve(labelled).ceil(), labelled)
 }
 
-/// The view tabs' width ("Chat | Trajectory"): 10 px padding beside labelled
-/// pills, the phone's 4 px once the pills go icon-only (the tabs' padding
-/// gives way before the session title does).
-pub fn header_tabs_w(narrow: bool) -> f64 {
+/// The view tabs' width (the labels shown, e.g. "Chat | Trajectory"): 10 px
+/// padding beside labelled pills, the phone's 4 px once the pills go
+/// icon-only (the tabs' padding gives way before the session title does).
+pub fn header_tabs_w(narrow: bool, tabs: &[&str]) -> f64 {
     use crate::screens::board3::ui::{text_w, Face};
     let label = |s: &str| (text_w(s, 13.0, Face::Regular) * 1.06 + 4.0).ceil();
     let pad = if narrow { 4.0 } else { 10.0 };
-    2.0 * 2.0 * pad + 2.0 + label(tr("Chat")) + label(tr("Trajectory"))
+    let n = tabs.len() as f64;
+    n * 2.0 * pad + 2.0 * (n - 1.0).max(0.0) + tabs.iter().map(|t| label(t)).sum::<f64>()
+}
+
+/// The session title's least room beside the view tabs and the header
+/// actions at rest (the guard
+/// `the_header_actions_never_cover_the_tabs_or_the_title` holds every tab set
+/// the header shows to it).
+pub const HEADER_TITLE_KEEP: f64 = 120.0;
+
+/// Whether the header holds `tabs` beside [`HEADER_TITLE_KEEP`] and the
+/// actions at rest (`copy`: the copy pill's idle word, when offered). The
+/// Flow tab is offered only then, so a third tab never squeezes the title.
+pub fn header_holds_tabs(pane_w: f64, compact: bool, copy: Option<&str>, tabs: &[&str]) -> bool {
+    let (reserve, labelled) = header_actions_fit(pane_w, compact, copy.map(|c| (c, false)), tabs);
+    pane_w - 12.0 - header_tabs_w(compact || !labelled, tabs) - reserve >= HEADER_TITLE_KEEP
+}
+
+/// The labels of the view tabs shown now (empty: no tab strip).
+pub fn header_tab_labels<W: Find>(view: &W, cx: &mut Cx) -> Vec<&'static str> {
+    if !view.find(cx, ids!(hd_tabs)).visible() {
+        return Vec::new();
+    }
+    let mut out = vec![tr("Chat")];
+    if view.find(cx, ids!(hd_tab_traj)).visible() {
+        out.push(tr("Trajectory"));
+    }
+    if view.find(cx, ids!(hd_tab_flow)).visible() {
+        out.push(tr("Flow"));
+    }
+    out
 }
 
 /// Whether a screen name docks into `screen_dock` (#D2a's root cause: the
@@ -1908,7 +1955,7 @@ pub struct ChromeRuntime {
 
 /// A24 — the NAMED shell labels whose DSL text is static copy (code never
 /// sets them); anonymous labels are static by construction.
-pub fn static_named() -> [LiveId; 9] {
+pub fn static_named() -> [LiveId; 11] {
     [
         // The Settings nav cells' labels (`OcNavCell{… nv_label +: {text: …}}`).
         live_id!(nv_label),
@@ -1916,6 +1963,8 @@ pub fn static_named() -> [LiveId; 9] {
         live_id!(hd_tab_chat_off),
         live_id!(hd_tab_traj_on),
         live_id!(hd_tab_traj_off),
+        live_id!(hd_tab_flow_on),
+        live_id!(hd_tab_flow_off),
         live_id!(hd_review_label),
         live_id!(hd_settings_label),
         live_id!(fleet_nav_label),
@@ -2285,9 +2334,9 @@ impl ChromeRuntime {
         let copy_phase = copy_offered
             .then(|| crate::screens::copy_button::phase(&store.active_session().unwrap_or_default()));
         let copy_pill = copy_phase.map(|p| (tr(p.label()), p != crate::screens::copy_button::Phase::Idle));
-        let tabs_shown = header.widget(cx, ids!(hd_tabs)).visible();
+        let tabs_shown = header_tab_labels(&header, cx);
         let (left_pad, labelled) =
-            header_actions_fit(crate::conv_layout::current().pane_w, compact, copy_pill, tabs_shown);
+            header_actions_fit(crate::conv_layout::current().pane_w, compact, copy_pill, &tabs_shown);
         let key = format!("{sidebar_w}|{frame_margin}|{max_w}|{max_h}|{compact}|{copy_offered}|{left_pad}");
         if self.applied != key {
             self.applied = key;
@@ -2340,9 +2389,13 @@ impl ChromeRuntime {
             script_apply_eval!(cx, v, { padding: #(tab) });
             let mut v = header.widget(cx, ids!(hd_tab_traj_pad));
             script_apply_eval!(cx, v, { padding: #(tab) });
+            let mut v = header.widget(cx, ids!(hd_tab_flow_pad));
+            script_apply_eval!(cx, v, { padding: #(tab) });
             let mut v = header.widget(cx, ids!(hd_tab_chat_barpad));
             script_apply_eval!(cx, v, { padding: #(bar) });
             let mut v = header.widget(cx, ids!(hd_tab_traj_barpad));
+            script_apply_eval!(cx, v, { padding: #(bar) });
+            let mut v = header.widget(cx, ids!(hd_tab_flow_barpad));
             script_apply_eval!(cx, v, { padding: #(bar) });
         }
         show(cx, &header, ids!(hd_review_label), labelled);
@@ -3114,22 +3167,76 @@ mod tests {
         // "Trajectory" and the session title was gone; at 569 px the title had
         // 37 px (tools/walk/sidebar_resize_walk.py).
         // 420 px: the narrowest pane the sidebar's bound leaves.
-        for pane in [420.0, 469.0, 520.0, 569.0, 640.0, 709.0, 900.0, 1200.0] {
-            for copy in [Some(("Copy as Markdown", false)), Some(("Copied", true)), None] {
-                let (reserve, labelled) = header_actions_fit(pane, false, copy, true);
-                let title = pane - 12.0 - header_tabs_w(!labelled) - reserve;
-                // A copy result's word shows for 1.5 s beside the icon: the
-                // title gives way meanwhile, never the tabs.
-                let need = if copy.is_some_and(|(_, busy)| busy) { 60.0 } else { 120.0 };
-                assert!(
-                    title >= need,
-                    "a {pane} px pane leaves the title {title} px (reserve {reserve}, labelled {labelled}, copy {copy:?})"
-                );
+        // The Flow tab may join them: two or three tabs. The Flow tab is
+        // offered only where the header holds it at rest
+        // (`header_holds_tabs`); every set shown keeps the title its room.
+        let sets: [&[&str]; 3] = [
+            &["Chat", "Trajectory"],
+            &["Chat", "Flow"],
+            &["Chat", "Trajectory", "Flow"],
+        ];
+        for tabs in sets {
+            for pane in [420.0, 469.0, 520.0, 569.0, 640.0, 709.0, 900.0, 1200.0] {
+                for copy in [
+                    Some(("Copy as Markdown", false)),
+                    Some(("Copied", true)),
+                    None,
+                ] {
+                    let idle = copy.map(|_| "Copy as Markdown");
+                    if tabs.contains(&"Flow") && !header_holds_tabs(pane, false, idle, tabs) {
+                        continue;
+                    }
+                    let (reserve, labelled) = header_actions_fit(pane, false, copy, tabs);
+                    let title = pane - 12.0 - header_tabs_w(!labelled, tabs) - reserve;
+                    // A copy result's word shows for 1.5 s beside the icon: the
+                    // title gives way meanwhile, never the tabs.
+                    let need = if copy.is_some_and(|(_, busy)| busy) {
+                        60.0
+                    } else {
+                        HEADER_TITLE_KEEP
+                    };
+                    assert!(
+                        title >= need,
+                        "a {pane} px pane leaves the title {title} px (reserve {reserve}, labelled {labelled}, copy {copy:?}, tabs {tabs:?})"
+                    );
+                }
             }
         }
+        // Two tabs always fit; the third gives way only at the narrowest pane
+        // with the copy pill (420 px: the title would keep 90 px).
+        for pane in [420.0, 469.0, 520.0, 569.0, 640.0, 709.0, 900.0, 1200.0] {
+            for tabs in [&["Chat", "Trajectory"][..], &["Chat", "Flow"][..]] {
+                assert!(
+                    header_holds_tabs(pane, false, Some("Copy as Markdown"), tabs),
+                    "{pane} {tabs:?}"
+                );
+            }
+            let three = ["Chat", "Trajectory", "Flow"];
+            assert_eq!(
+                header_holds_tabs(pane, false, Some("Copy as Markdown"), &three),
+                pane > 420.0,
+                "{pane}"
+            );
+            assert!(
+                header_holds_tabs(pane, false, None, &three),
+                "{pane} without the copy pill"
+            );
+        }
+        // The width of two tabs is what it was before the Flow tab existed.
+        let two = ["Chat", "Trajectory"];
+        let label = |s: &str| {
+            (crate::screens::board3::ui::text_w(s, 13.0, crate::screens::board3::ui::Face::Regular)
+                * 1.06
+                + 4.0)
+                .ceil()
+        };
+        assert_eq!(
+            header_tabs_w(false, &two),
+            2.0 * 2.0 * 10.0 + 2.0 + label("Chat") + label("Trajectory")
+        );
         // A wide pane keeps every label; the phone stays icon-only.
-        assert!(header_actions_fit(1200.0, false, Some(("Copy as Markdown", false)), true).1);
-        assert_eq!(header_actions_fit(360.0, true, None, true), (104.0, false));
+        assert!(header_actions_fit(1200.0, false, Some(("Copy as Markdown", false)), &two).1);
+        assert_eq!(header_actions_fit(360.0, true, None, &two), (104.0, false));
     }
 
     /// A25 — GeneralSettingsContent.tsx:213-247 on board 2's toggle.

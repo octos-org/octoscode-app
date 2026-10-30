@@ -48,6 +48,8 @@ pub mod bindings;
 pub mod cards;
 // A7: the highlighted code block body widget.
 pub mod code_view;
+// The Flow tab's canvas (adapted from OctoBuddy's flow canvas).
+pub mod flow_canvas;
 // A3: the board-2 chrome (sidebar body, header, Settings, Stop confirm).
 pub mod chrome;
 pub mod components;
@@ -229,6 +231,31 @@ script_mod! {
                     width: Fill height: Fill flow: Down
                     visible: false
                     traj_splash := Splash { width: Fill height: Fill }
+                }
+                // The Flow tab replaces the transcript (and the composer)
+                // while chosen: the session and the work it sent out, as
+                // cards on a canvas (`screens::flow_graph`, `flow_canvas`).
+                flow_view := View {
+                    width: Fill height: Fill flow: Overlay
+                    visible: false
+                    flow_canvas := mod.widgets.OcFlowCanvas {
+                        Session := mod.widgets.OcFlowCard {}
+                        SessionLit := mod.widgets.OcFlowCardLit {}
+                        Working := mod.widgets.OcFlowCardWorking {}
+                        Waiting := mod.widgets.OcFlowCardWaiting {}
+                        Failed := mod.widgets.OcFlowCardFailed {}
+                        Done := mod.widgets.OcFlowCardDone {}
+                        Idle := mod.widgets.OcFlowCard {}
+                        Agent := mod.widgets.OcFlowCardAgent {}
+                    }
+                    View {
+                        width: Fill height: Fit padding: Inset{left: 14 top: 12}
+                        flow_hint := Label {
+                            width: Fit height: Fit padding: 0 text: ""
+                            draw_text.color: theme.color_text_muted
+                            draw_text.text_style: theme.oc_text_row{font_size: 8.5}
+                        }
+                    }
                 }
                 // A1: the composer dock — the fluid `composer` component
                 // (fluid.rs) centered at the web's composer width, its side
@@ -7007,6 +7034,9 @@ pub fn register_widgets(vm: &mut ScriptVm) {
     chrome::script_mod(vm);
     // A7: `A7CodeLines` (the highlighted code body) before any row names it.
     code_view::script_mod(vm);
+    // The Flow tab's canvas and card templates (after chrome: they use its
+    // text styles).
+    flow_canvas::script_mod(vm);
     // A28: the diff review's code-run templates (`B3DiffCode`, `B3DiffNum`).
     screens::board3::diff_review::script_mod(vm);
     script_mod(vm);
