@@ -60,29 +60,49 @@ impl crate::OctoscodeView {
             }
         };
 
-        // 1. The header's "Chat | Trajectory" tabs.
+        // 1. The header's "Chat | Trajectory | Flow" tabs (each of the last
+        // two while it has something to show).
         let tabs = sf::tabs_available(&store);
         let traj = sf::showing_trajectory(&store);
-        self.view.widget(cx, ids!(hd_tabs)).set_visible(cx, tabs);
+        let flow = sf::showing_flow(&store);
+        let chat = !traj && !flow;
+        // #21: the tabs are looked up in the header, which no remount in the
+        // conversation column climbs through (as `ChromeRuntime::sync`).
+        let header = self.view.widget(cx, ids!(oc_header));
+        header.widget(cx, ids!(hd_tabs)).set_visible(cx, tabs);
+        header
+            .widget(cx, ids!(hd_tab_traj))
+            .set_visible(cx, sf::trajectory_available(&store));
+        header
+            .widget(cx, ids!(hd_tab_flow))
+            .set_visible(cx, sf::flow_available(&store));
         for (id, on) in [
-            (live_id!(hd_tab_chat_on), !traj),
-            (live_id!(hd_tab_chat_off), traj),
-            (live_id!(hd_tab_chat_bar), !traj),
+            (live_id!(hd_tab_chat_on), chat),
+            (live_id!(hd_tab_chat_off), !chat),
+            (live_id!(hd_tab_chat_bar), chat),
             (live_id!(hd_tab_traj_on), traj),
             (live_id!(hd_tab_traj_off), !traj),
             (live_id!(hd_tab_traj_bar), traj),
+            (live_id!(hd_tab_flow_on), flow),
+            (live_id!(hd_tab_flow_off), !flow),
+            (live_id!(hd_tab_flow_bar), flow),
         ] {
-            self.view.widget(cx, &[id]).set_visible(cx, on);
+            header.widget(cx, &[id]).set_visible(cx, on);
         }
 
-        // 2. The Trajectory replaces the transcript and the composer.
-        self.view.widget(cx, ids!(conversation_inner)).set_visible(cx, !traj);
+        // 2. The Trajectory or the Flow replaces the transcript and the
+        // composer.
+        self.view.widget(cx, ids!(conversation_inner)).set_visible(cx, chat);
         self.view.widget(cx, ids!(traj_view)).set_visible(cx, traj);
+        self.view.widget(cx, ids!(flow_view)).set_visible(cx, flow);
+        if flow {
+            self.sync_flow(cx, &store);
+        }
         // A10 — the Fleet pane replaces the chat area, composer included
         // (`sync_board3` hides it; this sync must not show it again).
         let fleet_open =
             crate::screens::board3::host::open_dialog() == Some(crate::screens::board3::host::Dialog::Fleet);
-        self.view.widget(cx, ids!(composer_dock)).set_visible(cx, !traj && !fleet_open);
+        self.view.widget(cx, ids!(composer_dock)).set_visible(cx, chat && !fleet_open);
         let traj_dsl = sf::lower_trajectory(&store, m.pane_w, phone).map(|l| l.dsl).unwrap_or_default();
         let splash = self.view.splash(cx, ids!(traj_splash));
         match self.mounts.mount(cx, &splash, &quiet(&traj_dsl)) {
@@ -259,6 +279,12 @@ impl crate::OctoscodeView {
             if self.view.button(cx, ids!(hd_tab_traj_hit)).clicked(actions) {
                 self.perform_action(cx, "cv.tab.trajectory", 0);
             }
+            if self.view.button(cx, ids!(hd_tab_flow_hit)).clicked(actions) {
+                self.perform_action(cx, "cv.tab.flow", 0);
+            }
+        }
+        if self.view.widget(cx, ids!(flow_view)).visible() {
+            self.flow_actions(cx, actions);
         }
     }
 

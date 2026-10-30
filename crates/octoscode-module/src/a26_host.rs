@@ -34,6 +34,7 @@ impl OctoscodeView {
             vm.with_reload(|vm| {
                 crate::chrome::script_mod(vm);
                 crate::code_view::script_mod(vm);
+                crate::flow_canvas::script_mod(vm);
                 crate::script_mod(vm);
             });
             let value = script_eval!(vm, {
