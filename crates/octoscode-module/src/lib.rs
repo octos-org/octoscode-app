@@ -272,8 +272,16 @@ script_mod! {
                     // A4 — board-3 screen 8: the session strip (model · state ·
                     // permissions) above the composer (SessionStatusStrip.tsx,
                     // the web's composer footer, App.tsx:2963-2982).
+                    // #21: a widget-tree search barrier (A35b's board-1
+                    // dock). A turn's start and end REMOUNT the strip, and a
+                    // remount drops the path cache of every ancestor up to
+                    // the first barrier: without one, the module root's
+                    // ~290 per-event lookups each walked the whole tree again
+                    // (measured: 218k nodes, ~35 ms per Signal). Its splash
+                    // and tap are looked up FROM the row (`strip_row_ref`).
                     strip_row := View {
                         width: Fill height: Fit
+                        skip_widget_tree_search: true
                         strip_splash := Splash { width: Fill height: Fit }
                     }
                     // A7 — above the composer card: the turn recovery notice,
@@ -3289,6 +3297,12 @@ impl OctoscodeView {
         self.view.widget(cx, ids!(board1_dock))
     }
 
+    /// #21: the session strip's row, a widget-tree search barrier (see its
+    /// DSL): the module root finds the row itself, never the strip inside.
+    fn strip_row_ref(&self, cx: &Cx) -> WidgetRef {
+        self.view.widget(cx, ids!(strip_row))
+    }
+
     /// #29a: run one board-2 screen action (`screens::connect::ACTIONS`).
     /// `value` carries an `input.*` payload (the field's live text) when the
     /// caller has one; without it the input effects no-op (the L0 input
@@ -4344,7 +4358,8 @@ impl OctoscodeView {
             // ...but never wider than the strip's own slot: on a phone the
             // composer card measured 374 in a 344 column and the strip's
             // third cell was clipped.
-            let slot_w = self.view.widget(cx, ids!(strip_splash)).area().rect(cx).size.x;
+            let strip_row = self.strip_row_ref(cx);
+            let slot_w = strip_row.widget(cx, ids!(strip_splash)).area().rect(cx).size.x;
             let strip_w = if slot_w > 0.0 && composer_w > 0.0 { composer_w.min(slot_w) } else { composer_w };
             screens::board3::host::set_strip_width(strip_w);
             // A8 — the strip stays while the connection drops: its state word
@@ -4354,7 +4369,7 @@ impl OctoscodeView {
             } else {
                 String::new()
             };
-            let splash = self.view.splash(cx, ids!(strip_splash));
+            let splash = strip_row.splash(cx, ids!(strip_splash));
             if let Err(e) = self.mounts.mount(cx, &splash, &strip) {
                 makepad_widgets::log!("[octoscode] strip mount: {e}");
             }
@@ -6213,7 +6228,7 @@ impl OctoscodeView {
                 }
                 // A4 — the session strip opens the Session settings pane.
                 if self
-                    .view
+                    .strip_row_ref(cx)
                     .button(cx, &[live_id!(strip_splash), live_id!(b3_strip_tap)])
                     .clicked(actions)
                 {
