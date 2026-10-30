@@ -20,6 +20,8 @@ use octoscode_store::domains::profile::{
 use octoscode_store::Store;
 use serde_json::{json, Value};
 
+use crate::screens::models::{model_from, models_from_result};
+
 use super::host::{Job, Outcome};
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
 use crate::i18n::tr;
@@ -543,19 +545,6 @@ pub async fn set_permission(conv: &crate::flow::Conversation, mode: &str, networ
     }
 }
 
-fn model_from(v: &Value) -> Option<ProfileLlmModel> {
-    let text = |k: &str| v.get(k).and_then(|x| x.as_str()).map(str::to_owned);
-    Some(ProfileLlmModel {
-        model: text("model").filter(|s| !s.is_empty())?,
-        provider: text("provider").filter(|s| !s.is_empty())?,
-        title: text("title").unwrap_or_default(),
-        family: text("family"),
-        route: text("route"),
-        selected: v.get("selected").and_then(|b| b.as_bool())?,
-        available: v.get("available").and_then(|b| b.as_bool())?,
-    })
-}
-
 fn now_ms() -> u64 {
     super::ui::now_ms()
 }
@@ -585,16 +574,7 @@ pub async fn load_models(conv: &crate::flow::Conversation) -> Result<String, Str
         return Ok("superseded".into());
     }
     let outcome = match r {
-        Ok(v) if v.get("session_id").and_then(|s| s.as_str()) != Some(session.as_str()) => {
-            Err("profile/llm/list returned another session".to_owned())
-        }
-        Ok(v) => match v.get("models").and_then(|m| m.as_array()) {
-            Some(rows) if rows.len() <= 500 => {
-                let models: Option<Vec<ProfileLlmModel>> = rows.iter().map(model_from).collect();
-                models.ok_or_else(|| "Invalid profile/llm/list result".to_owned())
-            }
-            _ => Err("Invalid profile/llm/list result".to_owned()),
-        },
+        Ok(v) => models_from_result(&v, &session),
         Err(e) => Err(crate::screens::dialog::display_error(&e.to_string())),
     };
     match outcome {
