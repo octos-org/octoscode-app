@@ -2239,6 +2239,23 @@ impl OctoscodeView {
                     makepad_widgets::log!("[octoscode] sidebar action: {action}");
                     return;
                 }
+                screens::sidebar::Effect::DeleteSession { id } => {
+                    makepad_widgets::log!("[octoscode] sidebar action: {action} -> {id}");
+                    // #18 — Session history's own `session/delete` path: the
+                    // row goes on success, a failure keeps it and says why.
+                    let conv = { self.bridge.lock().unwrap().conv.clone() };
+                    match (self.runtime.as_ref(), conv) {
+                        (Some(rt), Some(conv)) => {
+                            rt.spawn(async move {
+                                let r = screens::board3::switcher::delete_session(&conv, &id).await;
+                                screens::sidebar::delete_finished(&id, r);
+                                SignalToUI::set_ui_signal();
+                            });
+                        }
+                        _ => screens::sidebar::delete_finished(&id, Err("not connected".into())),
+                    }
+                    return;
+                }
             }
         }
         // #30a: the board-3 review screens' ids route through their own table

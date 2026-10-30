@@ -414,7 +414,7 @@ script_mod! {
                     width: Fill height: Fill visible: false
                     draw_bg +: {color: #00000000 border_radius: 8.0 border_size: 1.5 border_color: #2F6FEB}
                 }
-                View{
+                sb_r_body := View{
                     width: Fill height: Fill flow: Right spacing: 6 align: Align{y: 0.5}
                     padding: Inset{left: 6 right: 8}
                     View{
@@ -463,8 +463,47 @@ script_mod! {
                         sb_r_aside_label := OcMuted{text: "" draw_text +: {text_style +: {font_size: 8.25}}}
                     }
                     sb_r_time := OcMuted{text: "" draw_text +: {text_style +: {font_size: 9.0}}}
+                    // #18 — room for the delete × laid over the row below.
+                    sb_r_del_room := View{width: 18 height: 1 visible: false}
                 }
                 sb_r_open := OcHit{}
+                // #18 — the delete ×, ABOVE the row's open hit (later siblings
+                // take the press first); never on the open chat.
+                sb_r_del := View{
+                    width: Fill height: Fill align: Align{x: 1.0 y: 0.5} padding: Inset{right: 4} visible: false
+                    View{
+                        width: 24 height: 24 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        Svg{
+                            width: 10 height: 10 animating: false
+                            draw_svg.svg: file_resource(#(crate::chrome::icon("x")))
+                            draw_svg.preserve_viewbox: true
+                        }
+                        sb_r_del_hit := OcHit{draw_bg.border_radius: 12.0}
+                    }
+                }
+                // #18 — the explicit confirmation in place of the row (and
+                // "Deleting…" while it runs); the title stays so the chat
+                // being deleted is never in doubt.
+                sb_r_ask := View{
+                    width: Fill height: Fill flow: Right spacing: 4 align: Align{y: 0.5}
+                    padding: Inset{left: 6 right: 4} visible: false
+                    sb_r_ask_title := OcMuted{
+                        width: Fill text: ""
+                        max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                    }
+                    sb_r_ask_q := OcMedium{text: "Delete?" draw_text +: {text_style +: {font_size: 9.75}}}
+                    sb_r_ask_no_box := View{
+                        width: 56 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        sb_r_ask_no_label := OcLabel{text: "Cancel" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
+                        sb_r_ask_no := OcHit{}
+                    }
+                    sb_r_ask_yes_box := View{
+                        width: 52 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        sb_r_ask_yes_label := OcMedium{text: "Delete" draw_text +: {color: #(crate::chrome::ink("danger")) text_style +: {font_size: 9.75}}}
+                        sb_r_ask_yes := OcHit{}
+                    }
+                    sb_r_ask_busy := OcMuted{text: "Deleting…" draw_text +: {text_style +: {font_size: 9.0}}}
+                }
             }
 
             SbNoteTpl := View{
@@ -2759,7 +2798,7 @@ pub fn held_by_other(store: &octoscode_store::Store) -> Option<String> {
 /// the shell's `draw_walk`). One template per row kind, every value from the
 /// projection — nothing measured, nothing hardcoded.
 pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode_store::Store, focus_row: Option<usize>) {
-    use crate::screens::sidebar::{project, now_ms, split_chars, Row, Status};
+    use crate::screens::sidebar::{project, now_ms, split_chars, Row, RowDelete, Status};
     let proj = project(store, now_ms());
     list.set_item_range(cx, 0, proj.rows.len());
     while let Some(id) = list.next_visible_item(cx) {
@@ -2776,8 +2815,30 @@ pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode
                 item.widget(cx, ids!(sb_g_more_on)).set_visible(cx, *menu_open);
                 item.draw_all_unscoped(cx);
             }
-            Row::Session { title, time, status, selected, matched, aside, .. } => {
+            Row::Session { title, time, status, selected, matched, aside, delete, .. } => {
                 let item = list.item(cx, id, id!(SbRowTpl));
+                // #18 — the delete ×, or the confirmation in place of the row.
+                {
+                    let asking = matches!(delete, RowDelete::Confirming | RowDelete::Deleting);
+                    item.widget(cx, ids!(sb_r_body)).set_visible(cx, !asking);
+                    item.widget(cx, ids!(sb_r_open)).set_visible(cx, !asking);
+                    item.widget(cx, ids!(sb_r_del)).set_visible(cx, *delete == RowDelete::Offered);
+                    item.widget(cx, ids!(sb_r_del_room)).set_visible(cx, *delete == RowDelete::Offered);
+                    item.widget(cx, ids!(sb_r_ask)).set_visible(cx, asking);
+                    if asking {
+                        let busy = *delete == RowDelete::Deleting;
+                        item.label(cx, ids!(sb_r_ask_title)).set_text(cx, title);
+                        item.widget(cx, ids!(sb_r_ask_q)).set_visible(cx, !busy);
+                        item.widget(cx, ids!(sb_r_ask_no_box)).set_visible(cx, !busy);
+                        item.widget(cx, ids!(sb_r_ask_yes_box)).set_visible(cx, !busy);
+                        item.widget(cx, ids!(sb_r_ask_busy)).set_visible(cx, busy);
+                        // A24: a list row is drawn from data (the static pass skips lists).
+                        item.label(cx, ids!(sb_r_ask_q)).set_text(cx, tr("Delete?"));
+                        item.label(cx, ids!(sb_r_ask_no_label)).set_text(cx, tr("Cancel"));
+                        item.label(cx, ids!(sb_r_ask_yes_label)).set_text(cx, tr("Delete"));
+                        item.label(cx, ids!(sb_r_ask_busy)).set_text(cx, tr("Deleting…"));
+                    }
+                }
                 // A29 — the aside marker (`screens::sidebar` sets it only on
                 // a Session that is not on screen).
                 {
@@ -2852,8 +2913,9 @@ pub enum TreeClick {
 }
 
 /// Route the tree's row clicks: group header -> `workspace.toggle`, "⋯" ->
-/// `workspace.menu`, session row -> `session.open` with its STORE index,
-/// "Clear search" -> `search.clear`.
+/// `workspace.menu`, session row -> `session.open` with its STORE index (its
+/// × / confirmation -> `session.delete[.cancel|.confirm]`), "Clear search" ->
+/// `search.clear`.
 pub fn sidebar_list_clicks(cx: &mut Cx, list: &PortalListRef, store: &octoscode_store::Store, actions: &Actions) -> Vec<TreeClick> {
     use crate::screens::sidebar::{project, now_ms, Row};
     let mut out = Vec::new();
@@ -2874,7 +2936,14 @@ pub fn sidebar_list_clicks(cx: &mut Cx, list: &PortalListRef, store: &octoscode_
                 }
             }
             Row::Session { store_index, .. } => {
-                if item.button(cx, ids!(sb_r_open)).clicked(actions) {
+                // #18 — the × and the confirmation sit above the open hit.
+                if item.button(cx, ids!(sb_r_del_hit)).clicked(actions) {
+                    out.push(TreeClick::Action("session.delete", *store_index));
+                } else if item.button(cx, ids!(sb_r_ask_no)).clicked(actions) {
+                    out.push(TreeClick::Action("session.delete.cancel", *store_index));
+                } else if item.button(cx, ids!(sb_r_ask_yes)).clicked(actions) {
+                    out.push(TreeClick::Action("session.delete.confirm", *store_index));
+                } else if item.button(cx, ids!(sb_r_open)).clicked(actions) {
                     out.push(TreeClick::Action("session.open", *store_index));
                 }
             }

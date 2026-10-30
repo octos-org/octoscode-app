@@ -23,7 +23,8 @@
 //!   workspace.menu, workspace.new_chat_here,
 //!   sidebar.mode.grouped, sidebar.mode.flat, sidebar.sort,
 //!   search.focus, search.clear, drawer.open, drawer.close,
-//!   workspace.rename.cancel, sidebar.collapse, sidebar.expand, search.open
+//!   workspace.rename.cancel, sidebar.collapse, sidebar.expand, search.open,
+//!   session.delete, session.delete.cancel, session.delete.confirm
 //!
 //! Workspace-scoped ids address a GROUP by its index in the last projection
 //! ([`project`] records the order), the same item-index contract the native
@@ -32,7 +33,9 @@
 //!
 //! Everything here is UI-local except `session.open` / `new_chat` /
 //! `workspace.new_chat_here`, which the caller performs through the
-//! conversation router (the production path the web's session list uses).
+//! conversation router (the production path the web's session list uses),
+//! and `session.delete.confirm`, which the caller performs through Session
+//! history's own `session/delete` (`board3::switcher::delete_session`).
 
 use std::collections::{BTreeSet, HashMap};
 use std::sync::{Mutex, OnceLock};
@@ -69,6 +72,11 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("sidebar.collapse", "collapse the sidebar to its 56 px icon rail"),
     ("sidebar.expand", "expand the sidebar from its rail"),
     ("search.open", "expand the sidebar and focus Search chats (the rail's search)"),
+    // #18 — a chat row's delete, asked in place first (Session history's
+    // A8 rules: only when `session/delete` is advertised, never the open chat).
+    ("session.delete", "ask to delete the chat the row names (its store index)"),
+    ("session.delete.cancel", "keep the chat (dismiss the row's confirmation)"),
+    ("session.delete.confirm", "delete the chat the row's confirmation names"),
 ];
 
 /// Whether `id` is one of this screen's action ids.
@@ -151,6 +159,10 @@ pub struct SidebarUi {
     pub width: f64,
     /// The search field should take key focus (the host consumes it).
     pub focus_search: bool,
+    /// #18 — the chat whose delete waits for its confirmation (its id).
+    pub confirm_delete: Option<String>,
+    /// #18 — the one chat delete in flight (single-flight, as the switcher).
+    pub deleting: Option<String>,
 }
 
 /// A projected group's identity: its key and the path a new session there
@@ -180,6 +192,8 @@ impl Default for SidebarUi {
             rail: false,
             width: 280.0,
             focus_search: false,
+            confirm_delete: None,
+            deleting: None,
         }
     }
 }
@@ -344,6 +358,8 @@ pub enum Row {
         /// screen (the operator's 2026-10-02 decision: a small marker on its
         /// row while you are on another Session).
         aside: Option<octoscode_store::domains::btw::Mark>,
+        /// #18 — the row's delete control.
+        delete: RowDelete,
     },
     /// A grey empty-state line.
     Note(String),
@@ -351,6 +367,19 @@ pub enum Row {
     ClearSearch,
     /// The hairline between groups while searching (boards 3/4).
     Divider,
+}
+
+/// #18 — what a chat row's trailing delete control shows.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RowDelete {
+    /// No control: the open chat, or `session/delete` is not advertised.
+    None,
+    /// The × that asks first.
+    Offered,
+    /// The in-place "Delete? Cancel Delete" confirmation.
+    Confirming,
+    /// The delete is in flight ("Deleting…").
+    Deleting,
 }
 
 /// The whole drawn sidebar tree.
@@ -487,6 +516,7 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
         .collect();
 
     // A22 row 236 — a background record shows its OWN state.
+    let delete_offered = crate::screens::board3::switcher::delete_offered(store);
     let status_of = |it: &Item| row_status(store, &it.id, active.as_deref());
     let query = ui.query.trim().to_owned();
     let row_of = |it: &Item, matched: Option<(usize, usize)>| Row::Session {
@@ -502,6 +532,18 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
         aside: (active.as_deref() != Some(it.id.as_str()))
             .then(|| store.domains.btw.mark(&it.id))
             .flatten(),
+        delete: if active.as_deref() == Some(it.id.as_str()) || !delete_offered {
+            RowDelete::None
+        } else if ui.deleting.as_deref() == Some(it.id.as_str()) {
+            RowDelete::Deleting
+        } else if ui.deleting.is_some() {
+            // One delete at a time: no × that would do nothing.
+            RowDelete::None
+        } else if ui.confirm_delete.as_deref() == Some(it.id.as_str()) {
+            RowDelete::Confirming
+        } else {
+            RowDelete::Offered
+        },
     };
     fn ordered_by(sort: Sort, mut v: Vec<&Item>) -> Vec<&Item> {
         v.sort_by(|a, b| match (a.updated_ms, b.updated_ms) {
@@ -964,6 +1006,9 @@ pub enum Effect {
     NewChatInWorkspace { workspace: String, path: Option<String> },
     /// `workspace.add` — open the folder browser (the host docks it).
     AddWorkspace,
+    /// `session.delete.confirm` — `session/delete` the chat `id` (the
+    /// caller reports back through [`delete_finished`]).
+    DeleteSession { id: String },
     /// Applied UI-local; nothing for the caller to perform.
     Applied,
     /// The id was not one of this screen's.
@@ -978,7 +1023,10 @@ impl Effect {
 
 /// Route one action id to its effect, applying the UI-local half here.
 pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
-    let _ = ctx;
+    // #18 — Session history's delete in flight holds the one slot too (read
+    // before the sidebar lock: the switcher reads ours under its own).
+    let history_deleting = action.starts_with("session.delete")
+        && crate::screens::board3::host::state().switch.deleting.is_some();
     let mut s = sidebar().lock().unwrap();
     let group = s.last_groups.get(index).cloned();
     match action {
@@ -987,16 +1035,54 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             // dismisses on select).
             s.drawer_open = false;
             s.menu_for = None;
+            s.confirm_delete = None;
             Effect::OpenSession { index }
         }
         "new_chat" => {
             s.drawer_open = false;
             s.menu_for = None;
+            s.confirm_delete = None;
             Effect::NewChat
+        }
+        // #18 — Session history's A8 rules, row for row: only when
+        // `session/delete` is advertised, never the open chat, one delete
+        // at a time, and always an explicit confirmation first.
+        "session.delete" => {
+            let store = ctx.store;
+            let Some(id) = store.sessions().get(index).map(|x| x.id.clone()) else {
+                return Effect::Unhandled(format!("{action}[{index}]"));
+            };
+            if store.active_session().as_deref() != Some(id.as_str())
+                && crate::screens::board3::switcher::delete_offered(store)
+                && s.deleting.is_none()
+                && !history_deleting
+            {
+                s.menu_for = None;
+                s.confirm_delete = Some(id);
+            }
+            Effect::Applied
+        }
+        "session.delete.cancel" => {
+            s.confirm_delete = None;
+            Effect::Applied
+        }
+        "session.delete.confirm" => {
+            let Some(id) = s.confirm_delete.take() else { return Effect::Applied };
+            let store = ctx.store;
+            if s.deleting.is_some()
+                || history_deleting
+                || store.active_session().as_deref() == Some(id.as_str())
+                || !crate::screens::board3::switcher::delete_offered(store)
+            {
+                return Effect::Applied;
+            }
+            s.deleting = Some(id.clone());
+            Effect::DeleteSession { id }
         }
         "workspace.new_chat_here" => {
             s.menu_for = None;
             s.drawer_open = false;
+            s.confirm_delete = None;
             match group {
                 Some(g) => Effect::NewChatInWorkspace { workspace: g.label, path: g.path },
                 None => Effect::Unhandled(format!("{action}[{index}]")),
@@ -1085,6 +1171,7 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
         "sidebar.collapse" => {
             s.rail = true;
             s.menu_for = None;
+            s.confirm_delete = None;
             Effect::Applied
         }
         "sidebar.expand" => {
@@ -1102,9 +1189,35 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             s.drawer_open = false;
             s.search_focused = false;
             s.menu_for = None;
+            s.confirm_delete = None;
             Effect::Applied
         }
         other => Effect::Unhandled(other.to_owned()),
+    }
+}
+
+/// #18 — the plain lead of a failed chat delete (the server's message is
+/// the toast's cause).
+pub const DELETE_FAILED: &str = "Couldn't delete that chat.";
+
+/// #18 — the chat delete in flight, if any (Session history holds off
+/// while it runs: one `session/delete` at a time across both surfaces).
+pub fn deleting() -> Option<String> {
+    sidebar().lock().unwrap().deleting.clone()
+}
+
+/// #18 — a `session.delete.confirm` came back. Success needs nothing more:
+/// the delete already took the chat out of the store, so its row is gone. A
+/// failure keeps the row and says why.
+pub fn delete_finished(id: &str, result: Result<(), String>) {
+    {
+        let mut s = sidebar().lock().unwrap();
+        if s.deleting.as_deref() == Some(id) {
+            s.deleting = None;
+        }
+    }
+    if let Err(cause) = result {
+        crate::screens::toasts::push(tr(DELETE_FAILED), &cause);
     }
 }
 
@@ -1263,6 +1376,9 @@ mod tests {
             "sidebar.collapse",
             "sidebar.expand",
             "search.open",
+            "session.delete",
+            "session.delete.cancel",
+            "session.delete.confirm",
         ];
         for id in CHROME {
             assert!(is_action(id), "{id} (native chrome) must be owned here");
@@ -1547,6 +1663,111 @@ mod tests {
         let ctx = ctx_for(&store);
         assert_eq!(resolve("session.open", 3, &ctx), Effect::OpenSession { index: 3 });
         assert!(!drawer_open(), "selecting from the drawer dismisses it");
+    }
+
+    /// The delete control of the row titled `title` in the last projection.
+    fn delete_of(store: &Store, title: &str) -> RowDelete {
+        project_recorded(store, NOW, &[])
+            .rows
+            .iter()
+            .find_map(|r| match r {
+                Row::Session { title: t, delete, .. } if t == title => Some(*delete),
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("no row {title:?}"))
+    }
+
+    /// #18 — Session history's A8 rules on the sidebar's chat rows: only
+    /// when `session/delete` is advertised, never the open chat, an explicit
+    /// confirmation first, one delete at a time.
+    #[test]
+    fn a_chat_row_asks_before_it_deletes_and_never_the_open_chat() {
+        let _g = crate::screens::theme::test_lock();
+        reset_state();
+        let store = board_store();
+        let ctx = ctx_for(&store);
+        // Unadvertised: no control, and the id does nothing.
+        assert_eq!(delete_of(&store, "Add session fork"), RowDelete::None);
+        assert_eq!(resolve("session.delete", 1, &ctx), Effect::Applied);
+        assert_eq!(snapshot().confirm_delete, None);
+        store.domains.config.set_supported_methods(vec!["session/delete".into()]);
+        // The open chat (s1, store index 0) is never offered.
+        assert_eq!(delete_of(&store, "Fix steer queue drop on reconnect"), RowDelete::None);
+        assert_eq!(delete_of(&store, "Add session fork"), RowDelete::Offered);
+        resolve("session.delete", 0, &ctx);
+        assert_eq!(snapshot().confirm_delete, None, "the open chat is never asked about");
+        // The × asks first; Cancel keeps the chat.
+        resolve("session.delete", 1, &ctx);
+        assert_eq!(snapshot().confirm_delete.as_deref(), Some("s2"));
+        assert_eq!(delete_of(&store, "Add session fork"), RowDelete::Confirming);
+        resolve("session.delete.cancel", 1, &ctx);
+        assert_eq!(delete_of(&store, "Add session fork"), RowDelete::Offered);
+        // Confirm hands the caller the one delete.
+        resolve("session.delete", 1, &ctx);
+        assert_eq!(resolve("session.delete.confirm", 1, &ctx), Effect::DeleteSession { id: "s2".into() });
+        assert_eq!(delete_of(&store, "Add session fork"), RowDelete::Deleting);
+        // Single-flight: another row shows no × and cannot ask while it
+        // runs, and a stale confirm does nothing.
+        assert_eq!(delete_of(&store, "Review PR #2566"), RowDelete::None);
+        resolve("session.delete", 2, &ctx);
+        assert_eq!(snapshot().confirm_delete, None);
+        assert_eq!(resolve("session.delete.confirm", 2, &ctx), Effect::Applied);
+        // A stale index is Unhandled, never a panic or a wrong chat.
+        assert!(resolve("session.delete", 9, &ctx).is_unhandled());
+        // Session history waits for it too.
+        let mut switch = crate::screens::board3::switcher::SwitchState::default();
+        crate::screens::board3::switcher::perform(&mut switch, "b3.switch.delete", 2, &store);
+        assert_eq!(switch.confirm_delete, None, "one delete at a time across both surfaces");
+        reset_state();
+    }
+
+    #[test]
+    fn a_confirmation_never_outlives_the_chat_becoming_open() {
+        let _g = crate::screens::theme::test_lock();
+        reset_state();
+        let store = board_store();
+        store.domains.config.set_supported_methods(vec!["session/delete".into()]);
+        let ctx = ctx_for(&store);
+        resolve("session.delete", 1, &ctx);
+        // Opening a row dismisses the confirmation.
+        resolve("session.open", 1, &ctx);
+        assert_eq!(snapshot().confirm_delete, None);
+        // A chat that became the open one while asked about is not deleted.
+        resolve("session.delete", 1, &ctx);
+        store.set_active(Some("s2".into()));
+        assert_eq!(delete_of(&store, "Add session fork"), RowDelete::None);
+        assert_eq!(resolve("session.delete.confirm", 1, &ctx), Effect::Applied);
+        assert_eq!(snapshot().deleting, None);
+    }
+
+    /// #18 — a failure keeps the row and says why (a toast: the plain lead,
+    /// the server's message as its cause); success leaves no row behind.
+    #[test]
+    fn a_failed_delete_keeps_the_row_and_says_why() {
+        let _g = crate::screens::theme::test_lock();
+        reset_state();
+        crate::screens::toasts::reset();
+        let store = board_store();
+        store.domains.config.set_supported_methods(vec!["session/delete".into()]);
+        let ctx = ctx_for(&store);
+        resolve("session.delete", 1, &ctx);
+        resolve("session.delete.confirm", 1, &ctx);
+        delete_finished("s2", Err("session is busy".into()));
+        assert_eq!(snapshot().deleting, None);
+        assert_eq!(delete_of(&store, "Add session fork"), RowDelete::Offered, "the row stays");
+        let (toasts, _) = crate::screens::toasts::snapshot();
+        assert_eq!(toasts.len(), 1);
+        assert_eq!((toasts[0].lead.as_str(), toasts[0].cause.as_str()), (DELETE_FAILED, "session is busy"));
+        // Success: the delete took the chat out of the store; nothing is said.
+        resolve("session.delete", 1, &ctx);
+        resolve("session.delete.confirm", 1, &ctx);
+        store.domains.session.forget("s2");
+        delete_finished("s2", Ok(()));
+        assert_eq!(snapshot().deleting, None);
+        let p = project_recorded(&store, NOW, &[]);
+        assert!(!rows_text(&p).iter().any(|r| r.starts_with("Add session fork")));
+        assert_eq!(crate::screens::toasts::snapshot().0.len(), 1);
+        crate::screens::toasts::reset();
     }
 
     #[test]

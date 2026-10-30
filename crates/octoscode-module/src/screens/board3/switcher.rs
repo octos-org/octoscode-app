@@ -230,32 +230,44 @@ pub async fn delete(conv: &crate::flow::Conversation, id: String) -> Result<Stri
         super::host::state().switch.deleting = None;
         return Err("the open Session is never deleted".into());
     }
-    let r = conv
-        .client()
-        .call::<octoscode_client::domains::session::SessionDelete>(octos_core::ui_protocol::SessionDeleteParams {
-            session_id: id.clone(),
-        })
-        .await;
+    let r = delete_session(conv, &id).await;
     let mut st = super::host::state();
     st.switch.deleting = None;
     match r {
-        Ok(_) => {
-            drop(st);
-            conv.store.domains.session.forget(&id);
-            crate::screens::drafts::restore_for(&crate::screens::drafts::key_of(conv, &id), "");
-            // A22 row 216 — the deleted Session's record retires: its
-            // returned prompts and images go (`retire`, session-composer-drafts.ts:196-201).
-            crate::screens::composer_drafts::retire(conv, &id);
-            Ok(format!("deleted {id}"))
-        }
-        Err(e) => {
-            let msg = match &e {
-                octoscode_client::ClientError::Rpc { error, .. } => error.message.clone(),
-                other => other.to_string(),
-            };
+        Ok(()) => Ok(format!("deleted {id}")),
+        Err(msg) => {
             st.switch.error = Some(tr1("Couldn't delete the session: {value0}", &msg));
             Err(msg)
         }
+    }
+}
+
+/// The one `session/delete` path (the switcher above, the sidebar's chat
+/// rows — #18): never the open Session; on success the Session leaves the
+/// store with its drafts, a failure returns the server's own message.
+pub async fn delete_session(conv: &crate::flow::Conversation, id: &str) -> Result<(), String> {
+    if conv.session_id() == id {
+        return Err("the open Session is never deleted".into());
+    }
+    let r = conv
+        .client()
+        .call::<octoscode_client::domains::session::SessionDelete>(octos_core::ui_protocol::SessionDeleteParams {
+            session_id: id.to_owned(),
+        })
+        .await;
+    match r {
+        Ok(_) => {
+            conv.store.domains.session.forget(id);
+            crate::screens::drafts::restore_for(&crate::screens::drafts::key_of(conv, id), "");
+            // A22 row 216 — the deleted Session's record retires: its
+            // returned prompts and images go (`retire`, session-composer-drafts.ts:196-201).
+            crate::screens::composer_drafts::retire(conv, id);
+            Ok(())
+        }
+        Err(e) => Err(match &e {
+            octoscode_client::ClientError::Rpc { error, .. } => error.message.clone(),
+            other => other.to_string(),
+        }),
     }
 }
 
@@ -271,7 +283,8 @@ pub fn perform(st: &mut SwitchState, action: &str, index: usize, store: &Store) 
         "b3.switch.delete" => {
             let rows = catalog_rows(st, store);
             let Some(row) = rows.get(index) else { return Outcome::Done };
-            if row.current || !delete_offered(store) || st.deleting.is_some() {
+            // #18 — one `session/delete` at a time, the sidebar's included.
+            if row.current || !delete_offered(store) || st.deleting.is_some() || crate::screens::sidebar::deleting().is_some() {
                 return Outcome::Done;
             }
             st.error = None;
@@ -284,7 +297,7 @@ pub fn perform(st: &mut SwitchState, action: &str, index: usize, store: &Store) 
         }
         "b3.switch.delete.confirm" => {
             let Some(id) = st.confirm_delete.take() else { return Outcome::Done };
-            if st.deleting.is_some() || store.active_session().as_deref() == Some(id.as_str()) {
+            if st.deleting.is_some() || crate::screens::sidebar::deleting().is_some() || store.active_session().as_deref() == Some(id.as_str()) {
                 return Outcome::Done;
             }
             st.deleting = Some(id.clone());
@@ -523,6 +536,9 @@ mod tests {
 
     #[test]
     fn delete_never_touches_the_open_session_and_asks_first() {
+        // The sidebar's delete in flight holds the one slot too (#18).
+        let _g = crate::screens::theme::test_lock();
+        crate::screens::sidebar::reset_state();
         let store = Store::new();
         store.set_sessions(vec![sess("dsflash:a", Some("A"), "2026-09-30T10:00:00Z"), sess("dsflash:b", Some("B"), "2026-10-01T10:00:00Z")]);
         store.set_active(Some("dsflash:a".into()));
