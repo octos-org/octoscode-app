@@ -3459,7 +3459,18 @@ impl Conversation {
                 if let (Some(req), Some(actual)) =
                     (requested.as_deref(), r.opened.workspace_root.as_deref())
                 {
-                    if !req.is_empty() && req != actual {
+                    // A hosted kernel and this client share a filesystem. The
+                    // coding scope resolves symlinks before opening a session;
+                    // that spelling change must not look like another folder.
+                    // Remote paths belong to the server, so keep their exact
+                    // comparison. Failed resolutions establish no additional identity.
+                    let same_workspace = req == actual || (self.is_hosted()
+                        && std::path::Path::new(req).is_absolute()
+                        && std::path::Path::new(actual).is_absolute()
+                        && std::fs::canonicalize(req).ok()
+                            .zip(std::fs::canonicalize(actual).ok())
+                            .is_some_and(|(requested, opened)| requested == opened));
+                    if !req.is_empty() && !same_workspace {
                         ::log::warn!(
                             "octoscode: session/open returned workspace {actual:?} for requested {req:?} — open rejected"
                         );
@@ -3633,6 +3644,20 @@ impl Conversation {
                         &r.opened.session_id.0,
                         r.opened.workspace_root.as_deref(),
                     );
+                }
+                // Both picker entrypoints defer hosted navigation until this
+                // accepted reply. Use the same root as the session, and retire
+                // only this request's alias from the bounded navigation cache.
+                if self.is_hosted() && explicit {
+                    if let (Some(requested), Some(opened)) =
+                        (requested.as_deref(), r.opened.workspace_root.as_deref())
+                    {
+                        let recents = crate::screens::recents::remember_hosted_workspace(
+                            &*crate::screens::recents::store(), &crate::screens::recents::endpoint(),
+                            requested, opened, crate::screens::recents::now_ms(),
+                        );
+                        crate::screens::board1::set_recent_workspaces(recents);
+                    }
                 }
                 self.settle_open_watch(Ok(r.opened.session_id.0.clone()));
                 FlowEvent::WorkspaceOpened(r.opened.session_id.0.clone())

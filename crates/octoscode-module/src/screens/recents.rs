@@ -162,9 +162,9 @@ pub fn history_workspaces(storage: &dyn Storage, endpoint: &str) -> Vec<String> 
     roots.retain(|p| !p.trim().is_empty()); roots.sort(); roots.dedup(); roots.truncate(128);
     roots
 }
-fn remember_history_workspace(storage: &dyn Storage, endpoint: &str, path: &str) {
+fn remember_history_workspace(storage: &dyn Storage, endpoint: &str, path: &str, replaced: Option<&str>) {
     let mut roots = history_workspaces(storage, endpoint);
-    roots.retain(|p| p != path); roots.insert(0, path.to_owned()); roots.truncate(128);
+    roots.retain(|p| p != path && Some(p.as_str()) != replaced); roots.insert(0, path.to_owned()); roots.truncate(128);
     if let Ok(json) = serde_json::to_string(&roots) { let _ = storage.set_item(&format!("octoscode.history-workspaces.v1:{endpoint}"), &json); }
 }
 
@@ -251,11 +251,33 @@ pub fn remember_workspace(
     path: &str,
     now: u64,
 ) -> Vec<RecentWorkspace> {
+    remember_workspace_replacing(storage, endpoint, path, now, None)
+}
+
+/// Reconcile only the requested alias after the hosted open has been accepted.
+/// Older, unopened aliases are not scanned or migrated.
+pub fn remember_hosted_workspace(
+    storage: &dyn Storage,
+    endpoint: &str,
+    requested: &str,
+    opened: &str,
+    now: u64,
+) -> Vec<RecentWorkspace> {
+    remember_workspace_replacing(storage, endpoint, opened, now, Some(requested.trim()))
+}
+
+fn remember_workspace_replacing(
+    storage: &dyn Storage,
+    endpoint: &str,
+    path: &str,
+    now: u64,
+    replaced: Option<&str>,
+) -> Vec<RecentWorkspace> {
     let canonical_path = path.trim();
     if canonical_path.is_empty() {
         return load_recent_workspaces(storage, endpoint);
     }
-    remember_history_workspace(storage, endpoint, canonical_path);
+    remember_history_workspace(storage, endpoint, canonical_path, replaced);
     let current = load_recent_workspaces(storage, endpoint);
     let workspace = RecentWorkspace {
         id: canonical_path.to_owned(),
@@ -267,7 +289,7 @@ pub fn remember_workspace(
     next.extend(
         current
             .into_iter()
-            .filter(|candidate| candidate.path != canonical_path),
+            .filter(|candidate| candidate.path != canonical_path && Some(candidate.path.as_str()) != replaced),
     );
     next.truncate(MAX_WORKSPACES);
     // The web catches the throw and keeps going (`workspace-recents.ts:52-54`).

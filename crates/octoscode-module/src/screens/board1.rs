@@ -291,6 +291,10 @@ pub fn picker() -> PickerUi {
     host().picker.clone()
 }
 
+pub(crate) fn set_recent_workspaces(rows: Vec<super::recents::RecentWorkspace>) {
+    host().picker.recents = rows.into_iter().map(|r| (r.name, r.path)).collect();
+}
+
 /// A session is being opened from the picker or the browser: the surface
 /// stays up until it settles (the web's "keeps an in-flight workspace
 /// creation visible when Escape or the backdrop is used",
@@ -1257,14 +1261,18 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
             match launched {
                 Ok(id) => {
                     makepad_widgets::log!("[octoscode] board1: new session {id} in the chosen workspace");
-                    let rows = super::recents::remember_workspace(
-                        &*super::recents::store(),
-                        &super::recents::endpoint(),
-                        &cwd,
-                        super::recents::now_ms(),
-                    );
+                    // Hosted opens are remembered by the acceptance event;
+                    // never reintroduce the requested alias after its reply.
+                    if !conv.is_hosted() {
+                        let rows = super::recents::remember_workspace(
+                            &*super::recents::store(),
+                            &super::recents::endpoint(),
+                            &cwd,
+                            super::recents::now_ms(),
+                        );
+                        set_recent_workspaces(rows);
+                    }
                     let mut h = host();
-                    h.picker.recents = rows.into_iter().map(|r| (r.name, r.path)).collect();
                     h.picker.starting = None;
                     h.stack.clear();
                     Ok(())

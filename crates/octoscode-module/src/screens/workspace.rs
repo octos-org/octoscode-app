@@ -212,17 +212,21 @@ pub async fn apply(effect: Effect, conv: &Conversation) -> Result<(), String> {
             // connection.endpoint, cwd)` on the open path). Recording it here
             // is what makes the cache a production path rather than a helper
             // only tests call (RULES 3). It is a navigation cache, so it is
-            // written AFTER the open succeeds — a failed open must not leave a
+            // written AFTER the open request succeeds — a failed open must not leave a
             // row the user never reached — and a write that fails never fails
             // the open (the web catches the storage throw, and
             // `remember_workspace` returns the new list either way).
+            // Hosted navigation instead waits for the acceptance event:
+            // open_workspace returning only means the request was sent.
             conv.open_workspace(Some(cwd.clone())).await?;
-            recents::remember_workspace(
-                &*recents::store(),
-                &recents::endpoint(),
-                &cwd,
-                recents::now_ms(),
-            );
+            if !conv.is_hosted() {
+                recents::remember_workspace(
+                    &*recents::store(),
+                    &recents::endpoint(),
+                    &cwd,
+                    recents::now_ms(),
+                );
+            }
             Ok(())
         }
         Effect::Browse(path) => {
