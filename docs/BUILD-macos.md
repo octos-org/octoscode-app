@@ -40,7 +40,7 @@ Prerequisites:
 | Xcode Command Line Tools (clang, git, make, codesign) | `xcode-select --install` | yes |
 | Rust, stable toolchain (built here with 1.95.0) | install rustup from https://rustup.rs, then `rustup default stable` | yes |
 | Python 3 | ships with the Command Line Tools | yes |
-| Disk | about 8 GB free for the standalone app; about 25 GB more for `--octosense` | warns below 8 GB |
+| Disk | about 8 GB free for the standalone app; about 10 GB more for `--octosense` | warns below 8 GB |
 | Network, the first time | GitHub (makepad, Octoscript, Octoscript-Makepad, octos; OctoSense only with `--octosense`) and crates.io | |
 
 Then, in a clone of this repository:
@@ -59,8 +59,6 @@ What it does (every step is a no-op when already done, so re-run it after a `git
 1. Prepares the framework sources the root `Cargo.toml` `[patch]`es, in `.forks/` (or `--work <dir>`, linked into `.forks/`):
    - `makepad-fork`: OctoSense-org/makepad main at `32d6415f` + `patches/makepad/*.patch` (`tools/prepare-makepad-fork.sh`);
    - `octoscript-makepad`: Octoscript-Makepad main at `33dea2f1`, unpatched (`tools/prepare-octoscript-makepad.sh`).
-
-   Only `--octosense` still prepares `octoscript-makepad-fork` (Octoscript-Makepad at `6881fb6c` + `patches/octoscript-makepad/*`), which that host tree's patch 0003 names.
 2. `cargo build --release -p octoscode-desktop`: the optimized app. `--debug` builds the dev profile instead
    (`target/debug/octoscode`), for development only: the root `Cargo.toml` optimizes its dependencies, but the
    UI is still slower than a release build. Measured with the Makepad instrument on the standalone app
@@ -70,15 +68,23 @@ What it does (every step is a no-op when already done, so re-run it after a `git
    (`MAKEPAD=apple_bundle MAKEPAD_PACKAGE_DIR=makepad`), copies every crate's `resources/` into
    `OctosCode.app/Contents/Resources/makepad/`, writes the Info.plist (name OctosCode, id `org.octos.octoscode`),
    signs ad hoc and zips with `ditto`.
-4. `--octosense`: an optional OctoSense checkout, `.forks/octosense-host`, at the pin + 0001-0003 (0003 wires the module
-   into the shell), its framework sources from OctoSense's own `tools/setup.py`, our makepad patches on them, the
-   octoscode crates and `design/` vendored into `apps/`, then
-   `cargo build -p octosense --features app-octoscode,octoscode-module/octosense-module`.
+4. `--octosense`: an optional OctoSense checkout, `.forks/octosense`, at OctoSense main's pinned revision, unpatched
+   (`tools/prepare-octosense.sh`): OctoSense links the module itself (its shell's `app-octoscode` feature, with the
+   module's `octosense-module` adapter). Then its framework sources from its own `tools/setup.py` (prepared again
+   when a new pin changes its source locks), our makepad patches on them, its desktop octos kernel staged beside the
+   binary (its `tools/kernel-artifact.py --host --stage`, at the octos revision its `Cargo.lock` pins; built once, in
+   its `target/octos-kernel/`), and `cargo build -p octosense --features app-octoscode` into its own `target/` (even
+   under a `CARGO_TARGET_DIR`), with a cargo `--config` `[patch]` that builds the module from
+   this checkout's `crates/octoscode-module` instead of the revision OctoSense pins. No file of the OctoSense tree is
+   edited; cargo refreshes its `Cargo.lock` for the redirected crate.
    Both the standalone app and the OctoSense host are optimized unless `--debug` is given.
    The packaged `.app` always uses the optimized `app-bundle` profile.
 
 From a fresh clone with an empty cargo cache it took 10 minutes and 10 GB here (4.5 minutes and about 6 GB without
-`--octosense`); section 6 has the breakdown. To repeat that check on any Mac without touching your own setup:
+`--octosense`); section 6 has the breakdown. That run predates the current `--octosense` route: OctoSense main and
+its octos kernel took 29 minutes and 9.8 GB under `.forks/octosense` on an Apple Silicon Mac whose cargo cache already
+held the standalone app's crates (the kernel 7 minutes and 2.4 GB of that, the OctoSense desktop 20 minutes); a
+second run is a no-op in seconds. To repeat that check on any Mac without touching your own setup:
 `tools/check-fresh-clone-macos.sh <an empty directory>` (a fresh HOME and cargo home inside it, a fresh clone, then
 `tools/build-macos.sh --package --octosense`; log in `<dir>/fresh-clone.log`).
 
@@ -95,7 +101,7 @@ A `--debug` build is `target/debug/octoscode`.
 The OctoSense-hosted variant, built with `--octosense`:
 
 ```sh
-MAKEPAD_WM_TEST_APP=octoscode OCTOSCODE_DESIGN_DIR=$PWD/design .forks/octosense-host/target/release/octosense --module octoscode
+MAKEPAD_WM_TEST_APP=octoscode OCTOSCODE_DESIGN_DIR=$PWD/design .forks/octosense/target/release/octosense --module octoscode
 ```
 
 Use `target/debug/octosense` instead after a `--debug` build.
