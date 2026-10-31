@@ -1211,20 +1211,22 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             Effect::Applied
         }
         // A chat row's context menu: opened only when it offers something
-        // (Rename when advertised, Delete where the row's × is); as
-        // `workspace.menu`, asking again on the same row closes it.
+        // (Rename when advertised, Delete where the row's × is). Asking on
+        // another row moves it there; on the same row it stays open (the
+        // host re-anchors it at the new press).
         "session.menu" => {
             let store = ctx.store;
             let Some(id) = store.sessions().get(index).map(|x| x.id.clone()) else {
                 return Effect::Unhandled(format!("{action}[{index}]"));
             };
-            if s.chat_menu.as_deref() == Some(id.as_str()) {
-                s.chat_menu = None;
-            } else if rename_allowed(store, &s, &id) || delete_allowed(store, &s, &id, history_deleting) {
+            if rename_allowed(store, &s, &id) || delete_allowed(store, &s, &id, history_deleting) {
                 s.menu_for = None;
                 s.renaming = None;
                 s.renaming_chat = None;
                 s.chat_menu = Some(id);
+            } else {
+                // A row with nothing to offer: the open menu just closes.
+                s.chat_menu = None;
             }
             Effect::Applied
         }
@@ -2036,8 +2038,11 @@ mod tests {
         assert_eq!(chat_menu(&store), None, "the open chat offers no delete");
         resolve("session.menu", 1, &ctx);
         assert_eq!(chat_menu(&store), Some(ChatMenu { index: 1, rename: false, delete: true }));
-        // The same row closes it; another row moves it.
+        // The same row keeps it open; another row moves it.
         resolve("session.menu", 1, &ctx);
+        assert_eq!(chat_menu(&store), Some(ChatMenu { index: 1, rename: false, delete: true }));
+        // A right-click on a row that offers nothing closes it.
+        resolve("session.menu", 0, &ctx);
         assert_eq!(chat_menu(&store), None);
         store.domains.config.set_supported_methods(vec!["session/delete".into(), "session/title.set".into()]);
         resolve("session.menu", 0, &ctx);

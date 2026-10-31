@@ -780,10 +780,13 @@ script_mod! {
         // A3 (board 2 screen 4): the workspace overflow menu, anchored to the
         // clicked "⋯" by sync_chrome (margin within this full-window layer);
         // a click anywhere else closes it. A chat row's context menu shares
-        // the layer, anchored at the press.
+        // the layer, anchored at the press. `sb_menu_ctx` sees every press
+        // here (`capture_overload`, under the rest) so a right-click outside
+        // the open menu closes it, or opens the chat row's menu under it.
         sb_menu_dock := View {
             width: Fill height: Fill flow: Overlay
             visible: false
+            sb_menu_ctx := View {width: Fill height: Fill cursor: MouseCursor.Default capture_overload: true}
             sb_menu_dismiss := mod.widgets.OcBackdrop {}
             sb_menu := mod.widgets.OcWorkspaceMenu {}
             sb_chat_menu := mod.widgets.OcChatMenu {visible: false}

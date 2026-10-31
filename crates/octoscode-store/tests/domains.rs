@@ -341,3 +341,58 @@ fn diagnostics_counts_by_method() {
     assert_eq!(store.diagnostics.total(), 3);
     assert_eq!(store.diagnostics.methods(), vec!["message/delta", "turn/started"]);
 }
+
+// ---------------------------------------------------------------- renames
+
+/// A confirmed rename (`session/title.set`) outlives a listing read before
+/// it: a `session/list` or catalog reply still carrying the old title keeps
+/// the new one, and the first listing with the new title retires the hold.
+#[test]
+fn a_confirmed_rename_outlives_a_stale_listing() {
+    let store = Store::new();
+    let sessions = &store.domains.session;
+    store.set_sessions(vec![session("a"), session("b")]);
+    let title = |id: &str| store.sessions().into_iter().find(|s| s.id == id).and_then(|s| s.title);
+    // A list is requested, then the rename is confirmed, then the old list lands.
+    let stale = vec![session("a"), session("b")];
+    assert!(sessions.set_title("a", "Renamed"));
+    store.set_sessions(stale.clone());
+    assert_eq!(title("a").as_deref(), Some("Renamed"), "the stale list keeps the rename");
+    sessions.set_catalog("/w", stale.clone());
+    assert_eq!(title("a").as_deref(), Some("Renamed"), "so does a stale catalog");
+    sessions.note_opened("a", Some("Session a".into()));
+    assert_eq!(title("a").as_deref(), Some("Renamed"), "and a stale open");
+    assert_eq!(sessions.held_title("a", Some("Session a")).as_deref(), Some("Renamed"));
+    assert_eq!(title("b").as_deref(), Some("Session b"), "other rows are the server's");
+    // The server caught up: the hold retires, and the server wins again.
+    let mut fresh = session("a");
+    fresh.title = Some("Renamed".into());
+    store.set_sessions(vec![fresh]);
+    assert_eq!(title("a").as_deref(), Some("Renamed"));
+    assert_eq!(sessions.held_title("a", Some("Session a")), None, "no hold left");
+    store.set_sessions(stale.clone());
+    assert_eq!(title("a").as_deref(), Some("Session a"), "a later rename elsewhere shows");
+    // Any other title (renamed elsewhere since) retires it too.
+    assert!(sessions.set_title("b", "Mine"));
+    let mut theirs = session("b");
+    theirs.title = Some("Theirs".into());
+    store.set_sessions(vec![theirs]);
+    assert_eq!(title("b").as_deref(), Some("Theirs"));
+    // Two quick renames: either earlier title is stale; an untitled chat's
+    // rename holds against a listing with no title.
+    sessions.set_title("a", "One");
+    sessions.set_title("a", "Two");
+    let mut one = session("a");
+    one.title = Some("One".into());
+    store.set_sessions(vec![one]);
+    assert_eq!(title("a").as_deref(), Some("Two"));
+    let mut untitled = session("u");
+    untitled.title = None;
+    store.set_sessions(vec![untitled.clone()]);
+    sessions.set_title("u", "Named");
+    store.set_sessions(vec![untitled]);
+    assert_eq!(title("u").as_deref(), Some("Named"));
+    // A forgotten chat takes its hold with it.
+    sessions.forget("u");
+    assert_eq!(sessions.held_title("u", None), None);
+}

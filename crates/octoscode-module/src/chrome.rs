@@ -2058,6 +2058,23 @@ impl ChromeRuntime {
         // holds no clicks either.)
         let chat_menu = sidebar::chat_menu(store);
         if sb.menu_for.is_some() || sb.renaming.is_some() || chat_menu.is_some() {
+            // A right-click (or a long press) outside the open menu: on a
+            // chat row it opens that row's menu there, anywhere else it
+            // closes the menu; on the menu itself it does nothing.
+            if sb.renaming.is_none() {
+                let shown = if chat_menu.is_some() { ids!(sb_chat_menu) } else { ids!(sb_menu) };
+                let menu = view.widget(cx, shown).area().rect(cx);
+                let list = view.portal_list(cx, ids!(thread_list));
+                let row = sidebar_list_clicks(cx, &list, store, actions).into_iter().find_map(|click| match click {
+                    TreeClick::ChatMenu(i, at) => Some((i, at)),
+                    _ => None,
+                });
+                let elsewhere = row_menu_press(&view.view(cx, ids!(sb_menu_ctx)), actions);
+                if let Some(intent) = open_menu_press(menu, row, elsewhere) {
+                    out.push(intent);
+                    return out;
+                }
+            }
             if let Some(m) = chat_menu {
                 if m.rename && c(cx, live_id!(sb_chat_rename)) {
                     out.push(Intent::Action("session.rename", m.index));
@@ -3158,6 +3175,18 @@ fn rename_field_intent(cx: &mut Cx, list: &PortalListRef, actions: &Actions) -> 
     None
 }
 
+/// What a right-click (or a long press) does while a menu is open: on a
+/// chat row outside the menu it opens that row's menu there, anywhere else
+/// outside the menu it closes it, on the menu itself nothing. `row` is a
+/// chat row's press, `elsewhere` the menu layer's (window coordinates).
+fn open_menu_press(menu: Rect, row: Option<(usize, (f64, f64))>, elsewhere: Option<(f64, f64)>) -> Option<Intent> {
+    let outside = |at: (f64, f64)| !menu.contains(dvec2(at.0, at.1));
+    match row {
+        Some((i, at)) if outside(at) => Some(Intent::ChatMenu(i, at)),
+        _ => elsewhere.filter(|at| outside(*at)).map(|_| Intent::CloseMenu),
+    }
+}
+
 /// Where a chat row's context menu was asked for: a press of the secondary
 /// mouse button, or a long press (touch has no right button).
 fn row_menu_press(ctx: &ViewRef, actions: &Actions) -> Option<(f64, f64)> {
@@ -3354,5 +3383,19 @@ mod tests {
                 assert!(f.is_file(), "missing icon {}", f.display());
             }
         }
+    }
+
+    /// A right-click while a menu is open: another chat row's menu opens at
+    /// the press, anywhere else outside the menu closes it, and the menu
+    /// itself (a row drawn under it included) ignores it.
+    #[test]
+    fn a_right_click_outside_the_open_menu_moves_or_closes_it() {
+        let menu = Rect { pos: dvec2(140.0, 320.0), size: dvec2(168.0, 76.0) };
+        let on_menu = (200.0, 350.0);
+        assert_eq!(open_menu_press(menu, Some((2, (120.0, 360.0))), Some((120.0, 360.0))), Some(Intent::ChatMenu(2, (120.0, 360.0))));
+        assert_eq!(open_menu_press(menu, None, Some((700.0, 400.0))), Some(Intent::CloseMenu));
+        assert_eq!(open_menu_press(menu, Some((1, on_menu)), Some(on_menu)), None);
+        assert_eq!(open_menu_press(menu, None, Some(on_menu)), None);
+        assert_eq!(open_menu_press(menu, None, None), None);
     }
 }

@@ -903,6 +903,12 @@ async fn a_sidebar_rename_sends_the_title_and_every_surface_reads_it() {
     assert_eq!(title("a8:api:old").as_deref(), Some("Newer chat"));
     let rows = octoscode_module::screens::board3::switcher::rows(&conv.store);
     assert!(rows.iter().any(|r| r.title == "Newer chat"), "Session history: {rows:?}");
+    // A listing that still carries the old title (this fake server's catalog
+    // never learns the rename) does not put it back.
+    host::run(spawn_of(host::command("sessions", "", &conv).unwrap()), &conv).await.unwrap();
+    let rows = octoscode_module::screens::board3::switcher::rows(&conv.store);
+    assert!(rows.iter().any(|r| r.title == "Newer chat"), "a stale history page: {rows:?}");
+    assert_eq!(title("a8:api:old").as_deref(), Some("Newer chat"));
     // A refused rename keeps the old title and says why.
     sidebar::resolve("session.rename", at("a8:api:locked"), &ctx);
     let (id, name) = sidebar::rename_chat_commit(&store, "Not busy").unwrap();
