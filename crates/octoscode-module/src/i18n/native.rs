@@ -622,6 +622,7 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Couldn't delete the session: {value0}", "无法删除会话：{value0}"),
     ("Delete?", "删除？"),
     ("Couldn't delete that chat.", "无法删除该会话。"),
+    ("Couldn't rename that chat.", "无法重命名该会话。"),
     ("Open a different session", "打开其他会话"),
     ("Thought process", "思考过程"),
     ("{seconds} s \u{b7} {words} words", "{seconds} 秒 \u{b7} {words} 词"),

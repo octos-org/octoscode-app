@@ -779,12 +779,17 @@ script_mod! {
 
         // A3 (board 2 screen 4): the workspace overflow menu, anchored to the
         // clicked "⋯" by sync_chrome (margin within this full-window layer);
-        // a click anywhere else closes it.
+        // a click anywhere else closes it. A chat row's context menu shares
+        // the layer, anchored at the press. `sb_menu_ctx` sees every press
+        // here (`capture_overload`, under the rest) so a right-click outside
+        // the open menu closes it, or opens the chat row's menu under it.
         sb_menu_dock := View {
             width: Fill height: Fill flow: Overlay
             visible: false
+            sb_menu_ctx := View {width: Fill height: Fill cursor: MouseCursor.Default capture_overload: true}
             sb_menu_dismiss := mod.widgets.OcBackdrop {}
             sb_menu := mod.widgets.OcWorkspaceMenu {}
+            sb_chat_menu := mod.widgets.OcChatMenu {visible: false}
         }
 
         // Card #28e item 5 (board 4 frame 3): the floating 560 px command
@@ -4763,6 +4768,13 @@ impl OctoscodeView {
                         Some((rect.pos.x + rect.size.x - ox, rect.pos.y + rect.size.y - oy));
                     self.perform_action(cx, "workspace.menu", i);
                 }
+                chrome::Intent::ChatMenu(i, (x, y)) => {
+                    // The menu opens at the press (module-local).
+                    let (ox, oy) = self.chrome.origin;
+                    self.chrome.chat_menu_at = Some((x - ox, y - oy));
+                    self.perform_action(cx, "session.menu", i);
+                }
+                chrome::Intent::RenameChat(t) => self.rename_chat(&store, &t),
                 chrome::Intent::Query(q) => {
                     screens::sidebar::set_query(&q);
                 }
@@ -4803,6 +4815,33 @@ impl OctoscodeView {
         }
         self.sync_chrome(cx);
         self.view.redraw(cx);
+    }
+
+    /// Commit a chat rename from its row's field: `session/title.set`, the
+    /// new title showing once the server keeps it; a failure keeps the old
+    /// one and says why. A blank or unchanged name sends nothing.
+    fn rename_chat(&mut self, store: &octoscode_store::Store, text: &str) {
+        let Some((id, title)) = screens::sidebar::rename_chat_commit(store, text) else { return };
+        makepad_widgets::log!("[octoscode] sidebar rename chat {id}");
+        let conv = { self.bridge.lock().unwrap().conv.clone() };
+        match (self.runtime.as_ref(), conv) {
+            (Some(rt), Some(conv)) => {
+                rt.spawn(async move {
+                    let r = screens::sidebar::rename_session(&conv, &id, &title).await;
+                    screens::sidebar::rename_finished(r);
+                    SignalToUI::set_ui_signal();
+                });
+            }
+            _ => screens::sidebar::rename_finished(Err("not connected".into())),
+        }
+    }
+
+    /// A chat rename in its sidebar row holds the keyboard while its chat is
+    /// still listed (one that left the list is abandoned, never a dead
+    /// keyboard).
+    fn chat_rename_owns_keys(&self) -> bool {
+        let store = { self.bridge.lock().unwrap().store.clone() };
+        screens::sidebar::live_rename(&store).is_some()
     }
 
     /// A24 — the phone's Back: the module's top surface closes exactly as
@@ -4858,9 +4897,14 @@ impl OctoscodeView {
         } else if screens::settings::snapshot().stop_pending {
             self.perform_action(cx, "server.stop.cancel", 0);
             true
-        } else if screens::sidebar::menu_for().is_some() || screens::sidebar::renaming().is_some() {
+        } else if screens::sidebar::menu_for().is_some()
+            || screens::sidebar::renaming().is_some()
+            || screens::sidebar::snapshot().chat_menu.is_some()
+            || screens::sidebar::renaming_chat().is_some()
+        {
             screens::sidebar::close_menu();
             self.perform_action(cx, "workspace.rename.cancel", 0);
+            self.perform_action(cx, "session.rename.cancel", 0);
             true
         } else if settings_open {
             self.perform_action(cx, "settings.panel.close", 0);
@@ -6589,6 +6633,15 @@ impl OctoscodeView {
             // (:1491-1492). The action button on the single-line composer IS
             // Enter (the web: bare Enter submits, ComposerInput.tsx:237-243).
             // Android-only: desktop submits via KeyDown ReturnKey already.
+            // The chat rename field's Done saves it, as its Return does.
+            #[cfg(target_os = "android")]
+            Event::ImeAction(_) if self.chat_rename_owns_keys() => {
+                let store = { self.bridge.lock().unwrap().store.clone() };
+                let typed = screens::sidebar::chat_title();
+                self.rename_chat(&store, &typed);
+                self.sync_chrome(cx);
+                self.view.redraw(cx);
+            }
             #[cfg(target_os = "android")]
             Event::ImeAction(_) => {
                 // Bind the value FIRST: the tail expression's temporary
@@ -6682,6 +6735,10 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] task detail closed (Escape)");
                 self.perform_action(cx, "cv.detail.close", 0);
             }
+            // A chat rename in its sidebar row owns the keyboard: its field
+            // takes Return (save) and Escape (cancel) itself; no takeover
+            // key, shortcut or composer submit acts behind it.
+            Event::KeyDown(_) if self.chat_rename_owns_keys() => {}
             // A30 — ⌥Y / ⌥N on the sidebar peer dock's focused row (its
             // drawn approval); suppressed in a text field or a dialog.
             Event::KeyDown(e) if self.peer_dock_key(cx, e) => {}
