@@ -22,6 +22,9 @@ struct Inner {
     ever_live: bool,
     /// A12 — the retained outage, if the live connection dropped.
     outage: Option<Outage>,
+    /// The connection is a shell's port to its own kernel (OctoSense): there
+    /// is no server to connect to, so the shell is up from the start.
+    hosted: bool,
 }
 
 /// A12 — an outage of a connection that WAS live: the web keeps the opened
@@ -131,6 +134,16 @@ impl ConnectionState {
             o.attempt += 1;
             o.restoring = false;
         }
+    }
+
+    /// Mark this connection as a shell's port (see `Inner::hosted`).
+    pub fn set_hosted(&self) {
+        self.inner.lock().unwrap().hosted = true;
+    }
+
+    /// Whether this connection is a shell's port.
+    pub fn is_hosted(&self) -> bool {
+        self.inner.lock().unwrap().hosted
     }
 
     /// A12 — the retained outage, if any.

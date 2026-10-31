@@ -1200,6 +1200,9 @@ impl Conversation {
         profile: &str,
     ) -> (Self, tokio::sync::mpsc::Receiver<TransportEvent>) {
         let store = Arc::new(Store::new());
+        if base == HOST_ORIGIN {
+            store.connection.set_hosted();
+        }
         let mut registry = Registry::new();
         octoscode_client::domains::register_all(&mut registry, store.clone());
         let trace = TraceSink::new();
