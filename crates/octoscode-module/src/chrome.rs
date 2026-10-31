@@ -1723,18 +1723,37 @@ impl Section {
     }
 }
 
+/// What the helpers below look a path up in: the module's root view, or
+/// one of its containers (#21: `ChromeRuntime::sync` roots its lookups at
+/// the container that holds them).
+pub trait Find {
+    fn find(&self, cx: &Cx, path: &[LiveId]) -> WidgetRef;
+}
+
+impl Find for View {
+    fn find(&self, cx: &Cx, path: &[LiveId]) -> WidgetRef {
+        self.widget(cx, path)
+    }
+}
+
+impl Find for WidgetRef {
+    fn find(&self, cx: &Cx, path: &[LiveId]) -> WidgetRef {
+        self.widget(cx, path)
+    }
+}
+
 /// Set a widget's visibility by a path.
-pub fn show<W: Widget>(cx: &mut Cx, root: &W, path: &[LiveId], on: bool) {
-    root.widget(cx, path).set_visible(cx, on);
+pub fn show<W: Find>(cx: &mut Cx, root: &W, path: &[LiveId], on: bool) {
+    root.find(cx, path).set_visible(cx, on);
 }
 
 /// Set a label's text by a path.
-pub fn text<W: Widget>(cx: &mut Cx, root: &W, path: &[LiveId], value: &str) {
-    root.widget(cx, path).set_text(cx, value);
+pub fn text<W: Find>(cx: &mut Cx, root: &W, path: &[LiveId], value: &str) {
+    root.find(cx, path).set_text(cx, value);
 }
 
 /// Flip a toggle's four layers.
-pub fn set_toggle<W: Widget>(cx: &mut Cx, root: &W, toggle: LiveId, on: bool) {
+pub fn set_toggle<W: Find>(cx: &mut Cx, root: &W, toggle: LiveId, on: bool) {
     show(cx, root, &[toggle, live_id!(tg_on)], on);
     show(cx, root, &[toggle, live_id!(tg_off)], !on);
     show(cx, root, &[toggle, live_id!(tg_knob_on)], on);
@@ -1770,7 +1789,7 @@ pub fn notify_row(s: &crate::attention::AttentionSettings) -> NotifyRow {
     }
 }
 
-pub fn sync_notify_row<W: Widget>(cx: &mut Cx, view: &W, s: &crate::attention::AttentionSettings) {
+pub fn sync_notify_row<W: Find>(cx: &mut Cx, view: &W, s: &crate::attention::AttentionSettings) {
     let row = notify_row(s);
     show(cx, view, ids!(tg_notify), row.toggle.is_some());
     set_toggle(cx, view, live_id!(tg_notify), row.toggle == Some(true));
@@ -1782,13 +1801,13 @@ pub fn sync_notify_row<W: Widget>(cx: &mut Cx, view: &W, s: &crate::attention::A
 }
 
 /// Flip a radio's two layers.
-pub fn set_radio<W: Widget>(cx: &mut Cx, root: &W, radio: LiveId, on: bool) {
+pub fn set_radio<W: Find>(cx: &mut Cx, root: &W, radio: LiveId, on: bool) {
     show(cx, root, &[radio, live_id!(rd_on)], on);
     show(cx, root, &[radio, live_id!(rd_off)], !on);
 }
 
 /// Label + select a segment of a segmented control.
-pub fn set_segment<W: Widget>(cx: &mut Cx, root: &W, seg: LiveId, label: &str, on: bool) {
+pub fn set_segment<W: Find>(cx: &mut Cx, root: &W, seg: LiveId, label: &str, on: bool) {
     text(cx, root, &[seg, live_id!(sg_text_on)], label);
     text(cx, root, &[seg, live_id!(sg_text_off)], label);
     show(cx, root, &[seg, live_id!(sg_pill)], on);
@@ -2193,14 +2212,27 @@ impl ChromeRuntime {
         self.compact = compact;
         let sb = sidebar::snapshot();
         let st = settings::snapshot();
+        // #21: the lookups below are rooted at the container that holds
+        // them, not at the module root. A remount in the conversation column
+        // (the composer, its seats) drops the path cache of every ancestor
+        // of what it replaced, the root's included, and each of ~200 root
+        // lookups then walked the whole tree (~900 nodes) again: 220k nodes,
+        // ~35 ms per Signal. None of these containers is such an ancestor,
+        // so their caches outlive the remount and only the five lookups that
+        // find them walk.
+        let header = view.widget(cx, ids!(oc_header));
+        let side = view.widget(cx, ids!(sidebar_dock));
+        let menu_dock = view.widget(cx, ids!(sb_menu_dock));
+        let panel = view.widget(cx, ids!(settings_drawer));
+        let stop = view.widget(cx, ids!(stop_dock));
 
         // ---- seats: the sidebar column (desktop) or drawer (compact).
         let drawer = compact && sb.drawer_open && live;
         show(cx, view, ids!(sidebar_spacer), !compact);
-        show(cx, view, ids!(sidebar_dock), live && (!compact || drawer));
+        side.set_visible(cx, live && (!compact || drawer));
         show(cx, view, ids!(drawer_scrim), drawer);
-        show(cx, view, ids!(drawer_close_slot), drawer);
-        show(cx, view, ids!(hd_menu), compact);
+        show(cx, &side, ids!(drawer_close_slot), drawer);
+        show(cx, &header, ids!(hd_menu), compact);
         // The drawer is min(320, w - 48) wide (NavigationSurface.module.css
         // .drawer); the desktop column is resizable, its collapsed rail 56.
         let rail = sb.rail && !compact;
@@ -2212,34 +2244,34 @@ impl ChromeRuntime {
             sidebar::bounded_width(sb.width, window_w.max(COMPACT_MAX))
         };
         show(cx, view, ids!(sidebar_resize), live && !compact && !rail && !settings_open);
-        show(cx, view, ids!(oc_sidebar_rail), rail);
-        show(cx, view, ids!(oc_sidebar_body), !rail);
-        show(cx, view, ids!(oc_sidebar_foot), !rail);
-        show(cx, view, ids!(sidebar_header), !rail);
+        show(cx, &side, ids!(oc_sidebar_rail), rail);
+        show(cx, &side, ids!(oc_sidebar_body), !rail);
+        show(cx, &side, ids!(oc_sidebar_foot), !rail);
+        show(cx, &side, ids!(sidebar_header), !rail);
         // The collapsed rail keeps the Fleet entry as its icon only; the web
         // drops the label (ProductSidebar.tsx:980). Left in, it clipped to 3 px.
-        show(cx, view, ids!(fleet_nav_label), !rail);
-        show(cx, view, ids!(history_nav_label), !rail);
+        show(cx, &side, ids!(fleet_nav_label), !rail);
+        show(cx, &side, ids!(history_nav_label), !rail);
         // A26 — the footer's theme toggle and Settings: icons only in the
         // rail too (ProductSidebar.tsx:995/1015); the toggle's icon and label
         // follow the appearance preference (System / Light / Dark).
         for entry in [FooterEntry::Theme, FooterEntry::Settings] {
-            show(cx, view, &[LiveId::from_str(entry.label())], !rail);
+            show(cx, &side, &[LiveId::from_str(entry.label())], !rail);
         }
         {
             let pref = crate::screens::theme::selection();
             let on = footer_theme_icon(&pref);
             for layer in ["sb_theme_ic_system", "sb_theme_ic_light", "sb_theme_ic_dark"] {
-                show(cx, view, &[LiveId::from_str(layer)], layer == on);
+                show(cx, &side, &[LiveId::from_str(layer)], layer == on);
             }
             // A24: the footer's words in the current language ("System" is
             // the theme's 跟随系统 here, `i18n::tr_ctx`).
-            text(cx, view, ids!(sb_theme_label), crate::i18n::tr_ctx("theme", theme_label(&pref)));
-            text(cx, view, ids!(sb_settings_label), tr(a26_copy::SETTINGS));
+            text(cx, &side, ids!(sb_theme_label), crate::i18n::tr_ctx("theme", theme_label(&pref)));
+            text(cx, &side, ids!(sb_settings_label), tr(a26_copy::SETTINGS));
         }
-        show(cx, view, ids!(sidebar_collapse_slot), !compact && !rail);
+        show(cx, &side, ids!(sidebar_collapse_slot), !compact && !rail);
         if crate::screens::sidebar::take_focus_search() {
-            view.widget(cx, ids!(sb_search)).set_key_focus(cx);
+            side.widget(cx, ids!(sb_search)).set_key_focus(cx);
         }
         // Settings: the centred dialog on desktop, a full sheet on compact.
         let (frame_margin, max_w, max_h, radius) = if compact {
@@ -2253,20 +2285,20 @@ impl ChromeRuntime {
         let copy_phase = copy_offered
             .then(|| crate::screens::copy_button::phase(&store.active_session().unwrap_or_default()));
         let copy_pill = copy_phase.map(|p| (tr(p.label()), p != crate::screens::copy_button::Phase::Idle));
-        let tabs_shown = view.widget(cx, ids!(hd_tabs)).visible();
+        let tabs_shown = header.widget(cx, ids!(hd_tabs)).visible();
         let (left_pad, labelled) =
             header_actions_fit(crate::conv_layout::current().pane_w, compact, copy_pill, tabs_shown);
         let key = format!("{sidebar_w}|{frame_margin}|{max_w}|{max_h}|{compact}|{copy_offered}|{left_pad}");
         if self.applied != key {
             self.applied = key;
-            let mut col = view.widget(cx, ids!(threads_column));
+            let mut col = side.widget(cx, ids!(threads_column));
             script_apply_eval!(cx, col, { width: #(sidebar_w) });
             // A26 — the footer rows (Fleet, the theme toggle, Settings): in
             // the collapsed rail their icons sit on the rail buttons' centre
             // line (`.collapsed .settings { justify-content: center }`).
             let row_pad = Inset { left: footer_row_inset(rail), right: 0.0, top: 0.0, bottom: 0.0 };
             for row in ["fleet_nav_row", "sb_theme_row", "sb_settings_row"] {
-                let mut r = view.widget(cx, &[LiveId::from_str(row)]);
+                let mut r = side.widget(cx, &[LiveId::from_str(row)]);
                 script_apply_eval!(cx, r, { padding: #(row_pad) });
             }
             // The desktop spacer reserves the column + its 1 px rule.
@@ -2282,19 +2314,19 @@ impl ChromeRuntime {
                 max_width: #(max_w)
                 max_height: #(max_h)
             });
-            let mut panel = view.widget(cx, ids!(settings_drawer));
+            let mut panel = panel.clone();
             script_apply_eval!(cx, panel, { draw_bg +: { border_radius: #(radius) } });
             // Judge fix: on the phone shells a TextInput draws at the touch
             // height (44 px), so inside the desktop's 34 px box its bottom
             // border was clipped (phone drawer capture). Compact gets a 44 px
             // field: a proper touch target, fully drawn.
             let search_h = if compact { 44.0 } else { 34.0 };
-            let mut search = view.widget(cx, ids!(sb_search_box));
+            let mut search = side.widget(cx, ids!(sb_search_box));
             script_apply_eval!(cx, search, { height: #(search_h) });
             // The header actions' reserve (`header_actions_fit`): labelled
             // pills when the pane holds them beside the tabs and the title,
             // icon-only otherwise (always on compact).
-            let mut left = view.widget(cx, ids!(hd_left));
+            let mut left = header.widget(cx, ids!(hd_left));
             let pad = Inset { left: 12.0, right: left_pad, top: 0.0, bottom: 0.0 };
             script_apply_eval!(cx, left, { padding: #(pad) });
             // A13 — the web's phone header (`AppProduct.module.css`, max-width
@@ -2304,23 +2336,23 @@ impl ChromeRuntime {
             let (tab, bar) = if compact || !labelled { (4.0, 3.0) } else { (10.0, 9.0) };
             let tab = Inset { left: tab, right: tab, top: 0.0, bottom: 0.0 };
             let bar = Inset { left: bar, right: bar, top: 0.0, bottom: 0.0 };
-            let mut v = view.widget(cx, ids!(hd_tab_chat_pad));
+            let mut v = header.widget(cx, ids!(hd_tab_chat_pad));
             script_apply_eval!(cx, v, { padding: #(tab) });
-            let mut v = view.widget(cx, ids!(hd_tab_traj_pad));
+            let mut v = header.widget(cx, ids!(hd_tab_traj_pad));
             script_apply_eval!(cx, v, { padding: #(tab) });
-            let mut v = view.widget(cx, ids!(hd_tab_chat_barpad));
+            let mut v = header.widget(cx, ids!(hd_tab_chat_barpad));
             script_apply_eval!(cx, v, { padding: #(bar) });
-            let mut v = view.widget(cx, ids!(hd_tab_traj_barpad));
+            let mut v = header.widget(cx, ids!(hd_tab_traj_barpad));
             script_apply_eval!(cx, v, { padding: #(bar) });
         }
-        show(cx, view, ids!(hd_review_label), labelled);
-        show(cx, view, ids!(hd_settings_label), labelled);
+        show(cx, &header, ids!(hd_review_label), labelled);
+        show(cx, &header, ids!(hd_settings_label), labelled);
         // A8: the copy pill's phase label, keyed by the active Session — kept
         // beside the icon while a result shows (icon-only when idle and narrow).
-        show(cx, view, ids!(hd_copy), copy_offered);
+        show(cx, &header, ids!(hd_copy), copy_offered);
         if let Some((label, busy)) = copy_pill {
-            text(cx, view, ids!(hd_copy_label), label);
-            show(cx, view, ids!(hd_copy_label), labelled || busy);
+            text(cx, &header, ids!(hd_copy_label), label);
+            show(cx, &header, ids!(hd_copy_label), labelled || busy);
         }
 
         // ---- header: the active session's title + its workspace path.
@@ -2337,11 +2369,11 @@ impl ChromeRuntime {
             .and_then(|a| store.domains.session.workspace_root(a))
             .or_else(|| std::env::var("OCTOS_WORKSPACE_CWD").ok())
             .unwrap_or_default();
-        text(cx, view, ids!(hd_title), &title);
-        text(cx, view, ids!(hd_path), &root);
+        text(cx, &header, ids!(hd_title), &title);
+        text(cx, &header, ids!(hd_path), &root);
         // An empty path line still takes its height and lifts a lone title
         // above the tabs' centre line; without a path the title centres.
-        show(cx, view, ids!(hd_path), !root.is_empty());
+        show(cx, &header, ids!(hd_path), !root.is_empty());
         // Board 10: the defaults strip shows above an EMPTY conversation —
         // a New chat's (A19b: not a Session whose history is still loading,
         // or could not be read: that one is not empty, its rows are coming).
@@ -2350,22 +2382,22 @@ impl ChromeRuntime {
             .map(|a| store.domains.session.timeline.entries(a).is_empty())
             .unwrap_or(true)
             && !self.history_unsettled;
-        show(cx, view, ids!(hd_defaults), live && empty);
+        show(cx, &header, ids!(hd_defaults), live && empty);
         if live && empty {
             // A13: on a phone the one line ends at a whole segment, then "…"
             // (the label's own ellipsis stays the safety net). The label's
             // width: the strip's insets (16 + 8), its spacing (8), Change (72).
             let line = settings::defaults_line(store);
             let line = if compact { fit_segments(&line, window_w - 104.0) } else { line };
-            text(cx, view, ids!(hd_defaults_text), &line);
+            text(cx, &header, ids!(hd_defaults_text), &line);
         }
         // Board 12: held by another client.
         let held = held_by_other(store);
-        show(cx, view, ids!(hd_held), live && held.is_some());
+        show(cx, &header, ids!(hd_held), live && held.is_some());
         if let Some(who) = held {
             text(
                 cx,
-                view,
+                &header,
                 ids!(hd_held_text),
                 // A24: the fallback holder name is copy (a driver id is data).
                 &tr_with(
@@ -2377,13 +2409,13 @@ impl ChromeRuntime {
 
         // ---- sidebar controls.
         let grouped = sb.mode == sidebar::Mode::Grouped;
-        set_segment(cx, view, live_id!(sb_seg_ws), tr("By workspace"), grouped);
-        set_segment(cx, view, live_id!(sb_seg_all), tr("All"), !grouped);
-        text(cx, view, ids!(sb_sort_label), tr(sb.sort.label()));
-        show(cx, view, ids!(sb_search_clear_row), !sb.query.is_empty());
+        set_segment(cx, &side, live_id!(sb_seg_ws), tr("By workspace"), grouped);
+        set_segment(cx, &side, live_id!(sb_seg_all), tr("All"), !grouped);
+        text(cx, &side, ids!(sb_sort_label), tr(sb.sort.label()));
+        show(cx, &side, ids!(sb_search_clear_row), !sb.query.is_empty());
         if sb.query.is_empty() {
             // `search.clear` emptied the state: empty the field too.
-            let field = view.text_input(cx, ids!(sb_search));
+            let field = side.text_input(cx, ids!(sb_search));
             if !field.text().is_empty() {
                 field.set_text(cx, "");
             }
@@ -2391,12 +2423,12 @@ impl ChromeRuntime {
         // The workspace menu: anchored at the "⋯", the rename form in place.
         let menu = sidebar::menu_for();
         let renaming = sidebar::renaming();
-        show(cx, view, ids!(sb_menu_dock), live && (menu.is_some() || renaming.is_some()));
-        show(cx, view, ids!(sb_menu_items), renaming.is_none());
-        show(cx, view, ids!(sb_rename_form), renaming.is_some());
+        menu_dock.set_visible(cx, live && (menu.is_some() || renaming.is_some()));
+        show(cx, &menu_dock, ids!(sb_menu_items), renaming.is_none());
+        show(cx, &menu_dock, ids!(sb_rename_form), renaming.is_some());
         if let Some((ax, ay)) = self.menu_anchor {
             let (mx, my) = ((ax - 200.0).max(8.0).min((window_w - 208.0).max(8.0)), ay + 4.0);
-            let mut m = view.widget(cx, ids!(sb_menu));
+            let mut m = menu_dock.widget(cx, ids!(sb_menu));
             let at = Inset { left: mx, top: my, right: 0.0, bottom: 0.0 };
             script_apply_eval!(cx, m, { margin: #(at) });
         }
@@ -2408,94 +2440,94 @@ impl ChromeRuntime {
             let nav = LiveId::from_str(&format!("set_nav_{}", s.id()));
             let rail = LiveId::from_str(&format!("set_rail_{}", s.id()));
             let sec = LiveId::from_str(&format!("sec_{}", s.id()));
-            show(cx, view, &[nav, live_id!(nv_on)], on);
-            show(cx, view, &[rail, live_id!(rl_on)], on);
-            show(cx, view, &[rail, live_id!(rl_on_icon)], on);
-            show(cx, view, &[rail, live_id!(rl_off_icon)], !on);
-            show(cx, view, &[sec], on);
+            show(cx, &panel, &[nav, live_id!(nv_on)], on);
+            show(cx, &panel, &[rail, live_id!(rl_on)], on);
+            show(cx, &panel, &[rail, live_id!(rl_on_icon)], on);
+            show(cx, &panel, &[rail, live_id!(rl_off_icon)], !on);
+            show(cx, &panel, &[sec], on);
         }
-        show(cx, view, ids!(set_footer), st.section == Section::Preferences);
-        show(cx, view, ids!(set_nav), !compact);
-        show(cx, view, ids!(set_rail), compact);
-        show(cx, view, ids!(set_close_slot), !compact);
-        text(cx, view, ids!(set_title), tr(st.section.title()));
+        show(cx, &panel, ids!(set_footer), st.section == Section::Preferences);
+        show(cx, &panel, ids!(set_nav), !compact);
+        show(cx, &panel, ids!(set_rail), compact);
+        show(cx, &panel, ids!(set_close_slot), !compact);
+        text(cx, &panel, ids!(set_title), tr(st.section.title()));
         // General.
-        sync_notify_row(cx, view, &crate::attention::settings());
+        sync_notify_row(cx, &panel, &crate::attention::settings());
         let endpoint = server_label();
         // A9: the web's five connection states (a9_settings::status_of) with
         // the status dot; the origin on the right.
         {
             use crate::screens::a9_settings::{self as a9s, Dot};
             let status = a9s::status_of(&store.connection(), false);
-            text(cx, view, ids!(set_server_status), tr(status.copy()));
+            text(cx, &panel, ids!(set_server_status), tr(status.copy()));
             let dot = status.dot();
-            show(cx, view, ids!(set_server_dot_ok), dot == Dot::Ok);
-            show(cx, view, ids!(set_server_dot_busy), dot == Dot::Busy);
-            show(cx, view, ids!(set_server_dot_err), dot == Dot::Err);
-            show(cx, view, ids!(set_server_dot_idle), dot == Dot::Idle);
-            text(cx, view, ids!(set_server_value), &endpoint);
+            show(cx, &panel, ids!(set_server_dot_ok), dot == Dot::Ok);
+            show(cx, &panel, ids!(set_server_dot_busy), dot == Dot::Busy);
+            show(cx, &panel, ids!(set_server_dot_err), dot == Dot::Err);
+            show(cx, &panel, ids!(set_server_dot_idle), dot == Dot::Idle);
+            text(cx, &panel, ids!(set_server_value), &endpoint);
             let rows = a9s::info_rows(store, &store.domains.profile.current().unwrap_or_default());
             let ws = rows.iter().find(|r| r.title == "Current workspace");
             let profile = rows.iter().find(|r| r.title == "Profile");
-            show(cx, view, ids!(set_ws_row), ws.is_some());
+            show(cx, &panel, ids!(set_ws_row), ws.is_some());
             if let Some(r) = ws {
-                text(cx, view, ids!(set_ws_value), &r.value);
-                text(cx, view, ids!(set_ws_path), &r.description);
+                text(cx, &panel, ids!(set_ws_value), &r.value);
+                text(cx, &panel, ids!(set_ws_path), &r.description);
             }
-            show(cx, view, ids!(set_profile_row), profile.is_some());
+            show(cx, &panel, ids!(set_profile_row), profile.is_some());
             if let Some(r) = profile {
-                text(cx, view, ids!(set_profile_value), &r.value);
+                text(cx, &panel, ids!(set_profile_value), &r.value);
             }
         }
-        show(cx, view, ids!(set_stop_row), settings::can_stop_server(store));
+        show(cx, &panel, ids!(set_stop_row), settings::can_stop_server(store));
         // Permissions. A15: the radio the SERVER's selection matches (none
         // when it matches no preset, e.g. Write · Network allowed), and the
         // readback is what the server reports, not a preset's static copy.
         let preset = st.saving.or_else(|| settings::preset_of(store));
-        set_radio(cx, view, live_id!(pm_ask_radio), preset == Some(settings::Preset::Ask));
-        set_radio(cx, view, live_id!(pm_ws_radio), preset == Some(settings::Preset::Workspace));
-        set_radio(cx, view, live_id!(pm_full_radio), preset == Some(settings::Preset::Full));
-        text(cx, view, ids!(set_perm_readback), &settings::permission_readback(store));
+        set_radio(cx, &panel, live_id!(pm_ask_radio), preset == Some(settings::Preset::Ask));
+        set_radio(cx, &panel, live_id!(pm_ws_radio), preset == Some(settings::Preset::Workspace));
+        set_radio(cx, &panel, live_id!(pm_full_radio), preset == Some(settings::Preset::Full));
+        text(cx, &panel, ids!(set_perm_readback), &settings::permission_readback(store));
         let state_line = if st.saving.is_some() {
             Some(tr("Saving…").to_owned())
         } else {
             st.last_error.as_ref().map(|e| tr_with("Failed: {value0}", &[("value0", e)]))
         };
-        show(cx, view, ids!(set_perm_state), state_line.is_some());
+        show(cx, &panel, ids!(set_perm_state), state_line.is_some());
         if let Some(line) = state_line {
-            text(cx, view, ids!(set_perm_state), &line);
+            text(cx, &panel, ids!(set_perm_state), &line);
         }
         // Model.
-        text(cx, view, &[live_id!(set_model), live_id!(vb_text)], &settings::model_of(store));
+        text(cx, &panel, &[live_id!(set_model), live_id!(vb_text)], &settings::model_of(store));
         let thinking = settings::thinking_of(store);
         // A24: one control, one language — "Off" / "On" are native-supplement
         // entries, "High" the web's (关 | 开 | 高).
-        set_segment(cx, view, live_id!(th_off), tr("Off"), thinking == settings::Thinking::Off);
-        set_segment(cx, view, live_id!(th_on), tr("On"), thinking == settings::Thinking::On);
-        set_segment(cx, view, live_id!(th_high), tr("High"), thinking == settings::Thinking::High);
-        show(cx, view, ids!(set_models_row), crate::screens::dialog::advertises(store, "profile/llm/list"));
+        set_segment(cx, &panel, live_id!(th_off), tr("Off"), thinking == settings::Thinking::Off);
+        set_segment(cx, &panel, live_id!(th_on), tr("On"), thinking == settings::Thinking::On);
+        set_segment(cx, &panel, live_id!(th_high), tr("High"), thinking == settings::Thinking::High);
+        show(cx, &panel, ids!(set_models_row), crate::screens::dialog::advertises(store, "profile/llm/list"));
         // Capabilities (A36): the rows this server can serve.
         {
             let rows = settings::capability_rows(store);
             let on = |id: &str| rows.contains(&id);
-            show(cx, view, ids!(set_cap_skills_row), on("skills"));
-            show(cx, view, ids!(set_cap_mcp_row), on("mcp"));
-            show(cx, view, ids!(set_cap_rule_mcp), on("skills") && on("mcp"));
-            show(cx, view, ids!(set_cap_tools_row), on("tools"));
-            show(cx, view, ids!(set_cap_rule_tools), on("tools") && (on("skills") || on("mcp")));
+            show(cx, &panel, ids!(set_cap_skills_row), on("skills"));
+            show(cx, &panel, ids!(set_cap_mcp_row), on("mcp"));
+            show(cx, &panel, ids!(set_cap_rule_mcp), on("skills") && on("mcp"));
+            show(cx, &panel, ids!(set_cap_tools_row), on("tools"));
+            show(cx, &panel, ids!(set_cap_rule_tools), on("tools") && (on("skills") || on("mcp")));
             // A36b — Memory, ruled off from whichever row stands above it.
-            show(cx, view, ids!(set_cap_memory_row), on("memory"));
-            show(cx, view, ids!(set_cap_rule_memory), on("memory") && (on("skills") || on("mcp") || on("tools")));
-            show(cx, view, ids!(set_cap_none), rows.is_empty());
+            show(cx, &panel, ids!(set_cap_memory_row), on("memory"));
+            show(cx, &panel, ids!(set_cap_rule_memory), on("memory") && (on("skills") || on("mcp") || on("tools")));
+            show(cx, &panel, ids!(set_cap_none), rows.is_empty());
         }
         // Sandbox (new-chat defaults).
-        set_toggle(cx, view, live_id!(tg_sb_write), st.sandbox.workspace_write);
-        set_toggle(cx, view, live_id!(tg_sb_network), st.sandbox.network);
-        set_toggle(cx, view, live_id!(tg_sb_read), st.sandbox.read_outside);
+        set_toggle(cx, &panel, live_id!(tg_sb_write), st.sandbox.workspace_write);
+        set_toggle(cx, &panel, live_id!(tg_sb_network), st.sandbox.network);
+        set_toggle(cx, &panel, live_id!(tg_sb_read), st.sandbox.read_outside);
         // Connection / About.
         text(
             cx,
-            view,
+            &panel,
             ids!(set_conn_value),
             &format!(
                 "{endpoint} · {}",
@@ -2507,26 +2539,26 @@ impl ChromeRuntime {
             let prefs = crate::screens::a9_prefs::snapshot();
             // A24: the options are the web's own labels, never translated.
             let zh = prefs.current.language == "zh";
-            set_segment(cx, view, live_id!(lang_en), "English", !zh);
-            set_segment(cx, view, live_id!(lang_zh), "简体中文", zh);
-            set_toggle(cx, view, live_id!(tg_vim), prefs.current.vim_mode);
-            text(cx, view, ids!(prefs_status), tr(prefs.status()));
+            set_segment(cx, &panel, live_id!(lang_en), "English", !zh);
+            set_segment(cx, &panel, live_id!(lang_zh), "简体中文", zh);
+            set_toggle(cx, &panel, live_id!(tg_vim), prefs.current.vim_mode);
+            text(cx, &panel, ids!(prefs_status), tr(prefs.status()));
             // A26 — the display palette: the chosen row's radio is on.
-            text(cx, view, ids!(pal_title), tr(a26_copy::PALETTE_TITLE));
-            text(cx, view, ids!(pal_help), tr(a26_copy::PALETTE_HELP));
+            text(cx, &panel, ids!(pal_title), tr(a26_copy::PALETTE_TITLE));
+            text(cx, &panel, ids!(pal_help), tr(a26_copy::PALETTE_HELP));
             for id in crate::screens::a9_prefs::DISPLAY_THEMES {
                 let row = LiveId::from_str(&format!("pal_{id}"));
                 let on = prefs.current.theme == id;
-                show(cx, view, &[row, live_id!(rd_on)], on);
-                show(cx, view, &[row, live_id!(rd_off)], !on);
-                text(cx, view, &[row, live_id!(pl_title)], crate::i18n::tr_ctx("theme", theme_label(id)));
+                show(cx, &panel, &[row, live_id!(rd_on)], on);
+                show(cx, &panel, &[row, live_id!(rd_off)], !on);
+                text(cx, &panel, &[row, live_id!(pl_title)], crate::i18n::tr_ctx("theme", theme_label(id)));
             }
         }
-        text(cx, view, ids!(set_about_version), &tr_with("Version {version}", &[("version", env!("CARGO_PKG_VERSION"))]));
+        text(cx, &panel, ids!(set_about_version), &tr_with("Version {version}", &[("version", env!("CARGO_PKG_VERSION"))]));
         let methods = store.domains.config.supported_methods().len();
         text(
             cx,
-            view,
+            &panel,
             ids!(set_about_server),
             &if methods > 0 {
                 tr_with("{server} · {methods} protocol methods advertised", &[("server", &server_label()), ("methods", &methods.to_string())])
@@ -2537,9 +2569,9 @@ impl ChromeRuntime {
         let _ = s_open;
 
         // ---- the Stop dialog.
-        show(cx, view, ids!(stop_dock), live && st.stop_pending);
-        show(cx, view, ids!(stop_error), st.stop_failed);
-        text(cx, view, ids!(stop_confirm_label), tr(if st.stop_busy { "Stopping…" } else { "Stop server" }));
+        stop.set_visible(cx, live && st.stop_pending);
+        show(cx, &stop, ids!(stop_error), st.stop_failed);
+        text(cx, &stop, ids!(stop_confirm_label), tr(if st.stop_busy { "Stopping…" } else { "Stop server" }));
 
         // ---- A24: the static shell's copy in the current language (on the
         // first sync and after every switch; `i18n::tree`).
