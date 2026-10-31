@@ -9,6 +9,7 @@
 //! column, the task detail in its own top dock — and routes their wired taps
 //! (`taps::wired_taps`, the shared #FX1 path) back here. Transport work runs
 //! through [`run`] on the host's runtime, always the production client.
+pub mod flow_host;
 pub mod folds;
 pub mod host;
 pub mod plan;
@@ -31,6 +32,9 @@ pub enum Tab {
     #[default]
     Chat,
     Trajectory,
+    /// The session and the work it sent out, as a graph
+    /// (`crate::screens::flow_graph`).
+    Flow,
 }
 
 /// Which takeover owns the composer now (`App.tsx:2759-2826`: an approval
@@ -261,7 +265,7 @@ pub fn live_reason(store: &Store) -> Option<String> {
 /// Lower the plan card (`None` = no card: no feature, no plan, an empty
 /// checklist, or a takeover owns the composer, `App.tsx:2657-2667`).
 pub fn lower_plan(store: &Store, m: &Metrics) -> Option<String> {
-    if takeover(store).is_some() || tab() == Tab::Trajectory {
+    if takeover(store).is_some() || tab() != Tab::Chat {
         return None;
     }
     let plan = plan::visible_plan(store)?;
@@ -277,9 +281,42 @@ pub fn tab() -> Tab {
     state().tab
 }
 
-/// Whether the header shows the Chat | Trajectory tabs.
+/// Whether the header shows the view tabs: Chat, and the Trajectory and/or
+/// the Flow, each while it has something to show.
 pub fn tabs_available(store: &Store) -> bool {
+    trajectory_available(store) || flow_available(store)
+}
+
+/// Whether the Trajectory tab is offered (the server advertises a
+/// supervision surface, `App.tsx:2377-2403`).
+pub fn trajectory_available(store: &Store) -> bool {
     store.is_live() && store.active_session().is_some() && trajectory::Avail::of(store).any()
+}
+
+/// Whether the Flow tab is offered: the active session sent out a peer or a
+/// running agent (`flow_graph::available`), and the header holds a tab more
+/// beside the session title ([`crate::chrome::header_holds_tabs`]).
+pub fn flow_available(store: &Store) -> bool {
+    store.is_live() && crate::screens::flow_graph::available(store) && flow_tab_fits(store)
+}
+
+/// The header's room for the Flow tab at the pane's measured width (before
+/// the first layout, the tab is not held back).
+fn flow_tab_fits(store: &Store) -> bool {
+    use crate::i18n::tr;
+    let m = crate::conv_layout::current();
+    if m.pane_w <= 0.0 {
+        return true;
+    }
+    let compact = m.density == Density::Phone;
+    let copy = crate::screens::copy_button::offered(store, compact)
+        .then(|| tr(crate::screens::copy_button::Phase::Idle.label()));
+    let mut tabs = vec![tr("Chat")];
+    if trajectory_available(store) {
+        tabs.push(tr("Trajectory"));
+    }
+    tabs.push(tr("Flow"));
+    crate::chrome::header_holds_tabs(m.pane_w, compact, copy, &tabs)
 }
 
 /// The pane the column shows: the Trajectory only while available (the
@@ -288,7 +325,20 @@ pub fn showing_trajectory(store: &Store) -> bool {
     if tab() != Tab::Trajectory {
         return false;
     }
-    if !tabs_available(store) {
+    if !trajectory_available(store) {
+        state().tab = Tab::Chat;
+        return false;
+    }
+    true
+}
+
+/// The Flow replaces the transcript only while it has something to draw
+/// (Chat again once it has not, as the Trajectory falls back).
+pub fn showing_flow(store: &Store) -> bool {
+    if tab() != Tab::Flow {
+        return false;
+    }
+    if !flow_available(store) {
         state().tab = Tab::Chat;
         return false;
     }
@@ -469,7 +519,7 @@ pub fn perform(action: &str, index: usize, store: &Store, ui: &Arc<Mutex<FlowUi>
             Outcome::Done
         }
         "cv.tab.trajectory" => {
-            if !tabs_available(store) {
+            if !trajectory_available(store) {
                 return Outcome::Done;
             }
             state().tab = Tab::Trajectory;
@@ -478,6 +528,12 @@ pub fn perform(action: &str, index: usize, store: &Store, ui: &Arc<Mutex<FlowUi>
             } else {
                 Outcome::Done
             }
+        }
+        "cv.tab.flow" => {
+            if flow_available(store) {
+                state().tab = Tab::Flow;
+            }
+            Outcome::Done
         }
         "cv.traj.refresh" => Outcome::Spawn(Job::Refresh),
         "cv.task.open" | "cv.task.cancel" => {

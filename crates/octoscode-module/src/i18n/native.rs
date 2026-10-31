@@ -955,6 +955,15 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("The dispatch could not be confirmed.", "无法确认此次派发。"),
     ("The control command could not be confirmed.", "无法确认此控制命令。"),
     ("The peer dispatch was accepted.", "同侪派发已被接受。"),
+    // ---- the Flow tab (chrome.rs, screens/flow_graph.rs, lib.rs)
+    ("Flow", "流程图"),
+    ("Peer", "同侪"),
+    ("Agent", "智能体"),
+    ("{value0} peers", "{value0} 个同侪"),
+    (
+        "Drag a card to move it, drag the canvas to pan. Click a card to open it.",
+        "拖动卡片可移动位置，拖动画布可平移。点击卡片可打开。",
+    ),
 ];
 
 /// The web catalog's vocabulary: each English term (matched as a word,
