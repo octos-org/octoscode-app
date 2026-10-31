@@ -2410,7 +2410,7 @@ impl ChromeRuntime {
         // ---- sidebar controls.
         let grouped = sb.mode == sidebar::Mode::Grouped;
         set_segment(cx, &side, live_id!(sb_seg_ws), tr("By workspace"), grouped);
-        set_segment(cx, &side, live_id!(sb_seg_all), tr("All"), !grouped);
+        set_segment(cx, &side, live_id!(sb_seg_all), crate::i18n::tr_ctx("sidebar", "All"), !grouped);
         text(cx, &side, ids!(sb_sort_label), tr(sb.sort.label()));
         show(cx, &side, ids!(sb_search_clear_row), !sb.query.is_empty());
         if sb.query.is_empty() {
