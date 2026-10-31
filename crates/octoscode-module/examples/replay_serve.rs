@@ -2384,6 +2384,9 @@ async fn main() {
             let mut live_sent = false;
             // The session id the app opens; every served frame is rewritten to it.
             let mut active_session = recorded.clone();
+            // The sidebar's chat renames (`session/title.set`), by Session id:
+            // the `--peer-dock` catalog lists the kept titles.
+            let mut titles: BTreeMap<String, String> = BTreeMap::new();
             // A6 `surfaces`: the rest of a turn held at an interaction, and
             // the approval it waits on.
             type Held = (Option<surfaces::Hold>, Vec<(Frame, Option<surfaces::Hold>)>, Value);
@@ -3010,6 +3013,15 @@ async fn main() {
                             });
                         }
                     }
+                    // The sidebar's chat rename: octos-core's
+                    // `SessionTitleSetResult` echoes the title it kept.
+                    "session/title.set" => {
+                        let session = v["params"]["session_id"].as_str().unwrap_or(&active_session).to_owned();
+                        let title = v["params"]["title"].as_str().unwrap_or("").trim().to_owned();
+                        println!("[replay-serve] -> session/title.set {session} {title:?}");
+                        titles.insert(session.clone(), title.clone());
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {"session_id": session, "title": title}})).await;
+                    }
                     // A30 follow-up — `--peer-dock`: the board's three Sessions in
                     // the workspace (the dock's walk measures the tree's two
                     // session rows beside a waiting card).
@@ -3019,10 +3031,13 @@ async fn main() {
                         // A22 row 228: a catalog lists FULL Session ids
                         // (`<profile>:<channel>:<chat>`) and attests a
                         // `{cwd, profile_id}` read, or the rows are not projected.
+                        let fork = format!("{profile}:api:session-fork");
+                        let review = format!("{profile}:api:review-pr-2566");
+                        let title = |id: &str, t: &str| titles.get(id).cloned().unwrap_or_else(|| t.to_owned());
                         let rows = serde_json::json!([
-                            {"id": active_session, "title": "Fix steer queue drop on reconnect", "message_count": 6, "updated_at": ago(2), "active_turn": false},
-                            {"id": format!("{profile}:api:session-fork"), "title": "Add session fork", "message_count": 4, "updated_at": ago(60), "active_turn": false},
-                            {"id": format!("{profile}:api:review-pr-2566"), "title": "Review PR #2566", "message_count": 9, "updated_at": ago(26 * 60), "active_turn": false},
+                            {"id": active_session, "title": title(&active_session, "Fix steer queue drop on reconnect"), "message_count": 6, "updated_at": ago(2), "active_turn": false},
+                            {"id": fork, "title": title(&fork, "Add session fork"), "message_count": 4, "updated_at": ago(60), "active_turn": false},
+                            {"id": review, "title": title(&review, "Review PR #2566"), "message_count": 9, "updated_at": ago(26 * 60), "active_turn": false},
                         ]);
                         let mut result = serde_json::json!({"sessions": rows});
                         if let (Some(cwd), Some(p)) = (v["params"]["cwd"].as_str(), v["params"]["profile_id"].as_str()) {

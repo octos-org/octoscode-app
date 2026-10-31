@@ -466,6 +466,10 @@ script_mod! {
                     // #18 — room for the delete × laid over the row below.
                     sb_r_del_room := View{width: 18 height: 1 visible: false}
                 }
+                // The row's context menu: a right-click (or a long press)
+                // anywhere on it. It shares the press with the hits above
+                // (`capture_overload`), which act on the primary button only.
+                sb_r_ctx := View{width: Fill height: Fill cursor: MouseCursor.Hand capture_overload: true}
                 sb_r_open := OcHit{}
                 // #18 — the delete ×, ABOVE the row's open hit (later siblings
                 // take the press first); never on the open chat.
@@ -504,6 +508,47 @@ script_mod! {
                         sb_r_ask_yes := OcHit{}
                     }
                     sb_r_ask_busy := OcMuted{text: "Deleting…" draw_text +: {text_style +: {font_size: 9.0}}}
+                }
+                // Rename: the title becomes a field in place (Return saves;
+                // Escape or a click elsewhere keeps the title). Its text
+                // starts where the title does (28 = the body's 6 + 16 + 6).
+                sb_r_rename := View{
+                    width: Fill height: Fill align: Align{y: 0.5}
+                    padding: Inset{left: 21 right: 4} visible: false
+                    sb_r_rename_input := TextInput{
+                        width: Fill height: 26 text: ""
+                        padding: Inset{left: 7 right: 7 top: 5 bottom: 3} margin: 0
+                        draw_bg.color: theme.color_bg_app
+                        draw_bg.color_hover: theme.color_bg_app
+                        draw_bg.color_focus: theme.color_bg_app
+                        draw_bg.color_down: theme.color_bg_app
+                        draw_bg.color_empty: theme.color_bg_app
+                        draw_bg.color_disabled: theme.color_bg_app
+                        draw_bg.border_radius: 6.0
+                        draw_bg.border_size: 1.0
+                        draw_bg.border_color: #2F6FEB
+                        draw_bg.border_color_2: #2F6FEB
+                        draw_bg.border_color_2_hover: #2F6FEB
+                        draw_bg.border_color_2_focus: #2F6FEB
+                        draw_bg.border_color_2_down: #2F6FEB
+                        draw_bg.border_color_2_empty: #2F6FEB
+                        draw_bg.border_color_2_disabled: theme.color_outset_1
+                        draw_bg.border_color_hover: #2F6FEB
+                        draw_bg.border_color_focus: #2F6FEB
+                        draw_bg.border_color_down: #2F6FEB
+                        draw_bg.border_color_empty: #2F6FEB
+                        draw_bg.border_color_disabled: theme.color_outset_1
+                        draw_text.color: theme.color_fg_app
+                        draw_text.color_hover: theme.color_fg_app
+                        draw_text.color_focus: theme.color_fg_app
+                        draw_text.color_down: theme.color_fg_app
+                        draw_text.color_empty: theme.color_text_muted
+                        draw_text.color_empty_hover: theme.color_text_muted
+                        draw_text.color_empty_focus: theme.color_text_muted
+                        draw_text.color_disabled: #8E8E93
+                        draw_text.text_style: TextStyle{font_family: OcFace400 font_size: 10.5 line_spacing: 1.2}
+                        draw_cursor.color: #2F6FEB
+                    }
                 }
             }
 
@@ -690,6 +735,24 @@ script_mod! {
                     sb_rename_save := OcHit{draw_bg.border_radius: 7.0}
                 }
             }
+        }
+    }
+
+    // A chat row's context menu (a right-click or a long press on the row):
+    // Rename, and Delete where the row offers it. The host positions it at
+    // the press, in the same full-window layer as the workspace menu.
+    mod.widgets.OcChatMenu = RoundedView{
+        width: 168 height: Fit flow: Down padding: 4
+        draw_bg +: {color: theme.color_bg_app border_radius: 10.0 border_size: 1.0 border_color: theme.color_outset_1}
+        sb_chat_rename_row := View{
+            width: Fill height: 34 flow: Overlay
+            View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: 12} OcLabel{text: "Rename"}}
+            sb_chat_rename := OcHit{}
+        }
+        sb_chat_delete_row := View{
+            width: Fill height: 34 flow: Overlay
+            View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: 12} OcLabel{text: "Delete" draw_text +: {color: #(crate::chrome::ink("danger"))}}}
+            sb_chat_delete := OcHit{}
         }
     }
 
@@ -1887,6 +1950,8 @@ pub struct ChromeRuntime {
     /// The open workspace menu's anchor, module-local (x, y): the "⋯"
     /// button's right edge and bottom.
     pub menu_anchor: Option<(f64, f64)>,
+    /// The open chat context menu's anchor, module-local (x, y): the press.
+    pub chat_menu_at: Option<(f64, f64)>,
     /// The geometry key last applied (frame margins, drawer width) — the
     /// runtime script-apply runs only when it changes.
     pub applied: String,
@@ -1934,6 +1999,11 @@ pub enum Intent {
     Query(String),
     /// Commit the rename form.
     RenameCommit(String),
+    /// Open the context menu of the chat at store `index`, at the press
+    /// (window coordinates).
+    ChatMenu(usize, (f64, f64)),
+    /// Commit the chat rename field.
+    RenameChat(String),
     /// Close the settings surface.
     CloseSettings,
     /// Open the settings surface.
@@ -1967,6 +2037,12 @@ impl ChromeRuntime {
         // Stop dialog's backdrop "click" again on the next press. A modal
         // surface also swallows everything under it (top-most first).
         let sb = sidebar::snapshot();
+        // A chat rename's field, read before any surface's branch below: a
+        // keystroke or its losing the keys is never dropped behind one.
+        if sb.renaming_chat.is_some() {
+            let list = view.portal_list(cx, ids!(thread_list));
+            out.extend(rename_field_intent(cx, &list, actions));
+        }
         if settings::snapshot().stop_pending {
             // The Stop dialog: ONLY server_stop_confirm sends; Cancel and the
             // backdrop close it with no RPC.
@@ -1978,7 +2054,19 @@ impl ChromeRuntime {
             }
             return out;
         }
-        if sb.menu_for.is_some() || sb.renaming.is_some() {
+        // (A chat menu that offers nothing any more is not drawn, so it
+        // holds no clicks either.)
+        let chat_menu = sidebar::chat_menu(store);
+        if sb.menu_for.is_some() || sb.renaming.is_some() || chat_menu.is_some() {
+            if let Some(m) = chat_menu {
+                if m.rename && c(cx, live_id!(sb_chat_rename)) {
+                    out.push(Intent::Action("session.rename", m.index));
+                }
+                // #18's own confirmation, in the row.
+                if m.delete && c(cx, live_id!(sb_chat_delete)) {
+                    out.push(Intent::Action("session.delete", m.index));
+                }
+            }
             if let Some((group, _)) = sidebar::menu_for() {
                 if c(cx, live_id!(sb_menu_new)) {
                     out.push(Intent::Action("workspace.new_chat_here", group));
@@ -2188,6 +2276,7 @@ impl ChromeRuntime {
             out.push(match click {
                 TreeClick::Action(a, i) => Intent::Action(a, i),
                 TreeClick::Menu(i, r) => Intent::Menu(i, r),
+                TreeClick::ChatMenu(i, at) => Intent::ChatMenu(i, at),
             });
         }
         out
@@ -2421,9 +2510,13 @@ impl ChromeRuntime {
             }
         }
         // The workspace menu: anchored at the "⋯", the rename form in place.
+        // A chat's context menu takes the same layer, at the press.
         let menu = sidebar::menu_for();
         let renaming = sidebar::renaming();
-        menu_dock.set_visible(cx, live && (menu.is_some() || renaming.is_some()));
+        let chat_menu = sidebar::chat_menu(store);
+        menu_dock.set_visible(cx, live && (menu.is_some() || renaming.is_some() || chat_menu.is_some()));
+        show(cx, &menu_dock, ids!(sb_menu), chat_menu.is_none());
+        show(cx, &menu_dock, ids!(sb_chat_menu), chat_menu.is_some());
         show(cx, &menu_dock, ids!(sb_menu_items), renaming.is_none());
         show(cx, &menu_dock, ids!(sb_rename_form), renaming.is_some());
         if let Some((ax, ay)) = self.menu_anchor {
@@ -2431,6 +2524,17 @@ impl ChromeRuntime {
             let mut m = menu_dock.widget(cx, ids!(sb_menu));
             let at = Inset { left: mx, top: my, right: 0.0, bottom: 0.0 };
             script_apply_eval!(cx, m, { margin: #(at) });
+        }
+        if let (Some(m), Some((px, py))) = (chat_menu, self.chat_menu_at) {
+            show(cx, &menu_dock, ids!(sb_chat_rename_row), m.rename);
+            show(cx, &menu_dock, ids!(sb_chat_delete_row), m.delete);
+            // 168 wide, 34 a row + 8: kept inside the window.
+            let h = 34.0 * (m.rename as u8 + m.delete as u8) as f64 + 8.0;
+            let mx = px.min(window_w - 176.0).max(8.0);
+            let my = py.min(window_h - h - 8.0).max(8.0);
+            let mut c = menu_dock.widget(cx, ids!(sb_chat_menu));
+            let at = Inset { left: mx, top: my, right: 0.0, bottom: 0.0 };
+            script_apply_eval!(cx, c, { margin: #(at) });
         }
 
         // ---- Settings.
@@ -2848,16 +2952,29 @@ pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode
                 item.widget(cx, ids!(sb_g_more_on)).set_visible(cx, *menu_open);
                 item.draw_all_unscoped(cx);
             }
-            Row::Session { title, time, status, selected, matched, aside, delete, .. } => {
+            Row::Session { title, time, status, selected, matched, aside, delete, renaming, .. } => {
                 let item = list.item(cx, id, id!(SbRowTpl));
                 // #18 — the delete ×, or the confirmation in place of the row.
+                // A rename puts its field in place of both.
                 {
-                    let asking = matches!(delete, RowDelete::Confirming | RowDelete::Deleting);
-                    item.widget(cx, ids!(sb_r_body)).set_visible(cx, !asking);
-                    item.widget(cx, ids!(sb_r_open)).set_visible(cx, !asking);
-                    item.widget(cx, ids!(sb_r_del)).set_visible(cx, *delete == RowDelete::Offered);
+                    let asking = matches!(delete, RowDelete::Confirming | RowDelete::Deleting) && !*renaming;
+                    let plain = !asking && !*renaming;
+                    item.widget(cx, ids!(sb_r_body)).set_visible(cx, plain);
+                    item.widget(cx, ids!(sb_r_ctx)).set_visible(cx, plain);
+                    item.widget(cx, ids!(sb_r_open)).set_visible(cx, plain);
+                    item.widget(cx, ids!(sb_r_del)).set_visible(cx, plain && *delete == RowDelete::Offered);
                     item.widget(cx, ids!(sb_r_del_room)).set_visible(cx, *delete == RowDelete::Offered);
                     item.widget(cx, ids!(sb_r_ask)).set_visible(cx, asking);
+                    item.widget(cx, ids!(sb_r_rename)).set_visible(cx, *renaming);
+                    if *renaming {
+                        // The field follows the rename's own text (a row
+                        // redrawn into another item keeps what was typed).
+                        let typed = crate::screens::sidebar::chat_title();
+                        let field = item.text_input(cx, ids!(sb_r_rename_input));
+                        if field.text() != typed {
+                            field.set_text(cx, &typed);
+                        }
+                    }
                     if asking {
                         let busy = *delete == RowDelete::Deleting;
                         item.label(cx, ids!(sb_r_ask_title)).set_text(cx, title);
@@ -2915,6 +3032,21 @@ pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode
                 }
                 item.label(cx, ids!(sb_r_time)).set_text(cx, time);
                 item.draw_all_unscoped(cx);
+                // A rename just started: the field takes the keys, its text
+                // selected (typing replaces the title). A row redrawn into
+                // another item hands them to that item's field.
+                if *renaming {
+                    let started = crate::screens::sidebar::take_focus_chat_title();
+                    if started || crate::screens::sidebar::chat_title_item() != Some(id) {
+                        crate::screens::sidebar::set_chat_title_item(id);
+                        item.widget(cx, ids!(sb_r_rename_input)).set_key_focus(cx);
+                    }
+                    if started {
+                        if let Some(mut f) = item.text_input(cx, ids!(sb_r_rename_input)).borrow_mut() {
+                            f.select_all(cx);
+                        };
+                    }
+                }
             }
             Row::Note(text) => {
                 let item = list.item(cx, id, id!(SbNoteTpl));
@@ -2943,6 +3075,9 @@ pub enum TreeClick {
     Action(&'static str, usize),
     /// The "⋯" of group `index`, with the button's rect (the menu anchors to it).
     Menu(usize, Rect),
+    /// A right-click (or a long press) on the chat at store `index`, at
+    /// the press (window coordinates).
+    ChatMenu(usize, (f64, f64)),
 }
 
 /// Route the tree's row clicks: group header -> `workspace.toggle`, "⋯" ->
@@ -2968,7 +3103,16 @@ pub fn sidebar_list_clicks(cx: &mut Cx, list: &PortalListRef, store: &octoscode_
                     out.push(TreeClick::Action("workspace.toggle", *group));
                 }
             }
-            Row::Session { store_index, .. } => {
+            Row::Session { store_index, renaming, .. } => {
+                // The rename field is read by `rename_field_intent`.
+                if *renaming {
+                    continue;
+                }
+                // The context menu: a secondary press, or a long press (touch).
+                if let Some(at) = row_menu_press(&item.view(cx, ids!(sb_r_ctx)), actions) {
+                    out.push(TreeClick::ChatMenu(*store_index, at));
+                    continue;
+                }
                 // #18 — the × and the confirmation sit above the open hit.
                 if item.button(cx, ids!(sb_r_del_hit)).clicked(actions) {
                     out.push(TreeClick::Action("session.delete", *store_index));
@@ -2989,6 +3133,41 @@ pub fn sidebar_list_clicks(cx: &mut Cx, list: &PortalListRef, store: &octoscode_
         }
     }
     out
+}
+
+/// The chat rename field in its row: its live text is mirrored into the
+/// sidebar state (a row redrawn into another item keeps it); Return saves;
+/// Escape or the field losing the keys (a click elsewhere) keeps the title.
+///
+/// Only the item holding the keys counts: a field the row left (redrawn
+/// into another item) losing them is the hand-over, not a cancel.
+fn rename_field_intent(cx: &mut Cx, list: &PortalListRef, actions: &Actions) -> Option<Intent> {
+    use crate::screens::sidebar;
+    let at = sidebar::chat_title_item()?;
+    let (_, item) = list.items_with_actions(actions).into_iter().find(|(i, _)| *i == at)?;
+    let field = item.text_input(cx, ids!(sb_r_rename_input));
+    if let Some(t) = field.changed(actions) {
+        sidebar::set_chat_title(&t);
+    }
+    if let Some((t, _)) = field.returned(actions) {
+        return Some(Intent::RenameChat(t));
+    }
+    if field.escaped(actions) || field.key_focus_lost(actions) {
+        return Some(Intent::Action("session.rename.cancel", 0));
+    }
+    None
+}
+
+/// Where a chat row's context menu was asked for: a press of the secondary
+/// mouse button, or a long press (touch has no right button).
+fn row_menu_press(ctx: &ViewRef, actions: &Actions) -> Option<(f64, f64)> {
+    actions.filter_widget_actions_cast::<ViewAction>(ctx.widget_uid()).find_map(|a| match a {
+        ViewAction::FingerDown(e) if e.device.mouse_button().is_some_and(|b| b.contains(MouseButton::SECONDARY)) => {
+            Some((e.abs.x, e.abs.y))
+        }
+        ViewAction::FingerLongPress(e) => Some((e.abs.x, e.abs.y)),
+        _ => None,
+    })
 }
 
 /// The board-2 capture fixture (`OCTOSCODE_BOARD2_SEED`, the

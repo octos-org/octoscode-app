@@ -280,6 +280,20 @@ impl Sessions {
         }
     }
 
+    /// The server renamed a session (`session/title.set` answered): its row
+    /// reads the new title at once, before the next catalog read. Returns
+    /// whether the session is listed.
+    pub fn set_title(&self, id: &str, title: &str) -> bool {
+        let mut i = self.inner.lock().unwrap();
+        match i.sessions.iter_mut().find(|s| s.id == id) {
+            Some(row) => {
+                row.title = Some(title.to_owned());
+                true
+            }
+            None => false,
+        }
+    }
+
     /// A8 — drop a row the app added for a placeholder that failed its
     /// verification (the web evicts only an idle, never-confirmed record).
     pub fn forget(&self, id: &str) {

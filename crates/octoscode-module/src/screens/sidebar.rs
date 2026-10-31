@@ -24,7 +24,8 @@
 //!   sidebar.mode.grouped, sidebar.mode.flat, sidebar.sort,
 //!   search.focus, search.clear, drawer.open, drawer.close,
 //!   workspace.rename.cancel, sidebar.collapse, sidebar.expand, search.open,
-//!   session.delete, session.delete.cancel, session.delete.confirm
+//!   session.delete, session.delete.cancel, session.delete.confirm,
+//!   session.menu, session.rename, session.rename.cancel
 //!
 //! Workspace-scoped ids address a GROUP by its index in the last projection
 //! ([`project`] records the order), the same item-index contract the native
@@ -35,7 +36,9 @@
 //! `workspace.new_chat_here`, which the caller performs through the
 //! conversation router (the production path the web's session list uses),
 //! and `session.delete.confirm`, which the caller performs through Session
-//! history's own `session/delete` (`board3::switcher::delete_session`).
+//! history's own `session/delete` (`board3::switcher::delete_session`). A
+//! chat rename is committed from its field ([`rename_chat_commit`]) and sent
+//! by the caller through `session/title.set` ([`rename_session`]).
 
 use std::collections::{BTreeSet, HashMap};
 use std::sync::{Mutex, OnceLock};
@@ -77,6 +80,11 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("session.delete", "ask to delete the chat the row names (its store index)"),
     ("session.delete.cancel", "keep the chat (dismiss the row's confirmation)"),
     ("session.delete.confirm", "delete the chat the row's confirmation names"),
+    // A chat row's context menu (a right-click or a long press): Rename
+    // (only when `session/title.set` is advertised) and the row's Delete.
+    ("session.menu", "open/close a chat row's context menu (its store index)"),
+    ("session.rename", "start renaming the chat the row names (its store index)"),
+    ("session.rename.cancel", "abandon an in-progress chat rename"),
 ];
 
 /// Whether `id` is one of this screen's action ids.
@@ -163,6 +171,17 @@ pub struct SidebarUi {
     pub confirm_delete: Option<String>,
     /// #18 — the one chat delete in flight (single-flight, as the switcher).
     pub deleting: Option<String>,
+    /// The chat whose context menu is open (its id).
+    pub chat_menu: Option<String>,
+    /// The chat whose title is a field in its row (its id).
+    pub renaming_chat: Option<String>,
+    /// That field's live text (the row's field follows it when redrawn).
+    pub chat_title: String,
+    /// The field should take key focus (the row consumes it when drawn).
+    pub focus_chat_title: bool,
+    /// The list item whose field holds the keys (a row redrawn into
+    /// another item hands them over; only this field's actions count).
+    pub chat_title_item: Option<usize>,
 }
 
 /// A projected group's identity: its key and the path a new session there
@@ -194,6 +213,11 @@ impl Default for SidebarUi {
             focus_search: false,
             confirm_delete: None,
             deleting: None,
+            chat_menu: None,
+            renaming_chat: None,
+            chat_title: String::new(),
+            focus_chat_title: false,
+            chat_title_item: None,
         }
     }
 }
@@ -244,6 +268,7 @@ pub fn set_drawer_open(open: bool) {
     s.drawer_open = open;
     if !open {
         s.menu_for = None;
+        s.chat_menu = None;
     }
 }
 
@@ -291,9 +316,131 @@ pub fn menu_for() -> Option<(usize, String)> {
     Some((i, key))
 }
 
-/// Close the overflow menu (a click outside it).
+/// Close the overflow menu or a chat's context menu (a click outside it).
 pub fn close_menu() {
-    sidebar().lock().unwrap().menu_for = None;
+    let mut s = sidebar().lock().unwrap();
+    s.menu_for = None;
+    s.chat_menu = None;
+}
+
+/// What a chat's context menu offers.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ChatMenu {
+    /// The chat's index in the store's list.
+    pub index: usize,
+    /// Rename: `session/title.set` is advertised (the open chat too).
+    pub rename: bool,
+    /// Delete: where the row's × is offered (#18's rules).
+    pub delete: bool,
+}
+
+/// The open chat context menu, if its chat is still listed and the menu
+/// still offers something; a menu that no longer does is closed here (the
+/// chrome asks every sync), never left open undrawn.
+pub fn chat_menu(store: &Store) -> Option<ChatMenu> {
+    sidebar().lock().unwrap().chat_menu.as_ref()?;
+    // Session history's delete in flight is read before the sidebar lock
+    // (the switcher reads ours under its own).
+    let history_deleting = crate::screens::board3::host::state().switch.deleting.is_some();
+    let mut s = sidebar().lock().unwrap();
+    let id = s.chat_menu.clone()?;
+    let menu = store.sessions().iter().position(|x| x.id == id).map(|index| ChatMenu {
+        index,
+        rename: rename_allowed(store, &s, &id),
+        delete: delete_allowed(store, &s, &id, history_deleting),
+    });
+    let menu = menu.filter(|m| m.rename || m.delete);
+    if menu.is_none() {
+        s.chat_menu = None;
+    }
+    menu
+}
+
+/// Whether a chat can be renamed: the server advertises `session/title.set`.
+pub fn rename_offered(store: &Store) -> bool {
+    crate::screens::dialog::advertises(store, "session/title.set")
+}
+
+/// Whether the chat `id` may be renamed: advertised, and not the chat whose
+/// delete is in flight.
+fn rename_allowed(store: &Store, s: &SidebarUi, id: &str) -> bool {
+    rename_offered(store) && s.deleting.as_deref() != Some(id)
+}
+
+/// #18 — whether the chat `id` may be asked about for deletion: never the
+/// open chat, only when `session/delete` is advertised, one at a time.
+fn delete_allowed(store: &Store, s: &SidebarUi, id: &str, history_deleting: bool) -> bool {
+    store.active_session().as_deref() != Some(id)
+        && crate::screens::board3::switcher::delete_offered(store)
+        && s.deleting.is_none()
+        && !history_deleting
+}
+
+/// The chat being renamed in its row, if any.
+pub fn renaming_chat() -> Option<String> {
+    sidebar().lock().unwrap().renaming_chat.clone()
+}
+
+/// The chat being renamed, if it is still listed. A rename whose chat left
+/// the list (deleted, or dropped by a catalog read) has no field any more:
+/// it is abandoned here, so it never holds the keyboard.
+pub fn live_rename(store: &Store) -> Option<String> {
+    let mut s = sidebar().lock().unwrap();
+    let id = s.renaming_chat.clone()?;
+    if store.sessions().iter().any(|x| x.id == id) {
+        return Some(id);
+    }
+    s.renaming_chat = None;
+    s.chat_title.clear();
+    s.chat_title_item = None;
+    None
+}
+
+/// The rename field's live text (its `changed` action).
+pub fn set_chat_title(text: &str) {
+    let mut s = sidebar().lock().unwrap();
+    if s.renaming_chat.is_some() {
+        s.chat_title = text.to_owned();
+    }
+}
+
+/// The rename field's text (the row's field follows it).
+pub fn chat_title() -> String {
+    sidebar().lock().unwrap().chat_title.clone()
+}
+
+/// Consume a pending focus request for the rename field (the row takes it).
+pub fn take_focus_chat_title() -> bool {
+    std::mem::take(&mut sidebar().lock().unwrap().focus_chat_title)
+}
+
+/// The list item whose rename field holds the keys.
+pub fn chat_title_item() -> Option<usize> {
+    sidebar().lock().unwrap().chat_title_item
+}
+
+/// The rename field in list item `item` took the keys.
+pub fn set_chat_title_item(item: usize) {
+    let mut s = sidebar().lock().unwrap();
+    if s.renaming_chat.is_some() {
+        s.chat_title_item = Some(item);
+    }
+}
+
+/// Commit the chat rename with the field's text: the `(id, title)` to send,
+/// or `None` when there is nothing to send (a blank or unchanged name keeps
+/// the title; so does a server that stopped advertising the rename).
+pub fn rename_chat_commit(store: &Store, text: &str) -> Option<(String, String)> {
+    let mut s = sidebar().lock().unwrap();
+    let id = s.renaming_chat.take()?;
+    s.chat_title.clear();
+    s.chat_title_item = None;
+    let title = text.trim();
+    let current = store.sessions().into_iter().find(|x| x.id == id)?.title;
+    if title.is_empty() || current.as_deref().map(str::trim) == Some(title) || !rename_allowed(store, &s, &id) {
+        return None;
+    }
+    Some((id, title.to_owned()))
 }
 
 /// Consume a pending search-focus request (the host focuses the field).
@@ -360,6 +507,8 @@ pub enum Row {
         aside: Option<octoscode_store::domains::btw::Mark>,
         /// #18 — the row's delete control.
         delete: RowDelete,
+        /// The title is a field (the chat is being renamed).
+        renaming: bool,
     },
     /// A grey empty-state line.
     Note(String),
@@ -532,6 +681,7 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
         aside: (active.as_deref() != Some(it.id.as_str()))
             .then(|| store.domains.btw.mark(&it.id))
             .flatten(),
+        renaming: ui.renaming_chat.as_deref() == Some(it.id.as_str()),
         delete: if active.as_deref() == Some(it.id.as_str()) || !delete_offered {
             RowDelete::None
         } else if ui.deleting.as_deref() == Some(it.id.as_str()) {
@@ -1025,7 +1175,7 @@ impl Effect {
 pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
     // #18 — Session history's delete in flight holds the one slot too (read
     // before the sidebar lock: the switcher reads ours under its own).
-    let history_deleting = action.starts_with("session.delete")
+    let history_deleting = (action.starts_with("session.delete") || action == "session.menu")
         && crate::screens::board3::host::state().switch.deleting.is_some();
     let mut s = sidebar().lock().unwrap();
     let group = s.last_groups.get(index).cloned();
@@ -1035,6 +1185,7 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             // dismisses on select).
             s.drawer_open = false;
             s.menu_for = None;
+            s.chat_menu = None;
             s.confirm_delete = None;
             Effect::OpenSession { index }
         }
@@ -1052,14 +1203,55 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             let Some(id) = store.sessions().get(index).map(|x| x.id.clone()) else {
                 return Effect::Unhandled(format!("{action}[{index}]"));
             };
-            if store.active_session().as_deref() != Some(id.as_str())
-                && crate::screens::board3::switcher::delete_offered(store)
-                && s.deleting.is_none()
-                && !history_deleting
-            {
+            if delete_allowed(store, &s, &id, history_deleting) {
                 s.menu_for = None;
+                s.chat_menu = None;
                 s.confirm_delete = Some(id);
             }
+            Effect::Applied
+        }
+        // A chat row's context menu: opened only when it offers something
+        // (Rename when advertised, Delete where the row's × is); as
+        // `workspace.menu`, asking again on the same row closes it.
+        "session.menu" => {
+            let store = ctx.store;
+            let Some(id) = store.sessions().get(index).map(|x| x.id.clone()) else {
+                return Effect::Unhandled(format!("{action}[{index}]"));
+            };
+            if s.chat_menu.as_deref() == Some(id.as_str()) {
+                s.chat_menu = None;
+            } else if rename_allowed(store, &s, &id) || delete_allowed(store, &s, &id, history_deleting) {
+                s.menu_for = None;
+                s.renaming = None;
+                s.renaming_chat = None;
+                s.chat_menu = Some(id);
+            }
+            Effect::Applied
+        }
+        // The title becomes a field in its row, seeded with the chat's own
+        // title: an untitled chat (its row showing the last prompt, or "New
+        // chat") starts empty. Keeping the title sends nothing.
+        "session.rename" => {
+            let store = ctx.store;
+            let Some(chat) = store.sessions().get(index).cloned() else {
+                return Effect::Unhandled(format!("{action}[{index}]"));
+            };
+            s.chat_menu = None;
+            if rename_allowed(store, &s, &chat.id) {
+                if s.confirm_delete.as_deref() == Some(chat.id.as_str()) {
+                    s.confirm_delete = None;
+                }
+                s.chat_title = chat.title.as_deref().map(str::trim).unwrap_or_default().to_owned();
+                s.renaming_chat = Some(chat.id);
+                s.focus_chat_title = true;
+                s.chat_title_item = None;
+            }
+            Effect::Applied
+        }
+        "session.rename.cancel" => {
+            s.renaming_chat = None;
+            s.chat_title.clear();
+            s.chat_title_item = None;
             Effect::Applied
         }
         "session.delete.cancel" => {
@@ -1172,6 +1364,8 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             s.rail = true;
             s.menu_for = None;
             s.confirm_delete = None;
+            s.chat_menu = None;
+            s.renaming_chat = None;
             Effect::Applied
         }
         "sidebar.expand" => {
@@ -1190,6 +1384,8 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             s.search_focused = false;
             s.menu_for = None;
             s.confirm_delete = None;
+            s.chat_menu = None;
+            s.renaming_chat = None;
             Effect::Applied
         }
         other => Effect::Unhandled(other.to_owned()),
@@ -1218,6 +1414,47 @@ pub fn delete_finished(id: &str, result: Result<(), String>) {
     }
     if let Err(cause) = result {
         crate::screens::toasts::push(tr(DELETE_FAILED), &cause);
+    }
+}
+
+/// The plain lead of a failed chat rename (the server's message is the
+/// toast's cause).
+pub const RENAME_FAILED: &str = "Couldn't rename that chat.";
+
+/// Send a chat rename (`session/title.set`). On success the chat reads the
+/// title the server kept everywhere it is named (this sidebar, the header,
+/// Session history's loaded catalog); a failure changes nothing and returns
+/// the server's message.
+pub async fn rename_session(conv: &crate::flow::Conversation, id: &str, title: &str) -> Result<(), String> {
+    let r = conv
+        .client()
+        .call::<octoscode_client::domains::session::SessionTitleSet>(octos_core::ui_protocol::SessionTitleSetParams {
+            session_id: id.to_owned(),
+            title: title.to_owned(),
+        })
+        .await;
+    match r {
+        Ok(kept) => {
+            let title = if kept.title.trim().is_empty() { title } else { kept.title.as_str() };
+            conv.store.domains.session.set_title(id, title);
+            if let Some(rows) = crate::screens::board3::host::state().switch.catalog.as_mut() {
+                for row in rows.iter_mut().filter(|r| r.target.session == id) {
+                    row.title = title.to_owned();
+                }
+            }
+            Ok(())
+        }
+        Err(e) => Err(match &e {
+            octoscode_client::ClientError::Rpc { error, .. } => error.message.clone(),
+            other => other.to_string(),
+        }),
+    }
+}
+
+/// A chat rename came back: a failure keeps the old title and says why.
+pub fn rename_finished(result: Result<(), String>) {
+    if let Err(cause) = result {
+        crate::screens::toasts::push(tr(RENAME_FAILED), &cause);
     }
 }
 
@@ -1379,6 +1616,9 @@ mod tests {
             "session.delete",
             "session.delete.cancel",
             "session.delete.confirm",
+            "session.menu",
+            "session.rename",
+            "session.rename.cancel",
         ];
         for id in CHROME {
             assert!(is_action(id), "{id} (native chrome) must be owned here");
@@ -1767,6 +2007,143 @@ mod tests {
         let p = project_recorded(&store, NOW, &[]);
         assert!(!rows_text(&p).iter().any(|r| r.starts_with("Add session fork")));
         assert_eq!(crate::screens::toasts::snapshot().0.len(), 1);
+        crate::screens::toasts::reset();
+    }
+
+    /// Whether the row titled `title` is a rename field in the last projection.
+    fn renaming_row(store: &Store, title: &str) -> bool {
+        project_recorded(store, NOW, &[])
+            .rows
+            .iter()
+            .any(|r| matches!(r, Row::Session { title: t, renaming: true, .. } if t == title))
+    }
+
+    /// A chat row's context menu opens only when it offers something:
+    /// Rename when `session/title.set` is advertised (the open chat too),
+    /// Delete only where #18 offers the row's ×.
+    #[test]
+    fn a_chat_menu_offers_rename_when_advertised_and_delete_where_the_row_does() {
+        let _g = crate::screens::theme::test_lock();
+        reset_state();
+        let store = board_store();
+        let ctx = ctx_for(&store);
+        // Nothing advertised: a right-click opens nothing.
+        assert_eq!(resolve("session.menu", 1, &ctx), Effect::Applied);
+        assert_eq!(chat_menu(&store), None);
+        // Delete only: not on the open chat (s1, index 0).
+        store.domains.config.set_supported_methods(vec!["session/delete".into()]);
+        resolve("session.menu", 0, &ctx);
+        assert_eq!(chat_menu(&store), None, "the open chat offers no delete");
+        resolve("session.menu", 1, &ctx);
+        assert_eq!(chat_menu(&store), Some(ChatMenu { index: 1, rename: false, delete: true }));
+        // The same row closes it; another row moves it.
+        resolve("session.menu", 1, &ctx);
+        assert_eq!(chat_menu(&store), None);
+        store.domains.config.set_supported_methods(vec!["session/delete".into(), "session/title.set".into()]);
+        resolve("session.menu", 0, &ctx);
+        assert_eq!(chat_menu(&store), Some(ChatMenu { index: 0, rename: true, delete: false }), "the open chat renames");
+        resolve("session.menu", 2, &ctx);
+        assert_eq!(chat_menu(&store), Some(ChatMenu { index: 2, rename: true, delete: true }));
+        // Its Delete is #18's own confirmation, in the row.
+        resolve("session.delete", 2, &ctx);
+        assert_eq!(chat_menu(&store), None);
+        assert_eq!(delete_of(&store, "Review PR #2566"), RowDelete::Confirming);
+        // A click outside closes it.
+        resolve("session.menu", 3, &ctx);
+        close_menu();
+        assert_eq!(chat_menu(&store), None);
+        // The chat whose delete is in flight is never renamed.
+        resolve("session.delete.confirm", 2, &ctx);
+        resolve("session.rename", 2, &ctx);
+        assert_eq!(renaming_chat(), None);
+        // A menu that stops offering anything closes (never held undrawn).
+        resolve("session.menu", 3, &ctx);
+        assert!(chat_menu(&store).is_some());
+        store.domains.config.set_supported_methods(vec![]);
+        assert_eq!(chat_menu(&store), None);
+        assert_eq!(snapshot().chat_menu, None);
+        // A stale index is Unhandled, never a panic or a wrong chat.
+        assert!(resolve("session.menu", 9, &ctx).is_unhandled());
+        assert!(resolve("session.rename", 9, &ctx).is_unhandled());
+    }
+
+    /// Rename turns the row's title into a field seeded with the chat's
+    /// title; Return sends a changed name, a blank or unchanged one sends
+    /// nothing, and Cancel keeps the title.
+    #[test]
+    fn a_chat_rename_commits_a_changed_name_and_keeps_the_title_otherwise() {
+        let _g = crate::screens::theme::test_lock();
+        reset_state();
+        let store = board_store();
+        let ctx = ctx_for(&store);
+        // Unadvertised: the id does nothing.
+        resolve("session.rename", 1, &ctx);
+        assert_eq!(renaming_chat(), None);
+        store.domains.config.set_supported_methods(vec!["session/title.set".into()]);
+        resolve("session.menu", 1, &ctx);
+        resolve("session.rename", 1, &ctx);
+        assert_eq!(chat_menu(&store), None, "Rename closes the menu");
+        assert_eq!(renaming_chat().as_deref(), Some("s2"));
+        assert!(renaming_row(&store, "Add session fork"));
+        assert_eq!(snapshot().chat_title, "Add session fork", "seeded with its title");
+        assert!(take_focus_chat_title(), "the field takes the keys once");
+        assert!(!take_focus_chat_title());
+        // Return with a changed name: the id and the trimmed title to send.
+        set_chat_title("  Fork a session ");
+        assert_eq!(snapshot().chat_title, "  Fork a session ");
+        assert_eq!(rename_chat_commit(&store, "  Fork a session "), Some(("s2".into(), "Fork a session".into())));
+        assert_eq!(renaming_chat(), None);
+        assert!(!renaming_row(&store, "Add session fork"));
+        // Blank or unchanged: nothing to send, the title stays.
+        resolve("session.rename", 1, &ctx);
+        assert_eq!(rename_chat_commit(&store, "   "), None);
+        resolve("session.rename", 1, &ctx);
+        assert_eq!(rename_chat_commit(&store, "Add session fork"), None);
+        // Escape / a click elsewhere cancels; a stale commit sends nothing.
+        resolve("session.rename", 1, &ctx);
+        resolve("session.rename.cancel", 1, &ctx);
+        assert_eq!(renaming_chat(), None);
+        assert_eq!(rename_chat_commit(&store, "Late"), None);
+        set_chat_title("ignored");
+        assert_eq!(snapshot().chat_title, "", "no field, no text");
+        // The open chat renames too; an untitled chat starts empty.
+        resolve("session.rename", 0, &ctx);
+        assert_eq!(renaming_chat().as_deref(), Some("s1"));
+        let mut list = store.sessions();
+        list[4].title = None;
+        store.set_sessions(list);
+        resolve("session.rename", 4, &ctx);
+        assert_eq!(snapshot().chat_title, "", "never \"New chat\"");
+        assert_eq!(renaming_chat().as_deref(), Some("s5"));
+        // Closing the drawer abandons it.
+        resolve("drawer.close", 0, &ctx);
+        assert_eq!(renaming_chat(), None);
+        // A chat that leaves the list takes its rename with it.
+        resolve("session.rename", 2, &ctx);
+        assert_eq!(live_rename(&store).as_deref(), Some("s3"));
+        store.domains.session.forget("s3");
+        assert_eq!(live_rename(&store), None);
+        assert_eq!(renaming_chat(), None);
+    }
+
+    /// A rename that comes back renamed reads the new title in the row; a
+    /// failure keeps the old one and says why (the server's message).
+    #[test]
+    fn a_failed_rename_keeps_the_title_and_says_why() {
+        let _g = crate::screens::theme::test_lock();
+        reset_state();
+        crate::screens::toasts::reset();
+        let store = board_store();
+        rename_finished(Err("title too long".into()));
+        let (toasts, _) = crate::screens::toasts::snapshot();
+        assert_eq!(toasts.len(), 1);
+        assert_eq!((toasts[0].lead.as_str(), toasts[0].cause.as_str()), (RENAME_FAILED, "title too long"));
+        assert!(rows_text(&project_recorded(&store, NOW, &[])).iter().any(|r| r.starts_with("Add session fork |")));
+        // Success: the store's title is what every surface reads.
+        assert!(store.domains.session.set_title("s2", "Fork a session"));
+        rename_finished(Ok(()));
+        assert!(rows_text(&project_recorded(&store, NOW, &[])).iter().any(|r| r.starts_with("Fork a session |")));
+        assert_eq!(crate::screens::toasts::snapshot().0.len(), 1, "success says nothing");
         crate::screens::toasts::reset();
     }
 
