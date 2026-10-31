@@ -979,3 +979,48 @@ async fn no_profile_offers_to_create_the_local_profile_then_opens() {
     assert_eq!(open["profile_id"], json!("coding"));
     assert_eq!(host::open_dialog(), None);
 }
+
+/// #19 — the New chat controls keep an active chat nothing was said in
+/// (`Conversation::empty_chat_to_keep`): a chat this client created, its open
+/// accepted, no turn, no draft; a workspace's New chat only its own.
+#[tokio::test]
+async fn issue19_a_new_chat_keeps_the_active_chat_while_it_is_empty() {
+    use octoscode_module::flow::NewChatScope;
+    let _g = lock();
+    let server = FakeServer::start(Script { empty_history: true, ..Default::default() }).await;
+    let (conv, mut ev) = connected(&server).await;
+    assert_eq!(conv.empty_chat_to_keep(NewChatScope::Any), None, "a chat this client did not create is never kept");
+    let created = conv.new_chat(None).await.unwrap();
+    // A second click while its open is still going out keeps it too.
+    assert_eq!(conv.empty_chat_to_keep(NewChatScope::Any).as_deref(), Some(created.as_str()));
+    drain(&conv, &mut ev).await;
+    assert_eq!(conv.empty_chat_to_keep(NewChatScope::Any).as_deref(), Some(created.as_str()));
+    // The server opened it in its default folder (the fake's `/home/user/octos`).
+    assert_eq!(conv.empty_chat_to_keep(NewChatScope::Workspace(Some("/home/user/octos"))).as_deref(), Some(created.as_str()));
+    assert_eq!(conv.empty_chat_to_keep(NewChatScope::Workspace(Some("/home/user/other"))), None, "another workspace gets its own chat");
+    // An unsent draft keeps the chat from being reused; clearing it does not.
+    conv.set_draft("half a thought");
+    assert_eq!(conv.empty_chat_to_keep(NewChatScope::Any), None, "a draft is not an empty chat");
+    conv.set_draft("");
+    assert!(conv.empty_chat_to_keep(NewChatScope::Any).is_some());
+    // Once a prompt is sent, it is no longer empty.
+    conv.set_draft("hello");
+    conv.submit_draft().await.unwrap();
+    drain(&conv, &mut ev).await;
+    assert_eq!(server.params_of("turn/start").len(), 1);
+    assert_eq!(conv.empty_chat_to_keep(NewChatScope::Any), None, "a chat with a turn is never kept");
+}
+
+/// #19 — a chat whose history the server already holds turns for is never
+/// "empty", even one this client minted.
+#[tokio::test]
+async fn issue19_a_chat_with_server_history_is_never_kept() {
+    use octoscode_module::flow::NewChatScope;
+    let _g = lock();
+    // The fake answers every hydrate with a recorded three-row history.
+    let server = FakeServer::start(Script::default()).await;
+    let (conv, mut ev) = connected(&server).await;
+    conv.new_chat(None).await.unwrap();
+    drain(&conv, &mut ev).await;
+    assert_eq!(conv.empty_chat_to_keep(NewChatScope::Any), None);
+}

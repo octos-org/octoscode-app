@@ -935,6 +935,50 @@ pub fn is_live_turn(store: &Store, ui: &FlowUi, session: &str, turn: &str) -> bo
         || (store.domains.turn.is_in_flight(turn) && store.domains.turn.owner(turn).as_deref() == Some(session))
 }
 
+/// #19 — where a **New chat** was asked for: the sidebar's New chat (any
+/// workspace), or a workspace's "New chat here" / the picker (that folder;
+/// `None` = the server's default, the sidebar's path-less group).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NewChatScope<'a> {
+    Any,
+    Workspace(Option<&'a str>),
+}
+
+/// #19 — what a New chat reads of the active chat ([`keeps_empty_chat`]).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ActiveChat {
+    /// This connection minted it (`new_chat`): the server held no turn of it
+    /// before this client created it.
+    pub minted_here: bool,
+    /// Its open was accepted (its history read committed: a record) or is
+    /// still going out; a refused open is not.
+    pub open_live: bool,
+    /// Nothing in its transcript: no prompt, answer, tool row or notice.
+    pub transcript_empty: bool,
+    /// A turn is queued, starting or running in it.
+    pub turn_pending: bool,
+    /// The composer holds unsent text, images or a returned prompt for it.
+    pub draft: bool,
+    /// The workspace the server opened it in.
+    pub workspace_root: Option<String>,
+}
+
+/// #19 — a New chat keeps the active chat (focus stays on it) instead of
+/// minting another only when nothing was ever said in it — a chat this
+/// client created, accepted by the server, with no turn and no draft — and,
+/// for a workspace's New chat, only when it is that workspace's.
+pub fn keeps_empty_chat(chat: &ActiveChat, scope: NewChatScope<'_>) -> bool {
+    let empty = chat.minted_here && chat.open_live && chat.transcript_empty && !chat.turn_pending && !chat.draft;
+    let same_place = match scope {
+        NewChatScope::Any => true,
+        NewChatScope::Workspace(path) => {
+            let norm = |p: &str| p.trim_end_matches('/').to_owned();
+            chat.workspace_root.as_deref().map(norm) == path.map(norm)
+        }
+    };
+    empty && same_place
+}
+
 /// A4 — the HTTP origin for the media endpoints (`media.ts:14-35`): `ws` ->
 /// `http`, `wss` -> `https`, no query, and a socket path
 /// (`…/api/ui-protocol/ws`) or `/` reduced to the origin prefix; no trailing
@@ -2530,6 +2574,42 @@ impl Conversation {
             .any(|f| f == crate::screens::session_defaults::SANDBOX_FEATURE);
         let sandbox = crate::screens::session_defaults::open_sandbox(&defaults.value, advertised);
         self.open_workspace_with(&id, cwd, sandbox).await
+    }
+
+    /// #19 — the active chat a New chat keeps instead of minting another
+    /// ([`keeps_empty_chat`]); `None` = mint one. Read from this client's
+    /// state: a chat it did not mint (a resumed or listed one) is never kept,
+    /// whatever its transcript shows.
+    pub fn empty_chat_to_keep(&self, scope: NewChatScope<'_>) -> Option<String> {
+        let session = self.session_id();
+        if self.store.active_session().as_deref() != Some(session.as_str())
+            || !self.fresh_ids.lock().unwrap().contains(&session)
+        {
+            return None;
+        }
+        let queue = self.store.domains.composer.snapshot(&session);
+        // Still going out: the candidate this open began (a refusal disposes it).
+        let generation = self.generation();
+        let opening = self
+            .candidate
+            .lock()
+            .unwrap()
+            .as_ref()
+            .is_some_and(|c| c.session == session && c.generation == generation);
+        let text = self.ui.lock().unwrap().draft();
+        let chat = ActiveChat {
+            minted_here: true,
+            open_live: opening
+                || (self.store.domains.session.is_record(&session)
+                    && !self.history.lock().unwrap().contains_key(&session)),
+            transcript_empty: self.store.domains.session.timeline.len(&session) == 0,
+            turn_pending: queue.active.is_some() || !queue.pending.is_empty() || self.live_turn_of(&session).is_some(),
+            draft: !text.trim().is_empty()
+                || crate::screens::media::drafts_for_session(&session).is_some_and(|d| !d.is_empty())
+                || crate::screens::composer_drafts::pending(self, &session) > 0,
+            workspace_root: self.store.domains.session.workspace_root(&session),
+        };
+        keeps_empty_chat(&chat, scope).then_some(session)
     }
 
     /// A15 — fold one ACCEPTED canonical hydrate into `session`'s transcript:
@@ -4463,6 +4543,52 @@ mod tests {
             "the id is profile-scoped, like the web's bindWebSessionIdToProfile; got {a:?}"
         );
         assert!(a.starts_with("dsflash:api:code-"), "OctosCode's own chat id, as the web's is web-<uuid>; got {a:?}");
+    }
+
+    fn empty_chat(root: Option<&str>) -> ActiveChat {
+        ActiveChat {
+            minted_here: true,
+            open_live: true,
+            transcript_empty: true,
+            turn_pending: false,
+            draft: false,
+            workspace_root: root.map(str::to_owned),
+        }
+    }
+
+    /// #19 — a New chat keeps an active chat nothing was said in, and mints
+    /// one whenever the active chat has a turn, a draft or server history.
+    #[test]
+    fn issue19_a_new_chat_keeps_only_an_empty_chat() {
+        let chat = empty_chat(Some("/w/app"));
+        assert!(keeps_empty_chat(&chat, NewChatScope::Any), "an empty chat is kept");
+        let not_kept = [
+            ("a turn in its transcript", ActiveChat { transcript_empty: false, ..chat.clone() }),
+            ("a turn queued or running", ActiveChat { turn_pending: true, ..chat.clone() }),
+            ("an unsent draft", ActiveChat { draft: true, ..chat.clone() }),
+            ("a chat this client did not mint", ActiveChat { minted_here: false, ..chat.clone() }),
+            ("a refused open / a failed history read", ActiveChat { open_live: false, ..chat.clone() }),
+        ];
+        for (why, c) in not_kept {
+            assert!(!keeps_empty_chat(&c, NewChatScope::Any), "{why}: a new chat is minted");
+            assert!(!keeps_empty_chat(&c, NewChatScope::Workspace(Some("/w/app"))), "{why} (workspace)");
+        }
+    }
+
+    /// #19 — a workspace's New chat keeps the empty chat only when it is
+    /// that workspace's; another workspace's empty chat gets a new one.
+    #[test]
+    fn issue19_a_workspace_new_chat_keeps_only_that_workspaces_empty_chat() {
+        let chat = empty_chat(Some("/w/app"));
+        assert!(keeps_empty_chat(&chat, NewChatScope::Workspace(Some("/w/app"))));
+        assert!(keeps_empty_chat(&chat, NewChatScope::Workspace(Some("/w/app/"))), "a trailing slash is the same folder");
+        assert!(!keeps_empty_chat(&chat, NewChatScope::Workspace(Some("/w/other"))), "another workspace");
+        assert!(!keeps_empty_chat(&chat, NewChatScope::Workspace(None)), "the server-default group is not /w/app");
+        // The path-less group is the chat whose workspace the server never named.
+        let unnamed = empty_chat(None);
+        assert!(keeps_empty_chat(&unnamed, NewChatScope::Workspace(None)));
+        assert!(!keeps_empty_chat(&unnamed, NewChatScope::Workspace(Some("/w/app"))));
+        assert!(keeps_empty_chat(&unnamed, NewChatScope::Any), "the sidebar's New chat keeps it wherever it is");
     }
 
     /// A loopback HTTP stub: answers ONE request with `status` and `body`,

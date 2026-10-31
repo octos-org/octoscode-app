@@ -1250,13 +1250,19 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
                 mark_dirty();
                 return need_conv("new session");
             };
+            // #19 — the active chat is this folder's and still empty: it
+            // stays (the picker closes onto it) instead of another one.
+            let kept = conv.empty_chat_to_keep(crate::flow::NewChatScope::Workspace(Some(&cwd)));
             // A8 — a workspace launch asks `launch/resolve` first when the
             // server advertises it (cross-profile -> the decision panel).
-            let launched = match crate::screens::launch::create(&conv, cwd.clone()).await {
-                crate::screens::launch::Launched::Opened(id) => Ok(id),
-                crate::screens::launch::Launched::AwaitingChoice => Ok("awaiting the profile choice".to_owned()),
-                crate::screens::launch::Launched::Stale => Ok("superseded by a newer launch".to_owned()),
-                crate::screens::launch::Launched::Failed(e) => Err(e),
+            let launched = match kept {
+                Some(id) => Ok(id),
+                None => match crate::screens::launch::create(&conv, cwd.clone()).await {
+                    crate::screens::launch::Launched::Opened(id) => Ok(id),
+                    crate::screens::launch::Launched::AwaitingChoice => Ok("awaiting the profile choice".to_owned()),
+                    crate::screens::launch::Launched::Stale => Ok("superseded by a newer launch".to_owned()),
+                    crate::screens::launch::Launched::Failed(e) => Err(e),
+                },
             };
             match launched {
                 Ok(id) => {
