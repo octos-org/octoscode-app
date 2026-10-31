@@ -70,10 +70,11 @@ What it does (every step is a no-op when already done, so re-run it after a `git
    signs ad hoc and zips with `ditto`.
 4. `--octosense`: an optional OctoSense checkout, `.forks/octosense`, at OctoSense main's pinned revision, unpatched
    (`tools/prepare-octosense.sh`): OctoSense links the module itself (its shell's `app-octoscode` feature, with the
-   module's `octosense-module` adapter). Then its framework sources from its own `tools/setup.py`, our makepad patches
-   on them, its desktop octos kernel staged beside the binary (its `tools/kernel-artifact.py --host --stage`, at the
-   octos revision its `Cargo.lock` pins; built once, in its `target/octos-kernel/`), and
-   `cargo build -p octosense --features app-octoscode` with a cargo `--config` `[patch]` that builds the module from
+   module's `octosense-module` adapter). Then its framework sources from its own `tools/setup.py` (prepared again
+   when a new pin changes its source locks), our makepad patches on them, its desktop octos kernel staged beside the
+   binary (its `tools/kernel-artifact.py --host --stage`, at the octos revision its `Cargo.lock` pins; built once, in
+   its `target/octos-kernel/`), and `cargo build -p octosense --features app-octoscode` into its own `target/` (even
+   under a `CARGO_TARGET_DIR`), with a cargo `--config` `[patch]` that builds the module from
    this checkout's `crates/octoscode-module` instead of the revision OctoSense pins. No file of the OctoSense tree is
    edited; cargo refreshes its `Cargo.lock` for the redirected crate.
    Both the standalone app and the OctoSense host are optimized unless `--debug` is given.

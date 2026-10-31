@@ -119,15 +119,26 @@ if [ "$OCTOSENSE" = 1 ]; then
   step "3/3 the OctoSense-hosted variant ($PROFILE)"
   HOST="$(fork_path octosense)"
   bash "$HERE/prepare-octosense.sh" "$HOST"
-  # OctoSense's framework checkouts (.sources: makepad + its reviewed runtime patch,
+  # OctoSense's framework checkouts (.sources: makepad + its reviewed runtime patches,
   # octoscript, octoscript-makepad), exactly as OctoSense's own README builds. setup.py
   # refuses to run over local changes, and our makepad patches below are local changes
-  # to .sources/makepad: it runs once, when .sources is not prepared yet.
+  # to .sources/makepad: it runs when .sources was not prepared from the pin's locks
+  # (the stamp holds their blob ids). Moving the pin can change them (a new runtime
+  # patch, a new makepad revision): .sources/makepad is then reset, dropping our
+  # patches and the old runtime patches, and setup.py moves all three to the new locks.
+  SOURCES_STAMP="$HOST/.sources/.octoscode-locks"
+  locks="$(git -C "$HOST" rev-parse HEAD:native-runtime.lock.json HEAD:runtime-patches.lock.json | tr '\n' ' ')"
   if [ -d "$HOST/.sources/makepad/.git" ] && [ -d "$HOST/.sources/octoscript/.git" ] \
-     && [ -d "$HOST/.sources/octoscript-makepad/.git" ]; then
-    echo "build-macos: $HOST/.sources already prepared (delete it to fetch the framework sources again)"
+     && [ -d "$HOST/.sources/octoscript-makepad/.git" ] \
+     && [ "$(cat "$SOURCES_STAMP" 2>/dev/null)" = "$locks" ]; then
+    echo "build-macos: $HOST/.sources already prepared from the pin's locks"
   else
-    (cd "$HOST" && python3 tools/setup.py >/dev/null)
+    if [ -d "$HOST/.sources/makepad/.git" ]; then
+      git -C "$HOST/.sources/makepad" reset --quiet --hard
+      git -C "$HOST/.sources/makepad" clean --quiet -fd
+    fi
+    (cd "$HOST" && python3 tools/setup.py --update >/dev/null)
+    echo "$locks" > "$SOURCES_STAMP"
     echo "build-macos: $HOST/.sources prepared by OctoSense's tools/setup.py"
   fi
   bash "$REPO/scripts/apply-makepad-patches.sh" "$HOST/.sources" | grep -v '^sha256 '
@@ -151,11 +162,15 @@ if [ "$OCTOSENSE" = 1 ]; then
   MODULE_PATCH="patch.\"https://github.com/octos-org/octoscode-app.git\".octoscode-module.path=\"$REPO/crates/octoscode-module\""
   mkdir -p "$HOST/apps/octoscode"
   echo "$(git -C "$REPO" rev-parse --short HEAD) $(date +%Y-%m-%dT%H:%M:%S)" > "$HOST/apps/octoscode/BUILT_FROM"
+  # Its own target dir even under a CARGO_TARGET_DIR: the staged kernel and the binary
+  # checked below live there.
   started=$(date +%s)
   if [ "$PROFILE" = release ]; then
-    (cd "$HOST" && cargo build --release -p octosense --features app-octoscode --config "$MODULE_PATCH")
+    (cd "$HOST" && cargo build --release -p octosense --features app-octoscode --config "$MODULE_PATCH" \
+      --target-dir "$HOST/target")
   else
-    (cd "$HOST" && cargo build -p octosense --features app-octoscode --config "$MODULE_PATCH")
+    (cd "$HOST" && cargo build -p octosense --features app-octoscode --config "$MODULE_PATCH" \
+      --target-dir "$HOST/target")
   fi
   HOST_BIN="$HOST/target/$PROFILE/octosense"
   [ -x "$HOST_BIN" ] || die "the host build finished but $HOST_BIN is missing"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Check out OctoSense, the optional host of the octoscode module, at the pinned
-# upstream revision `45edea3192e453b945a55e205d082dfd50108eec`, unpatched.
+# upstream revision `e58ea6a1765d626a6c2e1e995d2fed30a992a91d`, unpatched.
 #
 # OctoSense main links the octoscode module itself: its workspace depends on
 # `octoscode-module` from this repository by git (the shell's `app-octoscode`
@@ -27,7 +27,7 @@ fi
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
 TARGET="${1:-$REPO/.forks/octosense}"
-PIN="45edea3192e453b945a55e205d082dfd50108eec"
+PIN="e58ea6a1765d626a6c2e1e995d2fed30a992a91d"
 REMOTE="https://github.com/OctoSense-org/OctoSense"
 
 command -v git >/dev/null || { echo "prepare-octosense: git not found" >&2; exit 1; }

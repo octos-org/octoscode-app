@@ -72,13 +72,18 @@ fn build_macos_runs_every_step_of_both_variants() {
         "prepare-octoscript-makepad.sh",
         "cargo build -p octoscode-desktop --bin octoscode",
         "package-macos.sh",
-        // --octosense: OctoSense's own setup.py, our makepad patches on its
-        // .sources, its desktop kernel staged beside the binary, the host.
-        "python3 tools/setup.py",
+        // --octosense: OctoSense's own setup.py, re-run when the pin's source
+        // locks change, our makepad patches on its .sources, its desktop kernel
+        // staged beside the binary, the host.
+        "python3 tools/setup.py --update",
+        "HEAD:native-runtime.lock.json HEAD:runtime-patches.lock.json",
         "scripts/apply-makepad-patches.sh\" \"$HOST/.sources\"",
         "python3 tools/kernel-artifact.py --host --stage \"$KERNEL_DIR\"",
         "\"$HOST/apps/octoscode/BUILT_FROM\"",
         "cargo build -p octosense --features app-octoscode",
+        // ...into its own target dir, where the kernel is staged, whatever
+        // CARGO_TARGET_DIR says.
+        "--target-dir \"$HOST/target\")",
         "xcode-select -p",
     ] {
         assert!(s.contains(needle), "build-macos.sh runs {needle}");
