@@ -3276,7 +3276,15 @@ impl OctoscodeView {
                 live: b.store.is_live(),
                 server: ui.server.clone(),
                 connect_failed: ui.failure.is_some() || ui.raw_error.is_some(),
-                capabilities: b.store.capabilities(),
+                capabilities: {
+                    // Over a shell's port the folder browser lists the
+                    // person's folders locally (`browser::list`).
+                    let mut caps = b.store.capabilities();
+                    if b.conv.as_ref().is_some_and(|c| c.is_hosted()) {
+                        caps.push(screens::browser::BROWSE_FEATURE.to_owned());
+                    }
+                    caps
+                },
                 methods: b.store.domains.config.supported_methods(),
             }
         };
