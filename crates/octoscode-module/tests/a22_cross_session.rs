@@ -483,10 +483,11 @@ async fn a_steer_reaches_only_the_live_turn_of_the_session_it_was_issued_in() {
     let x = conv.session_id();
     let y = "a22:api:y";
 
-    // A long turn in X; a prompt queued behind it (steering off: it queues).
+    // A long turn in X; explicitly queue a prompt behind it. Enter now steers
+    // by default, so use the same queue action as Tab in the composer.
     let tx = run_long_turn(&conv, &core, "a long job in X").await;
     conv.set_draft("queued for X");
-    conv.submit_draft().await.expect("queue");
+    conv.queue_composer().await.expect("queue");
     until("X's prompt is queued", || conv.store.domains.composer.snapshot(&x).pending.len() == 1).await;
     until("X's turn is accepted", || conv.store.domains.composer.can_steer_now(&x)).await;
 
@@ -543,7 +544,7 @@ async fn the_queue_and_recovery_controls_act_on_the_session_they_were_tapped_in(
     // ✕: a prompt queued in X behind a long turn.
     let _tx = run_long_turn(&conv, &core, "a long job in X").await;
     conv.set_draft("remove me");
-    conv.submit_draft().await.expect("queue");
+    conv.queue_composer().await.expect("queue");
     until("X's prompt is queued", || conv.store.domains.composer.snapshot(&x).pending.len() == 1).await;
     let head = conv.store.domains.composer.snapshot(&x).pending[0].turn_id.clone();
     open(&conv, y).await;
