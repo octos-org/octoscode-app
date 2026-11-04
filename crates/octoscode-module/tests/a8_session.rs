@@ -53,6 +53,7 @@ const METHODS: &[&str] = &[
     "turn/state/get",
     "session/hydrate",
     "session/delete",
+    "session/title.set",
     "launch/resolve",
     "profile/local/create",
 ];
@@ -189,6 +190,14 @@ fn reply(method: &str, p: &Value, script: &Mutex<Script>) -> Result<Value, Value
             }
             s.list_rows.retain(|r| r["id"] != json!(session));
             json!({})
+        }
+        // octos-core `SessionTitleSetResult`: the title the server kept (a
+        // busy session refuses).
+        "session/title.set" => {
+            if session.contains("locked") {
+                return Err(json!({"code": -32000, "message": "session is busy"}));
+            }
+            json!({"session_id": session, "title": p["title"]})
         }
         "session/status/read" => json!({
             "session_id": session, "profile_id": PROFILE,
@@ -852,6 +861,69 @@ async fn delete_removes_a_confirmed_row_and_keeps_a_refused_one_with_its_reason(
     assert!(host::run(job, &conv).await.is_err());
     assert!(conv.store.sessions().iter().any(|s| s.id == "a8:api:locked"), "the row stays");
     assert_eq!(host::state().switch.error.as_deref(), Some("Couldn't delete the session: session is busy"));
+}
+
+/// A sidebar chat rename at the wire: the row's Rename (the open chat too)
+/// sends ONE `session/title.set` with the trimmed name, and every surface
+/// reads the title the server kept — the sidebar row, the header (the
+/// store's row) and Session history's loaded catalog. A refused rename sends
+/// once, keeps the old title and says why.
+#[tokio::test]
+async fn a_sidebar_rename_sends_the_title_and_every_surface_reads_it() {
+    use octoscode_module::screens::sidebar;
+    let _g = lock();
+    sidebar::reset_state();
+    octoscode_module::screens::toasts::reset();
+    let server = FakeServer::start(Script {
+        list_rows: catalog(&[("a8:api:old", "Old chat", 2), ("a8:api:locked", "Busy chat", 2)]),
+        catalog: true,
+        ..Default::default()
+    })
+    .await;
+    let (conv, _ev) = connected(&server).await;
+    host::run(spawn_of(host::command("sessions", "", &conv).unwrap()), &conv).await.unwrap();
+    let ui = Mutex::new(octoscode_module::flow::FlowUi::default());
+    let store = conv.store.clone();
+    let ctx = octoscode_module::bindings::Ctx::new(&store, &ui);
+    let at = |id: &str| store.sessions().iter().position(|s| s.id == id).unwrap();
+    let title = |id: &str| store.sessions().into_iter().find(|s| s.id == id).and_then(|s| s.title);
+    // The open chat renames: its row's field, then Return.
+    let me = conv.session_id();
+    sidebar::resolve("session.menu", at(&me), &ctx);
+    assert!(sidebar::chat_menu(&store).is_some_and(|m| m.rename), "Rename is offered on the open chat");
+    sidebar::resolve("session.rename", at(&me), &ctx);
+    let (id, name) = sidebar::rename_chat_commit(&store, "  Steer queue fix ").expect("a changed name");
+    sidebar::rename_finished(sidebar::rename_session(&conv, &id, &name).await);
+    assert_eq!(server.params_of("session/title.set"), vec![json!({"session_id": me, "title": "Steer queue fix"})]);
+    assert_eq!(title(&me).as_deref(), Some("Steer queue fix"), "the header and the row read it");
+    // Another chat: Session history's loaded catalog reads it too.
+    sidebar::resolve("session.rename", at("a8:api:old"), &ctx);
+    let (id, name) = sidebar::rename_chat_commit(&store, "Newer chat").unwrap();
+    sidebar::rename_finished(sidebar::rename_session(&conv, &id, &name).await);
+    assert_eq!(title("a8:api:old").as_deref(), Some("Newer chat"));
+    let rows = octoscode_module::screens::board3::switcher::rows(&conv.store);
+    assert!(rows.iter().any(|r| r.title == "Newer chat"), "Session history: {rows:?}");
+    // A listing that still carries the old title (this fake server's catalog
+    // never learns the rename) does not put it back.
+    host::run(spawn_of(host::command("sessions", "", &conv).unwrap()), &conv).await.unwrap();
+    let rows = octoscode_module::screens::board3::switcher::rows(&conv.store);
+    assert!(rows.iter().any(|r| r.title == "Newer chat"), "a stale history page: {rows:?}");
+    assert_eq!(title("a8:api:old").as_deref(), Some("Newer chat"));
+    // A refused rename keeps the old title and says why.
+    sidebar::resolve("session.rename", at("a8:api:locked"), &ctx);
+    let (id, name) = sidebar::rename_chat_commit(&store, "Not busy").unwrap();
+    sidebar::rename_finished(sidebar::rename_session(&conv, &id, &name).await);
+    assert_eq!(server.params_of("session/title.set").len(), 3);
+    assert_eq!(title("a8:api:locked").as_deref(), Some("Busy chat"), "the old title stays");
+    let (toasts, _) = octoscode_module::screens::toasts::snapshot();
+    assert_eq!(toasts.len(), 1);
+    assert_eq!((toasts[0].lead.as_str(), toasts[0].cause.as_str()), (sidebar::RENAME_FAILED, "session is busy"));
+    // A blank name sends nothing.
+    sidebar::resolve("session.rename", at("a8:api:old"), &ctx);
+    assert_eq!(sidebar::rename_chat_commit(&store, "   "), None);
+    assert_eq!(server.params_of("session/title.set").len(), 3);
+    octoscode_module::screens::toasts::reset();
+    sidebar::reset_state();
 }
 
 fn launch_lock() -> std::sync::MutexGuard<'static, ()> {

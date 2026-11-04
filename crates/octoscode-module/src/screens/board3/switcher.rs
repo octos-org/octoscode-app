@@ -165,7 +165,13 @@ pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
         st.switch.loading = false;
         match result {
             Ok(v) => {
-                let items = parse_history(&v)?;
+                let mut items = parse_history(&v)?;
+                // A rename this app confirmed outlives a page read before it.
+                for (item, row) in items.iter_mut().zip(v["sessions"].as_array().into_iter().flatten()) {
+                    if let Some(t) = conv.store.domains.session.held_title(&item.target.session, row["title"].as_str()) {
+                        item.title = t;
+                    }
+                }
                 if offset == 0 { st.switch.catalog = Some(items); }
                 else { st.switch.catalog.get_or_insert_with(Vec::new).extend(items); }
                 st.switch.next_offset = v["next_offset"].as_u64().map(|n| n as usize);

@@ -133,6 +133,17 @@ impl Method for SessionDelete {
     type Result = octos_core::ui_protocol::SessionDeleteResult;
 }
 
+/// `session/title.set` — rename a session (octos-core `ui_protocol.rs:3608`;
+/// the server clamps the title to `SESSION_TITLE_SET_MAX_CHARS` and echoes
+/// the one it kept).
+pub struct SessionTitleSet;
+
+impl Method for SessionTitleSet {
+    const NAME: &'static str = methods::SESSION_TITLE_SET;
+    type Params = octos_core::ui_protocol::SessionTitleSetParams;
+    type Result = octos_core::ui_protocol::SessionTitleSetResult;
+}
+
 /// `session/files.list` — the session's delivered files (octos-core
 /// `ui_protocol.rs:3405`). Web call site `packages/client/src/client.ts:845`.
 pub struct SessionFilesList;
