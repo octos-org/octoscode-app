@@ -656,17 +656,24 @@ fn picker_view(pk: &PickerUi, l: &Layout) -> Ui {
         // server-working-directory.ts:2-23 — the fallback when no root was reported.
         None => (tr("Server folder (path not reported)"), String::new()),
     };
+    // Only a reported folder can be opened: without one (still reading, or
+    // not reported — always so over a shell's port) the row is a plain
+    // status line, with no chevron and nothing to press.
+    let openable = pk.server_root.is_some();
+    let title = Text::new("b1_pk_server_t", root_label).px(16.0).fill().one_line();
     let root_row = format!(
         "View {{ width: Fill height: {} flow: Overlay\nView {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 18 right: 16}} spacing: 16\n{}View {{ width: Fill height: Fit flow: Down spacing: 3\n{}{}}}\n{}}}\n{}}}\n",
         if l.phone { 76 } else { 64 },
         kit::svg("", "b1_folder.svg", 26.0),
-        Text::new("b1_pk_server_t", root_label).px(16.0).fill().one_line().dsl(),
+        if openable { title } else { title.color(kit::MUTED) }.dsl(),
         Text::new("b1_pk_server_p", &root_path).px(14.0).color(kit::MUTED).fill().one_line().dsl(),
-        kit::svg("", "b1_chevron_right.svg", 16.0),
-        kit::hit("b1_pk_server", true)
+        if openable { kit::svg("", "b1_chevron_right.svg", 16.0) } else { String::new() },
+        if openable { kit::hit("b1_pk_server", true) } else { String::new() }
     );
     v.push(kit::list_card("b1_pk_server_card", &[root_row]));
-    v.button("b1_pk_server", "picker.server");
+    if openable {
+        v.button("b1_pk_server", "picker.server");
+    }
     v.push(kit::gap(if l.phone { 22.0 } else { 16.0 }));
     v.push(Text::new("", tr("Recent")).px(15.0).fill().one_line().dsl());
     v.push(kit::gap(8.0));
@@ -1186,7 +1193,9 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
             let listed = browser::list(&conv, path, resolve_ancestor).await;
             // A35b: a listing with no path IS the server's working directory
             // (`profile.rs` WorkspaceListParams) — the picker's first row.
-            if let (true, Ok(canonical)) = (root, &listed) {
+            // Over a shell's port it is the person's home, listed locally,
+            // which the shell never lets a session work in.
+            if let (true, Ok(canonical), false) = (root, &listed, conv.is_hosted()) {
                 host().picker.server_root = Some(canonical.clone());
             }
             listed.map(|_| ())
@@ -1209,14 +1218,17 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
                 drop(h);
                 return need_conv("picker");
             };
-            let advertised = conv.store.capabilities().iter().any(|c| c == browser::BROWSE_FEATURE);
+            // Over a shell's port the browser lists the person's folders
+            // locally (`browser::list`); the shell offers no `onboarding/*`.
+            let hosted = conv.is_hosted();
+            let advertised = hosted || conv.store.capabilities().iter().any(|c| c == browser::BROWSE_FEATURE);
             let session_root = conv.store.domains.session.workspace_root(&conv.session_id());
             use octoscode_client::domains::profile::{WorkspaceList, WorkspaceListParams};
             // The server's working directory: a `workspace_list` with no path
             // lists exactly it (`profile.rs` WorkspaceListParams); without the
             // browse feature, the open session's reported root
             // (`server-working-directory.ts:2-23`).
-            let listed = if advertised && list_root {
+            let listed = if advertised && list_root && !hosted {
                 conv.client()
                     .call::<WorkspaceList>(WorkspaceListParams { path: None })
                     .await
@@ -1452,6 +1464,24 @@ mod tests {
         assert!(view(412.0, 700.0).is_none());
         assert!(take_ime_reset(), "closing drops the keyboard");
         provider::state().key.clear();
+    }
+
+    /// The server folder row is pressable only when a folder was reported:
+    /// "(path not reported)" (always so over a shell's port) and "Reading the
+    /// server…" are status lines with no chevron and no button.
+    #[test]
+    fn the_server_folder_row_is_pressable_only_with_a_reported_folder() {
+        let l = Layout::of(Surface::Picker, 990.0, 603.0);
+        let pressable = |ui: &Ui| ui.buttons.iter().any(|(id, a)| id == "b1_pk_server" && a == "picker.server");
+        let reported = picker_view(&PickerUi { server_root: Some("/home/user/code".into()), ..Default::default() }, &l);
+        assert!(pressable(&reported));
+        assert!(reported.dsl.contains("b1_pk_server :=") && reported.dsl.contains("b1_chevron_right.svg"));
+        for pk in [PickerUi::default(), PickerUi { loading: true, ..Default::default() }] {
+            let ui = picker_view(&pk, &l);
+            assert!(!pressable(&ui), "loading={}", pk.loading);
+            assert!(!ui.dsl.contains("b1_pk_server :=") && !ui.dsl.contains("b1_chevron_right.svg"), "loading={}", pk.loading);
+            assert!(ui.dsl.contains("b1_pk_server_t"), "the status line stays (server-working-directory.ts:2-23)");
+        }
     }
 
     #[test]

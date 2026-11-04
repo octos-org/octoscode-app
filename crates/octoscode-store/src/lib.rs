@@ -74,9 +74,12 @@ impl Store {
 
     /// A12 — whether the conversation shell stays on screen: the connection
     /// is live, or it was live and is now re-dialing (never after a
-    /// voluntary leave).
+    /// voluntary leave). Over a shell's port there is no server to connect
+    /// to: the shell is up from the start (no Connect card).
     pub fn keeps_shell(&self) -> bool {
-        self.is_live() || self.outage().is_some()
+        self.is_live()
+            || self.outage().is_some()
+            || (self.connection.is_hosted() && !self.connection.is_offline())
     }
 
     // ---- capabilities (config domain) -------------------------------------
@@ -179,5 +182,27 @@ impl Store {
             self.connection(),
             self.session_count()
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_hosted_connection_keeps_the_shell_until_a_voluntary_leave() {
+        let socket = Store::new();
+        socket.set_connection("Handshaking".into(), false);
+        assert!(!socket.keeps_shell(), "a socket waits for its first open");
+
+        let hosted = Store::new();
+        hosted.connection.set_hosted();
+        assert!(hosted.keeps_shell(), "a shell's port has nothing to connect to");
+        hosted.set_connection("Handshaking".into(), false);
+        assert!(hosted.keeps_shell() && !hosted.is_live(), "the shell is up; liveness waits for an open");
+        hosted.set_connection("Live".into(), true);
+        assert!(hosted.keeps_shell());
+        hosted.set_connection(connection::OFFLINE.into(), false);
+        assert!(!hosted.keeps_shell(), "a voluntary leave ends it");
     }
 }

@@ -378,3 +378,99 @@ async fn hosted_open_uses_the_navigation_endpoint_for_all_workspace_indexes() {
     assert_eq!(projection.groups.len(), 1);
     assert_eq!(projection.groups[0].key, canonical);
 }
+
+/// Drain `events` into `conv` until the store reads `state`.
+async fn until_state(conv: &Conversation, events: &mut tokio::sync::mpsc::Receiver<octos_app_transport::TransportEvent>, state: &str) {
+    tokio::time::timeout(Duration::from_secs(5), async {
+        while conv.store.connection() != state {
+            let event = events.recv().await.expect("the port stays open");
+            conv.on_event(event);
+        }
+    })
+    .await
+    .unwrap_or_else(|_| panic!("never reached {state}; at {}", conv.store.connection()));
+}
+
+/// Over a shell's port there is no server to connect to: the app shell is up
+/// while no session has opened yet (the picker's launch sends no open at all)
+/// and after the shell refused one, never the Connect card. Liveness itself
+/// still waits for a real open.
+#[tokio::test]
+async fn a_hosted_connection_keeps_the_shell_before_and_without_an_open() {
+    let (tx, rx) = mpsc::channel();
+    let _close = ClosePort(tx.clone());
+    let port = HostPort {
+        send: Box::new(move |text| {
+            let request: Value = serde_json::from_str(&text).unwrap();
+            // The shell refuses every open (a folder outside its roots).
+            let reply = json!({
+                "jsonrpc": "2.0", "id": request["id"],
+                "error": {"code": -32602, "message": "octoscode may not call session/open: outside the folders this app may work in"}
+            });
+            tx.send(HostPortEvent::Frame(reply.to_string())).map_err(|e| e.to_string())
+        }),
+        recv: Box::new(move || rx.recv().unwrap_or(HostPortEvent::Closed("test ended".into()))),
+    };
+    let (conv, mut events) = Conversation::connect_host(port, "_main", None, None).unwrap();
+    until_state(&conv, &mut events, "Handshaking").await;
+    assert!(!conv.store.is_live(), "no session is open yet");
+    assert!(conv.store.keeps_shell(), "the shell is up while nothing has opened");
+
+    let mut refused = conv.watch_next_open();
+    conv.open_workspace(Some("/outside".into())).await.unwrap();
+    let outcome = tokio::time::timeout(Duration::from_secs(5), async {
+        loop {
+            tokio::select! {
+                outcome = &mut refused => return outcome,
+                Some(event) = events.recv() => {
+                    conv.on_event(event);
+                }
+            }
+        }
+    })
+    .await
+    .expect("the refusal arrives");
+    assert!(matches!(outcome, Ok(Err(_))), "the shell refused the open: {outcome:?}");
+    assert!(!conv.store.is_live(), "a refused open is not live");
+    assert!(conv.store.keeps_shell(), "a refused open keeps the shell, not the Connect card");
+}
+
+/// Over a shell's port the picker offers Browse (the folders are listed
+/// locally; the shell offers no `onboarding/*`, so none is sent), and the
+/// browser's first listing (the person's home) never becomes an openable
+/// server folder: the shell lets no session work in the home itself.
+#[tokio::test]
+async fn the_hosted_picker_offers_browse_without_a_server_folder() {
+    let _navigation = NAVIGATION.lock().await;
+    let _state = NavigationState::isolated();
+    let (tx, rx) = mpsc::channel();
+    let _close = ClosePort(tx.clone());
+    let sent = Arc::new(std::sync::Mutex::new(Vec::<String>::new()));
+    let seen = sent.clone();
+    let port = HostPort {
+        send: Box::new(move |text| {
+            let request: Value = serde_json::from_str(&text).unwrap();
+            seen.lock().unwrap().push(request["method"].as_str().unwrap_or_default().to_owned());
+            let reply = json!({"jsonrpc": "2.0", "id": request["id"], "error": {"code": -32601, "message": "not a coding client's method"}});
+            tx.send(HostPortEvent::Frame(reply.to_string())).map_err(|e| e.to_string())
+        }),
+        recv: Box::new(move || rx.recv().unwrap_or(HostPortEvent::Closed("test ended".into()))),
+    };
+    let (conv, _events) = Conversation::connect_host(port, "_main", None, None).unwrap();
+    let conv = Arc::new(conv);
+    board1::close_all();
+    board1::execute(board1::Work::PickerLoad { list_root: true }, Some(conv.clone()))
+        .await
+        .unwrap();
+    let picker = board1::picker();
+    assert!(picker.browse_advertised, "Browse is offered over a shell's port");
+    assert_eq!(picker.server_root, None, "no server folder is reported over a shell's port");
+    let _ = board1::execute(board1::Work::BrowserList { path: None, resolve_ancestor: true }, Some(conv.clone())).await;
+    assert_eq!(board1::picker().server_root, None, "the home listing is not an openable server folder");
+    assert!(
+        !sent.lock().unwrap().iter().any(|m| m.starts_with("onboarding/")),
+        "nothing asks the shell for onboarding/*: {:?}",
+        sent.lock().unwrap()
+    );
+    board1::close_all();
+}

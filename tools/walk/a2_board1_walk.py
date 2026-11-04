@@ -495,9 +495,9 @@ def no_browse():
     time.sleep(1.0)
     s = snap()
     report("picker without the browse feature: no Browse and no New folder (fail closed)",
-           find("b1_pk_server", s) is not None and not find("b1_pk_browse", s) and not find("b1_pk_newfolder", s)
+           find("b1_pk_server_t", s) is not None and not find("b1_pk_browse", s) and not find("b1_pk_newfolder", s)
            and not find("b1_br_row_0", s),
-           f"server row {bool(find('b1_pk_server', s))}, browse {bool(find('b1_pk_browse', s))}")
+           f"server row {bool(find('b1_pk_server_t', s))}, browse {bool(find('b1_pk_browse', s))}")
     capture("picker-no-browse")
     click_until("b1_pk_back", "b1_card", gone=True)
 
