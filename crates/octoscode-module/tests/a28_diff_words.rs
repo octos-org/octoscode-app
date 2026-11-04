@@ -668,7 +668,7 @@ async fn desktop_dialog_and_the_phone_full_screen_sheet() {
         let d = find(&root, "b3_dialog").expect("the dialog");
         assert_eq!(prop(d, "width").as_deref(), Some(&*format!("{want_w}")), "{w}x{h}: {}", d.props);
         assert_eq!(prop(d, "height").as_deref(), Some(&*format!("{want_h}")), "{w}x{h}: {}", d.props);
-        assert!(find(&root, "b3_diff_preview_id").is_some(), "desktop shows the preview id");
+        assert!(find(&root, "b3_diff_preview_id").is_none(), "the changes view shows scope instead of protocol IDs");
         host::close();
     }
     let root = open(&conv, WORDS, (360.0, 780.0)).await;
@@ -698,7 +698,7 @@ async fn the_review_copy_is_chinese_in_zh() {
     octoscode_module::i18n::set_language(octoscode_module::i18n::Lang::Zh);
     let root = open(&conv, LARGE, (990.0, 603.0)).await;
     let zh = |s: &str| octoscode_module::i18n::tr_in(octoscode_module::i18n::Lang::Zh, s).to_owned();
-    assert_eq!(find(&root, "b3_diff_eyebrow").and_then(|n| n.text.clone()), Some(zh(dr::EYEBROW)));
+    assert_eq!(find(&root, "b3_diff_eyebrow").and_then(|n| n.text.clone()), Some(zh("Session change preview")));
     assert_ne!(zh(dr::EYEBROW), dr::EYEBROW);
     let note = find(&root, "b3_diff_plain_note").and_then(|n| n.text.clone()).unwrap_or_default();
     assert_ne!(note, dr::PLAIN_NOTE, "the note is translated");

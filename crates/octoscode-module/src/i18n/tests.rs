@@ -130,7 +130,7 @@ fn the_native_catalog_matches_the_web_zh_ts() {
         catalog().iter().map(|(k, v)| ((*k).to_owned(), (*v).to_owned())).collect();
     assert_eq!(got.len(), zh::MERGED_LEN);
     assert_eq!(got, want);
-    assert_eq!(zh::MERGED_LEN, 1167, "the web catalog at {}", zh::WEB_COMMIT);
+    assert_eq!(zh::MERGED_LEN, 1177, "the web catalog at {}", zh::WEB_COMMIT);
 }
 
 fn placeholders(s: &str) -> Vec<String> {

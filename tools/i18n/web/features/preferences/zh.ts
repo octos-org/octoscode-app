@@ -587,6 +587,14 @@ const catalog: Readonly<Record<string, string>> = {
   Retry: "重试",
   "Retry Session refresh": "重试刷新会话",
   "Retry opening": "重试打开",
+  Changes: "改动",
+  "Changes scope": "改动范围",
+  "Session change preview": "会话改动预览",
+  "Workspace uncommitted changes": "工作区未提交改动",
+  "Includes staged, unstaged and untracked files. Changes may come from other sessions.":
+    "包含暂存、未暂存和未跟踪文件，也可能包含其他会话的改动。",
+  "No session change preview yet. Switch to workspace changes.":
+    "此会话尚无改动预览，可切换到工作区改动。",
   "Review changes": "审查更改",
   "Review diff": "审查差异",
   "Review installation": "检查安装",
@@ -882,6 +890,11 @@ const catalog: Readonly<Record<string, string>> = {
   "Unsaved browser preferences.": "浏览器偏好设置尚未保存。",
   "Session {id}": "会话 {id}",
   "Send prompt": "发送提示",
+  "Steer prompt": "发送到当前轮次",
+  "Send now (Ctrl+X)": "立即发送（Ctrl+X）",
+  "Interrupt the current response and send pending input":
+    "中断当前回复并发送等待中的输入",
+  "Queue for after the current response (Tab)": "排到当前回复之后（Tab）",
   "Queue prompt": "提示入队",
   "Ask Octos to change, explain, or review code…":
     "让 Octos 修改、解释或审查代码…",
@@ -1019,8 +1032,8 @@ const catalog: Readonly<Record<string, string>> = {
   "Inspect the server’s native thread graph": "检查服务器的原生线程图",
   "Inspect native state for the active or specified turn":
     "检查当前或指定轮次的原生状态",
-  "Toggle mid-turn steering; FIFO queueing remains the default":
-    "切换轮中引导；默认仍按先入先出排队",
+  "Toggle mid-turn steering (default on); Tab queues a later turn":
+    "切换轮中引导（默认开启）；Tab 将任务排到下一轮",
   "Inspect remembered decisions; Session controls set approval mode":
     "检查已记住的决策；通过会话控制设置批准模式",
   "Gather peer results into this Session’s prompt queue":

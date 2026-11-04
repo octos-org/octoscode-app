@@ -1,51 +1,7 @@
-//! A10 — the header's "Review" entry: the web's `DiffReviewDialog`
-//! (`features/review/DiffReviewDialog.tsx`) over `use-coding-safety.ts:268-345`
-//! (`openDiffReview` / `closeDiffReview`), in the board-3 dialog kit.
-//!
-//! * the header: the eyebrow "Authoritative diff preview", the preview's
-//!   title (else "Review changes"), the +N −N totals counted over the
-//!   preview's lines once a result exists, Refresh (inert while loading) and
-//!   the 28 px close;
-//! * the status row: the result's status (else loading / error), its
-//!   source, the preview id (right-aligned, `.review-status code
-//!   { margin-left: auto }`; hidden on a phone);
-//! * the body's states, each the web's own copy: "Loading the server
-//!   snapshot…", "Preview unavailable" + the reason, "The preview is ready,
-//!   but it contains no changed files.", or every file (status mark, path,
-//!   "from" the old path, status) with its hunks (header + numbered lines,
-//!   +/− marked and tinted) or "Line-level diff unavailable for this
-//!   mutation.";
-//! * ONE `diff/preview/get {session_id, preview_id}` per open / Refresh for
-//!   the latest announced preview id (an approval's typed diff, a turn's
-//!   diff); the reply must name THIS session and THIS preview, a reply that
-//!   lands after a close / reopen (an older generation) is dropped.
-//!
-//! A28 — parity row 23 (design board 4 frames 1, 1b, 2; README "Row 23"):
-//!
-//! * every line is drawn as per-token RUNS (`<line>_c<k>_<class>`; inside a
-//!   word mark `<line>_w<m>_c<k>_<class>`) in its
-//!   file's syntax colours (`highlight::Tok::color`, by extension —
-//!   [`super::diff_words`], the web's `diff-presentation.ts`), on context,
-//!   removed and added lines; the row keeps its tint;
-//! * a changed word sits in a WORD MARK (`<line>_w<m>`): a rounded fill behind
-//!   its runs, the success colour at 22 % on added rows, the error colour at
-//!   20 % on removed rows (`DiffReviewDialog.module.css` `.changedWord`),
-//!   composited over the row tint; a token ink that would read below 4.5:1
-//!   on a mark steps toward the text ink (the A18 rule, [`mark_ink`]);
-//! * past the bound (`canDecorateDiff`: 400 lines / 40,000 characters / a
-//!   2,000-character line) NOTHING is decorated: the note [`PLAIN_NOTE`]
-//!   heads the body and each hunk is drawn as plain blocks
-//!   (`<hunk>_b<n>`, one multi-line label per column, red / green text on
-//!   the line tint) — every line, never truncated;
-//! * the dialog is `min(1080, 100%) × min(780, 100%)` inside the web's 24 px
-//!   backdrop inset (`.review-dialog`); at <= 760 px it is the web's compact
-//!   FULL-SCREEN sheet (`@media (max-width: 760px)`: no inset, no radius, no
-//!   border, the preview id hidden), every hunk scrolling sideways (A13).
-//!
-//! The web shows its "Review changes" entry only once a preview id is known;
-//! the native header keeps its Review entry (board 2), so with no preview the
-//! dialog says so and offers the server's native code review instead
-//! (`/review`, the Code review dialog) when the server has it.
+//! Changes browser: session previews and read-only workspace snapshots.
+//! Both scopes share the diff renderer. Workspace reads never replace the
+//! announced session preview; a generation fence drops superseded responses.
+
 use std::fmt::Write as _;
 use std::sync::{Arc, Mutex};
 
@@ -66,7 +22,7 @@ pub const UNAVAILABLE: &str = "Preview unavailable";
 pub const NO_FILES: &str = "The preview is ready, but it contains no changed files.";
 pub const NO_LINES: &str = "Line-level diff unavailable for this mutation.";
 pub const MISMATCH: &str = "diff/preview/get returned a mismatched preview";
-/// Native: the entry with no preview id yet (the web hides its entry then).
+/// Session preview scope before an approval or mutation has announced an ID.
 pub const NO_PREVIEW_HEAD: &str = "No diff preview yet";
 pub const NO_PREVIEW_BODY: &str =
     "A preview appears here once this Session proposes file changes, such as an approval that edits files.";
@@ -124,6 +80,7 @@ pub const MARK_INKS: &[(Option<Tok>, &str, &str)] = &[
 
 #[derive(Debug, Clone, Default)]
 pub struct DiffReviewState {
+    pub workspace: bool,
     /// The preview this open reads (`latestPreviewId`).
     pub preview_id: Option<String>,
     pub loading: bool,
@@ -172,24 +129,28 @@ fn native_review_available(store: &Store) -> bool {
     crate::screens::dialog::advertises(store, "review/start") && crate::screens::dialog::advertises(store, "review.start.v1")
 }
 
-/// `openDiffReview()`: the latest announced preview; nothing is read without
-/// one (the job itself sends nothing when the server lacks the method).
+/// Open the latest session preview, or the workspace when no preview exists.
+/// The job checks the advertised capability before making either request.
+fn next_generation() -> u64 {
+    // Unique across host resets/reconnects, not just within one dialog instance.
+    static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
+    NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+}
+
 pub fn on_open(st: &mut DiffReviewState) -> Outcome {
-    st.generation += 1;
+    st.generation = next_generation();
     st.result = None;
     st.error = None;
     st.loading = false;
     st.preview_id = crate::screens::review::ui().preview_id.clone();
-    if st.preview_id.is_none() {
-        return Outcome::Done;
-    }
+    st.workspace = st.preview_id.is_none();
     st.loading = true;
     Outcome::Spawn(Job::DiffReviewLoad(st.generation))
 }
 
 /// `closeDiffReview()`: invalidate the in-flight read, drop the result.
 pub fn on_close(st: &mut DiffReviewState) {
-    st.generation += 1;
+    st.generation = next_generation();
     st.loading = false;
     st.result = None;
     st.error = None;
@@ -197,11 +158,19 @@ pub fn on_close(st: &mut DiffReviewState) {
 
 pub fn perform(st: &mut DiffReviewState, action: &str, store: &Store) -> Outcome {
     match action {
-        "b3.diff.refresh" => {
-            if st.loading || st.preview_id.is_none() || !advertised(store) {
+        "b3.diff.workspace" | "b3.diff.turn" | "b3.diff.refresh" => {
+            if action != "b3.diff.refresh" {
+                st.workspace = action == "b3.diff.workspace";
+            }
+            let available = if st.workspace { crate::screens::dialog::advertises(store, "diff/workspace/get") } else { advertised(store) };
+            if !available || (!st.workspace && st.preview_id.is_none()) {
+                st.generation = next_generation();
+                st.loading = false;
+                st.result = None;
+                st.error = if available { None } else { Some(tr(NO_METHOD).to_owned()) };
                 return Outcome::Done;
             }
-            st.generation += 1;
+            st.generation = next_generation();
             st.loading = true;
             st.result = None;
             st.error = None;
@@ -219,26 +188,29 @@ pub fn perform(st: &mut DiffReviewState, action: &str, store: &Store) -> Outcome
     }
 }
 
-/// ONE `diff/preview/get` for the open's preview id; the reply must name this
-/// session and this preview (`use-coding-safety.ts:301-306`).
+/// Read the selected scope; replies from closed or superseded reads are dropped.
 pub async fn load(conv: &crate::flow::Conversation, generation: u64) -> Result<String, String> {
     let session = conv.session_id();
-    let Some(preview_id) = super::host::state().diff.preview_id.clone() else {
-        return Ok("no preview".into());
+    let (workspace, preview_id) = {
+        let st = super::host::state();
+        if st.diff.generation != generation { return Ok("stale changes read dropped".into()); }
+        (st.diff.workspace, st.diff.preview_id.clone())
     };
-    if !advertised(&conv.store) {
-        // `supportsMethod(…, DIFF_PREVIEW_GET)` fails: no frame.
-        super::host::state().diff.loading = false;
-        return Ok("diff/preview/get not advertised".into());
+    let method = if workspace { "diff/workspace/get" } else { "diff/preview/get" };
+    if !crate::screens::dialog::advertises(&conv.store, method) {
+        let mut st = super::host::state();
+        if st.diff.generation == generation {
+            st.diff.loading = false;
+            st.diff.error = Some(tr(NO_METHOD).to_owned());
+        }
+        return Ok(format!("{method} not advertised"));
     }
-    let reply = conv.client().request("diff/preview/get", json!({"session_id": session, "preview_id": preview_id})).await;
+    let params = if workspace { json!({"session_id": session, "profile_id": conv.profile()}) }
+        else { json!({"session_id": session, "preview_id": preview_id}) };
+    let reply = conv.client().request(method, params).await;
     let outcome: Result<DiffPreviewGetResult, String> = match reply {
         Ok(v) => match serde_json::from_value::<DiffPreviewGetResult>(v.clone()) {
-            Ok(r) if r.preview.session_id.0 == session && serde_json::from_value::<octos_core::ui_protocol::PreviewId>(json!(preview_id)).ok().as_ref() == Some(&r.preview.preview_id) => {
-                // The review screen's cache follows the same read.
-                crate::screens::review::fold_preview(&v);
-                Ok(r)
-            }
+            Ok(r) if r.preview.session_id.0 == session && (workspace || serde_json::from_value::<octos_core::ui_protocol::PreviewId>(json!(preview_id)).ok().as_ref() == Some(&r.preview.preview_id)) => Ok(r),
             Ok(_) => Err(MISMATCH.to_owned()),
             Err(_) => Err("diff/preview/get returned a malformed preview".to_owned()),
         },
@@ -253,6 +225,9 @@ pub async fn load(conv: &crate::flow::Conversation, generation: u64) -> Result<S
         Ok(r) => {
             let n = r.preview.files.len();
             let decorated = dw::can_decorate(&r.preview.files);
+            if !workspace {
+                if let Ok(value) = serde_json::to_value(&r) { crate::screens::review::fold_preview(&value); }
+            }
             st.diff.result = Some(r);
             Ok(format!("{n} file(s), {}", if decorated { "decorated" } else { "plain (past the decoration bound)" }))
         }
@@ -291,6 +266,7 @@ pub fn status_mark(status: &str) -> &'static str {
     }
 }
 
+#[cfg(test)]
 fn wire<T: serde::Serialize>(v: &T) -> String {
     serde_json::to_value(v).ok().and_then(|v| v.as_str().map(str::to_owned)).unwrap_or_default()
 }
@@ -527,7 +503,7 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
         .as_ref()
         .map(|(a, r)| ui::text_w(a, 13.0, Face::Semibold) + ui::text_w(r, 13.0, Face::Semibold) + 6.0 + 8.0)
         .unwrap_or(0.0);
-    let can_refresh = !st.loading && st.preview_id.is_some() && advertised(store);
+    let can_refresh = !st.loading && if st.workspace { crate::screens::dialog::advertises(store, "diff/workspace/get") } else { st.preview_id.is_some() && advertised(store) };
     let totals = |d: &mut Dsl| {
         if let Some((a, r)) = &totals_text {
             d.view("b3_diff_totals", "width: Fit height: Fit flow: Right spacing: 6 align: Align{x: 0.0 y: 0.5}");
@@ -542,7 +518,7 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
     };
     if sheet {
         d.view("b3_diff_head", &format!("width: Fill height: Fit flow: Down spacing: 2 padding: Inset{{left: {pad} right: {pad} top: 14 bottom: 10}}"));
-        d.text("b3_diff_eyebrow", tr(EYEBROW), &Txt::new(11.0, Face::Medium, tok::MUTED));
+        d.text("b3_diff_eyebrow", tr(if st.workspace { "Workspace uncommitted changes" } else { "Session change preview" }), &Txt::new(11.0, Face::Medium, tok::MUTED));
         d.text("b3_title", &ui::fit_w(&title, width - 2.0 * pad, 17.0, Face::Semibold), &ui::title().w(W::Fill));
         d.view("b3_diff_head_row", "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{top: 6}");
         totals(d);
@@ -554,7 +530,7 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
     } else {
         d.view("b3_diff_head", &format!("width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8 padding: Inset{{left: {pad} right: 16 top: 16 bottom: 14}}"));
         d.view("b3_diff_head_col", "width: Fill height: Fit flow: Down spacing: 2");
-        d.text("b3_diff_eyebrow", tr(EYEBROW), &Txt::new(11.0, Face::Medium, tok::MUTED));
+        d.text("b3_diff_eyebrow", tr(if st.workspace { "Workspace uncommitted changes" } else { "Session change preview" }), &Txt::new(11.0, Face::Medium, tok::MUTED));
         let budget = (width - pad - 16.0 - refresh_w - 8.0 - 28.0 - 8.0 - totals_w - 8.0).max(80.0);
         d.text("b3_title", &ui::fit_w(&title, budget, 17.0, Face::Semibold), &ui::title().w(W::Fill));
         d.close();
@@ -564,30 +540,14 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
     }
     d.rule("b3_diff_head_rule", "width: Fill height: 1", tok::HAIRLINE);
 
-    // The status row (`.review-status`): status · source · … the preview id.
-    if let Some(pid) = &st.preview_id {
-        let status = match &st.result {
-            Some(r) => wire(&r.status),
-            None if st.loading => "loading".to_owned(),
-            None => "error".to_owned(),
-        };
-        d.view(
-            "b3_diff_status_row",
-            &format!("width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8 padding: Inset{{left: {pad} right: {pad} top: 10 bottom: 6}}"),
-        );
-        d.chip("b3_diff_status", &status, tok::TEXT, tok::CHIP, None, true);
-        let mut used = ui::text_w(&status, 11.0, Face::Mono) + 14.0;
-        if let Some(r) = &st.result {
-            let source = wire(&r.source);
-            used += ui::text_w(&source, 11.0, Face::Mono) + 14.0 + 8.0;
-            d.chip("b3_diff_source", &source, tok::TEXT, tok::CHIP, None, true);
-        }
-        if !sheet {
-            d.view("b3_diff_status_gap", "width: Fill height: 1");
-            d.close();
-            let budget = (width - 2.0 * pad - used - 16.0).max(60.0);
-            d.text("b3_diff_preview_id", &ui::fit_middle(pid, budget, 11.5, Face::Mono), &Txt::new(11.5, Face::Mono, tok::MUTED));
-        }
+    let scope_flow = if sheet { "Down" } else { "Right" };
+    d.view("b3_diff_scopes", &format!("width: Fill height: Fit flow: {scope_flow} spacing: 8 padding: Inset{{left: {pad} right: {pad} top: 8 bottom: 8}}"));
+    d.button("b3_diff_turn", tr("Session change preview"), "b3.diff.turn", if !advertised(store) { Btn::OutlineOff } else if !st.workspace { Btn::Secondary } else { Btn::Outline }, W::Fit, 30.0);
+    d.button("b3_diff_workspace", tr("Workspace uncommitted changes"), "b3.diff.workspace", if !crate::screens::dialog::advertises(store, "diff/workspace/get") { Btn::OutlineOff } else if st.workspace { Btn::Secondary } else { Btn::Outline }, W::Fit, 30.0);
+    d.close();
+    if st.workspace {
+        d.view("b3_diff_scope_note_pad", &format!("width: Fill height: Fit padding: Inset{{left: {pad} right: {pad}}}"));
+        d.text("b3_diff_scope_note", tr("Includes staged, unstaged and untracked files. Changes may come from other sessions."), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
         d.close();
     }
 
@@ -605,7 +565,7 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
     // insets (the scroll bar overlays the right one). Measured: a 941 box
     // with 20 + 18 insets laid its cards out 903 wide.
     let inner_w = width - 2.0 * body_pad;
-    if st.preview_id.is_none() {
+    if !st.workspace && st.preview_id.is_none() {
         // Native: the entry exists before any preview does.
         let body_text = if advertised(store) { NO_PREVIEW_BODY } else { NO_METHOD };
         d.surface("b3_diff_empty", "width: Fill height: Fit flow: Down spacing: 10 padding: Inset{left: 14 right: 14 top: 14 bottom: 14}", tok::SURFACE2, 10.0, Some(tok::HAIRLINE));

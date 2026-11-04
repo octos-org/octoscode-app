@@ -1,6 +1,6 @@
 {
   "repo": "src-web",
-  "commit": "70a8a1cfbc7f677fff76dd863abdcc9231807793",
+  "commit": "33b88be726d03c5311a6c71e703dcc925145d4af",
   "root": "apps/web/src",
   "files": [
     "features/preferences/zh.ts",
