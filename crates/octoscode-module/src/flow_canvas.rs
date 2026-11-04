@@ -151,6 +151,10 @@ pub struct FlowCanvas {
     widgets: HashMap<LiveId, (LiveId, WidgetRef)>,
     #[rust]
     cards: Vec<Card>,
+    /// The cards' ids, bottom to top: the last is drawn last (on top) and
+    /// is the first to take a click. A card grabbed goes to the end.
+    #[rust]
+    z: Vec<LiveId>,
     #[rust]
     pan: DVec2,
     #[rust]
@@ -251,6 +255,12 @@ impl FlowCanvas {
             _ => None,
         };
         self.cards = cards;
+        self.z.retain(|id| self.cards.iter().any(|c| c.id == *id));
+        for c in &self.cards {
+            if !self.z.contains(&c.id) {
+                self.z.push(c.id);
+            }
+        }
         if let Some((id, pos)) = held {
             if let Some(c) = self.cards.iter_mut().find(|c| c.id == id) {
                 c.pos = pos;
@@ -282,20 +292,27 @@ impl FlowCanvas {
         self.origin + self.pan + pos
     }
 
+    /// The cards' indexes, bottom to top.
+    fn stacked(&self) -> Vec<usize> {
+        stack(&self.cards, &self.z)
+    }
+
     /// The top card under a point (the last drawn is on top).
     fn card_at(&self, abs: DVec2) -> Option<usize> {
-        self.cards
-            .iter()
-            .enumerate()
-            .rev()
-            .find(|(_, c)| {
-                Rect {
-                    pos: self.screen(c.pos),
-                    size: c.size,
-                }
-                .contains(abs)
-            })
-            .map(|(i, _)| i)
+        self.stacked().into_iter().rev().find(|&i| {
+            Rect {
+                pos: self.screen(self.cards[i].pos),
+                size: self.cards[i].size,
+            }
+            .contains(abs)
+        })
+    }
+
+    /// Puts a card on top of the others.
+    fn raise(&mut self, index: usize) {
+        let id = self.cards[index].id;
+        self.z.retain(|z| *z != id);
+        self.z.push(id);
     }
 
     /// A line from `from` (a parent's edge) to `to` (a child's edge):
@@ -385,6 +402,7 @@ impl Widget for FlowCanvas {
         match event.hits(cx, self.area) {
             Hit::FingerDown(fe) if fe.is_primary_hit() => match self.card_at(fe.abs) {
                 Some(index) => {
+                    self.raise(index);
                     let grab = fe.abs - self.screen(self.cards[index].pos);
                     self.drag = Some(Drag::Card {
                         index,
@@ -505,7 +523,8 @@ impl Widget for FlowCanvas {
         if self.cards.iter().any(|c| c.active) {
             self.next_frame = cx.new_next_frame();
         }
-        for card in self.cards.clone() {
+        for index in self.stacked() {
+            let card = self.cards[index].clone();
             let Some((_, widget)) = self.widgets.get(&card.id).cloned() else {
                 continue;
             };
@@ -515,6 +534,14 @@ impl Widget for FlowCanvas {
         cx.end_turtle_with_area(&mut self.area);
         DrawStep::done()
     }
+}
+
+/// The indexes of `cards`, bottom to top: in the order of `z`, and any card
+/// `z` does not name above the ones it does.
+fn stack(cards: &[Card], z: &[LiveId]) -> Vec<usize> {
+    let mut order: Vec<usize> = (0..cards.len()).collect();
+    order.sort_by_key(|&i| z.iter().position(|id| *id == cards[i].id).unwrap_or(z.len()));
+    order
 }
 
 impl FlowCanvasRef {
@@ -540,5 +567,35 @@ impl FlowCanvasRef {
             .map(|a| a.cast::<FlowAction>())
             .filter(|a| !matches!(a, FlowAction::None))
             .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn card(name: &str) -> Card {
+        Card {
+            id: LiveId::from_str(name),
+            key: name.to_owned(),
+            template: LiveId::from_str("t"),
+            pos: dvec2(0.0, 0.0),
+            size: dvec2(10.0, 10.0),
+            parent: None,
+            link: Link::Peer,
+            active: false,
+            lit: false,
+        }
+    }
+
+    #[test]
+    fn the_last_in_z_is_drawn_last_and_the_rest_keep_their_order() {
+        let cards = [card("a"), card("b"), card("c")];
+        let id = |n: &str| LiveId::from_str(n);
+        assert_eq!(stack(&cards, &[id("a"), id("b"), id("c")]), [0, 1, 2]);
+        // `a` was grabbed: it moves to the end, on top.
+        assert_eq!(stack(&cards, &[id("b"), id("c"), id("a")]), [1, 2, 0]);
+        // A card z has not heard of sits above the known ones.
+        assert_eq!(stack(&cards, &[id("c"), id("a")]), [2, 0, 1]);
     }
 }

@@ -103,6 +103,25 @@ const LEFT: f64 = 30.0;
 const PEER_DX: f64 = 300.0;
 const PEER_DY: f64 = 108.0;
 const AGENT_DY: f64 = 76.0;
+/// Slots tried for a card before it is left where the last one fell.
+const MAX_SLOTS: usize = 64;
+
+/// A card's rectangle, for telling whether two cards cover each other.
+#[derive(Debug, Clone, Copy)]
+struct Rect {
+    x: f64,
+    y: f64,
+    size: (f64, f64),
+}
+
+impl Rect {
+    fn overlaps(&self, o: &Rect) -> bool {
+        self.x < o.x + o.size.0
+            && o.x < self.x + self.size.0
+            && self.y < o.y + o.size.1
+            && o.y < self.y + self.size.1
+    }
+}
 
 fn clip(text: &str, n: usize) -> String {
     let line = text
@@ -202,7 +221,43 @@ pub fn build(store: &Store, now_ms: u64, placed: &HashMap<String, (f64, f64)>) -
         .filter(|a| agent_live(&a.status))
         .collect();
 
-    let at = |key: &str, default: (f64, f64)| placed.get(key).copied().unwrap_or(default);
+    // Where cards already sit: the ones the person placed, then each default
+    // card as it is laid out. A card without a place takes the first slot
+    // (its default, then further down by `step`) that none of them covers.
+    let mut taken: Vec<Rect> = Vec::new();
+    let shown = outers
+        .iter()
+        .map(|sid| (format!("s:{sid}"), SESSION_SIZE))
+        .chain(peered.iter().map(|(_, r)| (format!("p:{}", r.key), PEER_SIZE)))
+        .chain(live.iter().map(|a| (format!("a:{}", a.agent_id), AGENT_SIZE)));
+    for (key, size) in shown {
+        if let Some(&(x, y)) = placed.get(&key) {
+            taken.push(Rect { x, y, size });
+        }
+    }
+    let mut at = |key: &str, default: (f64, f64), size: (f64, f64), step: f64| {
+        if let Some(&pos) = placed.get(key) {
+            return pos;
+        }
+        let mut pos = default;
+        for _ in 0..MAX_SLOTS {
+            let rect = Rect {
+                x: pos.0,
+                y: pos.1,
+                size,
+            };
+            if !taken.iter().any(|t| t.overlaps(&rect)) {
+                break;
+            }
+            pos.1 += step;
+        }
+        taken.push(Rect {
+            x: pos.0,
+            y: pos.1,
+            size,
+        });
+        pos
+    };
     let mut out: Vec<Node> = Vec::new();
     let mut y = TOP;
     for sid in &outers {
@@ -223,7 +278,7 @@ pub fn build(store: &Store, now_ms: u64, placed: &HashMap<String, (f64, f64)>) -
             .iter()
             .filter(|a| &a.session_id == sid && a.parent_agent_id.is_none())
             .collect();
-        let pos = at(&key, (LEFT, y));
+        let pos = at(&key, (LEFT, y), SESSION_SIZE, SESSION_SIZE.1 + 36.0);
         let tall = (my_peers.len() as f64 * PEER_DY).max(
             SESSION_SIZE.1
                 + my_agents.len() as f64 * AGENT_DY
@@ -275,13 +330,20 @@ pub fn build(store: &Store, now_ms: u64, placed: &HashMap<String, (f64, f64)>) -
                         pos.0 + 24.0,
                         pos.1 + SESSION_SIZE.1 + 20.0 + k as f64 * AGENT_DY,
                     ),
+                    AGENT_SIZE,
+                    AGENT_DY,
                 ),
             ));
         }
         // Its peers, to its right; each one's agents to the peer's right.
         for (j, r) in my_peers.iter().enumerate() {
             let pkey = format!("p:{}", r.key);
-            let ppos = at(&pkey, (pos.0 + PEER_DX, pos.1 + j as f64 * PEER_DY));
+            let ppos = at(
+                &pkey,
+                (pos.0 + PEER_DX, pos.1 + j as f64 * PEER_DY),
+                PEER_SIZE,
+                PEER_DY,
+            );
             let detail = if r.title.is_empty() {
                 r.label.clone()
             } else {
@@ -328,6 +390,8 @@ pub fn build(store: &Store, now_ms: u64, placed: &HashMap<String, (f64, f64)>) -
                     at(
                         &akey,
                         (ppos.0 + PEER_SIZE.0 + 40.0, ppos.1 + k as f64 * AGENT_DY),
+                        AGENT_SIZE,
+                        AGENT_DY,
                     ),
                 ));
             }
@@ -354,7 +418,8 @@ pub fn build(store: &Store, now_ms: u64, placed: &HashMap<String, (f64, f64)>) -
                 p.pos.0 + 24.0,
                 p.pos.1 + p.size.1 + 20.0 + siblings as f64 * AGENT_DY,
             );
-            out.push(agent_node(a, &akey, Some(parent), at(&akey, default)));
+            let pos = at(&akey, default, AGENT_SIZE, AGENT_DY);
+            out.push(agent_node(a, &akey, Some(parent), pos));
             false
         });
         if pending.is_empty() || pending.len() == before {
@@ -627,6 +692,85 @@ mod tests {
             (500.0 + PEER_DX, 400.0),
             "its peers follow it by default"
         );
+    }
+
+    fn overlap(a: &Node, b: &Node) -> bool {
+        let r = |n: &Node| Rect {
+            x: n.pos.0,
+            y: n.pos.1,
+            size: n.size,
+        };
+        r(a).overlaps(&r(b))
+    }
+
+    fn peer<'a>(nodes: &'a [Node], brief: &str) -> &'a Node {
+        nodes
+            .iter()
+            .find(|n| n.kind == Kind::Peer && n.detail.starts_with(brief))
+            .unwrap()
+    }
+
+    #[test]
+    fn default_cards_never_overlap_each_other() {
+        let store = store();
+        for slug in ["one", "two", "three"] {
+            staged(&store, slug, "dev:api:a", true);
+        }
+        staged(&store, "four", "dev:api:b", true);
+        for (i, parent) in [None, Some("a0"), None].iter().enumerate() {
+            store.domains.autonomy.upsert_agent(agent(
+                &format!("a{i}"),
+                "dev:api:a",
+                *parent,
+                "running",
+            ));
+        }
+        let nodes = build(&store, 0, &HashMap::new());
+        assert!(nodes.len() >= 9);
+        for (i, a) in nodes.iter().enumerate() {
+            for b in &nodes[i + 1..] {
+                assert!(!overlap(a, b), "{} covers {}", a.key, b.key);
+            }
+        }
+        assert_eq!(nodes, build(&store, 0, &HashMap::new()), "deterministic");
+    }
+
+    #[test]
+    fn a_placed_card_in_a_default_slot_sends_the_unplaced_one_to_the_next_free_slot() {
+        let store = store();
+        staged(&store, "one", "dev:api:a", true);
+        staged(&store, "two", "dev:api:a", true);
+        let plain = build(&store, 0, &HashMap::new());
+        let (first, second) = (peer(&plain, "Brief for one"), peer(&plain, "Brief for two"));
+        assert_eq!(second.pos.1, first.pos.1 + PEER_DY);
+        // The first peer is dragged onto the second one's default slot.
+        let mut placed = HashMap::new();
+        placed.insert(first.key.clone(), second.pos);
+        let nodes = build(&store, 0, &placed);
+        let (one, two) = (peer(&nodes, "Brief for one"), peer(&nodes, "Brief for two"));
+        assert_eq!(one.pos, second.pos, "a placed card stays where it was left");
+        assert!(!overlap(one, two));
+        assert_eq!(
+            two.pos,
+            (second.pos.0, second.pos.1 + PEER_DY),
+            "the unplaced card takes the next free slot"
+        );
+        // Dragged just below it: still clear of both.
+        placed.insert(first.key.clone(), (second.pos.0 + 40.0, second.pos.1 + 20.0));
+        let nodes = build(&store, 0, &placed);
+        let (one, two) = (peer(&nodes, "Brief for one"), peer(&nodes, "Brief for two"));
+        assert!(!overlap(one, two));
+        assert_eq!(two.pos.0, second.pos.0);
+    }
+
+    #[test]
+    fn a_placed_cards_saved_place_for_something_not_shown_blocks_nothing() {
+        let store = store();
+        staged(&store, "one", "dev:api:a", true);
+        let plain = build(&store, 0, &HashMap::new());
+        let mut placed = HashMap::new();
+        placed.insert("p:gone".to_owned(), plain[1].pos);
+        assert_eq!(build(&store, 0, &placed), plain);
     }
 
     #[test]
