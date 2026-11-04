@@ -50,6 +50,9 @@ pub mod driver_discovery;
 pub mod fleet;
 // A10: the external-driver chains behind the Fleet (seat, Start, row control).
 pub mod fleet_driver;
+// The Flow tab's model: the session, its peers and running agents as cards
+// (adapted from OctoBuddy's flow canvas; `crate::flow_canvas` draws it).
+pub mod flow_graph;
 pub mod history;
 pub mod keys;
 // A8: the workspace launch (launch/resolve, the decision panel, the lease).

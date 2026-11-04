@@ -45,6 +45,8 @@ ISOLATED_KEYS = (
     "OCTOSCODE_PANE_ADVANCED_FILE",
     # A19: the remembered profile/Session/workspace per server origin.
     "OCTOSCODE_CONNECTION_FILE",
+    # The Flow tab: where the person dragged its cards.
+    "OCTOSCODE_FLOW_LAYOUT_FILE",
 )
 
 PHONE_SIZE = "360x780"
@@ -72,6 +74,8 @@ def isolated_env(state: pathlib.Path) -> dict:
         "OCTOSCODE_PANE_ADVANCED_FILE": str(state / "session-pane-advanced.json"),
         # A19: the remembered connection (never ~/.octoscode/connection-v1.json).
         "OCTOSCODE_CONNECTION_FILE": str(state / "connection-v1.json"),
+        # The Flow tab: where the person dragged its cards.
+        "OCTOSCODE_FLOW_LAYOUT_FILE": str(state / "flow-layout-v1.json"),
     }
 
 
