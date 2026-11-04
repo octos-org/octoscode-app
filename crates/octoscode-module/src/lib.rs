@@ -762,141 +762,6 @@ script_mod! {
             }
         }
 
-        // A3 (board 2 screen 7): the Stop-server confirm, centred over its
-        // own scrim. Only `server_stop_confirm` here sends server/shutdown.
-        stop_dock := View {
-            width: Fill height: Fill flow: Overlay
-            align: Align{x: 0.5 y: 0.5}
-            visible: false
-            SolidView { width: Fill height: Fill draw_bg.color: #1D1D1F4D }
-            stop_backdrop := mod.widgets.OcBackdrop {}
-            stop_frame := View {
-                width: Fill height: Fit max_width: 400
-                margin: Inset{left: 16 right: 16}
-                stop_dialog := mod.widgets.OcStopConfirm {}
-            }
-        }
-
-        // A3 (board 2 screen 4): the workspace overflow menu, anchored to the
-        // clicked "⋯" by sync_chrome (margin within this full-window layer);
-        // a click anywhere else closes it. A chat row's context menu shares
-        // the layer, anchored at the press. `sb_menu_ctx` sees every press
-        // here (`capture_overload`, under the rest) so a right-click outside
-        // the open menu closes it, or opens the chat row's menu under it.
-        sb_menu_dock := View {
-            width: Fill height: Fill flow: Overlay
-            visible: false
-            sb_menu_ctx := View {width: Fill height: Fill cursor: MouseCursor.Default capture_overload: true}
-            sb_menu_dismiss := mod.widgets.OcBackdrop {}
-            sb_menu := mod.widgets.OcWorkspaceMenu {}
-            sb_chat_menu := mod.widgets.OcChatMenu {visible: false}
-        }
-
-        // Card #28e item 5 (board 4 frame 3): the floating 560 px command
-        // palette, near the top of the window. Cmd+K and "/" in an empty
-        // composer open it; Esc closes. The search field + the command rows are
-        // native shell chrome (no #16 component yet). CENTERED at any window
-        // width: the dock wrapper centers the card (the old abs_pos(440,120)
-        // was a 1440-only guess); the card's top margin keeps it near the top.
-        palette_dock := View {
-            width: Fill height: Fill
-            // Hidden WITH its child (sync_chrome toggles the wrapper): a
-            // Fill/Fill overlay wrapper that stays visible would put a draw
-            // area over the whole window even while `palette` is invisible,
-            // and headless f1 showed the composer's send click never landing.
-            visible: false
-            align: Align{x: 0.5 y: 0.0}
-        palette := RoundedView {
-            width: 560 height: Fit flow: Down spacing: 4
-            visible: false
-            margin: Inset{top: 120}
-            draw_bg +: {color: #FFFFFF border_radius: 12.0 border_size: 1.0 border_color: theme.color_outset_1}
-            padding: Inset{left: 8 right: 8 top: 8 bottom: 8}
-            palette_search := TextInput {
-                width: Fill height: 34 text: ""
-                empty_text: "/"
-                draw_text.text_style.font_size: 13
-            }
-            palette_list := PortalList {
-                width: Fill height: 204 flow: Down
-                // A fixed 6×34 px viewport: a PortalList under a Fit-height
-                // parent computes zero visible rows (the f3 captures showed the
-                // search field and hint row with a blank gap between them).
-                // #28e2 item 5: the first row is highlighted (board 4 frame 3)
-                // — a toggleable background layer the draw step shows for
-                // row 0 only.
-                PaletteRowTpl := View {
-                    width: Fill height: 34 flow: Overlay
-                    palette_row_bg := RoundedView {
-                        width: Fill height: Fill
-                        margin: Inset{left: 2 right: 2}
-                        draw_bg +: {color: theme.color_bg_even border_radius: 8.0}
-                        visible: false
-                    }
-                    palette_row_inner := View {
-                        width: Fill height: Fill flow: Right spacing: 12
-                        // A5: both labels centre on the row (a shared top
-                        // inset put the 11 pt description above the 13 pt
-                        // name's baseline). The name fits its text and the
-                        // description takes the rest, right-aligned (setup-08;
-                        // a fixed 150 px name column wrapped the description
-                        // at phone width).
-                        padding: Inset{left: 6 right: 10}
-                        align: Align{y: 0.5}
-                        palette_row_name := Label { width: Fit height: Fit text: "" draw_text.text_style.font_size: 13  draw_text.color: theme.color_fg_app}
-                        palette_row_desc := Label { width: Fill height: Fit align: Align{x: 1.0} text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                    }
-                    // A5 — the row is clickable (the web's listbox option:
-                    // a click runs the command, `CommandPalette.tsx`). Last
-                    // child of the Overlay row, so it takes the press.
-                    palette_row_hit := Button {
-                        width: Fill height: Fill text: ""
-                        draw_bg.color: #00000000
-                        draw_bg.color_hover: #00000008
-                        draw_bg.color_down: #00000014
-                        draw_bg.border_size: 0.0
-                        draw_bg.color_2: #00000000
-                        draw_bg.border_color: #00000000
-                        draw_bg.border_color_2: #00000000
-                    }
-                }
-            }
-            // #28e2 item 1: the hint's arrows and return were tofu (Inter
-            // lacks those glyphs) — small SVGs instead of text glyphs.
-            // A5: setup-08's footer — a rule, then the hint centred.
-            SolidView { width: Fill height: 1 draw_bg.color: theme.color_outset_1 }
-            palette_hint := View {
-                width: Fill height: Fit flow: Right spacing: 4
-                // A5: the 9 px glyph SVGs centre on the 10 pt labels (they sat
-                // on the line's top); the hint is centred (setup-08).
-                align: Align{x: 0.5 y: 0.5}
-                padding: Inset{top: 4 bottom: 2}
-                Svg {
-                    width: 9 height: 9
-                    animating: false
-                    draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_arrow_up.svg")))
-                    draw_svg.preserve_viewbox: true
-                }
-                Svg {
-                    width: 9 height: 9
-                    animating: false
-                    draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_arrow_down.svg")))
-                    draw_svg.preserve_viewbox: true
-                }
-                Label { width: Fit height: Fit text: "to move" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
-                Label { width: Fit height: Fit text: "·" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
-                Svg {
-                    width: 9 height: 9
-                    animating: false
-                    draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_return.svg")))
-                    draw_svg.preserve_viewbox: true
-                }
-                Label { width: Fit height: Fit text: "to run" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
-                Label { width: Fit height: Fit text: "· esc" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
-            }
-        } // palette
-        } // palette_dock
-
         // Card #28e item 6 (board 4 frame 4): the first-run screen. Before a
         // connection the window shows only a centered 480-wide card area (the
         // Connect card comes from board 2 mapping in Stage C). This replaces
@@ -1071,6 +936,151 @@ script_mod! {
                 width: Fill height: Fill
             }
         }
+
+        // Popups: the layers the person opens from chrome that stays reachable
+        // while a full-window surface is up (the sidebar and the keyboard).
+        // They paint, and take presses, ABOVE every surface — issue #28 — so
+        // the Stop confirm, a sidebar menu and the command palette are never
+        // left underneath Fleet, a dialog or a picker. Settings is a surface
+        // itself and stays below them (it opens surfaces of its own).
+        // A3 (board 2 screen 7): the Stop-server confirm, centred over its
+        // own scrim. Only `server_stop_confirm` here sends server/shutdown.
+        stop_dock := View {
+            width: Fill height: Fill flow: Overlay
+            align: Align{x: 0.5 y: 0.5}
+            visible: false
+            SolidView { width: Fill height: Fill draw_bg.color: #1D1D1F4D }
+            stop_backdrop := mod.widgets.OcBackdrop {}
+            stop_frame := View {
+                width: Fill height: Fit max_width: 400
+                margin: Inset{left: 16 right: 16}
+                stop_dialog := mod.widgets.OcStopConfirm {}
+            }
+        }
+
+        // A3 (board 2 screen 4): the workspace overflow menu, anchored to the
+        // clicked "⋯" by sync_chrome (margin within this full-window layer);
+        // a click anywhere else closes it. A chat row's context menu shares
+        // the layer, anchored at the press. `sb_menu_ctx` sees every press
+        // here (`capture_overload`, under the rest) so a right-click outside
+        // the open menu closes it, or opens the chat row's menu under it.
+        sb_menu_dock := View {
+            width: Fill height: Fill flow: Overlay
+            visible: false
+            sb_menu_ctx := View {width: Fill height: Fill cursor: MouseCursor.Default capture_overload: true}
+            sb_menu_dismiss := mod.widgets.OcBackdrop {}
+            sb_menu := mod.widgets.OcWorkspaceMenu {}
+            sb_chat_menu := mod.widgets.OcChatMenu {visible: false}
+        }
+
+        // Card #28e item 5 (board 4 frame 3): the floating 560 px command
+        // palette, near the top of the window. Cmd+K and "/" in an empty
+        // composer open it; Esc closes. The search field + the command rows are
+        // native shell chrome (no #16 component yet). CENTERED at any window
+        // width: the dock wrapper centers the card (the old abs_pos(440,120)
+        // was a 1440-only guess); the card's top margin keeps it near the top.
+        palette_dock := View {
+            width: Fill height: Fill
+            // Hidden WITH its child (sync_chrome toggles the wrapper): a
+            // Fill/Fill overlay wrapper that stays visible would put a draw
+            // area over the whole window even while `palette` is invisible,
+            // and headless f1 showed the composer's send click never landing.
+            visible: false
+            flow: Overlay
+            align: Align{x: 0.5 y: 0.0}
+            // Its own scrim: the shared `dimmer` sits under the surfaces, so it
+            // would tint the sidebar but not a Fleet pane or dialog below the palette.
+            SolidView { width: Fill height: Fill draw_bg.color: #1D1D1F40 }
+        palette := RoundedView {
+            width: 560 height: Fit flow: Down spacing: 4
+            visible: false
+            margin: Inset{top: 120}
+            draw_bg +: {color: #FFFFFF border_radius: 12.0 border_size: 1.0 border_color: theme.color_outset_1}
+            padding: Inset{left: 8 right: 8 top: 8 bottom: 8}
+            palette_search := TextInput {
+                width: Fill height: 34 text: ""
+                empty_text: "/"
+                draw_text.text_style.font_size: 13
+            }
+            palette_list := PortalList {
+                width: Fill height: 204 flow: Down
+                // A fixed 6×34 px viewport: a PortalList under a Fit-height
+                // parent computes zero visible rows (the f3 captures showed the
+                // search field and hint row with a blank gap between them).
+                // #28e2 item 5: the first row is highlighted (board 4 frame 3)
+                // — a toggleable background layer the draw step shows for
+                // row 0 only.
+                PaletteRowTpl := View {
+                    width: Fill height: 34 flow: Overlay
+                    palette_row_bg := RoundedView {
+                        width: Fill height: Fill
+                        margin: Inset{left: 2 right: 2}
+                        draw_bg +: {color: theme.color_bg_even border_radius: 8.0}
+                        visible: false
+                    }
+                    palette_row_inner := View {
+                        width: Fill height: Fill flow: Right spacing: 12
+                        // A5: both labels centre on the row (a shared top
+                        // inset put the 11 pt description above the 13 pt
+                        // name's baseline). The name fits its text and the
+                        // description takes the rest, right-aligned (setup-08;
+                        // a fixed 150 px name column wrapped the description
+                        // at phone width).
+                        padding: Inset{left: 6 right: 10}
+                        align: Align{y: 0.5}
+                        palette_row_name := Label { width: Fit height: Fit text: "" draw_text.text_style.font_size: 13  draw_text.color: theme.color_fg_app}
+                        palette_row_desc := Label { width: Fill height: Fit align: Align{x: 1.0} text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                    }
+                    // A5 — the row is clickable (the web's listbox option:
+                    // a click runs the command, `CommandPalette.tsx`). Last
+                    // child of the Overlay row, so it takes the press.
+                    palette_row_hit := Button {
+                        width: Fill height: Fill text: ""
+                        draw_bg.color: #00000000
+                        draw_bg.color_hover: #00000008
+                        draw_bg.color_down: #00000014
+                        draw_bg.border_size: 0.0
+                        draw_bg.color_2: #00000000
+                        draw_bg.border_color: #00000000
+                        draw_bg.border_color_2: #00000000
+                    }
+                }
+            }
+            // #28e2 item 1: the hint's arrows and return were tofu (Inter
+            // lacks those glyphs) — small SVGs instead of text glyphs.
+            // A5: setup-08's footer — a rule, then the hint centred.
+            SolidView { width: Fill height: 1 draw_bg.color: theme.color_outset_1 }
+            palette_hint := View {
+                width: Fill height: Fit flow: Right spacing: 4
+                // A5: the 9 px glyph SVGs centre on the 10 pt labels (they sat
+                // on the line's top); the hint is centred (setup-08).
+                align: Align{x: 0.5 y: 0.5}
+                padding: Inset{top: 4 bottom: 2}
+                Svg {
+                    width: 9 height: 9
+                    animating: false
+                    draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_arrow_up.svg")))
+                    draw_svg.preserve_viewbox: true
+                }
+                Svg {
+                    width: 9 height: 9
+                    animating: false
+                    draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_arrow_down.svg")))
+                    draw_svg.preserve_viewbox: true
+                }
+                Label { width: Fit height: Fit text: "to move" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
+                Label { width: Fit height: Fit text: "·" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
+                Svg {
+                    width: 9 height: 9
+                    animating: false
+                    draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_return.svg")))
+                    draw_svg.preserve_viewbox: true
+                }
+                Label { width: Fit height: Fit text: "to run" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
+                Label { width: Fit height: Fit text: "· esc" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
+            }
+        } // palette
+        } // palette_dock
 
         // A26 — the error toasts (`screens::toasts`): a FIT-size dock placed
         // by margin under the conversation header (a visible full-window
@@ -2097,10 +2107,17 @@ impl OctoscodeView {
             match screens::settings::apply_ui(action) {
                 UiEffect::None => {}
                 UiEffect::Open => {
-                    if let Ok(mut u) = ui.lock() {
-                        if !u.settings_open() {
+                    let opened = match ui.lock() {
+                        Ok(mut u) if !u.settings_open() => {
                             u.toggle_settings();
+                            true
                         }
+                        _ => false,
+                    };
+                    // Settings is a surface: it replaces the Fleet pane or
+                    // dialog open under it, which would paint over it.
+                    if opened {
+                        self.close_surfaces_under_settings(cx);
                     }
                 }
                 UiEffect::Close => {
@@ -4862,6 +4879,10 @@ impl OctoscodeView {
     /// every dialog stayed open while the phone left the app. Returns
     /// whether a surface closed; only then is Back taken.
     fn back_steps_out(&mut self, cx: &mut Cx) -> bool {
+        // A popup paints above every surface: it steps out first.
+        if self.popup_open() {
+            return self.escape_chrome(cx);
+        }
         if screens::board1::is_open() {
             let back = screens::board1::escape_action();
             self.perform_board1(cx, back, None);
@@ -4882,9 +4903,54 @@ impl OctoscodeView {
         true
     }
 
+    /// Settings opens over the base chrome. A board-3 dialog (the Fleet pane
+    /// leaves the sidebar clickable) or an A5 dialog still open would paint
+    /// over it, so opening Settings closes them; the surfaces Settings opens
+    /// itself (Capabilities, Models) come after it and sit above it.
+    fn close_surfaces_under_settings(&mut self, cx: &mut Cx) {
+        if screens::board3::host::is_open() {
+            screens::board3::host::close();
+        }
+        if screens::dialog::current().is_some() {
+            self.perform_action(cx, screens::dialog::ACTION_CLOSE, 0);
+        }
+        self.sync_labels(cx);
+    }
+
+    /// Whether a popup is open: the command palette, the Stop confirm, a
+    /// sidebar menu or a chat's inline rename. The first three paint above
+    /// every surface (the `Popups` docks in the root Overlay) and the rename
+    /// sits in the sidebar beside it, so all take Escape before a surface.
+    fn popup_open(&self) -> bool {
+        let palette = {
+            let b = self.bridge.lock().unwrap();
+            let open = b.ui.lock().map(|u| u.palette_open()).unwrap_or(false);
+            open
+        };
+        palette
+            || screens::settings::snapshot().stop_pending
+            || screens::sidebar::menu_for().is_some()
+            || screens::sidebar::renaming().is_some()
+            || screens::sidebar::snapshot().chat_menu.is_some()
+            || screens::sidebar::renaming_chat().is_some()
+    }
+
+    /// The keys an open popup owns while a surface is also open under it:
+    /// Escape for any popup, and every key for the palette (its arrows and
+    /// Return run the list), so the surface's own key arms stand aside.
+    fn popup_owns_keys(&self, e: &KeyEvent) -> bool {
+        if e.key_code == KeyCode::Escape {
+            return self.popup_open();
+        }
+        let b = self.bridge.lock().unwrap();
+        let open = b.ui.lock().map(|u| u.palette_open()).unwrap_or(false);
+        open
+    }
+
     /// A3: Escape closes the top-most chrome surface (the web's onEscape on
-    /// every ModalSurface): the Stop dialog, the workspace menu, Settings,
-    /// then the drawer. Returns whether it consumed the key.
+    /// every ModalSurface): the popups (palette, Stop dialog, sidebar menus)
+    /// above everything, then the review, Settings and the drawer. Returns
+    /// whether it consumed the key.
     fn escape_chrome(&mut self, cx: &mut Cx) -> bool {
         let settings_open = {
             let b = self.bridge.lock().unwrap();
@@ -4896,11 +4962,17 @@ impl OctoscodeView {
             let open = b.ui.lock().map(|u| u.review_open()).unwrap_or(false);
             open
         };
-        let consumed = if review_open {
-            // A6: the diff review (opened from an approval card's Review
-            // diff) closes first — Escape must never interrupt the turn
-            // that is waiting on that approval.
-            self.perform_action(cx, "review.toggle", 0);
+        let palette_open = {
+            let b = self.bridge.lock().unwrap();
+            let open = b.ui.lock().map(|u| u.palette_open()).unwrap_or(false);
+            open
+        };
+        let consumed = if palette_open {
+            // The palette is the top-most popup: Escape closes it before the
+            // Stop confirm, a menu or the surface under it.
+            if let Ok(mut u) = self.bridge.lock().unwrap().ui.lock() {
+                u.set_palette_open(false);
+            }
             true
         } else if screens::settings::snapshot().stop_pending {
             self.perform_action(cx, "server.stop.cancel", 0);
@@ -4913,6 +4985,12 @@ impl OctoscodeView {
             screens::sidebar::close_menu();
             self.perform_action(cx, "workspace.rename.cancel", 0);
             self.perform_action(cx, "session.rename.cancel", 0);
+            true
+        } else if review_open {
+            // A6: the diff review (opened from an approval card's Review
+            // diff) closes before Settings — Escape must never interrupt the
+            // turn that is waiting on that approval.
+            self.perform_action(cx, "review.toggle", 0);
             true
         } else if settings_open {
             self.perform_action(cx, "settings.panel.close", 0);
@@ -5426,7 +5504,7 @@ impl OctoscodeView {
         }
         self.view
             .widget(cx, ids!(dimmer))
-            .set_visible(cx, palette || settings || (review && !wide));
+            .set_visible(cx, settings || (review && !wide));
         // #28e4: the #29d proof-screen dock is visible only when
         // OCTOSCODE_SCREEN names one of them — a visible Fill/Fill wrapper
         // shadows the clicks under it. `connect` is NOT docked: it mounts in
@@ -5887,8 +5965,8 @@ impl OctoscodeView {
             // Topmost first, matching the overlay paint order. A dialog opened
             // over Settings must not scroll Settings either.
             for id in [
-                live_id!(a9_dock), live_id!(surfaces_dock), live_id!(board3_dock),
-                live_id!(board1_dock), live_id!(dialog_dock), live_id!(palette_dock),
+                live_id!(palette_dock), live_id!(a9_dock), live_id!(surfaces_dock),
+                live_id!(board3_dock), live_id!(board1_dock), live_id!(dialog_dock),
                 live_id!(settings_dock),
             ] {
                 let dock = self.view.widget(cx, &[id]);
@@ -6705,7 +6783,7 @@ impl OctoscodeView {
             // keyboard — Return must not submit the composer's draft and "/"
             // must not open the palette. Escape steps back (the web's
             // ModalSurface `onEscape`).
-            Event::KeyDown(e) if screens::board1::is_open() => {
+            Event::KeyDown(e) if screens::board1::is_open() && !self.popup_owns_keys(e) => {
                 if e.key_code == KeyCode::Escape {
                     let back = screens::board1::escape_action();
                     self.perform_board1(cx, back, None);
@@ -6716,7 +6794,7 @@ impl OctoscodeView {
             // ModalSurface): Escape closes it (`onEscape`); Return must not
             // submit the composer's draft and "/" must not open the palette
             // behind it (its own fields still take their keys).
-            Event::KeyDown(e) if screens::dialog::current().is_some() => {
+            Event::KeyDown(e) if screens::dialog::current().is_some() && !self.popup_owns_keys(e) => {
                 if e.key_code == KeyCode::Escape {
                     makepad_widgets::log!("[octoscode] key Escape -> dialog close");
                     self.perform_action(cx, screens::dialog::ACTION_CLOSE, 0);
@@ -6724,13 +6802,14 @@ impl OctoscodeView {
             }
             // A9 — Escape closes the open A9 surface (`onEscape`); while one
             // is open it owns the keyboard (no palette / submit behind it).
-            Event::KeyDown(e) if a9_host::escape_owned() => {
+            Event::KeyDown(e) if a9_host::escape_owned() && !self.popup_owns_keys(e) => {
                 if e.key_code == KeyCode::Escape {
                     self.a9_escape(cx);
                 }
             }
             Event::KeyDown(e) if e.key_code == KeyCode::Escape
-                && screens::board3::host::is_open() =>
+                && screens::board3::host::is_open()
+                && !self.popup_owns_keys(e) =>
             {
                 // A4 — Escape closes the open board-3 dialog first
                 // (`ui/ModalSurface.tsx` onEscape), never interrupting a turn.
@@ -6739,7 +6818,10 @@ impl OctoscodeView {
                 self.sync_labels(cx);
             }
             // A6 — Escape closes the task detail (`TaskDetailDialog.tsx:33`).
-            Event::KeyDown(e) if e.key_code == KeyCode::Escape && screens::surfaces::detail_open() => {
+            Event::KeyDown(e) if e.key_code == KeyCode::Escape
+                && screens::surfaces::detail_open()
+                && !self.popup_owns_keys(e) =>
+            {
                 makepad_widgets::log!("[octoscode] task detail closed (Escape)");
                 self.perform_action(cx, "cv.detail.close", 0);
             }
