@@ -11,7 +11,9 @@
 //!    when the server advertised it (GeneralSettingsContent.tsx:129-130).
 //! 2. A permission preset sends `permission/profile/set` with the web's
 //!    update shape for the active session (App.tsx:1966-1972).
-//! 3. The model row selects the NEXT configured model (`profile/llm/select`).
+//! 3. The model row opens the composer seat's model menu (one model too) and
+//!    sends nothing itself; a preset the server does not confirm is a visible
+//!    failure, not a silent no-op.
 //! 4. Every chrome action id has exactly ONE owner across the module's tables.
 //! 5. The sidebar's `session.open` routes the clicked row's STORE index
 //!    through the router's own `thread.open`.
@@ -66,6 +68,14 @@ impl FakeServer {
                         }})
                     }
                     "profile/llm/select" => json!({"runtime_disposition": "reloaded"}),
+                    // A confirming reply echoes the Session and reads back the
+                    // selection (`applied`, `current`); `a3:unconfirmed` gets a
+                    // bare reply.
+                    "permission/profile/set" if v["params"]["session_id"] != json!("a3:unconfirmed") => json!({
+                        "session_id": v["params"]["session_id"],
+                        "applied": true,
+                        "current": {"mode": v["params"]["update"]["mode"], "network": v["params"]["update"]["network"]},
+                    }),
                     _ => json!({}),
                 };
                 let frame = json!({"jsonrpc": "2.0", "id": id, "result": result});
@@ -186,33 +196,59 @@ async fn a_permission_preset_sends_the_webs_update_for_the_active_session() {
 }
 
 #[tokio::test]
-async fn the_model_row_selects_the_next_configured_model() {
+async fn the_model_row_opens_the_seats_menu_even_with_one_model() {
     use octoscode_store::domains::profile::ProfileLlmModel;
     let _g = lock();
     settings::reset_state();
-    let server = FakeServer::start(vec!["session/open", "profile/llm/select"]).await;
+    let server = FakeServer::start(vec!["session/open", "profile/llm/list", "profile/llm/select"]).await;
     let conv = connected(&server).await;
     let store = conv.store.clone();
-    let model = |m: &str, selected: bool| ProfileLlmModel {
-        model: m.into(),
+    store.domains.profile.set_llm_models(vec![ProfileLlmModel {
+        model: "v4-flash".into(),
         provider: "deepseek".into(),
-        title: m.into(),
+        title: "v4-flash".into(),
         family: Some("deepseek".into()),
         route: Some("r1".into()),
-        selected,
+        selected: true,
         available: true,
-    };
-    store
-        .domains
-        .profile
-        .set_llm_models(vec![model("v4-flash", true), model("v4-pro", false)]);
-    assert_eq!(settings::model_of(&store), "v4-flash");
-    settings::perform(&conv, "settings.model.next", &store).await.expect("select");
-    let params = server.params_of("profile/llm/select").expect("sent");
-    assert_eq!(params["model_id"], json!("v4-pro"));
-    assert_eq!(params["family_id"], json!("deepseek"));
-    settings::mark_model_selected(&store, "v4-pro");
-    assert_eq!(settings::model_of(&store), "v4-pro");
+    }]);
+    assert!(settings::model_pickable(&store), "the seat's gate: the server lists models");
+    // The row hands off to the seat's menu; it is not a send of its own.
+    assert_eq!(settings::apply_ui("settings.model.open"), settings::UiEffect::ModelMenu);
+    assert!(settings::owns("settings.model.open") && !settings::owns("settings.model.next"));
+    assert!(settings::action_params("settings.model.open", &store).is_none());
+    tokio::time::sleep(Duration::from_millis(100)).await;
+    assert!(!server.methods().iter().any(|m| m == "profile/llm/select"), "opening the menu selects nothing");
+}
+
+#[tokio::test]
+async fn a_server_that_lists_no_models_leaves_the_row_a_plain_value() {
+    let _g = lock();
+    settings::reset_state();
+    let server = FakeServer::start(vec!["session/open"]).await;
+    let conv = connected(&server).await;
+    assert!(!settings::model_pickable(&conv.store), "no profile/llm/list: no chevron, no press");
+}
+
+#[tokio::test]
+async fn a_preset_the_server_does_not_confirm_is_a_visible_failure() {
+    let _g = lock();
+    settings::reset_state();
+    let server = FakeServer::start(vec!["session/open", "permission/profile/set"]).await;
+    let conv = connected(&server).await;
+    let store = conv.store.clone();
+    // A reply that does not echo this Session: nothing applied, and it says so.
+    store.set_active(Some("a3:unconfirmed".to_owned()));
+    assert_eq!(settings::apply_ui("perm_full.select"), settings::UiEffect::Send);
+    let err = settings::perform(&conv, "perm_full.select", &store).await.expect_err("unconfirmed");
+    settings::note_failed("perm_full.select", &err);
+    let st = settings::snapshot();
+    assert!(st.saving.is_none(), "no longer saving");
+    assert_eq!(st.perm_error.as_deref(), Some("The server did not confirm the permission change"));
+    assert_eq!(settings::snapshot().permission, None, "the preset was not claimed");
+    // The next attempt starts clean.
+    settings::apply_ui("perm_ask.select");
+    assert!(settings::snapshot().perm_error.is_none());
 }
 
 #[test]

@@ -551,7 +551,10 @@ pub fn open(dialog: Dialog) -> Outcome {
         }
         Dialog::Research => super::research::on_open(&mut st.research),
         Dialog::Permission => super::seats::on_open_permission(&mut st.seats),
-        Dialog::ModelMenu => super::seats::on_open_models(&mut st.seats),
+        Dialog::ModelMenu => {
+            st.seats.model_pin = None; // the composer's seat; Settings pins it after
+            super::seats::on_open_models(&mut st.seats)
+        }
         Dialog::Routes => {
             // Opened from the Models dialog: one modal at a time.
             crate::screens::dialog::close();
@@ -580,6 +583,15 @@ pub fn close_if(dialog: Dialog) {
     if open_dialog() == Some(dialog) {
         close();
     }
+}
+
+/// The Settings Model row opens the composer seat's model menu — the same
+/// list and the same `profile/llm/select` — hanging under `row` (module-view
+/// px) rather than above the composer.
+pub fn open_model_menu_under(row: Option<super::seats::Anchor>) -> Outcome {
+    let out = open(Dialog::ModelMenu);
+    state().seats.model_pin = row;
+    out
 }
 
 /// Where the composer's seats sit in the module view (the menus open above
@@ -634,6 +646,7 @@ pub fn close() {
     }
     st.open = None;
     st.mounted = None;
+    st.seats.model_pin = None;
 }
 
 fn active_drafts() -> Option<std::sync::Arc<crate::screens::media::AttachmentDraftStore>> {
