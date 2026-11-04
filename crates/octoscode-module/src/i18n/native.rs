@@ -408,6 +408,9 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Memory refresh is off for this profile.", "此配置档案的记忆刷新已关闭。"),
     // The kind filter's "All" (the bare key is the sidebar's "In one list").
     ("memory|All", "全部"),
+    // The sidebar's flat view (`tr_ctx("sidebar", "All")`): the web's
+    // "In one list" reads 统一列表; the segment beside 工作区 reads 列表.
+    ("sidebar|All", "列表"),
     ("Knowledge", "知识"),
     ("Episodes", "经历"),
     ("Documents", "文档"),
