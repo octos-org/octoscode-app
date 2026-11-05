@@ -994,7 +994,7 @@ script_mod! {
         View{
             width: Fit height: Fill flow: Right spacing: 4 align: Align{y: 0.5} padding: Inset{left: 8 right: 6}
             vb_text := OcLabel{text: ""}
-            Svg{
+            vb_chev := Svg{
                 width: 13 height: 13 animating: false
                 draw_svg.svg: file_resource(#(crate::chrome::icon("chev_down")))
                 draw_svg.preserve_viewbox: true
@@ -1272,6 +1272,7 @@ script_mod! {
                         OcRowTitle{text: "Model"}
                         OcRowSlot{width: 200 set_model := OcValueButton{}}
                     }
+                    set_model_state := OcMuted{width: Fill text: "" visible: false margin: Inset{bottom: 8}}
                     OcRule{}
                     View{
                         width: Fill height: Fit flow: Down spacing: 10 padding: Inset{top: 14 bottom: 14}
@@ -2158,10 +2159,10 @@ impl ChromeRuntime {
             if toggle_hit(cx, view, live_id!(tg_sb_read), actions) {
                 out.push(Intent::Action("sandbox_read_outside.toggle", 0));
             }
-            // The model row selects the next configured model (the web's
-            // model select, a `profile/llm/select` write).
-            if clicked(cx, view, &[live_id!(set_model), live_id!(vb_hit)], actions) {
-                out.push(Intent::Action("settings.model.next", 0));
+            // The model row opens the composer seat's model menu (the web's
+            // model select); a server that lists no models leaves it a value.
+            if clicked(cx, view, &[live_id!(set_model), live_id!(vb_hit)], actions) && settings::model_pickable(store) {
+                out.push(Intent::Action("settings.model.open", 0));
             }
             // A5: "Manage models…" opens the Models dialog over Settings.
             if c(cx, live_id!(set_models_manage)) {
@@ -2612,7 +2613,7 @@ impl ChromeRuntime {
         let state_line = if st.saving.is_some() {
             Some(tr("Saving…").to_owned())
         } else {
-            st.last_error.as_ref().map(|e| tr_with("Failed: {value0}", &[("value0", e)]))
+            st.perm_error.as_ref().map(|e| tr_with("Failed: {value0}", &[("value0", e)]))
         };
         show(cx, &panel, ids!(set_perm_state), state_line.is_some());
         if let Some(line) = state_line {
@@ -2620,6 +2621,14 @@ impl ChromeRuntime {
         }
         // Model.
         text(cx, &panel, &[live_id!(set_model), live_id!(vb_text)], &settings::model_of(store));
+        // The chevron only where the row opens a menu; a note when a pick is
+        // saving or was refused (what stays after the menu closes).
+        show(cx, &panel, &[live_id!(set_model), live_id!(vb_chev)], settings::model_pickable(store));
+        let model_note = settings::model_note(store);
+        show(cx, &panel, ids!(set_model_state), model_note.is_some());
+        if let Some(line) = model_note {
+            text(cx, &panel, ids!(set_model_state), &line);
+        }
         let thinking = settings::thinking_of(store);
         // A24: one control, one language — "Off" / "On" are native-supplement
         // entries, "High" the web's (关 | 开 | 高).

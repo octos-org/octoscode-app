@@ -111,8 +111,9 @@ pub const ACTIONS: &[&str] = &[
     "settings.section.connection",
     "settings.section.preferences",
     "settings.section.about",
-    // The Model row: select the next configured model (profile/llm/select).
-    "settings.model.next",
+    // The Model row: open the composer seat's model menu (`profile/llm/select`
+    // is sent from there, `board3::seats`).
+    "settings.model.open",
 ];
 
 /// The one-owner rule.
@@ -208,35 +209,43 @@ pub fn action_params(action: &str, store: &Store) -> Option<(String, Value)> {
                    "update": {"mode": "danger_full_access", "network": "allow",
                               "approval_policy": "never"}}),
         )),
-        // The web's model select (`profile/llm/select`, the shape
-        // screens::workspace::select_model sends): the NEXT available
-        // configured model after the selected one; none when there is no
-        // other model to pick.
-        "settings.model.next" => next_model(store).map(|m| {
-            (
-                "profile/llm/select".to_owned(),
-                json!({
-                    "family_id": m.family,
-                    "model_id": m.model,
-                    "profile_id": store.domains.profile.current(),
-                    "route_id": m.route,
-                    "session_id": session,
-                }),
-            )
-        }),
         _ => None,
     }
 }
 
-/// The configured model after the selected one (wrapping), skipping
-/// unavailable models; `None` when there is no OTHER available model.
-pub fn next_model(store: &Store) -> Option<octoscode_store::domains::profile::ProfileLlmModel> {
-    let models = store.domains.profile.llm_models();
-    let cur = models.iter().position(|m| m.selected).unwrap_or(0);
-    (1..models.len())
-        .map(|k| &models[(cur + k) % models.len()])
-        .find(|m| m.available && !m.selected)
-        .cloned()
+/// Whether the Model row opens a menu: the composer seat's own gate (the
+/// server lists models and the connection is up). One configured model still
+/// opens it — the same menu the seat opens, that model checked — so the row
+/// and the seat never disagree; a server that lists no models leaves the row
+/// a plain value (no chevron, no press).
+pub fn model_pickable(store: &Store) -> bool {
+    crate::screens::board3::seats::model_seat(store)
+}
+
+/// The note under the Model row: a selection in flight, or the one the server
+/// did not take. The menu shows the same notice board while it is open; this
+/// is what stays after it closes, so a refused pick is never invisible.
+pub fn model_note(store: &Store) -> Option<String> {
+    let session = store.active_session().unwrap_or_default();
+    let board = store.domains.models.board(&session);
+    let refused = board
+        .latest()
+        .filter(|n| n.kind == octoscode_store::domains::models::Disposition::Refused)
+        .map(|n| n.message.as_str());
+    let error = crate::screens::board3::host::state().seats.models_error.clone();
+    model_note_of(board.saving, refused, error.as_deref())
+}
+
+/// [`model_note`]'s decision: saving wins, then the refusal's own sentence,
+/// then a bare list/select error.
+pub fn model_note_of(saving: bool, refused: Option<&str>, error: Option<&str>) -> Option<String> {
+    if saving {
+        Some(tr("Saving…").to_owned())
+    } else if let Some(r) = refused {
+        Some(r.to_owned())
+    } else {
+        error.map(|e| tr_with("Failed: {value0}", &[("value0", e)]))
+    }
 }
 
 /// After a confirmed `profile/llm/select`, mark the chosen model selected in
@@ -261,6 +270,7 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
         return Err(format!("screens/settings: no protocol mapping for {action:?}"));
     };
     let session = params.get("session_id").and_then(|s| s.as_str()).map(str::to_owned);
+    let params_update = params.get("update").cloned().unwrap_or(Value::Null);
     let v = conv
         .client()
         .request(&method, params)
@@ -271,15 +281,55 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
     // seat's own `updatePermission` rule (`board3::seats::set_permission`):
     // only a reply naming this Session.
     if method == "permission/profile/set" {
-        let echoed = v.get("session_id").and_then(|s| s.as_str()).is_some_and(|s| Some(s) == session.as_deref());
-        let current = v.get("current").and_then(|c| {
-            serde_json::from_value::<octoscode_store::domains::profile::PermissionProfileSelection>(c.clone()).ok()
-        });
-        if let (true, Some(sel)) = (echoed, current) {
+        let read_back = permission_read_back(&v, session.as_deref());
+        if let Some(sel) = read_back {
             store.domains.profile.set_permission_current(sel);
         }
+        // A reply that does not confirm the preset is a failure the person
+        // sees (the radios stay where the server says they are), never a
+        // silent no-op.
+        let asked = serde_json::from_value::<octoscode_store::domains::profile::PermissionProfileSelection>(
+            params_update,
+        )
+        .ok();
+        confirm_permission(read_back, &v, asked)?;
     }
     Ok(v)
+}
+
+/// The selection a `permission/profile/set` reply reports for THIS Session:
+/// only a reply that echoes the Session and carries `current`.
+pub fn permission_read_back(
+    reply: &Value,
+    session: Option<&str>,
+) -> Option<octoscode_store::domains::profile::PermissionProfileSelection> {
+    let echoed = reply.get("session_id").and_then(|s| s.as_str()).is_some_and(|s| Some(s) == session);
+    let current = reply.get("current").and_then(|c| {
+        serde_json::from_value::<octoscode_store::domains::profile::PermissionProfileSelection>(c.clone()).ok()
+    });
+    if echoed {
+        current
+    } else {
+        None
+    }
+}
+
+/// Whether a preset's reply confirms the change: it reads back this Session's
+/// selection (`read_back`), the server did not say `applied: false`, and the
+/// selection is the one that was asked for.
+pub fn confirm_permission(
+    read_back: Option<octoscode_store::domains::profile::PermissionProfileSelection>,
+    reply: &Value,
+    asked: Option<octoscode_store::domains::profile::PermissionProfileSelection>,
+) -> Result<(), String> {
+    let confirmed = read_back.is_some()
+        && reply.get("applied") != Some(&Value::Bool(false))
+        && (asked.is_none() || asked == read_back);
+    if confirmed {
+        Ok(())
+    } else {
+        Err(tr("The server did not confirm the permission change").to_owned())
+    }
 }
 
 /// Bookkeeping after a confirmed send (the caller calls this on Ok).
@@ -292,9 +342,14 @@ pub fn note_sent(action: &str) {
             st.stop_busy = false;
             st.stop_failed = false;
         }
-        "perm_ask.select" => st.permission = Some(Preset::Ask),
-        "perm_workspace.select" => st.permission = Some(Preset::Workspace),
-        "perm_full.select" => st.permission = Some(Preset::Full),
+        "perm_ask.select" | "perm_workspace.select" | "perm_full.select" => {
+            st.permission = Some(match action {
+                "perm_ask.select" => Preset::Ask,
+                "perm_workspace.select" => Preset::Workspace,
+                _ => Preset::Full,
+            });
+            st.perm_error = None;
+        }
         _ => {}
     }
     st.saving = None;
@@ -307,6 +362,9 @@ pub fn note_failed(action: &str, error: &str) {
     if action == "server.stop.confirm" {
         st.stop_busy = false;
         st.stop_failed = true;
+    }
+    if matches!(action, "perm_ask.select" | "perm_workspace.select" | "perm_full.select") {
+        st.perm_error = Some(error.to_owned());
     }
     st.saving = None;
     st.last_error = Some(error.to_owned());
@@ -407,6 +465,9 @@ pub struct SettingsState {
     /// A preset send in flight.
     pub saving: Option<Preset>,
     pub last_error: Option<String>,
+    /// The last preset send the server did not confirm (shown under the
+    /// presets until the next send; a confirmed one clears it).
+    pub perm_error: Option<String>,
     pub sandbox: SandboxDefaults,
     pub last_ui_action: Option<String>,
 }
@@ -422,6 +483,7 @@ impl Default for SettingsState {
             permission: None,
             saving: None,
             last_error: None,
+            perm_error: None,
             sandbox: SandboxDefaults::default(),
             last_ui_action: None,
         }
@@ -497,6 +559,8 @@ pub enum UiEffect {
     Close,
     /// Send the RPC for this id (the caller spawns [`perform`]).
     Send,
+    /// Open the composer seat's model menu from the Model row.
+    ModelMenu,
     /// Write the thinking choice to the active session's prefs.
     Thinking(Thinking),
     /// "Take over": claim the session from the other client.
@@ -537,6 +601,7 @@ pub fn apply_ui(action: &str) -> UiEffect {
             UiEffect::Send
         }
         "perm_ask.select" | "perm_workspace.select" | "perm_full.select" => {
+            st.perm_error = None;
             st.saving = Some(match action {
                 "perm_ask.select" => Preset::Ask,
                 "perm_workspace.select" => Preset::Workspace,
@@ -544,7 +609,7 @@ pub fn apply_ui(action: &str) -> UiEffect {
             });
             UiEffect::Send
         }
-        "settings.model.next" => UiEffect::Send,
+        "settings.model.open" => UiEffect::ModelMenu,
         // A8 — the switches edit the persisted new-session defaults
         // (`App.tsx:3538-3546` onDefaultsChange -> saveSessionDefaults).
         "sandbox_write.toggle" => {
@@ -1007,5 +1072,87 @@ mod tests {
         assert_eq!(preset_of(&store), Some(Preset::Full));
         assert_eq!(permission_readback(&store), "Server: Full access · Network allowed · never asks");
         reset_state();
+    }
+
+    fn sel(
+        mode: octoscode_store::domains::profile::PermissionProfileMode,
+        network: octoscode_store::domains::profile::PermissionNetworkPolicy,
+    ) -> octoscode_store::domains::profile::PermissionProfileSelection {
+        octoscode_store::domains::profile::PermissionProfileSelection { mode, network }
+    }
+
+    /// A preset is confirmed only by a reply that echoes THIS Session, reads
+    /// the selection back, does not say `applied: false` and is what was asked.
+    #[test]
+    fn a_preset_is_confirmed_only_by_a_matching_read_back() {
+        use octoscode_store::domains::profile::{PermissionNetworkPolicy as N, PermissionProfileMode as M};
+        let asked = Some(sel(M::DangerFullAccess, N::Allow));
+        let reply = json!({"session_id": "s1", "applied": true, "current": {"mode": "danger_full_access", "network": "allow"}});
+        let read = permission_read_back(&reply, Some("s1"));
+        assert_eq!(read, asked);
+        assert!(confirm_permission(read, &reply, asked).is_ok());
+        // Another Session's reply, or one without `current`: nothing read back.
+        assert_eq!(permission_read_back(&reply, Some("s2")), None);
+        let bare = json!({"session_id": "s1"});
+        assert_eq!(permission_read_back(&bare, Some("s1")), None);
+        let err = confirm_permission(None, &bare, asked).unwrap_err();
+        assert_eq!(err, "The server did not confirm the permission change");
+        // The server said it did not apply.
+        let refused = json!({"session_id": "s1", "applied": false, "current": {"mode": "danger_full_access", "network": "allow"}});
+        assert!(confirm_permission(permission_read_back(&refused, Some("s1")), &refused, asked).is_err());
+        // The server reports a different selection than the one asked for.
+        let clamped = json!({"session_id": "s1", "applied": true, "current": {"mode": "workspace_write", "network": "deny"}});
+        let read = permission_read_back(&clamped, Some("s1"));
+        assert_eq!(read, Some(sel(M::WorkspaceWrite, N::Deny)), "the radios still follow the server");
+        assert!(confirm_permission(read, &clamped, asked).is_err());
+    }
+
+    /// A failed preset shows under the presets until the next send, and a
+    /// confirmed one clears it; a failed Stop does not leak into Permissions.
+    #[test]
+    fn a_failed_preset_leaves_a_note_until_the_next_send() {
+        let _g = lock();
+        reset_state();
+        assert_eq!(apply_ui("perm_ask.select"), UiEffect::Send);
+        assert!(snapshot().saving.is_some());
+        note_failed("perm_ask.select", "The server did not confirm the permission change");
+        let st = snapshot();
+        assert!(st.saving.is_none());
+        assert_eq!(st.perm_error.as_deref(), Some("The server did not confirm the permission change"));
+        assert_eq!(st.permission, None, "a failed preset is not claimed as set here");
+        apply_ui("perm_ask.select");
+        assert!(snapshot().perm_error.is_none(), "a new send starts clean");
+        note_sent("perm_ask.select");
+        assert!(snapshot().perm_error.is_none());
+        assert_eq!(snapshot().permission, Some(Preset::Ask));
+        apply_ui("server.stop.request");
+        note_failed("server.stop.confirm", "boom");
+        assert!(snapshot().perm_error.is_none(), "only a preset's failure shows under the presets");
+        reset_state();
+    }
+
+    /// The Model row opens the seat's menu; a server that lists no models
+    /// leaves it a plain value (the seat's gate), one model still opens it.
+    #[test]
+    fn the_model_row_follows_the_seats_gate() {
+        let _g = lock();
+        reset_state();
+        let store = Store::new();
+        store.set_connection("Live".to_owned(), true);
+        assert_eq!(apply_ui("settings.model.open"), UiEffect::ModelMenu);
+        assert!(!model_pickable(&store), "no profile/llm/list: not a menu");
+        store.domains.config.set_supported_methods(vec!["profile/llm/list".to_owned()]);
+        assert!(model_pickable(&store), "listed: the menu opens, even for one model");
+        store.set_connection("Offline".to_owned(), false);
+        assert!(!model_pickable(&store), "offline: no menu to open");
+        reset_state();
+    }
+
+    #[test]
+    fn the_model_note_shows_saving_then_the_refusal_then_a_bare_error() {
+        assert_eq!(model_note_of(false, None, None), None);
+        assert_eq!(model_note_of(true, Some("Couldn't save: x"), Some("x")), Some("Saving…".to_owned()));
+        assert_eq!(model_note_of(false, Some("Couldn't save: x"), Some("x")), Some("Couldn't save: x".to_owned()));
+        assert_eq!(model_note_of(false, None, Some("offline")), Some("Failed: offline".to_owned()));
     }
 }

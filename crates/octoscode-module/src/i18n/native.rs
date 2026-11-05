@@ -82,6 +82,7 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Version {version}", "版本 {version}"),
     ("{server} \u{b7} {methods} protocol methods advertised", "{server} \u{b7} 已声明 {methods} 个协议方法"),
     ("Failed: {value0}", "失败：{value0}"),
+    ("The server did not confirm the permission change", "服务器未确认此次权限更改"),
     // ---- the sidebar and its workspace menu (chrome.rs, screens/sidebar.rs)
     ("Clear search", "清除搜索"),
     ("New chat here", "在此新建会话"),

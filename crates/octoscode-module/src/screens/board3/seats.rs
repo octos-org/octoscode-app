@@ -311,6 +311,9 @@ pub struct SeatsState {
     pub turn_busy: bool,
     pub perm_anchor: Option<Anchor>,
     pub model_anchor: Option<Anchor>,
+    /// Where the Settings Model row opened the menu: it drops BELOW that row
+    /// instead of rising above the composer's seat. Cleared when the menu closes.
+    pub model_pin: Option<Anchor>,
     /// The Session whose permission profile the seat already asked for (the
     /// web reads it once per opened Session, `refreshPermission`).
     pub read_for: Option<String>,
@@ -714,7 +717,7 @@ pub async fn select_model(conv: &crate::flow::Conversation, index: usize) -> Res
 
 /// The popover root: a transparent full-frame press target (the web's
 /// outside-press dismiss) and the menu card above its seat.
-fn popover_open(d: &mut Dsl, frame: &Frame, anchor: Option<Anchor>, right: bool, width: f64) {
+fn popover_open(d: &mut Dsl, frame: &Frame, anchor: Option<Anchor>, right: bool, width: f64, below: bool) {
     d.view("b3_root", "width: Fill height: Fill flow: Overlay");
     d.view("b3_backdrop_box", "width: Fill height: Fill flow: Overlay");
     d.tap("b3_backdrop_hit", "b3.close");
@@ -731,10 +734,12 @@ fn popover_open(d: &mut Dsl, frame: &Frame, anchor: Option<Anchor>, right: bool,
     } else {
         (0.0, a.x.clamp(16.0, room).floor(), 16.0)
     };
+    // A row in Settings (`below`): the menu hangs under the row's bottom edge.
+    let (align_y, top, bottom) = if below { (0.0, (a.y + a.h + 8.0).floor(), 16.0) } else { (1.0, 16.0, bottom) };
     d.view(
         "b3_anchor",
         &format!(
-            "width: Fill height: Fill flow: Overlay align: Align{{x: {align_x} y: 1.0}} padding: Inset{{left: {left} right: {right_pad} top: 16 bottom: {bottom}}}"
+            "width: Fill height: Fill flow: Overlay align: Align{{x: {align_x} y: {align_y}}} padding: Inset{{left: {left} right: {right_pad} top: {top} bottom: {bottom}}}"
         ),
     );
     d.surface(
@@ -853,7 +858,7 @@ pub fn build_permission(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Sto
         .fold(260.0_f64, f64::max);
     let width = menu_width(frame, natural);
     let copy_w = width - 8.0 - 16.0 - 18.0 - 18.0 - 16.0;
-    popover_open(d, frame, st.perm_anchor, false, width);
+    popover_open(d, frame, st.perm_anchor, false, width, false);
     menu_title(d, PERMISSION_MENU);
     let locked = permission_locked(st, store);
     let available = permission_seat(store);
@@ -986,7 +991,7 @@ pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) 
         .fold(260.0_f64, f64::max);
     let width = menu_width(frame, natural);
     let copy_w = width - 8.0 - 16.0 - 18.0 - 8.0;
-    popover_open(d, frame, st.model_anchor, true, width);
+    popover_open(d, frame, st.model_pin.or(st.model_anchor), true, width, st.model_pin.is_some());
     menu_title(d, MODEL_MENU);
     let available = model_seat(store);
     let locked = model_locked(st, store);
@@ -998,7 +1003,11 @@ pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) 
     if let Some(e) = &st.models_error {
         error_line(d, "b3_model_error", e, "b3.model.retry");
     }
-    let body_h = (frame.avail_h - 32.0 - 180.0).clamp(160.0, 380.0);
+    // Under a Settings row the room is what is left below it.
+    let body_h = match st.model_pin {
+        Some(a) => (frame.avail_h - (a.y + a.h) - 8.0 - 16.0 - 120.0).clamp(120.0, 380.0),
+        None => (frame.avail_h - 32.0 - 180.0).clamp(160.0, 380.0),
+    };
     d.open(
         "b3_scroll",
         "ScrollYView",
@@ -1241,5 +1250,39 @@ mod tests {
             let taps: Vec<String> = crate::screens::taps::wired_taps(&dsl).into_iter().map(|(_, e)| e).collect();
             assert!(!taps.iter().any(|t| t == "b3.perm.confirm"), "inert until ticked: {taps:?}");
         }
+    }
+
+    /// The Settings Model row reuses this menu: with ONE configured model it
+    /// still lists it (checked), and pinned to the row it hangs below it
+    /// instead of rising above the composer's seat.
+    #[test]
+    fn the_model_menu_serves_the_settings_row_with_one_model() {
+        let s = store();
+        s.domains.profile.set_llm_models(vec![ProfileLlmModel {
+            model: "v4-flash".into(),
+            provider: "deepseek".into(),
+            title: "v4-flash".into(),
+            family: Some("deepseek".into()),
+            route: None,
+            selected: true,
+            available: true,
+        }]);
+        let mut st = SeatsState::default();
+        let build = |st: &SeatsState| {
+            let mut d = Dsl::new();
+            build_models(&mut d, st, &Frame::DESKTOP, &s);
+            d.finish()
+        };
+        let seat = build(&st);
+        assert!(seat.contains("b3_model_opt_0_check"), "the one model is listed, checked");
+        assert!(seat.contains("y: 1} padding"), "from the seat: above the composer");
+        st.model_pin = Some(Anchor { x: 600.0, y: 100.0, w: 200.0, h: 32.0 });
+        let pinned = build(&st);
+        assert!(pinned.contains("b3_model_opt_0_check"));
+        assert!(pinned.contains("y: 0} padding"), "from a Settings row: below it");
+        assert!(pinned.contains("top: 140 bottom: 16"), "its bottom edge plus the gap");
+        assert_eq!(pinned.matches('{').count(), pinned.matches('}').count());
+        // Picking the checked one is no change; nothing is sent.
+        assert_eq!(perform(&mut st, "b3.model.choose", 0, &s), Outcome::Done);
     }
 }

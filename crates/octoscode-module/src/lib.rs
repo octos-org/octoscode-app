@@ -2111,26 +2111,36 @@ impl OctoscodeView {
                     }
                 }
                 UiEffect::Thinking(t) => screens::settings::set_thinking(&store, t),
+                UiEffect::ModelMenu => {
+                    // The Model row opens the composer seat's menu, hanging
+                    // under the row (measured now: the row's own rect).
+                    let origin = self.view.area().rect(cx).pos;
+                    let r = self
+                        .view
+                        .widget(cx, ids!(settings_drawer))
+                        .widget(cx, ids!(set_model))
+                        .area()
+                        .rect(cx);
+                    let row = (r.size.x > 0.0).then(|| screens::board3::seats::Anchor {
+                        x: r.pos.x - origin.x,
+                        y: r.pos.y - origin.y,
+                        w: r.size.x,
+                        h: r.size.y,
+                    });
+                    let out = screens::board3::host::open_model_menu_under(row);
+                    self.board3_outcome(cx, out);
+                }
                 UiEffect::Send => {
                     if screens::settings::action_params(action, &store).is_none() {
-                        if action == "settings.model.next" {
-                            // One configured model: nothing to switch to.
-                            makepad_widgets::log!("[octoscode] settings: no other model to select");
-                        } else {
-                            // Unadvertised (no server/shutdown) or no session:
-                            // fail closed, visibly — never a silent no-op.
-                            screens::settings::note_failed(action, "not offered by this server");
-                        }
+                        // Unadvertised (no server/shutdown) or no session:
+                        // fail closed, visibly — never a silent no-op.
+                        screens::settings::note_failed(action, "not offered by this server");
                     } else if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                         let action = action.to_owned();
-                        let next_model = screens::settings::next_model(&store).map(|m| m.model);
                         rt.spawn(async move {
                             match screens::settings::perform(&conv, &action, &store).await {
                                 Ok(_) => {
                                     screens::settings::note_sent(&action);
-                                    if let (true, Some(m)) = (action == "settings.model.next", next_model) {
-                                        screens::settings::mark_model_selected(&store, &m);
-                                    }
                                     makepad_widgets::log!("[octoscode] settings sent: {action}");
                                     if action == "server.stop.confirm" {
                                         // The web disconnects on purpose after a
