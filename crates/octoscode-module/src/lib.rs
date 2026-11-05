@@ -6040,13 +6040,16 @@ impl OctoscodeView {
                     // newline character INSIDE the text (KEYCODE_ENTER rarely arrives as
                     // a key event — the device swallowed it). The web
                     // composer SENDS on bare Enter and only newlines via
-                    // Alt+Enter / Ctrl+J (ComposerInput.tsx:237-243), so a
+                    // Alt+Enter / Ctrl+J (ComposerInput.tsx:237-243), so there a
                     // trailing newline IS the send gesture: strip it and
-                    // submit.
-                    let (text, submit) = match text.strip_suffix('\n') {
-                        Some(stripped) => (stripped.to_owned(), true),
-                        None => (text, false),
-                    };
+                    // submit. #30: only there, and only for exactly ONE newline
+                    // appended to what the widget held (`ime_enter_submits`).
+                    // Anywhere else a trailing newline is the user's text — a
+                    // paste, Shift+Enter, a typed Ctrl+J — and stays in the
+                    // draft; a desktop Enter submits through `screens::keys`.
+                    let prev = self.composer_synced.as_deref().unwrap_or("");
+                    let submit = screens::keys::ime_enter_submits(prev, &text);
+                    let text = if submit { text[..text.len() - 1].to_owned() } else { text };
                     // Card #28e item 5: "/" typed into an EMPTY composer opens
                     // the command palette (board 4 frame 3).
                     if text == "/" {

@@ -76,6 +76,20 @@ pub enum KeyAction {
     Ignore,
 }
 
+/// True when the composer's text change is the soft keyboard's Enter: the
+/// Android IME commits Enter as a "\n" INSIDE the text and no `ReturnKey` ever
+/// arrives (#36g item 2). Everywhere else a text change never submits — Enter
+/// is a key event (`resolve`), and a trailing newline in a change is the user's
+/// own text (a paste, Shift+Enter). The change must be exactly one "\n"
+/// appended to the previous draft, so a paste ending in a newline is not it.
+pub fn ime_enter_submits(prev: &str, next: &str) -> bool {
+    cfg!(target_os = "android") && is_one_newline_appended(prev, next)
+}
+
+fn is_one_newline_appended(prev: &str, next: &str) -> bool {
+    next.strip_suffix('\n') == Some(prev)
+}
+
 /// Resolve one key event. `mods` are the four booleans the platform carries
 /// (`RemoteKeyModifiers`); the UI state (`palette_open`, `approval_pending`,
 /// `turn_active`, `draft_empty`) comes from the shell's `FlowUi`.
@@ -328,5 +342,44 @@ mod a7_suppression_tests {
         assert_eq!(match_parity_shortcut(KeyCode::KeyD, true, true, false), None, "AltGr / Ctrl+Alt stays inert");
         assert_eq!(match_parity_shortcut(KeyCode::KeyD, false, true, true), None, "Cmd+Alt stays inert");
         assert_eq!(match_parity_shortcut(KeyCode::KeyX, false, true, false), None);
+    }
+}
+
+#[cfg(test)]
+mod ime_enter_tests {
+    use super::*;
+
+    #[test]
+    fn only_one_newline_appended_to_the_previous_draft_is_enter() {
+        assert!(is_one_newline_appended("hi", "hi\n"));
+        assert!(is_one_newline_appended("", "\n"));
+        assert!(is_one_newline_appended("a\nb", "a\nb\n"));
+        // A paste or a multi-character insert is text, not Enter.
+        assert!(!is_one_newline_appended("", "x\n"));
+        assert!(!is_one_newline_appended("hi", "hi\nthere\n"));
+        assert!(!is_one_newline_appended("hi", "hi there\n"));
+        assert!(!is_one_newline_appended("hi", "hi\n\n"));
+        // Not at the end, or no newline at all.
+        assert!(!is_one_newline_appended("hi", "\nhi"));
+        assert!(!is_one_newline_appended("hi", "hi!"));
+        assert!(!is_one_newline_appended("hi", "hi"));
+    }
+
+    #[cfg(not(target_os = "android"))]
+    #[test]
+    fn a_text_change_never_submits_off_android() {
+        assert!(!ime_enter_submits("hi", "hi\n"), "Shift+Enter at the end of a draft");
+        assert!(!ime_enter_submits("", "\n"));
+        assert!(!ime_enter_submits("", "x\n"), "a pasted trailing newline");
+        assert!(!ime_enter_submits("hi", "hi\nthere\n"));
+    }
+
+    #[cfg(target_os = "android")]
+    #[test]
+    fn the_android_ime_enter_submits() {
+        assert!(ime_enter_submits("hi", "hi\n"));
+        assert!(ime_enter_submits("", "\n"), "Enter on an empty composer: the submit is a no-op there");
+        assert!(!ime_enter_submits("", "x\n"), "a pasted trailing newline");
+        assert!(!ime_enter_submits("hi", "hi\nthere\n"));
     }
 }
