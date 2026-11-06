@@ -108,3 +108,17 @@ async fn a_gap_that_never_fills_is_accepted_after_the_wait() {
     assert_eq!(answers(&store), ["ac"], "what was held, in order");
     assert_eq!(store.domains.turn.terminal(THREAD).as_deref(), Some("completed"));
 }
+
+#[test]
+fn a_tool_start_with_the_new_write_path_still_updates_the_tool_ledger() {
+    let (mut reg, store) = wired();
+    reg.dispatch(&envelope(1, json!({"type":"tool_start","data":{
+        "tool_call_id":"call-write-1",
+        "name":"write_file",
+        "arguments_preview":"{\"path\":\"README.md\"}",
+        "write_path":"README.md"
+    }})));
+    let tools: Vec<_> = store.domains.session.timeline.entries(SESSION).into_iter().filter(|entry| entry.kind == EntryKind::TOOL_CALL).collect();
+    assert_eq!(tools.len(), 1);
+    assert_eq!(tools[0].text, "write_file");
+}
