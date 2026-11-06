@@ -139,6 +139,7 @@ async fn capture_r6_peer_media_traffic() {
         .call::<SessionOpen>(SessionOpenParams {
             session_id: octos_core::SessionKey::new(&profile_id, "main"),
             topic: None,
+            session_ref: None,
             profile_id: Some(profile_id.clone()),
             cwd: None,
             sandbox: None,

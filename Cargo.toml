@@ -25,7 +25,7 @@ publish = false
 [workspace.dependencies]
 # Protocol types (RpcError, Capabilities, the method-name constants, the
 # `*Params`/`*Result` shapes). The octos revision is OctoSense's own pin.
-octos-core = { git = "https://github.com/octos-org/octos.git", rev = "b0759a57719fd35b3a2da1c5d969bc67538ed516" }
+octos-core = { git = "https://github.com/octos-org/octos.git", rev = "96fdcc5ca31aaa77f06dacc4a604e602c8c97eaf" }
 # The extracted WebSocket client has no OctoSense kernel dependency.
 octos-app-transport = { package = "octoscode-transport", path = "crates/octoscode-transport" }
 # Our crates.

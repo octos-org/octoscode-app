@@ -472,6 +472,7 @@ impl EnvelopeFold {
                 tool_call_id,
                 name,
                 arguments_preview,
+                ..
             } => {
                 self.store.domains.tool.call_started(
                     tool_call_id,

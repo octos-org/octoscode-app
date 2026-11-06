@@ -2086,6 +2086,7 @@ impl Conversation {
         let params = SessionOpenParams {
             session_id: session_id.clone(),
             topic: None,
+            session_ref: None,
             profile_id: Some(self.profile()),
             cwd,
             sandbox,
@@ -2795,7 +2796,7 @@ impl Conversation {
         let mut drawn: std::collections::HashSet<String> = std::collections::HashSet::new();
         for env in tool_envs {
             match &env.payload {
-                PayloadV2::ToolStart { tool_call_id, name, arguments_preview } => {
+                PayloadV2::ToolStart { tool_call_id, name, arguments_preview, .. } => {
                     if !cards.insert(tool_call_id.clone()) {
                         continue; // already on screen (live, or an earlier hydrate)
                     }
@@ -3002,6 +3003,7 @@ impl Conversation {
         let params = SessionOpenParams {
             session_id: octos_core::SessionKey(session.clone()),
             topic: None,
+            session_ref: None,
             profile_id: Some(self.profile()),
             cwd,
             sandbox: None,

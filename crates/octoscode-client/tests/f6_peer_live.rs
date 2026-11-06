@@ -119,6 +119,7 @@ async fn peer_methods_round_trip_against_a_live_serve() {
         .call::<SessionOpen>(SessionOpenParams {
             session_id: octos_core::SessionKey::new(&profile_id, "main"),
             topic: None,
+            session_ref: None,
             profile_id: Some(profile_id.clone()),
             cwd: None,
             sandbox: None,

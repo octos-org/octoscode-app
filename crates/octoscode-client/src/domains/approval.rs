@@ -443,6 +443,28 @@ impl NotificationHandler for UserQuestionRequestedHandler {
     }
 }
 
+/// `user_question/cancelled` — the pending question ended with its turn. Keep
+/// the same exact session/topic/turn guard as approvals so a late cancellation
+/// cannot clear another interaction.
+pub struct UserQuestionCancelledHandler {
+    pub store: Arc<Store>,
+}
+
+impl NotificationHandler for UserQuestionCancelledHandler {
+    const METHOD: &'static str = methods::USER_QUESTION_CANCELLED;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::UserQuestionCancelled(cancelled) = notification {
+            self.store.note_seen(Self::METHOD);
+            let id = cancelled.question_id.0.to_string();
+            if !resolves(&self.store, &id, &cancelled.session_id.0, cancelled.topic.as_deref(), &cancelled.turn_id.0.to_string()) {
+                ::log::warn!("octoscode: user_question/cancelled {id} for a foreign session/turn ignored");
+                return;
+            }
+            self.store.domains.approval.clear_question_if(&id);
+        }
+    }
+}
+
 /// Register this domain's notification handlers: the full approval lifecycle
 /// the parity matrix names (`approval/requested` → `decided`/`cancelled`/
 /// `auto_resolved`).
@@ -452,5 +474,6 @@ pub fn register(reg: &mut Registry, store: Arc<Store>) {
     reg.register(ApprovalCancelledHandler { store: store.clone() });
     reg.register(ApprovalAutoResolvedHandler { store: store.clone() });
     // Card #13 §3: the turn-pausing question (UPCR-2026-023).
-    reg.register(UserQuestionRequestedHandler { store });
+    reg.register(UserQuestionRequestedHandler { store: store.clone() });
+    reg.register(UserQuestionCancelledHandler { store });
 }
