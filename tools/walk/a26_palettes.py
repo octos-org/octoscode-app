@@ -63,7 +63,20 @@ def pick(w, p):
     r = hits[i]
     w.note(f"CLICK the {L.LABELS[p]} row r={r}")
     w.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
+    # A Mac's sidebar has no theme row: the row's own radio says it took.
+    if w.mode != "phone":
+        return w.wait(lambda: radio_on(w, p), 8)
     return w.wait(lambda: w.text("sb_theme_label") == L.LABELS[p], 8)
+
+
+def kept(p):
+    """A Mac keeps a preference when it changes, with no word about it."""
+    if not PREFS:
+        return True
+    try:
+        return json.load(open(PREFS)).get("theme") == p
+    except (OSError, ValueError):
+        return False
 
 
 def main():
@@ -84,23 +97,31 @@ def main():
     w.check("seven mutually exclusive theme choices", labels == [L.LABELS[p] for p in L.PALETTES], f"{labels}")
     w.check("every palette row lies inside the Settings body",
             body is not None and all(r and L.inside(r, body) for r in rows), f"body={body} rows={rows}")
-    small = [r for r in hits if r[3] < 28 or r[2] < 28]
+    # A Mac's list rows sit under a phone's 28.
+    floor = 28 if mode == "phone" else 22
+    small = [r for r in hits if r[3] < floor or r[2] < floor]
     w.check("palette rows are >= 28 px targets", len(hits) == 7 and not small, f"{hits}")
     save, foot = w.rect("prefs_save", sn=sn), w.rect("set_footer", sn=sn)
     # Save lives in Preferences' fixed footer under the scrolling body.
-    w.check("Save sits whole inside the fixed footer (not clipped)", bool(save and foot and L.inside(save, foot) and save[3] >= 34),
-            f"save={save} footer={foot}")
-    w.check("the footer sits below the body", bool(body and foot and foot[1] >= body[1] + body[3] - 1),
-            f"body={body} footer={foot}")
+    if mode == "phone":
+        w.check("Save sits whole inside the fixed footer (not clipped)", bool(save and foot and L.inside(save, foot) and save[3] >= 34),
+                f"save={save} footer={foot}")
+        w.check("the footer sits below the body", bool(body and foot and foot[1] >= body[1] + body[3] - 1),
+                f"body={body} footer={foot}")
+    else:
+        # A Mac keeps a preference when it changes: nothing to save.
+        w.check("a Mac's Preferences has no Save button and no status word",
+                not save and not w.text("prefs_status", sn=sn), f"save={save} status={w.text('prefs_status', sn=sn)!r}")
     current = "solarized" if PHASE == "relaunch" else "system"
     w.check(f"the {L.LABELS[current]} radio is on", radio_on(w, current, sn))
     if PHASE == "relaunch":
         w.shot(f"{mode}-relaunch-prefs")
         # Restore: Light, saved.
         w.check("the Light row re-themes back to the light shell", pick(w, "light"))
-        w.click("prefs_save")
-        w.check("Save -> 'Preferences saved.'", w.wait(lambda: w.text("prefs_status") == "Preferences saved.", 6),
-                repr(w.text("prefs_status")))
+        if mode == "phone":
+            w.click("prefs_save")
+            w.check("Save -> 'Preferences saved.'", w.wait(lambda: w.text("prefs_status") == "Preferences saved.", 6),
+                    repr(w.text("prefs_status")))
         if PREFS:
             doc = json.load(open(PREFS))
             w.check("the file holds the whitelist with light", doc.get("theme") == "light" and doc.get("version") == 2 and len(doc) == 4, f"{doc}")
@@ -114,8 +135,12 @@ def main():
         time.sleep(0.6)
         sn = w.snap()
         w.check(f"{L.LABELS[p]}: its radio is on and System's is off", radio_on(w, p, sn) and not radio_on(w, "system", sn))
-        w.check(f"{L.LABELS[p]}: applied but unsaved", w.text("prefs_status", sn=sn) == "Unsaved preferences.",
-                repr(w.text("prefs_status", sn=sn)))
+        if mode == "phone":
+            w.check(f"{L.LABELS[p]}: applied but unsaved", w.text("prefs_status", sn=sn) == "Unsaved preferences.",
+                    repr(w.text("prefs_status", sn=sn)))
+        else:
+            w.check(f"{L.LABELS[p]}: applied and kept, without a word",
+                    kept(p) and not w.text("prefs_status", sn=sn), repr(w.text("prefs_status", sn=sn)))
         w.shot(f"{mode}-prefs-{p}")
         w.check(f"{L.LABELS[p]}: Settings closes", L.close_settings(w))
         time.sleep(0.5)
@@ -126,9 +151,10 @@ def main():
             w.check(f"{L.LABELS[p]}: Settings reopens from the footer", L.open_settings_from_footer(w) and L.open_preferences(w))
     # Save the last one (Solarized): only the whitelist is written.
     w.check("Settings reopens for Save", L.open_settings_from_footer(w) and L.open_preferences(w))
-    w.click("prefs_save")
-    w.check("Save -> 'Preferences saved.'", w.wait(lambda: w.text("prefs_status") == "Preferences saved.", 6),
-            repr(w.text("prefs_status")))
+    if mode == "phone":
+        w.click("prefs_save")
+        w.check("Save -> 'Preferences saved.'", w.wait(lambda: w.text("prefs_status") == "Preferences saved.", 6),
+                repr(w.text("prefs_status")))
     if PREFS:
         doc = json.load(open(PREFS))
         w.check("the file holds exactly the display whitelist with solarized",

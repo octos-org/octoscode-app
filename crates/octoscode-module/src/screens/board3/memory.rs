@@ -1193,7 +1193,7 @@ pub async fn add_note(conv: &crate::flow::Conversation, ticket: u64) -> Result<S
 /// (`theme::retint_dsl`). Light is the byte passthrough.
 pub fn follow_theme(dsl: &str) -> String {
     use crate::screens::theme::{current_look, retint_dsl, Look};
-    if current_look() == Look::Light {
+    if matches!(current_look(), Look::Light | Look::Mac(false)) {
         return dsl.to_owned();
     }
     let mut out = ui::themed_icons(dsl);
@@ -1231,6 +1231,8 @@ fn day_label(date: chrono::NaiveDate) -> String {
     let wd = date.weekday().num_days_from_monday() as usize;
     if crate::i18n::is_zh() {
         format!("{}月{}日 {}", date.month(), date.day(), WEEKDAYS_ZH[wd])
+    } else if crate::desk::active() {
+        format!("{} {}, {}", MONTHS[date.month0() as usize], date.day(), date.year())
     } else {
         format!("{} {} {}", WEEKDAYS[wd], date.day(), MONTHS[date.month0() as usize])
     }
@@ -1242,6 +1244,8 @@ fn short_day(ms: u64) -> String {
     let Some(d) = chrono::DateTime::from_timestamp_millis(ms as i64) else { return String::new() };
     if crate::i18n::is_zh() {
         format!("{}月{}日", d.month(), d.day())
+    } else if crate::desk::active() {
+        format!("{} {}, {}", MONTHS[d.month0() as usize], d.day(), d.year())
     } else {
         format!("{} {}", d.day(), MONTHS[d.month0() as usize])
     }
@@ -1260,6 +1264,10 @@ fn full_day(ms: u64) -> String {
 
 /// "96 KB" — the truncation notice's sizes.
 fn size_label(bytes: u64) -> String {
+    // A Mac says it as Finder does.
+    if crate::desk::active() {
+        return crate::desk::file_size(bytes);
+    }
     if bytes >= 1024 {
         format!("{} KB", (bytes as f64 / 1024.0).round() as u64)
     } else {
@@ -1284,12 +1292,16 @@ fn geometry(frame: &Frame) -> (bool, f64, f64) {
 
 fn shell_open(d: &mut Dsl, sheet: bool, w: f64, h: f64, pad: f64) {
     let ids = &ui::B3_IDS;
-    d.open(ids.root, "KeyboardView", "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5} keyboard_min_shift: 56.");
-    d.rule(ids.backdrop, "width: Fill height: Fill", tok::MASK);
+    d.open(ids.root, "KeyboardView", &format!("width: Fill height: Fill flow: Overlay align: {} keyboard_min_shift: 56.", ui::sheet_align()));
+    d.rule(ids.backdrop, "width: Fill height: Fill", crate::desk::by(tok::MASK, ui::mac_mask()));
     d.view(ids.backdrop_box, "width: Fill height: Fill flow: Overlay");
     d.tap(ids.backdrop_hit, ids.backdrop_event.unwrap_or("b3.noop"));
     d.close();
-    if sheet {
+    ui::sheet_begin(d, None);
+    if crate::desk::active() && !sheet {
+        // A Mac sheet is as tall as what it holds, up to the room under the toolbar.
+        d.sheet_surface(ids.dialog, &format!("width: {w} height: Fit flow: Down padding: Inset{{left: {pad} right: {pad} top: 18 bottom: 20}}"), 16.0);
+    } else if sheet {
         d.surface(
             ids.dialog,
             &format!("width: {w} height: {h} flow: Down padding: Inset{{left: {pad} right: {pad} top: 14 bottom: 0}}"),
@@ -1310,12 +1322,16 @@ fn shell_open(d: &mut Dsl, sheet: bool, w: f64, h: f64, pad: f64) {
 
 /// The body: the scroll region under the fixed chrome, filling the rest of
 /// the dialog (the scroll bar's 10 px gutter on the right).
-fn body_open(d: &mut Dsl, sheet: bool) {
+fn body_open(d: &mut Dsl, sheet: bool, fit: Option<f64>) {
     let bottom = if sheet { 16 } else { 12 };
+    let height = match fit {
+        Some(max) => format!("height: Fit max_height: {max}"),
+        None => "height: Fill".to_owned(),
+    };
     d.open(
         ui::B3_IDS.scroll,
         "ScrollYView",
-        &format!("width: Fill height: Fill flow: Down padding: Inset{{left: 0 top: 0 right: 10 bottom: {bottom}}}"),
+        &format!("width: Fill {height} flow: Down padding: Inset{{left: 0 top: 0 right: 10 bottom: {bottom}}}"),
     );
 }
 
@@ -1348,6 +1364,7 @@ fn header_main(d: &mut Dsl, st: &MemState, store: &Store) {
     let profile = if st.profile.is_empty() { "…".to_owned() } else { st.profile.clone() };
     d.text("b3_mem_scope", &scope_line(&profile), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill));
     let detail = match st.namespace.as_deref() {
+        Some(_) if crate::desk::active() => tr("Kept for this project.").to_owned(),
         Some(ns) => format!("Namespace: {ns}"),
         None if st.confirmed => if crate::i18n::is_zh() {"此 Profile 的会话共享记忆；不按项目划分。".into()} else {"Shared across this Profile's sessions and projects.".into()},
         None => String::new(),
@@ -1363,8 +1380,9 @@ fn header_back(d: &mut Dsl, label: &str) {
     let w = ui::text_w(text, 14.0, Face::Regular) + 22.0;
     d.view("b3_mem_back_box", &format!("width: {} height: 32 flow: Overlay align: Align{{x: 0.0 y: 0.5}}", w.ceil()));
     d.view("b3_mem_back_row", "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4");
-    icon_ink(d, "b3_mem_back_icon", "b1_chevron_left.svg", 14.0, tok::BLUE_TEXT);
-    d.text("b3_mem_back_label", text, &Txt::new(14.0, Face::Regular, tok::BLUE_TEXT));
+    let ink = crate::desk::by(tok::BLUE_TEXT, tok::TEXT);
+    icon_ink(d, "b3_mem_back_icon", "b1_chevron_left.svg", 14.0, ink);
+    d.text("b3_mem_back_label", text, &Txt::new(14.0, Face::Regular, ink));
     d.close();
     d.tap("b3_mem_back", "b3.mem.back");
     d.close();
@@ -1606,7 +1624,10 @@ fn list_row(d: &mut Dsl, id: &str, event: &str, lead: &str, lead_mono: bool, tex
     } else {
         d.view(
             &format!("{id}_cells"),
-            "width: Fill height: 44 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 12 padding: Inset{left: 14 right: 10 top: 0 bottom: 0}",
+            crate::desk::by(
+                "width: Fill height: 44 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 12 padding: Inset{left: 14 right: 10 top: 0 bottom: 0}",
+                "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 12 padding: Inset{left: 14 right: 10 top: 0 bottom: 0}",
+            ),
         );
         let lead_w = 150.0;
         d.text(&format!("{id}_lead"), &ui::fit_w(lead, lead_w, 12.5, lead_face), &Txt::new(12.5, lead_face, tok::TEXT).w(W::Px(lead_w)));
@@ -1640,6 +1661,9 @@ pub fn build(d: &mut Dsl, st: &MemState, frame: &Frame, store: &Store) {
     // The content width inside the body (the scroll bar's 10 px gutter).
     let inner_w = width - 2.0 * pad - 10.0;
     shell_open(d, sheet, width, height, pad);
+    // On a Mac the body takes what the sheet's own chrome (its title, field,
+    // pads and foot) leaves of the room under the toolbar.
+    let fit = |chrome: f64| (crate::desk::active() && !sheet).then(|| (height - 38.0 - 44.0 - chrome).max(120.0).floor());
     match st.page {
         Page::Overview | Page::Results => {
             // The fixed chrome keeps the body's right edge (the scroll bar's
@@ -1663,7 +1687,7 @@ pub fn build(d: &mut Dsl, st: &MemState, frame: &Frame, store: &Store) {
             }
             d.gap(W::Fill, 14.0);
             d.close();
-            body_open(d, sheet);
+            body_open(d, sheet, fit(if st.page == Page::Overview { 134.0 } else { 118.0 }));
             if st.page == Page::Overview {
                 overview_body(d, st, sheet, inner_w);
             } else {
@@ -1675,10 +1699,13 @@ pub fn build(d: &mut Dsl, st: &MemState, frame: &Frame, store: &Store) {
             // A sub-page: "‹ Results" / "‹ Memory" and close over its body.
             let back = if page == Page::Record && (st.hits.is_some() || st.searched.is_some()) { BACK_RESULTS } else { BACK_MEMORY };
             chrome_open(d);
-            header_back(d, back);
-            d.gap(W::Fill, 8.0);
+            // A Mac sheet's form leaves by its Cancel.
+            if page != Page::Add || !crate::desk::active() {
+                header_back(d, back);
+                d.gap(W::Fill, 8.0);
+            }
             d.close();
-            body_open(d, sheet);
+            body_open(d, sheet, fit(36.0));
             match page {
                 Page::Record => record_body(d, st, inner_w),
                 Page::Entity => entity_body(d, st),
@@ -2013,17 +2040,34 @@ fn day_body(d: &mut Dsl, st: &MemState, which: Option<usize>) {
 }
 
 fn add_body(d: &mut Dsl, st: &MemState, sheet: bool) {
-    d.text("b3_mem_add_head", tr(ADD_TITLE), &Txt::new(20.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    let mac = crate::desk::active();
+    if mac {
+        // On the line every sheet's title sits on.
+        d.view("b3_mem_add_title_row", "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5}");
+        d.text("b3_mem_add_head", &crate::desk::title(tr(ADD_TITLE)), &ui::title().w(W::Fill));
+        d.close();
+    } else {
+        d.text("b3_mem_add_head", tr(ADD_TITLE), &Txt::new(20.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    }
     d.gap(W::Fill, 14.0);
-    ui::field_label(d, "b3_mem_add_title_label", tr(FIELD_TITLE));
-    d.gap(W::Fill, 6.0);
+    let key_w = ui::form_key_w(&[FIELD_TITLE, FIELD_NOTE]);
+    ui::form_open(d, "b3_mem_add_title_label", tr(FIELD_TITLE), key_w);
+    if !mac {
+        d.gap(W::Fill, 6.0);
+    }
     d.input("b3_mem_add_title", "mem.add.title", &st.add_title_snap, tr(TITLE_HINT), false, if sheet { 40.0 } else { 36.0 });
-    d.gap(W::Fill, 12.0);
-    ui::field_label(d, "b3_mem_add_note_label", tr(FIELD_NOTE));
-    d.gap(W::Fill, 6.0);
+    ui::form_close(d);
+    d.gap(W::Fill, crate::desk::by(12.0, 8.0));
+    ui::form_open(d, "b3_mem_add_note_label", tr(FIELD_NOTE), key_w);
+    if !mac {
+        d.gap(W::Fill, 6.0);
+    }
     d.input_multiline("b3_mem_add_note", "mem.add.note", &st.add_note_snap, "", if sheet { 120.0 } else { 110.0 });
-    d.gap(W::Fill, 6.0);
-    d.text("b3_mem_add_hint", tr(NOTE_HINT), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    if !mac {
+        d.gap(W::Fill, 6.0);
+    }
+    d.text("b3_mem_add_hint", tr(NOTE_HINT), &Txt::new(crate::desk::by(12.0, 11.0), Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    ui::form_close(d);
     d.gap(W::Fill, 12.0);
     d.surface(
         "b3_mem_add_trust",
@@ -2039,14 +2083,28 @@ fn add_body(d: &mut Dsl, st: &MemState, sheet: bool) {
         d.gap(W::Fill, 12.0);
         refusal_box(d, "b3_mem_error", f, &st.profile);
     }
-    d.gap(W::Fill, 16.0);
-    d.view("b3_mem_add_actions", "width: Fill height: Fit flow: Right spacing: 10");
-    d.button("b3_mem_add_cancel", tr(CANCEL), "b3.mem.add.cancel", Btn::Outline, W::Fill, 40.0);
     // From the SNAPSHOT, never the live text: typing must not change the DSL
     // (a remount would rebuild the fields and drop what was typed);
     // `visibility` arms / disarms the submit live.
     let armed = !st.add_note_snap.trim().is_empty() && !st.adding;
     let submit = tr(if st.adding { ADDING } else { ADD_SUBMIT });
+    if mac {
+        d.foot_begin(ui::Foot::Trail);
+        d.button("b3_mem_add_cancel", tr(CANCEL), "b3.mem.add.cancel", Btn::Outline, W::Fit, 28.0);
+        d.foot_end();
+        d.foot_begin(ui::Foot::Default);
+        d.view("b3_mem_add_submit_on", &format!("width: Fit height: Fit visible: {armed}"));
+        d.button("b3_mem_add_submit", submit, "b3.mem.add.submit", Btn::Primary, W::Fit, 28.0);
+        d.close();
+        d.view("b3_mem_add_submit_off", &format!("width: Fit height: Fit visible: {}", !armed));
+        d.button("b3_mem_add_submit_disabled", submit, "b3.noop", Btn::Disabled, W::Fit, 28.0);
+        d.close();
+        d.foot_end();
+        return;
+    }
+    d.gap(W::Fill, 16.0);
+    d.view("b3_mem_add_actions", "width: Fill height: Fit flow: Right spacing: 10");
+    d.button("b3_mem_add_cancel", tr(CANCEL), "b3.mem.add.cancel", Btn::Outline, W::Fill, 40.0);
     d.view("b3_mem_add_submit_on", &format!("width: Fill height: Fit visible: {armed}"));
     d.button("b3_mem_add_submit", submit, "b3.mem.add.submit", Btn::Primary, W::Fill, 40.0);
     d.close();

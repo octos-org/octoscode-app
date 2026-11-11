@@ -187,12 +187,12 @@ def pick(w, which: str, index: int, label: str) -> None:
     if not w.scroll_into(f"b3_onb_opt_{index}", vp):
         w.note(f"scroll b3_onb_opt_{index} into {vp}: not wholly inside")
     got = w.text(f"b3_onb_opt_{index}_label")
-    w.check(f"the {which} option #{index} reads {label!r}", got == label, repr(got))
+    w.check(f"the {which} option #{index} reads {label!r}", (got == label if w.mode == "phone" else got.lower() == label.lower()), repr(got))
     w.click(f"b3_onb_opt_{index}")
     w.check(f"the {which} list folds", w.wait_shown("b3_onb_list", 4, gone=True))
     w.scroll_into(f"b3_onb_{which}", "b3_scroll")
     val = w.text(f"b3_onb_{which}_value")
-    w.check(f"the {which} field shows {label!r}", val == label or (val.endswith("…") and label.startswith(val[:-1])), repr(val))
+    w.check(f"the {which} field shows {label!r}", (val == label if w.mode == "phone" else val.lower() == label.lower()) or (val.endswith("…") and label.startswith(val[:-1])), repr(val))
 
 
 def type_key(w, key: str, clear: bool = False) -> None:
@@ -218,14 +218,14 @@ def submit_armed(w) -> bool:
 def phase_main(w) -> None:
     w.mark()
     launch(w)
-    w.check("the panel opens: 'Create your local coding profile'", w.wait(lambda: w.text("b3_title") == "Create your local coding profile", 8))
+    w.check("the panel opens: 'Create your local coding profile'", w.wait(lambda: w.text("b3_title") == ("Create your local coding profile" if w.mode == "phone" else "Create a Coding Profile"), 8))
     w.check("loading: 'Loading providers from Octos…'", w.wait_shown("b3_onb_loading", 4))
     shot(w, f"01-loading-{w.mode}")
     ux(w, "loading")
     # The recorded server is not ready on the first read (--fail-once).
     w.check("the catalog failure card", w.wait_shown("b3_onb_failure", 10))
     body = w.text("b3_onb_failure_body")
-    w.check("it says what failed", w.text("b3_onb_failure_head") == "Provider catalog unavailable" and "still loading" in body, repr(body))
+    w.check("it says what failed", w.text("b3_onb_failure_head") == ("Provider catalog unavailable" if w.mode == "phone" else "Couldn\u2019t Load the Providers") and "still loading" in body, repr(body))
     shot(w, f"02-catalog-failed-{w.mode}")
     ux(w, "catalog failed")
     w.click("b3_onb_retry")
@@ -236,7 +236,7 @@ def phase_main(w) -> None:
             w.text("b3_onb_profile_id") == "coding" and w.text("b3_onb_profile_name") == "Coding",
             f"{w.text('b3_onb_profile_id')!r} {w.text('b3_onb_profile_name')!r}")
     w.check(f"defaults: the catalog's first family {FAMILIES[0]!r}, its first model, the Official API",
-            w.text("b3_onb_provider_value") == FAMILIES[0] and w.text("b3_onb_route_value") == "Official API",
+            (w.text("b3_onb_provider_value") if w.mode == "phone" else w.text("b3_onb_provider_value").lower()) == FAMILIES[0] and w.text("b3_onb_route_value") == "Official API",
             f"{w.text('b3_onb_provider_value')!r} {w.text('b3_onb_route_value')!r}")
     w.check("no key yet: 'Test, save & open' is disabled (the live variant swap)",
             not submit_armed(w) and bool(w.visible("b3_onb_submit_off")))
@@ -293,8 +293,9 @@ def phase_main(w) -> None:
     w.check("the error leads with the server's own message", lead == "Provider connection failed", repr(lead))
     w.check("the raw cause shows, the key REDACTED", "authentication failed" in detail and "[redacted]" in detail, repr(detail[:120]))
     w.check("no label anywhere carries the key", REJECTED not in labels_text(w))
-    w.check("the retained profile: 'Profile coding-2 exists. A retry only repeats provider test and save.'",
-            w.text("b3_onb_recovery_text") == "Profile coding-2 exists. A retry only repeats provider test and save.",
+    retained = "Profile coding-2 exists. A retry only repeats provider test and save." if w.mode == "phone" else "Profile coding-2 already exists, so only the provider is tested again."
+    w.check(f"the retained profile: {retained!r}",
+            w.text("b3_onb_recovery_text") == retained,
             repr(w.text("b3_onb_recovery_text")))
     w.check("the identity is locked once created (no Profile ID input)",
             not any(x.get("ty") == "TextInput" and x.get("i") == "b3_onb_profile_id" for x in w.snap() if w.shown(x)))
@@ -388,7 +389,7 @@ def phase_fallback(w) -> None:
     w.mark()
     launch(w)
     w.check("the fallback: 'This server cannot onboard from this app'",
-            w.wait(lambda: w.text("b3_onb_fallback_head") == "This server cannot onboard from this app", 8))
+            w.wait(lambda: w.text("b3_onb_fallback_head") == ("This server cannot onboard from this app" if w.mode == "phone" else "This Server Can\u2019t Be Set Up Here"), 8))
     w.check("…with the canonical 'octoscode onboard'", w.text("b3_onb_fallback_cmd") == "octoscode onboard")
     w.check("…and no way to start (no 'Test, save & open')", not w.visible("b3_onb_submit") and not w.visible("b3_onb_submit_disabled"))
     time.sleep(0.6)

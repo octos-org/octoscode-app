@@ -57,7 +57,7 @@ def walk(W: Walk) -> None:
     W.scroll_into("dlg_models_manage_providers_control", "dialog_scroll")
     W.check("models: 'Manage providers' CLICK opens the providers dialog (the Models dialog closes)",
             W.click("dlg_models_manage_providers_control")
-            and W.wait(lambda: W.text("b3_title") == "Model providers" and not W.visible("dialog_frame"), 10))
+            and W.wait(lambda: W.text("b3_title") == ("Model providers" if MODE == "phone" else "Model Providers") and not W.visible("dialog_frame"), 10))
     W.check("providers: the recorded config — the primary and the r2-route fallback",
             W.wait(lambda: seen(W, "b3_routes_row_1_endpoint"), 8)
             and bool(W.visible("b3_routes_row_0_primary_chip")) and seen(W, "b3_routes_row_1_base_url")

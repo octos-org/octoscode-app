@@ -192,6 +192,9 @@ pub struct FleetRow {
     /// A question-blocked row's pending question (question ?? header), for
     /// the answer card (`PeerDock.tsx:371-401`).
     pub question: Option<String>,
+    /// An approval-blocked row's tool and target: a desktop's pane says what
+    /// it would be approving.
+    pub asks: Option<(String, Option<String>)>,
     /// A30 follow-up — the ids this row's controls are DRAWN for (the
     /// roster row's pending request, accepted operation and adopted turn):
     /// a tap acts only while the row still means them
@@ -202,6 +205,19 @@ pub struct FleetRow {
 /// The ids a roster row's controls are drawn for.
 fn target_of(r: &PeerRow) -> DrawnTarget {
     DrawnTarget { request_id: r.request_id.clone(), operation_id: r.operation_id.clone(), turn_id: r.turn_id.clone() }
+}
+
+/// What an approval-blocked row is asking to run.
+fn asks_of(r: &PeerRow) -> Option<(String, Option<String>)> {
+    if r.activity != Activity::Blocked || r.request_kind != Some(RequestKind::Approval) {
+        return None;
+    }
+    match &r.request_detail {
+        Some(octoscode_store::domains::peer::RequestDetail::Approval(d)) if !d.tool_name.trim().is_empty() => {
+            Some((d.tool_name.clone(), d.target.clone().filter(|t| !t.trim().is_empty())))
+        }
+        _ => None,
+    }
 }
 
 /// The pending question's text: `question ?? header` (`PeerDock.tsx:377-381`).
@@ -267,6 +283,7 @@ pub fn rows(store: &Store, now_ms: u64) -> Vec<FleetRow> {
                 control: r.and_then(|r| r.control.clone()),
                 error: r.and_then(|r| r.error.clone()),
                 question: r.and_then(question_of),
+                asks: r.and_then(asks_of),
                 target: r.map(target_of),
             },
             Some(op.model.clone()).filter(|m| !m.is_empty()).or_else(|| r.and_then(|r| r.model.clone())),
@@ -297,6 +314,7 @@ pub fn rows(store: &Store, now_ms: u64) -> Vec<FleetRow> {
                 control: r.control.clone(),
                 error: r.error.clone(),
                 question: question_of(r),
+                asks: asks_of(r),
                 target: Some(target_of(r)),
             },
             r.model.clone(),
@@ -451,6 +469,45 @@ pub fn model_options(keys: &[String]) -> Vec<(String, String)> {
         .collect()
 }
 
+/// A desktop's words for the lanes, in `lane_keys` order: (key, the model as
+/// the profile names it, the provider under it). The key only tells two apart.
+fn desk_lanes(st: &FleetState, store: &Store) -> Vec<(String, String, String)> {
+    let named = desk_lane_names(st, store);
+    named
+        .iter()
+        .map(|(key, name, family)| {
+            let twin = named.iter().filter(|(_, other, _)| other == name).count() > 1;
+            let under = match (twin, family.is_empty()) {
+                (true, true) => key.clone(),
+                (true, false) => format!("{family} · {key}"),
+                (false, _) => family.clone(),
+            };
+            (key.clone(), name.clone(), under)
+        })
+        .collect()
+}
+
+/// A Mac's lanes as (key, the model's name, its family's).
+fn desk_lane_names(st: &FleetState, store: &Store) -> Vec<(String, String, String)> {
+    let models = store.domains.profile.llm_models();
+    st
+        .lanes
+        .iter()
+        .filter(|l| !l.key.trim().is_empty())
+        .map(|l| {
+            let model = l.model.as_deref().map(str::trim).filter(|m| !m.is_empty());
+            let title = model.and_then(|m| models.iter().find(|x| x.model == m && !x.title.is_empty()).map(|x| x.title.clone()));
+            let name = match model {
+                Some(m) => crate::desk::model_title(title.as_deref().unwrap_or(""), m),
+                None => title.unwrap_or_else(|| model_name(&l.key)),
+            };
+            let provider = l.provider.trim();
+            let family = if provider.is_empty() { String::new() } else { crate::screens::models::family_label(provider) };
+            (l.key.clone(), name, family)
+        })
+        .collect()
+}
+
 /// The lane read's phase for this session (`laneReadStatus`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum LaneRead {
@@ -490,6 +547,8 @@ pub struct FleetState {
     /// The chosen lane KEY; "" = none (no implicit default).
     pub lane: String,
     pub picker_open: bool,
+    /// Where the Model field sits in the module view, for a desktop's menu.
+    pub picker_anchor: Option<super::seats::Anchor>,
     pub brief: String,
     pub brief_snap: String,
     pub start: StartState,
@@ -730,6 +789,14 @@ pub async fn run_row(
 // ------------------------------------------------------------------ actions
 
 /// Route one `b3.fleet.*` action (UI-local first; jobs for the wire).
+/// The action a row's own field runs on Return: what its button says.
+pub fn row_default(st: &FleetState, index: usize) -> &'static str {
+    match st.drawn.get(index) {
+        Some(row) if row.status == Status::WaitingAnswer => "b3.fleet.answer",
+        _ => "b3.fleet.steer",
+    }
+}
+
 pub fn perform(st: &mut FleetState, action: &str, index: usize, store: &Store) -> HostOutcome {
     use super::host::Job;
     // Every UI-local change remounts: freeze the typed text first.
@@ -780,6 +847,8 @@ pub fn perform(st: &mut FleetState, action: &str, index: usize, store: &Store) -
             HostOutcome::Done
         }
         "b3.fleet.providers" => HostOutcome::Action("settings.toggle".into()),
+        // A server that can't start peers: its connection, in Settings.
+        "b3.fleet.connection" => HostOutcome::Action("settings.section.connection".into()),
         "b3.fleet.gather" => {
             if st.gathering || !gather_admitted(store) {
                 return HostOutcome::Done;
@@ -800,12 +869,13 @@ pub fn perform(st: &mut FleetState, action: &str, index: usize, store: &Store) -
             st.advanced_open = !st.advanced_open;
             HostOutcome::Done
         }
-        "b3.fleet.approve" | "b3.fleet.deny" | "b3.fleet.stop" | "b3.fleet.steer" | "b3.fleet.answer" => {
+        "b3.fleet.approve" | "b3.fleet.approve_session" | "b3.fleet.deny" | "b3.fleet.stop" | "b3.fleet.steer" | "b3.fleet.answer" => {
             let Some(row) = st.drawn.get(index).cloned() else { return HostOutcome::Done };
             let steer = st.steer.get(&row.key).cloned().unwrap_or_default();
             let avail = availability(row.status, &steer);
             let (act, ok) = match action {
                 "b3.fleet.approve" => (RowAction::Approve, avail.approve),
+                "b3.fleet.approve_session" => (RowAction::ApproveSession, avail.approve),
                 "b3.fleet.deny" => (RowAction::Deny, avail.deny),
                 "b3.fleet.stop" => (RowAction::Stop, avail.stop),
                 // Answer needs the operator's free text (`PeerDock.tsx:193`).
@@ -833,6 +903,24 @@ pub fn perform(st: &mut FleetState, action: &str, index: usize, store: &Store) -
         }
         _ => HostOutcome::Unrouted,
     }
+}
+
+/// The live visibility the brief drives: which face of Start shows.
+pub fn visibility(st: &FleetState, store: &Store) -> Vec<(String, bool)> {
+    let on = start_admitted(st, store);
+    vec![("b3_fleet_start_on".into(), on), ("b3_fleet_start_off".into(), !on)]
+}
+
+/// What the fields hold after a remount: a peer's status changing rebuilds the
+/// pane, and the DSL only carries the text as of the last snapshot.
+pub fn post_mount_texts(st: &FleetState) -> Vec<(String, String)> {
+    let mut texts = vec![("b3_fleet_brief".to_owned(), st.brief.clone())];
+    for (i, row) in st.drawn.iter().enumerate() {
+        if let Some(text) = st.steer.get(&row.key) {
+            texts.push((format!("b3_fleet_row_{i}_steer"), text.clone()));
+        }
+    }
+    texts
 }
 
 /// A text input changed (`fleet.brief`, `fleet.steer#<i>`, console fields).
@@ -881,6 +969,86 @@ fn lane_summary(d: &mut Dsl, info: &LaneInfo) {
     d.close();
 }
 
+/// A Mac's Model pop-up (E7 2), as the composer's: the families are the menu's
+/// group titles, a row is the model's name on one line (with its key under it
+/// only when two read alike), and the ticked row (else the first) opens over the
+/// field, its words over the field's. A press anywhere else closes it.
+fn model_menu(d: &mut Dsl, st: &FleetState, frame: &Frame, store: &Store) {
+    d.view("b3_fleet_menu_off_box", "width: Fill height: Fill flow: Overlay");
+    d.tap("b3_fleet_menu_off", "b3.fleet.lane.toggle");
+    d.close();
+    let lanes = desk_lane_names(st, store);
+    let a = st.picker_anchor.unwrap_or(super::seats::Anchor { x: 120.0, y: 120.0, w: 200.0, h: 28.0 });
+    let chosen = st.chosen_lane();
+    // The families in the order their first lane comes, each with its lanes' indices.
+    let mut groups: Vec<(String, Vec<usize>)> = Vec::new();
+    for (i, (_, _, family)) in lanes.iter().enumerate() {
+        match groups.iter_mut().find(|(f, _)| f == family) {
+            Some((_, rows)) => rows.push(i),
+            None => groups.push((family.clone(), vec![i])),
+        }
+    }
+    let twin = |i: usize| lanes.iter().filter(|(_, name, _)| *name == lanes[i].1).count() > 1;
+    // As the rows add up: a title 23 points, a row 28 (41 with its key under
+    // it), 4 between groups, the menu's 4 over the first.
+    let (mut y, mut first, mut ticked) = (4.0, None, None);
+    for (g, (family, rows)) in groups.iter().enumerate() {
+        y += (if g > 0 { 4.0 } else { 0.0 }) + (if family.is_empty() { 0.0 } else { 23.0 });
+        for &i in rows {
+            let h = if twin(i) { 41.0 } else { 28.0 };
+            first.get_or_insert(y + h / 2.0);
+            if chosen.as_deref() == Some(lanes[i].0.as_str()) {
+                ticked = Some(y + h / 2.0);
+            }
+            y += h;
+        }
+    }
+    let est_h = y + 4.0;
+    let ticked = ticked.or(first).unwrap_or(4.0 + 14.0);
+    // The field's words start 10 points in; a row's 32 (`seats::option_row`).
+    let natural = lanes
+        .iter()
+        .map(|(_, name, _)| ui::text_w(name, 14.0, Face::Medium) + 18.0 + 16.0 + 16.0 + 8.0 + 24.0)
+        .fold(a.w + 22.0 + 8.0, f64::max);
+    let width = natural.clamp(220.0, 420.0).min((frame.avail_w - 32.0).max(160.0));
+    let left = (a.x + 10.0 - 32.0).clamp(16.0, (frame.avail_w - 16.0 - width).max(16.0)).floor();
+    let top = (a.y + a.h / 2.0 - ticked).clamp(16.0, (frame.avail_h - 8.0 - est_h).max(16.0)).floor();
+    d.view("b3_fleet_menu", &format!("width: Fill height: Fill flow: Overlay padding: Inset{{left: {left} top: {top}}}"));
+    d.menu_surface(
+        "b3_fleet_options",
+        &format!("width: {} height: Fit flow: Down padding: Inset{{left: 4 right: 4 top: 4 bottom: 4}}", width.floor()),
+        8.0,
+    );
+    let copy_w = width - 8.0 - 16.0 - 18.0 - 8.0;
+    for (g, (family, rows)) in groups.iter().enumerate() {
+        if !family.is_empty() {
+            let gt = d.anon();
+            d.view(&gt, "width: Fill height: Fit padding: Inset{left: 8 right: 8 top: 5 bottom: 3}");
+            d.text(&format!("b3_fleet_group_{g}"), family, &Txt::new(12.0, Face::Medium, tok::FAINT).w(W::Fill));
+            d.close();
+        }
+        for &i in rows {
+            let (key, name, _) = &lanes[i];
+            super::seats::option_row(
+                d,
+                &format!("b3_fleet_opt_{i}"),
+                None,
+                name,
+                twin(i).then_some(key.as_str()),
+                chosen.as_deref() == Some(key.as_str()),
+                true,
+                &format!("b3.fleet.lane#{i}"),
+                copy_w,
+            );
+        }
+        if g + 1 < groups.len() {
+            d.gap(W::Fill, 4.0);
+        }
+    }
+    d.close(); // options
+    d.close(); // menu
+}
+
 fn start_form(d: &mut Dsl, st: &FleetState, store: &Store) {
     ui::card_open(d, "b3_fleet_form", 8.0);
     ui::section_title(d, "b3_fleet_form_title", &t("Start a peer"));
@@ -900,49 +1068,80 @@ fn start_form(d: &mut Dsl, st: &FleetState, store: &Store) {
         _ => {}
     }
     let chosen = st.chosen_lane();
-    if let Some(info) = chosen.as_ref().and_then(|k| st.lanes.iter().find(|l| &l.key == k)) {
+    let lane = chosen.as_ref().and_then(|k| st.lanes.iter().find(|l| &l.key == k));
+    if let Some(info) = lane.filter(|_| !crate::desk::active()) {
         lane_summary(d, info);
     }
-    ui::field_label(d, "b3_fleet_model_label", &t("Model"));
+    let key_w = ui::form_key_w(&["Model", "Brief"]);
+    ui::form_open(d, "b3_fleet_model_label", &t("Model"), key_w);
+    let desk = crate::desk::active();
     let options = model_options(&st.lane_keys());
-    let shown = chosen.as_ref().and_then(|k| options.iter().find(|(key, _)| key == k)).map(|(_, n)| n.clone());
+    let shown = if desk {
+        chosen.as_ref().and_then(|k| desk_lanes(st, store).into_iter().find(|(key, _, _)| key == k)).map(|(_, n, _)| n)
+    } else {
+        chosen.as_ref().and_then(|k| options.iter().find(|(key, _)| key == k)).map(|(_, n)| n.clone())
+    };
     let ready = st.lane_read == LaneRead::Ready;
+    // A Mac's pop-up button is as wide as its longest choice, not the form's
+    // width (its menu opens over it, `model_menu`).
+    let field = if desk {
+        let widest = desk_lane_names(st, store)
+            .iter()
+            .map(|(_, name, _)| ui::text_w(name, 12.5, Face::Regular))
+            .fold(ui::text_w(crate::i18n::tr("Choose a Model"), 12.5, Face::Regular), f64::max);
+        format!("width: {} height: 28 flow: Overlay", (widest * 1.1 + 10.0 + 8.0 + 13.0 + 10.0).ceil().clamp(140.0, 420.0))
+    } else {
+        "width: Fill height: 36 flow: Overlay".to_owned()
+    };
     d.surface(
         "b3_fleet_model",
-        "width: Fill height: 36 flow: Overlay",
+        &field,
         if ready { tok::SURFACE } else { tok::SURFACE2 },
-        8.0,
+        crate::desk::by(8.0, 6.0),
         Some("#d9d9dcff"),
     );
     let mrow = d.anon();
     d.view(&mrow, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 10 right: 10 top: 0 bottom: 0}");
     match &shown {
-        Some(name) => d.text("b3_fleet_model_value", name, &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Fill)),
-        None => d.text("b3_fleet_model_value", "", &Txt::new(12.5, Face::Regular, tok::FAINT).w(W::Fill)),
+        Some(name) => d.text("b3_fleet_model_value", name, &Txt::new(12.5, crate::desk::by(Face::Mono, Face::Regular), tok::TEXT).w(W::Fill)),
+        None => d.text(
+            "b3_fleet_model_value",
+            if crate::desk::active() && ready { crate::i18n::tr("Choose a Model") } else { "" },
+            &Txt::new(12.5, Face::Regular, tok::FAINT).w(W::Fill),
+        ),
     }
-    d.icon("b3_fleet_model_chevron", "chevron_down.svg", 14.0, tok::MUTED);
+    d.icon("b3_fleet_model_chevron", crate::desk::by("chevron_down.svg", "b3_updown.svg"), crate::desk::by(14.0, 13.0), tok::MUTED);
     d.close();
     if ready {
         d.tap("b3_fleet_model_tap", "b3.fleet.lane.toggle");
     }
     d.close();
-    if st.picker_open && ready {
+    // A desktop's menu floats over the form (`model_menu`).
+    if st.picker_open && ready && !desk {
         d.surface("b3_fleet_options", "width: Fill height: Fit flow: Down padding: Inset{left: 4 right: 4 top: 4 bottom: 4}", tok::SURFACE, 8.0, Some(tok::HAIRLINE));
         for (i, (key, name)) in options.iter().enumerate() {
             let on = chosen.as_deref() == Some(key.as_str());
             let id = format!("b3_fleet_opt_{i}");
-            d.surface(&format!("{id}_box"), "width: Fill height: 32 flow: Overlay", if on { tok::CHIP } else { tok::TRANSPARENT }, 6.0, None);
+            d.surface(&format!("{id}_box"), crate::desk::by("width: Fill height: 32 flow: Overlay", "width: Fill height: 26 flow: Overlay"), if on { tok::CHIP } else { tok::TRANSPARENT }, 6.0, None);
             let r = d.anon();
             d.view(&r, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 8 right: 8 top: 0 bottom: 0}");
-            d.text(&format!("{id}_label"), name, &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Fill));
+            d.text(&format!("{id}_label"), name, &Txt::new(12.5, crate::desk::by(Face::Mono, Face::Regular), tok::TEXT).w(W::Fill));
             d.close();
             d.tap(&id, &format!("b3.fleet.lane#{i}"));
             d.close();
         }
         d.close();
     }
-    ui::field_label(d, "b3_fleet_brief_label", &t("Brief"));
+    ui::form_close(d);
+    if let Some(desc) = lane.filter(|_| desk).and_then(|info| info.description.as_ref()) {
+        let line = d.anon();
+        d.view(&line, &format!("width: Fill height: Fit flow: Right{{wrap: true}} spacing: 6 padding: Inset{{left: {}}}", (key_w + 8.0).round()));
+        d.text("b3_fleet_lane_desc", desc, &Txt::new(12.0, Face::Regular, tok::MUTED));
+        d.close();
+    }
+    ui::form_open(d, "b3_fleet_brief_label", &t("Brief"), key_w);
     d.input("b3_fleet_brief", "fleet.brief", &st.brief_snap, &t("Describe the task for the peer"), false, 64.0);
+    ui::form_close(d);
     match &st.start {
         StartState::Failed { kind, .. } => {
             d.text(
@@ -967,22 +1166,32 @@ fn start_form(d: &mut Dsl, st: &FleetState, store: &Store) {
     }
     let foot = d.anon();
     d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
-    let ok = start_admitted(st, store) && !st.start.requesting();
-    d.button(
-        "b3_fleet_start",
-        &if st.start.requesting() { t("Starting…") } else { t("Start") },
-        "b3.fleet.start",
-        if ok { Btn::Primary } else { Btn::Disabled },
-        W::Fit,
-        34.0,
-    );
+    if st.start.requesting() {
+        d.button("b3_fleet_start", &t("Starting…"), "b3.fleet.start", Btn::Disabled, W::Fit, 34.0);
+    } else {
+        // Both faces are mounted and `visibility` shows one: a remount for the
+        // first letter typed would take the field's text and its focus.
+        let word = t("Start");
+        let both = d.anon();
+        d.view(&both, "width: Fit height: Fit flow: Overlay");
+        d.view("b3_fleet_start_off", "width: Fit height: Fit flow: Right");
+        d.button("b3_fleet_start", &word, "b3.fleet.start", Btn::Disabled, W::Fit, 34.0);
+        d.close();
+        d.view("b3_fleet_start_on", "width: Fit height: Fit flow: Right");
+        // A waiting peer's Approve is the pane's one default.
+        let waiting = desk && st.drawn.iter().any(|r| r.status == Status::WaitingApproval);
+        d.button_ids("b3_fleet_start_on_box", "b3_fleet_start_on_label", "b3_fleet_start", &word, "b3.fleet.start", if waiting { Btn::Outline } else { Btn::Primary }, W::Fit, 34.0);
+        d.close();
+        d.close();
+    }
     d.close();
     d.close();
 }
 
 /// One fleet row card (§4.3: title · label · status · elapsed · tokens ·
 /// session; then the actions).
-fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready: bool, terminal: bool, inner_w: f64) {
+#[allow(clippy::too_many_arguments)]
+fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready: bool, terminal: bool, inner_w: f64, default_row: bool) {
     let id = format!("b3_fleet_row_{i}");
     ui::card_open(d, &id, 8.0);
     let head = d.anon();
@@ -998,7 +1207,7 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
     let room = inner_w - 28.0 - 26.0 - 20.0;
     let label_w = ui::text_w(&r.label, 12.5, Face::Mono);
     let stacked = label_w + chip_w > room;
-    d.text(&format!("{id}_label"), &super::inventory::fit(&r.label, room, 12.5, true), &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Fill));
+    d.text(&format!("{id}_label"), &super::inventory::fit(&r.label, room, 12.5, true), &Txt::new(12.5, crate::desk::by(Face::Mono, Face::Regular), tok::TEXT).w(W::Fill));
     if !stacked {
         status_chip(d, &format!("{id}_status"), r.status);
     }
@@ -1016,6 +1225,16 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
         meta.push_str(&format!(" · {}", r.session_name));
     }
     d.text(&format!("{id}_meta"), &meta, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill));
+    // A desktop's pane says what it would be approving.
+    let desk = crate::desk::active();
+    if let Some((tool, target)) = r.asks.as_ref().filter(|_| desk && !terminal) {
+        d.text(&format!("{id}_asks"), &format!("{} {tool}", crate::i18n::tr("asks to run")), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill).wrap());
+        if let Some(target) = target {
+            d.surface(&format!("{id}_target_box"), "width: Fill height: Fit flow: Right padding: Inset{left: 7 right: 7 top: 4 bottom: 4}", tok::CHIP, 6.0, None);
+            d.text(&format!("{id}_target"), target, &Txt::new(11.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
+            d.close();
+        }
+    }
     // The acknowledgment (never an outcome), the replacement-turn marker,
     // or the last action's bounded copy.
     let note = if r.turn_changed {
@@ -1049,8 +1268,26 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
     let steer = st.steer.get(&r.key).cloned().unwrap_or_default();
     let avail = availability(r.status, &steer);
     let acts = d.anon();
-    d.view(&acts, "width: Fill height: Fit flow: Right{wrap: true} align: Align{x: 0.0 y: 0.5} spacing: 8");
-    if r.status == Status::WaitingApproval {
+    // A Mac's row: Stop at its leading edge, the answers at the trailing one,
+    // the default last, in the words the sidebar's card and the chat's use.
+    let room = desk && inner_w >= 480.0;
+    let answers = desk && r.status == Status::WaitingApproval;
+    let split = answers && !room;
+    let push = |s: &str| (ui::text_w(s, 13.0, Face::Medium) + 24.0).max(72.0);
+    let answers_w = push(&t("Deny")) + push(&t("Approve for session")) + push(&t("Approve once")) + 16.0;
+    let stack = split && answers_w > inner_w - 28.0;
+    d.view(&acts, if room {
+        "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8"
+    } else if split {
+        "width: Fill height: Fit flow: Down spacing: 8"
+    } else {
+        "width: Fill height: Fit flow: Right{wrap: true} align: Align{x: 0.0 y: 0.5} spacing: 8"
+    });
+    if split {
+        let line = d.anon();
+        d.view(&line, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
+    }
+    if r.status == Status::WaitingApproval && !desk {
         d.button(&format!("{id}_approve"), &t("Approve"), &format!("b3.fleet.approve#{i}"), Btn::Primary, W::Fit, 32.0);
         d.button(&format!("{id}_deny"), &t("Deny"), &format!("b3.fleet.deny#{i}"), Btn::Outline, W::Fit, 32.0);
     }
@@ -1064,6 +1301,33 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
     );
     if !avail.stop {
         d.text(&format!("{id}_stop_reason"), &t("Only while the peer is running"), &Txt::new(11.5, Face::Regular, tok::FAINT));
+    }
+    if split {
+        d.close();
+    }
+    if answers {
+        let approve = if default_row { Btn::Primary } else { Btn::Outline };
+        if stack {
+            let col = d.anon();
+            d.view(&col, "width: Fill height: Fit flow: Down spacing: 8");
+            d.button(&format!("{id}_approve"), &t("Approve once"), &format!("b3.fleet.approve#{i}"), approve, W::Fill, 32.0);
+            d.button(&format!("{id}_session"), &t("Approve for session"), &format!("b3.fleet.approve_session#{i}"), Btn::Outline, W::Fill, 32.0);
+            d.button(&format!("{id}_deny"), &t("Deny"), &format!("b3.fleet.deny#{i}"), Btn::Outline, W::Fill, 32.0);
+            d.close();
+        } else {
+            if split {
+                let line = d.anon();
+                d.view(&line, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} spacing: 8");
+            } else {
+                d.gap(W::Fill, 1.0);
+            }
+            d.button(&format!("{id}_deny"), &t("Deny"), &format!("b3.fleet.deny#{i}"), Btn::Outline, W::Fit, 32.0);
+            d.button(&format!("{id}_session"), &t("Approve for session"), &format!("b3.fleet.approve_session#{i}"), Btn::Outline, W::Fit, 32.0);
+            d.button(&format!("{id}_approve"), &t("Approve once"), &format!("b3.fleet.approve#{i}"), approve, W::Fit, 32.0);
+            if split {
+                d.close();
+            }
+        }
     }
     d.close();
     // A question-blocked row is an answer card (`PeerDock.tsx:371-401`): the
@@ -1080,7 +1344,7 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
     d.input(&format!("{id}_steer"), &format!("fleet.steer#{i}"), &snap, &placeholder, false, 34.0);
     let working = r.status == Status::Working;
     if answering {
-        d.button(&format!("{id}_answer"), &t("Answer"), &format!("b3.fleet.answer#{i}"), Btn::Primary, W::Fit, 34.0);
+        d.button(&format!("{id}_answer"), &t("Answer"), &format!("b3.fleet.answer#{i}"), crate::desk::by(Btn::Primary, Btn::Outline), W::Fit, 34.0);
     } else {
         d.button(&format!("{id}_steer_btn"), &t("Steer"), &format!("b3.fleet.steer#{i}"), if working { Btn::Outline } else { Btn::OutlineOff }, W::Fit, 34.0);
     }
@@ -1096,8 +1360,22 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
 /// centred in the column) carrying the web's copy: "No peers yet"
 /// (`FleetView.tsx:478-480`) or "Open a project first", and the
 /// start-unavailable note as its hint. `line` / `hint` are (id, text).
-fn empty_state(d: &mut Dsl, line: (&str, &str), hint: Option<(&str, &str)>) {
-    d.view("b3_fleet_empty", "width: Fill height: Fit flow: Down align: Align{x: 0.5 y: 0.0} padding: Inset{top: 48 bottom: 24}");
+fn empty_state(d: &mut Dsl, line: (&str, &str), hint: Option<(&str, &str)>, mac_top: f64) {
+    let mac_props = format!("width: Fill height: Fit flow: Down align: Align{{x: 0.5 y: 0.0}} padding: Inset{{top: {} bottom: 12}}", mac_top.floor());
+    d.view(
+        "b3_fleet_empty",
+        crate::desk::by(
+            "width: Fill height: Fit flow: Down align: Align{x: 0.5 y: 0.0} padding: Inset{top: 48 bottom: 24}",
+            mac_props.as_str(),
+        ),
+    );
+    if crate::desk::active() {
+        let mark_row = d.anon();
+        d.view(&mark_row, "width: Fill height: Fit flow: Right align: Align{x: 0.5 y: 0.5}");
+        d.icon("b3_fleet_empty_mark", "b3_sparkle.svg", 36.0, tok::MUTED);
+        d.close();
+        d.gap(W::Fill, 6.0);
+    } else {
     let tile_row = d.anon();
     d.view(&tile_row, "width: Fill height: Fit flow: Right align: Align{x: 0.5 y: 0.5}");
     d.surface("b3_fleet_empty_mark_box", "width: 44 height: 44 flow: Overlay align: Align{x: 0.5 y: 0.5}", "#f4f4f5ff", 10.0, None);
@@ -1105,6 +1383,7 @@ fn empty_state(d: &mut Dsl, line: (&str, &str), hint: Option<(&str, &str)>) {
     d.close();
     d.close();
     d.gap(W::Fill, 14.0);
+    }
     let line_row = d.anon();
     d.view(&line_row, "width: Fill height: Fit flow: Right align: Align{x: 0.5 y: 0.5}");
     d.text(line.0, line.1, &Txt::new(17.0, Face::Semibold, tok::TEXT));
@@ -1113,7 +1392,12 @@ fn empty_state(d: &mut Dsl, line: (&str, &str), hint: Option<(&str, &str)>) {
         d.gap(W::Fill, 6.0);
         let hint_row = d.anon();
         d.view(&hint_row, "width: Fill height: Fit flow: Right align: Align{x: 0.5 y: 0.5}");
-        d.text(id, text, &Txt::new(13.0, Face::Regular, tok::MUTED));
+        let note = Txt::new(13.0, Face::Regular, tok::MUTED);
+        if crate::desk::active() {
+            d.text(id, text, &note.w(W::Fill).wrap().centre());
+        } else {
+            d.text(id, text, &note);
+        }
         d.close();
     }
     d.close();
@@ -1126,7 +1410,7 @@ pub fn build(d: &mut Dsl, st: &mut FleetState, frame: &Frame, store: &Store) {
     let x0 = st.content_x.max(0.0);
     let avail = (frame.avail_w - x0).max(280.0);
     let col_w = (avail - 32.0).clamp(240.0, 720.0);
-    let inner_w = col_w;
+    let inner_w = if crate::desk::active() { (avail - 40.0).max(240.0) } else { col_w };
     let now = peers::now_ms();
     let list = rows(store, now);
     st.drawn = list.clone();
@@ -1134,39 +1418,96 @@ pub fn build(d: &mut Dsl, st: &mut FleetState, frame: &Frame, store: &Store) {
     // `controlSupported` (FleetView.tsx:242-243): both methods + the record ready.
     let control_ready = fleet_driver::control_supported(store);
     let advertised = fleet_driver::control_advertised(store);
-    d.view("b3_root", "width: Fill height: Fill flow: Right");
+    if crate::desk::active() {
+        // Room for the Model menu over the pane.
+        d.view("b3_root", "width: Fill height: Fill flow: Overlay");
+        d.view("b3_fleet_pane", "width: Fill height: Fill flow: Right");
+    } else {
+        d.view("b3_root", "width: Fill height: Fill flow: Right");
+    }
     if x0 > 0.0 {
         d.gap(W::Px(x0), 1.0);
     }
-    d.surface("b3_fleet_panel", "width: Fill height: Fill flow: Down align: Align{x: 0.5 y: 0.0}", tok::SURFACE, 0.0, None);
-    d.open("b3_scroll", "ScrollYView", "width: Fill height: Fill flow: Down align: Align{x: 0.5 y: 0.0} padding: Inset{left: 16 right: 16 top: 16 bottom: 24}");
-    d.view("b3_fleet_col", &format!("width: {} height: Fit flow: Down spacing: 12", col_w.floor()));
+    let panel = crate::desk::by(tok::SURFACE.to_owned(), crate::desk::current().content);
+    d.surface("b3_fleet_panel", "width: Fill height: Fill flow: Down align: Align{x: 0.5 y: 0.0}", &panel, 0.0, None);
+    let session_open = store.domains.session.active().is_some();
+    let mac = crate::desk::active();
+    // A Mac's pane: a toolbar instead of a page header, the content under it
+    // filling the pane.
+    if mac {
+        let bar = crate::desk::current().bar;
+        // The window's lights: the pane has no sidebar to its left on a narrow window.
+        let head = format!(
+            "width: Fill height: {} flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8 padding: Inset{{left: {} right: 12}}",
+            crate::desk::bar_h(),
+            crate::desk::bar_lead(x0)
+        );
+        d.surface("b3_fleet_bar", &head, &bar, 0.0, None);
+        // A sidebar beside the pane shows the place, and is the way back.
+        if x0 < 100.0 {
+            d.view("b3_fleet_back_box", "width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}");
+            d.icon("b3_fleet_back_icon", "b1_chevron_left.svg", 16.0, tok::TEXT);
+            d.tap("b3_fleet_back", "b3.close");
+            d.close();
+        }
+        d.text("b3_title", &t("Fleet"), &ui::title().w(W::Fill));
+        if session_open && gather_admitted(store) {
+            let label = if st.gathering { t("Gathering…") } else { t("Gather results") };
+            // Nothing to gather from an empty fleet.
+            let off = st.gathering || list.is_empty();
+            d.button("b3_fleet_gather", &label, "b3.fleet.gather", if off { Btn::Disabled } else { Btn::Outline }, W::Fit, 28.0);
+        }
+        d.close();
+        d.hairline();
+    }
+    d.open(
+        "b3_scroll",
+        "ScrollYView",
+        crate::desk::by(
+            "width: Fill height: Fill flow: Down align: Align{x: 0.5 y: 0.0} padding: Inset{left: 16 right: 16 top: 16 bottom: 24}",
+            "width: Fill height: Fill flow: Down align: Align{x: 0.5 y: 0.0} padding: Inset{left: 20 right: 20 top: 20 bottom: 24}",
+        ),
+    );
+    d.view(
+        "b3_fleet_col",
+        &if mac {
+            "width: Fill height: Fit flow: Down spacing: 12".to_owned()
+        } else {
+            format!("width: {} height: Fit flow: Down spacing: 12", col_w.floor())
+        },
+    );
     // Header: Back + "Fleet" (+ Peer gather). A14: the empty state is no
     // longer a word floating at the header's far right — it is the pane's
     // own centred empty state below ([`empty_state`]).
+    if !mac {
     let head = d.anon();
     d.view(&head, "width: Fill height: 34 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
     d.button("b3_fleet_back", &t("Back"), "b3.close", Btn::Outline, W::Fit, 30.0);
     d.text("b3_title", &t("Fleet"), &ui::title().w(W::Fill));
-    let session_open = store.domains.session.active().is_some();
     // The blackboard gather (`/gather`): the synthesis rides one turn.
     if session_open && gather_admitted(store) {
         let label = if st.gathering { t("Gathering…") } else { t("Peer gather") };
         d.button("b3_fleet_gather", &label, "b3.fleet.gather", if st.gathering { Btn::Disabled } else { Btn::Outline }, W::Fit, 30.0);
     }
     d.close();
+    }
     if let Some(a) = &st.announcement {
-        d.text("b3_fleet_announce", a, &Txt::new(12.0, Face::Medium, tok::BLUE_TEXT).w(W::Fill).wrap());
+        d.text("b3_fleet_announce", a, &Txt::new(12.0, crate::desk::by(Face::Medium, Face::Regular), crate::desk::by(tok::BLUE_TEXT, tok::MUTED)).w(W::Fill).wrap());
     }
     let empty = list.is_empty();
     let none = t("No peers yet");
+    // With nothing else on the pane its empty state sits in the middle.
+    let alone = ((frame.avail_h - crate::desk::bar_h() - 90.0) * 0.4).max(24.0);
     if !session_open {
-        empty_state(d, ("b3_fleet_noproject", t("Open a project first").as_str()), None);
+        empty_state(d, ("b3_fleet_noproject", t("Open a project first").as_str()), None, alone);
     } else {
         // The start-unavailable notes (`FleetView.tsx:289-311`): with no
         // peer to show, the note is the empty state's hint; otherwise a
         // line above the groups.
-        let note = if !advertised {
+        let note = if !advertised && mac {
+            // A Mac says what to do about it, and offers the way there (below).
+            Some(("b3_fleet_unsupported", t("This server can\u{2019}t start peers. Update Octos on the server, or connect to one that can.")))
+        } else if !advertised {
             Some(("b3_fleet_unsupported", t("This server does not support starting peers")))
         } else if !control_ready {
             Some(("b3_fleet_notready", t("Peer controls are not ready")))
@@ -1174,23 +1515,39 @@ pub fn build(d: &mut Dsl, st: &mut FleetState, frame: &Frame, store: &Store) {
             None
         };
         match (&note, empty) {
-            (Some((id, text)), true) => empty_state(d, ("b3_fleet_none", none.as_str()), Some((*id, text.as_str()))),
+            (Some((id, text)), true) => {
+                empty_state(d, ("b3_fleet_none", none.as_str()), Some((*id, text.as_str())), alone);
+                if mac && !advertised {
+                    let way = d.anon();
+                    d.view(&way, "width: Fill height: Fit flow: Right align: Align{x: 0.5 y: 0.5}");
+                    d.button("b3_fleet_connection", &t("Connection Settings\u{2026}"), "b3.fleet.connection", Btn::Outline, W::Fit, 28.0);
+                    d.close();
+                }
+            }
             (Some((id, text)), false) => d.text(id, text, &ui::meta().w(W::Fill).wrap()),
             (None, _) => {
                 start_form(d, st, store);
-                if empty {
-                    empty_state(d, ("b3_fleet_none", none.as_str()), None);
+                // A desktop's Model menu opens over this: nothing to cut in half.
+                if empty && !(mac && st.picker_open) {
+                    let hint = crate::desk::active().then_some(("b3_fleet_none_hint", crate::i18n::tr("Choose a model and a brief to start one.")));
+                    empty_state(d, ("b3_fleet_none", none.as_str()), hint, 24.0);
                 }
             }
         }
+        // The first peer waiting for an approval holds the pane's one default.
+        let mut asked = false;
         for (gi, g) in groups.iter().enumerate() {
             let heading = match &g.goal_id {
+                // A desktop names no raw goal id.
+                Some(_) if crate::desk::active() => t("Goal"),
                 Some(goal) => t1("Goal {value0}", goal),
                 None => t("Peers"),
             };
             d.text(&format!("b3_fleet_group_{gi}"), &heading, &Txt::new(12.0, Face::Semibold, tok::MUTED).w(W::Fill));
             for &i in &g.active {
-                row_card(d, i, &list[i], st, control_ready, false, inner_w);
+                let first = !asked && list[i].status == Status::WaitingApproval;
+                asked |= first;
+                row_card(d, i, &list[i], st, control_ready, false, inner_w, first);
             }
             if !g.finished.is_empty() {
                 let open = st.finished_open.get(&g.key()).copied().unwrap_or(false);
@@ -1204,7 +1561,7 @@ pub fn build(d: &mut Dsl, st: &mut FleetState, frame: &Frame, store: &Store) {
                 d.close();
                 if open {
                     for &i in &g.finished {
-                        row_card(d, i, &list[i], st, control_ready, true, inner_w);
+                        row_card(d, i, &list[i], st, control_ready, true, inner_w, false);
                     }
                 }
             }
@@ -1231,6 +1588,12 @@ pub fn build(d: &mut Dsl, st: &mut FleetState, frame: &Frame, store: &Store) {
     d.close(); // col
     d.close(); // scroll
     d.close(); // panel
+    if mac {
+        d.close(); // pane
+        if st.picker_open && st.lane_read == LaneRead::Ready {
+            model_menu(d, st, frame, store);
+        }
+    }
     d.close(); // root
 }
 
@@ -1335,6 +1698,7 @@ mod tests {
             control: None,
             error: None,
             question: None,
+            asks: None,
             target: None,
         };
         let rows = vec![
@@ -1376,6 +1740,7 @@ mod tests {
             control: None,
             error: None,
             question: None,
+            asks: None,
             target: None,
         };
         let now = vec![row("1", Status::WaitingApproval)];

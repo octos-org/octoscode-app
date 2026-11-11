@@ -85,6 +85,8 @@ pub const CATALOG_INVALID: &str = "The server returned an invalid catalog.";
 pub const FALLBACK_HEAD: &str = "This server cannot onboard from this app";
 pub const FALLBACK_BODY: &str = "Run the canonical setup on the server, then reconnect this workspace.";
 pub const FALLBACK_COMMAND: &str = "octoscode onboard";
+/// A Mac's words for the fallback: what to do, with no command to read.
+pub const FALLBACK_BODY_DESK: &str = "This server can\u{2019}t add a model from here. Finish its setup on the computer it runs on, then connect again.";
 pub const KEY_HINT: &str = "Sent only to your Octos server for test and save; never stored by this app.";
 pub const KEYLESS_HEAD: &str = "No API key required";
 pub const DEFAULT_LABEL: &str = "Use as the default local profile";
@@ -218,6 +220,10 @@ pub struct State {
     /// `form` on every action, never while typing).
     pub snap: (String, String),
     pub open_select: Option<Select>,
+    /// The Mac menu follows the field that opened it, even after scrolling.
+    pub menu_anchor: Option<super::board3::seats::Anchor>,
+    /// Highlighted menu row; the chosen model does not change until Return.
+    pub menu_cursor: Option<usize>,
 }
 
 impl State {
@@ -267,8 +273,16 @@ impl State {
     fn options(&self, which: Select) -> Vec<Opt> {
         let plain = |id: &String| Opt { id: id.clone(), label: id.clone(), detail: None };
         match which {
-            Select::Provider => self.catalog.iter().flat_map(|c| c.families.iter().map(|f| plain(&f.id))).collect(),
-            Select::Model => self.family().map(|f| f.models.iter().map(|m| plain(&m.id)).collect()).unwrap_or_default(),
+            Select::Provider => self
+                .catalog
+                .iter()
+                .flat_map(|c| c.families.iter())
+                .map(|f| Opt { label: family_word(&f.id), ..plain(&f.id) })
+                .collect(),
+            Select::Model => self
+                .family()
+                .map(|f| f.models.iter().map(|m| Opt { label: model_word(&m.id), ..plain(&m.id) }).collect())
+                .unwrap_or_default(),
             Select::Route => self.routes(),
         }
     }
@@ -296,6 +310,7 @@ pub struct Opt {
 }
 
 static STATE: OnceLock<Mutex<State>> = OnceLock::new();
+static MENU_SCROLL: Mutex<Option<f64>> = Mutex::new(None);
 
 fn lock() -> MutexGuard<'static, State> {
     STATE
@@ -307,6 +322,30 @@ fn lock() -> MutexGuard<'static, State> {
 /// A copy of the onboarding state (tests and the walk's assertions).
 pub fn snapshot() -> State {
     lock().clone()
+}
+
+pub fn set_menu_anchor(anchor: Option<super::board3::seats::Anchor>) {
+    lock().menu_anchor = anchor;
+}
+
+pub fn menu_cursor() -> Option<usize> {
+    let st = lock();
+    st.open_select.and(st.menu_cursor)
+}
+
+pub fn menu_open() -> bool {
+    lock().open_select.is_some()
+}
+
+pub fn take_menu_scroll() -> Option<f64> {
+    MENU_SCROLL.lock().unwrap_or_else(|p| p.into_inner()).take()
+}
+
+fn reveal_menu_cursor(st: &State) {
+    if let (Some(which), Some(cursor)) = (st.open_select, st.menu_cursor) {
+        let before: f64 = st.options(which).iter().take(cursor).map(|o| if o.detail.is_some() { 44.0 } else { 28.0 }).sum();
+        *MENU_SCROLL.lock().unwrap_or_else(|p| p.into_inner()) = Some((before - 56.0).max(0.0));
+    }
 }
 
 /// `reset` (`use-onboarding.ts:66-71`): invalidate every in-flight request,
@@ -618,6 +657,12 @@ where
     let api_key = form.api_key.trim();
     let selection = selection_from_catalog(catalog, &form.family_id, &form.model_id, &form.route_id)?;
     let requires_key = selection.route.api_key_env.as_deref().is_some_and(|e| !e.is_empty());
+    if crate::desk::active() && profile_name.is_empty() {
+        return Err(tr("Type a name for the profile.").to_owned());
+    }
+    if crate::desk::active() && requires_key && api_key.is_empty() {
+        return Err(tr("Paste the provider\u{2019}s API key.").to_owned());
+    }
     if profile_id.is_empty() || profile_name.is_empty() || (requires_key && api_key.is_empty()) {
         return Err(if requires_key {
             "Profile ID, profile name, and API key are required."
@@ -778,6 +823,7 @@ pub fn perform(action: &str, index: usize) -> Outcome {
         // The dialog's close glyph (and Escape, `host::close`): leaving the
         // panel cancels the launch (`cancelLaunch`, `use-octos-session.ts:
         // 3334-3342`) — except while the new Session is being opened.
+        "b3.onb.copy_command" => Outcome::Clipboard(FALLBACK_COMMAND.to_owned()),
         "b3.onb.close" => {
             if st.phase == Phase::OpeningSession {
                 return Outcome::Done;
@@ -822,6 +868,26 @@ pub fn perform(action: &str, index: usize) -> Outcome {
                     _ => Select::Route,
                 };
                 st.open_select = if st.open_select == Some(which) { None } else { Some(which) };
+                st.menu_cursor = st.open_select.and_then(|w| st.options(w).iter().position(|o| o.id == st.selected(w)).or(Some(0)));
+                if crate::desk::active() {
+                    reveal_menu_cursor(&st);
+                }
+            }
+            Outcome::Done
+        }
+        "b3.onb.menu.close" => {
+            st.open_select = None;
+            st.menu_cursor = None;
+            Outcome::Done
+        }
+        "b3.onb.menu.up" | "b3.onb.menu.down" if crate::desk::active() => {
+            if let Some(which) = st.open_select {
+                let len = st.options(which).len();
+                if len > 0 {
+                    let current = st.menu_cursor.unwrap_or(0).min(len - 1);
+                    st.menu_cursor = Some(if action.ends_with(".up") { current.saturating_sub(1) } else { (current + 1).min(len - 1) });
+                    reveal_menu_cursor(&st);
+                }
             }
             Outcome::Done
         }
@@ -856,6 +922,7 @@ pub fn perform(action: &str, index: usize) -> Outcome {
             }
             clear_key_if_keyless(form, &catalog);
             st.open_select = None;
+            st.menu_cursor = None;
             Outcome::Done
         }
         _ => Outcome::Unrouted,
@@ -867,7 +934,13 @@ pub fn input_changed(key: &str, text: &str) {
     let mut st = lock();
     match key {
         "onb.profile_id" => st.form.profile_id = text.to_owned(),
-        "onb.profile_name" => st.form.profile_name = text.to_owned(),
+        "onb.profile_name" => {
+            st.form.profile_name = text.to_owned();
+            // A Mac asks only for a name: the profile's id comes from it.
+            if crate::desk::active() {
+                st.form.profile_id = profile_slug(text);
+            }
+        }
         "onb.api_key" => st.form.api_key = text.to_owned(),
         _ => {}
     }
@@ -929,6 +1002,40 @@ fn line_h(px: f64) -> f64 {
     px * 1.4423
 }
 
+/// A provider as a desktop names it (`deepseek` -> `DeepSeek`), as the catalog
+/// spells it on a phone.
+/// A model's name, on a Mac (`desk::model_word`); its id elsewhere.
+fn model_word(id: &str) -> String {
+    if crate::desk::active() && !id.is_empty() {
+        crate::desk::model_word(id)
+    } else {
+        id.to_owned()
+    }
+}
+
+/// A profile's id from its name: lower case, a hyphen between words ("My Work" is
+/// my-work); a name in another script is "profile".
+pub fn profile_slug(name: &str) -> String {
+    let mut out = String::new();
+    for c in name.trim().chars() {
+        if c.is_ascii_alphanumeric() {
+            out.push(c.to_ascii_lowercase());
+        } else if !out.is_empty() && !out.ends_with('-') {
+            out.push('-');
+        }
+    }
+    let out = out.trim_end_matches('-');
+    if out.is_empty() { "profile".to_owned() } else { out.to_owned() }
+}
+
+fn family_word(id: &str) -> String {
+    if crate::desk::active() && !id.is_empty() {
+        super::model_settings::family_label(id)
+    } else {
+        id.to_owned()
+    }
+}
+
 fn field_box(d: &mut Dsl, id: &str, enabled: bool, open: bool) {
     let (fill, border) = if !enabled {
         (tok::SURFACE2, tok::HAIRLINE)
@@ -937,7 +1044,7 @@ fn field_box(d: &mut Dsl, id: &str, enabled: bool, open: bool) {
     } else {
         (tok::SURFACE, "#d9d9dcff")
     };
-    d.surface(&format!("{id}_field"), "width: Fill height: 38 flow: Overlay", fill, 8.0, Some(border));
+    d.surface(&format!("{id}_field"), crate::desk::by("width: Fill height: 38 flow: Overlay", "width: Fill height: 28 flow: Overlay"), fill, 8.0, Some(border));
 }
 
 /// A disabled text field: the value on the grey well, no input (the web's
@@ -946,23 +1053,27 @@ fn disabled_field(d: &mut Dsl, id: &str, value: &str, mono: bool, w: f64) {
     field_box(d, id, false, false);
     let row = d.anon();
     d.view(&row, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 10 right: 10 top: 0 bottom: 0}");
-    let face = if mono { Face::Mono } else { Face::Regular };
+    let face = if mono && !crate::desk::active() { Face::Mono } else { Face::Regular };
     d.text(&format!("{id}_value"), &ui::fit_w(value, w - 24.0, 13.0, face), &Txt::new(13.0, face, tok::FAINT).w(W::Fill));
     d.close();
     d.close();
 }
+
+/// A Mac form's label column here.
+const FORM_KEY_W: f64 = 110.0;
 
 /// One labelled text field of the form.
 #[allow(clippy::too_many_arguments)]
 fn text_field(d: &mut Dsl, id: &str, label: &str, key: &str, snap: &str, live: &str, mono: bool, enabled: bool, w: W, px_w: f64) {
     let col = d.anon();
     d.view(&col, &format!("width: {} height: Fit flow: Down spacing: 6", w_dsl(w)));
-    ui::field_label(d, &format!("{id}_label"), tr(label));
+    ui::form_open(d, &format!("{id}_label"), tr(label), FORM_KEY_W);
     if enabled {
-        d.input(id, key, snap, "", mono, 38.0);
+        d.input(id, key, snap, "", mono && !crate::desk::active(), 38.0);
     } else {
         disabled_field(d, id, live, mono, px_w);
     }
+    ui::form_close(d);
     d.close();
 }
 
@@ -983,23 +1094,24 @@ fn select_field(d: &mut Dsl, st: &State, which: Select, label: &str, value: &str
     let open = enabled && st.open_select == Some(which);
     let col = d.anon();
     d.view(&col, &format!("width: {} height: Fit flow: Down spacing: 6", w_dsl(w)));
-    ui::field_label(d, &format!("{id}_label"), tr(label));
+    ui::form_open(d, &format!("{id}_label"), tr(label), FORM_KEY_W);
     field_box(d, &id, enabled, open);
     let row = d.anon();
     d.view(&row, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 10 right: 10 top: 0 bottom: 0}");
-    let face = if mono { Face::Mono } else { Face::Regular };
+    let face = if mono && !crate::desk::active() { Face::Mono } else { Face::Regular };
     let ink = if enabled { tok::TEXT } else { tok::FAINT };
     let px = 13.0; // the kit input's size: a select reads like the text fields beside it
     d.text(&format!("{id}_value"), &ui::fit_w(value, px_w - 46.0, px, face), &Txt::new(px, face, ink).w(W::Fill));
-    d.icon(&format!("{id}_chevron"), "b3_chevron_down_dark.svg", 12.0, tok::MUTED);
+    d.icon(&format!("{id}_chevron"), crate::desk::by("b3_chevron_down_dark.svg", "b3_updown.svg"), crate::desk::by(12.0, 13.0), tok::MUTED);
     d.close();
     if enabled {
         d.tap(&id, &format!("b3.onb.select.{}", which.key()));
     }
     d.close();
-    if open {
+    if open && !crate::desk::active() {
         options_list(d, st, which, mono, px_w, Some(list_max));
     }
+    ui::form_close(d);
     d.close();
 }
 
@@ -1026,7 +1138,7 @@ fn options_list(d: &mut Dsl, st: &State, which: Select, mono: bool, px_w: f64, m
         ),
         None => d.view("b3_onb_list_scroll", "width: Fill height: Fit flow: Down"),
     }
-    let face = if mono { Face::Mono } else { Face::Regular };
+    let face = if mono && !crate::desk::active() { Face::Mono } else { Face::Regular };
     for (i, opt) in opts.iter().enumerate() {
         let on = opt.id == chosen;
         let id = format!("b3_onb_opt_{i}");
@@ -1063,6 +1175,51 @@ fn options_list(d: &mut Dsl, st: &State, which: Select, mono: bool, px_w: f64, m
     d.close();
 }
 
+/// A Mac pop-up overlays the form, leaving its size and footer in place.
+fn mac_options_menu(d: &mut Dsl, st: &State, which: Select, frame: &Frame) {
+    d.view("b3_onb_menu_backdrop", "width: Fill height: Fill flow: Overlay");
+    d.tap("b3_onb_menu_close", "b3.onb.menu.close");
+    d.close();
+    let opts = st.options(which);
+    let chosen = st.selected(which);
+    let anchor = st.menu_anchor.unwrap_or(super::board3::seats::Anchor { x: 120.0, y: 120.0, w: 340.0, h: 28.0 });
+    let width = anchor.w.clamp(200.0, 420.0).min((frame.avail_w - 32.0).max(160.0)).floor();
+    let max_h = (frame.avail_h - crate::desk::bar_h() - 48.0).clamp(100.0, 260.0);
+    let wanted_h: f64 = opts.iter().map(|o| if o.detail.is_some() { 44.0 } else { 28.0 }).sum::<f64>() + 8.0;
+    let menu_h = wanted_h.min(max_h);
+    let left = anchor.x.clamp(16.0, (frame.avail_w - width - 16.0).max(16.0)).floor();
+    let top = (anchor.y - 4.0).clamp(crate::desk::bar_h(), (frame.avail_h - menu_h - 16.0).max(crate::desk::bar_h())).floor();
+    d.view("b3_onb_menu", &format!("width: Fill height: Fill flow: Overlay padding: Inset{{left: {left} top: {top}}}"));
+    d.surface("b3_onb_list", &format!("width: {width} height: Fit flow: Down padding: Inset{{left: 4 right: 4 top: 4 bottom: 4}}"), tok::SURFACE, 8.0, Some(tok::HAIRLINE));
+    d.open("b3_onb_list_scroll", "ScrollYView", &format!("width: Fill height: Fit max_height: {} flow: Down", (max_h - 8.0).floor()));
+    for (i, opt) in opts.iter().enumerate() {
+        let id = format!("b3_onb_opt_{i}");
+        let height = if opt.detail.is_some() { 44 } else { 28 };
+        d.surface(&format!("{id}_box"), &format!("width: Fill height: {height} flow: Overlay"), if st.menu_cursor == Some(i) { tok::SURFACE2 } else { tok::TRANSPARENT }, 5.0, None);
+        let row = d.anon();
+        d.view(&row, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4 padding: Inset{left: 6 right: 8 top: 0 bottom: 0}");
+        let check = d.anon();
+        d.view(&check, "width: 18 height: 18 flow: Overlay align: Align{x: 0.5 y: 0.5}");
+        if opt.id == chosen {
+            d.icon(&format!("{id}_check"), "b3_check.svg", 14.0, tok::TEXT);
+        }
+        d.close();
+        let col = d.anon();
+        d.view(&col, "width: Fill height: Fit flow: Down spacing: 1");
+        d.text(&format!("{id}_label"), &ui::fit_w(tr(&opt.label), width - 50.0, 13.0, Face::Regular), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill));
+        if let Some(detail) = &opt.detail {
+            d.text(&format!("{id}_detail"), &ui::fit_w(detail, width - 50.0, 11.5, Face::Regular), &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill));
+        }
+        d.close();
+        d.close();
+        d.tap(&id, &format!("b3.onb.pick#{i}"));
+        d.close();
+    }
+    d.close(); // scroll
+    d.close(); // menu surface
+    d.close(); // positioned overlay
+}
+
 fn note_box(d: &mut Dsl, id: &str) {
     d.surface(id, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 10 right: 10 top: 8 bottom: 8}", tok::SURFACE2, 8.0, None);
 }
@@ -1072,22 +1229,32 @@ fn note_box(d: &mut Dsl, id: &str) {
 /// container, `LaunchDecisionPanel.tsx:33-48`).
 pub fn build(d: &mut Dsl, frame: &Frame) {
     let st = snapshot();
+    let mac = crate::desk::active();
     let width = frame.dialog_w(760.0);
     let compact = frame.compact(width);
     let pad = ui::dialog_pad(frame, width);
     // The body's text width: the card padding and the scroll bar's gutter.
     let inner_w = width - 2.0 * pad - 10.0;
+    if mac {
+        d.view("b3_onb_overlay", "width: Fill height: Fill flow: Overlay");
+    }
     ui::shell_open(d, frame, width);
 
-    // ---- header: eyebrow, title + close, the lead paragraph
-    d.text("b3_onb_eyebrow", tr(EYEBROW), &Txt::new(11.5, Face::Medium, tok::MUTED));
+    // ---- header: eyebrow, title + close, the lead paragraph. A Mac sheet's
+    // title stands alone: no eyebrow over it (E7 5).
+    if !mac {
+        d.text("b3_onb_eyebrow", tr(EYEBROW), &Txt::new(11.5, Face::Medium, tok::MUTED));
+    }
     let row = d.anon();
     d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}");
     d.text("b3_title", tr(TITLE), &ui::title().w(W::Fill).wrap());
     ui::close_glyph(d, "b3.onb.close");
     d.close();
     d.gap(W::Fill, 6.0);
-    d.text("b3_onb_lead", tr(LEAD), &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    // With no form to fill, a desktop doesn't ask for a profile and a model.
+    if st.supported || !crate::desk::active() {
+        d.text("b3_onb_lead", tr(LEAD), &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    }
     d.gap(W::Fill, 12.0);
 
     // The chrome around the body: the header above and the footer below —
@@ -1099,8 +1266,8 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     let notes = form_notes(&st);
     let note_w = inner_w - 10.0 - 20.0 - 22.0;
     let notes_h: f64 = notes.iter().map(|n| 8.0 + n.height(note_w)).sum();
-    let footer = if compact { 12.0 + line_h(12.0) + 8.0 + 36.0 } else { 12.0 + 36.0 };
-    let header = line_h(11.5) + (title_lines * line_h(17.0)).max(28.0) + 6.0 + lead_lines * line_h(13.0) + 12.0;
+    let footer = if crate::desk::active() { 0.0 } else if compact { 12.0 + line_h(12.0) + 8.0 + 36.0 } else { 12.0 + 36.0 };
+    let header = (if mac { 0.0 } else { line_h(11.5) }) + (title_lines * line_h(17.0)).max(28.0) + 6.0 + lead_lines * line_h(13.0) + 12.0;
     // + a margin for the estimate's error, so the card never outgrows the frame.
     let chrome = header + footer + notes_h + 8.0;
     ui::body_open(d, frame, width, chrome);
@@ -1122,7 +1289,9 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
         d.surface("b3_onb_failure", "width: Fill height: Fit flow: Down spacing: 9 padding: Inset{left: 14 right: 14 top: 14 bottom: 14}", tok::SURFACE2, 10.0, Some(tok::HAIRLINE));
         d.text("b3_onb_failure_head", tr(CATALOG_UNAVAILABLE), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
         let why = st.error.clone().unwrap_or_else(|| CATALOG_INVALID.into());
-        d.text("b3_onb_failure_body", tr(&why), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        let why_said = crate::desk::capital(tr(&why)).to_string();
+        let why_said = if crate::desk::active() && why_said.ends_with(|c: char| c.is_ascii_alphanumeric()) { format!("{why_said}.") } else { why_said };
+        d.text("b3_onb_failure_body", &why_said, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
         d.close();
         Foot::Failure
     } else {
@@ -1137,7 +1306,12 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     if footer_kind != Foot::None {
         d.gap(W::Fill, 12.0);
         let foot = d.anon();
-        d.view(&foot, "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{left: 0 right: 10 top: 0 bottom: 0}");
+        // On a desktop the actions sit on the sheet's foot, and a note lines up with the fields.
+        let right = crate::desk::by(10.0, 0.0);
+        d.view(
+            &foot,
+            &format!("width: Fill height: Fit flow: Down spacing: 8 padding: Inset{{left: 0 right: {right} top: 0 bottom: 0}}"),
+        );
         if footer_kind == Foot::Form {
             for note in &notes {
                 note.draw(d);
@@ -1147,6 +1321,12 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
         d.close();
     }
     ui::shell_close(d);
+    if mac {
+        if let Some(which) = st.open_select.filter(|_| !st.busy() && st.catalog.is_some()) {
+            mac_options_menu(d, &st, which, frame);
+        }
+        d.close();
+    }
 }
 
 /// The tallest the error's raw cause grows in the footer before it scrolls
@@ -1188,7 +1368,8 @@ impl Note {
                 d.close();
             }
             Note::Error { lead, cause } => {
-                d.surface(
+                ui::alert_open(
+                    d,
                     "b3_onb_error",
                     "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.0} padding: Inset{left: 10 right: 10 top: 8 bottom: 8}",
                     tok::RED_BG,
@@ -1231,11 +1412,16 @@ fn form_notes(st: &State) -> Vec<Note> {
     }
     let mut out = Vec::new();
     if let Some(created) = &st.created_profile_id {
-        out.push(Note::Recovery(format!(
-            "{} {created} {}",
-            tr("Profile"),
-            tr("exists. A retry only repeats provider test and save.")
-        )));
+        out.push(Note::Recovery(if crate::desk::active() {
+            let name = st.form.profile_name.trim();
+            crate::i18n::tr1("Profile {value0} already exists, so only the provider is tested again.", if name.is_empty() { created } else { name })
+        } else {
+            format!(
+                "{} {created} {}",
+                tr("Profile"),
+                tr("exists. A retry only repeats provider test and save.")
+            )
+        }));
     }
     if let Some(e) = &st.error {
         let lead = st
@@ -1264,8 +1450,19 @@ fn fallback(d: &mut Dsl) {
     d.icon("b3_onb_fallback_icon", "b3_terminal.svg", 16.0, tok::TEXT);
     d.text("b3_onb_fallback_head", tr(FALLBACK_HEAD), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
     d.close();
+    if crate::desk::active() {
+        d.text("b3_onb_fallback_body", tr(FALLBACK_BODY_DESK), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        let line = d.anon();
+        d.view(&line, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5}");
+        d.button("b3_onb_fallback_copy", tr("Copy Setup Command"), "b3.onb.copy_command", Btn::Outline, W::Fit, 28.0);
+        d.close();
+        d.close();
+        return;
+    }
     d.text("b3_onb_fallback_body", tr(FALLBACK_BODY), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     let w = ui::text_w(FALLBACK_COMMAND, 12.0, Face::Mono) + 16.0;
+    let line = d.anon();
+    d.view(&line, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5}");
     d.surface(
         "b3_onb_fallback_cmd_box",
         &format!("width: {} height: 28 flow: Right align: Align{{x: 0.5 y: 0.5}}", w.ceil()),
@@ -1274,6 +1471,7 @@ fn fallback(d: &mut Dsl) {
         Some(tok::HAIRLINE),
     );
     d.text("b3_onb_fallback_cmd", FALLBACK_COMMAND, &Txt::new(12.0, Face::Mono, tok::TEXT));
+    d.close();
     d.close();
     d.close();
 }
@@ -1303,43 +1501,56 @@ fn picker_sheet(d: &mut Dsl, st: &State, which: Select, inner_w: f64) {
 fn form(d: &mut Dsl, st: &State, compact: bool, inner_w: f64, body_max: f64) {
     let busy = st.busy();
     let identity_open = !busy && st.created_profile_id.is_none();
-    if compact && !busy {
+    let mac = crate::desk::active();
+    if compact && !busy && !mac {
         if let Some(which) = st.open_select {
             picker_sheet(d, st, which, inner_w);
             return;
         }
     }
 
+    // A Mac's form takes a line per field, each label beside its control.
+    let stacked = compact || mac;
+    let line_w = if mac { inner_w - FORM_KEY_W - 8.0 } else { inner_w };
     // Profile ID | Profile name (`.profileFields`: 0.72fr / 1.28fr; stacked
     // on a narrow frame, `@media (max-width: 760px)`).
-    let (id_w, name_w) = if compact {
-        (inner_w, inner_w)
+    let (id_w, name_w) = if stacked {
+        (line_w, line_w)
     } else {
         let free = inner_w - 10.0;
         ((free * 0.36).floor(), free - (free * 0.36).floor())
     };
     let grid = d.anon();
-    d.view(&grid, &format!("width: Fill height: Fit flow: {} spacing: 10", if compact { "Down" } else { "Right" }));
-    let (cw_id, cw_name) = if compact { (W::Fill, W::Fill) } else { (W::Px(id_w), W::Px(name_w)) };
+    d.view(&grid, &format!("width: Fill height: Fit flow: {} spacing: {}", if stacked { "Down" } else { "Right" }, crate::desk::by(10, 8)));
+    let (cw_id, cw_name) = if stacked { (W::Fill, W::Fill) } else { (W::Px(id_w), W::Px(name_w)) };
     // Every field value in the code font (the web's `.form input, .form
     // select { font: … var(--dsw-font-family-code) }`).
-    text_field(d, "b3_onb_profile_id", "Profile ID", "onb.profile_id", &st.snap.0, &st.form.profile_id, true, identity_open, cw_id, id_w);
+    if !mac {
+        text_field(d, "b3_onb_profile_id", "Profile ID", "onb.profile_id", &st.snap.0, &st.form.profile_id, true, identity_open, cw_id, id_w);
+    }
     text_field(d, "b3_onb_profile_name", "Profile name", "onb.profile_name", &st.snap.1, &st.form.profile_name, true, identity_open, cw_name, name_w);
     d.close();
 
     // The default checkbox (`OnboardingPanel.tsx:156-164`): the board's blue
     // toggle colour (a checkbox is a toggle; blue only for toggles + links).
     let label_w = ui::text_w(tr(DEFAULT_LABEL), 13.0, Face::Regular);
-    d.view("b3_onb_default_box", &format!("width: {} height: 32 flow: Overlay align: Align{{x: 0.0 y: 0.5}}", (label_w + 22.0 + 8.0 + 4.0).ceil()));
+    if mac {
+        let under = d.anon();
+        d.view(&under, &format!("width: Fill height: Fit padding: Inset{{left: {}}}", FORM_KEY_W + 8.0));
+    }
+    d.view("b3_onb_default_box", &format!("width: {} height: {} flow: Overlay align: Align{{x: 0.0 y: 0.5}}", (label_w + 22.0 + 8.0 + 4.0).ceil(), crate::desk::by(32, 28)));
     let check = d.anon();
     d.view(&check, "width: Fill height: Fill flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5}");
-    d.icon("b3_onb_default_icon", if st.form.make_default { "cv_check_on.svg" } else { "cv_check_off.svg" }, 22.0, tok::BLUE);
+    d.icon("b3_onb_default_icon", if st.form.make_default { "cv_check_on.svg" } else { "cv_check_off.svg" }, crate::desk::by(22.0, 16.0), tok::BLUE);
     d.text("b3_onb_default_label", tr(DEFAULT_LABEL), &Txt::new(13.0, Face::Regular, if identity_open { tok::TEXT } else { tok::FAINT }));
     d.close();
     if identity_open {
         d.tap("b3_onb_default", "b3.onb.default");
     }
     d.close();
+    if mac {
+        d.close();
+    }
 
     // Provider | Model | Route (`.fields`, three columns). The model id is
     // the long value (`claude-3-5-haiku-20241022`), so its column takes 40 %
@@ -1347,17 +1558,18 @@ fn form(d: &mut Dsl, st: &State, compact: bool, inner_w: f64, body_max: f64) {
     let free = inner_w - 20.0;
     let (pw, mw) = ((free * 0.3).floor(), (free * 0.4).floor());
     let rw = free - pw - mw;
-    let (pw, mw, rw) = if compact { (inner_w, inner_w, inner_w) } else { (pw, mw, rw) };
-    let px = |w: f64| if compact { W::Fill } else { W::Px(w) };
+    let (pw, mw, rw) = if stacked { (line_w, line_w, line_w) } else { (pw, mw, rw) };
+    let px = |w: f64| if stacked { W::Fill } else { W::Px(w) };
     // The dropdown stays inside the body: what is above it (the identity
     // row, the checkbox, the select's own label + field) comes off.
     let list_max = (body_max - (59.0 + 12.0 + 32.0 + 12.0 + 59.0 + 6.0) - 14.0).clamp(110.0, 236.0);
     let grid = d.anon();
-    d.view(&grid, &format!("width: Fill height: Fit flow: {} spacing: 10", if compact { "Down" } else { "Right" }));
+    d.view(&grid, &format!("width: Fill height: Fit flow: {} spacing: {}", if stacked { "Down" } else { "Right" }, crate::desk::by(10, 8)));
     let route_label = st.routes().into_iter().find(|r| r.id == st.form.route_id).map(|r| r.label).unwrap_or_else(|| "Official API".into());
     let route_label = tr(&route_label);
-    select_field(d, st, Select::Provider, "Provider", &st.form.family_id, true, !busy, px(pw), pw, list_max);
-    select_field(d, st, Select::Model, "Model", &st.form.model_id, true, !busy, px(mw), mw, list_max);
+    select_field(d, st, Select::Provider, "Provider", &family_word(&st.form.family_id), true, !busy, px(pw), pw, list_max);
+    let model_value = if mac && !st.form.model_id.is_empty() { model_word(&st.form.model_id) } else { st.form.model_id.clone() };
+    select_field(d, st, Select::Model, "Model", &model_value, true, !busy, px(mw), mw, list_max);
     select_field(d, st, Select::Route, "Route", route_label, true, !busy, px(rw), rw, list_max);
     d.close();
 
@@ -1365,14 +1577,15 @@ fn form(d: &mut Dsl, st: &State, compact: bool, inner_w: f64, body_max: f64) {
     if st.requires_key() {
         let col = d.anon();
         d.view(&col, "width: Fill height: Fit flow: Down spacing: 6");
-        ui::field_label(d, "b3_onb_apikey_label", tr("API key"));
+        ui::form_open(d, "b3_onb_apikey_label", tr("API key"), FORM_KEY_W);
         if busy {
             let dots: String = "•".repeat(st.form.api_key.chars().count().clamp(8, 24));
-            disabled_field(d, "b3_onb_apikey", &dots, false, inner_w);
+            disabled_field(d, "b3_onb_apikey", &dots, false, line_w);
         } else {
             d.input_secret("b3_onb_apikey", "onb.api_key", "", 38.0);
         }
-        d.text("b3_onb_apikey_hint", tr(KEY_HINT), &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        d.text("b3_onb_apikey_hint", tr(KEY_HINT), &Txt::new(crate::desk::by(11.5, 11.0), Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        ui::form_close(d);
         d.close();
     } else {
         note_box(d, "b3_onb_keyless");
@@ -1380,11 +1593,12 @@ fn form(d: &mut Dsl, st: &State, compact: bool, inner_w: f64, body_max: f64) {
         let col = d.anon();
         d.view(&col, &format!("width: Fill height: Fit flow: {} spacing: {}", if compact { "Down" } else { "Right" }, if compact { 2 } else { 7 }));
         d.text("b3_onb_keyless_head", tr(KEYLESS_HEAD), &Txt::new(12.5, Face::Medium, tok::TEXT));
-        d.text(
-            "b3_onb_keyless_body",
-            &format!("{} {}", st.form.family_id, tr("is marked keyless by the Core catalog.")),
-            &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
-        );
+        let keyless = if mac {
+            crate::i18n::tr1("{value0} doesn\u{2019}t need an API key.", &family_word(&st.form.family_id))
+        } else {
+            format!("{} {}", st.form.family_id, tr("is marked keyless by the Core catalog."))
+        };
+        d.text("b3_onb_keyless_body", &keyless, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
         d.close();
         d.close();
     }
@@ -1398,7 +1612,53 @@ fn pill_w(label: &str) -> f64 {
 
 /// The actions row (`.launch-actions`): the status on the left, the buttons
 /// on the right (a narrow frame puts the status on its own line).
+fn mac_footer(d: &mut Dsl, st: &State, kind: Foot) {
+    let busy = st.busy();
+    d.foot_begin(ui::Foot::Lead);
+    let off = busy && kind == Foot::Form;
+    d.button("b3_onb_disconnect", tr(DISCONNECT), "b3.onb.disconnect", if off { Btn::OutlineOff } else { Btn::Outline }, W::Fit, 28.0);
+    // What it is doing, while it does it (the idle words stay for the tests).
+    if kind == Foot::Form {
+        if busy {
+            d.raw(&crate::fluid::spinner("b3_onb_spin", 16.0));
+            d.text("b3_onb_status", tr(status(st.phase)), &Txt::new(12.0, Face::Regular, tok::MUTED));
+        } else {
+            d.unseen("b3_onb_status", tr(status(st.phase)));
+        }
+    }
+    d.foot_end();
+    match kind {
+        Foot::Failure => {
+            d.foot_begin(ui::Foot::Default);
+            d.button("b3_onb_retry", tr(RETRY), "b3.onb.retry", Btn::Primary, W::Fit, 28.0);
+            d.foot_end();
+        }
+        Foot::Form => {
+            d.foot_begin(ui::Foot::Default);
+            // The submit's two variants swap by live visibility while the
+            // key is typed (no remount).
+            let label = tr(if busy { WORKING } else { SUBMIT });
+            let w = W::Px(pill_w(tr(SUBMIT)).max(pill_w(tr(WORKING))));
+            let both = d.anon();
+            d.view(&both, &format!("width: {} height: 28 flow: Overlay", w_dsl(w)));
+            d.view("b3_onb_submit_off", "width: Fill height: Fit flow: Right");
+            d.button("b3_onb_submit_disabled", label, "b3.onb.submit", Btn::Disabled, W::Fill, 28.0);
+            d.close();
+            d.view("b3_onb_submit_on", "width: Fill height: Fit flow: Right");
+            d.button("b3_onb_submit", label, "b3.onb.submit", if busy { Btn::Disabled } else { Btn::Primary }, W::Fill, 28.0);
+            d.close();
+            d.close();
+            d.foot_end();
+        }
+        Foot::Fallback | Foot::None => {}
+    }
+}
+
 fn footer_row(d: &mut Dsl, st: &State, kind: Foot, compact: bool) {
+    if crate::desk::active() {
+        mac_footer(d, st, kind);
+        return;
+    }
     let busy = st.busy();
     let row = d.anon();
     d.view(
@@ -1449,6 +1709,15 @@ fn footer_row(d: &mut Dsl, st: &State, kind: Foot, compact: bool) {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn a_profile_id_comes_from_its_name() {
+        assert_eq!(profile_slug("Coding"), "coding");
+        assert_eq!(profile_slug("  My Work  "), "my-work");
+        assert_eq!(profile_slug("A/B  test!"), "a-b-test");
+        assert_eq!(profile_slug("工作"), "profile");
+        assert_eq!(profile_slug("Team 2 — Review"), "team-2-review");
+    }
 
     /// The web's own unit-test catalog (`use-onboarding.test.ts:10-31`).
     fn web_catalog() -> LlmCatalogResult {

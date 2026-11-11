@@ -88,7 +88,8 @@ impl Tok {
         use crate::screens::theme::Look;
         match look {
             Look::Light => self.color(false),
-            Look::Dark => self.color(true),
+            Look::Dark | Look::Mac(true) => self.color(true),
+            Look::Mac(false) => self.color(false),
             Look::Named(p) => match p.named() {
                 None => self.color(false),
                 Some(c) => match self {

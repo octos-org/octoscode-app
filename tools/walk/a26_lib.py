@@ -30,6 +30,8 @@ SURFACE = {
     "slate": "#141923",
     "solarized": "#002b36",
 }
+# A desktop's dark content (desk.rs `Tokens::of`); its other looks keep the surface above.
+MAC_CONTENT = {"dark": "#1e1e1e"}
 PALETTES = ["system", "light", "dark", "codex", "claude", "slate", "solarized"]
 LABELS = {"system": "System", "light": "Light", "dark": "Dark", "codex": "Codex", "claude": "Claude", "slate": "Slate", "solarized": "Solarized"}
 
@@ -107,14 +109,16 @@ def conversation_spot(w: a10_lib.Walk, sn=None):
 
 def draws_look(w: a10_lib.Walk, look: str):
     """(ok, detail): the window's own background — the sidebar's empty area
-    on a desktop, the conversation's gutter on a phone — is the look's
-    surface."""
+    on a phone's open drawer, else the conversation's gutter — is the look's
+    surface. A Mac's sidebar is its own material: a desktop reads the gutter,
+    in the Mac look's content colour."""
     sn = w.snap()
-    spot = sidebar_spot(w, sn) or conversation_spot(w, sn)
+    mac = w.mode != "phone"
+    spot = conversation_spot(w, sn) if mac else (sidebar_spot(w, sn) or conversation_spot(w, sn))
     if not spot:
         return False, "neither the sidebar nor the conversation is on screen"
     got = pixel(w, *spot)
-    want = hex_rgb(SURFACE[look])
+    want = hex_rgb(MAC_CONTENT.get(look, SURFACE[look]) if mac else SURFACE[look])
     return (got is not None and near(got, want)), f"pixel {got} at {tuple(round(v) for v in spot)} vs {look} {want}"
 
 
@@ -139,6 +143,21 @@ def open_preferences(w: a10_lib.Walk) -> bool:
     if not w.click(nav):
         return False
     return w.wait(lambda: w.text("set_title") == "Preferences", 6)
+
+
+def set_look(w: a10_lib.Walk, p: str) -> bool:
+    """A Mac's appearance lives in Settings > Preferences; it applies and stays."""
+    if not (open_settings_from_footer(w) and open_preferences(w)):
+        return False
+    w.click(f"pal_{p}")
+
+    def on() -> bool:
+        sn = w.snap()
+        row = w.rect(f"pal_{p}", sn=sn)
+        return bool(row and any(x.get("i") == "rd_on" and w.shown(x) and inside(x["r"], row) for x in sn))
+
+    ok = w.wait(on, 6)
+    return close_settings(w) and ok
 
 
 def close_settings(w: a10_lib.Walk) -> bool:

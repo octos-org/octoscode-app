@@ -710,21 +710,32 @@ pub fn permission_name(
     format!("{} · {}", tr(m), tr(n))
 }
 
+/// What the server reports for the active Session, in a line; `None` before
+/// it has.
+pub fn permission_summary(store: &Store) -> Option<String> {
+    let sel = store.domains.profile.permission()?;
+    let approval = match approval_of(store, snapshot().permission) {
+        Some(Approval::Never) => "never asks",
+        _ => "asks on request",
+    };
+    Some(format!("{} · {}", permission_name(sel.mode, sel.network), tr(approval)))
+}
+
 /// Settings > Permissions' readback: what the server reports for the active
 /// Session — its selection in the seat's words and its approval policy
 /// (the web's "Approval policy: <stamp>", `permissions-section.tsx:54-62`).
 pub fn permission_readback(store: &Store) -> String {
     let Some(sel) = store.domains.profile.permission() else {
-        return tr("Server: permissions not reported yet").to_owned();
+        return crate::desk::on_host(tr("Server: permissions not reported yet").to_owned());
     };
     let approval = match approval_of(store, snapshot().permission) {
         Some(Approval::Never) => "never asks",
         _ => "asks on request",
     };
-    tr_with(
+    crate::desk::on_host(tr_with(
         "Server: {value0} · {value1}",
         &[("value0", &permission_name(sel.mode, sel.network)), ("value1", tr(approval))],
-    )
+    ))
 }
 
 /// The current model's display name: the profile's selected configured model

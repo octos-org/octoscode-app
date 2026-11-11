@@ -231,7 +231,8 @@ def walk():
     check("app up against the recorded history", start_app())
     check("startup: the Session's history is on screen without a click", wait(history_on_screen, 15))
     s = snap()
-    cards = [t for i, t in texts(s) if i.endswith("_toolcell_title")]
+    # A desktop writes a tool's name in words ("Peer handoff").
+    cards = [t if PHONE else t.lower().replace(" ", "_") for i, t in texts(s) if i.endswith("_toolcell_title")]
     check("startup: tool rows are the replayed cards, named", "peer_handoff" in cards and "peer_list" in cards, str(cards))
     # (A26's sidebar footer has a theme row whose label reads "System" —
     # `sb_theme_label` — which is not a tool notice: the check is the

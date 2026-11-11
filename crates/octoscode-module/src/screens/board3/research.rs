@@ -159,6 +159,15 @@ pub struct ResearchState {
     pub form_gen: u64,
     /// A turn runs (the host reports it): part of the Profile lock.
     pub turn_busy: bool,
+    /// On a desktop the form has the sheet to itself: this says it is up.
+    pub adding: bool,
+    /// A Mac's list: the selected lane (else the first).
+    pub selected: Option<usize>,
+}
+
+/// A Mac's list selection: the chosen lane, else the first.
+fn selection(st: &ResearchState, rows: usize) -> Option<usize> {
+    ui::selection_of(st.selected, None, rows)
 }
 
 /// The masked credential: (live text, the text the DSL re-seeds a remount
@@ -225,6 +234,33 @@ pub fn perform(st: &mut ResearchState, action: &str, index: usize, store: &Store
     let lanes = store.domains.profile.sub_providers();
     let lock = locked(st, store);
     let free = !st.busy;
+    // A Mac's list: a press selects, a second press edits; the arrows move the
+    // selection; the foot's buttons and the lane's menu act on it.
+    match action {
+        "b3.research.select" => {
+            if index >= lanes.len() {
+                return Outcome::Done;
+            }
+            let double = ui::second_click("research", index);
+            st.selected = Some(index);
+            return if double { perform(st, "b3.research.edit", index, store) } else { Outcome::Done };
+        }
+        "b3.research.up" | "b3.research.down" => {
+            let step = if action == "b3.research.up" { -1 } else { 1 };
+            st.selected = ui::step_selection(selection(st, lanes.len()), step, lanes.len());
+            if let Some(i) = st.selected {
+                super::host::set_pending_reveal(format!("b3_research_lane_{i}"));
+            }
+            return Outcome::Done;
+        }
+        "b3.research.edit_sel" | "b3.research.remove_sel" => {
+            let Some(i) = selection(st, lanes.len()) else { return Outcome::Done };
+            st.selected = Some(i);
+            return perform(st, action.trim_end_matches("_sel"), i, store);
+        }
+        "b3.research.edit" | "b3.research.remove" if index < lanes.len() => st.selected = Some(index),
+        _ => {}
+    }
     match action {
         "b3.research.refresh" if free && !st.pending => Outcome::Spawn(Job::ResearchLoad(st.generation)),
         "b3.research.edit" if free && !lock && has(store, SubProvidersUpsert::NAME) => {
@@ -234,7 +270,26 @@ pub fn perform(st: &mut ResearchState, action: &str, index: usize, store: &Store
                 st.snap = st.draft.clone();
                 st.confirm = None;
                 st.form_gen += 1;
+                st.adding = true;
             }
+            Outcome::Done
+        }
+        "b3.research.add" if free && !lock && has(store, SubProvidersUpsert::NAME) => {
+            clear_credential();
+            st.draft = Draft::default();
+            st.snap = Draft::default();
+            st.confirm = None;
+            st.form_gen += 1;
+            st.adding = true;
+            Outcome::Done
+        }
+        "b3.research.list" if free => {
+            clear_credential();
+            st.draft = Draft::default();
+            st.snap = Draft::default();
+            st.confirm = None;
+            st.form_gen += 1;
+            st.adding = false;
             Outcome::Done
         }
         "b3.research.remove" if free && !lock && has(store, SubProvidersRemove::NAME) => {
@@ -481,6 +536,7 @@ pub async fn mutate(conv: &crate::flow::Conversation, generation: u64, confirm: 
             finish(generation, |s| {
                 s.loaded = true;
                 s.notice = Some(notice.to_owned());
+                s.adding = false;
             });
             Ok(notice.into())
         }
@@ -577,8 +633,17 @@ fn pills_open(d: &mut Dsl, fits: bool) {
     }
 }
 
+/// A Mac form's label column here: the lane form's longest label.
+const FORM_KEY_W: f64 = 150.0;
+
 /// A labelled one-line input.
 fn field(d: &mut Dsl, id: &str, key: &str, label: &str, value: &str, w: W) {
+    if crate::desk::active() {
+        ui::form_open(d, &format!("{id}_caption"), label, FORM_KEY_W);
+        d.input(id, key, value, "", false, 36.0);
+        ui::form_close(d);
+        return;
+    }
     let col = d.anon();
     d.view(&col, &format!("width: {} height: Fit flow: Down spacing: 6", walk_w(w)));
     caption(d, id, label);
@@ -592,13 +657,20 @@ fn field(d: &mut Dsl, id: &str, key: &str, label: &str, value: &str, w: W) {
 fn masked_field(d: &mut Dsl, id: &str, key: &str, label: &str, value: &str) {
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 6");
-    caption(d, id, label);
+    if crate::desk::active() {
+        ui::form_open(d, &format!("{id}_caption"), label, FORM_KEY_W);
+    } else {
+        caption(d, id, label);
+    }
     d.inputs.push((id.to_owned(), key.to_owned()));
     d.surface(
         &format!("{id}_field"),
-        "width: Fill height: 36 flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 10 right: 10 top: 0 bottom: 0}",
+        crate::desk::by(
+            "width: Fill height: 36 flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 10 right: 10 top: 0 bottom: 0}",
+            "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 10 right: 10 top: 0 bottom: 0}",
+        ),
         tok::SURFACE,
-        8.0,
+        crate::desk::by(8.0, 6.0),
         Some("#d9d9dcff"),
     );
     let props = format!(
@@ -611,14 +683,15 @@ fn masked_field(d: &mut Dsl, id: &str, key: &str, label: &str, value: &str) {
     d.open(id, "TextInput", &props);
     d.close();
     d.close();
+    ui::form_close(d);
     d.close();
 }
 
 /// Two fields side by side (stacked on a phone-narrow frame).
 fn pair(d: &mut Dsl, compact: bool, a: (&str, &str, &str, &str), b: (&str, &str, &str, &str)) {
     let row = d.anon();
-    let flow = if compact { "Down" } else { "Right" };
-    d.view(&row, &format!("width: Fill height: Fit flow: {flow} spacing: 10"));
+    let flow = if compact || crate::desk::active() { "Down" } else { "Right" };
+    d.view(&row, &format!("width: Fill height: Fit flow: {flow} spacing: {}", crate::desk::by(10, 8)));
     field(d, a.0, a.1, a.2, a.3, W::Fill);
     field(d, b.0, b.1, b.2, b.3, W::Fill);
     d.close();
@@ -626,6 +699,57 @@ fn pair(d: &mut Dsl, compact: bool, a: (&str, &str, &str, &str), b: (&str, &str,
 
 fn status(d: &mut Dsl, id: &str, text: &str, color: &'static str) {
     d.text(id, text, &Txt::new(12.5, Face::Regular, color).w(W::Fill).wrap());
+}
+
+/// A desktop's row for one model: its name and route. A press selects it (the
+/// gray band); its right-click menu holds what the foot does to the selection.
+#[allow(clippy::too_many_arguments)]
+fn desk_lane(d: &mut Dsl, st: &ResearchState, i: usize, l: &SubProvider, inner_w: f64, can: (bool, bool), lock: bool, selected: bool) {
+    let id = format!("b3_research_lane_{i}");
+    let free = !(st.busy || lock);
+    let mut menu = Vec::new();
+    if can.0 && free {
+        menu.push((ui::menu_word("Edit…"), format!("b3.research.edit#{i}")));
+    }
+    if can.1 && free {
+        if !menu.is_empty() {
+            menu.push(("-".to_owned(), String::new()));
+        }
+        menu.push((ui::menu_word("Remove…"), format!("b3.research.remove#{i}")));
+    }
+    if !menu.is_empty() {
+        d.menu_open(&format!("{id}_menu"), &menu);
+    }
+    let mark = d.mark();
+    d.view(&format!("{id}_hit"), "width: Fill height: Fit flow: Overlay");
+    let band = ui::selection_fill();
+    d.surface(
+        &id,
+        "width: Fill height: Fit flow: Down spacing: 3 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}",
+        if selected { band.as_str() } else { tok::SURFACE },
+        8.0,
+        Some(tok::HAIRLINE),
+    );
+    d.text(&format!("{id}_key"), &ui::fit_w(&l.key, inner_w, 13.0, Face::Semibold), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    let model = l.model.as_deref().map(crate::desk::model_word).unwrap_or_else(|| tr("Model not specified").into());
+    d.text(
+        &format!("{id}_route"),
+        &ui::fit_w(&format!("{} · {model}", crate::screens::models::family_label(&l.provider)), inner_w, 12.0, Face::Regular),
+        &ui::meta().w(W::Fill),
+    );
+    if let Some(desc) = l.description.as_deref().filter(|s| !s.is_empty()) {
+        d.text(&format!("{id}_desc"), desc, &ui::meta().w(W::Fill).wrap());
+    }
+    d.close();
+    d.tap(&format!("{id}_tap"), &format!("b3.research.select#{i}"));
+    d.close(); // the hit area
+    if selected {
+        d.accent_since(mark);
+    }
+    if !menu.is_empty() {
+        d.close(); // the menu
+    }
+    d.gap(W::Fill, 4.0);
 }
 
 pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
@@ -637,26 +761,55 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
     let (can_upsert, can_remove) = (has(store, SubProvidersUpsert::NAME), has(store, SubProvidersRemove::NAME));
     let lock = locked(st, store);
     let profile = store.domains.profile.current().unwrap_or_default();
+    let desk = crate::desk::active();
+    // A Mac asks before removing on an alert sheet of its own, in place of the list's.
+    if let (true, Some(Confirm::Remove(k))) = (desk, &st.confirm) {
+        // A Mac's alert (E7 1): the app's icon, the question, the lane and what it changes.
+        ui::mac_alert_open(d, "b3_research_confirm_mark");
+        let body = crate::i18n::tr1(
+            "This changes Profile {value0}. The server says afterward if it needs a restart. To get a removed model back, add it again.",
+            profile.as_str(),
+        );
+        ui::alert_words(
+            d,
+            ("b3_research_confirm_title", tr("Confirm lane removal")),
+            &[("b3_research_confirm_detail", k.as_str()), ("b3_research_confirm_body", body.as_str())],
+        );
+        let armed = !(st.busy || lock);
+        ui::alert_buttons(
+            d,
+            &[
+                ui::AlertButton::new("b3_research_confirm_go", tr("Remove"), "b3.research.confirm", if armed { Btn::Outline } else { Btn::Disabled }).red(),
+                ui::AlertButton::new("b3_research_cancel", "Cancel", "b3.research.cancel", Btn::Primary),
+            ],
+        );
+        ui::shell_close(d);
+        return;
+    }
+    // A desktop's sheet is the list, or the form with its fields in view.
+    let on_form = desk && st.adding;
     ui::shell_open(d, frame, width);
     // Header: the title, "Refresh lanes" (disabled while busy), and the close
     // glyph (inert while a mutation holds the lease, `:198-203`).
     let row = d.anon();
     d.view(&row, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4");
-    d.text("b3_title", tr("Research provider lanes"), &ui::title().w(W::Fill));
+    d.text("b3_title", tr(if on_form { "Add or replace a lane" } else { "Research provider lanes" }), &ui::title().w(W::Fill));
     if st.busy {
         d.view("b3_research_refresh_box", "width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}");
         d.icon("b3_research_refresh_icon", "b3_refresh.svg", 16.0, tok::FAINT);
         d.close();
-    } else {
+    } else if !on_form {
         ui::icon_button(d, "b3_research_refresh", "b3_refresh.svg", 16.0, "b3.research.refresh");
     }
-    ui::close_glyph(d, if st.mutating { "b3.noop" } else { "b3.close" });
+    ui::close_glyph(d, if st.mutating { "b3.noop" } else if on_form { "b3.research.list" } else { "b3.close" });
     d.close();
     d.text("b3_research_scope", &format!("{} {profile}", tr("Server Profile:")), &ui::micro().w(W::Fill));
     d.gap(W::Fill, 10.0);
     ui::body_open(d, frame, width, 60.0);
-    d.text("b3_research_intro", tr(INTRO), &ui::meta().w(W::Fill).wrap());
-    d.gap(W::Fill, 6.0);
+    if !on_form {
+        d.text("b3_research_intro", tr(INTRO), &ui::meta().w(W::Fill).wrap());
+        d.gap(W::Fill, 6.0);
+    }
     if lock || st.busy || st.error.is_some() || st.notice.is_some() {
         d.view("b3_research_status", "width: Fill height: Fit flow: Down spacing: 6 padding: Inset{bottom: 4}");
         if lock {
@@ -672,7 +825,7 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
             if e == MUTATION_FAILED {
                 status(d, "b3_research_error", tr(e), tok::RED_TEXT);
             } else {
-                ui::failure(d, "b3_research_error", LOAD_FAILED, e);
+                ui::failure_state(d, "b3_research_error", LOAD_FAILED, e, ("b3_research_retry", "b3.research.refresh"));
             }
         }
         if let Some(n) = &st.notice {
@@ -687,9 +840,9 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
         d.surface(
             "b3_research_confirm",
             "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}",
-            tok::AMBER_BG,
+            crate::desk::by(tok::AMBER_BG, tok::SURFACE),
             12.0,
-            Some(tok::AMBER_LINE),
+            Some(crate::desk::by(tok::AMBER_LINE, tok::HAIRLINE)),
         );
         let (title, detail, go) = match c {
             Confirm::Save(dr) => (
@@ -714,13 +867,20 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
         d.text(
             "b3_research_confirm_body",
             // The web composes it around the Profile (ResearchDialog.tsx).
-            &format!(
-                "{} {profile}{}",
-                tr("This changes server Profile"),
-                tr(". The response will report whether a restart is required. Removing a lane requires re-adding its configuration to recover it.")
-            ),
+            &if crate::desk::active() {
+                crate::i18n::tr1("This changes Profile {value0}. The server says afterward if it needs a restart. To get a removed model back, add it again.", profile.as_str())
+            } else {
+                format!(
+                    "{} {profile}{}",
+                    tr("This changes server Profile"),
+                    tr(". The response will report whether a restart is required. Removing a lane requires re-adding its configuration to recover it.")
+                )
+            },
             &ui::meta().w(W::Fill).wrap(),
         );
+        if crate::desk::active() && matches!(st.confirm, Some(Confirm::Remove(_))) {
+            ui::destructive_row(d, ("b3_research_cancel", "b3.research.cancel"), ("b3_research_confirm_go", tr("Remove"), "b3.research.confirm"), !(st.busy || lock));
+        } else {
         let cancel = if st.busy { Btn::OutlineOff } else { Btn::Outline };
         let ok = if st.busy || lock { Btn::Disabled } else { Btn::Primary };
         let fits = pill_w(tr("Cancel lane change")) + 8.0 + pill_w(go) <= inner_w;
@@ -734,14 +894,21 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
             d.button("b3_research_cancel", tr("Cancel lane change"), "b3.research.cancel", cancel, W::Fill, 36.0);
         }
         d.close();
+        }
         d.close();
     }
     d.gap(W::Fill, 8.0);
     // The lanes (`:229-279`), once this generation's list arrived.
-    if st.loaded && lanes.is_empty() {
+    if st.loaded && lanes.is_empty() && !on_form {
         d.text("b3_research_empty", tr(EMPTY), &ui::meta().w(W::Fill));
     }
-    if st.loaded {
+    let sel = if desk && st.loaded { selection(st, lanes.len()) } else { None };
+    if st.loaded && desk && !on_form {
+        for (i, l) in lanes.iter().enumerate() {
+            desk_lane(d, st, i, l, inner_w, (can_upsert, can_remove), lock, sel == Some(i));
+        }
+    }
+    if st.loaded && !desk {
         for (i, l) in lanes.iter().enumerate() {
             let id = format!("b3_research_lane_{i}");
             ui::card_open(d, &id, 5.0);
@@ -765,7 +932,11 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
                 d.gap(W::Fill, 2.0);
                 let kind = if st.busy || lock { Btn::OutlineOff } else { Btn::Outline };
                 let short = ui::fit_w(&l.key, 140.0, 13.0, Face::Medium);
-                let (edit, remove) = (tr1("Edit {value0}", &short), tr1("Remove {value0}", &short));
+                let (edit, remove) = if crate::desk::active() {
+                    (tr("Edit").to_owned(), format!("{}\u{2026}", tr("Remove")))
+                } else {
+                    (tr1("Edit {value0}", &short), tr1("Remove {value0}", &short))
+                };
                 let fits = pill_w(&edit) + 8.0 + pill_w(&remove) <= inner_w;
                 let acts = d.anon();
                 if fits {
@@ -786,10 +957,30 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
             d.gap(W::Fill, 4.0);
         }
     }
+    if desk && !on_form {
+        // A Mac's foot: a new lane, then what can be done to the selected one.
+        let kind = |on: bool| if on && !(st.busy || lock) { Btn::Outline } else { Btn::OutlineOff };
+        if can_upsert || can_remove {
+            d.foot_begin(ui::Foot::Lead);
+            if can_upsert {
+                d.button("b3_research_add", tr("Add Model\u{2026}"), "b3.research.add", kind(true), W::Fit, 28.0);
+                d.button("b3_research_edit", tr("Edit…"), "b3.research.edit_sel", kind(sel.is_some()), W::Fit, 28.0);
+            }
+            if can_remove {
+                d.button("b3_research_remove", tr("Remove…"), "b3.research.remove_sel", kind(sel.is_some()), W::Fit, 28.0);
+            }
+            d.foot_end();
+        }
+        ui::body_close(d);
+        ui::shell_close(d);
+        return;
+    }
     // Add or replace a lane (`:280-347`).
     if can_upsert {
         d.gap(W::Fill, 8.0);
-        ui::section_title(d, "b3_research_form_title", tr("Add or replace a lane"));
+        if !on_form {
+            ui::section_title(d, "b3_research_form_title", tr("Add or replace a lane"));
+        }
         d.text("b3_research_form_help", tr(HELP), &ui::meta().w(W::Fill).wrap());
         d.gap(W::Fill, 6.0);
         let form = format!("b3_research_form_{}", st.form_gen);
@@ -836,6 +1027,25 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
         let armed = if held || lock { Btn::Disabled } else { Btn::Primary };
         let fits = pill_w(tr("Clear lane draft")) + 8.0 + pill_w(tr("Review lane save")) <= inner_w;
         let h = if fits { 34.0 } else { 36.0 };
+        if crate::desk::active() {
+            // A Mac sheet's foot: the draft's Clear at the leading edge, the
+            // one default action last.
+            d.foot_begin(ui::Foot::Lead);
+            d.button("b3_research_clear", tr("Clear lane draft"), "b3.research.clear", clear, W::Fit, 28.0);
+            d.foot_end();
+            d.foot_begin(ui::Foot::Default);
+            d.view("b3_research_review_off", "width: Fit height: Fit flow: Right");
+            d.button("b3_research_review_disabled", tr("Review lane save"), "b3.research.review", Btn::Disabled, W::Fit, 28.0);
+            d.close();
+            d.view("b3_research_review_on", "width: Fit height: Fit flow: Right");
+            d.button("b3_research_review", tr("Review lane save"), "b3.research.review", armed, W::Fit, 28.0);
+            d.close();
+            d.foot_end();
+            d.close();
+            ui::body_close(d);
+            ui::shell_close(d);
+            return;
+        }
         d.gap(W::Fill, 2.0);
         pills_open(d, fits);
         if fits {

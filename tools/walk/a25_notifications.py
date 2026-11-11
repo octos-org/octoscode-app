@@ -198,7 +198,7 @@ def ux_checks(w: a10_lib.Walk, state: str) -> dict:
     c["control inside row"] = bool(r and control and inside(control, r))
     c["control flush right"] = bool(r and control and abs((control[0] + control[2]) - (r[0] + r[2])) <= 1.5)
     c["message inside row"] = bool(r and message and inside(message, r))
-    c["message clear of the control column"] = bool(r and message and message[0] + message[2] <= r[0] + r[2] - 64 + 1.5)
+    c["message clear of the control column"] = bool(r and message and message[0] + message[2] <= r[0] + r[2] - (64 if w.mode == "phone" else 44) + 1.5)
     c["title/control no overlap"] = bool(title and control and not overlap(title["r"], control))
     c["message/control no overlap"] = bool(message and control and not overlap(message, control))
     c["left edge = Theme row"] = bool(title and theme and abs(title["r"][0] - theme["r"][0]) <= 1.0)
@@ -257,6 +257,13 @@ def phase_real(w: a10_lib.Walk) -> None:
     w.check("real: the platform layer reported this process unavailable",
             bool(log.since(0, "attention: os Authorization { status: Unavailable, requested: false")),
             "macOS UNUserNotificationCenter needs an .app bundle")
+    if w.mode != "phone":
+        # A Mac's Settings doesn't list what this process can't do.
+        w.click("settings_open_hit")
+        w.check("real: Settings > General opens and leaves out the row this binary can't use",
+                w.wait(lambda: bool(w.visible("settings_drawer")), 8) and not w.visible("notify_row"))
+        close_settings(w)
+        return
     if not w.check("real: Settings > General shows the Desktop notifications row", open_settings(w)):
         return
     w.wait(lambda: row(w)["state"] == "Unavailable", 4)

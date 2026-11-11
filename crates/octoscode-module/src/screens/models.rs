@@ -161,6 +161,7 @@ fn usage_line(estimate: Option<u64>, window: Option<u64>) -> String {
     }
     match (estimate, window) {
         (Some(e), Some(w)) if w > 0 => crate::i18n::tr_with("{value0} of {value1} tokens", &[("value0", &k(e)), ("value1", &k(w))]),
+        (Some(1), _) if crate::desk::active() => crate::i18n::tr1("{value0} token", "1"),
         (Some(e), _) => crate::i18n::tr1("{value0} tokens", &k(e)),
         _ => "—".to_owned(),
     }
@@ -178,7 +179,7 @@ fn pct_line(estimate: Option<u64>, window: Option<u64>) -> String {
 /// The web's family display label — `familyLabel`
 /// (`model-management-projection.ts:207-215`): a known-id map with a
 /// `titleCase` fallback, NOT the raw id.
-fn family_label(id: &str) -> String {
+pub fn family_label(id: &str) -> String {
     match id {
         "zai" => "Z.AI".to_owned(),
         "zai-coding" => "Z.AI Coding Plan".to_owned(),
@@ -191,23 +192,29 @@ fn family_label(id: &str) -> String {
 }
 
 fn title_case(id: &str) -> String {
-    id.split('-')
-        .map(|part| {
-            let mut c = part.chars();
-            match c.next() {
-                Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
-                None => String::new(),
-            }
-        })
-        .collect::<Vec<_>>()
-        .join(" ")
+    crate::desk::brand_case(
+        id.split('-')
+            .map(|part| {
+                let mut c = part.chars();
+                match c.next() {
+                    Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+                    None => String::new(),
+                }
+            })
+            .collect::<Vec<_>>()
+            .join(" "),
+    )
 }
 
 /// One provider card head: `"{display label} • {route}"` (the web renders the
 /// family label next to the route; the authored head reads
 /// "DeepSeek • Official API").
 pub(crate) fn provider_head(m: &ProfileLlmModel) -> String {
-    format!("{} • {}", family_label(&m.provider), m.route.as_deref().unwrap_or(crate::i18n::tr("default route")))
+    let route = m.route.as_deref().unwrap_or(crate::i18n::tr("default route"));
+    if crate::desk::active() {
+        return format!("{} · {}", family_label(&m.provider), crate::desk::capital(route));
+    }
+    format!("{} • {}", family_label(&m.provider), route)
 }
 
 pub(crate) fn provider_count(models: &[&ProfileLlmModel]) -> String {
@@ -218,11 +225,13 @@ pub(crate) fn provider_count(models: &[&ProfileLlmModel]) -> String {
 /// A model row: `"{model} (default)"` marks the selected route — the atlas
 /// `t_flash "deepseek-v4-flash (default)"` (`ProfileLlmModel.selected`).
 pub(crate) fn model_row(m: &ProfileLlmModel) -> String {
+    // A desktop names a model as the profile lists it, as the composer does.
+    let name = if crate::desk::active() && !m.title.is_empty() { &m.title } else { &m.model };
     if m.selected {
         // zh: "{model}（默认）" — a full-width bracket carries its own space.
-        crate::i18n::tr1("{value0} (default)", &m.model)
+        crate::i18n::tr1("{value0} (default)", name)
     } else {
-        m.model.clone()
+        name.clone()
     }
 }
 
@@ -668,6 +677,18 @@ pub fn invalidate_resources(store: &Store) {
     store.domains.profile.set_llm_models(Vec::new());
 }
 
+/// A model id as people read it: its title when the profile lists it.
+pub fn model_name(store: &Store, id: &str) -> String {
+    store
+        .domains
+        .profile
+        .llm_models()
+        .into_iter()
+        .find(|m| m.model == id && !m.title.is_empty())
+        .map(|m| m.title)
+        .unwrap_or_else(|| if crate::desk::active() { crate::desk::model_word(id) } else { id.to_owned() })
+}
+
 // --------------------------------------------------------------------- refresh
 
 /// Pull the three profile reads and fold them into the store — the web's
@@ -698,6 +719,8 @@ pub async fn refresh(conv: &Conversation, store: &Store) -> Result<usize, String
         let mut params = json!({ "profile_id": profile });
         let effective = method == "profile/skills/list" && store.domains.config.supported_features().iter().any(|f| f == "skills.effective_catalog.v1");
         if effective { params["session_id"] = json!(session); }
+        // The shell's port answers this read only for one of the app's own sessions.
+        if method == "profile/llm/list" && conv.is_hosted() && crate::desk::active() { params["session_id"] = json!(session); }
         let result = client.request(method, params).await;
         if conv.resource_identity() != identity { return Err("Session changed; stale resource reply discarded".into()); }
         match result {
@@ -734,7 +757,11 @@ fn model_row_from(obj: &Value, selected: bool) -> Option<ProfileLlmModel> {
             .or_else(|| r.get("route_id").and_then(|v| v.as_str()).map(str::to_owned))
     });
     Some(ProfileLlmModel {
-        title: model.clone(),
+        title: if crate::desk::active() {
+            crate::desk::model_title(obj.get("title").and_then(|v| v.as_str()).unwrap_or(""), &model)
+        } else {
+            model.clone()
+        },
         family: Some(provider.clone()),
         model,
         provider,
@@ -746,13 +773,20 @@ fn model_row_from(obj: &Value, selected: bool) -> Option<ProfileLlmModel> {
 
 pub fn fold_llm_list(v: Value, store: &Store) {
     let mut rows: Vec<ProfileLlmModel> = Vec::new();
-    if let Some(m) = v.get("primary").and_then(|p| model_row_from(p, true)) {
-        rows.push(m);
+    // A list for a session (what a hosted window asks for): whole rows, the
+    // selected one marked, the shape the model menu reads too.
+    if let Some(listed) = v.get("models").and_then(|m| m.as_array()).filter(|_| crate::desk::active()) {
+        rows.extend(listed.iter().filter_map(super::board3::seats::model_from));
     }
-    if let Some(fallbacks) = v.get("fallbacks").and_then(|f| f.as_array()) {
-        for f in fallbacks {
-            if let Some(m) = model_row_from(f, false) {
-                rows.push(m);
+    if rows.is_empty() {
+        if let Some(m) = v.get("primary").and_then(|p| model_row_from(p, true)) {
+            rows.push(m);
+        }
+        if let Some(fallbacks) = v.get("fallbacks").and_then(|f| f.as_array()) {
+            for f in fallbacks {
+                if let Some(m) = model_row_from(f, false) {
+                    rows.push(m);
+                }
             }
         }
     }

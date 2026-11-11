@@ -78,11 +78,22 @@ pub fn routes(action: &str) -> bool {
 /// workspace header (36 px, `SbGroupTpl`) and TWO session rows (32 px each,
 /// `SbRowTpl`) — a waiting card never squeezes the tree to its header.
 const TREE_MIN: f64 = 36.0 + 2.0 * 32.0;
+/// A desktop's rows are 28 points: its header and three whole rows.
+fn tree_min() -> f64 {
+    crate::desk::by(TREE_MIN, 28.0 + 3.0 * 28.4)
+}
 /// Fixed metrics (logical px) — the session tree's own (`chrome.rs`
 /// `SbRowTpl`: rows padded 6 left / 8 right, a 16 px glyph box, 6 px gaps).
 const HEAD_H: f64 = 28.0;
 const ROW_H: f64 = 40.0;
 const RULE_BLOCK: f64 = 9.0;
+/// What a desktop's sidebar spends around the rows, for the tree above them.
+fn head_h() -> f64 {
+    crate::desk::by(HEAD_H, 28.0)
+}
+fn rule_block() -> f64 {
+    crate::desk::by(RULE_BLOCK, 5.0)
+}
 const PAD_L: f64 = 6.0;
 const PAD_R: f64 = 8.0;
 const GLYPH: f64 = 16.0;
@@ -98,6 +109,24 @@ const CARD_GAP: f64 = 4.0;
 const BTN_H: f64 = 30.0;
 const BTN_PX: f64 = 12.0;
 const BTN_PAD: f64 = 10.0;
+
+/// The Mac's card in a 220-point sidebar: no inset, so the three push buttons
+/// keep one line at the Mac's 28 points, with a 12-point word.
+fn card_inset() -> f64 {
+    crate::desk::by(CARD_INSET, 0.0)
+}
+fn card_pad_x() -> f64 {
+    crate::desk::by(CARD_PAD_X, 8.0)
+}
+fn btn_h() -> f64 {
+    crate::desk::by(BTN_H, 28.0)
+}
+fn btn_px() -> f64 {
+    crate::desk::by(BTN_PX, 12.0)
+}
+fn btn_pad() -> f64 {
+    crate::desk::by(BTN_PAD, 6.0)
+}
 /// A refusal note stays this long (a no-op press is said once, not forever).
 const NOTE_MS: u64 = 8_000;
 
@@ -379,7 +408,8 @@ pub fn perform(action: &str, slot: usize, store: &Store, compact: bool) -> Outco
         ACTION_FOCUS => {
             let mut st = state();
             if let Some(d) = st.slots.get(&slot).cloned() {
-                st.focused = Some(d.key);
+                // A desktop's row opens its card, and closes it again.
+                st.focused = if crate::desk::active() && st.focused.as_deref() == Some(d.key.as_str()) { None } else { Some(d.key) };
             }
             return Outcome::Done;
         }
@@ -537,15 +567,15 @@ fn status_ink(s: Status) -> &'static str {
     }
 }
 
-/// The waiting ink on the sidebar: the kit's amber (#A35A00, 5.6:1 on white)
-/// on a light look; on a dark look (dark, or a named palette) the session
+/// The waiting ink on the sidebar: a deeper amber (#844700: 7.3:1 on white, 5:1 on
+/// the selected row's grey) on a light look; on a dark look (dark, or a named palette) the session
 /// tree's own waiting amber (#F5A524) — the kit's amber has no dark twin in
 /// the retint table and read ~3.2:1 on the dark sidebar.
 fn amber_ink() -> &'static str {
     if crate::screens::theme::resolved() == "dark" {
         "#f5a524ff"
     } else {
-        tok::AMBER
+        "#844700ff"
     }
 }
 
@@ -572,18 +602,28 @@ fn glyph(d: &mut Dsl, id: &str, s: Status) {
 /// looks at the dock's scale, so Approve once / Deny / Stop share one line in
 /// the 260 px desktop column): `<id>_box`, `<id>_label`, the tap `<id>`.
 fn pill_button(d: &mut Dsl, id: &str, label: &str, event: &str, primary: bool) -> f64 {
-    let w = (ui::text_w(label, BTN_PX, Face::Medium) + 2.0 * BTN_PAD).ceil();
-    let (fill, fg, border) = if primary { (tok::BLACK, tok::WHITE, None) } else { (tok::SURFACE, tok::TEXT, Some("#c7c7ccff")) };
+    let mac = crate::desk::active().then(crate::desk::current);
+    let face = if mac.is_some() { Face::Regular } else { Face::Medium };
+    let label = crate::desk::title(label);
+    let label: &str = &label;
+    let w = (ui::text_w(label, btn_px(), face) + 2.0 * btn_pad()).ceil();
+    let (fill, fg, border) = match (&mac, primary) {
+        // One default action in the system blue; the others a neutral face.
+        (Some(t), true) => (t.primary.as_str(), "#fffffeff", None),
+        (Some(t), false) => (t.button.as_str(), tok::TEXT, Some(t.border.as_str())),
+        (None, true) => (tok::BLACK, tok::WHITE, None),
+        (None, false) => (tok::SURFACE, tok::TEXT, Some("#c7c7ccff")),
+    };
     d.surface(
         &format!("{id}_box"),
-        &format!("width: {} height: {} flow: Overlay align: Align{{x: 0.5 y: 0.5}}", fmt(w), fmt(BTN_H)),
+        &format!("width: {} height: {} flow: Overlay align: Align{{x: 0.5 y: 0.5}}", fmt(w), fmt(btn_h())),
         fill,
-        BTN_H / 2.0,
+        crate::desk::by(btn_h() / 2.0, 6.0),
         border,
     );
     let inner = d.anon();
     d.view(&inner, "width: Fill height: Fill flow: Right align: Align{x: 0.5 y: 0.5}");
-    d.text(&format!("{id}_label"), label, &Txt::new(BTN_PX, Face::Medium, fg));
+    d.text(&format!("{id}_label"), label, &Txt::new(btn_px(), face, fg));
     d.close();
     d.tap(id, event);
     d.close();
@@ -605,10 +645,11 @@ fn card_h(r: &DockRow, inner_w: f64, control_ready: bool, note: Option<&str>) ->
         h += 16.0 * lines(n, inner_w, 12.0, Face::Medium) + CARD_GAP;
     }
     if let Some(t) = &a.target {
-        h += CARD_GAP + 8.0 + 15.0 * lines(t, inner_w - 14.0, 12.0, Face::Mono);
+        let (px, line) = crate::desk::by((12.0, 15.0), (11.0, 14.0));
+        h += CARD_GAP + 8.0 + line * lines(t, inner_w - 14.0, px, Face::Mono);
     }
     if control_ready && r.control_supported {
-        h += CARD_GAP + 2.0 + BTN_H + CARD_GAP + 28.0;
+        h += CARD_GAP + 2.0 + btn_h() + CARD_GAP + crate::desk::by(28.0, btn_h());
     } else {
         h += CARD_GAP + 16.0 * 2.0;
     }
@@ -652,8 +693,15 @@ fn row_view(
     // ---- the head (a tap focuses the row: ⌥Y / ⌥N act on it). The ring
     // marks the focused row while it holds a card ⌥Y / ⌥N can answer.
     d.view(&format!("{id}_head"), &format!("width: Fill height: {} flow: Overlay", fmt(ROW_H)));
+    let desk = crate::desk::active();
     if focused && r.approval.is_some() {
-        d.surface(&format!("{id}_ring"), "width: Fill height: Fill", tok::TRANSPARENT, 8.0, Some(tok::BLUE));
+        // A Mac's selected row: the sidebar's gray.
+        if desk {
+            let selected = crate::desk::current().selected;
+            d.surface(&format!("{id}_ring"), "width: Fill height: Fill", &selected, 6.0, None);
+        } else {
+            d.surface(&format!("{id}_ring"), "width: Fill height: Fill", tok::TRANSPARENT, 8.0, Some(tok::BLUE));
+        }
         d.close();
     }
     let inner = d.anon();
@@ -666,7 +714,9 @@ fn row_view(
         ),
     );
     let line1 = d.anon();
-    d.view(&line1, &format!("width: Fill height: 18 flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: {}", fmt(GAP)));
+    // The session tree's title column on a Mac: a 16-pt glyph box and a 4-pt gap.
+    let gap = crate::desk::by(GAP, 4.0);
+    d.view(&line1, &format!("width: Fill height: 18 flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: {}", fmt(gap)));
     glyph(d, &format!("{id}_glyph"), r.status);
     let elapsed = peers::format_elapsed(r.elapsed_ms);
     // The Fleet's own label for the row (`peers::row_label`: "Peer N · model"
@@ -680,47 +730,55 @@ fn row_view(
         &format!(
             "width: Fill height: Fit padding: 0 text: {} flow: Right max_lines: 1 text_overflow: TextOverflow.Ellipsis\ndraw_text.text_style: {}\ndraw_text.color: {}",
             ui::lit(&label),
-            ui::text_style(Face::Regular, 14.0),
+            ui::text_style(Face::Regular, crate::desk::by(14.0, 13.0)),
             tok::TEXT
         ),
     );
     d.close();
     // Elapsed ticks every second: set in place (an empty run in the DSL).
-    d.text(&format!("{id}_elapsed"), "", &Txt::new(12.0, Face::Regular, tok::MUTED));
+    let small = crate::desk::by(12.0, 11.0);
+    d.text(&format!("{id}_elapsed"), "", &Txt::new(small, Face::Regular, tok::MUTED));
     texts.push((format!("{id}_elapsed"), elapsed));
     d.close();
     let line2 = d.anon();
     d.view(
         &line2,
-        &format!("width: Fill height: 16 flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {}}}", fmt(GLYPH + GAP)),
+        &format!("width: Fill height: 16 flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {}}}", fmt(GLYPH + gap)),
     );
     // The Fleet's own word for the status (`fleetview::status_word`).
-    d.text(&format!("{id}_status"), &fleetview::status_word(r.status), &Txt::new(12.0, Face::Regular, status_ink(r.status)));
-    d.text(&format!("{id}_meta"), "", &Txt::new(12.0, Face::Regular, tok::MUTED));
-    texts.push((format!("{id}_meta"), tail(r)));
+    d.text(&format!("{id}_status"), &fleetview::status_word(r.status), &Txt::new(small, Face::Regular, status_ink(r.status)));
+    let meta = Txt::new(small, Face::Regular, tok::MUTED);
+    let meta = if desk { meta.w(W::Fill).elide() } else { meta };
+    d.text(&format!("{id}_meta"), "", &meta);
+    // A desktop's card says what the row is waiting for.
+    let meta_words = if desk && r.approval.is_some() { String::new() } else { tail(r) };
+    texts.push((format!("{id}_meta"), meta_words));
+    // A Mac's row only lists: its click opens Fleet, where the approval is
+    // decided in the content pane (`A30Host::perform_peer_dock`).
     d.close();
     d.close(); // inner
     d.tap(&format!("{id}_focus"), &format!("{ACTION_FOCUS}#{slot}"));
     d.close(); // head
     let mut h = ROW_H;
     // ---- the threaded approval (only a row blocked on an approval with its
-    // real id and contents grows)
-    if let Some(a) = &r.approval {
+    // real id and contents grows; on a desktop, once that row is opened)
+    let card = if desk { None } else { r.approval.as_ref() };
+    if let Some(a) = card {
         let wrap = d.anon();
-        d.view(&wrap, &format!("width: Fill height: Fit flow: Down padding: Inset{{left: {}}}", fmt(CARD_INSET)));
+        d.view(&wrap, &format!("width: Fill height: Fit flow: Down padding: Inset{{left: {}}}", fmt(card_inset())));
         d.surface(
             &format!("{id}_card"),
             &format!(
                 "width: Fill height: Fit flow: Down spacing: {g} padding: Inset{{left: {x} right: {x} top: {y} bottom: {y}}}",
                 g = fmt(CARD_GAP),
-                x = fmt(CARD_PAD_X),
+                x = fmt(card_pad_x()),
                 y = fmt(CARD_PAD_Y)
             ),
             tok::SURFACE2,
-            10.0,
+            crate::desk::by(10.0, 6.0),
             Some(tok::HAIRLINE),
         );
-        let inner_w = seat.width - CARD_INSET - 2.0 * CARD_PAD_X;
+        let inner_w = seat.width - card_inset() - 2.0 * card_pad_x();
         // A refused control is said here, first, on the card it was tapped
         // on (or that replaced it).
         if let Some(n) = &note {
@@ -739,18 +797,33 @@ fn row_view(
                 6.0,
                 None,
             );
-            d.text(&format!("{id}_target"), t, &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
+            // Never cut: a person approves the whole command.
+            d.text(&format!("{id}_target"), t, &Txt::new(crate::desk::by(12.0, 11.0), Face::Mono, tok::TEXT).w(W::Fill).wrap());
             d.close();
         }
         if control_ready && r.control_supported {
             let acts = d.anon();
             d.view(&acts, "width: Fill height: Fit flow: Right{wrap: true} spacing: 6 padding: Inset{top: 2}");
-            pill_button(d, &format!("{id}_approve"), tr("Approve once"), &format!("{ACTION_APPROVE}#{slot}"), true);
-            pill_button(d, &format!("{id}_deny"), tr("Deny"), &format!("{ACTION_DENY}#{slot}"), false);
-            pill_button(d, &format!("{id}_stop"), tr("Stop"), &format!("{ACTION_STOP}#{slot}"), false);
+            if desk {
+                // A Mac's card: two lines of 28-point push buttons, the answers
+                // on the first and what ends more than this request under it.
+                pill_button(d, &format!("{id}_deny"), tr("Deny"), &format!("{ACTION_DENY}#{slot}"), false);
+                pill_button(d, &format!("{id}_approve"), tr("Approve once"), &format!("{ACTION_APPROVE}#{slot}"), false);
+            } else {
+                pill_button(d, &format!("{id}_approve"), tr("Approve once"), &format!("{ACTION_APPROVE}#{slot}"), true);
+                pill_button(d, &format!("{id}_deny"), tr("Deny"), &format!("{ACTION_DENY}#{slot}"), false);
+                pill_button(d, &format!("{id}_stop"), tr("Stop"), &format!("{ACTION_STOP}#{slot}"), false);
+            }
             d.close();
             let foot = d.anon();
-            d.view(&foot, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5}");
+            d.view(&foot, crate::desk::by(
+                "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5}",
+                "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 6",
+            ));
+            if desk {
+                pill_button(d, &format!("{id}_session"), tr("Approve for session"), &format!("{ACTION_APPROVE_SESSION}#{slot}"), false);
+                pill_button(d, &format!("{id}_stop"), tr("Stop"), &format!("{ACTION_STOP}#{slot}"), false);
+            } else {
             d.link_ids(
                 &format!("{id}_session_box"),
                 &format!("{id}_session_label"),
@@ -761,15 +834,16 @@ fn row_view(
                 tok::BLUE_TEXT,
             );
             d.gap(W::Fill, 1.0);
-            d.surface(
-                &format!("{id}_keys_box"),
-                "width: Fit height: 20 flow: Right align: Align{x: 0.5 y: 0.5} padding: Inset{left: 6 right: 6}",
-                tok::CHIP,
-                5.0,
-                None,
-            );
-            d.text(&format!("{id}_keys"), keep("⌥Y / ⌥N"), &Txt::new(11.5, Face::Regular, tok::MUTED));
-            d.close();
+                d.surface(
+                    &format!("{id}_keys_box"),
+                    "width: Fit height: 20 flow: Right align: Align{x: 0.5 y: 0.5} padding: Inset{left: 6 right: 6}",
+                    tok::CHIP,
+                    5.0,
+                    None,
+                );
+                d.text(&format!("{id}_keys"), keep("⌥Y / ⌥N"), &Txt::new(11.5, Face::Regular, tok::MUTED));
+                d.close();
+            }
             d.close();
         } else {
             d.text(
@@ -782,10 +856,10 @@ fn row_view(
         d.close(); // wrap
         h += 4.0 + card_h(r, inner_w, control_ready, note.as_deref());
     }
-    if let (Some(n), None) = (note, &r.approval) {
+    if let (Some(n), None) = (note, card) {
         let wrap = d.anon();
-        d.view(&wrap, &format!("width: Fill height: Fit flow: Down padding: Inset{{left: {}}}", fmt(CARD_INSET)));
-        d.text(&format!("{id}_note"), &n, &Txt::new(12.0, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+        d.view(&wrap, &format!("width: Fill height: Fit flow: Down padding: Inset{{left: {}}}", fmt(crate::desk::by(CARD_INSET, GLYPH + 4.0 + PAD_L))));
+        d.text(&format!("{id}_note"), &n, &Txt::new(crate::desk::by(12.0, 11.0), Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
         d.close();
         h += 4.0 + 16.0 * lines(&n, seat.width - CARD_INSET, 12.0, Face::Regular);
     }
@@ -796,7 +870,7 @@ fn row_view(
 /// The hairline block above / below the dock (the web's `.dock` border-top;
 /// the board's rule over the footer).
 fn rule(d: &mut Dsl, id: &str) {
-    d.view(id, "width: Fill height: Fit flow: Down padding: Inset{top: 4 bottom: 4}");
+    d.view(id, crate::desk::by("width: Fill height: Fit flow: Down padding: Inset{top: 4 bottom: 4}", "width: Fill height: Fit flow: Down padding: Inset{top: 2 bottom: 2}"));
     d.hairline();
     d.close();
 }
@@ -847,7 +921,7 @@ fn pill_view(d: &mut Dsl, rows: &[DockRow], seat: Seat) -> f64 {
         }
     }
     let n_lines = lines_of.len() as f64;
-    let h = (16.0 * n_lines + 2.0 * (n_lines - 1.0) + 20.0).max(36.0);
+    let h = (16.0 * n_lines + 2.0 * (n_lines - 1.0) + crate::desk::by(20.0, 12.0)).max(crate::desk::by(36.0, 28.0));
     d.surface("pd_pill_box", &format!("width: Fill height: {} flow: Overlay", fmt(h)), tok::SURFACE2, 10.0, Some(tok::HAIRLINE));
     let col = d.anon();
     d.view(
@@ -875,10 +949,11 @@ fn pill_view(d: &mut Dsl, rows: &[DockRow], seat: Seat) -> f64 {
     d.tap("pd_pill", ACTION_FOLD);
     d.close();
     // The hint under the pill.
-    d.view("pd_hint_row", "width: Fill height: 26 flow: Right align: Align{x: 0.5 y: 0.5}");
-    d.text("pd_hint", &format!("{} · {}", tr("Show peers"), keep("⌥P")), &Txt::new(12.0, Face::Regular, tok::MUTED));
+    let hint_h = crate::desk::by(26.0, 22.0);
+    d.view("pd_hint_row", &format!("width: Fill height: {} flow: Right align: Align{{x: 0.5 y: 0.5}}", fmt(hint_h)));
+    d.text("pd_hint", &format!("{} · {}", tr("Show peers"), keep("⌥P")), &Txt::new(crate::desk::by(12.0, 11.0), Face::Regular, tok::MUTED));
     d.close();
-    h + 26.0
+    h + hint_h
 }
 
 /// Lower the dock for `seat`, or `None` while there are no peers (the web
@@ -896,24 +971,26 @@ pub fn lower(store: &Store, now_ms: u64, seat: Seat) -> Option<Lowered> {
     let mut texts: Vec<(String, String)> = Vec::new();
     d.view("pd_dock", "width: Fill height: Fit flow: Down");
     rule(&mut d, "pd_rule_top");
-    let mut height = 2.0 * RULE_BLOCK;
+    let mut height = 2.0 * rule_block();
     if is_folded {
         height += pill_view(&mut d, &rows, seat);
     } else {
         // ---- the header: PEERS · Hide peers
         d.view(
             "pd_head",
-            &format!("width: Fill height: {} flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {}}}", fmt(HEAD_H), fmt(PAD_L)),
+            &format!("width: Fill height: {} flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {}}}", fmt(head_h()), fmt(PAD_L)),
         );
-        d.text("pd_title", &tr("Peers").to_uppercase(), &Txt::new(11.0, Face::Semibold, tok::MUTED).w(W::Fill));
+        let title = if crate::desk::active() { tr("Peers").to_owned() } else { tr("Peers").to_uppercase() };
+        d.text("pd_title", &title, &Txt::new(11.0, Face::Semibold, tok::MUTED).w(W::Fill));
         let hide = tr("Hide peers");
-        let hw = (ui::text_w(hide, 12.0, Face::Regular) + 2.0 * PAD_R).ceil();
-        d.view("pd_hide_box", &format!("width: {} height: {} flow: Overlay align: Align{{x: 1.0 y: 0.5}} padding: Inset{{right: {}}}", fmt(hw), fmt(HEAD_H), fmt(PAD_R)));
-        d.text("pd_hide_label", hide, &Txt::new(12.0, Face::Regular, tok::MUTED));
+        let hide_px = crate::desk::by(12.0, 11.0);
+        let hw = (ui::text_w(hide, hide_px, Face::Regular) + 2.0 * PAD_R).ceil();
+        d.view("pd_hide_box", &format!("width: {} height: {} flow: Overlay align: Align{{x: 1.0 y: 0.5}} padding: Inset{{right: {}}}", fmt(hw), fmt(head_h()), fmt(PAD_R)));
+        d.text("pd_hide_label", hide, &Txt::new(hide_px, Face::Regular, tok::MUTED));
         d.tap("pd_hide", ACTION_FOLD);
         d.close();
         d.close();
-        height += HEAD_H;
+        height += head_h();
         // ---- the rows: measured first (the cap decides their container and
         // their order); each keeps its Fleet index as its id, whatever the
         // order it is drawn in.
@@ -927,7 +1004,7 @@ pub fn lower(store: &Store, now_ms: u64, seat: Seat) -> Option<Lowered> {
                 row_view(&mut scratch, &mut scratch_texts, i, r, slots[i], seat, control_ready, focus[i], notes[i].clone()) + 2.0
             })
             .sum();
-        let cap = if seat.room > 0.0 { (seat.room - TREE_MIN - height).max(ROW_H + 8.0) } else { f64::INFINITY };
+        let cap = if seat.room > 0.0 { (seat.room - tree_min() - height).max(ROW_H + 8.0) } else { f64::INFINITY };
         let capped = natural > cap;
         // On a short column the peers waiting for you come first (a stable
         // sort: then the roster order), so a card shows at the top of the
@@ -950,11 +1027,18 @@ pub fn lower(store: &Store, now_ms: u64, seat: Seat) -> Option<Lowered> {
             } else {
                 ("#d1d1d6ff", "#aeaeb2ff")
             };
+            // A Mac's overlay scroller is the system's: a colour set here would
+            // show a handle at rest.
+            let bars = if crate::desk::active() {
+                String::new()
+            } else {
+                format!("\nscroll_bars.scroll_bar_y.draw_bg.color: {bar}\nscroll_bars.scroll_bar_y.draw_bg.color_hover: {bar_on}\nscroll_bars.scroll_bar_y.draw_bg.color_drag: {bar_on}")
+            };
             d.open(
                 "pd_rows",
                 "ScrollYView",
                 &format!(
-                    "width: Fill height: {} flow: Down spacing: 2\nscroll_bars.scroll_bar_y.draw_bg.color: {bar}\nscroll_bars.scroll_bar_y.draw_bg.color_hover: {bar_on}\nscroll_bars.scroll_bar_y.draw_bg.color_drag: {bar_on}",
+                    "width: Fill height: {} flow: Down spacing: 2{bars}",
                     fmt(cap.floor())
                 ),
             );

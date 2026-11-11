@@ -66,6 +66,8 @@ WALK = {
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a24/zh-{MODE}"
 CELL = "rl_hit" if MODE == "phone" else "nv_hit"
+# A Mac's small tools and list rows sit under a phone's 28.
+FLOOR = 27.5 if MODE == "phone" else 21.5
 SECTIONS = ["general", "permissions", "model", "capabilities", "sandbox", "connection", "preferences", "about"]
 PREFS = pathlib.Path(OUT).resolve() / "display-v1.json"
 
@@ -146,13 +148,14 @@ def cjk_checks(W: Walk, sn, frames: list[str]) -> dict:
     # A target the scroll body cuts at its top or bottom edge is scrolled,
     # not small: only whole targets are measured.
     views = [w["r"] for w in shown if w.get("i") in ("b3_scroll", "dialog_scroll", "set_body", "cv_tr_scroll",
-                                                       "b1_prov_scroll", "btw_aside_body", "pd_rows")]
+                                                       "b1_prov_scroll", "btw_aside_body", "pd_rows")
+             or (MODE != "phone" and w.get("i") == "palette_list")]
 
     def clipped(r):
         return any(inside([r[0] + 0.5, r[1] + 0.5, 1, 1], v) and (r[1] <= v[1] + 2 or r[1] + r[3] >= v[1] + v[3] - 2)
                    for v in views)
 
-    under = [(w.get("i"), w["r"]) for w in hits if (w["r"][2] < 27.5 or w["r"][3] < 27.5) and not clipped(w["r"])]
+    under = [(w.get("i"), w["r"]) for w in hits if (w["r"][2] < FLOOR or w["r"][3] < FLOOR) and not clipped(w["r"])]
     ok = not (out_module or out_frame or overflow or trunc or over or under)
     return {"ok": ok, "cjk": len(labels), "outside_module": out_module, "outside_frame": out_frame,
             "overflow": overflow, "truncated": trunc, "overlaps": over, "controls": len(hits), "under28": under}
@@ -236,7 +239,8 @@ def frames_for_settings():
 
 def run_live(W: Walk):
     W.check("connected", W.wait(lambda: W.composer() is not None, 40))
-    W.check("start: English (the device default here)", has(W, "Chat", "Ready"),
+    # The replay server's history can't be read here: a Mac's strip says so.
+    W.check("start: English (the device default here)", has(W, "Chat", "Ready" if MODE == "phone" else "Not loaded"),
             f"{[t for t in texts(W) if t][:12]}")
     W.check("Settings opens (CLICK)", open_settings(W))
     W.check("Preferences shows (CLICK)", section(W, "preferences"))
@@ -245,7 +249,7 @@ def run_live(W: Walk):
     W.check("Language: the control shows English | 简体中文, English selected",
             r_en is not None and r_zh is not None and on_en == "English", f"en={r_en} zh={r_zh} on={on_en!r}")
     W.check("Language: both segments are >= 28 px targets",
-            bool(r_en and r_zh and r_en[3] >= 27.5 and r_zh[3] >= 27.5 and r_en[2] >= 28 and r_zh[2] >= 28),
+            bool(r_en and r_zh and r_en[3] >= FLOOR and r_zh[3] >= FLOOR and r_en[2] >= 28 and r_zh[2] >= 28),
             f"en={r_en} zh={r_zh}")
     W.shot("en-settings-preferences")
     W.mark()
@@ -256,7 +260,11 @@ def run_live(W: Walk):
     W.check("switch: the Settings sheet reads Chinese", has(W, *want), f"{[t for t in texts(W) if is_cjk(t)][:10]}")
     _, on = segment(W, "lang_zh")
     W.check("switch: 简体中文 reads selected", on == "简体中文", f"{on!r}")
-    W.check("switch: the status line says the change is unsaved", bool(W.text("prefs_status")), W.text("prefs_status"))
+    if MODE == "phone":
+        W.check("switch: the status line says the change is unsaved", bool(W.text("prefs_status")), W.text("prefs_status"))
+    else:
+        # A Mac keeps a preference when it changes, without a word about it.
+        W.check("switch: the change is kept without a status line", not W.text("prefs_status"), W.text("prefs_status"))
     capture(W, "zh-settings-preferences", frames_for_settings(), "Settings > Preferences")
     for name in ("general", "permissions", "model", "sandbox", "connection", "about"):
         section(W, name)
@@ -265,7 +273,7 @@ def run_live(W: Walk):
     # The shell: header, composer + seats, status strip (+ the sidebar on desktop).
     W.check("shell: the header reads Chinese", has(W, "聊天", "轨迹") if MODE != "phone" else has(W, "聊天"),
             f"{[t for t in texts(W) if is_cjk(t)][:12]}")
-    W.check("shell: the status strip reads Chinese", has(W, "模型、权限、沙箱") or has(W, "就绪"),
+    W.check("shell: the status strip reads Chinese", has(W, "模型、权限、沙箱") or has(W, "就绪") or (MODE != "phone" and has(W, "未加载")),
             f"{W.text('b3_strip_caption')!r} {W.text('b3_strip_state')!r}")
     if MODE != "phone":
         W.check("shell: the sidebar reads Chinese", has(W, "添加工作区", "舰队"), f"{[t for t in texts(W) if is_cjk(t)][:12]}")
@@ -282,7 +290,11 @@ def run_live(W: Walk):
     # The composer's permission seat menu (A10's seats).
     if W.click("approval_pill_hit"):
         if W.wait(lambda: bool(W.visible("b3_dialog")), 5):
-            W.check("seats: the permission menu reads Chinese", has(W, "权限"), f"{W.text('b3_title')!r}")
+            # A Mac's menu has no title: its rows are what it says.
+            W.check("seats: the permission menu reads Chinese",
+                    has(W, "权限") if MODE == "phone"
+                    else W.wait(lambda: is_cjk(W.text("b3_perm_opt_0_name") or W.text("b3_perm_error_text") or ""), 6),
+                    f"{W.text('b3_title')!r} {W.text('b3_perm_opt_0_name')!r} {W.text('b3_perm_error_text')!r}")
             capture(W, "zh-permission-menu", ["b3_dialog"], "composer permission menu")
             # The web's outside press dismisses the popover.
             W.click("hd_title")
@@ -381,13 +393,14 @@ DATA_IDS = ("b3_sc_model_", "b3_sc_saved_value", "b3_sc_runtime_value", "b3_sc_t
 # line and its key hint (ApprovalPanel.tsx draws them as sent); a configured
 # provider's name, `family · route label` and `model · api type` lines
 # (ModelManagementSection.tsx:1336 draws {familyLabel} · {route.label} raw),
-# the Models dialog's `provider • route` group heads, and the editor's
-# selected family / model / route (names).
+# the Models dialog's `provider • route` group heads and its model rows (a
+# model the Profile reaches by two routes names the route: `{model} · {route}`),
+# and the editor's selected family / model / route (names).
 DATA_RE = re.compile(r"^(b3_diff_(file_|preview_id)|btw_aside_(question|answer|scope)|"
                      r"dlg_skills_job_\d+_(skill|action|name|cause)$|pd_row_\d+_target$|"
                      r"b3_fleet_model_value$|b3_fleet_opt_|b3_fleet_lane_(initial|title|desc)$|"
                      r"cv_ap_(title|body|cmd|tool|hint)$|b3_routes_row_\d+_(name|meta|endpoint|base_url)$|"
-                     r"dlg_models_t_(ds|kimi|glm|p\d+)_head$|b1_prov_(family|model|route)_value$)")
+                     r"dlg_models_t_(ds|kimi|glm|p\d+)_head$|dlg_models_t_(flash|pro|m\d+)$|b1_prov_(family|model|route)_value$)")
 # A skill job's output line is the server's (`skill_jobs.rs` Message::Output:
 # the first line of the job's `output`, drawn as sent): the fixture's.
 SERVER_TEXT = ("Imported 14 pages",)
@@ -528,7 +541,7 @@ def run_surfaces(W: Walk):
     # The Fleet, from the sidebar footer (the drawer's on a phone).
     open_fleet(W)
     if W.visible("b3_fleet_panel"):
-        W.check("fleet: the Fleet reads Chinese", has(W, "舰队", "返回"), f"{W.text('b3_title')!r} {W.text('b3_fleet_back_label')!r}")
+        W.check("fleet: the Fleet reads Chinese", (has(W, "舰队", "返回") if MODE == "phone" else has(W, "舰队")), f"{W.text('b3_title')!r} {W.text('b3_fleet_back_label')!r}")
         surface(W, "zh-fleet", ["b3_fleet_panel"], "Fleet")
     escape_fleet(W)
     if W.visible("b3_close"):

@@ -4,13 +4,14 @@
 //! carries the call sites (the dispatcher arms stay small and local).
 use makepad_widgets::*;
 
-use crate::screens::{a9_settings, activity};
+use crate::screens::{a9_settings, activity, start_alert};
 use crate::OctoscodeView;
 
 /// Every action id this host owns (one owner per id).
 pub fn routes(action: &str) -> bool {
     activity::routes(action)
         || a9_settings::routes(action)
+        || start_alert::routes(action)
         || crate::screens::a9_boundary::routes(action)
         || crate::screens::a9_prefs::routes(action)
 }
@@ -36,6 +37,7 @@ fn sync_prefs() {
 pub fn escape_owned() -> bool {
     activity::is_open()
         || a9_settings::pending().is_some()
+        || start_alert::pending().is_some()
         || crate::screens::a9_boundary::unavailable().is_some()
 }
 
@@ -73,7 +75,7 @@ impl OctoscodeView {
             });
             crate::screens::a9_boundary::lower_unavailable(&frame, content)
         } else {
-            a9_settings::lower(&frame).or_else(|| activity::lower(&store))
+            a9_settings::lower(&frame).or_else(start_alert::lower).or_else(|| activity::lower(&store))
         };
         self.view.widget(cx, ids!(a9_dock)).set_visible(cx, lowered.is_some());
         let Some(lowered) = lowered else {
@@ -99,7 +101,7 @@ impl OctoscodeView {
             .text_input(cx, &[live_id!(a9_splash), live_id!(a9_act_search)])
             .key_focus(cx);
         let splash = self.view.splash(cx, ids!(a9_splash));
-        match self.mounts.mount(cx, &splash, &lowered.dsl) {
+        match self.mounts.mount(cx, &splash, &crate::screens::taps::native_clicks_only(&lowered.dsl)) {
             Err(e) => makepad_widgets::log!("[octoscode] a9 mount: {e}"),
             Ok(true) => {
                 makepad_widgets::log!(
@@ -166,6 +168,12 @@ impl OctoscodeView {
 
     /// Perform one A9 action id (from a tap, the palette, or a key).
     pub(crate) fn perform_a9(&mut self, cx: &mut Cx, action: &str, index: usize) {
+        if start_alert::routes(action) {
+            self.perform_start_alert(cx, action);
+            self.sync_labels(cx);
+            self.view.redraw(cx);
+            return;
+        }
         if a9_settings::routes(action) {
             self.perform_a9_leave(cx, action);
             self.sync_labels(cx);
@@ -236,6 +244,48 @@ impl OctoscodeView {
         }
         self.sync_labels(cx);
         self.view.redraw(cx);
+    }
+
+    /// The New Chat alert's answers: Cancel closes it; Try Again closes it
+    /// and starts the same new chat again (a refusal raises it again).
+    fn perform_start_alert(&mut self, cx: &mut Cx, action: &str) {
+        if action == start_alert::ACTION_NOOP {
+            return;
+        }
+        let Some(p) = start_alert::take() else { return };
+        if action == start_alert::ACTION_CANCEL {
+            makepad_widgets::log!("[octoscode] new chat alert: Cancel");
+            return;
+        }
+        makepad_widgets::log!("[octoscode] new chat alert: Try Again ({:?})", p.retry);
+        match p.retry {
+            start_alert::Retry::NewChat => self.perform_action(cx, crate::bindings::ACTION_NEW_CHAT, 0),
+            start_alert::Retry::InWorkspace { workspace, path } => {
+                // The sidebar's New Chat Here, as `lib.rs` runs it.
+                let conv = { self.bridge.lock().unwrap().conv.clone() };
+                if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                    let retry = start_alert::Retry::InWorkspace { workspace: workspace.clone(), path: path.clone() };
+                    rt.spawn(async move {
+                        let r = match path {
+                            Some(cwd) => match crate::screens::launch::create(&conv, cwd).await {
+                                crate::screens::launch::Launched::Opened(id) => Ok(id),
+                                crate::screens::launch::Launched::Failed(e) => Err(e),
+                                other => Ok(format!("{other:?}")),
+                            },
+                            None => conv.new_chat(None).await,
+                        };
+                        match r {
+                            Ok(id) => ::log::info!("octoscode: new chat in {workspace}: {id}"),
+                            Err(e) => {
+                                makepad_widgets::log!("[octoscode] new chat dropped: {e}");
+                                start_alert::failed(&e.to_string(), retry);
+                            }
+                        }
+                        SignalToUI::set_ui_signal();
+                    });
+                }
+            }
+        }
     }
 
     /// Settings > Connection: Disconnect / Forget server, through the web's
@@ -409,6 +459,8 @@ impl OctoscodeView {
         } else if a9_settings::pending().is_some() {
             a9_settings::cancel();
             makepad_widgets::log!("[octoscode] a9 leave cancelled (Escape)");
+        } else if start_alert::take().is_some() {
+            makepad_widgets::log!("[octoscode] new chat alert: Cancel (Escape)");
         } else if activity::is_open() {
             activity::close();
             makepad_widgets::log!("[octoscode] a9 activity closed (Escape)");
@@ -497,7 +549,7 @@ impl OctoscodeView {
         self.dialog_events.extend(lowered.taps.iter().map(|(_, e)| e.clone()));
         self.view.widget(cx, ids!(a9_dock)).set_visible(cx, true);
         let splash = self.view.splash(cx, ids!(a9_splash));
-        if let Err(e) = self.mounts.mount(cx, &splash, &lowered.dsl) {
+        if let Err(e) = self.mounts.mount(cx, &splash, &crate::screens::taps::native_clicks_only(&lowered.dsl)) {
             makepad_widgets::log!("[octoscode] a9 crash mount: {e}");
         }
         self.view.redraw(cx);

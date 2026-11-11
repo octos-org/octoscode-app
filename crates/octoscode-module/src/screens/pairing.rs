@@ -326,6 +326,8 @@ pub fn apply(ui: &mut PairingUi, action: &str, value: Option<&str>) -> Option<Ou
             ui.scan_note = None;
             Some(Out::Scan)
         }
+        // Return where a Mac's default is off does nothing.
+        "pair.submit" if crate::desk::active() && ui.link_draft.trim().is_empty() => None,
         "pair.submit" => submit(ui),
         "pair.fallback" => Some(Out::LeaveToForm { server: None }),
         "pair.manual" => Some(Out::LeaveToForm {
@@ -359,6 +361,7 @@ pub fn apply(ui: &mut PairingUi, action: &str, value: Option<&str>) -> Option<Ou
             ui.token = v();
             None
         }
+        "connect.submit" if crate::desk::active() && ui.server.trim().is_empty() => None,
         "connect.submit" => {
             // Validation runs BEFORE the socket opens (`ConnectionPanel.tsx:30-49`,
             // the order `connect::apply` keeps).
@@ -494,6 +497,9 @@ pub fn paired_when(at_ms: u64, now_ms: u64) -> String {
 // --------------------------------------------------------------------- views
 
 /// The native view of the current pairing screen.
+/// What a Mac's pairing form asks for, in place of a phone's camera.
+pub const MAC_PAIR_HINT: &str = "Paste the pairing link Octos shows on your other computer.";
+
 pub fn view(ui: &PairingUi, l: &Layout) -> Ui {
     let mut v = Ui::default();
     let title = if ui.screen == Screen::Paired { "Connection" } else { "Pair with Octos" };
@@ -508,7 +514,68 @@ pub fn view(ui: &PairingUi, l: &Layout) -> Ui {
     v
 }
 
+/// The way out of a Mac sheet, at the foot's trailing edge.
+fn mac_foot(v: &mut Ui, leading: &[String], close: &str, default: Option<(&str, &str, &str)>) {
+    let mut trailing = vec![kit::push_button("b1_pair_back", tr(close), false)];
+    if let Some((id, label, action)) = default {
+        trailing.push(kit::push_button(id, tr(label), true));
+        v.button(id, action);
+    }
+    v.push(kit::gap(16.0));
+    v.push(kit::sheet_buttons(leading, &trailing));
+}
+
+/// [`mac_foot`] whose default stays off until the form can go: both faces are
+/// mounted and [`live_visibility`] shows one, so typing never remounts the field.
+fn mac_foot_gated(v: &mut Ui, leading: &[String], close: &str, default: (&str, &str, &str), ready: bool) {
+    let (id, label, action) = default;
+    let both = format!(
+        "View {{ width: Fit height: 28 flow: Overlay\n{id}_on := View {{ width: Fit height: 28 visible: {ready}\n{on}}}\n{id}_wait := View {{ width: Fit height: 28 visible: {waiting}\n{off}}}\n}}\n",
+        waiting = !ready,
+        on = kit::push_button(id, tr(label), true),
+        off = kit::push_button_off(&format!("{id}_off"), tr(label)),
+    );
+    v.button(id, action);
+    let trailing = vec![kit::push_button("b1_pair_back", tr(close), false), both];
+    v.push(kit::gap(16.0));
+    v.push(kit::sheet_buttons(leading, &trailing));
+}
+
+/// Which face of the open form's default shows, as its text changes.
+pub fn live_visibility() -> Vec<(String, bool)> {
+    if !crate::desk::active() {
+        return Vec::new();
+    }
+    let ui = state();
+    let (id, ready) = match ui.screen {
+        Screen::Pair => ("b1_pair_submit", !ui.link_draft.trim().is_empty()),
+        Screen::LinkProblem => ("b1_conn_submit", !ui.server.trim().is_empty()),
+        _ => return Vec::new(),
+    };
+    vec![(format!("{id}_on"), ready), (format!("{id}_wait"), !ready)]
+}
+
 fn pair_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
+    if crate::desk::active() {
+        // A Mac has no camera scanner to offer (`Cx::show_qr_scanner` answers
+        // "unsupported" off a phone): the link is the whole form.
+        v.push(kit::gap(4.0));
+        v.push(Text::new("b1_pair_cap1", tr(MAC_PAIR_HINT)).px(14.0).color(kit::MUTED).fill().dsl());
+        v.push(kit::gap(12.0));
+        v.push(
+            Field::new("b1_pair_link", &ui.link_draft)
+                .label(tr("Paste pairing link"))
+                .placeholder("octos://pair?code=…")
+                .dsl(),
+        );
+        v.input("b1_pair_link", "pair.paste");
+        v.returns("b1_pair_link", "pair.submit");
+        // The foot holds three buttons in one sheet width, so the word is short.
+        let fallback = kit::link("b1_pair_fallback", tr("Enter server and token"), kit::BLUE, 14.0, 400);
+        v.button("b1_pair_fallback", "pair.fallback");
+        mac_foot_gated(v, &[fallback], "Cancel", ("b1_pair_submit", "Pair", "pair.submit"), !ui.link_draft.trim().is_empty());
+        return;
+    }
     v.push(kit::gap(if l.phone { 28.0 } else { 16.0 }));
     // The viewfinder: a light-grey rounded square with four corner brackets
     // (atlas screen 1). The whole box is the scan control.
@@ -565,6 +632,20 @@ fn pair_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
 
 fn pairing_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
     let host = if ui.pairing_host.is_empty() { "Octos".to_owned() } else { ui.pairing_host.clone() };
+    if crate::desk::active() {
+        let line = crate::i18n::tr1("Pairing with {value0}\u{2026}", &host);
+        v.push(kit::gap(10.0));
+        v.push(format!(
+            "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 10\n{}View {{ width: Fill height: Fit flow: Down spacing: 2\n{}{}}}\n}}\n",
+            kit::svg("b1_pair_spinner", "b1_spinner.svg", 24.0),
+            Text::new("b1_pairing_line", &line).px(15.0).fill().one_line().dsl(),
+            Text::new("b1_pairing_once", tr("This code works once.")).px(14.0).color(kit::MUTED).fill().one_line().dsl(),
+        ));
+        v.push(kit::gap(16.0));
+        v.push(kit::action_row(&[kit::push_button("b1_pair_cancel", tr("Cancel"), false)]));
+        v.button("b1_pair_cancel", "pair.cancel");
+        return;
+    }
     v.push(kit::gap(if l.phone { 160.0 } else { 52.0 }));
     v.push(format!(
         "View {{ width: Fill height: Fit align: Align{{x: 0.5 y: 0.0}}\n{}}}\n",
@@ -586,6 +667,20 @@ fn problem_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
         .as_ref()
         .map(Problem::copy)
         .unwrap_or(("That pairing link didn’t work.", "Enter the server and token instead."));
+    if crate::desk::active() {
+        v.push(kit::gap(12.0));
+        v.push(kit::callout(true, false, head, Some(next)));
+        v.push(kit::gap(12.0));
+        v.push(Field::new("b1_conn_server", &ui.server).label(tr("Server")).placeholder("http://127.0.0.1:50190").dsl());
+        v.input("b1_conn_server", "connect.server");
+        v.returns("b1_conn_server", "connect.submit");
+        v.push(kit::gap(8.0));
+        v.push(Field::new("b1_conn_token", &ui.token).label(tr("Access token")).password().dsl());
+        v.input("b1_conn_token", "connect.token");
+        v.returns("b1_conn_token", "connect.submit");
+        mac_foot_gated(v, &[], "Back", ("b1_conn_submit", "Connect", "connect.submit"), !ui.server.trim().is_empty());
+        return;
+    }
     v.push(kit::gap(if l.phone { 24.0 } else { 16.0 }));
     v.push(kit::callout(true, false, head, Some(next)));
     v.push(kit::gap(if l.phone { 28.0 } else { 18.0 }));
@@ -614,6 +709,12 @@ fn no_pairing_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
         .as_ref()
         .map(Problem::copy)
         .unwrap_or_else(|| Problem::Pairing(PairingErrorKind::NotSupported).copy());
+    if crate::desk::active() {
+        v.push(kit::gap(12.0));
+        v.push(kit::callout(false, true, head, Some(next)));
+        mac_foot(v, &[], "Back", Some(("b1_pair_manual", "Use server and token", "pair.manual")));
+        return;
+    }
     v.push(kit::gap(if l.phone { 24.0 } else { 16.0 }));
     v.push(kit::callout(false, true, head, None));
     v.push(kit::gap(14.0));
@@ -639,6 +740,14 @@ fn paired_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
         None => rows.push(kit::kv_row(tr("Signed in"), tr("With an access token"))),
     }
     rows.push(kit::note_row(tr("Stays on this device only"), kit::MUTED));
+    if crate::desk::active() {
+        v.push(kit::gap(12.0));
+        v.push(kit::list_card("b1_conn_rows", &rows));
+        let forget = kit::link("b1_pair_forget", tr("Forget this device"), kit::RED, 15.0, 400);
+        v.button("b1_pair_forget", "pair.forget");
+        mac_foot(v, &[forget], "Done", None);
+        return;
+    }
     v.push(kit::gap(if l.phone { 24.0 } else { 16.0 }));
     v.push(kit::list_card("b1_conn_rows", &rows));
     v.spacer(l, 40.0, 40.0);

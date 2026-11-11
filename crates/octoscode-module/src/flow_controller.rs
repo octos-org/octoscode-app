@@ -102,6 +102,7 @@ impl Conversation {
     /// = the controller refused it (blocked).
     pub async fn enqueue_turn(&self, text: String) -> Result<String, ClientError> {
         let session = self.session_id();
+        if self.hold_for_open(&session) { return Ok(String::new()); }
         let turn = PromptTurn {
             turn_id: TurnId::new().0.to_string(),
             text,
@@ -138,6 +139,12 @@ impl Conversation {
             return Ok(String::new());
         };
         let turn_id = turn.turn_id.clone();
+        if !self.open_is_ready(&session) {
+            let fx = self.store.domains.composer.not_sent(&session, &turn_id,
+                "Your message was not sent. Your draft is kept.");
+            self.apply_effects(&session, fx);
+            return Ok(String::new());
+        }
         let mut params = serde_json::json!({
             "session_id": session,
             "turn_id": turn_id,
@@ -184,6 +191,13 @@ impl Conversation {
             self.ui.lock().unwrap().abandon_turn(&turn_id);
             self.store.domains.composer.cancel_dispatch(&session, &turn_id);
             makepad_widgets::log!("[octoscode] turn/start {turn_id}: held (transport changed during the handback)");
+            return Ok(String::new());
+        }
+        if !self.open_is_ready(&session) {
+            self.ui.lock().unwrap().abandon_turn(&turn_id);
+            let fx = self.store.domains.composer.not_sent(&session, &turn_id,
+                "Your message was not sent. Your draft is kept.");
+            self.apply_effects(&session, fx);
             return Ok(String::new());
         }
         let reply = tokio::time::timeout(Self::start_timeout(), self.client.request("turn/start", params)).await;

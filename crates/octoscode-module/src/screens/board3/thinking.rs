@@ -231,26 +231,41 @@ fn toggle_row(d: &mut Dsl, id: &str, label: &str, help: &str, on: bool, event: &
 /// One folded thinking block (the panel's preview and the transcript row
 /// share this look). `event` toggles it.
 pub fn block_view(d: &mut Dsl, id: &str, b: &Block, open: bool, event: &str) {
-    d.surface(id, "width: Fill height: Fit flow: Down", tok::SURFACE, 10.0, Some(tok::HAIRLINE));
-    d.view(&format!("{id}_head"), "width: Fill height: 42 flow: Overlay");
+    // A Mac folds reasoning under a plain disclosure row, as Xcode does a
+    // group, not a card per thought.
+    let mac = crate::desk::active();
+    if mac {
+        d.view(id, "width: Fill height: Fit flow: Down");
+    } else {
+        d.surface(id, "width: Fill height: Fit flow: Down", tok::SURFACE, 10.0, Some(tok::HAIRLINE));
+    }
+    d.view(&format!("{id}_head"), crate::desk::by("width: Fill height: 42 flow: Overlay", "width: Fill height: 24 flow: Overlay"));
     let row = d.anon();
-    d.view(&row, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 12 right: 12 top: 0 bottom: 0}");
+    d.view(&row, crate::desk::by(
+        "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 12 right: 12 top: 0 bottom: 0}",
+        "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 6 padding: Inset{left: 4 right: 4 top: 0 bottom: 0}",
+    ));
     d.icon(
         &format!("{id}_chev"),
         if open { "b3_chevron_down_dark.svg" } else { "b3_chevron_right_dark.svg" },
-        14.0,
+        crate::desk::by(14.0, 12.0),
         tok::TEXT,
     );
     let label = if b.live { tr("Thinking…").to_owned() } else { b.summary.clone() };
-    d.text(&format!("{id}_summary"), &label, &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill));
+    let summary = if mac { Txt::new(13.0, Face::Regular, tok::MUTED) } else { Txt::new(13.0, Face::Medium, tok::TEXT) };
+    d.text(&format!("{id}_summary"), &label, &summary.w(W::Fill));
     d.text(&format!("{id}_meta"), &meta(b), &Txt::new(11.5, Face::Regular, tok::MUTED));
     d.close();
     d.tap(&format!("{id}_tap"), event);
     d.close();
     if open {
-        d.rule(&format!("{id}_rule"), "width: Fill height: 1", tok::HAIRLINE);
+        // On a Mac no line under the row: the rule stays laid out, unpainted.
+        d.rule(&format!("{id}_rule"), "width: Fill height: 1", if mac { tok::TRANSPARENT } else { tok::HAIRLINE });
         let body = d.anon();
-        d.view(&body, "width: Fill height: Fit flow: Down spacing: 6 padding: Inset{left: 34 right: 14 top: 10 bottom: 12}");
+        d.view(&body, crate::desk::by(
+            "width: Fill height: Fit flow: Down spacing: 6 padding: Inset{left: 34 right: 14 top: 10 bottom: 12}",
+            "width: Fill height: Fit flow: Down spacing: 4 padding: Inset{left: 22 right: 4 top: 2 bottom: 8}",
+        ));
         for (i, line) in b.body.lines().filter(|l| !l.trim().is_empty()).take(12).enumerate() {
             d.text(
                 &format!("{id}_line_{i}"),
@@ -265,8 +280,16 @@ pub fn block_view(d: &mut Dsl, id: &str, b: &Block, open: bool, event: &str) {
 
 /// The fold bar (`TimelineFolds`): "Expand all" / "Collapse all".
 pub fn fold_bar(d: &mut Dsl, id: &str) {
+    fold_bar_under(d, id, None);
+}
+
+/// [`fold_bar`] with a heading at its leading edge.
+fn fold_bar_under(d: &mut Dsl, id: &str, heading: Option<&str>) {
     let row = d.anon();
-    d.view(&row, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 18");
+    d.view(&row, &format!("width: Fill height: 28 flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: {}", crate::desk::by(18, 8)));
+    if let Some(heading) = heading {
+        d.text(&format!("{id}_heading"), heading, &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    }
     d.link(&format!("{id}_expand"), tr("Expand all"), Some("b3.think.expand_all"), 12.5);
     d.link(&format!("{id}_collapse"), tr("Collapse all"), Some("b3.think.collapse_all"), 12.5);
     d.close();
@@ -281,14 +304,24 @@ pub fn build(d: &mut Dsl, frame: &Frame, store: &Store) {
     let width = frame.dialog_w(600.0);
     ui::shell_open(d, frame, width);
     ui::header(d, tr("Thinking effort"), "b3.close");
-    d.text("b3_think_scope", &session, &Txt::new(11.5, Face::Mono, tok::MUTED).w(W::Fill));
+    let desk = crate::desk::active();
+    if desk {
+        d.unseen("b3_think_scope", &session);
+    } else {
+        d.text("b3_think_scope", &session, &Txt::new(11.5, Face::Mono, tok::MUTED).w(W::Fill));
+    }
     d.gap(W::Fill, 14.0);
     ui::body_open(d, frame, width, 64.0);
-    let opts: Vec<(&str, String)> = [("Low", "low"), ("Medium", "medium"), ("High", "high"), ("Max", "max")]
+    let mut opts: Vec<(&str, String)> = [("Low", "low"), ("Medium", "medium"), ("High", "high"), ("Max", "max")]
         .iter()
         .map(|(l, v)| (tr(l), format!("b3.think.effort.{v}")))
         .collect();
-    d.segmented("b3_think_effort", &opts, effort_index(&prefs).unwrap_or(usize::MAX), W::Fill, Seg::Pill);
+    // A Mac's segmented control always shows a choice: the profile's default is one.
+    if desk {
+        opts.push((tr("Default"), "b3.think.effort.default".to_owned()));
+    }
+    let none = if desk { opts.len() - 1 } else { usize::MAX };
+    d.segmented("b3_think_effort", &opts, effort_index(&prefs).unwrap_or(none), W::Fill, Seg::Pill);
     let help = d.anon();
     d.view(&help, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{top: 8}");
     d.text(
@@ -296,7 +329,9 @@ pub fn build(d: &mut Dsl, frame: &Frame, store: &Store) {
         tr("Sets how much the model thinks before answering"),
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
-    if effort_index(&prefs).is_some() {
+    if desk {
+        d.unseen("b3_think_default_on", tr(if effort_index(&prefs).is_some() { "Use profile default" } else { "Profile default" }));
+    } else if effort_index(&prefs).is_some() {
         d.link("b3_think_default", tr("Use profile default"), Some("b3.think.effort.default"), 12.0);
     } else {
         d.text("b3_think_default_on", tr("Profile default"), &Txt::new(12.0, Face::Medium, tok::TEXT));
@@ -336,12 +371,21 @@ pub fn build(d: &mut Dsl, frame: &Frame, store: &Store) {
             &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
         );
     } else {
-        fold_bar(d, "b3_think_fold");
+        fold_bar_under(d, "b3_think_fold", desk.then(|| tr("Reasoning in This Chat")));
         d.gap(W::Fill, 6.0);
         let col = d.anon();
         d.view(&col, "width: Fill height: Fit flow: Down spacing: 8");
         for (i, b) in shown.iter().enumerate() {
             let open = prefs.expanded.contains(&b.key);
+            // A sheet is narrower than the transcript the summary was cut for.
+            let cut;
+            let b: &Block = if desk {
+                let room = width - 2.0 * ui::dialog_pad(frame, width) - 46.0 - ui::text_w(&meta(b), 11.5, Face::Regular);
+                cut = Block { summary: ui::fit_w(&b.summary, room, 13.0, Face::Regular), ..(**b).clone() };
+                &cut
+            } else {
+                *b
+            };
             block_view(d, &format!("b3_think_block_{i}"), b, open, &format!("b3.think.block.{}", b.key));
         }
         d.close();

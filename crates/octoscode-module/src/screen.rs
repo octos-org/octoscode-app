@@ -209,14 +209,16 @@ pub fn timeline_rows_folded(store: &Arc<Store>, live: bool, folded: &[String]) -
                 out.push(Row { kind: ItemKind::ToolCell, index: k, turn: turn_of(turn) });
             }
         }
+        let answered = prose.is_some();
         if let Some(row) = prose {
             out.push(row);
         }
         // tail: a live last turn shows the activity row; a settled turn shows
-        // the answer actions (copy / feedback / share + time).
+        // the answer actions (copy / feedback / share + time). On a desktop
+        // they are a copy control, which needs an answer to copy.
         if live_tail {
             out.push(Row { kind: ItemKind::WorkingRow, index: 0, turn: turn_of(turn) });
-        } else if settled {
+        } else if settled && (answered || !crate::desk::active()) {
             out.push(Row { kind: ItemKind::AnswerActions, index: 0, turn: turn_of(turn) });
         }
     }

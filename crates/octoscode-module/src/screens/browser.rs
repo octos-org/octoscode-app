@@ -235,6 +235,9 @@ pub struct Entry {
     pub path: String,
 }
 
+/// Why a hosted desktop's folder can't be used ([`local::out_of_reach`]).
+const OUT_OF_REACH: &str = "Choose a folder inside your home folder.";
+
 /// The browser's UI-local state.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct BrowserUi {
@@ -265,6 +268,11 @@ pub struct BrowserUi {
     /// The folder chosen last ("Use this folder"): the browser reopens here.
     pub chosen: Option<String>,
     pub screen: Screen,
+    /// On a desktop inside OctoSense: the person's own folders, listed here
+    /// ([`local`]), where a session may not work in the home folder itself.
+    pub hosted: bool,
+    /// Why the chosen folder didn't open, in our own words.
+    pub use_problem: Option<String>,
 }
 
 impl BrowserUi {
@@ -311,6 +319,7 @@ impl BrowserUi {
     /// Pick a row: fill the path box and stay in this folder (walk 223).
     pub fn pick(&mut self, index: usize) -> Option<String> {
         let entry = self.entries.get(index)?;
+        self.use_problem = None;
         self.selected = Some(entry.name.clone());
         self.path_draft = entry.path.clone();
         Some(entry.path.clone())
@@ -340,6 +349,7 @@ impl BrowserUi {
         self.selected = None;
         self.failure = None;
         self.attempted = None;
+        self.use_problem = None;
         self.loading = false;
         self.new_folder_open = false;
         self.new_folder.clear();
@@ -535,7 +545,13 @@ pub fn apply(ui: &mut BrowserUi, effect: Effect) -> Option<Effect> {
             if path.is_empty() {
                 return None;
             }
+            // A path typed since the button last drew.
+            if ui.hosted && local::out_of_reach(&path) {
+                ui.use_problem = Some(OUT_OF_REACH.to_owned());
+                return None;
+            }
             ui.chosen = Some(path.clone());
+            ui.use_problem = None;
             Some(Effect::Use(path))
         }
         Effect::Back => {
@@ -617,7 +633,11 @@ fn crumb_row(ui: &BrowserUi, l: &Layout, v: &mut Ui) -> String {
     // A deep path keeps its root and its last segments (the breadcrumb never
     // wraps): "/ › … › user › code".
     let skip = crumbs.len().saturating_sub(crumbs_shown(&crumbs, l));
-    let mut out = String::from("View { width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 2\n");
+    let mut out = if crate::desk::active() {
+        String::from("View { width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 2 margin: Inset{left: -6}\n")
+    } else {
+        String::from("View { width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 2\n")
+    };
     for (i, (label, _)) in crumbs.iter().enumerate() {
         if i > 0 && i < skip {
             if i == 1 {
@@ -630,7 +650,7 @@ fn crumb_row(ui: &BrowserUi, l: &Layout, v: &mut Ui) -> String {
             out.push_str(&kit::svg("", "b1_chevron_right.svg", 12.0));
         }
         let id = format!("b1_br_crumb_{i}");
-        out.push_str(&kit::link(&id, label, kit::MUTED, 15.0, 400));
+        out.push_str(&kit::link_as_written(&id, label, kit::MUTED, 15.0, 400));
         v.button(&id, &format!("browser.crumb.{i}"));
     }
     out.push_str("}\n");
@@ -641,7 +661,7 @@ fn crumb_row(ui: &BrowserUi, l: &Layout, v: &mut Ui) -> String {
 pub fn view(ui: &BrowserUi, l: &Layout) -> Ui {
     let mut v = Ui::default();
     v.header(l, "b1_br_back", "browser.close", tr("Choose workspace folder"));
-    v.push(kit::gap(if l.phone { 10.0 } else { 6.0 }));
+    v.push(kit::gap(if crate::desk::active() { 4.0 } else if l.phone { 10.0 } else { 6.0 }));
     let crumbs = crumb_row(ui, l, &mut v);
     v.push(crumbs);
     v.push(kit::gap(if l.phone { 10.0 } else { 8.0 }));
@@ -653,24 +673,30 @@ pub fn view(ui: &BrowserUi, l: &Layout) -> Ui {
 }
 
 fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
-    let row_h = if l.phone { 56 } else { 44 };
-    let glyph = if l.phone { 24.0 } else { 22.0 };
+    let desk = crate::desk::active();
+    let row_h = if desk { 28 } else if l.phone { 56 } else { 44 };
+    let glyph = if desk { 16.0 } else if l.phone { 24.0 } else { 22.0 };
     let rows: Vec<String> = ui
         .entries
         .iter()
         .take(MAX_ROWS)
         .enumerate()
         .map(|(i, e)| {
-            let selected = ui.selected.as_deref() == Some(e.name.as_str());
+            // A Mac's list marks what the field says, not what it said before.
+            let selected = ui.selected.as_deref() == Some(e.name.as_str()) && (!desk || ui.path_draft.trim() == e.path);
             let id = format!("b1_br_row_{i}");
             v.button(&id, &format!("browser.enter.{i}"));
-            let bg = if selected {
+            let bg = if selected && desk {
+                // A Mac's selection: an inset rounded fill, inside the group's corners.
+                format!("RoundedView {{ width: Fill height: Fill margin: Inset{{left: 3 right: 3 top: 1 bottom: 1}} draw_bg.color: {} draw_bg.border_radius: 2.5 }}\n", kit::SELECTED)
+            } else if selected {
                 format!("SolidView {{ width: Fill height: Fill draw_bg.color: {} }}\n", kit::SELECTED)
             } else {
                 String::new()
             };
+            let (inset, spacing) = if desk { (10, 8) } else { (16, 14) };
             format!(
-                "View {{ width: Fill height: {row_h} flow: Overlay\n{bg}View {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 16 right: 12}} spacing: 14\n{}{}}}\n{}}}\n",
+                "View {{ width: Fill height: {row_h} flow: Overlay\n{bg}View {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {inset} right: 12}} spacing: {spacing}\n{}{}}}\n{}}}\n",
                 kit::svg("", "b1_folder.svg", glyph),
                 Text::new(&format!("b1_br_row_t{i}"), &e.name).px(15.0).fill().one_line().dsl(),
                 kit::hit(&id, !selected)
@@ -679,7 +705,7 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
         .collect();
     if rows.is_empty() {
         let empty = if ui.loading { "Loading folders\u{2026}" } else { "No subfolders here." };
-        v.push(Text::new("b1_br_empty", tr(empty)).px(14.0).color(kit::MUTED).fill().dsl());
+        v.push(Text::new("b1_br_empty", tr(empty)).px(if desk { 15.0 } else { 14.0 }).color(kit::MUTED).fill().dsl());
     } else {
         // The card never outgrows the window: rows past what fits scroll
         // inside the list (the fixed chrome around it is ~302 px in a desktop
@@ -692,13 +718,19 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
             let avail = (l.content_w - 6.0 - link).max(1.0);
             (est_w(&text, crumb_px(l)) / avail).ceil().max(1.0)
         };
-        let fixed = if l.phone { 330.0 } else { 302.0 } + (notice_lines - 1.0) * 20.0;
+        let fixed = if desk { 260.0 + (l.h - crate::desk::sheet_room(l.h)) - 32.0 } else if l.phone { 330.0 } else { 302.0 } + (notice_lines - 1.0) * 20.0;
         let fits = (((l.h - fixed) / row_h as f64).floor() as usize).max(3);
         let max_h = (rows.len() > fits).then(|| fits as f64 * (row_h as f64 + 1.0));
         v.push(kit::list_card_scroll("b1_br_list", &rows, max_h));
     }
     let notices = ui.notices();
     v.push(kit::gap(8.0));
+    if desk {
+        if !notices.is_empty() {
+            v.push(Text::new("b1_br_notice", &notices.join(" ")).px(14.0).color(kit::MUTED).fill().dsl());
+            v.push(kit::gap(8.0));
+        }
+    } else {
     v.push(format!(
         "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 6}}\n{}{}}}\n",
         Text::new("b1_br_notice", &notices.join(" ")).px(15.0).color(kit::MUTED).fill().dsl(),
@@ -708,6 +740,7 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
             String::new()
         }
     ));
+    }
     if ui.writable && !ui.new_folder_open {
         v.button("b1_br_newfolder", "browser.newfolder");
     }
@@ -720,12 +753,12 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
             v.push(kit::gap(6.0));
             v.push(Text::new("b1_br_name_problem", tr(p)).px(13.0).color(kit::RED).fill().dsl());
         }
-        v.push(kit::gap(10.0));
-        v.push(format!(
-            "View {{ width: Fill height: Fit flow: Right spacing: 12\n{}{}}}\n",
+        v.push(kit::gap(if desk { 8.0 } else { 10.0 }));
+        // A Mac's one default action on the sheet: the folder being created.
+        v.push(kit::action_row(&[
             kit::pill_outline("b1_br_newcancel", tr("Cancel"), "Fill"),
-            kit::pill_primary("b1_br_create", tr("Create folder"), "Fill")
-        ));
+            kit::pill_primary("b1_br_create", tr("Create folder"), "Fill"),
+        ]));
         v.button("b1_br_newcancel", "browser.newfolder.cancel");
         v.button("b1_br_create", "browser.create");
     }
@@ -733,6 +766,33 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
     v.push(Field::new("b1_br_path", &ui.path_draft).placeholder("/home/user/code").dsl());
     v.input("b1_br_path", "browser.path");
     v.returns("b1_br_path", "browser.go");
+    if desk {
+        let target = if ui.path_draft.trim().is_empty() { ui.path.as_str() } else { ui.path_draft.trim() };
+        let usable = !(ui.hosted && local::out_of_reach(target));
+        if let Some(problem) = &ui.use_problem {
+            v.push(kit::gap(8.0));
+            v.push(Text::new("b1_br_use_problem", tr(problem)).px(12.0).color(kit::RED).fill().dsl());
+        } else if !usable {
+            v.push(kit::gap(8.0));
+            v.push(Text::new("b1_br_use_hint", tr(OUT_OF_REACH)).px(12.0).color(kit::MUTED).fill().dsl());
+        }
+        v.push(kit::gap(16.0));
+        let leading = if ui.writable && !ui.new_folder_open {
+            vec![kit::push_button("b1_br_newfolder", tr("New folder"), false)]
+        } else {
+            Vec::new()
+        };
+        // While a folder is being named, that form holds the default action.
+        let use_it = if usable {
+            kit::push_button("b1_br_use", tr("Use this folder"), !ui.new_folder_open)
+        } else {
+            kit::push_button_off("b1_br_use", tr("Use this folder"))
+        };
+        // It stays routed: a path typed since it last drew is judged when it is used.
+        v.button("b1_br_use", "browser.use");
+        v.push(kit::sheet_buttons(&leading, &[kit::push_button("b1_br_back", tr("Cancel"), false), use_it]));
+        return;
+    }
     v.push(kit::gap(if l.phone { 12.0 } else { 10.0 }));
     v.push(kit::pill_primary("b1_br_use", tr("Use this folder"), "Fill"));
     v.button("b1_br_use", "browser.use");
@@ -767,6 +827,22 @@ fn back_label(path: &str, l: &Layout) -> (String, f64) {
 fn refused_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
     let kind = ui.failure.as_ref().map(|r| r.kind.as_str()).unwrap_or(UNKNOWN);
     let (head, next) = refusal_copy(kind);
+    if crate::desk::active() {
+        v.push(kit::gap(4.0));
+        v.push(kit::callout(false, true, head, Some(next)));
+        v.push(kit::gap(12.0));
+        v.push(Field::new("b1_br_path", &ui.path_draft).placeholder("/home/user/code").dsl());
+        v.input("b1_br_path", "browser.path");
+        v.returns("b1_br_path", "browser.go");
+        v.push(kit::gap(16.0));
+        let (back_to, _) = back_label(&ui.path, l);
+        v.push(kit::sheet_buttons(
+            &[kit::push_button("b1_br_backto", &back_to, false)],
+            &[kit::push_button("b1_br_back", tr("Cancel"), false)],
+        ));
+        v.button("b1_br_backto", "browser.back");
+        return;
+    }
     v.push(kit::gap(if l.phone { 14.0 } else { 4.0 }));
     v.push(kit::callout(false, true, head, Some(next)));
     v.push(kit::gap(if l.phone { 52.0 } else { 20.0 }));
@@ -990,6 +1066,29 @@ pub mod local {
 
     fn home() -> Option<PathBuf> {
         std::env::var_os(if cfg!(windows) { "USERPROFILE" } else { "HOME" }).filter(|h| !h.is_empty()).map(PathBuf::from)
+    }
+
+    /// Whether a session could not work in `path`, so the sheet can say so
+    /// before asking: OctosCode's entry grants the person's home, and the
+    /// shell keeps a session out of the home itself and its hidden folders
+    /// (`coding_scope.rs` `Roots::resolve`, which stays the one that decides).
+    pub fn out_of_reach(path: &str) -> bool {
+        let Some(home) = home() else { return false };
+        let path = match path.strip_prefix('~') {
+            Some(rest) if rest.is_empty() || rest.starts_with('/') => home.join(rest.trim_start_matches('/')),
+            _ => PathBuf::from(path),
+        };
+        if !path.is_absolute() {
+            return false;
+        }
+        let canonical = |p: &Path| std::fs::canonicalize(p).unwrap_or_else(|_| p.to_path_buf());
+        match canonical(&path).strip_prefix(canonical(&home)) {
+            Ok(inside) => inside.components().next().is_none_or(|top| {
+                let top = top.as_os_str().to_string_lossy();
+                top.starts_with('.') || top == "Library"
+            }),
+            Err(_) => true,
+        }
     }
 
     /// `path` (`~` expanded) resolved to a folder, or the refusal octos

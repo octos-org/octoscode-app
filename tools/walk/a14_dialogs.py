@@ -212,6 +212,9 @@ def fleet_pane() -> None:
     if W.visible("b3_fleet_back"):
         W.click("b3_fleet_back")
         W.wait_shown("b3_fleet_col", 6, gone=True)
+    elif W.visible("fleet_nav_hit"):
+        W.click("fleet_nav_hit")  # a desktop's sidebar is the way back
+        W.wait_shown("b3_fleet_col", 6, gone=True)
 
 
 def walk(w: Walk) -> None:

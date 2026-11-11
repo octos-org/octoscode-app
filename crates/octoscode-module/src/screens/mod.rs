@@ -105,6 +105,9 @@ pub mod sessions;
 pub mod theme;
 // A26: error toasts (transient, bounded) for failures that reached only the log.
 pub mod toasts;
+// A Mac's New Chat that failed before the window moved to it: an alert with
+// Try Again (a phone keeps the toast).
+pub mod start_alert;
 // A6: the conversation pane's surfaces (approval/question takeovers, the
 // plan card, the Trajectory + task detail, fold-all and view state).
 pub mod surfaces;

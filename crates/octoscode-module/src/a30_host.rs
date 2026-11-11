@@ -39,7 +39,11 @@ impl OctoscodeView {
         self.peer_dock_taps = lowered.taps.iter().map(|(n, e)| (LiveId::from_str(n), e.clone())).collect();
         // Routed by `clicked()` (`peer_dock_actions`); the NAV drain skips them.
         self.dialog_events.extend(lowered.taps.iter().map(|(_, e)| e.clone()));
-        let dsl = crate::screens::theme::retint_dsl(&crate::screens::board3::ui::themed_icons(&lowered.dsl));
+        // Routed natively: a closure left in the body would run after the
+        // click's own remount replaced it (a script error in the log).
+        let dsl = crate::screens::theme::retint_dsl(&crate::screens::board3::ui::themed_icons(
+            &crate::screens::taps::native_clicks_only(&lowered.dsl),
+        ));
         let splash = self.view.splash(cx, ids!(peer_dock_splash));
         match self.mounts.mount(cx, &splash, &dsl) {
             Err(e) => makepad_widgets::log!("[octoscode] peer dock mount: {e}"),
@@ -92,6 +96,17 @@ impl OctoscodeView {
     /// Perform one `pd.*` action: fold / focus locally; a row action spawns
     /// its ONE control job on the runtime (or says why nothing was sent).
     pub(crate) fn perform_peer_dock(&mut self, cx: &mut Cx, action: &str, slot: usize) {
+        // A Mac decides a peer's approval in the content pane, as Fleet does:
+        // the sidebar's row opens Fleet, never a card inside the row.
+        if crate::desk::active() && action == dock::ACTION_FOCUS {
+            makepad_widgets::log!("[octoscode] peer dock {action}#{slot} -> fleet");
+            if !crate::desk::fleet_is_selected() {
+                self.perform_action(cx, "b3.open.fleet", 0);
+            }
+            self.sync_labels(cx);
+            self.view.redraw(cx);
+            return;
+        }
         let (store, conv) = {
             let b = self.bridge.lock().unwrap();
             (b.store.clone(), b.conv.clone())

@@ -77,8 +77,9 @@ def fatal():
     s = snap()
     check("the crash screen is drawn alone (no chrome behind it)",
           not is_shown("threads_column", s) and not is_shown("conversation_column", s) and not is_shown("settings_drawer", s))
-    check("the web's copy", text_of("a9_cr_title", s) == "Client view unavailable")
-    report = text_of("a9_cr_report", s) or ""
+    check("the web's copy", text_of("a9_cr_title", s) == ("Client view unavailable" if MODE == "phone" else "OctosCode Stopped Working"))
+    # A desktop keeps the report one click away (Copy diagnostics): read it hidden or shown.
+    report = next((r.get("t", "") for r in s if r.get("i") == "a9_cr_report"), "")
     check("the report is redacted (token + bearer)", "token=[redacted]" in report and "Bearer [redacted]" in report
           and "probe-secret-123" not in report and "probe-bearer-456" not in report, report[:120])
     card = rect("a9_cr_card", s=s)
@@ -105,7 +106,7 @@ def modal():
     check("the Activity surface fails under its own boundary",
           soon(lambda: is_shown("a9_un_panel")) and any("a9 surface boundary: Activity unavailable" in l for l in lines + log_since()), f"{ok}")
     s = snap()
-    check("'Activity unavailable' with the web's copy", text_of("a9_un_title", s) == "Activity unavailable"
+    check("'Activity unavailable' with the web's copy", text_of("a9_un_title", s) == ("Activity unavailable" if MODE == "phone" else "Activity Unavailable")
           and text_of("a9_un_p0", s) == "This view could not be displayed. Other parts of the app remain available.")
     check("a modal (over a backdrop)", is_shown("a9_un_mask", s))
     # (On a phone the sidebar is a closed drawer; the conversation is there.)
@@ -130,7 +131,7 @@ def inline():
     check("the Fleet pane fails under its own boundary",
           soon(lambda: is_shown("a9_un_panel")) and any("a9 surface boundary: Fleet unavailable" in l for l in log_since()))
     s = snap()
-    check("an inline section (no backdrop)", not is_shown("a9_un_mask", s) and text_of("a9_un_title", s) == "Fleet unavailable")
+    check("an inline section (no backdrop)", not is_shown("a9_un_mask", s) and text_of("a9_un_title", s) == ("Fleet unavailable" if MODE == "phone" else "Fleet Unavailable"))
     col, panel, head = rect("conversation_column", s=s), rect("a9_un_panel", s=s), rect("oc_header", s=s)
     check("…placed in the conversation column", col and panel and panel[0] >= col[0] and panel[0] + panel[2] <= col[0] + col[2] + 0.5, f"{panel} in {col}")
     check("…under its header (Review / Settings stay reachable)", head and panel and panel[1] >= head[1] + head[3], f"{panel} under {head}")

@@ -12,6 +12,18 @@ one was pushed out; a modal (Settings; the phone drawer) HOLDS the stack
 (hidden) and it returns when the modal closes; × dismisses one; the rest
 leave on their own; the app log announces each arrival, push-out, dismissal
 and expiry; the same in the dark theme.
+
+oc7 (round 8 E): a Mac says a refused New Chat where the chat would start
+(`start_title`, the server's words, Try Again), never in a toast, so the
+desktop drives its toasts with a refused send (`--refuse turn/start`, which a
+phone never sends): one toast with the plain lead, the protocol's words in the
+log; the same failure again counts on it (×2); held under Settings; ×
+dismisses it; the next one leaves on its own; raised in the dark theme. Then
+the refused New Chat: said where it would start, no toast, the server's
+reason, inside the conversation, Try Again the blue default that opens it
+again (refused again, it says the new reason); the same in the dark theme.
+The queue's bound (3 + the note) needs four distinct failures, which only the
+phone's New Chat still raises: it is walked there and in the unit tests.
 """
 import os
 import re
@@ -23,9 +35,11 @@ import a26_lib as L  # noqa: E402
 
 WALK = {
     "name": "a26_toasts",
-    "title": "Error toasts: a refused New chat says so; bounded (3 + note), held under a modal, dismissible, transient",
+    "title": "Error toasts: a refused New chat says so (a phone's toast; a Mac's own words where the chat would start, "
+             "with Try Again); bounded (3 + note), held under a modal, dismissible, transient",
     "modes": ["desktop", "phone"],
-    "fixture": {"argv": ["{examples}/replay_serve", "{fport}", "--scenario", "history", "--refuse", "session/open@1"]},
+    "fixture": {"argv": ["{examples}/replay_serve", "{fport}", "--scenario", "history", "--refuse", "session/open@1",
+                         "--refuse", "turn/start"]},
     "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_PROFILE_ID": "dsflash",
                     "OCTOS_BEARER": "replay", "OCTOSCODE_THEME": "light"},
             "ready": ["i0_composer_0"]},
@@ -36,6 +50,13 @@ WALK = {
 }
 
 LEAD = "Couldn't start a new chat."
+# A Mac: a refused send's toast, and a refused New Chat's own words.
+SEND_LEAD = "Your message was not sent."
+START_TITLE = "Couldn’t Start a New Chat"
+
+
+def plain(t):
+    return (t or "").replace("’", "'")
 
 
 def toasts(w, sn=None):
@@ -58,9 +79,162 @@ def new_chat(w):
     time.sleep(0.4)
 
 
+def send(w, text):
+    """Type `text` in the composer and press Return (the draft a refused send
+    restores is cleared first)."""
+    c = w.composer()
+    if not c:
+        return False
+    cx, cy, cw, ch = c["r"]
+    w.click_xy(cx + cw / 2, cy + ch / 2)
+    w.clear_field(40)
+    w.type_text(text)
+    w.key("Return")
+    time.sleep(0.5)
+    return True
+
+
+def log_lines(w, needle, secs=4.0):
+    """The app log's lines since the last read, waiting up to `secs` for
+    `needle` (a walk's log reads consume lines: read once, check many)."""
+    seen = []
+
+    def has():
+        seen.extend(w.log_since())
+        return any(needle in l for l in seen)
+
+    w.wait(has, secs)
+    return seen
+
+
+def started(w):
+    """A Mac's refused New Chat, said where the chat would start."""
+    return w.visible("start_title") and plain(w.text("start_title")) == plain(START_TITLE)
+
+
+def desktop(w):
+    w.mark()
+    w.check("no toast before anything failed", not w.visible("toast_dock") and not toasts(w))
+    # 1 — a refused send.
+    send(w, "First try")
+    ok = w.wait(lambda: len(toasts(w)) == 1, 8)
+    shown = toasts(w)
+    w.check("a refused send raises one toast", ok, f"{[(t[1], t[2]) for t in shown]}")
+    if not shown:
+        sys.exit(w.summary())
+    _, lead, cause, card, x = shown[0]
+    w.check("its lead says what failed, plainly", lead == SEND_LEAD, repr(lead))
+    w.check("the server really refused it (the wire)", w.replay_saw("turn/start", 4) >= 1
+            and "turn/start refused" in (w.replay_log.read_text() if w.replay_log else ""))
+    arrival = [l for l in log_lines(w, f"toast: {SEND_LEAD}") if f"toast: {SEND_LEAD}" in l]
+    w.check("the arrival is announced in the app log", bool(arrival))
+    w.check("a Mac leaves the protocol's words to the log, not the toast",
+            not cause and bool(arrival) and "refused turn/start #1" in arrival[0], f"cause={cause!r} log={arrival[:1]}")
+    sn = w.snap()
+    col, head, comp = w.rect("conversation_column", sn=sn), w.rect("oc_header", sn=sn), w.rect("composer_row", sn=sn)
+    w.check("the toast sits inside the conversation, under its header",
+            bool(card and col and head and L.inside(card, col) and card[1] >= head[1] + head[3]), f"card={card} col={col} head={head}")
+    w.check("right-aligned in the conversation (16 px inset), at most 360 px",
+            bool(card and col) and abs((col[0] + col[2] - 16) - (card[0] + card[2])) <= 2 and card[2] <= 361, f"card={card} col={col}")
+    w.check("clear of the composer", bool(card and comp) and card[1] + card[3] <= comp[1] - 8, f"card={card} composer={comp}")
+    w.check("× is a >= 28 px target inside the toast", bool(x and card and x[2] >= 28 and x[3] >= 28 and L.inside(x, card)), f"{x}")
+    r = w.rect(f"a26_toast_lead_{shown[0][0]}", sn=sn)
+    w.check(f"a26_toast_lead_{shown[0][0]} lies whole inside its toast", bool(r and card and L.inside(r, card)), f"{r} in {card}")
+    w.shot("desktop-toast-one-light")
+    # The composer still takes typing with a toast up (the refused text is back in it).
+    c = w.composer()
+    if c:
+        cx, cy, cw, ch = c["r"]
+        w.click_xy(cx + cw / 2, cy + ch / 2)
+        w.type_text("still typing")
+        typed = (w.composer() or {}).get("val") or ""
+        w.check("the composer still takes typing under a toast", "still typing" in typed, repr(typed))
+        w.clear_field(40)
+    # 2 — the same failure again counts on its toast.
+    send(w, "Second try")
+    ok = w.wait(lambda: len(toasts(w)) == 1 and any(w.text(f"a26_toast_count_{t[0]}") == "×2" for t in toasts(w)), 8)
+    w.check("the same failure again counts on its toast (×2), never a copy", ok, f"{[(t[1], t[2]) for t in toasts(w)]}")
+    w.shot("desktop-toast-count-light")
+    # 3 — held under a modal.
+    w.check("Settings opens from the footer", L.open_settings_from_footer(w))
+    w.check("Settings holds the stack: no toast over the dialog", w.wait(lambda: not w.visible("toast_dock"), 4))
+    w.shot("desktop-toast-held-settings")
+    L.close_settings(w)
+    w.check("the stack returns when Settings closes", w.wait(lambda: len(toasts(w)) == 1, 4))
+    # 4 — × dismisses it.
+    shown = toasts(w)
+    w.mark()
+    if shown:
+        r = shown[0][4]
+        w.note(f"CLICK × on the toast r={r}")
+        w.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
+    w.check("× dismisses that toast", w.wait(lambda: not toasts(w), 4) and w.logged("toast dismissed", 4))
+    # 5 — transient: the next one leaves on its own.
+    send(w, "Third try")
+    w.check("another refused send raises its toast", w.wait(lambda: len(toasts(w)) == 1, 8))
+    w.check("it leaves on its own (8 s on screen)", w.wait(lambda: not w.visible("toast_dock"), 14))
+    w.check("its expiry is announced", w.logged("toast expired", 4))
+    # 6 — the dark theme.
+    w.check("Settings > Preferences reaches Dark", L.set_look(w, "dark"))
+    send(w, "Dark try")
+    ok = w.wait(lambda: len(toasts(w)) == 1, 8)
+    w.check("dark: a refused send raises its toast", ok)
+    time.sleep(0.5)
+    sn = w.snap()
+    shown = toasts(w, sn)
+    if shown:
+        card = shown[0][3]
+        px = L.pixel(w, card[0] + card[2] - 40, card[1] + card[3] - 8)
+        # A Mac raises it to its own dark surface.
+        w.check("dark: the toast card is drawn raised on the dark window (#363638)",
+                px is not None and L.near(px, L.hex_rgb("#363638"), 8), f"pixel {px}")
+    w.shot("desktop-toast-one-dark")
+    # 7 — a refused New Chat says so where the chat would start (dark first).
+    w.mark()
+    new_chat(w)
+    ok = w.wait(lambda: started(w), 8)
+    w.check("dark: a refused New Chat says so where the chat would start", ok, repr(w.text("start_title")))
+    lines = log_lines(w, "new chat refused:")
+    w.check("…and raises no toast", not any(t[1] == LEAD for t in toasts(w)) and not any(f"toast: {LEAD}" in l for l in lines))
+    w.shot("desktop-new-chat-refused-dark")
+    w.check("back to Light", L.set_look(w, "light"))
+    w.check("light: it still says so", w.wait(lambda: started(w), 4))
+    hint = w.text("start_hint") or ""
+    w.check("its words are the server's reason", "refused session/open #2" in hint, repr(hint))
+    w.check("the server really refused it (the wire)", w.replay_saw("session/open", 4) >= 2
+            and "session/open refused" in (w.replay_log.read_text() if w.replay_log else ""))
+    w.check("the refusal is announced in the app log", any("new chat refused:" in l for l in lines))
+    sn = w.snap()
+    col, head, comp = w.rect("conversation_column", sn=sn), w.rect("oc_header", sn=sn), w.rect("composer_row", sn=sn)
+    title, again = w.rect("start_title", sn=sn), w.rect("new_chat_retry_wrap", sn=sn)
+    w.check("it sits in the conversation, under its header, above the composer",
+            bool(title and col and head and comp and L.inside(title, col) and title[1] >= head[1] + head[3]
+                 and title[1] + title[3] <= comp[1]), f"title={title} col={col}")
+    w.check("Try Again is a 28 px button under it, centred in the conversation",
+            bool(again and title and col and again[3] >= 28 and again[1] >= title[1] + title[3]
+                 and abs((again[0] + again[2] / 2) - (col[0] + col[2] / 2)) <= 2), f"retry={again} col={col}")
+    if again:
+        px = L.pixel(w, again[0] + 5, again[1] + again[3] / 2)
+        w.check("…the blue default", px is not None and L.near(px, L.hex_rgb("#0071e3"), 24), f"pixel {px}")
+    w.shot("desktop-new-chat-refused-light")
+    # Try Again opens it again: refused again, it says the new reason.
+    w.mark()
+    w.click("new_chat_retry")
+    w.check("Try Again opens the chat again (the wire: another session/open)",
+            w.wait(lambda: w.replay_saw("session/open", 1) >= 3, 8) and w.logged("new chat: Try Again", 4))
+    w.check("…refused again, it says the new reason",
+            w.wait(lambda: started(w) and "refused session/open #3" in (w.text("start_hint") or ""), 8), repr(w.text("start_hint")))
+    w.check("…still without a toast", not any(t[1] == LEAD for t in toasts(w)))
+    w.shot("desktop-new-chat-retried-light")
+    sys.exit(w.summary())
+
+
 def main():
     w = L.walk_from_argv()
     mode = w.mode
+    if mode == "desktop":
+        desktop(w)
+        return
     w.mark()
     w.check("no toast before anything failed", not w.visible("toast_dock") and not toasts(w))
     # 1 — a refused New chat.
@@ -142,13 +316,14 @@ def main():
     # 6 — the dark theme.
     if mode == "phone":
         L.open_drawer(w)
-    for _ in range(2):
-        w.click("sb_theme_hit")
-        time.sleep(0.8)
-    w.check("the footer's toggle reaches Dark", w.wait(lambda: w.text("sb_theme_label") == "Dark", 4))
-    if mode == "phone":
+        for _ in range(2):
+            w.click("sb_theme_hit")
+            time.sleep(0.8)
+        w.check("the footer's toggle reaches Dark", w.wait(lambda: w.text("sb_theme_label") == "Dark", 4))
         w.click("drawer_close")
         time.sleep(0.6)
+    else:
+        w.check("Settings > Preferences reaches Dark", L.set_look(w, "dark"))
     new_chat(w)
     ok = w.wait(lambda: len(toasts(w)) == 1, 8)
     w.check("dark: a refused New chat raises its toast", ok)
@@ -160,8 +335,11 @@ def main():
         px = L.pixel(w, card[0] + card[2] - 40, card[1] + card[3] - 8)
         # The card is RAISED over a dark window (the dark twin of the chip
         # fill, #2C2C2E), never the window's own #1C1F22.
-        w.check("dark: the toast card is drawn raised on the dark window (#2C2C2E)",
-                px is not None and L.near(px, L.hex_rgb("#2c2c2e"), 8), f"pixel {px}")
+        # A Mac raises it to its own dark surface.
+        raised = "#2c2c2e" if mode == "phone" else "#363638"
+        w.check("dark: the toast card is drawn raised on the dark window (#2C2C2E)" if mode == "phone"
+                else "dark: the toast card is drawn raised on the dark window (#363638)",
+                px is not None and L.near(px, L.hex_rgb(raised), 8), f"pixel {px}")
     w.shot(f"{mode}-toast-one-dark")
     new_chat(w)
     w.wait(lambda: len(toasts(w)) == 2, 6)
@@ -169,8 +347,10 @@ def main():
     # Restore the light theme.
     if mode == "phone":
         L.open_drawer(w)
-    w.click("sb_theme_hit")
-    w.check("back to Light", w.wait(lambda: w.text("sb_theme_label") == "Light", 4))
+        w.click("sb_theme_hit")
+        w.check("back to Light", w.wait(lambda: w.text("sb_theme_label") == "Light", 4))
+    else:
+        w.check("back to Light", L.set_look(w, "light"))
     sys.exit(w.summary())
 
 

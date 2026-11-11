@@ -410,15 +410,23 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, store: &Store) {
     ui::shell_open(d, frame, width);
     // The slash header + close (board: mono "/thread", the X at the right).
     let row = d.anon();
-    d.view(&row, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5}");
+    d.view(&row, crate::desk::by(
+        "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5}",
+        "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}",
+    ));
     d.text("b3_insp_slash", st.mode.slash(), &Txt::new(16.0, Face::Mono, tok::TEXT).w(W::Fill));
     ui::close_glyph(d, "b3.close");
     d.close();
-    d.gap(W::Fill, 6.0);
+    if !crate::desk::active() {
+        d.gap(W::Fill, 6.0);
+    }
     d.text("b3_title", tr(st.mode.title()), &Txt::new(20.0, Face::Semibold, tok::TEXT).w(W::Fill));
     // Scope line + refresh glyph (`InspectionDialog.tsx:70-76`).
     let scope_row = d.anon();
-    d.view(&scope_row, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5}");
+    d.view(&scope_row, crate::desk::by(
+        "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5}",
+        "width: Fill height: 6 flow: Right align: Align{x: 0.0 y: 0.5}",
+    ));
     // A8 — before the first read starts, the scope is the active Session
     // (the web's dialog is scoped by its props from the first frame; an
     // empty "Session: " flashed between the open and the load).
@@ -428,7 +436,10 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, store: &Store) {
         scope.push_str(&format!(" · {} {}", tr("Turn:"), short(id)));
     }
     d.text("b3_insp_scope", &scope, &Txt::new(12.0, Face::Mono, tok::MUTED).w(W::Fill));
-    ui::icon_button(d, "b3_insp_refresh_glyph", "b3_refresh.svg", 20.0, "b3.insp.refresh");
+    // A Mac sheet has its Refresh on its foot, once.
+    if !crate::desk::active() {
+        ui::icon_button(d, "b3_insp_refresh_glyph", "b3_refresh.svg", 20.0, "b3.insp.refresh");
+    }
     d.close();
     d.text(
         "b3_insp_note",
@@ -473,19 +484,31 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, store: &Store) {
     d.close();
     ui::body_close(d);
     // The board's bottom-right Refresh pill.
-    d.gap(W::Fill, 12.0);
-    let foot = d.anon();
-    d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
+    d.foot_begin(ui::Foot::Lead);
     let kind = if st.loading { Btn::Disabled } else { Btn::Secondary };
     let label = tr(if st.loading { "Reading…" } else { "Refresh" });
-    d.button("b3_insp_refresh", label, "b3.insp.refresh", kind, W::Fit, 34.0);
-    d.close();
+    if crate::desk::active() {
+        d.button("b3_insp_refresh", label, "b3.insp.refresh", kind, W::Fit, 28.0);
+    } else {
+        d.gap(W::Fill, 12.0);
+        let foot = d.anon();
+        d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
+        d.button("b3_insp_refresh", label, "b3.insp.refresh", kind, W::Fit, 34.0);
+        d.close();
+    }
+    d.foot_end();
     ui::shell_close(d);
 }
 
 fn graph_card(d: &mut Dsl, st: &InspState, compact: bool) {
+    let desk = crate::desk::active();
     ui::card_open(d, "b3_insp_graph", 4.0);
-    ui::section_title(d, "b3_insp_graph_title", tr("Thread graph"));
+    if desk && st.mode == Mode::Threads {
+        // The sheet's own title says it.
+        d.unseen("b3_insp_graph_title", tr("Thread graph"));
+    } else {
+        ui::section_title(d, "b3_insp_graph_title", tr("Thread graph"));
+    }
     match &st.graph {
         None => d.text("", tr("No thread graph read yet."), &ui::meta()),
         Some(g) if g.threads.is_empty() => {
@@ -494,23 +517,40 @@ fn graph_card(d: &mut Dsl, st: &InspState, compact: bool) {
         Some(g) => {
             // The web's count + t("thread(s) · Cursor") + cursor
             // (InspectionDialog.tsx:149-152), with the native plural.
-            d.text(
-                "b3_insp_graph_summary",
-                &tr_with(
-                    if g.threads.len() == 1 { "{value0} thread · Cursor {value1}" } else { "{value0} threads · Cursor {value1}" },
-                    &[("value0", &g.threads.len().to_string()), ("value1", &g.cursor)],
-                ),
-                &ui::micro().w(W::Fill).wrap(),
+            let summary = tr_with(
+                if g.threads.len() == 1 { "{value0} thread · Cursor {value1}" } else { "{value0} threads · Cursor {value1}" },
+                &[("value0", &g.threads.len().to_string()), ("value1", &g.cursor)],
             );
+            if desk {
+                d.unseen("b3_insp_graph_summary", &summary);
+                d.text("", summary.split(" · ").next().unwrap_or(&summary), &ui::micro().w(W::Fill).wrap());
+            } else {
+                d.text("b3_insp_graph_summary", &summary, &ui::micro().w(W::Fill).wrap());
+            }
             d.gap(W::Fill, 4.0);
             let last = g.threads.len() - 1;
             for (i, t) in g.threads.iter().enumerate() {
                 let rid = format!("b3_insp_thread_{i}");
-                let label = if i == last { tr("current").to_owned() } else { format!("#{}", i + 1) };
+                let label = if i == last {
+                    tr("current").to_owned()
+                } else if desk {
+                    tr1("Thread {value0}", &(i + 1).to_string())
+                } else {
+                    format!("#{}", i + 1)
+                };
                 let facts = tr_with("{value0} · root seq {value1}", &[("value0", &t.status), ("value1", &t.root_seq.to_string())]);
                 let n = t.message_seqs.len();
                 let count = tr1(if n == 1 { "{value0} message" } else { "{value0} messages" }, &n.to_string());
-                if compact {
+                if desk {
+                    d.view(&rid, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
+                    d.text("", &crate::desk::sentence(&label), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Px(64.0)));
+                    d.unseen(&format!("{rid}_facts"), &format!("{} {facts}", short(&t.thread_id)));
+                    let known = !t.status.is_empty() && t.status != "unknown";
+                    let state = if known { crate::desk::wire_word(&t.status) } else { String::new() };
+                    d.text("", &state, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill));
+                    d.text("", &count, &Txt::new(12.0, Face::Regular, tok::MUTED));
+                    d.close();
+                } else if compact {
                     // Phone-narrow: the facts move under the id (one column
                     // of 300 px cannot hold four).
                     d.view(&rid, "width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 5 bottom: 5}");
@@ -536,11 +576,12 @@ fn graph_card(d: &mut Dsl, st: &InspState, compact: bool) {
             }
             if !g.orphans.is_empty() {
                 let list: Vec<String> = g.orphans.iter().map(|o| o.to_string()).collect();
-                d.text(
-                    "b3_insp_orphans",
-                    &format!("{} {}", tr("Orphan message sequences:"), list.join(", ")),
-                    &ui::micro().w(W::Fill),
-                );
+                let line = format!("{} {}", tr("Orphan message sequences:"), list.join(", "));
+                if desk {
+                    d.unseen("b3_insp_orphans", &line);
+                } else {
+                    d.text("b3_insp_orphans", &line, &ui::micro().w(W::Fill));
+                }
             }
         }
     }
@@ -583,7 +624,7 @@ fn scopes_card(d: &mut Dsl, st: &InspState) {
             for (i, s) in rows.iter().enumerate() {
                 let rid = format!("b3_insp_scope_{i}");
                 d.view(&rid, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
-                let mut name: String = s.scope.clone();
+                let mut name: String = s.scope.replace('_', if crate::desk::active() { " " } else { "_" });
                 if let Some(first) = name.get(0..1) {
                     name = format!("{}{}", first.to_uppercase(), &name[1..]);
                 }
@@ -634,6 +675,8 @@ fn link_card(d: &mut Dsl, st: &InspState, field_w: f64) {
             tr("This conversation does not have a complete saved reference yet."),
             &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
         );
+    } else if crate::desk::active() {
+        d.unseen("b3_insp_link_value", &link_line(&st.link, field_w));
     } else {
         // A8 kept the full link visible (the web's clipboard-denied
         // fallback, `CopySessionLink.tsx:71-85`); A13: on one line, with a

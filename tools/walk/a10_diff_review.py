@@ -74,11 +74,17 @@ def code_text(W: Walk, lid: str) -> str:
 
 
 def header_review(W: Walk) -> bool:
-    ok = W.click("review_open_hit") and W.wait(lambda: bool(W.visible("b3_diff_eyebrow")), 8)
+    # A Mac's sheet leads with its title.
+    mark = "b3_diff_eyebrow" if MODE == "phone" else "b3_title"
+    ok = W.click("review_open_hit") and W.wait(lambda: bool(W.visible(mark)), 8)
     if not ok:
         W.note("RETRY review_open_hit")
-        ok = W.click("review_open_hit") and W.wait(lambda: bool(W.visible("b3_diff_eyebrow")), 8)
+        ok = W.click("review_open_hit") and W.wait(lambda: bool(W.visible(mark)), 8)
     return ok
+
+
+def fact(W: Walk, wid: str) -> str:
+    return W.text(wid) if MODE == "phone" else W.text_hidden_too(wid)
 
 
 def send_prompt(W: Walk, text: str) -> bool:
@@ -97,17 +103,25 @@ def send_prompt(W: Walk, text: str) -> bool:
 
 def walk(W: Walk) -> None:
     W.note("== 1. no preview yet: the header Review entry")
+    if MODE != "phone":
+        # A Mac greys Review on a chat with nothing in it; a first turn lights it.
+        W.check("header: an empty chat's Review is grey and a click opens nothing",
+                bool(W.visible("hd_review_veil")) and W.click("review_open_hit")
+                and not W.wait(lambda: bool(W.visible("b3_dialog")), 1.5))
+        W.check("turn: a prompt CLICK + Return -> turn/start (the approvals turn)", send_prompt(W, "apply the version flag"))
+        W.check("approval: the command approval takes the composer over", W.wait(lambda: bool(W.visible("cv_ap_card")), 25))
     W.check("header: Review CLICK opens the diff review modal (eyebrow + 'Review changes')",
-            header_review(W) and W.text("b3_title") == "Review changes"
-            and W.text("b3_diff_eyebrow") == "Authoritative diff preview")
+            header_review(W) and W.text("b3_title") == ("Review changes" if MODE == "phone" else "Review Changes")
+            # A Mac's sheet leads with its title.
+            and (W.text("b3_diff_eyebrow") == "Authoritative diff preview" if MODE == "phone" else not W.visible("b3_diff_eyebrow")))
     W.check("empty: 'No diff preview yet' + the reason; nothing is read",
-            W.text("b3_diff_empty_head") == "No diff preview yet" and bool(W.text("b3_diff_empty_body"))
+            W.text("b3_diff_empty_head") == ("No diff preview yet" if MODE == "phone" else "No Diff Preview Yet") and bool(W.text("b3_diff_empty_body"))
             and W.replay_saw("diff/preview/get", 0) == 0)
     numeric(W, "empty")
     W.shot(f"01-empty-{MODE}")
     if W.visible("b3_diff_native"):
         W.check("empty: 'Code review…' CLICK opens the Code review dialog (/review)",
-                W.click("b3_diff_native") and W.wait(lambda: W.has_text("Code review") and not W.visible("b3_diff_eyebrow"), 8))
+                W.click("b3_diff_native") and W.wait(lambda: W.has_text("Code review" if MODE == "phone" else "Code Review") and not W.visible("b3_diff_eyebrow"), 8))
         W.shot(f"01b-code-review-{MODE}")
         # A phone has no Escape (the shell's Escape leaves the app): the
         # dialog's own close control.
@@ -122,8 +136,9 @@ def walk(W: Walk) -> None:
         W.check("empty: the close control CLICK closes it", W.click("b3_close") and W.wait_shown("b3_dialog", 6, gone=True))
 
     W.note("== 2. a typed diff approval's Review diff")
-    W.check("turn: a prompt CLICK + Return -> turn/start (the approvals turn)", send_prompt(W, "apply the version flag"))
-    W.check("approval: the command approval takes the composer over", W.wait(lambda: bool(W.visible("cv_ap_card")), 25))
+    if MODE == "phone":
+        W.check("turn: a prompt CLICK + Return -> turn/start (the approvals turn)", send_prompt(W, "apply the version flag"))
+        W.check("approval: the command approval takes the composer over", W.wait(lambda: bool(W.visible("cv_ap_card")), 25))
     W.click("cv_ap_deny")
     W.check("approval: Deny -> the typed DIFF approval with 'Review diff'",
             W.wait(lambda: W.text("cv_ap_title").startswith("Apply a patch") and bool(W.visible("cv_ap_diff")), 10),
@@ -133,8 +148,9 @@ def walk(W: Walk) -> None:
             and W.replay_saw("diff/preview/get", 4) == 1, f"title={W.text('b3_title')!r}")
     W.check("diff: the totals, status · source · id, the file, its hunk and lines",
             W.text("b3_diff_add") == "+4" and W.text("b3_diff_del") == "−1"
-            and W.text("b3_diff_status") == "ready" and W.text("b3_diff_source") == "pending_store"
-            and "01920000-0000-7000-8000-0000000000f1".startswith(W.text("b3_diff_preview_id").rstrip("…")[:12])
+            # A desktop keeps the status, the source and the id out of sight.
+            and fact(W, "b3_diff_status") == "ready" and fact(W, "b3_diff_source") == "pending_store"
+            and "01920000-0000-7000-8000-0000000000f1".startswith(fact(W, "b3_diff_preview_id").rstrip("…")[:12])
             and W.text("b3_diff_file_0_path") == "src/main.rs" and W.text("b3_diff_file_0_status") == "modified"
             and W.text("b3_diff_file_0_h0_header").startswith("@@ -10,6 +10,9 @@")
             and code_text(W, "b3_diff_file_0_h0_l2").strip() == "if args.version {"

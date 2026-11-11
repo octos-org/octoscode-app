@@ -417,6 +417,7 @@ pub fn cjk_sans(dsl: &str) -> String {
 /// ScriptMod::cargo_manifest_path), which does not exist on the phone; the
 /// spliced runtime value carries the materialized root's absolute path.
 pub fn icon_resource(name: &str) -> String {
+    let name = crate::desk::mac_icon(name);
     font_file(&format!("icons/{name}")).display().to_string()
 }
 

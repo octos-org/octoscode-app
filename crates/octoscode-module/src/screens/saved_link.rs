@@ -393,27 +393,44 @@ pub async fn open(conv: &crate::flow::Conversation) -> Result<String, String> {
 
 /// The panel (`SavedSessionLinkPanel.tsx:15-89`; the invalid link's
 /// `App.tsx:1878-1890`), on the board-3 dialog frame.
+/// The sheet's head. On a Mac, Dismiss Link in the foot is its way out.
+fn head(d: &mut Dsl, title: &str) {
+    if crate::desk::active() {
+        d.text("b3_title", title, &ui::title().w(W::Fill));
+    } else {
+        ui::header(d, title, "b3.link.dismiss");
+    }
+}
+
 pub fn build(d: &mut Dsl, frame: &Frame) {
     let st = snapshot();
     let width = frame.dialog_w(520.0);
     ui::shell_open(d, frame, width);
     let Some(reference) = st.reference.clone() else {
-        ui::header(d, tr("This conversation link is invalid"), "b3.link.dismiss");
+        head(d, tr("This conversation link is invalid"));
         d.gap(W::Fill, 6.0);
         d.text(
             "b3_link_invalid",
             tr("It does not contain a complete server workspace and conversation reference."),
             &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill).wrap(),
         );
-        d.gap(W::Fill, 16.0);
-        let foot = d.anon();
-        d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} spacing: 8");
-        d.button("b3_link_dismiss", tr("Dismiss link"), "b3.link.dismiss", Btn::Outline, W::Fit, 34.0);
-        d.close();
+        if crate::desk::active() {
+            // A one-button alert: its button is the default.
+            d.foot_begin(ui::Foot::Default);
+            d.button("b3_link_dismiss", tr("Dismiss link"), "b3.link.dismiss", Btn::Primary, W::Fit, 28.0);
+            d.foot_end();
+            d.foot_default_event("b3.link.dismiss");
+        } else {
+            d.gap(W::Fill, 16.0);
+            let foot = d.anon();
+            d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} spacing: 8");
+            d.button("b3_link_dismiss", tr("Dismiss link"), "b3.link.dismiss", Btn::Outline, W::Fit, 34.0);
+            d.close();
+        }
         ui::shell_close(d);
         return;
     };
-    ui::header(d, tr("Open saved conversation"), "b3.link.dismiss");
+    head(d, tr("Open saved conversation"));
     d.gap(W::Fill, 4.0);
     d.text(
         "b3_link_desc",
@@ -424,7 +441,8 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     // The widths a path line has (the renderer breaks only at spaces, so a
     // long path is broken by characters, the web's `overflow-wrap`).
     let pad = ui::dialog_pad(frame, width);
-    let card_chars = mono_chars(width - 2.0 * pad - 28.0 - 10.0, 12.5);
+    let key_room = crate::desk::by(0.0, LINK_KEY_W + 8.0);
+    let card_chars = mono_chars(width - 2.0 * pad - 28.0 - 10.0 - key_room, 12.5);
     let alert_chars = mono_chars(width - 2.0 * pad - 10.0 - 24.0 - 26.0, 12.0);
     // `role="alert"` — the refusal stays in view above the body (the body is
     // height-capped and scrolls; an alert scrolled out of sight is unread).
@@ -481,27 +499,40 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     );
     d.close();
     ui::body_close(d);
-    d.gap(W::Fill, 14.0);
-    let foot = d.anon();
-    d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} spacing: 8");
     let (dismiss, primary) = if st.opening { (Btn::Disabled, Btn::Disabled) } else { (Btn::Outline, Btn::Primary) };
-    d.button("b3_link_dismiss", tr("Dismiss link"), "b3.link.dismiss", dismiss, W::Fit, 34.0);
-    d.button(
-        "b3_link_open",
-        if st.opening { tr("Opening conversation…") } else { tr("Open conversation") },
-        "b3.link.open",
-        primary,
-        W::Fit,
-        34.0,
-    );
-    d.close();
+    let open_word = if st.opening { tr("Opening conversation…") } else { tr("Open conversation") };
+    if crate::desk::active() && st.error.is_some() && !st.opening {
+        // Refused: opening again is a choice, not the default; Dismiss Link is.
+        d.foot_begin(ui::Foot::Trail);
+        d.button("b3_link_open", tr("Try again"), "b3.link.open", Btn::Outline, W::Fit, 28.0);
+        d.foot_end();
+        d.foot_begin(ui::Foot::Default);
+        d.button("b3_link_dismiss", tr("Dismiss link"), "b3.link.dismiss", Btn::Primary, W::Fit, 28.0);
+        d.foot_end();
+        d.foot_default_event("b3.link.dismiss");
+    } else if crate::desk::active() {
+        d.foot_begin(ui::Foot::Trail);
+        d.button("b3_link_dismiss", tr("Dismiss link"), "b3.link.dismiss", dismiss, W::Fit, 28.0);
+        d.foot_end();
+        d.foot_begin(ui::Foot::Default);
+        d.button("b3_link_open", open_word, "b3.link.open", primary, W::Fit, 28.0);
+        d.foot_end();
+    } else {
+        d.gap(W::Fill, 14.0);
+        let foot = d.anon();
+        d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} spacing: 8");
+        d.button("b3_link_dismiss", tr("Dismiss link"), "b3.link.dismiss", dismiss, W::Fit, 34.0);
+        d.button("b3_link_open", open_word, "b3.link.open", primary, W::Fit, 34.0);
+        d.close();
+    }
     ui::shell_close(d);
 }
 
 /// The refusal: the red alert (`SavedSessionLinkPanel.tsx:64-68`) with the
 /// two workspaces under its lead, each path broken to the alert's width.
 fn alert(d: &mut Dsl, e: &Refusal, chars: usize) {
-    d.surface(
+    ui::alert_open(
+        d,
         "b3_link_alert",
         "width: Fill height: Fit flow: Right spacing: 10 padding: Inset{left: 12 right: 12 top: 10 bottom: 10}",
         tok::RED_BG,
@@ -514,11 +545,15 @@ fn alert(d: &mut Dsl, e: &Refusal, chars: usize) {
     d.text("b3_link_error", &e.lead, &Txt::new(12.5, Face::Medium, tok::RED_TEXT).w(W::Fill).wrap());
     for (i, line) in e.detail.lines().enumerate() {
         let line = crate::screens::surfaces::takeover::hard_wrap(line, chars);
-        d.text(&format!("b3_link_error_{i}"), &line, &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
+        let face = crate::desk::by(Face::Mono, Face::Regular);
+        d.text(&format!("b3_link_error_{i}"), &line, &Txt::new(12.0, face, tok::TEXT).w(W::Fill).wrap());
     }
     d.close();
     d.close();
 }
+
+/// A key's column in a Mac's fact rows.
+const LINK_KEY_W: f64 = 64.0;
 
 /// How many monospace characters fit `width` px at `px` (the approval card's
 /// rule, `takeover.rs`: 0.6 em per glyph).
@@ -529,6 +564,15 @@ fn mono_chars(width: f64, px: f64) -> usize {
 /// One `<dt>/<dd>` pair: the muted term over its value (a monospace value is
 /// broken by characters to its line width).
 fn row(d: &mut Dsl, id: &str, term: &str, value: &str, mono: bool, chars: usize) {
+    if crate::desk::active() {
+        let line = d.anon();
+        d.view(&line, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.0}");
+        d.text(&format!("b3_link_{id}_term"), term, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Px(LINK_KEY_W)));
+        let value = if mono { crate::screens::surfaces::takeover::hard_wrap(value, chars) } else { value.to_owned() };
+        d.text(&format!("b3_link_{id}"), &value, &Txt::new(12.0, Face::Regular, tok::TEXT).w(W::Fill).wrap());
+        d.close();
+        return;
+    }
     let c = d.anon();
     d.view(&c, "width: Fill height: Fit flow: Down spacing: 2");
     d.text(&format!("b3_link_{id}_term"), term, &Txt::new(11.5, Face::Medium, tok::MUTED).w(W::Fill));

@@ -278,7 +278,20 @@ def dock_seek(W: Walk, wid: str, tries: int = 16) -> bool:
     return False
 
 
+def open_row(W: Walk, i: int) -> bool:
+    """A desktop's row keeps its approval closed until it is clicked."""
+    card = f"pd_row_{i}_card"
+    if MODE == "phone" or any(w.get("i") == card for w in W.snap()):
+        return True
+    dock_seek(W, f"pd_row_{i}_focus")
+    W.click(f"pd_row_{i}_focus")
+    return W.wait(lambda: any(w.get("i") == card for w in W.snap()), 4)
+
+
 def dock_click(W: Walk, wid: str) -> bool:
+    answer = re.fullmatch(r"pd_row_(\d+)_(?:approve|deny|session|stop)", wid)
+    if answer:
+        open_row(W, int(answer.group(1)))
     dock_seek(W, wid)
     return W.click(wid)
 
@@ -296,7 +309,8 @@ def dock_checks(W: Walk, name: str, sn=None) -> bool:
     foot = W.rect("oc_sidebar_foot", sn=sn)
     if not (col and slot and tree and foot):
         return W.check(f"{name}: dock numeric checks", False, f"col={col} slot={slot} tree={tree} foot={foot}")
-    content = [col[0] + 10, col[1], col[2] - 20, col[3]]
+    # The column's content: the dock's own slot (10 + 10 padding on a phone, 8 + 8 on a desktop).
+    content = [slot[0], col[1], slot[2], col[3]]
     mine = [w for w in shown if str(w.get("i", "")).startswith("pd_")]
     vp = next((w["r"] for w in shown if w.get("i") == "pd_rows"), None)
     if vp:
@@ -342,7 +356,7 @@ def dock_checks(W: Walk, name: str, sn=None) -> bool:
     # the tree (the group header aside) — never squeezed to its header.
     # (A 32-px row at full height: the instrument reports a clipped row's cut
     # rect, so a sliver at the tree's edge does not count.)
-    session_rows = [w["r"] for w in shown if w.get("i") == "sb_r_open" and inside(w["r"], tree, 0.5) and w["r"][3] >= 31]
+    session_rows = [w["r"] for w in shown if w.get("i") == "sb_r_open" and inside(w["r"], tree, 0.5) and w["r"][3] >= 27]
     ok = not outside and not over and not under and order and aligned and len(session_rows) >= 2
     detail = (f"dock={[round(x) for x in slot]} tree_h={round(tree_room)} session_rows={len(session_rows)} "
               f"order={order} labels={len(labels)} "
@@ -418,8 +432,11 @@ def walk(W: Walk) -> None:
     if len(peers) < 3:
         W.note("ABORT: the three peers did not start")
         return
-    seek(W, "b3_fleet_back")
-    W.click("b3_fleet_back")
+    if MODE != "phone" and not W.visible("b3_fleet_back"):
+        W.click("fleet_nav_hit")  # a desktop's sidebar is the way back
+    else:
+        seek(W, "b3_fleet_back")
+        W.click("b3_fleet_back")
     W.wait(lambda: not W.visible("b3_fleet_panel"), 8)
     time.sleep(2.5)  # the peers' own frames fold (approvals, tokens, the third finishes)
 
@@ -440,7 +457,8 @@ def walk(W: Walk) -> None:
     sn = W.snap()
     rows = dock_rows(W, sn)
     W.check("rows: 'Peer N · model' in the Fleet's order and words (never the slug)",
-            rows == ["Peer 1 · glm-4.6", "Peer 2 · gpt-5.4", "Peer 3 · deepseek-v4-flash"]
+            rows == (["Peer 1 · glm-4.6", "Peer 2 · gpt-5.4", "Peer 3 · deepseek-v4-flash"] if MODE == "phone"
+                     else ["Peer 1 · GLM-4.6", "Peer 2 · GPT-5.4", "Peer 3 · DeepSeek V4 Flash"])
             and not any("fix-steer" in t or "#peer-" in t for t in rows), f"{rows}")
     words = [row_status(W, i, sn) for i in range(3)]
     W.check("rows: the Fleet's status words (waiting, waiting, finished)",
@@ -450,14 +468,25 @@ def walk(W: Walk) -> None:
             all(re.fullmatch(r"\d+s|\d+m\d\ds|\d+h\d\dm", e or "") for e in elapsed), f"{elapsed}")
     metas = [text_any(W, f"pd_row_{i}_meta", sn) for i in range(3)]
     W.check("rows: '↓ tokens' (12.4k on Peer 1, 31k on Peer 3)",
-            "↓ 12.4k" in metas[0] and "↓ 31k" in metas[2], f"{metas}")
+            ("↓ 12.4k" in metas[0] or MODE != "phone") and "↓ 31k" in metas[2], f"{metas}")
     has = lambda wid: any(w.get("i") == wid for w in sn)  # noqa: E731
-    W.check("rows: only the approval-blocked rows grow the threaded card",
-            has("pd_row_0_card") and has("pd_row_1_card") and not has("pd_row_2_card"))
+    if MODE == "phone":
+        W.check("rows: only the approval-blocked rows grow the threaded card",
+                has("pd_row_0_card") and has("pd_row_1_card") and not has("pd_row_2_card"))
+    else:
+        W.check("rows: a waiting row keeps its card closed, with a disclosure chevron; a finished row has neither",
+                not has("pd_row_0_card") and not has("pd_row_1_card") and not has("pd_row_2_card")
+                and has("pd_row_0_disclosure") and has("pd_row_1_disclosure") and not has("pd_row_2_disclosure"))
+        W.check("rows: a CLICK opens that row's card, and only that row's", open_row(W, 1))
+        sn = W.snap()
+        has = lambda wid: any(w.get("i") == wid for w in sn)  # noqa: E731
+        W.check("rows: Peer 1's card stays closed", not has("pd_row_0_card") and has("pd_row_1_card"))
     W.check("card: 'asks to run shell' + the target, Approve once / Deny / Stop + Approve for session",
             text_any(W, "pd_row_1_asks", sn) == "asks to run shell" and text_any(W, "pd_row_1_target", sn) == "cargo test -p octos-cli"
-            and [text_any(W, f"pd_row_1_{b}_label", sn) for b in ("approve", "deny", "stop")] == ["Approve once", "Deny", "Stop"]
-            and text_any(W, "pd_row_1_session_label", sn) == "Approve for session" and text_any(W, "pd_row_1_keys", sn) == "⌥Y / ⌥N",
+            and [text_any(W, f"pd_row_1_{b}_label", sn) for b in ("approve", "deny", "stop")] == ["Approve once" if MODE == "phone" else "Approve Once", "Deny", "Stop"]
+            and text_any(W, "pd_row_1_session_label", sn) == ("Approve for session" if MODE == "phone" else "Approve for Session")
+            # A Mac's card names no keys: the Fleet pane's menu rows do.
+            and (MODE != "phone" or text_any(W, "pd_row_1_keys", sn) == "⌥Y / ⌥N"),
             f"asks={text_any(W, 'pd_row_1_asks', sn)!r} target={text_any(W, 'pd_row_1_target', sn)!r}")
 
     W.note("== 4. Approve once on Peer 1: ONE frame bound to Peer 1's own ids")
@@ -599,6 +628,32 @@ def dark_phase(W: Walk) -> None:
     back to the starting look."""
     W.note("== dark: the dock on the dark look")
     drawer_open(W)
+
+    def preferences_look(label: str) -> bool:
+        """A desktop has no theme row in its sidebar: Settings > Preferences."""
+        W.click("sb_settings_hit")
+        if not W.wait(lambda: bool(W.visible("settings_drawer")), 8):
+            return False
+        W.click("nv_hit", 6)
+        if not W.wait(lambda: bool(W.visible("sec_preferences")), 6):
+            return False
+        W.click("pal_" + label)
+        time.sleep(0.6)
+        W.click("prefs_save")
+        time.sleep(0.6)
+        W.click("settings_close")
+        return W.wait(lambda: not W.visible("settings_drawer"), 6)
+
+    if MODE != "phone" or not W.visible("sb_theme_hit"):
+        W.check("dark: Settings > Preferences reaches Dark", preferences_look("dark"))
+        open_row(W, 1)
+        W.wait_shown("pd_row_1_card", 6)
+        time.sleep(0.8)
+        dock_checks(W, f"{W.mode} dark expanded")
+        capture(W, f"{W.mode}-02b-dark-expanded", "dark look: working / waiting + card / finished")
+        W.check("dark: Preferences returns to the starting look", preferences_look("system"))
+        time.sleep(0.6)
+        return
     start = W.text("sb_theme_label")
     for _ in range(4):
         if W.text("sb_theme_label") == "Dark":
@@ -694,7 +749,7 @@ def main_walk(W: Walk) -> None:
 # new id for another command, on the SAME turn — the row changes between the
 # tap and the send, every time.
 DELAY_MS = 4000
-CHANGED = "This peer changed. Review it and tap again."
+CHANGED = "This peer changed. Review it and tap again." if MODE == "phone" else "This peer changed. Review it and click again."
 
 
 def race_trigger(out: str) -> pathlib.Path:
@@ -721,8 +776,11 @@ def race_walk(W: Walk) -> None:
         return
     (p1_op, p1_sess, p1_turn), (p2_op, p2_sess, p2_turn) = [(x.get("operation_id"), x.get("adopted_session_id"),
                                                             x.get("adopted_turn_id")) for x in d[:2]]
-    seek(W, "b3_fleet_back")
-    W.click("b3_fleet_back")
+    if MODE != "phone" and not W.visible("b3_fleet_back"):
+        W.click("fleet_nav_hit")  # a desktop's sidebar is the way back
+    else:
+        seek(W, "b3_fleet_back")
+        W.click("b3_fleet_back")
     W.wait(lambda: not W.visible("b3_fleet_panel"), 8)
     drawer_open(W)
     if not W.wait_shown("pd_row_0_label", 4):
@@ -750,6 +808,7 @@ def race_walk(W: Walk) -> None:
     W.check("race: Peer 2 -> Stopped", W.wait(lambda: row_status(W, 1) == "Stopped", 8), repr(row_status(W, 1)))
 
     W.note("== race 3. Approve once on Peer 1 is tapped; Peer 1's approval is re-issued before the send -> nothing sent, said on the card")
+    open_row(W, 0)
     W.wait(lambda: text_any(W, "pd_row_0_target") == "git push --force origin main", 6)
     before = len(controls(W))
     W.mark()

@@ -53,9 +53,28 @@ impl OctoscodeView {
         self.palette_w = 0.0;
         self.palette_list_h = 0.0;
         self.chrome.applied.clear();
+        self.desk_tab_face = None;
+        // A style change can replace the base view's widget tree. Refresh
+        // the cached PortalList IDs before drawing its rows again.
+        self.thread_uid = 0;
         makepad_widgets::log!("[octoscode] a26 retheme -> {}", look.name());
         self.sync_labels(cx);
         self.view.redraw(cx);
+    }
+
+    /// A shell's restyle reached this module's registration (`crate::desk`):
+    /// its page and ink moved, so every lowering re-reads them. The shell has
+    /// already re-applied the root template; this catches the surfaces.
+    pub(crate) fn follow_host_style(&mut self, cx: &mut Cx) {
+        let now = crate::desk::generation();
+        match self.desk_generation {
+            None => self.desk_generation = Some(now),
+            Some(seen) if seen != now => {
+                self.desk_generation = Some(now);
+                self.retheme(cx);
+            }
+            Some(_) => {}
+        }
     }
 
     /// Whether a modal surface is open — the toasts are HELD then (not
@@ -119,7 +138,7 @@ impl OctoscodeView {
         // Routed by `clicked()` (`toast_actions`); the NAV drain skips them.
         self.dialog_events.extend(lowered.taps.iter().map(|(_, e)| e.clone()));
         let splash = self.view.splash(cx, ids!(toast_splash));
-        match self.mounts.mount(cx, &splash, &lowered.dsl) {
+        match self.mounts.mount(cx, &splash, &crate::screens::taps::native_clicks_only(&lowered.dsl)) {
             Err(e) => makepad_widgets::log!("[octoscode] toast mount: {e}"),
             Ok(true) => makepad_widgets::log!("[octoscode] toasts shown: {}", self.toast_taps.len()),
             Ok(false) => {}

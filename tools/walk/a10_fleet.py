@@ -65,6 +65,12 @@ WALK = {
 }
 
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
+# A Mac's model picker names the models, a phone's the lanes.
+ROW, PRIMARY, REVIEW = (("label", "lane-primary", "lane-review") if MODE == "phone"
+                        else ("name", "GPT-5.4", "Claude Opus 4.1"))
+# A Mac names the peers' models in words; a phone shows the ids.
+P1, P2, P4 = (("Peer 1 · glm-4.6", "Peer 2 · gpt-5.4", "Peer 4 · gpt-5.4") if MODE == "phone"
+              else ("Peer 1 · GLM-4.6", "Peer 2 · GPT-5.4", "Peer 4 · GPT-5.4"))
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a10/fleet/{MODE}"
 # A10's app port is 8420; the replay port is free per run (another agent's
 # app once held 8431).
@@ -78,6 +84,10 @@ def where(W: Walk, wid: str) -> str:
     a rect touching an edge is cut), or `out` (not drawn)."""
     sn = W.snap()
     vp, r = W.rect("b3_scroll", sn=sn), W.rect(wid, sn=sn)
+    # The desktop's toolbar stands above the scroll: never cut by it.
+    bar = W.rect("b3_fleet_bar", sn=sn)
+    if bar and r and inside(r, bar):
+        return "in"
     if not (vp and r and inside(r, vp)):
         return "out"
     if r[1] <= vp[1] + 1:
@@ -85,6 +95,10 @@ def where(W: Walk, wid: str) -> str:
     if r[1] + r[3] >= vp[1] + vp[3] - 1:
         return "cut-bottom"
     return "in"
+
+
+def fact(W: Walk, wid: str) -> str:
+    return W.text(wid) if MODE == "phone" else W.text_hidden_too(wid)
 
 
 def wholly(W: Walk, wid: str) -> bool:
@@ -222,6 +236,13 @@ def open_fleet(W: Walk) -> bool:
     return W.click("fleet_nav_hit") and W.logged("b3.open.fleet", 6) and W.wait_shown("b3_fleet_panel", 10)
 
 
+def close_fleet(W: Walk) -> bool:
+    """A phone's Back; on a desktop the sidebar's Fleet row is the way back."""
+    if MODE == "phone" or W.visible("b3_fleet_back"):
+        return click_logged(W, "b3_fleet_back", "b3.close", lambda: not W.visible("b3_fleet_panel"))
+    return W.click("fleet_nav_hit") and W.wait(lambda: not W.visible("b3_fleet_panel"), 8)
+
+
 def walk(W: Walk) -> None:
     W.note("== 1. the sidebar footer's Fleet entry CLICK opens the pane; the lanes and the driver inventory load")
     W.check("fleet: Fleet entry CLICK -> the Fleet pane", open_fleet(W))
@@ -229,7 +250,7 @@ def walk(W: Walk) -> None:
             W.replay_saw("profile/sub_providers/list", 8) >= 1 and W.replay_saw("session/driver/get", 8) >= 1)
     W.check("fleet: control is ready -> the Start form shows", W.wait_shown("b3_fleet_form_title", 10))
     W.check("fleet: the walked dispatch is a union row 'Peer 1 · glm-4.6' (never the slug), grouped by its goal",
-            W.wait(lambda: row_of(W, "Peer 1 · glm-4.6") is not None, 8) and W.text("b3_fleet_group_0") == "Goal goal_01"
+            W.wait(lambda: row_of(W, P1) is not None, 8) and W.text("b3_fleet_group_0") == ("Goal goal_01" if MODE == "phone" else "Goal")
             and not W.has_text("lint-sweep"),
             f"group={W.text('b3_fleet_group_0')!r} row0={W.text('b3_fleet_row_0_label')!r} status={status_of(W, 0)!r}")
     W.check("fleet: an inventory-only row reads 'Requested'", "Requested" in status_of(W, 0))
@@ -248,12 +269,13 @@ def walk(W: Walk) -> None:
     W.note("== 2. the lane picker lists ONLY the advertised lanes; no default")
     W.check("fleet: the Model picker CLICK opens the two advertised lanes",
             click_logged(W, "b3_fleet_model_tap", "b3.fleet.lane.toggle", lambda: bool(W.visible("b3_fleet_opt_1")))
-            and W.text("b3_fleet_opt_0_label") == "lane-primary" and W.text("b3_fleet_opt_1_label") == "lane-review",
-            f"options={[W.text('b3_fleet_opt_0_label'), W.text('b3_fleet_opt_1_label')]}")
+            and W.text(f"b3_fleet_opt_0_{ROW}") == PRIMARY and W.text(f"b3_fleet_opt_1_{ROW}") == REVIEW,
+            f"options={[W.text(f'b3_fleet_opt_0_{ROW}'), W.text(f'b3_fleet_opt_1_{ROW}')]}")
     W.shot(f"02-picker-{MODE}")
     W.check("fleet: choosing lane-primary shows its provider/model",
-            click_logged(W, "b3_fleet_opt_0", "b3.fleet.lane", lambda: W.text("b3_fleet_model_value") == "lane-primary")
-            and W.text("b3_fleet_lane_title") == "openai/gpt-5.4", f"lane={W.text('b3_fleet_lane_title')!r}")
+            click_logged(W, "b3_fleet_opt_0", "b3.fleet.lane", lambda: W.text("b3_fleet_model_value") == PRIMARY)
+            and (MODE != "phone" or W.text("b3_fleet_lane_title") == "openai/gpt-5.4"),
+            f"lane={W.text('b3_fleet_lane_title')!r} value={W.text('b3_fleet_model_value')!r}")
 
     W.note("== 3. Start = acquire (CAS) -> prepare -> ONE dispatch; the adopted row works, then waits for approval")
     type_into(W, "b3_fleet_brief", "Review the reconnect diff", "b3_fleet_brief_label")
@@ -265,7 +287,7 @@ def walk(W: Walk) -> None:
             "; ".join(replay_lines(W, "(fleet sim)")[-3:]))
     # The union order: the walked dispatch is row 0, the adopted roster row 1.
     adopted = W.wait(lambda: seek(W, "b3_fleet_row_1_label", steps=20)
-                     and W.text("b3_fleet_row_1_label") == "Peer 2 · gpt-5.4", 15)
+                     and W.text("b3_fleet_row_1_label") == P2, 15)
     W.check("fleet: the adopted row 'Peer 2 · gpt-5.4' appears and the brief clears",
             adopted and seek(W, "b3_fleet_brief") and W.text("b3_fleet_brief") in ("", "Describe the task for the peer"),
             f"row1={W.text('b3_fleet_row_1_label')!r}")
@@ -273,7 +295,7 @@ def walk(W: Walk) -> None:
     W.check("fleet: the adopted session's own frames drive it to 'Waiting for your approval'",
             waiting, f"status={status_of(W, 1)!r}")
     W.check("fleet: the live region announces it ('Peer 2 · gpt-5.4 is waiting for your approval')",
-            seek(W, "b3_fleet_announce") and W.text("b3_fleet_announce") == "Peer 2 · gpt-5.4 is waiting for your approval",
+            seek(W, "b3_fleet_announce") and W.text("b3_fleet_announce") == f"{P2} is waiting for your approval",
             f"announce={W.text('b3_fleet_announce')!r}")
     r2 = row_of(W, "Peer 2") or 0
     numeric(W, "waiting")
@@ -300,7 +322,7 @@ def walk(W: Walk) -> None:
     seek(W, "b3_fleet_model_tap")
     W.click("b3_fleet_model_tap")
     W.wait_shown("b3_fleet_opt_1", 6)
-    click_logged(W, "b3_fleet_opt_1", "b3.fleet.lane", lambda: W.text("b3_fleet_model_value") == "lane-review")
+    click_logged(W, "b3_fleet_opt_1", "b3.fleet.lane", lambda: W.text("b3_fleet_model_value") == REVIEW)
     type_into(W, "b3_fleet_brief", "Run the full test suite", "b3_fleet_brief_label")
     W.check("fleet: Start on lane-review -> the typed refusal -> 'Couldn't start: That model is not configured on this server'",
             click_logged(W, "b3_fleet_start", "b3.fleet.start", lambda: "not configured" in W.text("b3_fleet_error"), 10)
@@ -314,12 +336,12 @@ def walk(W: Walk) -> None:
     seek(W, "b3_fleet_model_tap")
     W.click("b3_fleet_model_tap")
     W.wait_shown("b3_fleet_opt_0", 6)
-    click_logged(W, "b3_fleet_opt_0", "b3.fleet.lane", lambda: W.text("b3_fleet_model_value") == "lane-primary")
+    click_logged(W, "b3_fleet_opt_0", "b3.fleet.lane", lambda: W.text("b3_fleet_model_value") == PRIMARY)
     started = click_logged(W, "b3_fleet_start", "b3.fleet.start",
                            lambda: len(replay_lines(W, "-> peer/dispatch (fleet sim)")) == 2, 10)
     time.sleep(1.0)
     W.check("fleet: Start again (same brief, lane-primary) -> accepted 'Peer 4 · gpt-5.4'",
-            started and seek(W, "b3_fleet_row_3_label") and W.text("b3_fleet_row_3_label") == "Peer 4 · gpt-5.4",
+            started and seek(W, "b3_fleet_row_3_label") and W.text("b3_fleet_row_3_label") == P4,
             f"row3={W.text('b3_fleet_row_3_label')!r}")
     ops = [re.search(r"operation_id=(\S+)", l).group(1) for l in replay_lines(W, "peer/dispatch") if "operation_id=" in l and "->" in l]
     W.check("fleet: three Starts = three DISTINCT operation ids on the wire", len(ops) == 3 and len(set(ops)) == 3, f"{ops}")
@@ -365,9 +387,11 @@ def walk(W: Walk) -> None:
     W.check("fleet: the disclosure names the external controller", "External" in W.text("b3_fleet_disclosure_mode"),
             f"{W.text('b3_fleet_disclosure_mode')!r}")
     W.check("fleet: the disclosure CLICK opens the read-only driver facts (recovery, driver, epoch, revision, lease)",
-            click_logged(W, "b3_fleet_disclosure_toggle", "b3.fleet.console.disclosure", lambda: shown(W, "b3_fleet_disc_revision_v"))
-            and W.text("b3_fleet_disc_recovery_v") == "No recovery pending" and W.text("b3_fleet_disc_epoch_v") == "8",
-            f"revision={W.text('b3_fleet_disc_revision_v')!r} epoch={W.text('b3_fleet_disc_epoch_v')!r} "
+            click_logged(W, "b3_fleet_disclosure_toggle", "b3.fleet.console.disclosure",
+                         # A desktop keeps the driver, its epoch and its revision out of sight.
+                         lambda: shown(W, "b3_fleet_disc_revision_v" if MODE == "phone" else "b3_fleet_disc_lease_v"))
+            and W.text("b3_fleet_disc_recovery_v") == "No recovery pending" and fact(W, "b3_fleet_disc_epoch_v") == "8",
+            f"revision={fact(W, 'b3_fleet_disc_revision_v')!r} epoch={fact(W, 'b3_fleet_disc_epoch_v')!r} "
             f"lease={W.text('b3_fleet_disc_lease_v')!r}")
     W.check("fleet: the session peers roster lists the rows", shown(W, "b3_fleet_console_roster"))
     seek(W, "b3_fleet_disclosure_mode")
@@ -391,7 +415,7 @@ def walk(W: Walk) -> None:
 
     W.note("== 10. the control seat (PeerControlPanel): the master's live turn (the gather's synthesis) + the held seat's pending work")
     W.check("fleet: Back closes the pane and the composer returns",
-            click_logged(W, "b3_fleet_back", "b3.close", lambda: not W.visible("b3_fleet_panel"))
+            close_fleet(W)
             and W.wait(lambda: W.composer() is not None, 8))
     W.check("fleet: Fleet entry CLICK reopens the pane (the composer is hidden under it)",
             open_fleet(W) and W.composer() is None)
@@ -433,7 +457,7 @@ def walk(W: Walk) -> None:
 # (--reissue-trigger: approval/cancelled + approval/requested with a new id,
 # same turn) — between the tap and the send, every time.
 RACE_DELAY_MS = 4000
-CHANGED = "This peer changed. Review it and tap again."
+CHANGED = "This peer changed. Review it and tap again." if MODE == "phone" else "This peer changed. Review it and click again."
 
 
 def race(W: Walk) -> None:
@@ -442,12 +466,12 @@ def race(W: Walk) -> None:
     W.check("fleet race: Fleet entry CLICK -> the Fleet pane", open_fleet(W))
     W.wait_shown("b3_fleet_form_title", 10)
     click_logged(W, "b3_fleet_model_tap", "b3.fleet.lane.toggle", lambda: bool(W.visible("b3_fleet_opt_0")))
-    click_logged(W, "b3_fleet_opt_0", "b3.fleet.lane", lambda: W.text("b3_fleet_model_value") == "lane-primary")
+    click_logged(W, "b3_fleet_opt_0", "b3.fleet.lane", lambda: W.text("b3_fleet_model_value") == PRIMARY)
     type_into(W, "b3_fleet_brief", "Review the reconnect diff", "b3_fleet_brief_label")
     click_logged(W, "b3_fleet_start", "b3.fleet.start")
     r = None
-    if W.wait(lambda: (row_of(W, "Peer 2 · gpt-5.4") is not None), 15):
-        r = row_of(W, "Peer 2 · gpt-5.4")
+    if W.wait(lambda: (row_of(W, P2) is not None), 15):
+        r = row_of(W, P2)
     waiting = r is not None and W.wait(lambda: "Waiting for your approval" in status_of(W, r), 12)
     asked = [l for l in replay_lines(W, "=> approval/requested (fleet)")]
     W.check("fleet race: the adopted peer waits on approval A", waiting, f"row={r} asked={asked[-1:]}")

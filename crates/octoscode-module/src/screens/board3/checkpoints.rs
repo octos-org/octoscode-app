@@ -58,6 +58,8 @@ pub struct CkState {
     /// `ui::failure`). An error set elsewhere (the host's
     /// `job_unavailable`) never inherits a stale lead: the texts differ.
     pub failed: Option<(&'static str, String)>,
+    /// A Mac's list: the selected row (else the newest a rewind can reach).
+    pub selected: Option<usize>,
 }
 
 impl Default for CkState {
@@ -81,8 +83,28 @@ impl Default for CkState {
             forked: None,
             completed: false,
             failed: None,
+            selected: None,
         }
     }
+}
+
+/// A Mac's list: how many rows this mode lists.
+fn list_len(st: &CkState) -> usize {
+    match st.mode {
+        HistoryMode::Undo => st.snapshots.as_ref().map(|l| l.snapshots.len()).unwrap_or(0),
+        _ => st.rows.len(),
+    }
+}
+
+/// What a row's double click and the foot's default do in this mode.
+fn row_action(st: &CkState) -> &'static str {
+    if st.mode == HistoryMode::Undo { "b3.ck.snap" } else { "b3.ck.restore" }
+}
+
+/// A Mac's list selection: the chosen row, else the newest one a rewind can reach.
+pub fn selection(st: &CkState) -> Option<usize> {
+    let first = if st.mode == HistoryMode::Rewind && st.live { 1 } else { 0 };
+    ui::selection_of(st.selected, Some(first), list_len(st))
 }
 
 impl CkState {
@@ -239,6 +261,7 @@ pub async fn rewind(conv: &crate::flow::Conversation, key: String) -> Result<Str
     let Some(selected) = selected else {
         let mut st = super::host::state();
         st.ck.applying = false;
+        st.ck.confirm = None;
         st.ck.error = Some("History changed. Reload the checkpoint picker.".into());
         return Err("stale checkpoint".into());
     };
@@ -375,6 +398,32 @@ pub async fn copy_markdown(conv: &crate::flow::Conversation) -> Result<String, S
 
 pub fn perform(st: &mut CkState, action: &str, index: usize) -> Outcome {
     match action {
+        // A Mac's list: a press selects, a second press asks; the arrows move
+        // the selection; the foot's default acts on it.
+        "b3.ck.select" => {
+            if index >= list_len(st) {
+                return Outcome::Done;
+            }
+            let double = ui::second_click("ck", index);
+            st.selected = Some(index);
+            if double {
+                return perform(st, row_action(st), index);
+            }
+            Outcome::Done
+        }
+        "b3.ck.up" | "b3.ck.down" => {
+            let step = if action == "b3.ck.up" { -1 } else { 1 };
+            st.selected = ui::step_selection(selection(st), step, list_len(st));
+            if let Some(i) = st.selected {
+                let prefix = if st.mode == HistoryMode::Undo { "b3_ck_snap_" } else { "b3_ck_row_" };
+                super::host::set_pending_reveal(format!("{prefix}{i}"));
+            }
+            Outcome::Done
+        }
+        "b3.ck.go_sel" => match selection(st) {
+            Some(i) => perform(st, row_action(st), i),
+            None => Outcome::Done,
+        },
         "b3.ck.restore" => {
             if st.blocked.is_some() || st.applying || index >= st.rows.len() {
                 return Outcome::Done;
@@ -382,6 +431,7 @@ pub fn perform(st: &mut CkState, action: &str, index: usize) -> Outcome {
             if st.live && index == 0 {
                 return Outcome::Done; // the live turn is never a rewind target
             }
+            st.selected = Some(index);
             st.confirm = Some(index);
             st.notice = None;
             Outcome::Done
@@ -391,11 +441,11 @@ pub fn perform(st: &mut CkState, action: &str, index: usize) -> Outcome {
             Outcome::Done
         }
         "b3.ck.confirm" => match st.confirm.and_then(|i| st.rows.get(i)) {
-            Some((cp, _)) => {
+            Some((cp, _)) if !st.applying => {
                 st.applying = true;
                 Outcome::Spawn(super::host::Job::Rewind(cp.key.clone()))
             }
-            None => Outcome::Done,
+            _ => Outcome::Done,
         },
         "b3.ck.reload" => Outcome::Spawn(super::host::Job::CheckpointsLoad),
         // A7 — undo: pick a snapshot, then confirm the workspace restore.
@@ -404,6 +454,7 @@ pub fn perform(st: &mut CkState, action: &str, index: usize) -> Outcome {
             if st.blocked.is_some() || st.applying || st.completed || !ok {
                 return Outcome::Done;
             }
+            st.selected = Some(index);
             st.snap_confirm = Some(index);
             st.notice = None;
             Outcome::Done
@@ -449,10 +500,74 @@ pub fn perform(st: &mut CkState, action: &str, index: usize) -> Outcome {
 
 
 pub fn build(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
+    if crate::desk::active() && build_mac_confirmation(d, st, frame) {
+        return;
+    }
     match st.mode {
         HistoryMode::Rewind => build_rewind(d, st, frame, store),
         mode => build_mode(d, st, frame, store, mode),
     }
+}
+
+/// On a Mac, a history change gets its own alert, with the selected target
+/// and consequences in the question. Cancel returns to the retained list.
+fn build_mac_confirmation(d: &mut Dsl, st: &CkState, frame: &Frame) -> bool {
+    let (question, consequence, cancel, go, go_word) = match st.mode {
+        HistoryMode::Rewind => {
+            let Some((cp, _)) = st.confirm.and_then(|i| st.rows.get(i)) else { return false };
+            (
+                tr1("Rewind to turn {value0}?", &cp.checkpoint.to_string()),
+                // What stays is its own line under it: run on, "restored." ended
+                // the body alone on its last line.
+                tr("Restoring removes that turn and every later one; its prompt returns to the composer to edit and resend."),
+                "b3.ck.cancel", "b3.ck.confirm", tr("Rewind"),
+            )
+        }
+        HistoryMode::Undo => {
+            let Some(snap) = st.snap_confirm.and_then(|i| st.snapshots.as_ref()?.snapshots.get(i)) else { return false };
+            let label = if snap.label.is_empty() { &snap.id } else { &snap.label };
+            (
+                tr1("Restore “{value0}” in this workspace?", label),
+                tr("Restore server-owned files to a saved snapshot. This can replace workspace changes; conversation messages are not rewound."),
+                "b3.ck.snap_cancel", "b3.ck.snap_confirm", tr("Restore"),
+            )
+        }
+        HistoryMode::Fork => return false,
+    };
+
+    // A Mac's alert (E7 1): the app's icon, the question in bold, what it does
+    // centred under it, the red word beside the blue Cancel.
+    let _ = frame;
+    ui::mac_alert_open(d, "b3_ck_confirm_mark");
+    let mut words: Vec<(&str, String)> = vec![("b3_ck_confirm_consequence", consequence.to_owned())];
+    if st.mode == HistoryMode::Rewind {
+        words.push(("b3_ck_confirm_files", tr("Workspace files are not restored.").to_owned()));
+    }
+    if let (HistoryMode::Rewind, Some((cp, _))) = (st.mode, st.confirm.and_then(|i| st.rows.get(i))) {
+        if cp.user_message_count > 1 {
+            words.push((
+                "b3_ck_confirm_messages",
+                format!("{} {} {}", tr("This turn contains"), cp.user_message_count, tr("user messages. They belong to one thread and will be removed together.")),
+            ));
+        }
+        if cp.media_count > 0 {
+            words.push(("b3_ck_confirm_attachments", tr("The prompt contained attachments; reattach them before resending.").to_owned()));
+        }
+    }
+    if st.applying {
+        words.push(("b3_ck_applying", tr("Applying and refreshing the owning Session…").to_owned()));
+    }
+    let words: Vec<(&str, &str)> = words.iter().map(|(id, w)| (*id, w.as_str())).collect();
+    ui::alert_words(d, ("b3_ck_confirm_q", question.as_str()), &words);
+    ui::alert_buttons(
+        d,
+        &[
+            ui::AlertButton::new("b3_ck_confirm_btn", go_word, go, if st.applying { Btn::Disabled } else { Btn::Outline }).red(),
+            ui::AlertButton::new("b3_ck_cancel", "Cancel", cancel, Btn::Primary),
+        ],
+    );
+    ui::shell_close(d);
+    true
 }
 
 /// A7 — the dialog's undo and fork modes (`HistoryDialog.tsx:85-215`), in
@@ -489,19 +604,41 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
     match mode {
         HistoryMode::Undo => {
             let list = st.snapshots.clone().unwrap_or_default();
-            if st.snapshots.is_some() && !list.enabled {
-                d.text("b3_ck_snap_off", tr("Automatic snapshots are disabled. Existing snapshots remain available."), &ui::meta().w(W::Fill).wrap());
-            }
-            if !st.loading && list.snapshots.is_empty() {
-                d.text("b3_ck_empty", tr("No workspace snapshots available."), &ui::meta());
+            let empty = !st.loading && list.snapshots.is_empty();
+            if crate::desk::active() && st.snapshots.is_some() && !list.enabled {
+                // A Mac says it once: what is off, and what that leaves.
+                if empty {
+                    d.text("b3_ck_snap_off", tr("Automatic snapshots are off, and there are none to restore."), &ui::meta().w(W::Fill).wrap());
+                } else if !list.snapshots.is_empty() {
+                    d.text("b3_ck_snap_off", tr("Automatic snapshots are off. You can still restore the ones below."), &ui::meta().w(W::Fill).wrap());
+                }
+            } else {
+                if st.snapshots.is_some() && !list.enabled {
+                    d.text("b3_ck_snap_off", tr("Automatic snapshots are disabled. Existing snapshots remain available."), &ui::meta().w(W::Fill).wrap());
+                }
+                if empty {
+                    d.text("b3_ck_empty", tr("No workspace snapshots available."), &ui::meta());
+                }
             }
             if !list.snapshots.is_empty() {
-                d.surface("b3_ck_list", "width: Fill height: Fit flow: Down", tok::SURFACE, 12.0, Some(tok::HAIRLINE));
+                let desk = crate::desk::active();
+                d.surface("b3_ck_list", crate::desk::by("width: Fill height: Fit flow: Down", "width: Fill height: Fit flow: Down padding: 4"), tok::SURFACE, 12.0, Some(tok::HAIRLINE));
+                let sel = if desk { selection(st) } else { None };
+                let can = !locked && list.available;
                 for (i, snap) in list.snapshots.iter().enumerate() {
-                    if i > 0 {
+                    if i > 0 && !desk {
                         d.hairline();
                     }
                     let rid = format!("b3_ck_snap_{i}");
+                    let mark = d.mark();
+                    // A Mac's row: its band when selected, its menu, a press selects.
+                    if desk {
+                        if can {
+                            d.menu_open(&format!("{rid}_menu"), &[(ui::menu_word("Restore…"), format!("b3.ck.snap#{i}"))]);
+                        }
+                        let band = ui::selection_fill();
+                        d.surface(&format!("{rid}_band"), "width: Fill height: Fit flow: Overlay", if sel == Some(i) { band.as_str() } else { tok::TRANSPARENT }, 6.0, None);
+                    }
                     d.view(&rid, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 12 padding: Inset{left: 14 right: 14 top: 11 bottom: 11}");
                     let col = d.anon();
                     d.view(&col, "width: Fill height: Fit flow: Down spacing: 3");
@@ -517,24 +654,49 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
                     };
                     d.text(&format!("{rid}_when"), &when, &Txt::new(11.5, Face::Regular, tok::MUTED));
                     d.close();
-                    if locked || !list.available {
+                    if desk {
+                        // The foot's Restore… and the row's menu act on it.
+                    } else if locked || !list.available {
                         d.text("", tr("Restore"), &Txt::new(13.0, Face::Regular, tok::DISABLED_INK));
                     } else {
                         d.link(&format!("{rid}_restore"), tr("Restore"), Some(&format!("b3.ck.snap#{i}")), 13.0);
                     }
                     d.close();
+                    if desk {
+                        d.tap(&format!("{rid}_tap"), &format!("b3.ck.select#{i}"));
+                        d.close(); // the band
+                        if can {
+                            d.close(); // the menu
+                        }
+                        if sel == Some(i) {
+                            d.accent_since(mark);
+                        }
+                    }
                 }
                 d.close();
+                if desk && st.snap_confirm.is_none() {
+                    let ok = can && sel.is_some();
+                    d.foot_begin(ui::Foot::Default);
+                    d.button("b3_ck_go", tr("Restore…"), "b3.ck.go_sel", if ok { Btn::Primary } else { Btn::Disabled }, W::Fit, 28.0);
+                    d.foot_end();
+                    if ok {
+                        d.foot_default_event("b3.ck.go_sel");
+                    }
+                }
             }
             if let Some(snap) = st.snap_confirm.and_then(|i| list.snapshots.get(i)) {
                 let label = if snap.label.is_empty() { snap.id.clone() } else { snap.label.clone() };
                 d.gap(W::Fill, 12.0);
-                d.surface("b3_ck_confirm", "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}", tok::SURFACE2, 12.0, Some(tok::HAIRLINE));
+                d.surface("b3_ck_confirm", "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}", tok::SURFACE2, crate::desk::by(12.0, 6.0), Some(tok::HAIRLINE));
                 d.text(
                     "b3_ck_confirm_q",
                     &tr1("Restore “{value0}” in this workspace?", &label),
                     &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill).wrap(),
                 );
+                if crate::desk::active() {
+                    ui::destructive_row(d, ("b3_ck_cancel", "b3.ck.snap_cancel"), ("b3_ck_confirm_btn", tr("Restore"), "b3.ck.snap_confirm"), !st.applying);
+                    d.close();
+                } else {
                 let row = d.anon();
                 d.view(&row, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5}");
                 d.button("b3_ck_cancel", tr("Cancel"), "b3.ck.snap_cancel", Btn::Outline, W::Fit, 32.0);
@@ -543,29 +705,38 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
                 d.button("b3_ck_confirm_btn", &format!("{} {}", tr("Confirm"), tr("workspace restore")), "b3.ck.snap_confirm", kind, W::Fit, 32.0);
                 d.close();
                 d.close();
+                }
             }
         }
         _ => {
-            ui::field_label(d, "b3_ck_fork_label", tr("New conversation name"));
-            d.gap(W::Fill, 6.0);
+            let key_w = ui::form_key_w(&["New conversation name"]);
+            ui::form_open(d, "b3_ck_fork_label", tr("New conversation name"), key_w);
+            if !crate::desk::active() {
+                d.gap(W::Fill, 6.0);
+            }
             d.input("b3_ck_fork_name", "ck.fork", &st.fork_name_snap, "fork-name", false, 38.0);
-            d.gap(W::Fill, 6.0);
+            if !crate::desk::active() {
+                d.gap(W::Fill, 6.0);
+            }
             d.text(
                 "b3_ck_fork_help",
                 tr("Up to 50 UTF-8 bytes. No #, :, /, control characters, or the reserved name “default”."),
-                &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
+                &Txt::new(crate::desk::by(12.0, 11.0), Face::Regular, tok::MUTED).w(W::Fill).wrap(),
             );
+            ui::form_close(d);
             d.gap(W::Fill, 12.0);
             // Both variants are emitted; the live gate shows one (no remount
             // while typing — `visibility`).
             let armed = st.fork_armed_with(&st.fork_name_snap);
             let label = tr(if st.applying { "Creating…" } else { "Create conversation fork" });
+            d.foot_begin(ui::Foot::Default);
             d.view("b3_ck_fork_off", &format!("width: Fit height: Fit flow: Down visible: {}", !armed));
             d.button("b3_ck_fork_disabled", label, "b3.ck.fork", Btn::Disabled, W::Fit, 36.0);
             d.close();
             d.view("b3_ck_fork_on", &format!("width: Fit height: Fit flow: Down visible: {armed}"));
             d.button("b3_ck_fork_go", label, "b3.ck.fork", Btn::Primary, W::Fit, 36.0);
             d.close();
+            d.foot_end();
         }
     }
     if let Some(n) = &st.notice {
@@ -581,15 +752,26 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
         d.text("b3_ck_forked", &format!("{} {child}", tr("Fork:")), &Txt::new(11.5, Face::Mono, tok::MUTED).w(W::Fill));
     }
     if !st.completed {
-        d.gap(W::Fill, 12.0);
+        d.foot_begin(ui::Foot::Lead);
+        if !crate::desk::active() {
+            d.gap(W::Fill, 12.0);
+        }
         let foot = d.anon();
-        d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 14");
-        if st.loading || st.applying {
+        d.view(&foot, crate::desk::by(
+            "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 14",
+            "width: Fit height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 14",
+        ));
+        let busy = st.loading || st.applying;
+        if crate::desk::active() {
+            let kind = if busy { ui::Btn::OutlineOff } else { ui::Btn::Outline };
+            d.button("b3_ck_reload", tr("Reload history"), "b3.ck.reload", kind, W::Fit, 28.0);
+        } else if busy {
             d.text("", tr("Reload history"), &Txt::new(13.0, Face::Regular, tok::DISABLED_INK));
         } else {
             d.link("b3_ck_reload", tr("Reload history"), Some("b3.ck.reload"), 13.0);
         }
         d.close();
+        d.foot_end();
     }
     ui::body_close(d);
     ui::shell_close(d);
@@ -634,17 +816,33 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
     }
     // One bordered list, hairlines between rows (the board's grouped box).
     if !st.rows.is_empty() {
-        d.surface("b3_ck_list", "width: Fill height: Fit flow: Down", tok::SURFACE, 12.0, Some(tok::HAIRLINE));
+        let desk = crate::desk::active();
+        d.surface("b3_ck_list", crate::desk::by("width: Fill height: Fit flow: Down", "width: Fill height: Fit flow: Down padding: 4"), tok::SURFACE, 12.0, Some(tok::HAIRLINE));
         let now = ui::now_ms();
+        let sel = if desk { selection(st) } else { None };
         for (i, (cp, at)) in st.rows.iter().enumerate() {
-            if i > 0 {
+            if i > 0 && !desk {
                 d.hairline();
             }
             let live = st.live && i == 0;
             let rid = format!("b3_ck_row_{i}");
+            let can = !live && st.blocked.is_none();
+            let mark = d.mark();
+            // A Mac's row: its band when selected, its menu, a press selects.
+            if desk {
+                if can {
+                    d.menu_open(&format!("{rid}_menu"), &[(ui::menu_word("Rewind…"), format!("b3.ck.restore#{i}"))]);
+                }
+                let band = ui::selection_fill();
+                d.surface(&format!("{rid}_band"), "width: Fill height: Fit flow: Overlay", if sel == Some(i) { band.as_str() } else { tok::TRANSPARENT }, 6.0, None);
+            }
             d.view(&rid, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 12 padding: Inset{left: 14 right: 14 top: 11 bottom: 11}");
             let num_color = if live { tok::FAINT } else { tok::TEXT };
-            d.text(&format!("{rid}_num"), &format!("#{}", cp.checkpoint), &Txt::new(13.0, Face::Mono, num_color).w(W::Px(44.0)));
+            if crate::desk::active() {
+                d.text(&format!("{rid}_num"), &tr1("Turn {value0}", &cp.checkpoint.to_string()), &Txt::new(13.0, Face::Regular, num_color).w(W::Px(52.0)));
+            } else {
+                d.text(&format!("{rid}_num"), &format!("#{}", cp.checkpoint), &Txt::new(13.0, Face::Mono, num_color).w(W::Px(44.0)));
+            }
             let col = d.anon();
             d.view(&col, "width: Fill height: Fit flow: Down spacing: 3");
             let when = match at {
@@ -665,20 +863,42 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
             d.close();
             if live {
                 d.icon(&format!("{rid}_check"), "b3_check.svg", 18.0, tok::TEXT);
+            } else if desk {
+                // The foot's Rewind… and the row's menu act on it.
             } else if st.blocked.is_none() {
                 d.link(&format!("{rid}_restore"), tr("Restore"), Some(&format!("b3.ck.restore#{i}")), 13.0);
             } else {
                 d.text("", tr("Restore"), &Txt::new(13.0, Face::Regular, tok::DISABLED_INK));
             }
             d.close();
+            if desk {
+                d.tap(&format!("{rid}_tap"), &format!("b3.ck.select#{i}"));
+                d.close(); // the band
+                if can {
+                    d.close(); // the menu
+                }
+                if sel == Some(i) {
+                    d.accent_since(mark);
+                }
+            }
         }
         d.close();
+        if desk && st.confirm.is_none() {
+            let ok = sel.is_some_and(|i| !(st.live && i == 0)) && st.blocked.is_none() && !st.applying;
+            d.foot_begin(ui::Foot::Default);
+            d.button("b3_ck_go", tr("Rewind…"), "b3.ck.go_sel", if ok { Btn::Primary } else { Btn::Disabled }, W::Fit, 28.0);
+            d.foot_end();
+            if ok {
+                d.foot_default_event("b3.ck.go_sel");
+            }
+        }
     }
     if let Some(i) = st.confirm {
         if let Some((cp, _)) = st.rows.get(i) {
             d.gap(W::Fill, 12.0);
-            d.surface("b3_ck_confirm", "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}", tok::SURFACE2, 12.0, Some(tok::HAIRLINE));
-            d.text("b3_ck_confirm_q", &tr1("Rewind to checkpoint #{value0}?", &cp.checkpoint.to_string()), &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill));
+            d.surface("b3_ck_confirm", "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}", tok::SURFACE2, crate::desk::by(12.0, 6.0), Some(tok::HAIRLINE));
+            let question = if crate::desk::active() { "Rewind to turn {value0}?" } else { "Rewind to checkpoint #{value0}?" };
+            d.text("b3_ck_confirm_q", &tr1(question, &cp.checkpoint.to_string()), &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill));
             if cp.user_message_count > 1 {
                 d.text(
                     "",
@@ -695,6 +915,10 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
             if cp.media_count > 0 {
                 d.text("", tr("The prompt contained attachments; reattach them before resending."), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
             }
+            if crate::desk::active() {
+                ui::destructive_row(d, ("b3_ck_cancel", "b3.ck.cancel"), ("b3_ck_confirm_btn", tr("Rewind"), "b3.ck.confirm"), !st.applying);
+                d.close();
+            } else {
             let row = d.anon();
             d.view(&row, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5}");
             d.button("b3_ck_cancel", tr("Cancel"), "b3.ck.cancel", Btn::Outline, W::Fit, 32.0);
@@ -702,6 +926,7 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
             d.button("b3_ck_confirm_btn", &format!("{} {}", tr("Confirm"), tr("conversation rewind")), "b3.ck.confirm", kind, W::Fit, 32.0);
             d.close();
             d.close();
+            }
         }
     }
     d.gap(W::Fill, 12.0);
@@ -710,14 +935,25 @@ fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
         tr("Restoring removes that turn and every later one; its prompt returns to the composer to edit and resend. Workspace files are not restored."),
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
-    d.gap(W::Fill, 10.0);
+    d.foot_begin(ui::Foot::Lead);
+    if !crate::desk::active() {
+        d.gap(W::Fill, 10.0);
+    }
     let foot = d.anon();
-    d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 14");
-    d.link("b3_ck_copy_md", tr("Copy as Markdown"), Some("b3.ck.copy_md"), 13.0);
+    d.view(&foot, crate::desk::by(
+        "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 14",
+        "width: Fit height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 14",
+    ));
+    if crate::desk::active() {
+        d.button("b3_ck_copy_md", tr("Copy as Markdown"), "b3.ck.copy_md", ui::Btn::Outline, W::Fit, 28.0);
+    } else {
+        d.link("b3_ck_copy_md", tr("Copy as Markdown"), Some("b3.ck.copy_md"), 13.0);
+    }
     if let Some(l) = &st.copy_label {
         d.text("b3_ck_copy_state", tr(l), &Txt::new(12.0, Face::Regular, tok::MUTED));
     }
     d.close();
+    d.foot_end();
     ui::body_close(d);
     ui::shell_close(d);
 }
@@ -754,8 +990,47 @@ mod tests {
             Outcome::Spawn(super::super::host::Job::Rewind("k1".into()))
         );
         assert!(st.applying);
+        assert_eq!(perform(&mut st, "b3.ck.confirm", 0), Outcome::Done, "a second confirmation cannot start another rewind");
         perform(&mut st, "b3.ck.cancel", 0);
         assert_eq!(st.confirm, None);
+    }
+
+    #[test]
+    fn mac_history_questions_keep_the_target_and_consequences() {
+        use octoscode_store::domains::config::{SnapshotList, WorkspaceSnapshot};
+        let mut target = cp(3, "k3", "prompt");
+        target.user_message_count = 2;
+        target.media_count = 1;
+        let mut st = CkState { rows: vec![(target, None)], confirm: Some(0), ..Default::default() };
+        let mut d = Dsl::new();
+        assert!(build_mac_confirmation(&mut d, &st, &Frame::DESKTOP));
+        let dsl = d.finish();
+        assert!(dsl.contains("Rewind to turn 3?"));
+        assert!(dsl.contains("Workspace files are not restored."));
+        assert!(dsl.contains("b3_ck_confirm_messages") && dsl.contains("b3_ck_confirm_attachments"));
+        let taps = crate::screens::taps::wired_taps(&dsl);
+        for event in ["b3.ck.cancel", "b3.ck.confirm"] {
+            assert!(taps.iter().any(|(_, e)| e == event), "{event}");
+        }
+
+        st.open_mode(HistoryMode::Undo);
+        st.snapshots = Some(SnapshotList {
+            enabled: true,
+            available: true,
+            snapshots: vec![WorkspaceSnapshot { id: "snap-1".into(), label: "Before refactor".into(), timestamp_unix: 0 }],
+        });
+        st.snap_confirm = Some(0);
+        let mut d = Dsl::new();
+        assert!(build_mac_confirmation(&mut d, &st, &Frame::DESKTOP));
+        let dsl = d.finish();
+        assert!(dsl.contains("Restore “Before refactor” in this workspace?"));
+        assert!(dsl.contains("This can replace workspace changes"));
+        let taps = crate::screens::taps::wired_taps(&dsl);
+        for event in ["b3.ck.snap_cancel", "b3.ck.snap_confirm"] {
+            assert!(taps.iter().any(|(_, e)| e == event), "{event}");
+        }
+        st.snap_confirm = Some(1);
+        assert!(!build_mac_confirmation(&mut Dsl::new(), &st, &Frame::DESKTOP), "a missing target cannot produce a question");
     }
 
     /// A13 (judge: "session/hydrate: bad result: missing field `session_id`"

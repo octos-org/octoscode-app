@@ -450,6 +450,8 @@ pub fn compose_gather_prompt(peers: &[octoscode_client::domains::peer::PeerGathe
 pub fn row_label(index: usize, model: Option<&str>) -> String {
     let peer = crate::i18n::tr1("Peer {value0}", &(index + 1).to_string());
     match model {
+        // A Mac names the model ("Peer 1 · GLM-4.6"), a phone shows its id.
+        Some(m) if !m.is_empty() && crate::desk::active() => format!("{peer} · {}", crate::desk::model_word(m)),
         Some(m) if !m.is_empty() => format!("{peer} · {m}"),
         _ => peer,
     }

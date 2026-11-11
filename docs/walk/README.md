@@ -98,6 +98,23 @@ preferences, the driver id and the Session pane's Advanced memory
 (`tools/walk/walk_env.py`); a "self" walk inherits the same environment (A10's
 `run_session` sets its own per-run tree). The phone is launched straight into OctosCode
 (`--test-action page:0 --test-action launch-octoscode`, 360x780).
+`a34_phone_palette_back` checks that Back dismisses the keyboard and command
+palette in order, keeps the draft editable, and leaves the composer visible
+above the simulated keyboard. It also checks the desktop window and header, that
+a made-up conversation and draft survive changing styles, and the rendered
+sidebar's selection and secondary-text contrast. The pixel checks use Pillow;
+when run directly against a dark preview, `--dark` keeps the style changes
+dark. It is a desktop-hosted phone preview, not a physical-device check.
+`a34_phone_settings_contrast` checks Settings' explanatory text and the model
+segment's visible selection. It also checks the named palette's surface and
+sidebar icon, restores System, and verifies the explicit Light and Dark
+surfaces and selected conversation. These checks use rendered phone-preview
+frames, Pillow and the local replay fixture.
+
+`a35_connect_welcome` checks that the Mac's first connection is usable as
+window content: the fields and actions fit, invalid addresses disable Connect,
+and cancelling pairing retains the entered address. It has been run directly
+against isolated light and dark shell sessions; its aggregator run is unverified.
 
 **A row's native verdict** is the AND of every mapped check in every mode a
 walk mapping it ran; a mode in which no mapped check ran, a walk that could

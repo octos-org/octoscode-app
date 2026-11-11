@@ -241,9 +241,12 @@ def seeded(W: Walk, zh: bool = False) -> None:
                 msgs[5] == ("The server restarted before this job finished.", None), f"{msgs[5]}")
         W.check("seeded: queued, running and cancelled rows carry no message", all(msgs[i] == (None, None) for i in (0, 1, 4)),
                 f"{[msgs[i] for i in (0, 1, 4)]}")
-        W.check("seeded: the skill and action line (mono)", rows[0]["skill"] == "source-skill" and rows[0]["action"] == "· source.import"
-                and rows[4]["skill"] == "deck-skill" and rows[4]["action"] == "· deck.render", f"{rows[0]['skill']} {rows[0]['action']}")
-        W.check("seeded: the times (since each job's last change)", [r["time"] for r in rows] == ["now", "now", "2m", "5m", "20m", "1h"],
+        W.check("seeded: the skill and action line (mono)", (rows[0]["skill"], rows[0]["action"], rows[4]["skill"], rows[4]["action"]) == (("source-skill", "· source.import", "deck-skill", "· deck.render")
+                if MODE == "phone" else ("Source skill", "· Import", "Deck skill", "· Render")), f"{rows[0]['skill']} {rows[0]['action']}")
+        # A Mac's lists read a clock, not an age.
+        W.check("seeded: the times (since each job's last change)",
+                [r["time"] for r in rows] == ["now", "now", "2m", "5m", "20m", "1h"] if MODE == "phone"
+                else all(re.search(r"\d:\d\d|\d, \d{4}", r["time"]) for r in rows),
                 f"{[r['time'] for r in rows]}")
         W.check("race: the stale list (q3-review still running there) did not regress the newer update", rows[2]["state"] == "✓ Done")
         W.check("race: notes.md, announced before the reply and absent from it, survived it", rows[1]["name"] == "notes.md")

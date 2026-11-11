@@ -40,6 +40,10 @@ WALK = {
 }
 
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
+# A Mac's notices name the model, a phone's show its id.
+RUNNING_NOTICE = ("Saved. The server keeps running deepseek-v4-flash until it restarts" if MODE == "phone"
+                  else "Saved. The server keeps running DeepSeek V4 Flash until it restarts")
+KIMI_NOTICE = "Saved. Your next message uses kimi-k3" if MODE == "phone" else "Saved. Your next message uses Kimi K3"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a10/seats/{MODE}"
 
 
@@ -60,11 +64,26 @@ def numeric(W: Walk, name: str, prefix=("b3_perm_", "b3_model_", "b3_risk_", "b3
 
 def above(W: Walk, seat: str, right: bool) -> bool:
     """The menu sits above its seat (bottom 8 px over it) and is aligned to
-    the seat's left (permission) or right (model) edge."""
+    the seat's left (permission) or right (model) edge.
+
+    oc7 (round 8 E, E7 2): a Mac's seat is a pop-up button, whose menu opens
+    over it: the ticked row over the seat (where that would run past the
+    window's foot, moved up until it fits, still over it), the rows' words
+    over the seat's, inside the frame's 16-point margin."""
     d, s = W.rect("b3_dialog"), W.rect(seat)
     if not d or not s:
         W.note(f"no rect: dialog={d} seat={s}")
         return False
+    if MODE != "phone":
+        frame = W.rect("b3_backdrop_hit")
+        mid = s[1] + s[3] / 2
+        over = d[1] <= mid <= d[1] + d[3]
+        # The menu's 4 + the row's 6 + the tick's 18 + 4 = the words, 32 in; the seat's 8.
+        words = abs((d[0] + 32) - (s[0] + 8)) <= 3
+        clamped = bool(frame) and (abs(d[0] - (frame[0] + 16)) <= 2 or abs((d[0] + d[2]) - (frame[0] + frame[2] - 16)) <= 2)
+        inside = bool(frame) and d[1] >= frame[1] + 16 - 2 and d[1] + d[3] <= frame[1] + frame[3] - 16 + 2
+        W.note(f"pop-up {d} over seat {s}: over={over} words={words} clamped={clamped} inside={inside}")
+        return over and (words or clamped) and inside
     gap = s[1] - (d[1] + d[3])
     edge = abs((d[0] + d[2]) - (s[0] + s[2])) if right else abs(d[0] - s[0])
     # A menu wider than the room beside its seat is held inside the frame's
@@ -112,8 +131,11 @@ def walk(W: Walk) -> None:
     W.check("permission: the current preset first, then the other profiles (shield / name / check)",
             W.wait(lambda: W.text("b3_perm_opt_0_name") == "Write · Network allowed"
                    and W.text("b3_perm_opt_3_name") == "Full access · Network allowed", 6)
-            and bool(W.visible("b3_perm_opt_0_check")) and bool(W.visible("b3_perm_opt_3_icon")))
-    W.check("permission: the menu sits above the seat, left-aligned to it", above(W, "i0_composer_2", right=False))
+            and bool(W.visible("b3_perm_opt_0_check"))
+            # A Mac's menu has no shields: the check at the left is the mark.
+            and (bool(W.visible("b3_perm_opt_3_icon")) if MODE == "phone" else not W.visible("b3_perm_opt_3_icon")))
+    W.check("permission: the menu sits above the seat, left-aligned to it" if MODE == "phone"
+            else "permission: the pop-up opens over its seat, its words over the seat's", above(W, "i0_composer_2", right=False))
     numeric(W, "permission menu")
     W.shot(f"01-permission-menu-{MODE}")
     W.check("permission: 'Read · Network blocked' CLICK -> permission/profile/set; the menu closes",
@@ -152,26 +174,30 @@ def walk(W: Walk) -> None:
     W.note("== 4. the model menu (model seat CLICK)")
     W.check("model: the model label CLICK -> the menu above it (profile/llm/list {session_id})",
             open_menu(W, "model_seat_hit", "b3_model_opt_0_name") and W.logged("ModelsLoad", 6))
+    # A Mac's menu leaves raw model ids out: its twins read by the route's name.
+    twins = (("deepseek-v4-flash · deepseek", "deepseek-v4-flash · r2-route") if MODE == "phone"
+             else ("DeepSeek", "R2 Route"))
     W.check("model: the two deepseek routes read apart (model · route)",
-            W.text("b3_model_opt_0_desc") == "deepseek-v4-flash · deepseek"
-            and W.text("b3_model_opt_1_desc") == "deepseek-v4-flash · r2-route")
+            W.text("b3_model_opt_0_desc") == twins[0] and W.text("b3_model_opt_1_desc") == twins[1],
+            f"{W.text('b3_model_opt_0_desc')!r} {W.text('b3_model_opt_1_desc')!r}")
     W.check("model: grouped by provider; the unavailable model disabled with its reason",
-            W.text("b3_model_group_0") == "Deepseek" and W.text("b3_model_group_1") == "Moonshot"
+            W.text("b3_model_group_0") == ("Deepseek" if MODE == "phone" else "DeepSeek") and W.text("b3_model_group_1") == "Moonshot"
             and W.text("b3_model_opt_3_desc").startswith("This configured model is unavailable")
             and not any(w["i"] == "b3_model_opt_3" for w in W.snap() if Walk.shown(w)))
     W.check("model: the selected model is checked; the seat names it",
             bool(W.visible("b3_model_opt_0_check")) and W.text("i0_composer_4") == "DeepSeek V4 Flash")
-    W.check("model: the menu sits above the seat, right-aligned to it", above(W, "i0_composer_model", right=True))
+    W.check("model: the menu sits above the seat, right-aligned to it" if MODE == "phone"
+            else "model: the pop-up opens over its seat, its words over the seat's", above(W, "i0_composer_model", right=True))
     numeric(W, "model menu")
     W.shot(f"04-model-menu-{MODE}")
     W.check("model: the r2-route fallback CLICK -> profile/llm/select -> the restart_required notice",
             click_logged(W, "b3_model_opt_1", "ModelSelect",
-                         lambda: W.text("b3_model_notice") == "Saved. The server keeps running deepseek-v4-flash until it restarts", 10))
+                         lambda: W.text("b3_model_notice") == RUNNING_NOTICE, 10))
     numeric(W, "model notice")
     W.shot(f"05-model-restart-{MODE}")
     W.check("model: Kimi K3 CLICK -> reloaded: 'Saved. Your next message uses kimi-k3'; checked",
             click_logged(W, "b3_model_opt_2", "ModelSelect",
-                         lambda: W.text("b3_model_notice") == "Saved. Your next message uses kimi-k3"
+                         lambda: W.text("b3_model_notice") == KIMI_NOTICE
                          and bool(W.visible("b3_model_opt_2_check")), 10))
     W.shot(f"06-model-reloaded-{MODE}")
 
@@ -189,7 +215,7 @@ def walk(W: Walk) -> None:
             f"closed={closed} seat={W.text('i0_composer_4')!r} dialog={W.rect('b3_dialog')}")
     W.check("model: reopened, the Session's notice is still there",
             open_menu(W, "model_seat_hit", "b3_model_opt_0_name")
-            and W.wait(lambda: W.text("b3_model_notice") == "Saved. Your next message uses kimi-k3", 6))
+            and W.wait(lambda: W.text("b3_model_notice") == KIMI_NOTICE, 6))
     W.shot(f"07-model-sticky-{MODE}")
     W.key("Escape")
     W.wait(lambda: not W.visible("b3_dialog"), 4)

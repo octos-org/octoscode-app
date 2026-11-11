@@ -321,7 +321,7 @@ def open_providers(W: Walk) -> bool:
     ok = W.palette_run("mo", "/model") and W.wait_shown("dlg_models_t_title", 10)
     W.check("models: /model palette CLICK opens the Models dialog", ok)
     W.scroll_into("dlg_models_manage_providers_control", "dialog_scroll")
-    ok = W.click("dlg_models_manage_providers_control") and W.wait(lambda: W.text("b3_title") == "Model providers", 10)
+    ok = W.click("dlg_models_manage_providers_control") and W.wait(lambda: W.text("b3_title") == ("Model providers" if MODE == "phone" else "Model Providers"), 10)
     return W.check("providers: 'Manage providers' CLICK opens the providers dialog", ok)
 
 
@@ -333,7 +333,7 @@ def row_index(W: Walk, title: str) -> int | None:
 
 
 def back_to_dialog(W: Walk, secs: float = 10) -> bool:
-    return W.wait(lambda: W.text("b3_title") == "Model providers" and not W.visible("b1_card"), secs)
+    return W.wait(lambda: W.text("b3_title") == ("Model providers" if MODE == "phone" else "Model Providers") and not W.visible("b1_card"), secs)
 
 
 # ---------------------------------------------------------------- the walks
@@ -345,7 +345,7 @@ def main_walk(W: Walk) -> None:
     W.check("providers: the recorded rows and the web unit tests' two",
             W.wait(lambda: seen(W, "b3_routes_row_3_name"), 8)
             and [W.text(f"b3_routes_row_{i}_name") for i in range(4) if seen(W, f"b3_routes_row_{i}_name")]
-            == ["Deepseek V4 Flash", "Deepseek V4 Flash", "Kimi K2", "GLM-5.3-Flash"],
+            == ["Deepseek V4 Flash" if MODE == "phone" else "DeepSeek V4 Flash"] * 2 + ["Kimi K2", "GLM-5.3-Flash"],
             str([W.text(f"b3_routes_row_{i}_name") for i in range(4)]))
     scroll_end(W, VP)
     W.check("providers: 'Add provider', the runtime warning and the Primary tag",
@@ -551,7 +551,7 @@ def unread_walk(W: Walk) -> None:
     FAIL_FILE.write_text("refuse")
     W.scroll_into("dlg_models_manage_providers_control", "dialog_scroll")
     W.check("providers: 'Manage providers' CLICK opens the providers dialog",
-            W.click("dlg_models_manage_providers_control") and W.wait(lambda: W.text("b3_title") == "Model providers", 10))
+            W.click("dlg_models_manage_providers_control") and W.wait(lambda: W.text("b3_title") == ("Model providers" if MODE == "phone" else "Model Providers"), 10))
     W.check("unread: the refused read is the cause and 'Try again' — never 'No model providers configured'",
             W.wait(lambda: W.text("b3_routes_error") == "profile store unavailable", 8)
             and bool(W.visible("b3_routes_retry")) and not W.visible("b3_routes_empty")

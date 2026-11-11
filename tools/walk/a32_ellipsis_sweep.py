@@ -254,8 +254,11 @@ def fleet_at(size: str):
         w.check(f"{size}: the footer's Fleet entry opens the pane", w.wait_shown("b3_fleet_panel", 10))
         started = all(P.fleet_start(w, n) for n in range(3))
         w.check(f"{size}: three peers started from the pane", started, f"{len(P.dispatches(w))} dispatches")
-        P.seek(w, "b3_fleet_back")
-        w.click("b3_fleet_back")
+        if w.visible("fleet_nav_hit") and not w.visible("b3_fleet_back"):
+            w.click("fleet_nav_hit")  # a desktop's sidebar is the way back
+        else:
+            P.seek(w, "b3_fleet_back")
+            w.click("b3_fleet_back")
         w.wait(lambda: not w.visible("b3_fleet_panel"), 8)
         time.sleep(2.5)
         P.drawer_open(w)

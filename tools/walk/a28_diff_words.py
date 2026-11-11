@@ -258,13 +258,15 @@ def geometry(W, name, sn):
         W.check(f"{name}: phone hides the preview id", not W.visible("b3_diff_preview_id", sn),
                 repr(W.text("b3_diff_preview_id", sn)))
     else:
-        want_w, want_h = min(1080, mod[2] - 48), min(780, mod[3] - 48)
+        # A Mac's sheet: 760 wide, hanging from the toolbar, hugging what it holds.
+        want_w = min(760, mod[2] - 48)
         cx = (fr[0] + fr[2] / 2) - (mod[0] + mod[2] / 2)
-        cy = (fr[1] + fr[3] / 2) - (mod[1] + mod[3] / 2)
-        W.check(f"{name}: desktop = min(1080, 100%) x min(780, 100%) inside the 24 px inset, centred",
-                abs(fr[2] - want_w) <= 2 and abs(fr[3] - want_h) <= 2 and abs(cx) <= 1.5 and abs(cy) <= 1.5,
-                f"dialog={fr} want={want_w}x{want_h} module={mod} centre=({cx:.1f},{cy:.1f})")
-        W.check(f"{name}: desktop shows the preview id", bool(W.text("b3_diff_preview_id", sn)))
+        W.check(f"{name}: a Mac's sheet is 760 wide, centred, hangs from the toolbar and stays in the window",
+                abs(fr[2] - want_w) <= 2 and abs(cx) <= 1.5 and mod[1] + 40 - 1 <= fr[1] <= mod[1] + 52 + 1
+                and fr[1] + fr[3] <= mod[1] + mod[3] + 1,
+                f"dialog={fr} want_w={want_w} module={mod} centre_x={cx:.1f}")
+        W.check(f"{name}: a desktop keeps the preview id out of sight", not W.visible("b3_diff_preview_id", sn),
+                repr(W.text("b3_diff_preview_id", sn)))
     c = dialog_checks(sn, "b3_dialog", ("b3_diff_", "b3_title", "b3_close"), viewport=VP)
     W.check(f"{name}: dialog numeric checks (no clipped label, no overlap, controls >= 28 px)", c["ok"], checks_line(c))
     if LANG == "zh":

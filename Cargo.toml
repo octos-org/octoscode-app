@@ -51,6 +51,7 @@ octoscript-ui-l0 = { git = "https://github.com/OctoSense-org/Octoscript.git", re
 # Makepad renderer and optional AppModule adapter, pinned to compatible revisions.
 makepad-widgets = { git = "https://github.com/OctoSense-org/makepad.git", rev = "32d6415fb7476345ad36ee4f98d6f844d1f07fd2" }
 makepad-app-module = { git = "https://github.com/OctoSense-org/makepad.git", rev = "32d6415fb7476345ad36ee4f98d6f844d1f07fd2" }
+makepad-wm-api = { git = "https://github.com/OctoSense-org/makepad.git", rev = "32d6415fb7476345ad36ee4f98d6f844d1f07fd2" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread"] }
@@ -77,6 +78,7 @@ octoscript-render = { path = ".forks/octoscript-makepad/crates/octoscript-render
 [patch."https://github.com/OctoSense-org/makepad.git"]
 makepad-widgets = { path = ".forks/makepad-fork/widgets" }
 makepad-app-module = { path = ".forks/makepad-fork/libs/app_module" }
+makepad-wm-api = { path = ".forks/makepad-fork/libs/wm_api" }
 makepad-script = { path = ".forks/makepad-fork/platform/script" }
 
 # A35b: the dev profile (a plain `cargo build -p octoscode-desktop`, target/debug/octoscode;

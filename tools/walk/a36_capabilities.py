@@ -73,6 +73,9 @@ def section_checks(W: Walk, name: str, expect_rows):
         return
     labels = [w for w in sn if W.shown(w) and w.get("ty") == "Label" and (w.get("t") or "").strip()
               and inside(w["r"], sec)]
+    if not PHONE:
+        # The conversation's own words stay in /snap under a desktop's sheet.
+        labels = [w for w in labels if not str(w.get("i")).startswith(("history_", "open_ws_"))]
     outside = [w.get("t") for w in labels if not inside(w["r"], body)]
     over = [(a.get("t"), b.get("t")) for i, a in enumerate(labels) for b in labels[i + 1:] if overlap(a["r"], b["r"])]
     hits, pills, tops, lefts = [], [], [], []

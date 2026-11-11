@@ -287,6 +287,27 @@ def find_row(prefix, title):
     return None
 
 
+def offers_delete(i):
+    """Row `i` can be deleted: a phone's row has its own ×; a Mac selects the
+    row (one click) and the foot's Delete… comes alive."""
+    if MODE == "phone":
+        return shown(f"b3_switch_row_{i}_delete")
+    click(f"b3_switch_row_{i}_tap")
+    time.sleep(0.8)
+    return shown("b3_switch_delete")
+
+
+def ask_delete(i):
+    """Ask to delete row `i` (a Mac: select it, then the foot's Delete…)."""
+    if MODE == "phone":
+        click(f"b3_switch_row_{i}_delete")
+        return
+    time.sleep(0.6)  # never a second press on the row within a double click: that opens it
+    click(f"b3_switch_row_{i}_tap")
+    wait(lambda: shown("b3_switch_delete"), 3)
+    click("b3_switch_delete")
+
+
 def sidebar_open():
     if MODE == "phone" and not shown("sb_new_chat_hit"):
         click("sidebar_toggle_hit")
@@ -304,7 +325,7 @@ def phase1():
     check("app is up with the strip", wait(lambda: shown("b3_strip_tap"), 20))
     # ---- resume guards ------------------------------------------------------
     slash("/resume")
-    check("/resume opens 'Resume chat'", wait(lambda: text("b3_title") == "Resume chat"), str(text("b3_title")))
+    check("/resume opens 'Resume chat'", wait(lambda: text("b3_title") == ("Resume chat" if MODE == "phone" else "Resume Chat")), str(text("b3_title")))
     check("resume: the catalog was read scoped (session/list {cwd, profile_id})",
           wait(lambda: any(p.get("profile_id") == "a8" for p in wire("session/list")), 6))
     legacy = find_row("b3_resume_row_", "Legacy chat")
@@ -351,11 +372,11 @@ def phase1():
 
     # ---- delete from the session list ---------------------------------------
     slash("/sessions")
-    check("/sessions opens the switcher", wait(lambda: text("b3_title") == "Open a different session"), str(text("b3_title")))
+    check("/sessions opens the switcher", wait(lambda: text("b3_title") == ("Open a different session" if MODE == "phone" else "Open a Different Session")), str(text("b3_title")))
     beta = find_row("b3_switch_row_", "Review PR #2566")
-    check("switcher: a non-open row offers delete", beta is not None and shown(f"b3_switch_row_{beta}_delete"))
+    check("switcher: a non-open row offers delete", beta is not None and offers_delete(beta))
     if beta is not None:
-        click(f"b3_switch_row_{beta}_delete")
+        ask_delete(beta)
         check("delete asks first ('Delete?')", wait(lambda: text(f"b3_switch_row_{beta}_confirm_q") == "Delete?"))
         shot("03-delete-confirm")
         click(f"b3_switch_row_{beta}_confirm_yes")
@@ -364,14 +385,14 @@ def phase1():
         check("delete: the row is gone", wait(lambda: find_row("b3_switch_row_", "Review PR #2566") is None, 6))
     locked = find_row("b3_switch_row_", "Bump octos-core to a6ea8505")
     if locked is not None:
-        click(f"b3_switch_row_{locked}_delete")
+        ask_delete(locked)
         wait(lambda: shown(f"b3_switch_row_{locked}_confirm_yes"), 4)
         click(f"b3_switch_row_{locked}_confirm_yes")
         check("delete: a refusal keeps the row and says why",
               wait(lambda: text("b3_switch_error") == "Couldn't delete the session: session is busy", 6), str(text("b3_switch_error")))
         check("delete: the refused row stays", find_row("b3_switch_row_", "Bump octos-core to a6ea8505") is not None)
     open_ = find_row("b3_switch_row_", "Add session fork")
-    check("switcher: the open Session offers no delete", open_ is not None and not shown(f"b3_switch_row_{open_}_delete"))
+    check("switcher: the open Session offers no delete", open_ is not None and not offers_delete(open_))
     click("b3_close")
     wait(lambda: not shown("b3_switch_error") and text("b3_title") is None, 4)
 

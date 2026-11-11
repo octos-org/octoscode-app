@@ -104,9 +104,9 @@ impl StaticTexts {
             let current = w.text();
             let entry = self.sources.entry(uid).or_insert_with(|| (Kind::Text, current.clone()));
             if entry.0 == Kind::Text && !entry.1.is_empty() {
-                let next = super::tr(&entry.1);
+                let next = crate::desk::command(&entry.1, super::tr(&entry.1));
                 if current != next {
-                    let next = next.to_owned();
+                    let next = next.into_owned();
                     w.set_text(cx, &next);
                     n += 1;
                 }

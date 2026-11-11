@@ -70,8 +70,9 @@ def profile_ext(W: Walk) -> None:
     W.note("== 1. /skills (palette CLICK): the Profile scope")
     W.check("skills: /skills palette CLICK opens the dialog",
             W.palette_run("ski", "/skills") and W.wait_shown("dlg_skills_skills_warning", 10))
-    W.check("skills: scoped to 'Server Profile: dsflash'", W.text("dlg_skills_scope") == "Server Profile: dsflash",
-            W.text("dlg_skills_scope"))
+    scope_text = W.text if MODE == "phone" else W.text_hidden_too
+    W.check("skills: scoped to 'Server Profile: dsflash'", scope_text("dlg_skills_scope") == "Server Profile: dsflash",
+            scope_text("dlg_skills_scope"))
     W.check("skills: no lock line while the Profile is idle", not W.visible("dlg_skills_skills_locked"))
 
     W.note("== 2. Install from source -> the confirm card -> Confirm (the server answers in 25 s)")
@@ -97,7 +98,7 @@ def profile_ext(W: Walk) -> None:
     W.check("research: /research palette CLICK opens the lanes dialog",
             W.palette_run("resea", "/research") and W.wait_shown("b3_dialog", 10))
     W.check("research: the same Profile scope ('Server Profile: dsflash')",
-            W.wait(lambda: W.text("b3_research_scope") == "Server Profile: dsflash", 6), W.text("b3_research_scope"))
+            W.wait(lambda: scope_text("b3_research_scope") == "Server Profile: dsflash", 6), scope_text("b3_research_scope"))
     W.check("research: the lanes are listed", W.wait(lambda: seen(W, "b3_research_lane_0_key", RS_VP), 10))
     W.check("research: the SHARED lease locks it — the Profile lock line while the skill install is in flight",
             W.wait(lambda: seen(W, "b3_research_locked", RS_VP), 4)

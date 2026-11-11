@@ -131,7 +131,7 @@ def search(W: Walk, query: str):
 
 def scope_ok(W: Walk, tag: str):
     want = "服务器配置档案：dsflash" if tag == "zh" else "Server Profile: dsflash"
-    got = W.text("b3_mem_scope")
+    got = W.text("b3_mem_scope") if PHONE else W.text_hidden_too("b3_mem_scope")
     W.check(f"{tag}: the scope line names the Session's profile (D2 A), plain text (D1)", got == want, repr(got))
 
 
@@ -143,7 +143,7 @@ def main_phase(W: Walk):
             W.wait(lambda: any('"profile_id":"dsflash"' in l for l in replay_lines(W, "-> memory/overview")), 6),
             str(replay_lines(W, "-> memory/overview")[-1:]))
     W.check("overview: long-term memory and today (frame 2/4)",
-            has(W, "Long-term memory", "Prefers Rust 2024 edition", "Show all", "Today", "Fixed the steer queue redelivery"))
+            has(W, "Long-term memory", "Prefers Rust 2024 edition", "Show all" if PHONE else "Show All", "Today", "Fixed the steer queue redelivery"))
     scope_ok(W, "overview")
     W.check("overview: Add note is offered (the profile is confirmed, ingest advertised)", bool(W.visible("b3_mem_add")))
     numeric(W, "overview")
@@ -176,7 +176,7 @@ def main_phase(W: Walk):
     search(W, "steer queue")
     W.check("search: Enter -> memory/search -> 3 results with kind chips and the untrusted chip",
             W.wait(lambda: bool(W.visible("b3_mem_count")), 8) and has(W, "3 results", "Knowledge", "Episode", "Document")
-            and len([w for w in W.snap() if W.shown(w) and (w.get("t") or "") == "untrusted"]) == 2)
+            and len([w for w in W.snap() if W.shown(w) and (w.get("t") or "") == ("untrusted" if PHONE else "Untrusted")]) == 2)
     W.check("wire: memory/search {query, limit: 20, profile_id}, no kinds for All",
             any('"query":"steer queue"' in l and '"limit":20' in l and '"kinds"' not in l
                 for l in replay_lines(W, "-> memory/search")))
@@ -209,7 +209,7 @@ def main_phase(W: Walk):
     W.note("== Add note (frame 9)")
     W.click("b3_mem_add")
     W.check("add: Add note CLICK -> the form", W.wait(lambda: bool(W.visible("b3_mem_add_note")), 5)
-            and has(W, "Add a note", "Search matches the title and the start of the note."))
+            and has(W, "Add a note" if PHONE else "Add a Note", "Search matches the title and the start of the note."))
     W.check("add: the submit is unarmed while the note is empty",
             bool(W.visible("b3_mem_add_submit_off")) and not W.visible("b3_mem_add_submit_on"))
     type_into(W, "b3_mem_add_title", "Dentist appointment")
@@ -230,7 +230,7 @@ def main_phase(W: Walk):
     W.shot(f"08-added-{MODE}")
     search(W, "dentist")
     W.check("add: the note is found by a search, marked untrusted",
-            W.wait(lambda: W.text("b3_mem_count") == "1 result", 8) and has(W, "Dentist appointment", "untrusted"))
+            W.wait(lambda: W.text("b3_mem_count") == "1 result", 8) and has(W, "Dentist appointment", "untrusted" if PHONE else "Untrusted"))
     W.dismiss_keyboard("b3_mem_title")
     W.shot(f"09-note-found-{MODE}")
     close_all(W)
@@ -240,7 +240,9 @@ def truncated_phase(W: Walk):
     W.check("truncated: open", open_memory(W))
     W.check("truncated: Show all -> the notice leads the page: what the server kept, before it is read",
             click_in(W, "b3_mem_lt_more")
-            and has(W, "Showing the first 96 KB of 140 KB. The rest stays on the server.", secs=10))
+            and has(W, "Showing the first 96 KB of 140 KB. The rest stays on the server." if PHONE
+                    # A Mac says sizes as Finder does (decimal): 96 KiB and 140 KiB.
+                    else "Showing the first 98 KB of 143 KB. The rest stays on the server.", secs=10))
     numeric(W, "truncated")
     W.shot(f"10-long-term-truncated-{MODE}")
     close_all(W)

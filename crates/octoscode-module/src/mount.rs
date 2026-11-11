@@ -106,7 +106,7 @@ impl MountCache {
         let vm_id = cx
             .script_ref_vm_id(&source)
             .unwrap_or(MAIN_SPLASH_VM_ID);
-        let mut view = eval_component(cx, vm_id, ui)?;
+        let mut view = eval_component(cx, vm_id, &crate::desk::for_mount(ui))?;
 
         let mut inner = splash.borrow_mut().ok_or("mount: not a Splash")?;
         // The HOST owns the Splash's slot, and `Splash::walk()` delegates to

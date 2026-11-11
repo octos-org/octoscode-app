@@ -6,6 +6,8 @@
 //! panel adds the honest second half ("Check that your server is running.
 //! If it requires authentication, enter its token above.",
 //! `ConnectionPanel.tsx:279-306`, `handshakeAmbiguous`).
+//! Native layouts place the hint before the token field, so their wording
+//! does not give a direction.
 //!
 //! The native transport retries and gives up with no reason either
 //! (`octos-app-transport` ws: the dial error is logged, not reported), but a
@@ -56,7 +58,7 @@ pub fn raw_error(v: Verdict) -> &'static str {
 pub fn ambiguity_hint(v: Verdict, token: &str) -> Option<&'static str> {
     (v == Verdict::Inconclusive).then(|| {
         if token.trim().is_empty() {
-            "Check that your server is running. If it requires authentication, enter its token above."
+            "Check that your server is running. If it requires authentication, enter its token."
         } else {
             "Check that your server is running and your token is current."
         }
@@ -279,7 +281,7 @@ mod tests {
         assert_eq!(kind(Verdict::Inconclusive), Some(FailureKind::Unreachable));
         assert_eq!(
             ambiguity_hint(Verdict::Inconclusive, ""),
-            Some("Check that your server is running. If it requires authentication, enter its token above.")
+            Some("Check that your server is running. If it requires authentication, enter its token.")
         );
         assert_eq!(ambiguity_hint(Verdict::Inconclusive, "t"), Some("Check that your server is running and your token is current."));
         assert_eq!(ambiguity_hint(Verdict::Rejected, ""), None, "a definite verdict needs no hedge");

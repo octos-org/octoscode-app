@@ -353,7 +353,8 @@ fn server_dot(status: &str) -> &'static str {
 }
 
 pub fn build(d: &mut Dsl, st: &InvState, frame: &Frame, _store: &Store) {
-    let width = frame.dialog_w(760.0);
+    // Its tables need the widest sheet: at the next width down Backend is cut.
+    let width = frame.dialog_w(crate::desk::by(760.0, 880.0));
     let compact = frame.compact(width);
     let pad = ui::dialog_pad(frame, width);
     let inner_w = width - 2.0 * pad - 10.0; // the scroll gutter
@@ -374,12 +375,15 @@ pub fn build(d: &mut Dsl, st: &InvState, frame: &Frame, _store: &Store) {
     // Search (`:128-134`).
     d.surface(
         "b3_inv_search_field",
-        "width: Fill height: 40 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 12 right: 12 top: 0 bottom: 0}",
+        crate::desk::by(
+            "width: Fill height: 40 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 12 right: 12 top: 0 bottom: 0}",
+            "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 6 padding: Inset{left: 8 right: 8 top: 0 bottom: 0}",
+        ),
         tok::SURFACE,
-        10.0,
+        crate::desk::by(10.0, 6.0),
         Some("#d1d1d6ff"),
     );
-    d.icon("b3_inv_search_icon", "b3_search.svg", 16.0, tok::FAINT);
+    d.icon("b3_inv_search_icon", "b3_search.svg", crate::desk::by(16.0, 13.0), tok::FAINT);
     search_input(d, &st.query_snap);
     d.close();
     d.gap(W::Fill, 12.0);
@@ -390,7 +394,11 @@ pub fn build(d: &mut Dsl, st: &InvState, frame: &Frame, _store: &Store) {
         d.gap(W::Fill, 6.0);
     }
     if let Some(e) = &st.error {
-        ui::error_line(d, "b3_inv_error", INVENTORY_FAILED, e);
+        if crate::desk::active() {
+            ui::failure_state(d, "b3_inv_error", INVENTORY_FAILED, e, ("b3_inv_retry", "b3.inv.refresh"));
+        } else {
+            ui::error_line(d, "b3_inv_error", INVENTORY_FAILED, e);
+        }
     }
     match st.tab {
         Tab::Tools => tools_section(d, st, compact, inner_w),
@@ -417,16 +425,17 @@ fn search_input(d: &mut Dsl, snap: &str) {
     // The field's own hairline box is the search surface above; the input
     // itself is bare (no second border).
     d.inputs.push(("b3_inv_search".to_owned(), "inv.search".to_owned()));
-    let style = ui::text_style(Face::Regular, 13.5);
+    let style = ui::text_style(Face::Regular, crate::desk::by(13.5, 13.0));
     d.open(
         "b3_inv_search",
         "TextInput",
         &format!(
-            "width: Fill height: Fit padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: {}\nflow: Right is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {f} color_empty: {f} color_empty_hover: {f} color_empty_focus: {f}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
+            "width: Fill height: Fit padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: {}\nflow: Right is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {f} color_empty: {ph} color_empty_hover: {ph} color_empty_focus: {ph}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
             ui::lit(snap),
             ui::lit(tr("Search names, status, or tools…")),
             t = tok::TEXT,
             f = tok::FAINT,
+            ph = crate::desk::by(tok::FAINT, crate::desk::placeholder()),
         ),
     );
     d.close();
@@ -443,15 +452,20 @@ fn tool_cols(inner_w: f64) -> [f64; 6] {
 
 fn tools_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
     if let Some(e) = &st.tools_error {
-        ui::failure(d, "b3_inv_tools_error", TOOLS_FAILED, e);
+        ui::failure_state(d, "b3_inv_tools_error", TOOLS_FAILED, e, ("b3_inv_tools_retry", "b3.inv.refresh"));
         return;
     }
     let Some((policy, rows)) = &st.tools else { return };
     d.text(
         "b3_inv_count",
         // The web composes it: `{n} {t("tools reported · Policy")} {policy}`.
-        &format!("{} {} {}", rows.len(), tr("tools reported · Policy"), policy),
-        &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap(),
+        &if crate::desk::active() {
+            let words = tr("tools reported · Policy");
+            format!("{} {}", rows.len(), words.split(" · ").next().unwrap_or(words))
+        } else {
+            format!("{} {} {}", rows.len(), tr("tools reported · Policy"), policy)
+        },
+        &Txt::new(12.0, if crate::desk::active() { Face::Regular } else { Face::Mono }, tok::TEXT).w(W::Fill).wrap(),
     );
     d.gap(W::Fill, 8.0);
     let cols = tool_cols(inner_w);
@@ -481,21 +495,22 @@ fn tools_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
         } else {
             d.view(&rid, "width: Fill height: 34 flow: Right align: Align{x: 0.0 y: 0.5}");
             d.text("", &fit(&t.name, cols[0] - 10.0, 13.0, true), &Txt::new(13.0, Face::Mono, tok::TEXT).w(W::Px(cols[0])));
-            d.text("", &fit(&t.category, cols[1] - 8.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Px(cols[1])));
+            d.text("", &fit(&crate::desk::wire_word(&t.category), cols[1] - 8.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Px(cols[1])));
             let sc = d.anon();
             d.view(&sc, &format!("width: {} height: Fit flow: Right", cols[2]));
             status_chip(d, &format!("{rid}_status"), &t.status);
             d.close();
-            d.text("", &fit(&t.policy, cols[3] - 8.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Px(cols[3])));
+            d.text("", &fit(&crate::desk::wire_word(&t.policy), cols[3] - 8.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Px(cols[3])));
             let aliases = if t.aliases.is_empty() { "—".to_owned() } else { t.aliases.join(", ") };
             d.text("", &fit(&aliases, cols[4] - 10.0, 13.0, true), &Txt::new(13.0, Face::Mono, tok::TEXT).w(W::Px(cols[4])));
             let backend = t.backend.clone().filter(|b| b != &t.name).unwrap_or_else(|| "native".into());
-            d.text("", &fit(&backend, cols[5] - 4.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Px(cols[5])));
+            d.text("", &fit(&crate::desk::wire_word(&backend), cols[5] - 4.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Px(cols[5])));
             d.close();
         }
     }
     let empty = d.anon();
-    d.view(&empty, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} padding: Inset{top: 6}");
+    let (at, top) = crate::desk::by((1.0, 6), (0.5, 14));
+    d.view(&empty, &format!("width: Fill height: Fit flow: Right align: Align{{x: {at} y: 0.5}} padding: Inset{{top: {top}}}"));
     d.text("b3_inv_tools_empty", tr("No matching tools."), &Txt::new(13.0, Face::Regular, tok::MUTED));
     d.close();
 }
@@ -509,7 +524,7 @@ fn server_cols(inner_w: f64) -> [f64; 5] {
 
 fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
     if let Some(e) = &st.mcp_error {
-        ui::failure(d, "b3_inv_mcp_error", MCP_FAILED, e);
+        ui::failure_state(d, "b3_inv_mcp_error", MCP_FAILED, e, ("b3_inv_mcp_retry", "b3.inv.refresh"));
         return;
     }
     let Some((rows, sm)) = &st.servers else { return };
@@ -528,7 +543,7 @@ fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
             sm.disabled,
             tr("disabled")
         ),
-        &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap(),
+        &Txt::new(12.0, if crate::desk::active() { Face::Regular } else { Face::Mono }, tok::TEXT).w(W::Fill).wrap(),
     );
     d.gap(W::Fill, 4.0);
     // A36 — management is the server's: say so (no add / remove here).
@@ -539,10 +554,16 @@ fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
     );
     d.gap(W::Fill, 8.0);
     let cols = server_cols(inner_w);
-    if compact {
+    if compact || (rows.is_empty() && crate::desk::active()) {
+        // A desktop's empty table is its empty state, with no columns over nothing.
         d.hairline();
     } else {
-        header_row(d, &["ID", "Transport", "Status", "toolCount", "Summary"], &cols);
+        let heads: &[&str] = if crate::desk::active() {
+            &["Server", "Transport", "Status", "Tools", "Summary"]
+        } else {
+            &["ID", "Transport", "Status", "toolCount", "Summary"]
+        };
+        header_row(d, heads, &cols);
     }
     for (i, s) in rows.iter().enumerate() {
         let rid = format!("b3_inv_server_{i}");
@@ -568,7 +589,9 @@ fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
             d.close();
         } else {
             d.view(&rid, "width: Fill height: 34 flow: Right align: Align{x: 0.0 y: 0.5}");
-            d.text("", &fit(&name, cols[0] - 10.0, 13.0, true), &Txt::new(13.0, Face::Mono, tok::TEXT).w(W::Px(cols[0])));
+            // A name the server gave it reads as a name; an id stays in the code face.
+            let named = crate::desk::active() && s.display_name.is_some();
+            d.text("", &fit(&name, cols[0] - 10.0, 13.0, !named), &Txt::new(13.0, if named { Face::Regular } else { Face::Mono }, tok::TEXT).w(W::Px(cols[0])));
             let tc = d.anon();
             d.view(&tc, &format!("width: {} height: Fit flow: Right", cols[1]));
             if let Some(t) = &s.transport {
@@ -578,7 +601,7 @@ fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
             let stc = d.anon();
             d.view(&stc, &format!("width: {} height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 7", cols[2]));
             d.dot(server_dot(&s.status), 8.0);
-            d.text("", &s.status, &Txt::new(13.0, Face::Regular, tok::TEXT));
+            d.text("", &crate::desk::wire_word(&s.status), &Txt::new(13.0, Face::Regular, tok::TEXT));
             d.close();
             d.text("", &s.tool_count.to_string(), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Px(cols[3])));
             d.text("", &fit(&summary, cols[4] - 4.0, 12.0, false), &Txt::new(12.0, Face::Regular, summary_color).w(W::Px(cols[4])));
@@ -586,7 +609,8 @@ fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
         }
     }
     let empty = d.anon();
-    d.view(&empty, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} padding: Inset{top: 6}");
+    let (at, top) = crate::desk::by((1.0, 6), (0.5, 14));
+    d.view(&empty, &format!("width: Fill height: Fit flow: Right align: Align{{x: {at} y: 0.5}} padding: Inset{{top: {top}}}"));
     let msg = if rows.is_empty() { "No MCP servers reported by this runtime." } else { "No matching servers." };
     d.text("b3_inv_servers_empty", tr(msg), &Txt::new(13.0, Face::Regular, tok::MUTED));
     d.close();

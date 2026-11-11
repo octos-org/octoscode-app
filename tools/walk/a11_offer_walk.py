@@ -198,7 +198,8 @@ def offer_layout(app, s):
     if not (title["r"][1] + title["r"][3] <= b[1] and b[1] + b[3] <= server["r"][1]):
         probs.append("not between the title and the fields")
     # The one-line message is not cut (its text fits the box width).
-    gap_top = txt["r"][1] - b[1]
+    # A desktop centres the message on its button: the button is the row's top there.
+    gap_top = txt["r"][1] - b[1] if PHONE else min(txt["r"][1], pill["r"][1]) - b[1]
     gap_bottom = (b[1] + b[3]) - (pill["r"][1] + pill["r"][3])
     if abs(gap_top - gap_bottom) > 3:
         probs.append(f"unbalanced padding top {gap_top} bottom {gap_bottom}")
@@ -315,7 +316,7 @@ def phase_seen_via_ui():
             return st
         # Row 110: an expired code and a malformed link get their own copy.
         pair_with(app, link(FPORT, "EXPIRED0"))
-        app.wait(lambda: app.find("b1_conn_submit"))
+        app.wait(lambda: app.find("b1_conn_server"))
         s = app.snap()
         check("[110] an expired code: 'This pairing link has expired.' + its next step",
               has_text(app, "This pairing link has expired.", s)
@@ -323,7 +324,7 @@ def phase_seen_via_ui():
         capture(app, "p4-03-expired")
         back_to_pair(app)
         pair_with(app, link(FPORT, "not-a-code"))
-        app.wait(lambda: app.find("b1_conn_submit"))
+        app.wait(lambda: app.find("b1_conn_server"))
         s = app.snap()
         check("[110] a malformed link: its own copy, the origin prefilled",
               has_text(app, "This pairing link isn’t complete.", s)
@@ -333,7 +334,7 @@ def phase_seen_via_ui():
         claims = fx.count("POST /pair/claim")
         back_to_pair(app)
         pair_with(app, "http://app.invalid/?octos=http://192.168.1.20:50190&pair=3QK7ZP2M")
-        app.wait(lambda: app.find("b1_conn_submit"))
+        app.wait(lambda: app.find("b1_conn_server"))
         time.sleep(0.8)
         s = app.snap()
         check("[111] a link to another computer is refused without a request, not prefilled",
@@ -345,7 +346,7 @@ def phase_seen_via_ui():
         # Row 109: a used link says so, the form keeps the origin.
         back_to_pair(app)
         pair_with(app, link(FPORT, "USED0000"))
-        app.wait(lambda: app.find("b1_conn_submit"))
+        app.wait(lambda: app.find("b1_conn_server"))
         s = app.snap()
         check("[109] a used link says so and the form keeps the origin",
               has_text(app, "This pairing link was already used.", s)

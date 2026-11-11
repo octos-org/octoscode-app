@@ -1027,6 +1027,33 @@ pub fn loop_form_effect(mode: &str, prompt: &str, interval: &str) -> Effect {
     }
 }
 
+/// A command as a desktop's form takes it: words, with quotes around what holds a
+/// space. It still runs directly, not through a shell.
+fn command_words(text: &str) -> Vec<String> {
+    let (mut words, mut word, mut quote, mut quoted) = (Vec::new(), String::new(), None, false);
+    for c in text.trim().chars() {
+        match quote {
+            Some(q) if c == q => quote = None,
+            Some(_) => word.push(c),
+            None if c == '"' || c == '\'' => {
+                quote = Some(c);
+                quoted = true;
+            }
+            None if c.is_whitespace() => {
+                if quoted || !word.is_empty() {
+                    words.push(std::mem::take(&mut word));
+                    quoted = false;
+                }
+            }
+            None => word.push(c),
+        }
+    }
+    if quoted || !word.is_empty() {
+        words.push(word);
+    }
+    words
+}
+
 /// A10 — the monitor creation form (`AutonomyPanel.tsx:431-482`,
 /// `parseArgvJsonInput` `model.ts:215-232`): a required name, the probe
 /// command as a JSON array of NON-EMPTY strings (no shell splitting, entries
@@ -1036,9 +1063,12 @@ pub fn monitor_form_effect(name: &str, argv: &str, filter: &str) -> Effect {
     if name.is_empty() {
         return Effect::Unhandled("monitor.create[no-name]".to_owned());
     }
-    let parsed = serde_json::from_str::<Vec<String>>(argv.trim())
-        .ok()
-        .filter(|v| !v.is_empty() && v.iter().all(|a| !a.is_empty()));
+    let parsed = if crate::desk::active() && !argv.trim_start().starts_with('[') {
+        Some(command_words(argv))
+    } else {
+        serde_json::from_str::<Vec<String>>(argv.trim()).ok()
+    }
+    .filter(|v| !v.is_empty() && v.iter().all(|a| !a.is_empty()));
     let Some(argv) = parsed else {
         return Effect::Unhandled("monitor.create[argv]".to_owned());
     };

@@ -242,49 +242,115 @@ pub fn copy(l: &Leave) -> (&'static str, Vec<&'static str>, &'static str) {
     )
 }
 
-/// Lower the pending confirmation (`None` when nothing is pending).
-pub fn lower(frame: &Frame) -> Option<super::activity::Lowered> {
-    let l = pending()?;
-    let (title, body, confirm_label) = copy(&l);
-    // `width: min(440px, 100%)` inside the 20 px backdrop inset; 24 px
-    // padding, radius 20 (`LeaveConnectionDialog.module.css:1-30`).
-    let w = (frame.avail_w - 40.0).min(440.0).max(240.0).floor();
+/// A Mac's words for the question: at most two short sentences, what may stop
+/// (and the unsent message that goes with it) and what is removed or kept.
+pub fn mac_words(l: &Leave) -> [&'static str; 2] {
+    let first = if l.unsaved {
+        "Running work may stop, and your unsent message will be lost."
+    } else {
+        "Running work may stop."
+    };
+    let second = if l.kind == LeaveKind::Forget {
+        // Long enough that its last line is never "removed." alone (228 points).
+        "The server's saved address and access token are removed."
+    } else {
+        "You can reconnect later."
+    };
+    [first, second]
+}
+
+/// The question as a Mac's alert (E7 1), the kit's one: the app's icon, the
+/// question in bold, [`mac_words`] centred under it, the red word beside the
+/// blue Cancel.
+fn lower_mac(l: &Leave) -> super::activity::Lowered {
+    let (title, _, confirm_label) = copy(l);
     let mut d = Dsl::new();
-    d.view("a9_lv_root", "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}");
-    d.rule("a9_lv_mask", "width: Fill height: Fill", tok::MASK);
+    d.view("a9_lv_root", &format!("width: Fill height: Fill flow: Overlay align: {}", ui::sheet_align()));
+    d.rule("a9_lv_mask", "width: Fill height: Fill", ui::mac_mask());
     d.view("a9_lv_backdrop_box", "width: Fill height: Fill flow: Overlay");
     d.tap("a9_lv_backdrop", ACTION_CANCEL);
     d.close();
-    d.surface(
-        "a9_lv_dialog",
-        &format!("width: {w} height: Fit flow: Overlay"),
-        tok::SURFACE,
-        20.0,
-        Some(tok::HAIRLINE),
-    );
+    d.sheet_surface("a9_lv_dialog", &format!("width: {} height: Fit flow: Overlay", ui::ALERT_W), 10.0);
     d.view("a9_lv_swallow_box", "width: Fill height: Fill flow: Overlay");
     d.tap("a9_lv_swallow", ACTION_NOOP);
     d.close();
     d.view(
         "a9_lv_col",
-        "width: Fill height: Fit flow: Down spacing: 12 padding: Inset{left: 24 right: 24 top: 24 bottom: 24}",
+        "width: Fill height: Fit flow: Down align: Align{x: 0.5 y: 0.0} padding: Inset{left: 16 right: 16 top: 32 bottom: 16}",
+    );
+    ui::app_icon(&mut d, "a9_lv_icon");
+    let words = mac_words(l);
+    let (p0, p1) = (crate::i18n::tr(words[0]), crate::i18n::tr(words[1]));
+    ui::alert_words(&mut d, ("a9_lv_title", crate::i18n::tr(title)), &[("a9_lv_p0", p0), ("a9_lv_p1", p1)]);
+    // Something that can't be undone: its word comes first, and Cancel is the
+    // blue default that Return and Escape answer.
+    ui::alert_buttons(
+        &mut d,
+        &[
+            ui::AlertButton::ids("a9_lv_confirm_box", "a9_lv_confirm_label", "a9_lv_confirm", confirm_label, ACTION_CONFIRM, ui::Btn::Outline).red(),
+            ui::AlertButton::ids("a9_lv_cancel_box", "a9_lv_cancel_label", "a9_lv_cancel", "Cancel", ACTION_CANCEL, ui::Btn::Primary),
+        ],
+    );
+    d.close(); // col
+    d.close(); // dialog
+    d.close(); // root
+    let taps = d.taps.clone();
+    super::activity::Lowered { dsl: d.finish(), taps, inputs: Vec::new() }
+}
+
+/// Lower the pending confirmation (`None` when nothing is pending).
+pub fn lower(frame: &Frame) -> Option<super::activity::Lowered> {
+    let l = pending()?;
+    if crate::desk::active() {
+        return Some(lower_mac(&l));
+    }
+    let (title, body, confirm_label) = copy(&l);
+    // `width: min(440px, 100%)` inside the 20 px backdrop inset; 24 px
+    // padding, radius 20 (`LeaveConnectionDialog.module.css:1-30`).
+    let w = (frame.avail_w - 40.0).min(crate::desk::by(440.0, 400.0)).max(240.0).floor();
+    let mut d = Dsl::new();
+    d.view("a9_lv_root", &format!("width: Fill height: Fill flow: Overlay align: {}", ui::sheet_align()));
+    d.rule("a9_lv_mask", "width: Fill height: Fill", crate::desk::by(tok::MASK, ui::mac_mask()));
+    d.view("a9_lv_backdrop_box", "width: Fill height: Fill flow: Overlay");
+    d.tap("a9_lv_backdrop", ACTION_CANCEL);
+    d.close();
+    d.sheet_surface("a9_lv_dialog", &format!("width: {w} height: Fit flow: Overlay"), 20.0);
+    d.view("a9_lv_swallow_box", "width: Fill height: Fill flow: Overlay");
+    d.tap("a9_lv_swallow", ACTION_NOOP);
+    d.close();
+    d.view(
+        "a9_lv_col",
+        crate::desk::by(
+            "width: Fill height: Fit flow: Down spacing: 12 padding: Inset{left: 24 right: 24 top: 24 bottom: 24}",
+            "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{left: 16 right: 16 top: 16 bottom: 16}",
+        ),
     );
     // A24: the dialog copy in the current language (the web's t() keys).
-    d.text("a9_lv_title", crate::i18n::tr(title), &Txt::new(20.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
+    d.text("a9_lv_title", crate::i18n::tr(title), &Txt::new(crate::desk::by(20.0, 15.0), Face::Semibold, tok::TEXT).w(W::Fill).wrap());
     for (i, p) in body.iter().enumerate() {
         d.text(
             &format!("a9_lv_p{i}"),
             crate::i18n::tr(p),
-            &Txt::new(14.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
+            &Txt::new(crate::desk::by(14.0, 13.0), Face::Regular, tok::MUTED).w(W::Fill).wrap(),
         );
     }
     // The actions, right-aligned (`.actions`: flex-end, gap 10, top 22).
     d.view(
         "a9_lv_actions",
-        "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 1.0 y: 0.5} margin: Inset{top: 10}",
+        crate::desk::by(
+            "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 1.0 y: 0.5} margin: Inset{top: 10}",
+            "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5} margin: Inset{top: 8}",
+        ),
     );
-    action_button(&mut d, "a9_lv_cancel", crate::i18n::tr("Cancel"), ACTION_CANCEL, tok::TEXT);
-    action_button(&mut d, "a9_lv_confirm", crate::i18n::tr(confirm_label), ACTION_CONFIRM, tok::RED_TEXT);
+    if crate::desk::active() {
+        // Something that can't be undone: its word comes first, and Cancel is
+        // the blue default that Return and Escape answer.
+        action_button(&mut d, "a9_lv_confirm", crate::i18n::tr(confirm_label), ACTION_CONFIRM, tok::RED_TEXT);
+        d.button_ids("a9_lv_cancel_box", "a9_lv_cancel_label", "a9_lv_cancel", crate::i18n::tr("Cancel"), ACTION_CANCEL, ui::Btn::Primary, W::Fit, 28.0);
+    } else {
+        action_button(&mut d, "a9_lv_cancel", crate::i18n::tr("Cancel"), ACTION_CANCEL, tok::TEXT);
+        action_button(&mut d, "a9_lv_confirm", crate::i18n::tr(confirm_label), ACTION_CONFIRM, tok::RED_TEXT);
+    }
     d.close();
     d.close(); // col
     d.close(); // dialog
@@ -296,15 +362,29 @@ pub fn lower(frame: &Frame) -> Option<super::activity::Lowered> {
 /// The web's action button (`.actions button`: min-height 44, 10x16 padding,
 /// a hairline border, radius 10, 14 px medium; the confirm in error text).
 fn action_button(d: &mut Dsl, id: &str, label: &str, event: &str, fg: &'static str) {
-    let w = ui::text_w(label, 14.0, Face::Medium) + 34.0;
+    // A Mac's push button: 28 points, a 6-point corner, the regular face.
+    let mac = crate::desk::active().then(crate::desk::current);
+    let label = crate::desk::title(label);
+    let label: &str = &label;
+    let (px, face, h, radius) = if mac.is_some() { (13.0, Face::Regular, 28, 6.0) } else { (14.0, Face::Medium, 44, 10.0) };
+    let fg = if mac.is_some() && fg == tok::RED_TEXT { crate::desk::danger_on_face() } else { fg };
+    let w = if mac.is_some() {
+        (ui::text_w(label, px, face) + 24.0).max(72.0).ceil()
+    } else {
+        ui::text_w(label, px, face) + 34.0
+    };
+    let (fill, border) = match &mac {
+        Some(t) => (t.button.as_str(), t.border.as_str()),
+        None => (tok::SURFACE, "#d1d1d6ff"),
+    };
     d.surface(
         &format!("{id}_box"),
-        &format!("width: {w} height: 44 flow: Overlay align: Align{{x: 0.5 y: 0.5}}"),
-        tok::SURFACE,
-        10.0,
-        Some("#d1d1d6ff"),
+        &format!("width: {w} height: {h} flow: Overlay align: Align{{x: 0.5 y: 0.5}}"),
+        fill,
+        radius,
+        Some(border),
     );
-    d.text(&format!("{id}_label"), label, &Txt::new(14.0, Face::Medium, fg));
+    d.text(&format!("{id}_label"), label, &Txt::new(px, face, fg));
     d.tap(id, event);
     d.close();
 }
@@ -386,6 +466,20 @@ mod tests {
         let phone = lower(&Frame { avail_w: 360.0, avail_h: 780.0 }).unwrap();
         assert!(phone.dsl.contains("width: 320"), "the 20 px inset on a phone");
         cancel();
+    }
+
+    #[test]
+    fn a_macs_question_says_it_in_two_short_sentences() {
+        for kind in [LeaveKind::Forget, LeaveKind::Disconnect] {
+            for unsaved in [false, true] {
+                let words = mac_words(&Leave { kind, unsaved });
+                let sentences = words.iter().map(|w| w.matches(['.', '?', '!']).count()).sum::<usize>();
+                assert_eq!(sentences, 2, "{words:?}");
+                assert!(words.iter().all(|w| w.split_whitespace().count() <= 12), "{words:?}");
+                assert_eq!(words[0].contains("unsent"), unsaved, "{words:?}");
+                assert_eq!(words[1].contains("removed"), kind == LeaveKind::Forget, "{words:?}");
+            }
+        }
     }
 
     #[test]

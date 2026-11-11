@@ -70,14 +70,21 @@ def main():
     s = snap()
     on = sw.inside("tg_on", "tg_vim", s)
     check("the toggle reads the current Vim editing", on == (PHASE == "relaunch"), f"on={on}")
-    small = [(i, rect(i, s=s)) for i in ("tg_vim", "prefs_save") if not rect(i, s=s) or rect(i, s=s)[3] < 28]
+    # A Mac keeps a preference when it changes: it has no Save button.
+    small = [(i, rect(i, s=s)) for i in (("tg_vim", "prefs_save") if MODE == "phone" else ("tg_vim",))
+             if not rect(i, s=s) or rect(i, s=s)[3] < 28]
     check("Preferences controls are >= 28 px targets", not small, f"{small}")
     check("tg_vim inside the body", sw.inside("tg_vim", "set_body", s), f"{rect('tg_vim', s=s)}")
     # Save and its status live in Preferences' fixed footer under the
     # scrolling body, so they stay whole however tall the body grows.
-    for wid in ("prefs_save", "prefs_status"):
-        check(f"{wid} inside the fixed footer", sw.inside(wid, "set_footer", s), f"{rect(wid, s=s)}")
-    body, foot = rect("set_body", s=s), rect("set_footer", s=s)
+    footer = "set_footer" if MODE == "phone" else "set_foot_row"
+    if MODE == "phone":
+        for wid in ("prefs_save", "prefs_status"):
+            check(f"{wid} inside the fixed footer", sw.inside(wid, footer, s), f"{rect(wid, s=s)}")
+    else:
+        check("a Mac's Preferences has no Save button and no status word",
+              not rect("prefs_save", s=s) and not text_of("prefs_status", s), f"{rect('prefs_save', s=s)}")
+    body, foot = rect("set_body", s=s), rect(footer, s=s)
     check("the footer sits below the body", bool(body and foot and foot[1] >= body[1] + body[3] - 1),
           f"body={body} footer={foot}")
     log_since()
@@ -86,10 +93,19 @@ def main():
     check("the toggle flips Vim editing at once",
           soon(lambda: (vim_note() == "Vim · Insert") == want_on) and any("a9 prefs: vim editing" in l for l in log_since()),
           f"{vim_note()!r}")
-    check("…and the change is unsaved", soon(lambda: text_of("prefs_status") == "Unsaved preferences."), f"{text_of('prefs_status')!r}")
-    shot(f"{MODE}-prefs-{PHASE}-unsaved")
-    click("prefs_save")
-    check("Save -> 'Preferences saved.'", soon(lambda: text_of("prefs_status") == "Preferences saved."), f"{text_of('prefs_status')!r}")
+    if MODE == "phone":
+        check("…and the change is unsaved", soon(lambda: text_of("prefs_status") == "Unsaved preferences."), f"{text_of('prefs_status')!r}")
+        shot(f"{MODE}-prefs-{PHASE}-unsaved")
+        click("prefs_save")
+        check("Save -> 'Preferences saved.'", soon(lambda: text_of("prefs_status") == "Preferences saved."), f"{text_of('prefs_status')!r}")
+    elif PREFS:
+        def kept() -> bool:
+            try:
+                return json.load(open(PREFS)).get("vimMode") == want_on
+            except (OSError, ValueError):
+                return False
+        check("…and the change is kept at once, without a word",
+              soon(kept) and not text_of("prefs_status"), f"{text_of('prefs_status')!r}")
     if PREFS:
         doc = json.load(open(PREFS))
         check("the file holds exactly the display whitelist",

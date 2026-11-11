@@ -315,6 +315,7 @@ pub fn match_command(input: &str) -> Option<CommandMatch> {
             Some(CommandMatch::Known(args, c.name.to_owned()))
         }
         Some(c) => Some(CommandMatch::NotRunnable(c.name.to_owned())),
+        None if crate::desk::active() && command_index(candidate).is_some() => Some(CommandMatch::Known(args, candidate.to_owned())),
         None => Some(CommandMatch::Unknown(candidate.to_owned())),
     }
 }

@@ -582,7 +582,7 @@ def phase_reopen():
     n_open, n_read = len(requests("session/open", HICCUP)), len(history_reads(HICCUP))
     check("reopen: CLICK 'History hiccup'", open_row("History hiccup"))
     close_sidebar()
-    failed = wait(lambda: text("history_title") == "Session recovery required"
+    failed = wait(lambda: text("history_title") == ("Session recovery required" if PHONE else "Couldn’t Load This Chat")
                   and "history store busy" in (text("history_hint") or ""), 8)
     s = snap()
     check("reopen: its history could not be read — the notice says so, with the server's reason", failed,
@@ -597,7 +597,7 @@ def phase_reopen():
           str(len(requests("session/open", HICCUP)) - n_open))
     check("reopen wire: and its history read again", wait(lambda: len(history_reads(HICCUP)) == n_read + 2, 8),
           str(len(history_reads(HICCUP)) - n_read))
-    restated = wait(lambda: text("history_title") == "Session recovery required"
+    restated = wait(lambda: text("history_title") == ("Session recovery required" if PHONE else "Couldn’t Load This Chat")
                     and "history store still busy" in (text("history_hint") or ""), 8)
     s = snap()
     check("reopen: that read is refused too — the notice re-states, with the new reason", restated,

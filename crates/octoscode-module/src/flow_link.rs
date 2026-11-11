@@ -425,7 +425,8 @@ async fn pump(link: std::sync::Weak<Link>, generation: u64, mut rx: mpsc::Receiv
 
 fn command_name(c: &OutboundCommand) -> &'static str {
     match c {
-        OutboundCommand::OpenSession(_) | OutboundCommand::OpenSessionFresh(_) => "session/open",
+        OutboundCommand::OpenSession(_) | OutboundCommand::OpenSessionFresh(_)
+        | OutboundCommand::OpenSessionTracked { .. } => "session/open",
         OutboundCommand::ListSessions => "session/list",
         OutboundCommand::HydrateSession { .. } => "session/hydrate",
         OutboundCommand::StartTurn(_) => "turn/start",

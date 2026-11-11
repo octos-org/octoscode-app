@@ -338,6 +338,62 @@ pub fn pending_form() -> Option<Form> {
     FORM.lock().unwrap().clone()
 }
 
+/// A Mac's create form waits for the server's answer ([`settle_form`]):
+/// the action whose Create is out, so a second press sends nothing.
+static SUBMITTING: Mutex<Option<String>> = Mutex::new(None);
+
+/// A Mac's Create is about to go out: `false` when one is already out.
+pub fn begin_submit(action: &str) -> bool {
+    let mut s = SUBMITTING.lock().unwrap_or_else(|p| p.into_inner());
+    if s.is_some() {
+        return false;
+    }
+    *s = Some(action.to_owned());
+    true
+}
+
+/// The server answered a Mac's Create of `action`: accepted, the form closes
+/// (the list shows what it made); refused, the form stays with what was
+/// typed and the refusal under its fields, in a person's words. `true` when
+/// that form was still up (a refusal is then the form's, not the list's).
+pub fn settle_form(action: &str, refused: Option<&str>) -> bool {
+    *SUBMITTING.lock().unwrap_or_else(|p| p.into_inner()) = None;
+    let mut f = FORM.lock().unwrap();
+    if !f.as_ref().is_some_and(|form| form.action == action) {
+        return false;
+    }
+    match refused {
+        None => *f = None,
+        Some(why) => {
+            if let Some(form) = f.as_mut() {
+                form.error = Some(refusal_words(why));
+            }
+        }
+    }
+    true
+}
+
+/// A server's refusal as a form says it: the RPC wrapping dropped, and a
+/// filter the regex parser refused said plainly.
+pub fn refusal_words(raw: &str) -> String {
+    let text = display_error(raw);
+    if text.contains("filter_regex does not compile") {
+        crate::i18n::tr("The filter isn’t a valid pattern.").to_owned()
+    } else {
+        text
+    }
+}
+
+/// The autonomy family a dialog shows the alert line of.
+pub fn family_of(d: Dialog) -> Option<&'static str> {
+    match d {
+        Dialog::Goal => Some(crate::screens::autonomy::FAMILY_GOAL),
+        Dialog::Loops => Some(crate::screens::autonomy::FAMILY_LOOPS),
+        Dialog::Monitors => Some(crate::screens::autonomy::FAMILY_MONITORS),
+        _ => None,
+    }
+}
+
 pub fn set_form(f: Option<Form>) {
     *FORM.lock().unwrap() = f;
 }
@@ -380,7 +436,7 @@ pub fn form_for(action: &str, seed: &str) -> Option<Form> {
             // The web's placeholders (`AutonomyPanel.tsx:436-452`).
             fields: vec![
                 ("mf_name".to_owned(), "watch-build".to_owned(), first),
-                ("mf_argv".to_owned(), "[\"./scripts/watch.sh\", \"--verbose\"]".to_owned(), second),
+                ("mf_argv".to_owned(), crate::desk::by("[\"./scripts/watch.sh\", \"--verbose\"]", "./scripts/watch.sh --verbose").to_owned(), second),
                 ("mf_filter".to_owned(), "ERROR.*".to_owned(), String::new()),
             ],
             help: "The command is a JSON array of arguments; it is not run through a shell. \
@@ -410,6 +466,42 @@ pub fn form_effect(f: &Form, values: &[String]) -> Option<crate::screens::autono
     }
 }
 
+/// Whether a form's default can go (a Mac's stays off until then). What only
+/// the attempt can tell, an interval's format or a filter's, still refuses on
+/// the form.
+pub fn form_ready(f: &Form, values: &[String]) -> bool {
+    let filled = |i: usize| values.get(i).is_some_and(|v| !v.trim().is_empty());
+    match (f.action.as_str(), f.mode.as_deref()) {
+        ("loop.create", Some("maintenance")) => true,
+        ("loop.create", Some("fixed")) | ("monitor.create", _) => filled(0) && filled(1),
+        _ => filled(0),
+    }
+}
+
+/// Why a Mac form's default can't go yet, in a person's words (drawn beside
+/// it): what is still to be filled in. `None` once it can.
+pub fn form_wants(f: &Form, values: &[String]) -> Option<&'static str> {
+    if form_ready(f, values) {
+        return None;
+    }
+    let blank = |i: usize| !values.get(i).is_some_and(|v| !v.trim().is_empty());
+    Some(match (f.action.as_str(), f.mode.as_deref()) {
+        ("loop.create", Some("fixed")) => match (blank(0), blank(1)) {
+            (true, true) => "Enter a prompt and an interval.",
+            (false, true) => "Enter an interval.",
+            _ => "Enter a prompt.",
+        },
+        ("loop.create", _) => "Enter a prompt.",
+        ("monitor.create", _) => match (blank(0), blank(1)) {
+            (true, true) => "Enter a name and a command.",
+            (false, true) => "Enter a command.",
+            _ => "Enter a name.",
+        },
+        ("goal.set", _) => "Enter an objective.",
+        _ => return None,
+    })
+}
+
 /// The entry text a form's values compose: the first field, then " | " and
 /// the second when it is not blank.
 pub fn form_value(values: &[String]) -> String {
@@ -428,6 +520,11 @@ pub fn form_value(values: &[String]) -> String {
 /// The widget id of form field `field` in dialog `d` (after the prefix).
 pub fn form_input_id(d: Dialog, field: &str) -> String {
     format!("dlg_{}_{field}", d.id())
+}
+
+/// This confirmation asks before something goes for good.
+pub fn confirm_destroys(c: &Confirm) -> bool {
+    c.action.starts_with("skills.remove")
 }
 
 /// The pending confirmation, if any.

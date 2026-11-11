@@ -7,6 +7,7 @@ real server.
   python3 tools/walk/a9_auth401_serve.py 8439
 """
 import http.server
+import socketserver
 import sys
 
 
@@ -27,6 +28,14 @@ class Refuse(http.server.BaseHTTPRequestHandler):
         sys.stdout.flush()
 
 
+class Server(http.server.ThreadingHTTPServer):
+    def server_bind(self):
+        # No reverse lookup of the loopback address: with no DNS at hand it
+        # outlasts the walk's wait for this port.
+        socketserver.TCPServer.server_bind(self)
+        self.server_name, self.server_port = self.server_address[:2]
+
+
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8439
-    http.server.ThreadingHTTPServer(("127.0.0.1", port), Refuse).serve_forever()
+    Server(("127.0.0.1", port), Refuse).serve_forever()
