@@ -536,6 +536,10 @@ struct SheetFoot {
     default_event: Option<String>,
     /// A manager's sheet keeps "Done" beside its default: nothing to cancel.
     keep_done: bool,
+    /// n11o (E9 5): what floats over the sheet (a pop-up's menu), drawn after
+    /// it in the root's overlay ([`Dsl::over_begin`]).
+    over: String,
+    over_held: Option<String>,
 }
 
 /// What Return answers on the open Mac sheet when its blue Done is its only
@@ -781,6 +785,25 @@ impl Dsl {
     pub fn foot_begin(&mut self, at: Foot) {
         if let Some(sheet) = &mut self.sheet {
             sheet.held = Some((at, std::mem::take(&mut self.out)));
+        }
+    }
+
+    /// n11o (E9 5): on a Mac sheet, what is built until [`Dsl::over_end`]
+    /// floats over the whole sheet, as a pop-up's menu does: [`shell_close`]
+    /// draws it after the sheet. Anywhere else, it stays where it is.
+    pub fn over_begin(&mut self) {
+        if let Some(sheet) = &mut self.sheet {
+            sheet.over_held = Some(std::mem::take(&mut self.out));
+        }
+    }
+
+    /// See [`Dsl::over_begin`].
+    pub fn over_end(&mut self) {
+        if let Some(sheet) = &mut self.sheet {
+            if let Some(out) = sheet.over_held.take() {
+                let built = std::mem::replace(&mut self.out, out);
+                sheet.over.push_str(&built);
+            }
         }
     }
 
@@ -1774,6 +1797,14 @@ pub fn body_open_id(d: &mut Dsl, frame: &Frame, width: f64, chrome_h: f64, scrol
     );
 }
 
+/// n11o (E9 7): a Mac sheet whose body is a scroll view of its own (not
+/// [`body_open`]'s): a hairline ends it above the foot, as [`body_open_id`]'s does.
+pub fn sheet_scrolls(d: &mut Dsl) {
+    if let Some(sheet) = &mut d.sheet {
+        sheet.scrolls = true;
+    }
+}
+
 /// Close [`body_open`].
 pub fn body_close(d: &mut Dsl) {
     d.close();
@@ -1781,7 +1812,10 @@ pub fn body_close(d: &mut Dsl) {
 
 /// Close the card and the backdrop root.
 pub fn shell_close(d: &mut Dsl) {
-    if let Some(foot) = d.sheet.take() {
+    // n11o (E9 5): what floats over the sheet goes after it, in the root.
+    let mut over = String::new();
+    if let Some(mut foot) = d.sheet.take() {
+        over = std::mem::take(&mut foot.over);
         no_sheet_done();
         let close = foot.close.filter(|_| !foot.own_close);
         // A default of the sheet's own: Return does it.
@@ -1821,6 +1855,7 @@ pub fn shell_close(d: &mut Dsl) {
         }
     }
     d.close();
+    d.out.push_str(&over);
     d.close();
 }
 

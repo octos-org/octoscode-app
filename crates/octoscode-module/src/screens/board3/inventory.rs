@@ -126,6 +126,11 @@ pub fn tool_matches(t: &ToolRow, q: &str) -> bool {
     for a in &t.aliases {
         hay.push(a);
     }
+    // n11o (E9 8): a Mac finds a tool by the words its table shows.
+    let word = crate::desk::tool_word(&t.name);
+    if crate::desk::active() {
+        hay.push(&word);
+    }
     search_hit(&hay, q)
 }
 
@@ -140,6 +145,11 @@ pub fn server_matches(s: &ServerRow, q: &str) -> bool {
     }
     for t in &s.tools {
         hay.push(t);
+    }
+    // n11o (E9 8): and a server by its tools' words.
+    let words: Vec<String> = if crate::desk::active() { s.tools.iter().map(|t| crate::desk::tool_word(t)).collect() } else { Vec::new() };
+    for w in &words {
+        hay.push(w);
     }
     search_hit(&hay, q)
 }
@@ -450,6 +460,28 @@ fn tool_cols(inner_w: f64) -> [f64; 6] {
     [fixed[0], fixed[1], fixed[2], fixed[3], aliases, fixed[5]]
 }
 
+/// n11o (E9 8): a Mac's tools table, Tool | Category | Status | Policy: the
+/// tool in words, its id (with its aliases and a backend of another name) a
+/// detail under it.
+fn mac_tool_cols(inner_w: f64) -> [f64; 4] {
+    let fixed = [0.0, 124.0, 112.0, 150.0];
+    let used: f64 = fixed.iter().sum();
+    [(inner_w - used).max(160.0), fixed[1], fixed[2], fixed[3]]
+}
+
+/// The ids a Mac keeps under a tool's words: `edit_file, diff_edit`, and the
+/// backend only when the tool comes from somewhere other than Octos itself.
+fn tool_ids(t: &ToolRow) -> String {
+    let mut ids = vec![t.name.as_str()];
+    ids.extend(t.aliases.iter().map(String::as_str));
+    let mut out = ids.join(", ");
+    if let Some(b) = t.backend.as_ref().filter(|b| *b != &t.name && !b.eq_ignore_ascii_case("native")) {
+        out.push_str(" \u{b7} ");
+        out.push_str(b);
+    }
+    out
+}
+
 fn tools_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
     if let Some(e) = &st.tools_error {
         ui::failure_state(d, "b3_inv_tools_error", TOOLS_FAILED, e, ("b3_inv_tools_retry", "b3.inv.refresh"));
@@ -469,14 +501,43 @@ fn tools_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
     );
     d.gap(W::Fill, 8.0);
     let cols = tool_cols(inner_w);
+    let mac = crate::desk::active();
+    let mc = mac_tool_cols(inner_w);
     if compact {
         d.hairline();
+    } else if mac {
+        header_row(d, &["Tool", "Category", "Status", "Policy"], &mc);
     } else {
         header_row(d, &["Tool", "Category", "Status", "Policy", "Aliases", "Backend"], &cols);
     }
     for (i, t) in rows.iter().enumerate() {
         let rid = format!("b3_inv_tool_{i}");
-        if compact {
+        if compact && mac {
+            // n11o (E9 8): the words first, the ids at the end of the detail.
+            d.view(&rid, "width: Fill height: Fit flow: Down padding: Inset{top: 6 bottom: 6}");
+            let l1 = d.anon();
+            d.view(&l1, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
+            d.text(&format!("{rid}_name"), &fit(&crate::desk::tool_word(&t.name), inner_w - 90.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill));
+            status_chip(d, &format!("{rid}_status"), &t.status);
+            d.close();
+            let meta = [crate::desk::wire_word(&t.category), crate::desk::wire_word(&t.policy), tool_ids(t)];
+            d.text(&format!("{rid}_id"), &fit(&meta.join(" \u{b7} "), inner_w, 11.5, false), &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill));
+            d.close();
+        } else if mac {
+            d.view(&rid, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{top: 5 bottom: 5}");
+            let name = d.anon();
+            d.view(&name, &format!("width: {} height: Fit flow: Down spacing: 1", mc[0]));
+            d.text(&format!("{rid}_name"), &fit(&crate::desk::tool_word(&t.name), mc[0] - 10.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::TEXT));
+            d.text(&format!("{rid}_id"), &fit(&tool_ids(t), mc[0] - 10.0, 11.0, true), &Txt::new(11.0, Face::Mono, tok::MUTED));
+            d.close();
+            d.text("", &fit(&crate::desk::wire_word(&t.category), mc[1] - 8.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Px(mc[1])));
+            let sc = d.anon();
+            d.view(&sc, &format!("width: {} height: Fit flow: Right", mc[2]));
+            status_chip(d, &format!("{rid}_status"), &t.status);
+            d.close();
+            d.text("", &fit(&crate::desk::wire_word(&t.policy), mc[3] - 8.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Px(mc[3])));
+            d.close();
+        } else if compact {
             d.view(&rid, "width: Fill height: Fit flow: Down padding: Inset{top: 6 bottom: 6}");
             let l1 = d.anon();
             d.view(&l1, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
@@ -522,6 +583,26 @@ fn server_cols(inner_w: f64) -> [f64; 5] {
     [fixed[0], fixed[1], fixed[2], fixed[3], (inner_w - used).max(80.0)]
 }
 
+/// n11o (E9 8): a Mac's servers table, Server | Status | Tools | Summary: the
+/// transport (and an id under a name) is a detail under the server.
+fn mac_server_cols(inner_w: f64) -> [f64; 4] {
+    let fixed = [190.0, 130.0, 64.0, 0.0];
+    let used: f64 = fixed.iter().sum();
+    [fixed[0], fixed[1], fixed[2], (inner_w - used).max(80.0)]
+}
+
+/// What a Mac keeps under a server's name: its id when it has a name, and its transport.
+fn server_ids(s: &ServerRow) -> String {
+    let mut parts: Vec<&str> = Vec::new();
+    if s.display_name.as_deref().is_some_and(|n| n != s.id) {
+        parts.push(&s.id);
+    }
+    if let Some(t) = &s.transport {
+        parts.push(t);
+    }
+    parts.join(" \u{b7} ")
+}
+
 fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
     if let Some(e) = &st.mcp_error {
         ui::failure_state(d, "b3_inv_mcp_error", MCP_FAILED, e, ("b3_inv_mcp_retry", "b3.inv.refresh"));
@@ -554,9 +635,13 @@ fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
     );
     d.gap(W::Fill, 8.0);
     let cols = server_cols(inner_w);
+    let mac = crate::desk::active();
+    let mc = mac_server_cols(inner_w);
     if compact || (rows.is_empty() && crate::desk::active()) {
         // A desktop's empty table is its empty state, with no columns over nothing.
         d.hairline();
+    } else if mac {
+        header_row(d, &["Server", "Status", "Tools", "Summary"], &mc);
     } else {
         let heads: &[&str] = if crate::desk::active() {
             &["Server", "Transport", "Status", "Tools", "Summary"]
@@ -571,10 +656,41 @@ fn servers_section(d: &mut Dsl, st: &InvState, compact: bool, inner_w: f64) {
         let summary = match &s.error {
             Some(e) => e.clone(),
             None if s.tools.is_empty() => "—".to_owned(),
+            // n11o (E9 8): a Mac names the server's tools in words.
+            None if mac => s.tools.iter().map(|t| crate::desk::tool_word(t)).collect::<Vec<_>>().join(", "),
             None => s.tools.join(", "),
         };
         let summary_color = if s.error.is_some() { tok::RED_TEXT } else { tok::MUTED };
-        if compact {
+        let named = mac && s.display_name.is_some();
+        if mac && compact {
+            d.view(&rid, "width: Fill height: Fit flow: Down padding: Inset{top: 6 bottom: 6}");
+            let l1 = d.anon();
+            d.view(&l1, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
+            d.text(&format!("{rid}_name"), &fit(&name, inner_w - 90.0, 13.0, !named), &Txt::new(13.0, if named { Face::Regular } else { Face::Mono }, tok::TEXT).w(W::Fill));
+            d.dot(server_dot(&s.status), 8.0);
+            d.text("", &s.tool_count.to_string(), &Txt::new(12.5, Face::Regular, tok::TEXT));
+            d.close();
+            d.text("", &fit(&format!("{} \u{b7} {}", crate::desk::wire_word(&s.status), summary), inner_w, 11.5, false), &Txt::new(11.5, Face::Regular, summary_color).w(W::Fill));
+            d.close();
+        } else if mac {
+            d.view(&rid, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{top: 5 bottom: 5}");
+            let nc = d.anon();
+            d.view(&nc, &format!("width: {} height: Fit flow: Down spacing: 1", mc[0]));
+            d.text(&format!("{rid}_name"), &fit(&name, mc[0] - 10.0, 13.0, !named), &Txt::new(13.0, if named { Face::Regular } else { Face::Mono }, tok::TEXT));
+            let ids = server_ids(s);
+            if !ids.is_empty() {
+                d.text(&format!("{rid}_id"), &fit(&ids, mc[0] - 10.0, 11.0, true), &Txt::new(11.0, Face::Mono, tok::MUTED));
+            }
+            d.close();
+            let stc = d.anon();
+            d.view(&stc, &format!("width: {} height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 7", mc[1]));
+            d.dot(server_dot(&s.status), 8.0);
+            d.text("", &crate::desk::wire_word(&s.status), &Txt::new(13.0, Face::Regular, tok::TEXT));
+            d.close();
+            d.text("", &s.tool_count.to_string(), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Px(mc[2])));
+            d.text("", &fit(&summary, mc[3] - 4.0, 12.0, false), &Txt::new(12.0, Face::Regular, summary_color).w(W::Px(mc[3])));
+            d.close();
+        } else if compact {
             d.view(&rid, "width: Fill height: Fit flow: Down padding: Inset{top: 6 bottom: 6}");
             let l1 = d.anon();
             d.view(&l1, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");

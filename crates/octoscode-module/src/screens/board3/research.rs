@@ -766,10 +766,8 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
     if let (true, Some(Confirm::Remove(k))) = (desk, &st.confirm) {
         // A Mac's alert (E7 1): the app's icon, the question, the lane and what it changes.
         ui::mac_alert_open(d, "b3_research_confirm_mark");
-        let body = crate::i18n::tr1(
-            "This changes Profile {value0}. The server says afterward if it needs a restart. To get a removed model back, add it again.",
-            profile.as_str(),
-        );
+        // n11o (E9 2): what it means for the chats, not the profile's id.
+        let body = tr("Chats on this profile can\u{2019}t use it anymore. The server says afterward if it needs a restart. To get it back, add it again.").to_owned();
         ui::alert_words(
             d,
             ("b3_research_confirm_title", tr("Confirm lane removal")),
@@ -867,8 +865,10 @@ pub fn build(d: &mut Dsl, st: &ResearchState, frame: &Frame, store: &Store) {
         d.text(
             "b3_research_confirm_body",
             // The web composes it around the Profile (ResearchDialog.tsx).
+            // n11o (E9 2): a Mac's sheet only saves (it asks before removing
+            // on an alert), and says what it means without the profile's id.
             &if crate::desk::active() {
-                crate::i18n::tr1("This changes Profile {value0}. The server says afterward if it needs a restart. To get a removed model back, add it again.", profile.as_str())
+                tr("Chats on this profile use it for research. The server says afterward if it needs a restart.").to_owned()
             } else {
                 format!(
                     "{} {profile}{}",

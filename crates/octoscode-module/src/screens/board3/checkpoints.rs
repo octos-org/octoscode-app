@@ -608,7 +608,14 @@ fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: His
             if crate::desk::active() && st.snapshots.is_some() && !list.enabled {
                 // A Mac says it once: what is off, and what that leaves.
                 if empty {
-                    d.text("b3_ck_snap_off", tr("Automatic snapshots are off, and there are none to restore."), &ui::meta().w(W::Fill).wrap());
+                    // n11o (E9 4): and where they are turned on. Octos keeps the
+                    // switch in its profile and offers no method to change it, so
+                    // the sheet can't hold the switch itself.
+                    d.text(
+                        "b3_ck_snap_off",
+                        tr("Automatic snapshots are off, so there are none to restore. They\u{2019}re turned on in the Octos profile, not in OctosCode; once they\u{2019}re on, choose Reload History to see them."),
+                        &ui::meta().w(W::Fill).wrap(),
+                    );
                 } else if !list.snapshots.is_empty() {
                     d.text("b3_ck_snap_off", tr("Automatic snapshots are off. You can still restore the ones below."), &ui::meta().w(W::Fill).wrap());
                 }

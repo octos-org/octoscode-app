@@ -1053,6 +1053,29 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Enter a command.", "请输入命令。"),
     ("Enter a name.", "请输入名称。"),
     ("Enter an objective.", "请输入目标内容。"),
+    // ---- Round 11 (E9 1): a Mac names the server on this Mac, not its address
+    // (screens/discovery.rs `Offer`).
+    ("Found Octos on this Mac.", "在这台 Mac 上找到了 Octos。"),
+    ("Connect to This Mac", "连接到这台 Mac"),
+    // ---- Round 11 (E9 2): plain words for the working sheets' jargon (board3/fleetview.rs,
+    // surfaces/trajectory.rs, dialog.rs `confirmation_for`, board3/research.rs).
+    ("Tell it what to change", "告诉它要改什么"),
+    ("You can send only while it\u{2019}s working.", "仅在它工作时可以发送。"),
+    ("Condition", "状况"),
+    ("Normal", "正常"),
+    ("Every chat on this profile can use it. Skills you already have stay as they are.", "此配置档案的所有对话都可以使用它。已有的技能保持不变。"),
+    ("Chats on this profile can\u{2019}t use it anymore. To get it back, install it again from its source.", "此配置档案的对话将无法再使用它。要恢复，请从其来源重新安装。"),
+    ("Chats on this profile can\u{2019}t use it anymore. The server says afterward if it needs a restart. To get it back, add it again.", "此配置档案的对话将无法再使用它。服务器随后会说明是否需要重启。要恢复，请重新添加。"),
+    ("Chats on this profile use it for research. The server says afterward if it needs a restart.", "此配置档案的对话将使用它进行研究。服务器随后会说明是否需要重启。"),
+    // ---- Round 11 (E9 3): what failed, and the way on (fluid.rs `open_workspace_state`).
+    ("Octos on this Mac isn\u{2019}t answering, so OctosCode can\u{2019}t connect to it. Try again in a moment.", "这台 Mac 上的 Octos 没有响应，因此 OctosCode 无法连接。请稍后再试。"),
+    // ---- Round 11 (E9 4): where snapshots are turned on (board3/checkpoints.rs).
+    ("Automatic snapshots are off, so there are none to restore. They\u{2019}re turned on in the Octos profile, not in OctosCode; once they\u{2019}re on, choose Reload History to see them.", "自动快照已关闭，因此没有可恢复的快照。快照需在 Octos 的配置档案中开启，无法在 OctosCode 中开启；开启后，请选择“重新加载历史”查看。"),
+    // ---- Round 11 (E9 5): a Mac's loop interval, a number and a unit (dialog.rs `loop_form`).
+    ("How long the loop waits between runs: 1 minute to 24 hours.", "循环任务两次运行之间的等待时长：1 分钟到 24 小时。"),
+    ("Enter a whole number: 1 to 1,440 minutes, or 1 to 24 hours.", "请输入整数：1 到 1,440 分钟，或 1 到 24 小时。"),
+    ("Minutes", "分钟"),
+    ("Hours", "小时"),
 ];
 
 /// The web catalog's vocabulary: each English term (matched as a word,

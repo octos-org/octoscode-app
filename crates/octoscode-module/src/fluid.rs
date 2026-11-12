@@ -2064,6 +2064,22 @@ pub fn first_run_backdrop(ask_workspace: bool) -> String {
     crate::desk::in_words(first_run_window(&pane, ""))
 }
 
+/// n11o (E9 3): what lies behind a first-run alert: the window's own quiet
+/// state (the app's mark and a title, nothing to press), as behind a sheet.
+fn quiet_pane(title: &str) -> String {
+    format!(
+        "View{{width: Fill height: Fill flow: Down spacing: 8 align: Align{{x: 0.5 y: 0.55}} \
+         padding: Inset{{left: 24 right: 24 top: 16 bottom: 16}}\n\
+         View{{width: Fill height: Fit align: Align{{x: 0.5}}\n{mark}}}\n\
+         {title}}}\n",
+        mark = svg("first_run_context_mark", "chat_terminal.svg", 36.0, MUTED),
+        title = label(
+            "first_run_context_title", title, &style(Face::SemiBold, 15.0, 20.0), INK,
+            "width: Fill height: Fit align: Align{x: 0.5} flow: Right{wrap: true}",
+        ),
+    )
+}
+
 /// A desktop's Connect screen: a form on the content pane, the shape of the
 /// Mac's own "Connect to Server" (a title, labels beside 28-point fields, the
 /// default action at the trailing edge), with every id the card's host routes.
@@ -2307,7 +2323,11 @@ pub fn open_workspace_state(left: f64, busy: bool, failed: bool, no_provider: bo
     } else {
         if no_provider { tr("No Model Provider") } else { tr("No Workspace Open") }.to_owned()
     };
-    let hint_words = if failed {
+    let hint_words = if failed && crate::desk::hosted() {
+        // n11o (E9 3): what failed, and the way on (Try Again, the default):
+        // a shell's window talks only to the Octos on this Mac, never to an address.
+        tr("Octos on this Mac isn\u{2019}t answering, so OctosCode can\u{2019}t connect to it. Try again in a moment.")
+    } else if failed {
         // One line in the alert's 228 points: "now." ran on alone.
         tr("OctosCode can't reach its assistant.")
     } else if busy {
@@ -2418,7 +2438,14 @@ pub fn open_workspace_state(left: f64, busy: bool, failed: bool, no_provider: bo
             ),
         );
         let sheet = first_run_alert("open_ws_alert", &body);
-        return crate::desk::in_words(first_run_window("", &sheet));
+        // n11o (E9 3): the window keeps its own quiet state behind the alert,
+        // never an empty grey pane.
+        let behind = if failed {
+            crate::desk::title(tr("Not connected to Octos")).into_owned()
+        } else {
+            tr("No Workspace Open").to_owned()
+        };
+        return crate::desk::in_words(first_run_window(&quiet_pane(&behind), &sheet));
     }
     let error = if error.is_empty() {
         String::new()

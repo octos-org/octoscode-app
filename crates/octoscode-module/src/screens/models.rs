@@ -210,10 +210,15 @@ fn title_case(id: &str) -> String {
 /// family label next to the route; the authored head reads
 /// "DeepSeek • Official API").
 pub(crate) fn provider_head(m: &ProfileLlmModel) -> String {
-    let route = m.route.as_deref().unwrap_or(crate::i18n::tr("default route"));
     if crate::desk::active() {
-        return format!("{} · {}", family_label(&m.provider), crate::desk::capital(route));
+        // n11o (E9 2): a Mac names a route only when it has one of its own; the
+        // provider's default needs no words ("Local", not "Local · Default route").
+        return match m.route.as_deref() {
+            Some(route) => format!("{} · {}", family_label(&m.provider), crate::desk::capital(route)),
+            None => family_label(&m.provider).to_string(),
+        };
     }
+    let route = m.route.as_deref().unwrap_or(crate::i18n::tr("default route"));
     format!("{} • {}", family_label(&m.provider), route)
 }
 

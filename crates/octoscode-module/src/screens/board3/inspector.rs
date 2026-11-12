@@ -600,7 +600,8 @@ fn decision_tag(d: &mut Dsl, id: &str, decision: &str) {
 
 fn scopes_card(d: &mut Dsl, st: &InspState) {
     ui::card_open(d, "b3_insp_scopes", 4.0);
-    ui::section_title(d, "b3_insp_scopes_title", tr("Approval scopes"));
+    // A Mac calls them what they are to a person: the approvals it remembers.
+    ui::section_title(d, "b3_insp_scopes_title", tr(crate::desk::by("Approval scopes", "Approvals")));
     match &st.scopes {
         None => d.text("", tr("Approval scopes were not read."), &ui::meta()),
         Some(rows) if rows.is_empty() => {

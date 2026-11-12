@@ -1323,6 +1323,10 @@ fn shell_open(d: &mut Dsl, sheet: bool, w: f64, h: f64, pad: f64) {
 /// The body: the scroll region under the fixed chrome, filling the rest of
 /// the dialog (the scroll bar's 10 px gutter on the right).
 fn body_open(d: &mut Dsl, sheet: bool, fit: Option<f64>) {
+    // n11o (E9 7): a Mac sheet ends its scroll area at a divider above Done.
+    if crate::desk::active() && !sheet {
+        ui::sheet_scrolls(d);
+    }
     let bottom = if sheet { 16 } else { 12 };
     let height = match fit {
         Some(max) => format!("height: Fit max_height: {max}"),

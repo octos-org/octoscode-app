@@ -2763,7 +2763,13 @@ impl ChromeRuntime {
             .or_else(|| std::env::var("OCTOS_WORKSPACE_CWD").ok())
             .unwrap_or_default();
         text(cx, view, ids!(hd_title), &title);
-        text(cx, view, ids!(hd_path), &root);
+        // n11o (E9 6): a Mac's toolbar names the workspace by its folder, as
+        // Finder's and Xcode's windows do; Settings › General has the path.
+        if crate::desk::active() {
+            text(cx, view, ids!(hd_path), &crate::desk::folder_name(&root));
+        } else {
+            text(cx, view, ids!(hd_path), &root);
+        }
         // An empty path line still takes its height and lifts a lone title
         // above the tabs' centre line; without a path the title centres.
         show(cx, view, ids!(hd_path), !root.is_empty());
@@ -2958,7 +2964,12 @@ impl ChromeRuntime {
             show(cx, view, ids!(set_ws_row), ws.is_some());
             if let Some(r) = ws {
                 text(cx, view, ids!(set_ws_value), &r.value);
-                text(cx, view, ids!(set_ws_path), &r.description);
+                // n11o (E9 6): under the person's home a Mac writes `~/…`.
+                if crate::desk::active() {
+                    text(cx, view, ids!(set_ws_path), &crate::desk::home_path(&r.description));
+                } else {
+                    text(cx, view, ids!(set_ws_path), &r.description);
+                }
             }
             show(cx, view, ids!(set_profile_row), profile.is_some() && !crate::desk::hosted());
             if let Some(r) = profile {
@@ -3018,13 +3029,15 @@ impl ChromeRuntime {
         set_toggle(cx, view, live_id!(tg_sb_write), st.sandbox.workspace_write);
         set_toggle(cx, view, live_id!(tg_sb_network), st.sandbox.network);
         set_toggle(cx, view, live_id!(tg_sb_read), st.sandbox.read_outside);
-        // Connection / About.
+        // Connection / About. A Mac names the server as it names a computer; its
+        // address is in This Device's Details, opened on purpose.
         text(
             cx,
             view,
             ids!(set_conn_value),
             &format!(
-                "{endpoint} · {}",
+                "{} · {}",
+                if crate::desk::active() { server_word() } else { endpoint },
                 tr(crate::screens::a9_settings::status_of(&store.connection(), false).copy())
             ),
         );
@@ -3133,14 +3146,22 @@ pub fn server_label() -> String {
     trimmed.split('/').next().unwrap_or(trimmed).to_owned()
 }
 
-/// What a Mac's General and About rows call the server: its address, or this
-/// Mac when it runs here. The Connection section keeps the address either way.
+/// What a Mac's General, Connection and About rows call the server: this Mac
+/// when it runs here, else the computer's name (its host, without the port or
+/// `.local`). The address itself is in This Device's Details.
 fn server_word() -> String {
     let label = server_label();
     if crate::desk::active() {
-        let host = label.rsplit_once(':').map_or(label.as_str(), |(host, _)| host);
+        let host = match label.rsplit_once(':') {
+            // An IPv6 address keeps its colons inside its brackets.
+            Some((host, port)) if port.chars().all(|c| c.is_ascii_digit()) && !host.ends_with(':') => host,
+            _ => label.as_str(),
+        };
         if matches!(host, "127.0.0.1" | "localhost" | "[::1]") {
             return tr("This Mac").to_owned();
+        }
+        if !host.is_empty() {
+            return host.strip_suffix(".local").unwrap_or(host).to_owned();
         }
     }
     label

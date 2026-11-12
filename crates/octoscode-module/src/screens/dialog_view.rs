@@ -1686,7 +1686,11 @@ fn form_card(b: &mut B<'_>, ctx: &Ctx<'_>, f: &Form) {
                 b.gap(6.0);
             }
         }
-        b.input(id, value, tr(placeholder));
+        match f.unit {
+            // n11o (E9 5): a Mac's interval is a number, a stepper and a unit.
+            Some(unit) if id == "lf_interval" => interval_control(b, id, value, tr(placeholder), unit),
+            _ => b.input(id, value, tr(placeholder)),
+        }
         if label.is_some() {
             ui::form_close(b.d);
         }
@@ -1730,6 +1734,9 @@ fn form_card(b: &mut B<'_>, ctx: &Ctx<'_>, f: &Form) {
         b.d.close();
         b.d.close();
         b.d.foot_end();
+        if let (Some(unit), Some(at)) = (f.unit, dlg::unit_menu()) {
+            unit_menu(b, at, unit);
+        }
         finish(b);
         return;
     }
@@ -1743,4 +1750,96 @@ fn form_card(b: &mut B<'_>, ctx: &Ctx<'_>, f: &Form) {
         avail,
     );
     finish(b);
+}
+
+/// n11o (E9 5): a Mac's two interval units, in the pop-up's order.
+const UNITS: [(char, &str); 2] = [('m', "Minutes"), ('h', "Hours")];
+
+fn unit_word(unit: char) -> &'static str {
+    UNITS.iter().find(|(u, _)| *u == unit).map(|(_, w)| *w).unwrap_or("Minutes")
+}
+
+/// n11o (E9 5): a Mac form's interval, as a Mac's own forms take one: a short
+/// number field, its stepper (the upper half up, the lower half down), and the
+/// Minutes/Hours pop-up whose menu opens over it ([`unit_menu`]).
+fn interval_control(b: &mut B<'_>, id: &str, value: &str, placeholder: &str, unit: char) {
+    let row = b.d.anon();
+    b.d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4");
+    let field = b.d.anon();
+    b.d.view(&field, "width: 64 height: Fit");
+    b.input(id, value, placeholder);
+    b.d.close();
+    let (stepper, icon, up, down) = (b.id("lf_stepper"), b.id("lf_stepper_icon"), b.id("lf_step_up"), b.id("lf_step_down"));
+    b.d.surface(&stepper, "width: 16 height: 24 flow: Overlay align: Align{x: 0.5 y: 0.5}", tok::SURFACE, 4.0, Some("#d9d9dcff"));
+    b.d.icon(&icon, "b3_updown.svg", 12.0, tok::MUTED);
+    let halves = b.d.anon();
+    b.d.view(&halves, "width: Fill height: Fill flow: Down");
+    b.d.tap(&up, dlg::ACTION_FORM_STEP_UP);
+    b.d.tap(&down, dlg::ACTION_FORM_STEP_DOWN);
+    b.d.close();
+    b.d.close();
+    b.d.gap(W::Px(4.0), 1.0);
+    // The pop-up is as wide as its longest choice.
+    let widest = UNITS.iter().map(|(_, w)| ui::text_w(tr(w), 13.0, Face::Regular)).fold(0.0, f64::max);
+    let (popup, word, chevron, hit) = (b.id("lf_unit"), b.id("lf_unit_label"), b.id("lf_unit_chevron"), b.id("lf_unit_control"));
+    b.d.surface(
+        &popup,
+        &format!("width: {} height: 24 flow: Overlay", (widest * 1.1 + 10.0 + 6.0 + 12.0 + 8.0).ceil()),
+        tok::SURFACE,
+        6.0,
+        Some("#d9d9dcff"),
+    );
+    let face = b.d.anon();
+    b.d.view(&face, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 6 padding: Inset{left: 10 right: 8 top: 0 bottom: 0}");
+    b.d.text(&word, tr(unit_word(unit)), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill));
+    b.d.icon(&chevron, "b3_updown.svg", 12.0, tok::MUTED);
+    b.d.close();
+    b.d.tap(&hit, dlg::ACTION_FORM_UNIT_MENU);
+    b.d.close();
+    b.d.close();
+}
+
+/// n11o (E9 5): the unit pop-up's menu, floating over the sheet as a Mac's
+/// pop-up menu does: the ticked unit's words over the pop-up's, a check at
+/// its leading edge; a press anywhere else closes it.
+fn unit_menu(b: &mut B<'_>, at: crate::screens::board3::seats::Anchor, unit: char) {
+    b.d.over_begin();
+    let (off_box, off) = (b.id("lf_unit_menu_off_box"), b.id("lf_unit_menu_off"));
+    b.d.view(&off_box, "width: Fill height: Fill flow: Overlay");
+    b.d.tap(&off, dlg::ACTION_FORM_UNIT_MENU);
+    b.d.close();
+    // A row is 28 points (5 + 18 + 5), the menu's 4 over the first; the words
+    // start 4 + 6 + 18 + 4 = 32 points in, the pop-up's 10.
+    const ROW: f64 = 28.0;
+    let ticked = UNITS.iter().position(|(u, _)| *u == unit).unwrap_or(0) as f64;
+    let est_h = 8.0 + ROW * UNITS.len() as f64;
+    let natural = UNITS.iter().map(|(_, w)| ui::text_w(tr(w), 14.0, Face::Regular) + 32.0 + 8.0 + 24.0).fold(at.w + 22.0, f64::max);
+    let width = natural.clamp(120.0, 260.0).floor();
+    let left = (at.x + 10.0 - 32.0).clamp(8.0, (b.frame.avail_w - 8.0 - width).max(8.0)).floor();
+    let top = (at.y + at.h / 2.0 - (4.0 + ROW * ticked + ROW / 2.0)).clamp(8.0, (b.frame.avail_h - 8.0 - est_h).max(8.0)).floor();
+    let (menu, options) = (b.id("lf_unit_menu"), b.id("lf_unit_options"));
+    b.d.view(&menu, &format!("width: Fill height: Fill flow: Overlay padding: Inset{{left: {left} top: {top}}}"));
+    b.d.menu_surface(&options, &format!("width: {width} height: Fit flow: Down padding: Inset{{left: 4 right: 4 top: 4 bottom: 4}}"), 8.0);
+    let cursor = dlg::unit_cursor();
+    for (u, w) in UNITS {
+        let id = b.id(&format!("lf_unit_{u}"));
+        // The keyboard's highlight, as the setup menus draw theirs.
+        let fill = if cursor == Some(u) { tok::SURFACE2 } else { tok::TRANSPARENT };
+        b.d.surface(&format!("{id}_box"), "width: Fill height: Fit flow: Overlay", fill, 5.0, None);
+        let line = b.d.anon();
+        b.d.view(&line, "width: Fill height: Fit flow: Right spacing: 4 align: Align{x: 0.0 y: 0.5} padding: Inset{left: 6 right: 8 top: 5 bottom: 5}");
+        let ck = b.d.anon();
+        b.d.view(&ck, "width: 18 height: 18 flow: Overlay align: Align{x: 0.5 y: 0.5}");
+        if u == unit {
+            b.d.icon(&format!("{id}_check"), "b3_check.svg", 14.0, tok::TEXT);
+        }
+        b.d.close();
+        b.d.text(&format!("{id}_name"), tr(w), &Txt::new(14.0, Face::Regular, tok::TEXT).w(W::Fill));
+        b.d.close();
+        b.d.tap(&id, &format!("{}{u}", dlg::ACTION_FORM_UNIT));
+        b.d.close();
+    }
+    b.d.close(); // options
+    b.d.close(); // menu
+    b.d.over_end();
 }

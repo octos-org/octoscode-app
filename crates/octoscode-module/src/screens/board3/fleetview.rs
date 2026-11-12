@@ -1133,12 +1133,9 @@ fn start_form(d: &mut Dsl, st: &FleetState, store: &Store) {
         d.close();
     }
     ui::form_close(d);
-    if let Some(desc) = lane.filter(|_| desk).and_then(|info| info.description.as_ref()) {
-        let line = d.anon();
-        d.view(&line, &format!("width: Fill height: Fit flow: Right{{wrap: true}} spacing: 6 padding: Inset{{left: {}}}", (key_w + 8.0).round()));
-        d.text("b3_fleet_lane_desc", desc, &Txt::new(12.0, Face::Regular, tok::MUTED));
-        d.close();
-    }
+    // n11o (E9 2): a Mac's Model pop-up names the model; the server's own note
+    // on its lane ("Primary dispatch lane") is not a person's words, so a Mac's
+    // form leaves it out (the phone keeps it in its lane summary).
     ui::form_open(d, "b3_fleet_brief_label", &t("Brief"), key_w);
     d.input("b3_fleet_brief", "fleet.brief", &st.brief_snap, &t("Describe the task for the peer"), false, 64.0);
     ui::form_close(d);
@@ -1220,7 +1217,14 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
     }
     d.text(&format!("{id}_title"), &r.title, &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill).wrap());
     let mut meta = crate::screens::dialog::minute_granularity(&peers::format_elapsed(r.elapsed_ms));
-    meta.push_str(&if r.tokens > 0 { format!(" · {}", peers::format_tokens(r.tokens)) } else { " · —".to_owned() });
+    // n11o (E9 2): a Mac leaves out a count it doesn't have yet.
+    meta.push_str(&if r.tokens > 0 {
+        format!(" · {}", peers::token_words(r.tokens))
+    } else if crate::desk::active() {
+        String::new()
+    } else {
+        " · —".to_owned()
+    });
     if !r.session_name.is_empty() {
         meta.push_str(&format!(" · {}", r.session_name));
     }
@@ -1340,17 +1344,25 @@ fn row_card(d: &mut Dsl, i: usize, r: &FleetRow, st: &FleetState, control_ready:
     let srow = d.anon();
     d.view(&srow, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
     let snap = st.steer_snap.get(&r.key).cloned().unwrap_or_default();
-    let placeholder = if answering { t("Type your answer") } else { t("Enter steering text") };
+    // A Mac says what the field does: a message to the working peer, sent with Send.
+    let placeholder = if answering {
+        t("Type your answer")
+    } else if desk {
+        crate::i18n::tr("Tell it what to change").to_owned()
+    } else {
+        t("Enter steering text")
+    };
     d.input(&format!("{id}_steer"), &format!("fleet.steer#{i}"), &snap, &placeholder, false, 34.0);
     let working = r.status == Status::Working;
     if answering {
         d.button(&format!("{id}_answer"), &t("Answer"), &format!("b3.fleet.answer#{i}"), crate::desk::by(Btn::Primary, Btn::Outline), W::Fit, 34.0);
     } else {
-        d.button(&format!("{id}_steer_btn"), &t("Steer"), &format!("b3.fleet.steer#{i}"), if working { Btn::Outline } else { Btn::OutlineOff }, W::Fit, 34.0);
+        d.button(&format!("{id}_steer_btn"), &t(crate::desk::by("Steer", "Send")), &format!("b3.fleet.steer#{i}"), if working { Btn::Outline } else { Btn::OutlineOff }, W::Fit, 34.0);
     }
     d.close();
     if !working && !answering {
-        d.text(&format!("{id}_steer_reason"), &t("Only while working"), &Txt::new(11.5, Face::Regular, tok::FAINT));
+        let reason = if desk { crate::i18n::tr("You can send only while it\u{2019}s working.").to_owned() } else { t("Only while working") };
+        d.text(&format!("{id}_steer_reason"), &reason, &Txt::new(11.5, Face::Regular, tok::FAINT));
     }
     d.close();
 }

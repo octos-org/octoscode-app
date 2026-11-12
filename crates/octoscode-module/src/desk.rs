@@ -791,6 +791,11 @@ const WORDS: &[(&str, &str)] = &[
     ("A confirmed source Session is required to browse history. Opening does not submit a prompt.", "Opening a chat sends nothing."),
     ("Confirm exact title to resume:", "Confirm title:"),
     ("No matching historical candidates.", "No matching chats."),
+    // n11o (E9 9): Resume Chat's waits and failures, as a person would say them.
+    ("Reading unverified history candidates…", "Loading chats…"),
+    ("Historical identity was not resolved. The listed conversation was not resumed.", "This chat\u{2019}s history couldn\u{2019}t be checked, so it wasn\u{2019}t resumed."),
+    ("A history opening is already pending.", "A chat is already opening."),
+    ("History listing failed.", "The list of chats couldn\u{2019}t be read."),
     ("Skills provide reusable instructions from SKILL.md, and some add tools. MCP servers and the full tool list have their own inventory.", "Skills give the agent reusable instructions, and some add tools."),
     ("Skills are shared by this Profile, not installed on this device. Installation may download executable tools and dependencies. Review and trust the source first.", "Skills belong to this profile, not this device. Installing one may download programs, so trust its source first."),
     ("Loading, or this server does not offer a session skill catalog.", "Nothing to show for this chat."),
@@ -820,6 +825,10 @@ const WORDS: &[(&str, &str)] = &[
     ("Confirm save", "Save"),
     ("Cancel lane change", "Cancel"),
     ("Branch (server default: main)", "Branch (default: main)"),
+    // n11o (E9 1): Settings › Connection names the server; its address is here.
+    ("Pairing and the saved access token", "The server\u{2019}s address, pairing and the saved access token"),
+    // n11o (E9 2): what the server remembers is approvals, in this chat.
+    ("No remembered approval scopes for this Session.", "No remembered approvals in this chat."),
 ];
 
 /// Part of a longer sentence the code writes around a value.
@@ -838,6 +847,9 @@ const IN_A_SENTENCE: &[(&str, &str)] = &[
 ];
 
 const PHRASES: &[(&str, &str)] = &[
+    // n11o (E9 2): "2 remembered approval scopes for this Session."
+    (" remembered approval scopes for this Session.", " remembered approvals in this chat."),
+    (" remembered approval scope for this Session.", " remembered approval in this chat."),
     ("Restoring authoritative session state", "Getting the latest from Octos"),
     (" is marked keyless by the Core catalog.", " needs no key."),
     (" is not available in this native build \u{2014} nothing was sent to the model.", " isn\u{2019}t available here. Nothing was sent to the model."),
@@ -1127,6 +1139,30 @@ pub fn command<'a>(source: &str, shown: &'a str) -> Cow<'a, str> {
 pub fn fleet_is_selected() -> bool {
     use crate::screens::board3::host;
     active() && host::open_dialog() == Some(host::Dialog::Fleet)
+}
+
+/// A workspace as a Mac's toolbar names it: its folder's name, as Finder's and
+/// Xcode's windows do (Settings › General has the rest of the path).
+pub fn folder_name(path: &str) -> String {
+    let trimmed = path.trim_end_matches('/');
+    match trimmed.rsplit('/').next() {
+        Some(name) if !name.is_empty() => name.to_owned(),
+        _ => path.to_owned(),
+    }
+}
+
+/// A path as a Mac writes it under the person's home: `~/Projects/lumen`.
+pub fn home_path(path: &str) -> String {
+    let Some(home) = std::env::var("HOME").ok().map(|h| h.trim_end_matches('/').to_owned()).filter(|h| !h.is_empty()) else {
+        return path.to_owned();
+    };
+    if path == home {
+        return "~".to_owned();
+    }
+    match path.strip_prefix(&format!("{home}/")) {
+        Some(rest) => format!("~/{rest}"),
+        None => path.to_owned(),
+    }
 }
 
 /// `value` when a desktop draws, else `phone`.

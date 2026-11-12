@@ -768,10 +768,12 @@ pub fn pane(d: &mut Dsl, store: &Store, st: &TrajState, width: f64, phone: bool)
         match status {
             Some(r) => {
                 ui::card_open(d, "cv_tr_status", 0.0);
+                // n11o (E9 2): a Mac says a session's health as it says a
+                // battery's: Condition, Normal.
                 for (i, (label, value)) in [
                     ("Model", r.model.clone()),
                     ("Permission", r.permission.clone()),
-                    ("Health", r.health.clone()),
+                    (crate::desk::by("Health", "Condition"), r.health.clone()),
                 ]
                 .iter()
                 .enumerate()
@@ -784,7 +786,7 @@ pub fn pane(d: &mut Dsl, store: &Store, st: &TrajState, width: f64, phone: bool)
                     d.text(&format!("cv_tr_st_label_{i}"), tr(label), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
                     let shown = value.as_deref().map(|v| match (crate::desk::active(), i) {
                         (true, 0) => crate::screens::models::model_name(store, v),
-                        (true, _) if v.eq_ignore_ascii_case("ok") => "OK".to_owned(),
+                        (true, 2) if v.eq_ignore_ascii_case("ok") => tr("Normal").to_owned(),
                         (true, _) => crate::desk::sentence(&v.replace('_', " ")),
                         (false, _) => v.to_owned(),
                     });

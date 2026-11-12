@@ -3005,11 +3005,91 @@ impl OctoscodeView {
             }
             // A10 — the loop form's cadence: keep what was typed, rebuild the
             // fields for the chosen mode.
+            // n11o (E9 5): a Mac's interval stepper, its unit pop-up and the
+            // pop-up's menu. What was typed stays (a remount takes the fields'
+            // text from the form).
+            screens::dialog::Effect::FormStep(by) => {
+                if let Some(mut form) = screens::dialog::pending_form() {
+                    let values = self.dialog_form_values(cx, &form);
+                    for (field, v) in form.fields.iter_mut().zip(&values) {
+                        field.2 = v.clone();
+                    }
+                    if let (Some(unit), Some(field)) = (form.unit, form.fields.get_mut(1)) {
+                        field.2 = screens::dialog::stepped_interval(&field.2, unit, *by);
+                    }
+                    screens::dialog::set_form(Some(form));
+                }
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
+            screens::dialog::Effect::FormUnitMenu => {
+                let opening = screens::dialog::unit_menu().is_none();
+                if let Some(mut form) = screens::dialog::pending_form() {
+                    let values = self.dialog_form_values(cx, &form);
+                    for (field, v) in form.fields.iter_mut().zip(&values) {
+                        field.2 = v.clone();
+                    }
+                    let popup = LiveId::from_str(&screens::dialog::form_input_id(form.dialog, "lf_unit"));
+                    let unit = form.unit;
+                    screens::dialog::set_form(Some(form));
+                    if opening {
+                        let origin = self.view.area().rect(cx).pos;
+                        let r = self.view.widget(cx, &[live_id!(dialog_splash), popup]).area().rect(cx);
+                        screens::dialog::set_unit_menu((r.size.x > 0.0).then(|| screens::board3::seats::Anchor {
+                            x: r.pos.x - origin.x,
+                            y: r.pos.y - origin.y,
+                            w: r.size.x,
+                            h: r.size.y,
+                        }));
+                        if screens::dialog::unit_menu().is_some() {
+                            screens::dialog::set_unit_cursor(unit);
+                        }
+                    }
+                    makepad_widgets::log!("[octoscode] dialog form unit menu: {}", if opening { "open" } else { "closed" });
+                }
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
+            screens::dialog::Effect::FormUnitCursor(by) => {
+                if let (Some(mut form), Some(at), Some(cursor)) =
+                    (screens::dialog::pending_form(), screens::dialog::unit_menu(), screens::dialog::unit_cursor())
+                {
+                    let values = self.dialog_form_values(cx, &form);
+                    for (field, v) in form.fields.iter_mut().zip(&values) {
+                        field.2 = v.clone();
+                    }
+                    screens::dialog::set_form(Some(form));
+                    screens::dialog::set_unit_menu(Some(at));
+                    screens::dialog::set_unit_cursor(Some(screens::dialog::stepped_unit(cursor, *by)));
+                }
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
+            screens::dialog::Effect::FormUnit(unit) => {
+                if let Some(mut form) = screens::dialog::pending_form() {
+                    let values = self.dialog_form_values(cx, &form);
+                    for (field, v) in form.fields.iter_mut().zip(&values) {
+                        field.2 = v.clone();
+                    }
+                    if form.unit.is_some() {
+                        form.unit = Some(*unit);
+                    }
+                    makepad_widgets::log!("[octoscode] dialog form unit: {unit}");
+                    screens::dialog::set_form(Some(form));
+                }
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
             screens::dialog::Effect::FormMode(mode) => {
                 if let Some(form) = screens::dialog::pending_form() {
                     let values = self.dialog_form_values(cx, &form);
                     let prompt = values.first().cloned().unwrap_or_default();
-                    let interval = values.get(1).cloned().unwrap_or_default();
+                    // n11o (E9 5): a Mac's number and unit, composed, so the rebuild keeps both.
+                    let interval = screens::dialog::form_interval(&form, &values);
                     screens::dialog::set_form(Some(screens::dialog::loop_form(mode, &prompt, &interval)));
                     makepad_widgets::log!("[octoscode] dialog form mode: {mode}");
                 }
@@ -6164,10 +6244,14 @@ impl OctoscodeView {
                         // LIVE selection (↑/↓ move it; CommandPalette.tsx:66's
                         // roving selection), no longer hardcoded row 0.
                         item.widget(cx, ids!(palette_row_bg)).set_visible(cx, Some(row) == sel);
-                        item.label(cx, ids!(palette_row_name)).set_text(cx, cmd.name);
                         // A24: the description in the current language (the name is an identifier).
                         let description = crate::desk::command(cmd.description, i18n::tr(cmd.description));
-                        item.label(cx, ids!(palette_row_desc)).set_text(cx, &description);
+                        // n11o (E9 2): a Mac leads with what the command does and keeps
+                        // its slash name muted at the trailing edge, as a menu its key.
+                        let (lead, trail): (&str, &str) =
+                            if crate::desk::active() { (description.as_ref(), cmd.name) } else { (cmd.name, description.as_ref()) };
+                        item.label(cx, ids!(palette_row_name)).set_text(cx, lead);
+                        item.label(cx, ids!(palette_row_desc)).set_text(cx, trail);
                         item.draw_all_unscoped(cx);
                     }
                 } else if uid == review_files_uid {
@@ -7355,6 +7439,25 @@ impl OctoscodeView {
                 }
                 self.sync_labels(cx);
                 self.view.redraw(cx);
+            }
+            // n11o (E9 5): the interval's unit menu owns its keys while it is up:
+            // the arrows move its highlight, Return picks, Escape closes only the menu.
+            Event::KeyDown(e)
+                if crate::desk::active()
+                    && screens::dialog::current().is_some()
+                    && screens::dialog::unit_menu().is_some()
+                    && screens::dialog::pending_form().is_some_and(|f| f.unit.is_some())
+                    && matches!(e.key_code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::ReturnKey | KeyCode::NumpadEnter | KeyCode::Escape) =>
+            {
+                let pick = screens::dialog::unit_cursor().map(|u| format!("{}{u}", screens::dialog::ACTION_FORM_UNIT));
+                let action = match e.key_code {
+                    KeyCode::ArrowUp => screens::dialog::ACTION_FORM_UNIT_CURSOR_UP.to_owned(),
+                    KeyCode::ArrowDown => screens::dialog::ACTION_FORM_UNIT_CURSOR_DOWN.to_owned(),
+                    KeyCode::ReturnKey | KeyCode::NumpadEnter => pick.unwrap_or_else(|| screens::dialog::ACTION_FORM_UNIT_MENU.to_owned()),
+                    _ => screens::dialog::ACTION_FORM_UNIT_MENU.to_owned(),
+                };
+                makepad_widgets::log!("[octoscode] key {:?} -> {action}", e.key_code);
+                self.perform_action(cx, &action, 0);
             }
             Event::KeyDown(e)
                 if crate::desk::active()

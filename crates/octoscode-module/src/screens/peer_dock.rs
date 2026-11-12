@@ -546,7 +546,8 @@ fn fmt(v: f64) -> String {
 /// acknowledgment ("Sent" / "Stop requested") or the replacement-turn marker.
 fn tail(r: &DockRow) -> String {
     let mut parts: Vec<String> = Vec::new();
-    if r.tokens > 0 {
+    // A Mac's sidebar row stays short: its count is in Fleet's card, in words.
+    if r.tokens > 0 && !crate::desk::active() {
         parts.push(peers::format_tokens(r.tokens));
     }
     if r.turn_changed {
