@@ -840,7 +840,8 @@ impl Dsl {
 
     /// A Mac list row's right-click menu (GestureView's): `items` in order, each a
     /// title and the event it routes, `("-", "")` a rule between groups. The rows'
-    /// own press stays with what is inside. Close it with [`Dsl::close`].
+    /// own press stays with what is inside. Close it with [`Dsl::close`]. Standalone,
+    /// on the plain makepad fork, GestureView has no menu: the row is only its contents.
     pub fn menu_open(&mut self, id: &str, items: &[(String, String)]) {
         let titles: Vec<String> = items.iter().map(|(t, _)| format!("{t:?}")).collect();
         // `if a { … } else { if b { … } }`: each choice routes its own event.
@@ -855,8 +856,10 @@ impl Dsl {
         }
         let _ = writeln!(self.out, "{id} := GestureView {{");
         self.raw("width: Fill height: Fit flow: Down");
-        let _ = writeln!(self.out, "menu: [{}]", titles.join(", "));
-        let _ = writeln!(self.out, "on_menu: |title| {{ {arms} }}");
+        if crate::host_makepad::ROW_MENUS {
+            let _ = writeln!(self.out, "menu: [{}]", titles.join(", "));
+            let _ = writeln!(self.out, "on_menu: |title| {{ {arms} }}");
+        }
     }
 
     /// This Mac sheet draws its own Cancel or Close in its foot.

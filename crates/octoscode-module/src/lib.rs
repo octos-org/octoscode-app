@@ -24,6 +24,43 @@ pub use makepad_widgets;
 mod octosense;
 #[cfg(feature = "octosense-module")]
 pub use octosense::{OctoscodeModule, OCTOSCODE_MODULE};
+
+/// What OctoSense's makepad adds and this module reads when OctoSense hosts it:
+/// a view's scroll offset, and a row's right-click menu (a GestureView's). The
+/// standalone app builds against the plain fork (`tools/prepare-makepad-fork.sh`),
+/// which has neither: there a selection the keyboard moves isn't scrolled into
+/// view, and a row has no right-click menu.
+mod host_makepad {
+    use makepad_widgets::*;
+
+    /// Whether a row may hold a GestureView menu.
+    pub const ROW_MENUS: bool = cfg!(feature = "octosense-module");
+
+    #[cfg(feature = "octosense-module")]
+    pub fn scroll_y(view: &ViewRef) -> Option<f64> {
+        Some(view.scroll_pos().y)
+    }
+    #[cfg(not(feature = "octosense-module"))]
+    pub fn scroll_y(_view: &ViewRef) -> Option<f64> {
+        None
+    }
+
+    #[cfg(feature = "octosense-module")]
+    pub fn row_menu_up(cx: &mut Cx) -> bool {
+        makepad_widgets::gesture_view::view_menu_up(cx)
+    }
+    #[cfg(not(feature = "octosense-module"))]
+    pub fn row_menu_up(_cx: &mut Cx) -> bool {
+        false
+    }
+
+    #[cfg(feature = "octosense-module")]
+    pub fn forget_row_menu(cx: &mut Cx) {
+        makepad_widgets::gesture_view::forget_view_menu(cx);
+    }
+    #[cfg(not(feature = "octosense-module"))]
+    pub fn forget_row_menu(_cx: &mut Cx) {}
+}
 use makepad_widgets::*;
 use std::sync::{Arc, Mutex};
 
@@ -6613,8 +6650,8 @@ impl OctoscodeView {
                 } else {
                     0.0
                 };
-                if dy != 0.0 {
-                    let y = (scroll.scroll_pos().y + dy).max(0.0);
+                if let Some(at) = host_makepad::scroll_y(&scroll).filter(|_| dy != 0.0) {
+                    let y = (at + dy).max(0.0);
                     scroll.set_scroll_pos(cx, dvec2(0.0, y));
                     self.view.redraw(cx);
                 }
@@ -6690,7 +6727,7 @@ impl OctoscodeView {
         }
         // A row's right-click menu is up: the arrows, Return and Escape are the
         // menu's (Escape closes only it); nothing behind it hears them.
-        let menu_keys = matches!(event, Event::KeyDown(_) | Event::KeyUp(_)) && makepad_widgets::gesture_view::view_menu_up(cx);
+        let menu_keys = matches!(event, Event::KeyDown(_) | Event::KeyUp(_)) && host_makepad::row_menu_up(cx);
         // Inspect selection BEFORE TextInput handles Ctrl+X. After a native
         // cut the selection is empty, which would incorrectly send pending work.
         if let Event::KeyDown(e) = event {
@@ -6715,8 +6752,8 @@ impl OctoscodeView {
         if menu_keys {
             // A menu that went with its view (a remount) leaves the flag up: an
             // Escape that finds it still up gives the keys back.
-            if matches!(event, Event::KeyDown(e) if e.key_code == KeyCode::Escape) && makepad_widgets::gesture_view::view_menu_up(cx) {
-                makepad_widgets::gesture_view::forget_view_menu(cx);
+            if matches!(event, Event::KeyDown(e) if e.key_code == KeyCode::Escape) && host_makepad::row_menu_up(cx) {
+                host_makepad::forget_row_menu(cx);
             } else {
                 return;
             }
