@@ -664,6 +664,17 @@ pub fn build_help(d: &mut Dsl, st: &VimState, frame: &Frame) {
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     ui::body_close(d);
+    if crate::desk::active() {
+        d.foot_own_close();
+        d.foot_begin(ui::Foot::Lead);
+        d.button("b3_vim_off", tr("Turn off Vim editing"), "b3.vim.off", Btn::Outline, W::Fit, 28.0);
+        d.foot_end();
+        d.foot_begin(ui::Foot::Default);
+        d.button("b3_vim_done", crate::i18n::tr_ctx("button", "Done"), "b3.close", Btn::Primary, W::Fit, 28.0);
+        d.foot_end();
+        ui::shell_close(d);
+        return;
+    }
     d.gap(W::Fill, 12.0);
     let foot = d.anon();
     d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} spacing: 8");

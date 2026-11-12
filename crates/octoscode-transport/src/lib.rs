@@ -112,6 +112,9 @@ pub struct TransportConfig {
 pub enum OutboundCommand {
     /// Open / resume a session (see octos-core ui_protocol.rs:543).
     OpenSession(SessionOpenParams),
+    /// Open a session and return the caller's generation with its result.
+    /// The generation is local metadata and is never sent to the server.
+    OpenSessionTracked { params: SessionOpenParams, generation: u64 },
     /// Open a session WITHOUT the reconnect-replay cursor bracket. Used when
     /// switching to a *different* session (sidebar resume): the connection's
     /// in-memory cursor belongs to the previous session and the server
@@ -185,6 +188,15 @@ pub enum TransportEvent {
     /// Lifecycle RPC reply (`OpenSession` / `StartTurn` / `InterruptTurn`).
     /// Mirrors octos-core's `UiRpcResult` (see octos-core ui_protocol.rs:970).
     RpcResult(LifecycleResult),
+    /// The result of an open correlated to the requesting session and generation.
+    SessionOpenTracked {
+        session_id: String,
+        generation: u64,
+        result: SessionOpenResult,
+        capabilities: Capabilities,
+    },
+    /// An open error correlated to the requesting session and generation.
+    SessionOpenTrackedError { session_id: String, generation: u64, error: RpcError },
     /// RPC error for a request we issued. `request_id` is the JSON-RPC id
     /// we generated.
     RpcError {

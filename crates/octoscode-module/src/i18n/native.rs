@@ -22,6 +22,40 @@
 
 /// English source -> reviewed Simplified Chinese (native-only copy).
 pub static NATIVE_ZH: &[(&str, &str)] = &[
+    ("This chat couldn't open.", "无法打开此对话。"),
+    ("The server did not confirm this chat in time.", "服务器未能及时确认此对话。"),
+    ("This chat is still opening.", "此对话正在打开。"),
+    ("Select it in the sidebar to retry. Your draft is kept.", "在侧边栏中选择此对话以重试。草稿已保留。"),
+    ("Wait for it to open. Your draft is kept.", "请等待对话打开。草稿已保留。"),
+    ("Opening chat…", "正在打开对话…"),
+    ("Chat not open", "对话未打开"),
+    ("Your message was not sent. Your draft is kept.", "消息未发送，草稿已保留。"),
+    // ---- A desktop's own words (the Mac look).
+    ("Automatic snapshots are off, and there are none to restore.", "自动快照已关闭，没有可恢复的快照。"),
+    ("Automatic snapshots are off. You can still restore the ones below.", "自动快照已关闭。仍可恢复下面的快照。"),
+    ("Appearance", "外观"),
+    ("Thread {value0}", "线程 {value0}"),
+    ("Type a command", "输入命令"),
+    ("esc to close", "esc 关闭"),
+    ("Not loaded", "未加载"),
+    ("Add one in AI Providers, then try again.", "请在 AI 提供商中添加一个，然后重试。"),
+    ("Default", "默认"),
+    ("This changes Profile {value0}. The server says afterward if it needs a restart. To get a removed model back, add it again.", "这会更改配置档案 {value0}。服务器随后会说明是否需要重启。要恢复已移除的模型，请重新添加。"),
+    ("Enter server and token", "输入服务器和令牌"),
+    ("Turn {value0}", "轮次 {value0}"),
+    ("Rewind to turn {value0}?", "回退到轮次 {value0}？"),
+    ("No matching commands", "没有匹配的命令"),
+    ("This Mac", "这台 Mac"),
+    ("Rewind", "回退"),
+    ("Reasoning in This Chat", "本次对话的推理"),
+    ("Delete…", "删除…"),
+    ("Profile {value0} already exists, so only the provider is tested again.", "配置档案 {value0} 已存在，因此只会重新测试提供商。"),
+    ("{value0} used", "已使用 {value0}"),
+    ("Kept for this project.", "仅用于此项目。"),
+    ("{value0} token", "{value0} 个令牌"),
+    ("Couldn't Connect", "无法连接"),
+    ("OctosCode can't reach its assistant.", "OctosCode 无法连接到助手。"),
+    ("Make sure Octos is running on this Mac.", "请确认 Octos 正在这台 Mac 上运行。"),
     // ---- Settings: sections, rows, help (chrome.rs, screens/settings.rs)
     ("Preferences", "偏好设置"),
     ("About", "关于"),
@@ -219,8 +253,8 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Origin not allowed", "来源不被允许"),
     ("The server answered, but the Octos UI Protocol connection did not open.", "服务器已响应，但 Octos UI 协议连接未能打开。"),
     (
-        "Check that your server is running. If it requires authentication, enter its token above.",
-        "请确认服务器正在运行。如需认证，请在上方输入其令牌。",
+        "Check that your server is running. If it requires authentication, enter its token.",
+        "请确认服务器正在运行。如需认证，请输入其令牌。",
     ),
     ("Check that your server is running and your token is current.", "请确认服务器正在运行且令牌仍然有效。"),
     (
@@ -233,6 +267,7 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Scan the pairing QR shown in Octos", "扫描 Octos 显示的配对二维码"),
     ("on your computer", "（在你的电脑上）"),
     ("Paste pairing link", "粘贴配对链接"),
+    ("Paste the pairing link Octos shows on your other computer.", "粘贴 Octos 在另一台电脑上显示的配对链接。"),
     ("Pair", "配对"),
     ("Enter server and token instead", "改为输入服务器和令牌"),
     ("Pairing with {value0}\u{2026}", "正在与 {value0} 配对\u{2026}"),
@@ -269,6 +304,30 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("No code was scanned. Try again, or paste the link.", "未扫描到二维码。请重试或粘贴链接。"),
     // ---- board 1: the workspace picker and the folder browser (screens/board1.rs, browser.rs, board1_kit.rs)
     ("Open a workspace", "打开工作区"),
+    ("Open a workspace\u{2026}", "打开工作区\u{2026}"),
+    ("Open Fleet to start a peer, or ask the agent to start one.", "打开舰队以启动一个同侪，或让智能体启动一个。"),
+    ("Open Fleet", "打开舰队"),
+    ("Couldn't load this list.", "无法加载此列表。"),
+    ("Choose a folder, and OctosCode starts a session in it.", "选择一个文件夹，OctosCode 会在其中启动会话。"),
+    ("Choose a folder inside your home folder.", "请选择主文件夹内的文件夹。"),
+    ("OctosCode may not work in that folder.", "OctosCode 不能在该文件夹中工作。"),
+    ("No Workspace Open", "未打开工作区"),
+    ("No Model Provider", "没有模型提供商"),
+    ("The connection was lost. OctosCode keeps trying.", "连接已断开。OctosCode 正在继续尝试。"),
+    ("images", "张图片"),
+    ("Custom", "自定义"),
+    ("Server Default", "服务器默认"),
+    ("Choose Workspace Folder", "选择工作区文件夹"),
+    ("Add Model\u{2026}", "添加模型\u{2026}"),
+    ("Open AI Providers\u{2026}", "打开 AI 提供商\u{2026}"),
+    ("Set up in AI Providers.", "在 AI 提供商中设置。"),
+    ("Choose a Model", "选择模型"),
+    ("Couldn’t Load This Chat", "无法加载此对话"),
+    ("Its history couldn’t be read.", "无法读取它的历史记录。"),
+    ("Choose a model and a brief to start one.", "选择模型并写好任务简报，即可启动一个同侪。"),
+    ("The filter isn’t a valid pattern.", "过滤条件不是有效的正则表达式。"),
+    ("No model provider is set up yet. Add one in AI Providers.", "尚未设置模型提供商。请在 AI 提供商中添加一个。"),
+    ("The conversation history could not be loaded. Reopen it from the sidebar to try again.", "无法加载对话历史。请从侧边栏重新打开以重试。"),
     ("Reading the server\u{2026}", "正在读取服务器\u{2026}"),
     ("Starting a session in {value0}\u{2026}", "正在 {value0} 中启动会话\u{2026}"),
     ("The session didn\u{2019}t open. Check the folder, then try again.", "会话未能打开。请检查文件夹后重试。"),
@@ -328,6 +387,11 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
         "Restoring removes that turn and every later one; its prompt returns to the composer to edit and resend. Workspace files are not restored.",
         "恢复会移除该轮次及之后的所有轮次；其提示会返回输入框，供你编辑后重新发送。工作区文件不会恢复。",
     ),
+    (
+        "Restoring removes that turn and every later one; its prompt returns to the composer to edit and resend.",
+        "恢复会移除该轮次及之后的所有轮次；其提示会返回输入框，供你编辑后重新发送。",
+    ),
+    ("Workspace files are not restored.", "工作区文件不会恢复。"),
     ("{value0} message", "{value0} 条消息"),
     ("{value0} messages", "{value0} 条消息"),
     ("just now", "刚刚"),
@@ -353,6 +417,9 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ),
     ("20 MiB per image", "每张图片不超过 20 MiB"),
     ("Couldn't upload the images.", "无法上传图片。"),
+    // n12g (E10 3): a desktop's + attaches to the composer; a chip's line, the refusal's toast.
+    ("Couldn’t upload", "无法上传"),
+    ("Couldn’t attach these images", "无法附加这些图片"),
     ("Could not select these images.", "无法选择这些图片。"),
     (
         "Upload was not confirmed. Retry explicitly; the server may retain an earlier upload.",
@@ -742,6 +809,7 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Queued", "排队中"),
     // README row 15 status table: failed
     ("Couldn't finish this job.", "无法完成此作业。"),
+    ("A tool this job uses stopped with an error.", "此作业使用的工具出错，已停止。"),
     // README row 15 status table: abandoned
     ("The server restarted before this job finished.", "服务器在此作业完成前已重启。"),
     // A31 empty state
@@ -884,6 +952,13 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     // fleet_driver::CHANGED_DRAWN (A30 follow-up): a control drawn for a request / turn the peer has
     // since replaced is refused on the card (the dock's and the Fleet's stale-control refusal)
     ("This peer changed. Review it and tap again.", "此同侪已变化，请查看后重试。"),
+    ("This peer changed. Review it and click again.", "此同侪已变化，请查看后重试。"),
+    ("The provider and route of a saved model can't be changed. Add another provider instead.", "已保存模型的提供商和路由无法更改。请改为添加其他提供商。"),
+    ("Stored under this name. Never shown again.", "以此名称保存，不会再次显示。"),
+    ("Sent only when you test, fetch models or save, and never shown again.", "仅在测试、获取模型或保存时发送，且不会再次显示。"),
+    ("Request parameters are shown for reference and can't be changed here.", "请求参数仅供参考，无法在此更改。"),
+    ("Add a provider to make its models available.", "添加提供商以使用其模型。"),
+    ("This entry has settings the editor can't keep, so it can't be edited here.", "此条目包含编辑器无法保留的设置，因此无法在此编辑。"),
     // ---- A28 (merged from main): the diff review (row 23; board 4 frames 1/1b/2); each row's English source in a comment.
     // DiffReviewDialog.tsx:107-109 plainNotice (the web renders it without t()); board 4 frame 1b
     ("Large preview shown as plain text. All lines are included.", "大型预览以纯文本显示，已包含所有行。"),
@@ -959,6 +1034,66 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("The dispatch could not be confirmed.", "无法确认此次派发。"),
     ("The control command could not be confirmed.", "无法确认此控制命令。"),
     ("The peer dispatch was accepted.", "同侪派发已被接受。"),
+    // ---- Round 4 (E3): a Mac list's actions, setup in words, the Fleet's next step.
+    ("Edit…", "编辑…"),
+    ("Remove…", "移除…"),
+    ("Restore…", "恢复…"),
+    ("Rewind…", "回退…"),
+    ("Copy Setup Command", "复制设置命令"),
+    ("Type a name for the profile.", "请输入配置档案的名称。"),
+    ("Paste the provider\u{2019}s API key.", "请粘贴提供商的 API 密钥。"),
+    ("{value0} doesn\u{2019}t need an API key.", "{value0} 不需要 API 密钥。"),
+    (
+        "This server can\u{2019}t add a model from here. Finish its setup on the computer it runs on, then connect again.",
+        "无法从这里为此服务器添加模型。请在运行它的计算机上完成设置，然后重新连接。",
+    ),
+    (
+        "This server can\u{2019}t start peers. Update Octos on the server, or connect to one that can.",
+        "此服务器无法启动同侪。请更新服务器上的 Octos，或连接到可以启动同侪的服务器。",
+    ),
+    ("Connection Settings\u{2026}", "连接设置…"),
+    // ---- Round 8 (E7): a Mac's alert says it in two short sentences (screens/a9_settings.rs `mac_words`).
+    ("Running work may stop.", "正在运行的工作可能会停止。"),
+    ("Running work may stop, and your unsent message will be lost.", "正在运行的工作可能会停止，未发送的消息也会丢失。"),
+    ("The server's saved address and access token are removed.", "该服务器已保存的地址和访问令牌将被移除。"),
+    ("You can reconnect later.", "之后可以重新连接。"),
+    // ---- Round 8 (E7): a Mac's refused New Chat (fluid.rs `start_state`, screens/start_alert.rs).
+    ("Couldn’t Start a New Chat", "无法开始新对话"),
+    ("The server didn’t open it.", "服务器没有打开它。"),
+    // ---- Round 8 (E7): a Mac's file sizes (desk.rs `file_size`).
+    ("1 byte", "1 字节"),
+    ("{value0} bytes", "{value0} 字节"),
+    // ---- Round 8 (E7 5): why a Mac form's default is off (dialog.rs `form_wants`).
+    ("Enter a prompt and an interval.", "请输入提示词和间隔。"),
+    ("Enter an interval.", "请输入间隔。"),
+    ("Enter a prompt.", "请输入提示词。"),
+    ("Enter a name and a command.", "请输入名称和命令。"),
+    ("Enter a command.", "请输入命令。"),
+    ("Enter a name.", "请输入名称。"),
+    ("Enter an objective.", "请输入目标内容。"),
+    // ---- Round 11 (E9 1): a Mac names the server on this Mac, not its address
+    // (screens/discovery.rs `Offer`).
+    ("Found Octos on this Mac.", "在这台 Mac 上找到了 Octos。"),
+    ("Connect to This Mac", "连接到这台 Mac"),
+    // ---- Round 11 (E9 2): plain words for the working sheets' jargon (board3/fleetview.rs,
+    // surfaces/trajectory.rs, dialog.rs `confirmation_for`, board3/research.rs).
+    ("Tell it what to change", "告诉它要改什么"),
+    ("You can send only while it\u{2019}s working.", "仅在它工作时可以发送。"),
+    ("Condition", "状况"),
+    ("Normal", "正常"),
+    ("Every chat on this profile can use it. Skills you already have stay as they are.", "此配置档案的所有对话都可以使用它。已有的技能保持不变。"),
+    ("Chats on this profile can\u{2019}t use it anymore. To get it back, install it again from its source.", "此配置档案的对话将无法再使用它。要恢复，请从其来源重新安装。"),
+    ("Chats on this profile can\u{2019}t use it anymore. The server says afterward if it needs a restart. To get it back, add it again.", "此配置档案的对话将无法再使用它。服务器随后会说明是否需要重启。要恢复，请重新添加。"),
+    ("Chats on this profile use it for research. The server says afterward if it needs a restart.", "此配置档案的对话将使用它进行研究。服务器随后会说明是否需要重启。"),
+    // ---- Round 11 (E9 3): what failed, and the way on (fluid.rs `open_workspace_state`).
+    ("Octos on this Mac isn\u{2019}t answering, so OctosCode can\u{2019}t connect to it. Try again in a moment.", "这台 Mac 上的 Octos 没有响应，因此 OctosCode 无法连接。请稍后再试。"),
+    // ---- Round 11 (E9 4): where snapshots are turned on (board3/checkpoints.rs).
+    ("Automatic snapshots are off, so there are none to restore. They\u{2019}re turned on in the Octos profile, not in OctosCode; once they\u{2019}re on, choose Reload History to see them.", "自动快照已关闭，因此没有可恢复的快照。快照需在 Octos 的配置档案中开启，无法在 OctosCode 中开启；开启后，请选择“重新加载历史”查看。"),
+    // ---- Round 11 (E9 5): a Mac's loop interval, a number and a unit (dialog.rs `loop_form`).
+    ("How long the loop waits between runs: 1 minute to 24 hours.", "循环任务两次运行之间的等待时长：1 分钟到 24 小时。"),
+    ("Enter a whole number: 1 to 1,440 minutes, or 1 to 24 hours.", "请输入整数：1 到 1,440 分钟，或 1 到 24 小时。"),
+    ("Minutes", "分钟"),
+    ("Hours", "小时"),
 ];
 
 /// The web catalog's vocabulary: each English term (matched as a word,
@@ -1050,6 +1185,7 @@ pub static GLOSSARY_EXEMPT: &[(&str, &str)] = &[
     ("A background response finished. Return to OctosCode to review it.", "review"),
     // A30's stale-control refusal: "review it" is look at the changed row (查看).
     ("This peer changed. Review it and tap again.", "review"),
+    ("This peer changed. Review it and click again.", "review"),
 ];
 
 /// The native Chinese for `source`, if it is native copy (A31's helper; the

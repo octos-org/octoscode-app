@@ -274,10 +274,9 @@ def card_checks(w: Walk, tag: str) -> bool:
     over = [(i, j) for i in range(len(stack)) for j in range(i + 1, len(stack)) if overlaps(stack[i], stack[j])]
     centred = None
     if card and mod:
-        # The card is centred in the pane right of the first-run sidebar
-        # (lib.rs mount_connect_card: left = FIRST_RUN_SIDEBAR_W 261 on the
-        # desktop, 0 on a phone; connect_center pads 16 more each side).
-        lp = (261.0 if w.mode == "desktop" else 0.0) + 16.0
+        # The card is centred in the window: nothing stands beside it before
+        # there is a connection (connect_center pads 16 each side).
+        lp = 16.0
         pane_cx = mod[0] + lp + (mod[2] - lp - 16.0) / 2
         centred = abs((card[0] + card[2] / 2) - pane_cx)
     ok = bool(card) and not out and not small and not over and (centred is None or centred <= 2.0)

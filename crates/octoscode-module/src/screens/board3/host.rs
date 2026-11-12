@@ -475,6 +475,53 @@ pub fn routes(action: &str) -> bool {
     action.starts_with("b3.")
 }
 
+/// A Mac list's row the keyboard just selected: drawn, it is scrolled into view.
+static PENDING_REVEAL: Mutex<Option<String>> = Mutex::new(None);
+
+pub fn set_pending_reveal(row: String) {
+    *PENDING_REVEAL.lock().unwrap_or_else(|p| p.into_inner()) = Some(row);
+}
+
+pub fn take_pending_reveal() -> Option<String> {
+    PENDING_REVEAL.lock().unwrap_or_else(|p| p.into_inner()).take()
+}
+
+/// The open sheet is a Mac list (a selection the keyboard moves).
+pub fn has_list() -> bool {
+    list_key(1).is_some()
+}
+
+/// The event a list key performs on the open Mac sheet: `-1` up, `1` down, `0`
+/// Delete (asks first). None when the sheet has no list, or its form or a
+/// question is up.
+pub fn list_key(step: i32) -> Option<&'static str> {
+    if !crate::desk::active() {
+        return None;
+    }
+    let st = state();
+    let (up, down, delete) = match st.open? {
+        Dialog::Switcher => ("b3.switch.up", "b3.switch.down", Some("b3.switch.delete_sel")),
+        Dialog::Routes if st.routes.editing.is_none() && st.routes.deleting.is_none() => {
+            ("b3.routes.up", "b3.routes.down", Some("b3.routes.delete_sel"))
+        }
+        Dialog::Research if !st.research.adding && st.research.confirm.is_none() => {
+            ("b3.research.up", "b3.research.down", Some("b3.research.remove_sel"))
+        }
+        Dialog::History
+            if st.ck.mode != crate::screens::history::HistoryMode::Fork && st.ck.confirm.is_none() && st.ck.snap_confirm.is_none() =>
+        {
+            ("b3.ck.up", "b3.ck.down", None)
+        }
+        Dialog::Agents => ("b3.agents.up", "b3.agents.down", None),
+        _ => return None,
+    };
+    match step {
+        s if s < 0 => Some(up),
+        s if s > 0 => Some(down),
+        _ => delete,
+    }
+}
+
 /// A8 — the body scroll a same-dialog remount must restore after its first
 /// layout (`lib.rs` draw_walk applies it).
 static PENDING_SCROLL: Mutex<Option<f64>> = Mutex::new(None);
@@ -500,6 +547,9 @@ pub fn note_mounted() -> bool {
 /// Open `dialog` and return its load job.
 pub fn open(dialog: Dialog) -> Outcome {
     let mut st = state();
+    // Settings' Model menu opens under its button; any other opening forgets it.
+    let under = st.seats.settings_next.take();
+    st.seats.settings_anchor = under.filter(|_| dialog == Dialog::ModelMenu);
     st.open = Some(dialog);
     st.mounted = None;
     match dialog {
@@ -522,6 +572,7 @@ pub fn open(dialog: Dialog) -> Outcome {
             Outcome::Spawn(Job::ResumeLoad)
         }
         Dialog::History => {
+            st.ck.selected = None;
             st.ck.confirm = None;
             st.ck.notice = None;
             st.ck.copy_label = None;
@@ -529,6 +580,7 @@ pub fn open(dialog: Dialog) -> Outcome {
             Outcome::Spawn(Job::CheckpointsLoad)
         }
         Dialog::Switcher => {
+            st.switch.selected = None;
             st.switch.offset = 0;
             st.switch.error = None;
             Outcome::Spawn(Job::SwitchLoad)
@@ -545,6 +597,7 @@ pub fn open(dialog: Dialog) -> Outcome {
         }
         Dialog::Vim => Outcome::Done,
         Dialog::Agents => {
+            st.agents.selected = None;
             st.agents.snap();
             st.agents.spawn_error = None;
             Outcome::Spawn(Job::AgentsLoad)
@@ -575,6 +628,18 @@ pub fn reopen_routes(notice: Option<String>) -> Outcome {
     super::routes::on_reopen(&mut st.routes, notice)
 }
 
+/// A Mac's Settings: its Model button's menu, under the button, over Settings.
+pub fn open_settings_model(anchor: super::seats::Anchor) -> Outcome {
+    state().seats.settings_next = Some(anchor);
+    open(Dialog::ModelMenu)
+}
+
+/// Settings' Model menu is the open one (Settings stays up under it).
+pub fn settings_menu_up() -> bool {
+    let st = state();
+    st.open == Some(Dialog::ModelMenu) && st.seats.settings_anchor.is_some()
+}
+
 /// Close `dialog` if it is the open one (a finished job's own close).
 pub fn close_if(dialog: Dialog) {
     if open_dialog() == Some(dialog) {
@@ -588,6 +653,11 @@ pub fn set_seat_anchors(permission: Option<super::seats::Anchor>, model: Option<
     let mut st = state();
     st.seats.perm_anchor = permission;
     st.seats.model_anchor = model;
+}
+
+/// Where the Fleet form's Model field sits in the module view.
+pub fn set_fleet_anchor(anchor: Option<super::seats::Anchor>) {
+    state().fleet.picker_anchor = anchor;
 }
 
 /// Whether the permission seat still needs `session`'s profile read (asked
@@ -632,6 +702,7 @@ pub fn close() {
         }
         crate::screens::saved_link::reset();
     }
+    st.seats.settings_anchor = None;
     st.open = None;
     st.mounted = None;
 }
@@ -643,6 +714,37 @@ fn active_drafts() -> Option<std::sync::Arc<crate::screens::media::AttachmentDra
 
 /// Route one board-3 action. `index` is the `#<row>` the shared tap path
 /// decoded (0 for single-shot controls).
+/// Memory's note form is up: its Cancel steps back to Memory.
+pub fn on_note_form() -> bool {
+    let st = state();
+    st.open == Some(Dialog::Memory) && st.mem.page == super::memory::Page::Add
+}
+
+/// On a desktop, Research Models shows its form: Escape goes back to the list.
+pub fn on_research_form() -> bool {
+    let st = state();
+    st.open == Some(Dialog::Research) && st.research.adding
+}
+
+/// A question before something goes for good is up: the action Cancel takes.
+pub fn destructive_question() -> Option<&'static str> {
+    let st = state();
+    match st.open? {
+        Dialog::Switcher if st.switch.confirm_delete.is_some() => Some("b3.switch.delete.cancel"),
+        Dialog::History if st.ck.confirm.is_some() => Some("b3.ck.cancel"),
+        Dialog::History if st.ck.snap_confirm.is_some() => Some("b3.ck.snap_cancel"),
+        Dialog::Research if matches!(st.research.confirm, Some(super::research::Confirm::Remove(_))) => Some("b3.research.cancel"),
+        Dialog::Routes if st.routes.deleting.is_some() => Some("b3.routes.cancel"),
+        _ => None,
+    }
+}
+
+/// A desktop's Model menu is open over the Fleet pane.
+pub fn fleet_menu_open() -> bool {
+    let st = state();
+    st.open == Some(Dialog::Fleet) && st.fleet.picker_open
+}
+
 pub fn perform(action: &str, index: usize, store: &Store) -> Outcome {
     let out = perform_inner(action, index, store);
     if out == Outcome::Close {
@@ -798,8 +900,41 @@ pub fn input_changed(key: &str, text: &str) {
     }
 }
 
+/// On a Mac, Return in a one-line field runs its sheet's default button. Each
+/// action checks for itself that it may run, so a default that shows disabled
+/// does nothing. A destructive confirmation is never a default, so a field
+/// that arms one (the routes' delete phrase) is not here.
+fn default_on_return(st: &State, key: &str) -> Option<(&'static str, usize)> {
+    if key.starts_with("research.") {
+        return Some(("b3.research.review", 0));
+    }
+    if let Some(i) = key.strip_prefix("fleet.steer#").and_then(|n| n.parse::<usize>().ok()) {
+        return Some((super::fleetview::row_default(&st.fleet, i), i));
+    }
+    let action = match key {
+        "ck.fork" => "b3.ck.fork",
+        "fleet.brief" => "b3.fleet.start",
+        "fleet.console.brief" | "fleet.console.title" => "b3.fleet.console.dispatch",
+        "routes.model" => "b3.routes.save",
+        "mem.add.title" => "b3.mem.add.submit",
+        "agents.path" => "b3.agents.id.read_path",
+        "agents.count" | "agents.task" => {
+            super::agents::compose_spawn(&st.agents.count, &st.agents.task)?;
+            "b3.agents.spawn"
+        }
+        _ => return None,
+    };
+    Some((action, 0))
+}
+
 /// Return pressed in an input: the field's primary action.
 pub fn input_returned(key: &str, store: &Store) -> Outcome {
+    if crate::desk::active() {
+        let default = default_on_return(&state(), key);
+        if let Some((action, index)) = default {
+            return perform(action, index, store);
+        }
+    }
     let out = {
         let mut st = state();
         match key.split('.').next().unwrap_or("") {
@@ -831,6 +966,7 @@ pub fn live_visibility(store: &Store) -> Vec<(String, bool)> {
         Some(Dialog::Routes) => super::routes::visibility(&st.routes),
         Some(Dialog::History) => super::checkpoints::visibility(&st.ck),
         Some(Dialog::Memory) => super::memory::visibility(&st.mem),
+        Some(Dialog::Fleet) => super::fleetview::visibility(&st.fleet, store),
         // A17 — the onboarding submit's enabled / disabled variants.
         Some(Dialog::Launch) if crate::screens::launch::is_no_profile(&crate::screens::launch::snapshot()) => {
             crate::screens::onboarding::visibility()
@@ -845,6 +981,9 @@ pub fn post_mount_texts() -> Vec<(String, String)> {
     let open = state().open;
     if open == Some(Dialog::Launch) && crate::screens::launch::is_no_profile(&crate::screens::launch::snapshot()) {
         return crate::screens::onboarding::post_mount_texts();
+    }
+    if open == Some(Dialog::Fleet) {
+        return super::fleetview::post_mount_texts(&state().fleet);
     }
     Vec::new()
 }
@@ -1193,6 +1332,35 @@ pub fn note_turn_busy(busy: bool) {
     let mut st = state();
     super::research::note_turn_busy(&mut st.research, busy);
     super::seats::note_turn_busy(&mut st.seats, busy);
+}
+
+/// n12g (E10 3) — a desktop's +: what the open panel chose joins this chat's
+/// draft straight away, shown in the composer (no sheet), and goes up with the
+/// next message. A choice the draft refuses (a fifth image, another type, too
+/// large) says why in a toast and attaches nothing.
+pub fn attach_chosen(conv: &crate::flow::Conversation, paths: &[std::path::PathBuf]) {
+    let drafts = crate::screens::media::drafts_for_conv(conv);
+    {
+        let mut st = state();
+        st.img.session = conv.session_id();
+        st.img.profile = conv.profile();
+    }
+    match super::images::select_paths(&drafts, paths) {
+        Ok(added) => {
+            let mut st = state();
+            st.img.error = None;
+            st.img.paths.extend(added);
+        }
+        Err(e) => {
+            crate::screens::toasts::push(crate::i18n::tr("Couldn’t attach these images"), crate::i18n::tr(&e));
+        }
+    }
+    wake();
+}
+
+/// n12g (E10 3): the local file an attached image was read from (its thumbnail).
+pub fn image_path(id: &str) -> Option<String> {
+    state().img.paths.iter().find(|(d, _)| d == id).map(|(_, p)| p.clone())
 }
 
 /// Files the platform picker (or a drop) handed over while the images

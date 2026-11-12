@@ -8,8 +8,8 @@
 use makepad_app_module::{
     makepad_ai_services::ui_port::{OctosUiPort, UiPortEvent},
     makepad_ai_services::wire::{ServiceCall, ServiceManifest, ToolResult},
-    AppModule, ExecOutcome, InstanceHandles, InstanceParts, OpenSchema, ServiceExecutor,
-    ValidatedOpen,
+    menu_rows_json, AppModule, ExecOutcome, InstanceHandles, InstanceParts, MenuRow, OpenSchema,
+    ServiceExecutor, ValidatedOpen,
 };
 use makepad_widgets::*;
 use octos_app_transport::host::{HostPort, HostPortEvent};
@@ -25,8 +25,12 @@ impl AppModule for OctoscodeModule {
         "OctosCode"
     }
     fn register(&self, vm: &mut ScriptVm) {
-        // The shell restyles every app it hosts alike: follow its palette.
+        // System follows the shell; explicit phone themes stay in this isolate.
         crate::screens::theme::set_embedded(true);
+        // Its page and ink, as the style sheet left them: the module's own
+        // role assignments replace them in this isolate.
+        crate::desk::note_host(vm);
+        crate::screens::theme::note_embedded_host(vm);
         crate::register_widgets(vm);
     }
     fn open_schema(&self) -> OpenSchema {
@@ -34,6 +38,22 @@ impl AppModule for OctoscodeModule {
     }
     fn capabilities(&self) -> &'static [&'static str] {
         &["storage", "net"]
+    }
+    fn menu_rows(&self, _cx: &mut Cx, root: &WidgetRef) -> Option<String> {
+        let view = root.borrow::<crate::OctoscodeView>()?;
+        let bridge = view.bridge.lock().unwrap();
+        let foldable = bridge.store.active_session().is_some_and(|session| {
+            crate::screens::surfaces::folds::has_foldable(&bridge.store, &session)
+        });
+        Some(menu_rows_json(&[
+            MenuRow::keyed("App", "Settings\u{2026}", "cmd+,"),
+            MenuRow::keyed("File", "New Chat", "cmd+N"),
+            MenuRow::keyed("File", "Add Workspace\u{2026}", "cmd+O"),
+            MenuRow::keyed("Edit", "Find\u{2026}", "cmd+F"),
+            MenuRow::keyed("View", "Sidebar", "ctrl+cmd+S"),
+            MenuRow::keyed("View", "Expand All", "ctrl+cmd+E").enabled(foldable),
+            MenuRow::keyed("View", "Collapse All", "ctrl+cmd+C").enabled(foldable),
+        ]))
     }
     fn create(
         &self,
@@ -45,6 +65,7 @@ impl AppModule for OctoscodeModule {
         let port = OctosUiPort::open(vm.cx_mut());
         if let Some(mut view) = root.borrow_mut::<crate::OctoscodeView>() {
             view.embedded_in_octosense = true;
+            crate::desk::note_hosted(std::env::var_os("OCTOSCODE_NO_PORT").is_none());
             view.host_port = Some(host_port(port));
         }
         InstanceParts {
@@ -66,6 +87,11 @@ impl ServiceExecutor for OctoscodeExecutor {
             "OctosCode has no tools",
         ))
     }
+}
+
+/// A new port to the shell's kernel, after the last one closed.
+pub(crate) fn open_port(cx: &mut Cx) -> HostPort {
+    host_port(OctosUiPort::open(cx))
 }
 
 /// The shell's port, as the transport sees it.

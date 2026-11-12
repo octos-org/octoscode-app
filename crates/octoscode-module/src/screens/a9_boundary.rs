@@ -183,43 +183,117 @@ pub fn lower_crash(frame: &Frame) -> Option<Lowered> {
     let w = if compact { (frame.avail_w - 32.0).max(240.0) } else { (frame.avail_w - 64.0).min(640.0) }.floor();
     let mut d = Dsl::new();
     d.view("a9_cr_root", "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}");
-    d.rule("a9_cr_bg", "width: Fill height: Fill", tok::SURFACE2);
-    d.surface(
-        "a9_cr_card",
-        &format!("width: {w} height: Fit flow: Down spacing: 12 padding: Inset{{left: 28 right: 28 top: 28 bottom: 24}}"),
-        tok::SURFACE,
-        16.0,
-        Some(tok::HAIRLINE),
-    );
+    // A Mac says this on the window's own page, not in a card on a gray one:
+    // a title, what happened, the default action last. The raw report stays
+    // one click away (Copy diagnostics).
+    let mac = crate::desk::active();
+    let page = crate::desk::current().content;
+    d.rule("a9_cr_bg", "width: Fill height: Fill", if mac { page.as_str() } else { tok::SURFACE2 });
+    if mac {
+        // n12g (E10 4): a Mac's recovery page reads as its alert does: the
+        // window's title in the title bar, the app's icon over a centred
+        // block, the title in bold and the words centred under it, the
+        // buttons stacked with the default on top (the kit's alert rule for
+        // three). The block sits in the window's middle.
+        let copy_label = match c.copy {
+            CopyState::Idle => "Copy diagnostics",
+            CopyState::Copied => "Copied",
+            CopyState::Failed => "Copy failed",
+        };
+        let bar = crate::desk::bar_h();
+        d.view("a9_cr_frame", "width: Fill height: Fill flow: Down");
+        d.view("a9_cr_titlebar", &format!("width: Fill height: {bar} flow: Right align: Align{{x: 0.5 y: 0.5}}"));
+        d.text("a9_cr_window_title", "OctosCode", &Txt::new(13.0, Face::Semibold, tok::TEXT));
+        d.close();
+        d.view(
+            "a9_cr_middle",
+            &format!("width: Fill height: Fill flow: Down align: Align{{x: 0.5 y: 0.5}} padding: Inset{{bottom: {bar}}}"),
+        );
+        d.view(
+            "a9_cr_card",
+            &format!("width: {} height: Fit flow: Down align: Align{{x: 0.5 y: 0.0}} padding: Inset{{left: 16 right: 16}}", ui::ALERT_W),
+        );
+        ui::app_icon(&mut d, "a9_cr_icon");
+        d.unseen("a9_cr_eyebrow", tr("OctosCode stopped rendering"));
+        ui::alert_words(
+            &mut d,
+            ("a9_cr_title", tr("Client view unavailable")),
+            &[("a9_cr_body", tr("The client could not recover this view. Closing its connection may have stopped running work. Octos keeps persisted history; unsent drafts and queued messages may be lost when you reload."))],
+        );
+        d.unseen("a9_cr_report", &c.report);
+        ui::alert_buttons(
+            &mut d,
+            &[
+                ui::AlertButton::new("a9_cr_report_link", "Report this crash ↗", ACTION_REPORT, Btn::Outline),
+                ui::AlertButton::new("a9_cr_copy", copy_label, ACTION_COPY, Btn::Outline),
+                ui::AlertButton::new("a9_cr_reload", "Reload app", ACTION_RELOAD, Btn::Primary),
+            ],
+        );
+        d.close(); // card
+        d.close(); // middle
+        d.close(); // frame
+        d.close(); // root
+        let taps = d.taps.clone();
+        return Some(Lowered { dsl: d.finish(), taps, inputs: Vec::new() });
+    }
+    if mac {
+        d.view("a9_cr_card", &format!("width: {} height: Fit flow: Down spacing: 10", w.min(520.0)));
+    } else {
+        d.surface(
+            "a9_cr_card",
+            &format!("width: {w} height: Fit flow: Down spacing: 12 padding: Inset{{left: 28 right: 28 top: 28 bottom: 24}}"),
+            tok::SURFACE,
+            16.0,
+            Some(tok::HAIRLINE),
+        );
+    }
     // A24: the web's eyebrow is "Octoscode Web stopped rendering"; the
     // native copy names the app (an uppercase eyebrow in English).
-    d.text("a9_cr_eyebrow", &tr("OctosCode stopped rendering").to_uppercase(), &Txt::new(11.0, Face::Medium, tok::MUTED));
+    if mac {
+        d.unseen("a9_cr_eyebrow", tr("OctosCode stopped rendering"));
+    } else {
+        d.text("a9_cr_eyebrow", &tr("OctosCode stopped rendering").to_uppercase(), &Txt::new(11.0, Face::Medium, tok::MUTED));
+    }
     d.text("a9_cr_title", tr("Client view unavailable"), &Txt::new(22.0, Face::Semibold, tok::TEXT));
     d.text(
         "a9_cr_body",
         tr("The client could not recover this view. Closing its connection may have stopped running work. Octos keeps persisted history; unsent drafts and queued messages may be lost when you reload."),
-        &Txt::new(14.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
+        &Txt::new(crate::desk::by(14.0, 13.0), Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     // The redacted diagnostics (`<pre aria-label="Redacted crash diagnostics">`).
-    d.surface(
-        "a9_cr_report_box",
-        "width: Fill height: Fit flow: Down padding: Inset{left: 12 right: 12 top: 10 bottom: 10}",
-        tok::SURFACE2,
-        8.0,
-        Some(tok::HAIRLINE),
-    );
-    d.text("a9_cr_report", &c.report, &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
-    d.close();
-    d.view("a9_cr_actions", "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 0.0 y: 0.5} margin: Inset{top: 4}");
-    d.button("a9_cr_reload", tr("Reload app"), ACTION_RELOAD, Btn::Primary, W::Fit, 40.0);
+    if mac {
+        d.unseen("a9_cr_report", &c.report);
+    } else {
+        d.surface(
+            "a9_cr_report_box",
+            "width: Fill height: Fit flow: Down padding: Inset{left: 12 right: 12 top: 10 bottom: 10}",
+            tok::SURFACE2,
+            8.0,
+            Some(tok::HAIRLINE),
+        );
+        d.text("a9_cr_report", &c.report, &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
+        d.close();
+    }
     let copy_label = match c.copy {
         CopyState::Idle => "Copy diagnostics",
         CopyState::Copied => "Copied",
         CopyState::Failed => "Copy failed",
     };
-    d.button("a9_cr_copy", tr(copy_label), ACTION_COPY, Btn::Outline, W::Px(ui::text_w(tr("Copy diagnostics"), 13.0, Face::Medium) + 32.0), 40.0);
-    d.close();
-    d.link("a9_cr_report_link", tr("Report this crash ↗"), Some(ACTION_REPORT), 13.0);
+    let copy_w = W::Px(ui::text_w(tr("Copy diagnostics"), 13.0, Face::Medium) + crate::desk::by(32.0, 24.0));
+    if mac {
+        d.view("a9_cr_actions", "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5} margin: Inset{top: 8}");
+        d.link("a9_cr_report_link", tr("Report this crash ↗"), Some(ACTION_REPORT), 13.0);
+        d.gap(W::Fill, 1.0);
+        d.button("a9_cr_copy", tr(copy_label), ACTION_COPY, Btn::Outline, copy_w, 28.0);
+        d.button("a9_cr_reload", tr("Reload app"), ACTION_RELOAD, Btn::Primary, W::Fit, 28.0);
+        d.close();
+    } else {
+        d.view("a9_cr_actions", "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 0.0 y: 0.5} margin: Inset{top: 4}");
+        d.button("a9_cr_reload", tr("Reload app"), ACTION_RELOAD, Btn::Primary, W::Fit, 40.0);
+        d.button("a9_cr_copy", tr(copy_label), ACTION_COPY, Btn::Outline, copy_w, 40.0);
+        d.close();
+        d.link("a9_cr_report_link", tr("Report this crash ↗"), Some(ACTION_REPORT), 13.0);
+    }
     d.close(); // card
     d.close(); // root
     let taps = d.taps.clone();
@@ -235,9 +309,9 @@ pub fn lower_unavailable(frame: &Frame, content: Option<(f64, f64, f64, f64)>) -
     let mut d = Dsl::new();
     let modal = u.kind == Kind::Modal;
     if modal {
-        let w = (frame.avail_w - 32.0).min(440.0).max(240.0).floor();
-        d.view("a9_un_root", "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}");
-        d.rule("a9_un_mask", "width: Fill height: Fill", tok::MASK);
+        let w = (frame.avail_w - 32.0).min(crate::desk::by(440.0, crate::desk::sheet_w(440.0))).max(240.0).floor();
+        d.view("a9_un_root", &format!("width: Fill height: Fill flow: Overlay align: {}", ui::sheet_align()));
+        d.rule("a9_un_mask", "width: Fill height: Fill", crate::desk::by(tok::MASK, ui::mac_mask()));
         d.view("a9_un_backdrop_box", "width: Fill height: Fill flow: Overlay");
         d.tap("a9_un_backdrop", ACTION_CLOSE);
         d.close();
@@ -248,8 +322,11 @@ pub fn lower_unavailable(frame: &Frame, content: Option<(f64, f64, f64, f64)>) -
         // is replaced by a plain surface with the panel at its top; the rest
         // of the app (sidebar, header) stays live around it.
         let (x, y, rw, rh) = content.unwrap_or((0.0, 0.0, frame.avail_w, frame.avail_h));
-        let w = (rw - 48.0).min(560.0).max(240.0).floor();
+        // A Mac's section fills its region: no column, no card. Its words keep
+        // a 360-point column, so neither paragraph ends on a word alone.
+        let w = if crate::desk::active() { (rw - 48.0).min(404.0).max(240.0).floor() } else { (rw - 48.0).min(560.0).max(240.0).floor() };
         d.view("a9_un_root", "width: Fill height: Fill flow: Overlay");
+        let pane = crate::desk::current().content;
         d.surface(
             "a9_un_region",
             &format!(
@@ -259,7 +336,7 @@ pub fn lower_unavailable(frame: &Frame, content: Option<(f64, f64, f64, f64)>) -
                 x.floor(),
                 y.floor()
             ),
-            tok::SURFACE,
+            if crate::desk::active() { pane.as_str() } else { tok::SURFACE },
             0.0,
             None,
         );
@@ -270,7 +347,10 @@ pub fn lower_unavailable(frame: &Frame, content: Option<(f64, f64, f64, f64)>) -
         d.close();
         d.view(
             "a9_un_region_col",
-            "width: Fill height: Fill flow: Down align: Align{x: 0.5 y: 0.0} padding: Inset{top: 24}",
+            crate::desk::by(
+                "width: Fill height: Fill flow: Down align: Align{x: 0.5 y: 0.0} padding: Inset{top: 24}",
+                "width: Fill height: Fill flow: Down align: Align{x: 0.5 y: 0.5}",
+            ),
         );
         panel(&mut d, &u, w, modal);
         d.close();
@@ -282,31 +362,49 @@ pub fn lower_unavailable(frame: &Frame, content: Option<(f64, f64, f64, f64)>) -
 }
 
 fn panel(d: &mut Dsl, u: &Unavailable, w: f64, modal: bool) {
-    d.surface(
-        "a9_un_panel",
-        &format!("width: {w} height: Fit flow: Overlay"),
-        tok::SURFACE,
-        16.0,
-        Some(tok::HAIRLINE),
-    );
+    let pane = crate::desk::current().content;
+    if modal {
+        d.sheet_surface("a9_un_panel", &format!("width: {w} height: Fit flow: Overlay"), 16.0);
+    } else {
+        d.surface(
+            "a9_un_panel",
+            &format!("width: {w} height: Fit flow: Overlay"),
+            if crate::desk::active() { pane.as_str() } else { tok::SURFACE },
+            16.0,
+            if crate::desk::active() { None } else { Some(tok::HAIRLINE) },
+        );
+    }
     if modal {
         d.view("a9_un_swallow_box", "width: Fill height: Fill flow: Overlay");
         d.tap("a9_un_swallow", ACTION_NOOP);
         d.close();
     }
     d.view("a9_un_col", "width: Fill height: Fit flow: Down spacing: 10 padding: Inset{left: 22 right: 22 top: 22 bottom: 20}");
-    d.text("a9_un_title", &tr1("{value0} unavailable", tr(&u.name)), &Txt::new(18.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
+    // A Mac centres a failure in its pane, and a sheet keeps its text at the left.
+    let centred = crate::desk::active() && !modal;
+    let para = |px: f64, face: Face, ink: &'static str| {
+        let t = Txt::new(px, face, ink).w(W::Fill).wrap();
+        if centred { t.centre() } else { t }
+    };
+    d.text("a9_un_title", &crate::desk::title(&tr1("{value0} unavailable", tr(&u.name))), &para(18.0, Face::Semibold, tok::TEXT));
     d.text(
         "a9_un_p0",
         tr("This view could not be displayed. Other parts of the app remain available."),
-        &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill).wrap(),
+        &para(13.0, Face::Regular, tok::TEXT),
     );
     d.text(
         "a9_un_p1",
         tr("Reload the app to try again. Reloading may stop running work and discard drafts and queued messages."),
-        &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
+        &para(13.0, Face::Regular, tok::MUTED),
     );
-    d.view("a9_un_actions", "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 1.0 y: 0.5} margin: Inset{top: 6}");
+    d.view(
+        "a9_un_actions",
+        if centred {
+            "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 0.5 y: 0.5} margin: Inset{top: 6}"
+        } else {
+            "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 1.0 y: 0.5} margin: Inset{top: 6}"
+        },
+    );
     d.button("a9_un_close", tr("Close"), ACTION_CLOSE, Btn::Outline, W::Fit, 36.0);
     d.button("a9_un_reload", tr("Reload app"), ACTION_RELOAD, Btn::Primary, W::Fit, 36.0);
     d.close();

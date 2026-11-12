@@ -124,6 +124,20 @@ pub enum Sort {
     Fixed,
 }
 
+/// A desktop's sort control is a pop-up: it is open.
+static SORT_MENU: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// See [`SORT_MENU`].
+pub fn sort_menu_open() -> bool {
+    SORT_MENU.load(std::sync::atomic::Ordering::Relaxed)
+}
+
+/// Choose an order from the pop-up.
+pub fn choose_sort(sort: Sort) {
+    sidebar().lock().unwrap().sort = sort;
+    SORT_MENU.store(false, std::sync::atomic::Ordering::Relaxed);
+}
+
 impl Sort {
     pub fn label(self) -> &'static str {
         match self {
@@ -209,7 +223,7 @@ impl Default for SidebarUi {
             last_groups: Vec::new(),
             add_requested: false,
             rail: false,
-            width: 280.0,
+            width: crate::desk::by(280.0, 220.0),
             focus_search: false,
             confirm_delete: None,
             deleting: None,
@@ -240,11 +254,12 @@ pub fn snapshot() -> SidebarUi {
 
 /// Keep the sidebar usable and leave at least 420 px for the conversation.
 pub fn bounded_width(width: f64, window_width: f64) -> f64 {
-    let max = (window_width - 420.0).clamp(280.0, 520.0);
+    let (least, room) = crate::desk::by((280.0, 420.0), (220.0, 360.0));
+    let max = (window_width - room).clamp(least, 520.0);
     if width.is_finite() {
-        width.clamp(280.0, max)
+        width.clamp(least, max)
     } else {
-        280.0
+        least
     }
 }
 
@@ -303,6 +318,11 @@ pub fn rename_commit(text: &str) -> Option<String> {
     Some(key)
 }
 
+/// What a rename calls this workspace, if it has been renamed.
+pub fn renamed(root: &str) -> Option<String> {
+    sidebar().lock().unwrap().names.get(root).cloned()
+}
+
 /// The key of the workspace being renamed, if any.
 pub fn renaming() -> Option<String> {
     sidebar().lock().unwrap().renaming.clone()
@@ -321,6 +341,7 @@ pub fn close_menu() {
     let mut s = sidebar().lock().unwrap();
     s.menu_for = None;
     s.chat_menu = None;
+    SORT_MENU.store(false, std::sync::atomic::Ordering::Relaxed);
 }
 
 /// What a chat's context menu offers.
@@ -593,7 +614,7 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
         .map(|(i, s)| Item {
             store_index: i,
             id: s.id.clone(),
-            title: title_of(s),
+            title: title_for(store, s),
             // A22 row 228 — the merged row's recency is the later of the
             // server's `updated_at` and this app's last open
             // (`mergeWorkspaceSessionRows`, workspace-session-catalog.ts:121,
@@ -673,7 +694,13 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
         title: it.title.clone(),
         time: it
             .updated_ms
-            .map(|t| relative_label(t, now))
+            .map(|t| {
+                if crate::desk::active() && !crate::i18n::is_zh() {
+                    mac_list_date(t, now)
+                } else {
+                    relative_label(t, now)
+                }
+            })
             .unwrap_or_default(),
         status: status_of(it),
         selected: active.as_deref() == Some(it.id.as_str()),
@@ -794,6 +821,20 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
 /// chat" (`ProductSidebar.tsx:1223`, the board's copy).
 fn title_of(s: &octoscode_store::Session) -> String {
     s.label_stem().unwrap_or_else(|| tr("New chat").to_owned())
+}
+
+/// [`title_of`] that, on a desktop, won't call a chat new while its transcript
+/// shows otherwise (the list that would name it can arrive after its history):
+/// the first prompt's first line names it.
+pub fn title_for(store: &Store, s: &octoscode_store::Session) -> String {
+    if s.label_stem().is_none() && crate::desk::active() {
+        let entries = store.domains.session.timeline.entries(&s.id);
+        let first = entries.iter().find(|e| e.kind == octoscode_store::timeline::EntryKind::USER_MESSAGE);
+        if let Some(line) = first.and_then(|e| e.text.lines().map(str::trim).find(|l| !l.is_empty())) {
+            return line.to_owned();
+        }
+    }
+    title_of(s)
 }
 
 /// A group's display label: the workspace folder name (`workspaceName`,
@@ -1015,6 +1056,35 @@ pub fn relative_label(then_ms: u64, now_ms: u64) -> String {
     }
 }
 
+/// What a Mac's list says for a time: today's clock, Yesterday, then a date,
+/// with the year when it is not this one.
+pub(crate) fn mac_list_date(then_ms: u64, now_ms: u64) -> String {
+    const DAY: i64 = 86_400_000;
+    let at = std::time::UNIX_EPOCH + std::time::Duration::from_millis(then_ms);
+    let offset = crate::flow::local_offset_secs(at) * 1000;
+    let then = then_ms as i64 + offset;
+    let now = now_ms as i64 + offset;
+    let (then_day, now_day) = (then.div_euclid(DAY), now.div_euclid(DAY));
+    if then_day >= now_day {
+        let minutes = then.rem_euclid(DAY) / 60_000;
+        let (h24, min) = (minutes / 60, minutes % 60);
+        let (h12, half) = match h24 {
+            0 => (12, "AM"),
+            1..=11 => (h24, "AM"),
+            12 => (12, "PM"),
+            _ => (h24 - 12, "PM"),
+        };
+        return format!("{h12}:{min:02} {half}");
+    }
+    if then_day + 1 == now_day {
+        return "Yesterday".to_owned();
+    }
+    let (year, _, _) = civil_from_days(then_day);
+    let (this_year, _, _) = civil_from_days(now_day);
+    let date = short_date(then.max(0) as u64);
+    if year == this_year { date } else { format!("{date}, {year}") }
+}
+
 /// "Oct 1" for a timestamp (UTC civil date; no locale data in the app).
 fn short_date(ms: u64) -> String {
     let days = (ms / 86_400_000) as i64;
@@ -1223,6 +1293,7 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
                 s.menu_for = None;
                 s.renaming = None;
                 s.renaming_chat = None;
+                SORT_MENU.store(false, std::sync::atomic::Ordering::Relaxed);
                 s.chat_menu = Some(id);
             } else {
                 // A row with nothing to offer: the open menu just closes.
@@ -1338,6 +1409,10 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
         "sidebar.mode.flat" => {
             s.mode = Mode::Flat;
             s.menu_for = None;
+            Effect::Applied
+        }
+        "sidebar.sort" if crate::desk::active() => {
+            SORT_MENU.fetch_xor(true, std::sync::atomic::Ordering::Relaxed);
             Effect::Applied
         }
         "sidebar.sort" => {

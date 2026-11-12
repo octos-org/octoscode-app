@@ -149,6 +149,13 @@ pub fn reset() {
     *lock() = None;
 }
 
+/// A Mac keeps a preference when it changes; a phone's Save button stays.
+fn keep_on_desktop() {
+    if crate::desk::active() && lock().as_ref().is_some_and(Prefs::dirty) {
+        save();
+    }
+}
+
 /// Vim editing changed (the toggle, or `/vimmode`): applies now, unsaved.
 pub fn set_vim(on: bool) {
     init();
@@ -159,6 +166,7 @@ pub fn set_vim(on: bool) {
             p.error = None;
         }
     }
+    keep_on_desktop();
 }
 
 /// The unified theme changed (Settings > Preferences): applies now, unsaved.
@@ -174,6 +182,7 @@ pub fn set_palette(id: &str) -> bool {
             p.error = None;
         }
     }
+    keep_on_desktop();
     true
 }
 
@@ -189,6 +198,7 @@ pub fn set_language(lang: crate::i18n::Lang) -> bool {
             p.error = None;
         }
     }
+    keep_on_desktop();
     crate::i18n::set_language(lang)
 }
 

@@ -104,6 +104,11 @@ class Walk:
         hits = self.visible(wid, sn)
         return (hits[0].get("t") or "") if hits else ""
 
+    def text_hidden_too(self, wid: str, sn=None) -> str:
+        """A row's text on screen or not: a desktop keeps some keys out of sight."""
+        sn = sn if sn is not None else self.snap()
+        return next((w.get("t") or "" for w in sn if w.get("i") == wid), "")
+
     def has_text(self, needle: str, sn=None) -> bool:
         sn = sn if sn is not None else self.snap()
         return any(needle in (w.get("t") or "") for w in sn if self.shown(w))
@@ -446,7 +451,9 @@ def dialog_checks(sn: list[dict], frame_id: str, prefix, module=None, viewport: 
         for b in labels[i + 1:]:
             if overlap(a["r"], b["r"]):
                 over.append((a["i"], b["i"]))
-    under = [w["i"] for w in buttons if w["r"][2] < 28 - 0.5 or w["r"][3] < 28 - 0.5]
+    # A Mac's small tools and list rows sit under a phone's 28.
+    floor = 28 if (mod and mod[2] < 760) else 22
+    under = [w["i"] for w in buttons if w["r"][2] < floor - 0.5 or w["r"][3] < floor - 0.5]
     drawn = [w for w in mine if w.get("ty") in ("Label", "Svg", "TextInput") and inside(w["r"], fr)]
     left = min((w["r"][0] for w in drawn), default=fr[0]) - fr[0]
     right = _right(fr) - max((_right(w["r"]) for w in drawn), default=_right(fr))

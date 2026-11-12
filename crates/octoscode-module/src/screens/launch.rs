@@ -728,6 +728,12 @@ async fn launch_in_folder(conv: &std::sync::Arc<crate::flow::Conversation>, cwd:
                 Err(e) => Started::Failed(e),
             }
         }
+        // On a desktop inside OctoSense, with no folder used yet, the window's
+        // empty state already asks for one: no sheet over it saying the same.
+        None if conv.is_hosted() && crate::desk::active() && super::board1::nothing_recent() => {
+            makepad_widgets::log!("[octoscode] launch at connect: no folder yet — the empty state");
+            Started::Picker
+        }
         None => {
             makepad_widgets::log!("[octoscode] launch at connect: no folder reported — the workspace picker");
             for work in super::board1::route("b1.open.picker", None) {

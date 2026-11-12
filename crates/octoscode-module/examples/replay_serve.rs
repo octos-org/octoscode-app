@@ -32,6 +32,10 @@
 //! | `skill-jobs` | r1's handshake + SYNTHETIC jobs (`replay_scenarios/skill_jobs.rs`) | A31: the Skills dialog's Background jobs — `skill.action_jobs.v1` advertised (withdraw it with `--drop-feature skill.action_jobs.v1 --drop-method skill/action/job/list`), `skill/action/job/list` per Session, `skill/action/job/updated` around it; `--jobs-trigger <file>` sends a live transition when the file appears |
 //! | `memory` | r1's handshake + `a36-memory-*` (`replay_scenarios/memory.rs`) | A36b: Memory (board 5) and Settings > Capabilities — `--memory-mode proposal` (default: octos shapes + the proposal's `profile_id` echo, SYNTHETIC) / `today` (a6ea8505 RECORDED: the identity's memory, refusals) / `empty`; `--memory-recent`, `--memory-truncated`, `--memory-refuse <method>`; the recorded MCP / tool inventory |
 //!
+//! `--demo <file>` (`history`): `session/list`, `session/hydrate` and
+//! `onboarding/workspace_list` answer from a JSON file of made-up threads and
+//! folders, for a look at a populated window.
+//!
 //! `--diff-words` (A28, `surfaces`): the approvals turn's diff approvals
 //! announce the SYNTHETIC previews of `a28-diff-words-synthetic.jsonl` — word
 //! marks + syntax colours (`…0f1`), then a preview past the decoration bound
@@ -253,6 +257,118 @@ fn rewrite_session(value: &mut Value, from: &str, to: &str) {
     }
 }
 
+/// `--demo <file>` (`history`): see [`history_reply`].
+static DEMO: std::sync::OnceLock<Value> = std::sync::OnceLock::new();
+
+/// `--root <folder>`: the folder every `session/open` reports, so a capture
+/// shows a person's folder rather than a recording's own.
+/// `--root`: what the recordings say about the rig they were made on reads as
+/// the demo project instead. The walks run without `--root` and see every byte.
+fn demo_title(id: Option<&str>) -> Option<&'static str> {
+    match id? {
+        "deepseek-v4-flash" => Some("DeepSeek V4 Flash"),
+        "kimi-k3" => Some("Kimi K3"),
+        "kimi-k2" => Some("Kimi K2"),
+        "glm-4-flash" => Some("GLM 4 Flash"),
+        "glm-5.3-flash" => Some("GLM 5.3 Flash"),
+        _ => None,
+    }
+}
+
+fn scrub_recording(mut frame: String) -> String {
+    let Some(root) = ROOT.get() else { return frame };
+    if frame.contains("\"models\":[") {
+        if let Ok(mut reply) = serde_json::from_str::<serde_json::Value>(&frame) {
+            if let Some(models) = reply["result"]["models"].as_array_mut() {
+                for m in models {
+                    if let Some(title) = demo_title(m["model"].as_str()) {
+                        m["title"] = title.into();
+                    }
+                }
+                frame = reply.to_string();
+            }
+        }
+    }
+    // A profile's configured models, the same names.
+    if frame.contains("\"primary\":{") {
+        if let Ok(mut reply) = serde_json::from_str::<serde_json::Value>(&frame) {
+            if let Some(result) = reply.get_mut("result").and_then(|r| r.as_object_mut()) {
+                for (key, value) in result.iter_mut() {
+                    let rows: Vec<&mut serde_json::Value> = match key.as_str() {
+                        "primary" => vec![value],
+                        "fallbacks" => value.as_array_mut().map(|a| a.iter_mut().collect()).unwrap_or_default(),
+                        _ => Vec::new(),
+                    };
+                    for row in rows {
+                        if let Some(title) = demo_title(row["model_id"].as_str()) {
+                            row["title"] = title.into();
+                        }
+                    }
+                }
+                frame = reply.to_string();
+            }
+        }
+    }
+    const WORKSPACE: &str = "%3Amain/workspace";
+    while let Some(at) = frame.find(WORKSPACE) {
+        let start = frame[..at].rfind('"').map_or(0, |q| q + 1);
+        frame.replace_range(start..at + WORKSPACE.len(), root);
+    }
+    const STAMP: &str = "\"updated_at_ms\":";
+    let mut from = 0;
+    while let Some(at) = frame[from..].find(STAMP) {
+        let digits = from + at + STAMP.len();
+        let end = digits + frame[digits..].bytes().take_while(u8::is_ascii_digit).count();
+        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_millis());
+        frame.replace_range(digits..end, &now.to_string());
+        from = digits;
+    }
+    // The echo's answer arrives in pieces.
+    static IN_MARKER: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+    if frame.contains("\"assistant_delta\"") {
+        use std::sync::atomic::Ordering::Relaxed;
+        let piece = |t: &str| format!("\"text\":\"{t}\"");
+        if frame.contains(&piece("r")) {
+            IN_MARKER.store(true, Relaxed);
+            frame = frame.replace(&piece("r"), &piece("hello"));
+        } else if IN_MARKER.load(Relaxed) {
+            if frame.contains(&piece("`")) {
+                IN_MARKER.store(false, Relaxed);
+            } else {
+                for t in ["23", "-t", "ool", "-", "ok"] {
+                    frame = frame.replace(&piece(t), &piece(""));
+                }
+            }
+        }
+    }
+    for (rig, demo) in [
+        ("M9 approval fixture", "Run the release checks"),
+        ("printf m9-approval-e2e", "cargo test --workspace"),
+        ("M9 task output fixture", "Run the test suite"),
+        ("fixture complete", "All tests passed"),
+        ("c24b-probe", "Nightly build"),
+        ("r1 replay probe", "Check the nightly build"),
+        ("r23-tool-ok", "hello"),
+        ("r23-report.pdf", "test-report.pdf"),
+        ("Deepseek V4 Flash", "DeepSeek V4 Flash"),
+        ("run maintenance checks", "Run maintenance checks"),
+        ("/srv/work/no-profile", "/Users/demo/Projects/notes-site"),
+        ("/srv/work", "/Users/demo/Projects"),
+        ("http://127.0.0.1:9/v1", "https://llm.example.com/v1"),
+        (
+            "Every character stays visible: the web wraps code (`white-space: pre-wrap; overflow-wrap: anywhere`), and the native theme wraps the same way.",
+            "The block keeps the line whole. Scroll sideways to read its end.",
+        ),
+    ] {
+        frame = frame.replace(rig, demo);
+    }
+    frame
+}
+
+static ROOT: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+/// `--bad-hydrate`: under `--root`, a history still reads as unreadable.
+static BAD_HYDRATE: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
 /// A15 — the `history` scenario's answers: the recorded canonical hydrate for
 /// the recorded (`home`) Session, an empty one for any other (a New chat:
 /// octos has nothing persisted for it), and the catalog row octos lists for
@@ -264,6 +380,49 @@ fn rewrite_session(value: &mut Value, from: &str, to: &str) {
 /// that names no profile for a key that embeds none falls back to `_main`
 /// and is refused (`raw_profile_id`, `profile_unresolved_error`).
 fn history_reply(method: &str, p: &Value, home: &str, hydrate: &Value) -> Option<Result<Value, Value>> {
+    // `--demo <file>`: a made-up project's conversation and threads in the
+    // recorded shapes, for captures that should read like real use.
+    if let Some(demo) = DEMO.get() {
+        match method {
+            "session/hydrate" => {
+                let s = p["session_id"].as_str().unwrap_or(home);
+                let mut body = if s == home { demo["hydrate"].clone() } else { demo["others"][s].clone() };
+                if body.is_null() {
+                    body = serde_json::json!({"cursor": {"stream": s, "seq": 1}, "messages": []});
+                }
+                body["session_id"] = Value::String(s.to_owned());
+                return Some(Ok(body));
+            }
+            "session/list" => {
+                let mut rows = demo["sessions"].clone();
+                if let Some(first) = rows.get_mut(0) {
+                    first["id"] = Value::String(home.to_owned());
+                }
+                return Some(Ok(match (p["cwd"].as_str(), p["profile_id"].as_str()) {
+                    (Some(cwd), Some(profile)) => {
+                        serde_json::json!({"sessions": rows, "workspace_root": cwd, "profile_id": profile})
+                    }
+                    _ => serde_json::json!({"sessions": []}),
+                }));
+            }
+            _ if demo["replies"].get(method).is_some() => {
+                let mut body = demo["replies"][method].clone();
+                for scope in ["session_id", "profile_id"] {
+                    if body.get(scope).is_some() && !p[scope].is_null() {
+                        body[scope] = p[scope].clone();
+                    }
+                }
+                return Some(Ok(body));
+            }
+            "onboarding/workspace_list" => {
+                let path = p["path"].as_str().filter(|s| !s.is_empty()).unwrap_or(demo["root"].as_str().unwrap_or(""));
+                if let Some(listed) = demo["folders"].get(path) {
+                    return Some(Ok(listed.clone()));
+                }
+            }
+            _ => {}
+        }
+    }
     match method {
         "session/hydrate" => {
             let s = p["session_id"].as_str().unwrap_or(home);
@@ -350,7 +509,11 @@ mod btw {
         } else if q.contains("测试") || q.contains("为什么") {
             "因为重连会先排空队列，再按快照重发，所以顺序保持稳定。".to_owned()
         } else {
-            format!("Aside for `{session}`: {question}")
+            if crate::ROOT.get().is_some() {
+                "Draining first means a reconnect resends only what\u{2019}s left, in order.".to_owned()
+            } else {
+                format!("Aside for `{session}`: {question}")
+            }
         }
     }
 
@@ -924,7 +1087,7 @@ fn spawn_reissue_poller(
                     params["approval_id"].as_str().unwrap_or("")
                 );
                 let frame = serde_json::json!({"jsonrpc": "2.0", "method": m, "params": params});
-                let _ = tx.lock().await.send(Message::Text(frame.to_string().into())).await;
+                let _ = tx.lock().await.send(Message::Text(scrub_recording(frame.to_string()).into())).await;
             }
         }
     });
@@ -1960,7 +2123,7 @@ mod onboarding {
             }),
             "launch/resolve" => {
                 let cwd = p["cwd"].as_str().unwrap_or("");
-                if cwd.ends_with("/no-profile") {
+                if cwd.ends_with("/no-profile") || (crate::ROOT.get().is_some() && cwd.ends_with("/notes-site")) {
                     match &w.created {
                         Some(id) => json!({"decision": "activate", "resolved_profile": id}),
                         None => json!({"decision": "no_profile"}),
@@ -2063,6 +2226,7 @@ async fn main() {
     };
     let sequenced = if label == "a10" { a10_sequenced() } else { BTreeMap::new() };
     // A23: `--providers-extra` adds the web unit tests' configured rows.
+    BAD_HYDRATE.store(args.iter().any(|a| a == "--bad-hydrate"), std::sync::atomic::Ordering::Relaxed);
     let providers_extra = args.iter().any(|a| a == "--providers-extra");
     // A23: `--providers-empty` — a Profile with no configured provider yet.
     let providers_empty = args.iter().any(|a| a == "--providers-empty");
@@ -2159,6 +2323,13 @@ async fn main() {
         .and_then(|v| v.parse().ok())
         .unwrap_or(0);
     let history_unknown = args.iter().any(|a| a == "--history-unknown");
+    if let Some(root) = args.iter().position(|a| a == "--root").and_then(|i| args.get(i + 1)) {
+        let _ = ROOT.set(root.clone());
+    }
+    if let Some(path) = args.iter().position(|a| a == "--demo").and_then(|i| args.get(i + 1)) {
+        let text = std::fs::read_to_string(path).expect("--demo: the file");
+        let _ = DEMO.set(serde_json::from_str(&text).expect("--demo: JSON"));
+    }
     // A29 — the `btw` scenario's aside replies (see [`btw`]).
     let btw_delay_ms: u64 = args
         .iter()
@@ -2405,7 +2576,7 @@ async fn main() {
 
                 // A helper to send one JSON-RPC reply/notification.
                 async fn send(tx: &std::sync::Arc<tokio::sync::Mutex<futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>, Message>>>, v: Value) {
-                    let _ = tx.lock().await.send(Message::Text(v.to_string().into())).await;
+                    let _ = tx.lock().await.send(Message::Text(scrub_recording(v.to_string()).into())).await;
                 }
 
                 // A26 — `--refuse <method>[@<n>]`.
@@ -2420,7 +2591,11 @@ async fn main() {
                         println!("[replay-serve] -> {method} refused (--refuse, request {seen})");
                         let frame = serde_json::json!({"jsonrpc": "2.0", "id": id, "error": {
                             "code": -32603,
-                            "message": format!("the replay fixture refused {method} #{seen} (--refuse)")
+                            "message": if ROOT.get().is_some() {
+                                "The server is busy. Try again in a moment.".to_owned()
+                            } else {
+                                format!("the replay fixture refused {method} #{seen} (--refuse)")
+                            }
                         }});
                         send(&tx, frame).await;
                         continue;
@@ -2455,6 +2630,17 @@ async fn main() {
                             let tx = tx.clone();
                             tokio::spawn(async move {
                                 tokio::time::sleep(std::time::Duration::from_millis(history_delay_ms)).await;
+                                send(&tx, frame).await;
+                            });
+                        } else if let Some(ms) = slow
+                            .get(&method)
+                            .copied()
+                            .or_else(|| slow.get(&format!("{method}@late")).copied().filter(|_| after_startup()))
+                        {
+                            println!("[replay-serve] -> {method} held {ms} ms (--slow)");
+                            let tx = tx.clone();
+                            tokio::spawn(async move {
+                                tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
                                 send(&tx, frame).await;
                             });
                         } else {
@@ -2493,7 +2679,7 @@ async fn main() {
                                 .collect();
                             println!("[replay-serve] => {m} (fleet) {}", ids.join(" "));
                             let frame = serde_json::json!({"jsonrpc": "2.0", "method": m, "params": params});
-                            let _ = tx.lock().await.send(Message::Text(frame.to_string().into())).await;
+                            let _ = tx.lock().await.send(Message::Text(scrub_recording(frame.to_string()).into())).await;
                         }
                     });
                 }
@@ -2583,7 +2769,7 @@ async fn main() {
                             println!("[replay-serve] surfaces -> {}", f.method);
                         }
                         let frame = serde_json::json!({"jsonrpc": "2.0", "method": f.method, "params": f.body});
-                        let _ = tx.lock().await.send(Message::Text(frame.to_string().into())).await;
+                        let _ = tx.lock().await.send(Message::Text(scrub_recording(frame.to_string()).into())).await;
                         tokio::time::sleep(std::time::Duration::from_millis(delay_ms)).await;
                         if let Some(h) = hold {
                             println!("[replay-serve] surfaces: holding at {:?} ({} frames wait)", h, it.len());
@@ -2723,7 +2909,7 @@ async fn main() {
                             tokio::spawn(async move {
                                 tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
                                 println!("[replay-serve] => {m} reply sent after {ms} ms (onboarding)");
-                                let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                let _ = tx2.lock().await.send(Message::Text(scrub_recording(frame.to_string()).into())).await;
                             });
                         }
                         None => send(&tx, frame).await,
@@ -2754,7 +2940,7 @@ async fn main() {
                                 let tx2 = tx.clone();
                                 tokio::spawn(async move {
                                     tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
-                                    let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                    let _ = tx2.lock().await.send(Message::Text(scrub_recording(frame.to_string()).into())).await;
                                 });
                             }
                             None => send(&tx, frame).await,
@@ -2803,6 +2989,9 @@ async fn main() {
                                     obj.insert("active_profile_id".to_owned(), Value::String(p.to_owned()));
                                 }
                             }
+                            if let Some(root) = ROOT.get() {
+                                obj.insert("workspace_root".to_owned(), Value::String(root.clone()));
+                            }
                         }
                         send(&tx, serde_json::json!({
                             "jsonrpc": "2.0", "id": id, "result": {"opened": opened}
@@ -2820,7 +3009,7 @@ async fn main() {
                                 let frame = serde_json::json!({
                                     "jsonrpc": "2.0", "method": f.method, "params": f.body
                                 });
-                                let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                let _ = tx2.lock().await.send(Message::Text(scrub_recording(frame.to_string()).into())).await;
                                 tokio::time::sleep(std::time::Duration::from_millis(20)).await;
                             }
                         });
@@ -3009,7 +3198,7 @@ async fn main() {
                                 tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
                                 println!("[replay-serve] -> session/btw #{n} answered after {ms} ms (btw: synthetic SessionBtwResult) session_id={}",
                                     frame["result"]["session_id"].as_str().unwrap_or("error"));
-                                let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                let _ = tx2.lock().await.send(Message::Text(scrub_recording(frame.to_string()).into())).await;
                             });
                         }
                     }
@@ -3082,7 +3271,7 @@ async fn main() {
                                 let tx2 = tx.clone();
                                 tokio::spawn(async move {
                                     tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
-                                    let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                    let _ = tx2.lock().await.send(Message::Text(scrub_recording(frame.to_string()).into())).await;
                                 });
                             }
                             None => send(&tx, frame).await,
@@ -3100,7 +3289,7 @@ async fn main() {
                         let tx2 = tx.clone();
                         tokio::spawn(async move {
                             tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
-                            let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                            let _ = tx2.lock().await.send(Message::Text(scrub_recording(frame.to_string()).into())).await;
                         });
                     }
                     "turn/interrupt" if seat_sim.is_some() => {
@@ -3121,9 +3310,9 @@ async fn main() {
                         let tx2 = tx.clone();
                         tokio::spawn(async move {
                             tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
-                            let _ = tx2.lock().await.send(Message::Text(reply.to_string().into())).await;
+                            let _ = tx2.lock().await.send(Message::Text(scrub_recording(reply.to_string()).into())).await;
                             tokio::time::sleep(std::time::Duration::from_millis(300)).await;
-                            let _ = tx2.lock().await.send(Message::Text(note.to_string().into())).await;
+                            let _ = tx2.lock().await.send(Message::Text(scrub_recording(note.to_string()).into())).await;
                         });
                     }
                     "profile/llm/list" if seat_sim.is_some() => {
@@ -3159,7 +3348,7 @@ async fn main() {
                                 let tx2 = tx.clone();
                                 tokio::spawn(async move {
                                     tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
-                                    let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                    let _ = tx2.lock().await.send(Message::Text(scrub_recording(frame.to_string()).into())).await;
                                 });
                             }
                             None => send(&tx, frame).await,
@@ -3214,7 +3403,7 @@ async fn main() {
                                 let frame = serde_json::json!({
                                     "jsonrpc": "2.0", "method": f.method, "params": f.body
                                 });
-                                let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                let _ = tx2.lock().await.send(Message::Text(scrub_recording(frame.to_string()).into())).await;
                                 tokio::time::sleep(std::time::Duration::from_millis(delay_ms)).await;
                             }
                         });
@@ -3247,7 +3436,7 @@ async fn main() {
                                 let tx2 = tx.clone();
                                 tokio::spawn(async move {
                                     tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
-                                    let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                    let _ = tx2.lock().await.send(Message::Text(scrub_recording(frame.to_string()).into())).await;
                                 });
                             }
                             None => send(&tx, frame).await,
@@ -3263,6 +3452,24 @@ async fn main() {
                                 println!("[replay-serve] -> {m} (recorded reply)");
                                 body
                             }
+                            // `--root`: a chat with no history reads as one,
+                            // not as a failure behind the sheet under test.
+                            // `--root`: and its seat names a model, as a real session's does.
+                            None if m == "profile/llm/list" && ROOT.get().is_some() => {
+                                let session = v["params"]["session_id"].as_str().unwrap_or("");
+                                serde_json::json!({"session_id": session, "models": [
+                                    {"model": "deepseek-v4-flash", "provider": "deepseek", "title": "DeepSeek V4 Flash", "family": "deepseek", "route": "official", "selected": true, "available": true},
+                                    {"model": "kimi-k3", "provider": "moonshot", "title": "Kimi K3", "family": "moonshot", "route": "official", "selected": false, "available": true},
+                                    {"model": "glm-5.3-flash", "provider": "zhipu", "title": "GLM 5.3 Flash", "family": "zhipu", "route": "official", "selected": false, "available": false}
+                                ]})
+                            }
+                            None if m == "session/hydrate"
+                                && ROOT.get().is_some()
+                                && !BAD_HYDRATE.load(std::sync::atomic::Ordering::Relaxed) =>
+                            {
+                                let session = v["params"]["session_id"].as_str().unwrap_or("");
+                                serde_json::json!({"session_id": session, "cursor": {"stream": session, "seq": 1}, "messages": []})
+                            }
                             None => serde_json::json!({}),
                         };
                         let frame = serde_json::json!({"jsonrpc": "2.0", "id": id, "result": body});
@@ -3276,7 +3483,7 @@ async fn main() {
                                 let tx2 = tx.clone();
                                 tokio::spawn(async move {
                                     tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
-                                    let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                    let _ = tx2.lock().await.send(Message::Text(scrub_recording(frame.to_string()).into())).await;
                                 });
                             }
                             None => send(&tx, frame).await,

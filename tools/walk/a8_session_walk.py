@@ -270,7 +270,7 @@ def layout_checks(tag):
         if w.get("ty") == "Button" and i.startswith("b3_") and w["r"][3] > 0 and w.get("v", 1) != 0:
             body = rect("b3_scroll", s)
             clipped = body and (w["r"][1] <= body[1] + 1 or w["r"][1] + w["r"][3] >= body[1] + body[3] - 1)
-            if w["r"][3] < 28 and not clipped:
+            if w["r"][3] < (28 if MODE == "phone" else 22) and not clipped:
                 small.append((i, w["r"]))
     check(f"{tag}: every pane tap target is >= 28 px high", not small, str(small[:4]))
     over = []
@@ -296,7 +296,7 @@ def main():
               all(cells) and st_[1] < m[1] and m[1] == p[1] and round(m[2]) == round(p[2])
               and abs(st_[2] - (m[2] + p[2] + 1)) <= 2, str(cells))
     else:
-        check("strip: three equal cells", all(cells) and len({round(c[2]) for c in cells}) == 1, str(cells))
+        check("strip: one status line", shown("b3_strip_state") and not any(cells[0::2]), str(cells))
     # The holder arrives with the startup session/driver/get (slow on a busy host).
     check("strip: the foreign holder is the state word",
           wait(lambda: text("b3_strip_state") == "Another app is using this session", 20), str(text("b3_strip_state")))
@@ -304,9 +304,10 @@ def main():
 
     # 1. The strip's click opens the Session settings pane (not app Settings).
     click("b3_strip_tap", scroll=False)
-    check("strip click opens 'Session settings'", wait(lambda: text("b3_title") == "Session settings"), str(text("b3_title")))
+    check("strip click opens 'Session settings'", wait(lambda: text("b3_title") == ("Session settings" if MODE == "phone" else "Session Settings")), str(text("b3_title")))
     check("app Settings did not open instead", not shown("set_title"))
-    check("pane read the runtime model (session/status/read)", wait(lambda: seen("b3_sc_runtime_value", "deepseek-v4-flash"), 10), str(seen("b3_sc_runtime_value")))
+    running = "deepseek-v4-flash" if MODE == "phone" else "DeepSeek V4 Flash"
+    check("pane read the runtime model (session/status/read)", wait(lambda: seen("b3_sc_runtime_value", running), 10), str(seen("b3_sc_runtime_value")))
     for m in ("session/status/read", "permission/profile/list", "profile/llm/list", "session/driver/get"):
         check(f"wire: the pane sent {m}", wait(lambda m=m: len(wire(m)) > 0, 5), str(len(wire(m))))
     check("wire: the driver walk asked for an operations page", any(p.get("operations") == {"limit": 50} for p in wire("session/driver/get")))
@@ -318,7 +319,7 @@ def main():
     n_sel = len(wire("profile/llm/select"))
     click("b3_sc_model_1")
     check("model pick: notice 'Saved. The server keeps running deepseek-v4-flash until it restarts'",
-          wait(lambda: seen("b3_sc_model_notice", "Saved. The server keeps running deepseek-v4-flash until it restarts")), str(seen("b3_sc_model_notice")))
+          wait(lambda: seen("b3_sc_model_notice", f"Saved. The server keeps running {running} until it restarts")), str(seen("b3_sc_model_notice")))
     sel = wire("profile/llm/select")[n_sel:]
     check("wire: profile/llm/select carries model glm-5 + route_id zhipu", sel and sel[0].get("model_id") == "glm-5" and sel[0].get("route_id") == "zhipu", str(sel[:1]))
     shot("02-model-picked")
@@ -334,7 +335,7 @@ def main():
     # 4. Approval policy: Never ask -> the stamp reads back 'never'.
     n_set = len(wire("permission/profile/set"))
     click("b3_sc_policy_seg_1")
-    check("approval 'Never ask' reads back from the stamp", wait(lambda: seen("b3_sc_policy_value", "never")), str(seen("b3_sc_policy_value")))
+    check("approval 'Never ask' reads back from the stamp", wait(lambda: seen("b3_sc_policy_value", "never" if MODE == "phone" else "Never ask")), str(seen("b3_sc_policy_value")))
     sets = wire("permission/profile/set")[n_set:]
     check("wire: permission/profile/set {approval_policy: never}", sets and sets[0].get("update") == {"approval_policy": "never"}, str(sets[:1]))
 
@@ -404,9 +405,12 @@ def main():
     get("/t?" + urllib.parse.urlencode({"t": "/permissions", "wait": 1}))
     time.sleep(0.3)
     key("ReturnKey")
-    check("/permissions opens 'Remembered approvals'", wait(lambda: text("b3_title") == "Remembered approvals"), str(text("b3_title")))
-    check("inspector: the scope line names the Session",
-          wait(lambda: (text("b3_insp_scope") or "").startswith("Session: a8:"), 6), str(text("b3_insp_scope")))
+    check("/permissions opens 'Remembered approvals'", wait(lambda: text("b3_title") == ("Remembered approvals" if MODE == "phone" else "Remembered Approvals")), str(text("b3_title")))
+    if MODE == "phone":
+        check("inspector: the scope line names the Session",
+              wait(lambda: (text("b3_insp_scope") or "").startswith("Session: a8:"), 6), str(text("b3_insp_scope")))
+    else:
+        check("inspector: the Session's id stays out of sight on a desktop", not shown("b3_insp_scope"))
     # The first read must finish first: Refresh is disabled ("Reading…") while it runs.
     check("inspector: 'Reading…' settles to 'Refresh'", wait(lambda: text("b3_insp_refresh_label") == "Refresh"), str(text("b3_insp_refresh_label")))
     n_sc = len(wire("approval/scopes/list"))
@@ -420,9 +424,12 @@ def main():
     # A13: the link stays visible on ONE line, shortened in the middle (the
     # judge's 8-line percent-encoded block); Copy writes the whole link.
     lr = rect("b3_insp_link_value")
-    check("inspector: the link stays visible on one line (whole, or head…tail when longer than its field)",
-          bool(link) and link.startswith("octoscode://session") and bool(lr) and lr[3] <= 20,
-          f"{str(link)[:60]} {lr}")
+    if MODE == "phone":
+        check("inspector: the link stays visible on one line (whole, or head…tail when longer than its field)",
+              bool(link) and link.startswith("octoscode://session") and bool(lr) and lr[3] <= 20,
+              f"{str(link)[:60]} {lr}")
+    else:
+        check("inspector: the link stays out of sight on a desktop; Copy writes it", not lr, f"{lr}")
     shot("08-inspector")
     click("b3_close", scroll=False)
     check("inspector closes", wait(lambda: not shown("b3_insp_scope")))

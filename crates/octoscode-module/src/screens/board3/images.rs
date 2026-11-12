@@ -38,6 +38,10 @@ pub struct ImgState {
 
 /// The size line (`AttachmentsDialog.tsx:131-157`): `0.48 MiB · image/png`.
 pub fn size_line(bytes: u64, mime: &str) -> String {
+    // A Mac says the size as Finder does, and no file type (the name has it).
+    if crate::desk::active() {
+        return crate::desk::file_size(bytes);
+    }
     // The web composes it: `{size} {t("MiB ·")} {mime}` (AttachmentsDialog.tsx:135).
     format!("{:.2} {} {mime}", bytes as f64 / 1_048_576.0, tr("MiB ·"))
 }
@@ -235,10 +239,12 @@ pub fn build(d: &mut Dsl, st: &ImgState, frame: &Frame, drafts: Option<&media::A
     ui::body_open(d, frame, width, 84.0);
     // The board's four slots.
     let gap = 10.0;
-    let size = ((inner_w - 3.0 * gap - 10.0) / 4.0).clamp(64.0, 150.0).floor();
+    let size = crate::desk::by(((inner_w - 3.0 * gap - 10.0) / 4.0).clamp(64.0, 150.0).floor(), 72.0);
     let grid = d.anon();
     d.view(&grid, &format!("width: Fill height: Fit flow: Right spacing: {gap}"));
-    for i in 0..media::MAX_TURN_IMAGES {
+    // A desktop draws what was chosen; the sheet's own button adds more.
+    let slots = if crate::desk::active() { entries.len() } else { media::MAX_TURN_IMAGES };
+    for i in 0..slots {
         let e = entries.get(i).map(|e| {
             let p = st.paths.iter().find(|(id, _)| id == &e.id).map(|(_, p)| p.as_str());
             (e, p)
@@ -246,20 +252,36 @@ pub fn build(d: &mut Dsl, st: &ImgState, frame: &Frame, drafts: Option<&media::A
         slot(d, i, size, e);
     }
     d.close();
+    if !crate::desk::active() || !entries.is_empty() {
     d.gap(W::Fill, 10.0);
     d.text(
         "b3_img_counter",
         // The web composes it around the counts (AttachmentsDialog.tsx:123-127).
-        &format!("{} {} {} {}", entries.len(), tr("of"), media::MAX_TURN_IMAGES, tr("image slots used")),
+        &format!("{} {} {} {}", entries.len(), tr("of"), media::MAX_TURN_IMAGES, tr(crate::desk::by("image slots used", "images"))),
         &Txt::new(12.5, Face::Regular, tok::TEXT),
     );
+    }
     for (i, e) in entries.iter().enumerate() {
+        let name = super::inventory::fit(&e.name, 220.0, 12.0, false);
+        // A Mac's row says only what a person acts on: an image waiting to go
+        // or one that didn't, never that a picked one is picked.
+        let line = match e.status {
+            DraftStatus::Uploading | DraftStatus::Error if crate::desk::active() => {
+                format!("{name} · {} · {}", size_line(e.bytes, &e.mime), tr(status_copy(e.status)))
+            }
+            _ if crate::desk::active() => format!("{name} · {}", size_line(e.bytes, &e.mime)),
+            _ => format!("{name} · {} · {}", size_line(e.bytes, &e.mime), tr(status_copy(e.status))),
+        };
         d.text(
             &format!("b3_img_row_{i}"),
-            &format!("{} · {} · {}", super::inventory::fit(&e.name, 220.0, 12.0, false), size_line(e.bytes, &e.mime), tr(status_copy(e.status))),
+            &line,
             &Txt::new(11.5, Face::Regular, if e.status == DraftStatus::Error { tok::RED_TEXT } else { tok::MUTED }).w(W::Fill),
         );
     }
+    if crate::desk::active() {
+        // The profile's and the session's keys are the protocol's.
+        d.gap(W::Fill, 2.0);
+    } else {
     d.gap(W::Fill, 12.0);
     d.hairline();
     d.gap(W::Fill, 12.0);
@@ -275,7 +297,11 @@ pub fn build(d: &mut Dsl, st: &ImgState, frame: &Frame, drafts: Option<&media::A
     d.gap(W::Fill, 12.0);
     d.hairline();
     d.gap(W::Fill, 12.0);
+    }
+    // A desktop's description says it.
+    if !crate::desk::active() {
     d.text("b3_img_limit", tr("20 MiB per image"), &ui::meta());
+    }
     if let Some(e) = &st.error {
         d.gap(W::Fill, 6.0);
         // A13: developer wording gets a plain lead; the cause stays muted.
@@ -285,14 +311,47 @@ pub fn build(d: &mut Dsl, st: &ImgState, frame: &Frame, drafts: Option<&media::A
         d.gap(W::Fill, 6.0);
         d.text("b3_img_notice", tr(n), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     }
-    d.gap(W::Fill, 14.0);
     let full = entries.len() >= media::MAX_TURN_IMAGES || uploading;
+    let uploadable = entries.iter().any(|e| matches!(e.status, DraftStatus::Selected | DraftStatus::Error));
+    if crate::desk::active() {
+        // A Mac sheet: Close at the trailing edge, then the one next step in
+        // the accent: choose images, then upload them.
+        d.foot_own_close();
+        d.foot_begin(ui::Foot::Lead);
+        if uploading {
+            d.button("b3_img_cancel", tr("Cancel uploads"), "b3.img.cancel", Btn::Outline, W::Fit, 28.0);
+        }
+        d.foot_end();
+        d.foot_begin(ui::Foot::Trail);
+        d.button("b3_img_close_btn", tr(if uploading { "Cancel uploads and close" } else { "Close images" }), "b3.img.close", Btn::Outline, W::Fit, 28.0);
+        if uploadable || uploading {
+            d.button("b3_img_choose", tr("Choose image files"), "b3.img.choose", if full { Btn::OutlineOff } else { Btn::Outline }, W::Fit, 28.0);
+        }
+        d.foot_end();
+        d.foot_begin(ui::Foot::Default);
+        if uploadable || uploading {
+            d.button(
+                "b3_img_upload",
+                tr(if uploading { "Uploading…" } else { "Upload selected images" }),
+                "b3.img.upload",
+                if uploadable && !uploading { Btn::Primary } else { Btn::Disabled },
+                W::Fit,
+                28.0,
+            );
+        } else {
+            d.button("b3_img_choose", tr("Choose image files"), "b3.img.choose", if full { Btn::Disabled } else { Btn::Primary }, W::Fit, 28.0);
+        }
+        d.foot_end();
+        ui::body_close(d);
+        ui::shell_close(d);
+        return;
+    }
+    d.gap(W::Fill, 14.0);
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 10");
     // The board's rounded outline buttons; an unavailable control keeps its
     // place and reads as unavailable (no tap).
     d.button("b3_img_choose", tr("Choose image files"), "b3.img.choose", if full { Btn::OutlineOff } else { Btn::Outline }, W::Fill, 42.0);
-    let uploadable = entries.iter().any(|e| matches!(e.status, DraftStatus::Selected | DraftStatus::Error));
     if uploadable || uploading {
         d.button(
             "b3_img_upload",

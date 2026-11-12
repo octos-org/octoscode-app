@@ -219,7 +219,8 @@ def check(state, s):
     res["card_inside_view"] = left >= -0.5 and right >= -0.5 and top >= -0.5 and bottom >= -0.5
     res["centred"] = abs(left - right) <= 1.0
     if MODE == "desktop":
-        res["width_rule"] = cw in (440, 460, 540) or abs(cw - (vw - 48)) <= 1
+        # A Mac sheet: one of the four widths every sheet here takes (desk::sheet_w).
+        res["width_rule"] = cw in (400, 520, 640, 760) or abs(cw - (vw - 48)) <= 1
     else:
         res["width_rule"] = abs(cw - vw) <= 1
     # 2. every b1 widget inside the card (no clipped/out-of-card text or control)
@@ -348,20 +349,20 @@ def main():
             clickxy(153, 363); time.sleep(3.0)
     wait("b1_connect_pair", 45)  # a loaded machine can take ~30 s to lay out the first-run card
     capture_entry("entry_connect", "b1_connect_pair")
-    click_until("b1_connect_pair", "b1_pair_submit")
+    click_until("b1_connect_pair", "b1_pair_link")
     capture("p4-01_pair")
     # p4-03: a used link -> its own copy, the form, the origin prefilled
     pair_with("USED0000"); wait("b1_conn_submit")
     capture("p4-03_link_problem")
-    click_until("b1_pair_back", "b1_pair_submit")
+    click_until("b1_pair_back", "b1_pair_link")
     # p4-04: a server without pairing (404)
     pair_with("NOPAIR00"); wait("b1_pair_manual")
     capture("p4-04_cant_pair")
-    click_until("b1_pair_back", "b1_pair_submit")
+    click_until("b1_pair_back", "b1_pair_link")
     # p4-02: the exchange in flight, then Cancel (latest-request-wins)
     pair_with("SLOWPAIR"); wait("b1_pair_cancel")
     capture("p4-02_pairing")
-    click_until("b1_pair_cancel", "b1_pair_submit")
+    click_until("b1_pair_cancel", "b1_pair_link")
     # the good link: claim -> connect -> live, the dialog closes
     pair_with("3QK7ZP2M"); wait("b1_card", 20, gone=True)
     time.sleep(1.0)
@@ -407,7 +408,7 @@ def main():
     click_until("sb_add_hit", "b1_br_row_1")
     # A11 (rows 220/223): what the web's workspace-browse spec asserts, by clicks.
     note = (find("b1_br_notice") or {}).get("t") or ""
-    report("p4-08: the server's hidden folders are reported", "3 hidden by the server" in note, repr(note))
+    report("p4-08: the server's hidden folders are reported", ("3 hidden by the server" if MODE == "phone" else "3 hidden") in note, repr(note))
     rows0 = [(find(f"b1_br_row_t{i}") or {}).get("t") for i in range(4)]
     click("b1_br_row_1")
     end = time.time() + 6

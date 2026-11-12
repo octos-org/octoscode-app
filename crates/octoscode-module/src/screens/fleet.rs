@@ -623,11 +623,13 @@ fn put_placements(data: &mut Value, rows: &[(String, &'static str, f64, f64, f64
 pub(crate) fn row_meta(p: &crate::screens::board3::fleetview::FleetRow) -> String {
     use crate::screens::board3::fleetview::Status;
     let elapsed = crate::screens::dialog::minute_granularity(&crate::screens::peers::format_elapsed(p.elapsed_ms));
-    let tokens = if p.tokens > 0 { crate::screens::peers::format_tokens(p.tokens) } else { "—".to_owned() };
+    let tokens = if p.tokens > 0 { crate::screens::peers::token_words(p.tokens) } else { "—".to_owned() };
     match p.status {
         Status::WaitingApproval | Status::WaitingAnswer => {
             format!("{} · {elapsed}", crate::screens::board3::fleet_copy::t(p.status.word()))
         }
+        // n11o (E9 2): a Mac leaves out a count it doesn't have yet.
+        _ if p.tokens == 0 && crate::desk::active() => elapsed,
         _ => format!("{elapsed} · {tokens}"),
     }
 }

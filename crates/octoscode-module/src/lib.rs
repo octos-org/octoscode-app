@@ -24,6 +24,43 @@ pub use makepad_widgets;
 mod octosense;
 #[cfg(feature = "octosense-module")]
 pub use octosense::{OctoscodeModule, OCTOSCODE_MODULE};
+
+/// What OctoSense's makepad adds and this module reads when OctoSense hosts it:
+/// a view's scroll offset, and a row's right-click menu (a GestureView's). The
+/// standalone app builds against the plain fork (`tools/prepare-makepad-fork.sh`),
+/// which has neither: there a selection the keyboard moves isn't scrolled into
+/// view, and a row has no right-click menu.
+mod host_makepad {
+    use makepad_widgets::*;
+
+    /// Whether a row may hold a GestureView menu.
+    pub const ROW_MENUS: bool = cfg!(feature = "octosense-module");
+
+    #[cfg(feature = "octosense-module")]
+    pub fn scroll_y(view: &ViewRef) -> Option<f64> {
+        Some(view.scroll_pos().y)
+    }
+    #[cfg(not(feature = "octosense-module"))]
+    pub fn scroll_y(_view: &ViewRef) -> Option<f64> {
+        None
+    }
+
+    #[cfg(feature = "octosense-module")]
+    pub fn row_menu_up(cx: &mut Cx) -> bool {
+        makepad_widgets::gesture_view::view_menu_up(cx)
+    }
+    #[cfg(not(feature = "octosense-module"))]
+    pub fn row_menu_up(_cx: &mut Cx) -> bool {
+        false
+    }
+
+    #[cfg(feature = "octosense-module")]
+    pub fn forget_row_menu(cx: &mut Cx) {
+        makepad_widgets::gesture_view::forget_view_menu(cx);
+    }
+    #[cfg(not(feature = "octosense-module"))]
+    pub fn forget_row_menu(_cx: &mut Cx) {}
+}
 use makepad_widgets::*;
 use std::sync::{Arc, Mutex};
 
@@ -54,6 +91,7 @@ pub mod components;
 pub mod conv_layout;
 pub mod credentials;
 pub mod design;
+pub mod desk;
 // A7: composer draft recovery across restarts.
 pub mod drafts;
 pub mod fallback;
@@ -120,17 +158,40 @@ script_mod! {
     // (fx1-evidence/walk-conv.log). The `#(call)` splice is the one shape
     // both dialects parse (the eval_roles precedent above).
     #(screens::recents::init_persistence_logged())
+    // The Mac look on a desktop (`crate::desk`; chrome.rs has the same gate).
+    let desk = #(crate::desk::active())
+    fn by(phone, pointer){ if desk { pointer } else { phone } }
+    let svg_own = vec4(-1.0, -1.0, -1.0, -1.0)
+    let mac_wash = #(crate::desk::color("wash"))
+    let mac_wash_down = #(crate::desk::color("wash_down"))
+    let mac_selected = #(crate::desk::color("selected"))
+    let mac_sidebar = #(crate::desk::color("sidebar"))
+    let mac_surface = #(crate::desk::color("surface"))
+    let mac_content = #(crate::desk::color("content"))
+    let mac_bar = #(crate::desk::color("bar"))
+    let mac_dim = #(crate::desk::color("dim"))
+    let mac_border = #(crate::desk::color("border"))
+    let mac_link = #(crate::desk::color("link"))
+    let mac_muted = #(crate::desk::color("muted"))
+    let mac_bar_h = #(crate::desk::bar_h())
+    let OcFirstRunSide = if desk { SolidView{draw_bg.color: mac_sidebar} } else { View{} }
+    let OcPane = if desk { SolidView{draw_bg.color: mac_content} } else { View{} }
+    let OcFirstRunRule = if desk { SolidView{draw_bg.color: mac_border} } else { View{} }
+    // The desktop's phone preview draws a simulated keyboard over its app
+    // viewport. Native mobile shells already reflow or pan for their IME.
+    let native_mobile = #(cfg!(any(target_os = "android", target_os = "ios", target_env = "ohos")))
+    let OcBase = if desk || native_mobile { View{} } else { KeyboardView{ keyboard_resize: true } }
     mod.widgets.OctoscodeView = set_type_default() do #(OctoscodeView::register_widget(vm)) {
         ..mod.widgets.RectView
         width: Fill height: Fill
-        draw_bg.color: theme.color_bg_app
+        draw_bg.color: by(theme.color_bg_app, mac_content)
         // Card #28e (board 4): the root is an OVERLAY — base chrome, a dimmer,
         // and the floating command palette stack on one origin; `first_run`
         // replaces `base` before a connection.
         flow: Overlay
         // The base chrome (everything except the overlays and the first-run
         // card). The first-run frame hides it (`base.set_visible(false)`).
-        base := View {
+        base := OcBase {
         width: Fill height: Fill
         // Card #28e (board 4): no global padding — the sidebar is flush with
         // the window edge (#F7F7F8, 260 px) and the review drawer is flush
@@ -166,7 +227,7 @@ script_mod! {
             // the phone drawer; at >= 760 px this spacer reserves its room
             // (280 + the 1 px rule), the web's 280 px `.root`.
             sidebar_spacer := View {
-                width: 281 height: Fill
+                width: by(281, 221) height: Fill
             }
 
             conversation_column := View {
@@ -332,31 +393,36 @@ script_mod! {
             width: Fit height: Fill flow: Right
             visible: false
             threads_column := RoundedView {
-                width: 280 height: Fill flow: Down spacing: 0
-                padding: Inset{left: 10 right: 10 top: 6 bottom: 8}
-                draw_bg +: {color: theme.color_bg_app border_radius: 1.0}
+                width: by(280, 220) height: Fill flow: Down spacing: 0
+                padding: Inset{left: by(10, 8) right: by(10, 8) top: by(6, 0) bottom: 8}
+                draw_bg +: {color: by(theme.color_bg_app, mac_sidebar) border_radius: by(1.0, 0.0)}
                 // The brand row (the board's "OctosCode"); the drawer adds
                 // its close button on the right.
                 sidebar_header := View {
-                    width: Fill height: 46 flow: Right align: Align{y: 0.5}
+                    width: Fill height: by(46, mac_bar_h) flow: Right align: Align{x: by(0.0, 1.0) y: 0.5}
                     padding: Inset{left: 8}
-                    Svg {
-                        width: 24 height: 24 margin: Inset{right: 8}
-                        animating: false
-                        draw_svg.svg: file_resource(#(crate::chrome::icon("brand")))
-                        draw_svg.preserve_viewbox: true
+                    // On a desktop the window's title names the app: the row
+                    // keeps only the sidebar's toggle, where a Mac has it.
+                    sidebar_brand_icon := View {
+                        width: Fit height: Fit visible: by(true, false)
+                        Svg {
+                            width: 24 height: 24 margin: Inset{right: 8}
+                            animating: false
+                            draw_svg.svg: file_resource(#(crate::chrome::icon("brand")))
+                            draw_svg.preserve_viewbox: true
+                        }
                     }
-                    Label {
-                        width: Fill height: Fit text: "OctosCode" padding: 0
+                    sidebar_brand_name := Label {
+                        width: Fill height: Fit text: "OctosCode" padding: 0 visible: by(true, false)
                         draw_text.text_style: theme.oc_text_brand
                         draw_text.color: theme.color_fg_app
                     }
                     // Desktop: collapse to the rail (the web's sidebar
                     // toggle, ProductSidebar.tsx:532).
                     sidebar_collapse_slot := View {
-                        width: 32 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        width: by(32, 28) height: by(32, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
                         Svg {
-                            width: 17 height: 17
+                            width: by(17, 16) height: by(17, 16)
                             animating: false
                             draw_svg.svg: file_resource(#(crate::chrome::icon("panel_muted")))
                             draw_svg.preserve_viewbox: true
@@ -364,7 +430,7 @@ script_mod! {
                         sidebar_collapse := mod.widgets.OcHitRound {}
                     }
                     drawer_close_slot := View {
-                        width: 32 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        width: by(32, 28) height: by(32, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
                         visible: false
                         Svg {
                             width: 16 height: 16
@@ -399,24 +465,24 @@ script_mod! {
                 // opens the board-3 Fleet pane. Same row metrics as the
                 // `+ Add workspace` row above it.
                 history_nav := View {
-                    width: Fill height: 34 flow: Overlay
+                    width: Fill height: by(34, 28) flow: Overlay
                     history_nav_row := View {
-                        width: Fill height: Fill flow: Right spacing: 10
+                        width: Fill height: Fill flow: Right spacing: by(10, 7)
                         align: Align{y: 0.5}
                         padding: Inset{left: 8}
                         Svg {
-                            width: 15 height: 15
+                            width: by(15, 16) height: by(15, 16)
                             animating: false
                             draw_svg.svg: file_resource(#(crate::design::icon_resource("b3_clock.svg")))
                             draw_svg.preserve_viewbox: true
                             // A26: the look's glyph ink (the file's #1D1D1F
                             // vanished on a dark sidebar).
-                            draw_svg.color: #(crate::chrome::ink("glyph"))
+                            draw_svg.color: by(#(crate::chrome::ink("glyph")), mac_link)
                         }
                         history_nav_label := Label {
-                            width: Fit height: Fit padding: 0 text: "Session history"
+                            width: Fit height: Fit padding: 0 clip_y: by(true, false) text: "Session history"
                             draw_text.text_style: theme.oc_text_row
-                            draw_text.text_style.font_size: 10.5
+                            draw_text.text_style.font_size: by(10.5, 9.75)
                             draw_text.color: theme.color_fg_app
                         }
                     }
@@ -426,14 +492,14 @@ script_mod! {
                         width: Fill height: Fill text: "" padding: 0 margin: 0
                         draw_bg.color: #00000000
                         draw_bg.color_hover: #00000000
-                        draw_bg.color_down: #8080801F
+                        draw_bg.color_down: by(#8080801F, mac_wash_down)
                         draw_bg.color_focus: #00000000
                         draw_bg.color_2: #00000000
                         draw_bg.color_2_hover: #00000000
-                        draw_bg.color_2_down: #8080801F
+                        draw_bg.color_2_down: by(#8080801F, mac_wash_down)
                         draw_bg.color_2_focus: #00000000
                         draw_bg.border_size: 0.0
-                        draw_bg.border_radius: 8.0
+                        draw_bg.border_radius: by(8.0, 3.0)
                         draw_bg.border_color: #00000000
                         draw_bg.border_color_hover: #00000000
                         draw_bg.border_color_down: #00000000
@@ -445,24 +511,28 @@ script_mod! {
                     }
                 }
                 fleet_nav := View {
-                    width: Fill height: 34 flow: Overlay
+                    width: Fill height: by(34, 28) flow: Overlay
+                    fleet_nav_sel := RoundedView {
+                        width: Fill height: Fill visible: false
+                        draw_bg +: {color: mac_selected border_radius: 3.0}
+                    }
                     fleet_nav_row := View {
-                        width: Fill height: Fill flow: Right spacing: 10
+                        width: Fill height: Fill flow: Right spacing: by(10, 7)
                         align: Align{y: 0.5}
                         padding: Inset{left: 8}
                         Svg {
-                            width: 15 height: 15
+                            width: by(15, 16) height: by(15, 16)
                             animating: false
                             draw_svg.svg: file_resource(#(crate::design::icon_resource("b3_sparkle.svg")))
                             draw_svg.preserve_viewbox: true
                             // A26: the look's glyph ink (the file's #1D1D1F
                             // vanished on a dark sidebar).
-                            draw_svg.color: #(crate::chrome::ink("glyph"))
+                            draw_svg.color: by(#(crate::chrome::ink("glyph")), mac_link)
                         }
                         fleet_nav_label := Label {
-                            width: Fit height: Fit padding: 0 text: "Fleet"
+                            width: Fit height: Fit padding: 0 clip_y: by(true, false) text: "Fleet"
                             draw_text.text_style: theme.oc_text_row
-                            draw_text.text_style.font_size: 10.5
+                            draw_text.text_style.font_size: by(10.5, 9.75)
                             draw_text.color: theme.color_fg_app
                         }
                     }
@@ -472,14 +542,14 @@ script_mod! {
                         width: Fill height: Fill text: "" padding: 0 margin: 0
                         draw_bg.color: #00000000
                         draw_bg.color_hover: #00000000
-                        draw_bg.color_down: #8080801F
+                        draw_bg.color_down: by(#8080801F, mac_wash_down)
                         draw_bg.color_focus: #00000000
                         draw_bg.color_2: #00000000
                         draw_bg.color_2_hover: #00000000
-                        draw_bg.color_2_down: #8080801F
+                        draw_bg.color_2_down: by(#8080801F, mac_wash_down)
                         draw_bg.color_2_focus: #00000000
                         draw_bg.border_size: 0.0
-                        draw_bg.border_radius: 8.0
+                        draw_bg.border_radius: by(8.0, 3.0)
                         draw_bg.border_color: #00000000
                         draw_bg.border_color_hover: #00000000
                         draw_bg.border_color_down: #00000000
@@ -503,9 +573,19 @@ script_mod! {
 
         sidebar_resize := SolidView {
             width: 8 height: Fill
-            margin: Inset{left: 277}
+            margin: Inset{left: by(277, 217)}
             visible: false
             draw_bg.color: #00000000
+        }
+
+        // The collapsed rail under a window's lights: the toolbar's band runs
+        // on over it, so they lie on one surface and no rule crosses them.
+        rail_cap := SolidView {
+            width: 45 height: #(crate::desk::bar_h() + 1.0) flow: Down
+            visible: false
+            draw_bg.color: mac_bar
+            View {width: Fill height: Fill}
+            SolidView {width: Fill height: 1 draw_bg.color: mac_border}
         }
 
         // Card #28e item 5 (board 4 frame 3): a dimmer between the base chrome
@@ -513,7 +593,7 @@ script_mod! {
         dimmer := SolidView {
             width: Fill height: Fill
             visible: false
-            draw_bg.color: #1D1D1F40
+            draw_bg.color: by(#1D1D1F40, mac_dim)
         }
 
         // #28e3 item 1: the review panel and the settings drawer paint in
@@ -748,12 +828,14 @@ script_mod! {
         // board's icon rail. The frame margin/size are set by sync_chrome.
         settings_dock := View {
             width: Fill height: Fill flow: Overlay
-            align: Align{x: 0.5 y: 0.5}
+            align: Align{x: 0.5 y: by(0.5, 0.0)}
             visible: false
             settings_backdrop := mod.widgets.OcBackdrop {}
             settings_frame := View {
                 width: Fill height: Fill flow: Overlay
                 max_width: 800 max_height: 640
+                // On a Mac the sheet's shadow falls outside this frame.
+                clip_x: by(true, false) clip_y: by(true, false)
                 margin: 24
                 // Swallows clicks on the panel's empty areas so they never
                 // reach the backdrop under it.
@@ -766,13 +848,14 @@ script_mod! {
         // own scrim. Only `server_stop_confirm` here sends server/shutdown.
         stop_dock := View {
             width: Fill height: Fill flow: Overlay
-            align: Align{x: 0.5 y: 0.5}
+            align: Align{x: 0.5 y: by(0.5, 0.0)}
             visible: false
-            SolidView { width: Fill height: Fill draw_bg.color: #1D1D1F4D }
+            SolidView { width: Fill height: Fill draw_bg.color: by(#1D1D1F4D, mac_dim) }
             stop_backdrop := mod.widgets.OcBackdrop {}
             stop_frame := View {
-                width: Fill height: Fit max_width: 400
-                margin: Inset{left: 16 right: 16}
+                width: Fill height: Fit max_width: by(400, 260)
+                clip_x: by(true, false) clip_y: by(true, false)
+                margin: Inset{left: 16 right: 16 top: by(0, mac_bar_h)}
                 stop_dialog := mod.widgets.OcStopConfirm {}
             }
         }
@@ -789,6 +872,9 @@ script_mod! {
             sb_menu_ctx := View {width: Fill height: Fill cursor: MouseCursor.Default capture_overload: true}
             sb_menu_dismiss := mod.widgets.OcBackdrop {}
             sb_menu := mod.widgets.OcWorkspaceMenu {}
+            sb_sort_menu := mod.widgets.OcSortMenu {}
+            // A Mac's rename in place (E7 6); a phone renames on the menu's card.
+            sb_rename_place := mod.widgets.OcRenameInPlace {}
             sb_chat_menu := mod.widgets.OcChatMenu {visible: false}
         }
 
@@ -809,13 +895,18 @@ script_mod! {
         palette := RoundedView {
             width: 560 height: Fit flow: Down spacing: 4
             visible: false
-            margin: Inset{top: 120}
-            draw_bg +: {color: #FFFFFF border_radius: 12.0 border_size: 1.0 border_color: theme.color_outset_1}
-            padding: Inset{left: 8 right: 8 top: 8 bottom: 8}
-            palette_search := TextInput {
-                width: Fill height: 34 text: ""
-                empty_text: "/"
-                draw_text.text_style.font_size: 13
+            margin: Inset{top: by(120, 60)}
+            draw_bg +: {color: by(#FFFFFF, mac_surface) border_radius: by(12.0, 5.0) border_size: 1.0 border_color: theme.color_outset_1}
+            padding: Inset{left: 8 right: 8 top: 8 bottom: by(8, 6)}
+            // A TextInput has no `visible` of its own: this holds it, so a desktop
+            // can take it away while the composer is the one typing the command.
+            palette_search_box := View {
+                width: Fill height: Fit
+                palette_search := mod.widgets.OcPaletteField {
+                    width: Fill height: by(34, 28) text: ""
+                    empty_text: by("/", "Type a command")
+                    draw_text.text_style.font_size: by(13, 9.75)
+                }
             }
             palette_list := PortalList {
                 width: Fill height: 204 flow: Down
@@ -826,11 +917,11 @@ script_mod! {
                 // — a toggleable background layer the draw step shows for
                 // row 0 only.
                 PaletteRowTpl := View {
-                    width: Fill height: 34 flow: Overlay
+                    width: Fill height: by(34, 28) flow: Overlay
                     palette_row_bg := RoundedView {
                         width: Fill height: Fill
-                        margin: Inset{left: 2 right: 2}
-                        draw_bg +: {color: theme.color_bg_even border_radius: 8.0}
+                        margin: Inset{left: by(2, 0) right: by(2, 0)}
+                        draw_bg +: {color: by(theme.color_bg_even, mac_selected) border_radius: by(8.0, 3.0)}
                         visible: false
                     }
                     palette_row_inner := View {
@@ -841,10 +932,10 @@ script_mod! {
                         // description takes the rest, right-aligned (setup-08;
                         // a fixed 150 px name column wrapped the description
                         // at phone width).
-                        padding: Inset{left: 6 right: 10}
+                        padding: Inset{left: by(6, 8) right: by(10, 14)}
                         align: Align{y: 0.5}
-                        palette_row_name := Label { width: Fit height: Fit text: "" draw_text.text_style.font_size: 13  draw_text.color: theme.color_fg_app}
-                        palette_row_desc := Label { width: Fill height: Fit align: Align{x: 1.0} text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                        palette_row_name := Label { width: Fit height: Fit text: "" draw_text.text_style.font_size: by(13, 9.75)  draw_text.color: theme.color_fg_app}
+                        palette_row_desc := Label { width: Fill height: Fit margin: Inset{top: by(0, 5)} align: Align{x: 1.0} text: "" draw_text.text_style.font_size: by(11, 8.25) draw_text.color: theme.color_text_muted }
                     }
                     // A5 — the row is clickable (the web's listbox option:
                     // a click runs the command, `CommandPalette.tsx`). Last
@@ -852,8 +943,9 @@ script_mod! {
                     palette_row_hit := Button {
                         width: Fill height: Fill text: ""
                         draw_bg.color: #00000000
-                        draw_bg.color_hover: #00000008
-                        draw_bg.color_down: #00000014
+                        draw_bg.color_hover: by(#00000008, mac_wash)
+                        draw_bg.color_down: by(#00000014, mac_wash_down)
+                        draw_bg.border_radius: by(2.5, 3.0)
                         draw_bg.border_size: 0.0
                         draw_bg.color_2: #00000000
                         draw_bg.border_color: #00000000
@@ -861,10 +953,14 @@ script_mod! {
                     }
                 }
             }
+            palette_none := View {
+                width: Fill height: 28 visible: false align: Align{x: 0.5 y: 0.5}
+                palette_none_label := Label { width: Fit height: Fit text: "" draw_text.text_style.font_size: 9.75 draw_text.color: mac_muted }
+            }
             // #28e2 item 1: the hint's arrows and return were tofu (Inter
             // lacks those glyphs) — small SVGs instead of text glyphs.
             // A5: setup-08's footer — a rule, then the hint centred.
-            SolidView { width: Fill height: 1 draw_bg.color: theme.color_outset_1 }
+            palette_rule := SolidView { width: Fill height: 1 draw_bg.color: theme.color_outset_1 }
             palette_hint := View {
                 width: Fill height: Fit flow: Right spacing: 4
                 // A5: the 9 px glyph SVGs centre on the 10 pt labels (they sat
@@ -876,23 +972,27 @@ script_mod! {
                     animating: false
                     draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_arrow_up.svg")))
                     draw_svg.preserve_viewbox: true
+                    draw_svg.color: by(svg_own, mac_muted)
                 }
                 Svg {
                     width: 9 height: 9
                     animating: false
                     draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_arrow_down.svg")))
                     draw_svg.preserve_viewbox: true
+                    draw_svg.color: by(svg_own, mac_muted)
                 }
-                Label { width: Fit height: Fit text: "to move" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
-                Label { width: Fit height: Fit text: "·" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
+                Label { width: Fit height: Fit text: "to move" draw_text.text_style.font_size: by(10, 8.25) draw_text.color: theme.color_text_muted }
+                Label { width: Fit height: Fit text: "·" draw_text.text_style.font_size: by(10, 8.25) draw_text.color: theme.color_text_muted }
                 Svg {
                     width: 9 height: 9
                     animating: false
                     draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_return.svg")))
                     draw_svg.preserve_viewbox: true
+                    draw_svg.color: by(svg_own, mac_muted)
                 }
-                Label { width: Fit height: Fit text: "to run" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
-                Label { width: Fit height: Fit text: "· esc" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
+                Label { width: Fit height: Fit text: "to run" draw_text.text_style.font_size: by(10, 8.25) draw_text.color: theme.color_text_muted }
+                Label { width: Fit height: Fit visible: by(false, true) text: "·" draw_text.text_style.font_size: by(10, 8.25) draw_text.color: theme.color_text_muted }
+                Label { width: Fit height: Fit text: by("· esc", "esc to close") draw_text.text_style.font_size: by(10, 8.25) draw_text.color: theme.color_text_muted }
             }
         } // palette
         } // palette_dock
@@ -907,12 +1007,12 @@ script_mod! {
             draw_bg.color: theme.color_bg_app
             // Board 4 frame 4: the sidebar is still there but EMPTY — only
             // "OctosCode" and a grey "No threads yet".
-            first_run_sidebar := View {
-                width: 260 height: Fill flow: Down spacing: 6
-                draw_bg.color: theme.color_bg_odd
-                padding: Inset{left: 12 right: 10 top: 12 bottom: 12}
+            first_run_sidebar := OcFirstRunSide {
+                width: by(260, 220) height: Fill flow: Down spacing: 6
+                draw_bg.color: by(theme.color_bg_odd, mac_sidebar)
+                padding: Inset{left: by(12, 16) right: by(10, 16) top: by(12, mac_bar_h + 8) bottom: 12}
                 View {
-                    width: Fill height: 32 flow: Right spacing: 8 align: Align{y: 0.5}
+                    width: Fill height: 32 flow: Right spacing: 8 align: Align{y: 0.5} visible: by(true, false)
                     Svg {
                         width: 24 height: 24
                         animating: false
@@ -926,16 +1026,16 @@ script_mod! {
                     }
                 }
                 Label {
-                    width: Fill height: Fit text: "No threads yet"
-                    draw_text.text_style.font_size: 13
+                    width: Fill height: Fit text: by("No threads yet", "No chats yet.") padding: by(3.5, 0.0)
+                    draw_text.text_style.font_size: by(13, 9.0)
                     draw_text.color: theme.color_text_muted
                 }
             }
-            first_run_rule := View {
+            first_run_rule := OcFirstRunRule {
                 width: 1 height: Fill
                 draw_bg.color: theme.color_outset_1
             }
-            first_run_center := View {
+            first_run_center := OcPane {
                 // #28e6: the card area IS the screen_dock (the Overlay sibling
                 // AFTER first_run, so it paints above this chrome) — the swap
                 // probe proved the dock seats AND renders the Connect DSL
@@ -965,10 +1065,10 @@ script_mod! {
             // browser) gets a close; the env dev mount does not show it.
             screen_dock_close_slot := View {
                 width: Fill height: Fit align: Align{x: 1.0 y: 0.0}
-                padding: Inset{top: 10 right: 10}
+                padding: Inset{top: by(10, 6) right: by(10, 8)}
                 visible: false
                 View {
-                    width: 32 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                    width: by(32, 28) height: by(32, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
                     Svg {
                         width: 14 height: 14
                         animating: false
@@ -1347,6 +1447,15 @@ pub struct OctoscodeView {
     b3_taps: Vec<(LiveId, String)>,
     #[rust]
     b3_inputs: Vec<(LiveId, String)>,
+    #[rust]
+    b3_refocus: Option<LiveId>,
+    /// A Mac's list sheet took the keyboard from the composer: it goes back
+    /// when the sheet closes.
+    #[rust]
+    b3_took_keys: bool,
+    /// The palette's field takes the keyboard once this frame has laid it out.
+    #[rust]
+    palette_refocus: bool,
     /// A6 — the conversation surfaces' taps: (splash, widget id, event) for
     /// the takeover, the plan card, the Trajectory and the task detail.
     #[rust]
@@ -1362,6 +1471,21 @@ pub struct OctoscodeView {
     /// copies = skip the whole lower+mount.
     #[rust]
     connect_key: Option<(String, String)>,
+    /// What Return answers on a Mac's first-run window: its alert's or its empty
+    /// state's blue button.
+    #[rust]
+    first_run_default: Option<String>,
+    /// The composer's + opened the file panel (a Mac's): Turn images opens with the answer.
+    #[rust]
+    plus_picking: bool,
+    /// A Mac sheet's list still to measure (`board3::ui::RowEdge`): the frame
+    /// that measures it, the lists asked about, and the frames tried.
+    #[rust]
+    row_edge_frame: NextFrame,
+    #[rust]
+    row_edge_seen: Vec<screens::board3::ui::RowEdge>,
+    #[rust]
+    row_edge_tries: u8,
     /// A1 — the mounted Connect card's FIELD inputs: (widget id, `input.*`
     /// event). The Event::Actions loop routes each one's typed text to its
     /// event, so the token the person types reaches the connect.
@@ -1378,6 +1502,13 @@ pub struct OctoscodeView {
     /// A1 — the conversation geometry last applied to the dock/rows.
     #[rust]
     applied_metrics: Option<ConvMetrics>,
+    /// The Mac look's token generation these surfaces were lowered against
+    /// (`crate::desk`): a shell's restyle changes it, and the view re-lowers.
+    #[rust]
+    desk_generation: Option<u64>,
+    /// The header's segmented tabs: which segment the raised face is on.
+    #[rust]
+    desk_tab_face: Option<bool>,
     /// Only the OctoSense adapter reserves space for its shell's floating dock.
     /// Standalone windows use the full conversation height.
     #[rust]
@@ -1469,6 +1600,9 @@ pub struct OctoscodeView {
     /// A5 — the palette list height last applied (34 px per row, 1..6).
     #[rust]
     palette_list_h: f64,
+    /// Last palette alignment and vertical margins, in window coordinates.
+    #[rust]
+    palette_placement: Option<(f64, f64, f64, f64)>,
     /// A3: the board-2 chrome's runtime (layout seat, menu anchor, the
     /// in-app docked screen).
     #[rust]
@@ -1517,6 +1651,40 @@ pub struct OctoscodeView {
     peer_dock_timer: Timer,
     #[rust]
     peer_dock_ticking: bool,
+}
+
+/// A list key's step: up, down, or (Delete, Backspace) none.
+fn list_step(key: KeyCode) -> i32 {
+    match key {
+        KeyCode::ArrowUp => -1,
+        KeyCode::ArrowDown => 1,
+        _ => 0,
+    }
+}
+
+/// Whether a desktop's Settings gives way to a sheet opened over it. Never on a
+/// phone, where Settings is a page and what it opens stacks on it.
+fn settings_covered() -> bool {
+    use screens::board3::host;
+    crate::desk::active()
+        && (screens::settings::snapshot().stop_pending
+            || screens::board1::is_open()
+            || screens::dialog::current().is_some()
+            || a9_host::escape_owned()
+            || screens::surfaces::detail_open()
+            || host::open_dialog().is_some_and(|d| d != host::Dialog::Fleet))
+}
+
+/// A sheet is up over the chat (a menu isn't one).
+pub(crate) fn sheet_is_up(settings_open: bool) -> bool {
+    use screens::board3::host;
+    crate::desk::active()
+        && (settings_open
+            || screens::board1::is_open()
+            || screens::dialog::current().is_some()
+            || a9_host::escape_owned()
+            || screens::surfaces::detail_open()
+            || host::open_dialog().is_some_and(|d| !matches!(d, host::Dialog::Fleet | host::Dialog::Permission | host::Dialog::ModelMenu)))
 }
 
 impl OctoscodeView {
@@ -1657,6 +1825,12 @@ impl OctoscodeView {
         // is not restoring, `ConnectionGate.tsx:247-252`).
         // In a shell with a port to its own kernel (OctoSense), the port is
         // the connection: nothing to discover, pair, migrate or remember.
+        // TEST-ONLY (`OCTOSCODE_NO_PORT`): a shell's window that behaves as a bare
+        // one, so the walks' fixtures and the Connect card can be driven in it.
+        if std::env::var_os("OCTOSCODE_NO_PORT").is_some() {
+            self.host_port = None;
+            self.embedded_in_octosense = false;
+        }
         let host_port = self.host_port.take();
         if host_port.is_none() && !matches!(boot.auto, screens::bootstrap::AutoStart::Restore { .. }) {
             let _ = screens::discovery::start_once();
@@ -1881,6 +2055,73 @@ impl OctoscodeView {
     fn perform_action(&mut self, cx: &mut Cx, action: &str, index: usize) {
         // A9: the fatal boundary's test seam (inert unless OCTOSCODE_PANIC_PROBE).
         screens::a9_boundary::probe_action(action);
+        // A Mac's Settings: the Model button opens its menu under it, over Settings.
+        if action == "settings.model.menu" {
+            let origin = self.view.area().rect(cx).pos;
+            let r = self.view.widget(cx, ids!(set_model)).area().rect(cx);
+            if r.size.x > 0.0 {
+                let anchor = screens::board3::seats::Anchor { x: r.pos.x - origin.x, y: r.pos.y - origin.y, w: r.size.x, h: r.size.y };
+                let out = screens::board3::host::open_settings_model(anchor);
+                self.board3_outcome(cx, out);
+                self.sync_labels(cx);
+            }
+            return;
+        }
+        // A desktop's Model menu opens under its field, where the form scrolled it.
+        if action == "b3.fleet.lane.toggle" && crate::desk::active() {
+            let origin = self.view.area().rect(cx).pos;
+            let r = self.view.widget(cx, &[live_id!(board3_splash), live_id!(b3_fleet_model)]).area().rect(cx);
+            screens::board3::host::set_fleet_anchor((r.size.x > 0.0).then(|| screens::board3::seats::Anchor {
+                x: r.pos.x - origin.x,
+                y: r.pos.y - origin.y,
+                w: r.size.x,
+                h: r.size.y,
+            }));
+        }
+        // The onboarding pop-up follows the field at its current scroll position.
+        if crate::desk::active() && matches!(action, "b3.onb.select.provider" | "b3.onb.select.model" | "b3.onb.select.route") {
+            let name = action.rsplit('.').next().unwrap_or_default();
+            let field = LiveId::from_str(&format!("b3_onb_{name}_field"));
+            let origin = self.view.area().rect(cx).pos;
+            let r = self.view.widget(cx, &[live_id!(board3_splash), field]).area().rect(cx);
+            screens::onboarding::set_menu_anchor((r.size.x > 0.0).then(|| screens::board3::seats::Anchor {
+                x: r.pos.x - origin.x,
+                y: r.pos.y - origin.y,
+                w: r.size.x,
+                h: r.size.y,
+            }));
+        }
+        // A Mac's sidebar: choosing a thread or a new one leaves the Fleet pane.
+        if crate::desk::fleet_is_selected() && matches!(action, "session.open" | "new_chat") {
+            screens::board3::host::close();
+        }
+        // A shell's window whose port to its kernel closed asks for a new one
+        // and runs the launch again on it.
+        #[cfg(feature = "octosense-module")]
+        {
+            if action == "host.retry" {
+                makepad_widgets::log!("[octoscode] connection: trying again");
+                self.host_port = Some(octosense::open_port(cx));
+                if let Some(old) = self.runtime.take() {
+                    old.shutdown_background();
+                }
+                self.started = false;
+                self.view.redraw(cx);
+                return;
+            }
+            // Couldn't Connect's Close: the window goes, as its close button would.
+            if action == "host.close" {
+                makepad_widgets::log!("[octoscode] connection: closing the window");
+                cx.widget_action(self.widget_uid(), makepad_wm_api::WmRequest::Close);
+                return;
+            }
+            // The shell's window manager opens it, as it would for a process asking.
+            if action == "host.providers" {
+                let request = makepad_wm_api::WmRequest::Launch { app: "ai-providers".to_owned(), args: Vec::new() };
+                cx.widget_action(self.widget_uid(), request);
+                return;
+            }
+        }
         // #A2: board 1's ids (pairing, the provider editor, the picker, the
         // folder browser and their openers) have one owner, ahead of every
         // other table and of the connection guard — pairing runs BEFORE a
@@ -2232,6 +2473,8 @@ impl OctoscodeView {
                         self.focus_composer(cx);
                         return;
                     }
+                    // A Mac's alert offers to start this same one again.
+                    let retry = screens::start_alert::Retry::InWorkspace { workspace: workspace.clone(), path: path.clone() };
                     if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                         rt.spawn(async move {
                             // A8 — a workspace launch resolves first when advertised.
@@ -2247,8 +2490,8 @@ impl OctoscodeView {
                                 Ok(id) => ::log::info!("octoscode: new chat in {workspace}: {id}"),
                                 Err(e) => {
                                     makepad_widgets::log!("[octoscode] new chat dropped: {e}");
-                                    // A26: no longer only the log.
-                                    screens::toasts::failed(screens::toasts::Op::NewChat, &e.to_string());
+                                    // A26: no longer only the log (a Mac: the alert).
+                                    screens::start_alert::failed(&e.to_string(), retry);
                                 }
                             }
                             SignalToUI::set_ui_signal();
@@ -2631,7 +2874,8 @@ impl OctoscodeView {
                         Ok(id) => ::log::info!("octoscode: new chat opened {id}"),
                         Err(e) => {
                             makepad_widgets::log!("[octoscode] new chat dropped: {e}");
-                            screens::toasts::failed(screens::toasts::Op::NewChat, &e.to_string());
+                            // A Mac: the alert with Try Again; a phone: the toast.
+                            screens::start_alert::failed(&e.to_string(), screens::start_alert::Retry::NewChat);
                         }
                     }
                 });
@@ -2845,11 +3089,91 @@ impl OctoscodeView {
             }
             // A10 — the loop form's cadence: keep what was typed, rebuild the
             // fields for the chosen mode.
+            // n11o (E9 5): a Mac's interval stepper, its unit pop-up and the
+            // pop-up's menu. What was typed stays (a remount takes the fields'
+            // text from the form).
+            screens::dialog::Effect::FormStep(by) => {
+                if let Some(mut form) = screens::dialog::pending_form() {
+                    let values = self.dialog_form_values(cx, &form);
+                    for (field, v) in form.fields.iter_mut().zip(&values) {
+                        field.2 = v.clone();
+                    }
+                    if let (Some(unit), Some(field)) = (form.unit, form.fields.get_mut(1)) {
+                        field.2 = screens::dialog::stepped_interval(&field.2, unit, *by);
+                    }
+                    screens::dialog::set_form(Some(form));
+                }
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
+            screens::dialog::Effect::FormUnitMenu => {
+                let opening = screens::dialog::unit_menu().is_none();
+                if let Some(mut form) = screens::dialog::pending_form() {
+                    let values = self.dialog_form_values(cx, &form);
+                    for (field, v) in form.fields.iter_mut().zip(&values) {
+                        field.2 = v.clone();
+                    }
+                    let popup = LiveId::from_str(&screens::dialog::form_input_id(form.dialog, "lf_unit"));
+                    let unit = form.unit;
+                    screens::dialog::set_form(Some(form));
+                    if opening {
+                        let origin = self.view.area().rect(cx).pos;
+                        let r = self.view.widget(cx, &[live_id!(dialog_splash), popup]).area().rect(cx);
+                        screens::dialog::set_unit_menu((r.size.x > 0.0).then(|| screens::board3::seats::Anchor {
+                            x: r.pos.x - origin.x,
+                            y: r.pos.y - origin.y,
+                            w: r.size.x,
+                            h: r.size.y,
+                        }));
+                        if screens::dialog::unit_menu().is_some() {
+                            screens::dialog::set_unit_cursor(unit);
+                        }
+                    }
+                    makepad_widgets::log!("[octoscode] dialog form unit menu: {}", if opening { "open" } else { "closed" });
+                }
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
+            screens::dialog::Effect::FormUnitCursor(by) => {
+                if let (Some(mut form), Some(at), Some(cursor)) =
+                    (screens::dialog::pending_form(), screens::dialog::unit_menu(), screens::dialog::unit_cursor())
+                {
+                    let values = self.dialog_form_values(cx, &form);
+                    for (field, v) in form.fields.iter_mut().zip(&values) {
+                        field.2 = v.clone();
+                    }
+                    screens::dialog::set_form(Some(form));
+                    screens::dialog::set_unit_menu(Some(at));
+                    screens::dialog::set_unit_cursor(Some(screens::dialog::stepped_unit(cursor, *by)));
+                }
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
+            screens::dialog::Effect::FormUnit(unit) => {
+                if let Some(mut form) = screens::dialog::pending_form() {
+                    let values = self.dialog_form_values(cx, &form);
+                    for (field, v) in form.fields.iter_mut().zip(&values) {
+                        field.2 = v.clone();
+                    }
+                    if form.unit.is_some() {
+                        form.unit = Some(*unit);
+                    }
+                    makepad_widgets::log!("[octoscode] dialog form unit: {unit}");
+                    screens::dialog::set_form(Some(form));
+                }
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
             screens::dialog::Effect::FormMode(mode) => {
                 if let Some(form) = screens::dialog::pending_form() {
                     let values = self.dialog_form_values(cx, &form);
                     let prompt = values.first().cloned().unwrap_or_default();
-                    let interval = values.get(1).cloned().unwrap_or_default();
+                    // n11o (E9 5): a Mac's number and unit, composed, so the rebuild keeps both.
+                    let interval = screens::dialog::form_interval(&form, &values);
                     screens::dialog::set_form(Some(screens::dialog::loop_form(mode, &prompt, &interval)));
                     makepad_widgets::log!("[octoscode] dialog form mode: {mode}");
                 }
@@ -2975,6 +3299,11 @@ impl OctoscodeView {
                         ui.lock().unwrap().set_draft_inner(text);
                         self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
                     }
+                    // A Mac shows what it is about to change: the pill's menu, not a blind cycle.
+                    "permission.cycle" if crate::desk::active() => {
+                        let out = screens::board3::host::open(screens::board3::host::Dialog::Permission);
+                        self.board3_outcome(cx, out);
+                    }
                     "permission.cycle" => {
                         let conv = { self.bridge.lock().unwrap().conv.clone() };
                         if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
@@ -3033,6 +3362,36 @@ impl OctoscodeView {
                     .unwrap_or_else(|| format!("{} did not run ({why}).", form.submit_label)),
             );
             screens::dialog::set_form(Some(form));
+        } else if crate::desk::active() && self.runtime.is_some() && conv.is_some() {
+            // A Mac's form waits for the server: a refusal comes back to it,
+            // under its fields, with what was typed (`dialog::settle_form`).
+            if !screens::dialog::begin_submit(&form.action) {
+                makepad_widgets::log!("[octoscode] dialog form: {} already sent, waiting for the answer", form.action);
+                return;
+            }
+            makepad_widgets::log!("[octoscode] dialog form submitted: {} {value:?}", form.action);
+            let (action, dialog) = (form.action.clone(), form.dialog);
+            form.error = None;
+            screens::dialog::set_form(Some(form));
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                rt.spawn(async move {
+                    let what = format!("{effect:?}");
+                    let out = screens::autonomy::apply(effect, &conv).await;
+                    match &out {
+                        Ok(()) => makepad_widgets::log!("[octoscode] autonomy action done: {what}"),
+                        Err(e) => makepad_widgets::log!("[octoscode] autonomy action {what}: {e}"),
+                    }
+                    let kept = screens::dialog::settle_form(&action, out.as_ref().err().map(String::as_str));
+                    if kept && out.is_err() {
+                        // The form says it; the list does not say it again.
+                        if let Some(family) = screens::dialog::family_of(dialog) {
+                            conv.store.domains.autonomy.clear_error(family);
+                        }
+                        makepad_widgets::log!("[octoscode] dialog form refused by the server: the form keeps it");
+                    }
+                    SignalToUI::set_ui_signal();
+                });
+            }
         } else {
             makepad_widgets::log!("[octoscode] dialog form submitted: {} {value:?}", form.action);
             screens::dialog::set_form(None);
@@ -3089,7 +3448,21 @@ impl OctoscodeView {
             let b = self.bridge.lock().unwrap();
             screens::palette::suggestions(&b.store, &screens::palette::query_text()).len()
         };
-        let h = 34.0 * n.clamp(1, 6) as f64;
+        let desk = crate::desk::active();
+        // A Mac's rows are 28 points, and no match says so instead of a blank row.
+        let h = if !desk {
+            34.0 * n.clamp(1, 6) as f64
+        } else if n == 0 {
+            1.0
+        } else {
+            28.0 * n.min(7) as f64
+        };
+        if desk {
+            self.view.widget(cx, ids!(palette_none)).set_visible(cx, n == 0);
+            self.view
+                .label(cx, ids!(palette_none_label))
+                .set_text(cx, &crate::desk::title(crate::i18n::tr("No matching commands")));
+        }
         if (h - self.palette_list_h).abs() > 0.5 {
             self.palette_list_h = h;
             let mut list = self.view.widget(cx, ids!(palette_list));
@@ -3147,7 +3520,7 @@ impl OctoscodeView {
                     .collect();
                 self.dialog_events.extend(m.taps.iter().map(|(_, e)| e.clone()));
                 let splash = self.view.splash(cx, ids!(dialog_splash));
-                match self.mounts.mount(cx, &splash, &m.dsl) {
+                match self.mounts.mount(cx, &splash, &screens::taps::native_clicks_only(&m.dsl)) {
                     Ok(true) => makepad_widgets::log!(
                         "[octoscode] dialog {} mounted: frame {:.0}x{:.0} scale {:.3}, {} tap(s)",
                         d.id(),
@@ -3175,6 +3548,10 @@ impl OctoscodeView {
         if value.is_none() {
             makepad_widgets::log!("[octoscode] board1 action: {action}");
         }
+        if action == "host.providers" {
+            self.perform_action(cx, action, 0);
+            return;
+        }
         for work in screens::board1::route(action, value) {
             self.perform_board1_work(cx, work);
         }
@@ -3186,6 +3563,9 @@ impl OctoscodeView {
     fn perform_board1_work(&mut self, cx: &mut Cx, work: screens::board1::Work) {
         use screens::board1::Work;
         match work {
+            Work::PickFolder => {
+                cx.open_select_folder_dialog(FileDialog::new().set_title(i18n::tr("Choose Workspace Folder").to_owned()));
+            }
             Work::Connect { server, token } => {
                 // The production connect path (the Connect screen's own):
                 // fill the form's draft, then `connect`. The failure fields
@@ -3291,6 +3671,7 @@ impl OctoscodeView {
                     caps
                 },
                 methods: b.store.domains.config.supported_methods(),
+                hosted: self.embedded_in_octosense,
             }
         };
         screens::board1::note_context(&ctx);
@@ -3820,6 +4201,22 @@ impl OctoscodeView {
         self.view
             .widget(cx, &[live_id!(composer_splash), live_id!(composer_stop_busy)])
             .set_visible(cx, busy);
+        if crate::desk::active() {
+            // A Mac's default button is off until it would do something, and
+            // under a sheet, whose default is the only one.
+            let settings_open = {
+                let b = self.bridge.lock().unwrap();
+                let open = b.ui.lock().map(|u| u.settings_open()).unwrap_or(false);
+                open
+            };
+            let off = send_icon && (!drafted || sheet_is_up(settings_open));
+            self.view
+                .widget(cx, &[live_id!(composer_splash), live_id!(composer_send_off)])
+                .set_visible(cx, off);
+            self.view
+                .widget(cx, &[live_id!(composer_splash), live_id!(composer_send_veil)])
+                .set_visible(cx, off);
+        }
         self.view
             .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_5)])
             .set_visible(cx, control);
@@ -3871,12 +4268,20 @@ impl OctoscodeView {
                 let b = self.bridge.lock().unwrap();
                 (b.store.clone(), b.conv.clone())
             };
-            if !self.chrome.models_requested
+            let session = store.active_session();
+            let generation = conv.as_ref().map_or(0, |c| c.generation());
+            // On a desktop the read follows each open: an open empties the list,
+            // another session's or this one's again (a refused new chat's Try Again).
+            if (!self.chrome.models_requested
+                || (crate::desk::active()
+                    && (self.chrome.models_session != session || self.chrome.models_generation != generation)))
                 && store.is_live()
                 && store.domains.profile.llm_models().is_empty()
             {
                 if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                     self.chrome.models_requested = true;
+                    self.chrome.models_session = session;
+                    self.chrome.models_generation = generation;
                     rt.spawn(async move {
                         match screens::models::refresh(&conv, &conv.store).await {
                             Ok(n) => makepad_widgets::log!("[octoscode] chrome: {n} profile reads folded"),
@@ -4154,7 +4559,60 @@ impl OctoscodeView {
         self.sync_peer_dock(cx);
         // A26 — the error toasts, once every dock's visibility is settled.
         self.sync_toasts(cx);
+        // A Mac sheet's list: once laid out, its scroll area ends on a row.
+        if crate::desk::active() {
+            use screens::board3::ui;
+            if screens::board3::host::open_dialog().is_none() {
+                ui::forget_row_edge(ui::B3_IDS.scroll);
+            }
+            if screens::dialog::current().is_none() {
+                ui::forget_row_edge("dialog_scroll");
+            }
+            let pending = ui::row_edges_pending();
+            if pending != self.row_edge_seen {
+                self.row_edge_seen = pending;
+                self.row_edge_tries = 0;
+            }
+            if !self.row_edge_seen.is_empty() && self.row_edge_tries < 12 {
+                self.row_edge_frame = cx.new_next_frame();
+            }
+        }
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
+    }
+
+    /// A Mac sheet's list ends its scroll area on a row: measured once per list
+    /// and room, a row the edge cuts (not the first) caps the area at its top,
+    /// which the next lowering applies. True when a cap took something off.
+    fn end_scroll_on_a_row(&mut self, cx: &mut Cx) -> bool {
+        use screens::board3::ui;
+        let mut changed = false;
+        for edge in ui::row_edges_pending() {
+            let r = self.view.widget(cx, &[LiveId::from_str(&edge.scroll)]).area().rect(cx);
+            if r.size.y <= 0.0 {
+                continue;
+            }
+            let (top, bottom) = (r.pos.y, r.pos.y + r.size.y);
+            let mut cap = edge.room;
+            for i in 0..edge.rows {
+                let rr = self.view.widget(cx, &[LiveId::from_str(&format!("{}{i}", edge.prefix))]).area().rect(cx);
+                if rr.size.y > 0.0 && rr.pos.y < bottom - 1.0 && rr.pos.y + rr.size.y > bottom + 1.0 {
+                    if i > 0 && rr.pos.y > top {
+                        cap = (rr.pos.y - top).floor();
+                    }
+                    break;
+                }
+            }
+            makepad_widgets::log!("[octoscode] sheet list {}: {} rows, room {}, ends at {cap}", edge.scroll, edge.rows, edge.room);
+            ui::set_row_edge(&edge, cap);
+            changed |= cap < edge.room;
+        }
+        if !ui::row_edges_pending().is_empty() {
+            self.row_edge_tries = self.row_edge_tries.saturating_add(1);
+            if self.row_edge_tries < 12 {
+                self.row_edge_frame = cx.new_next_frame();
+            }
+        }
+        changed
     }
 
     /// A4 — mount the open board-3 dialog into `board3_splash` (the mount
@@ -4217,6 +4675,27 @@ impl OctoscodeView {
                     }),
                     peer_readonly: screens::peers::readonly_slug(&store, session),
                     seat_status: seat::status(session),
+                    // n12g (E10 3): what a desktop's + attached to the next message.
+                    attachments: if crate::desk::active() {
+                        use screens::media::DraftStatus;
+                        screens::media::drafts_for_session(session)
+                            .map(|d| d.entries())
+                            .unwrap_or_default()
+                            .into_iter()
+                            .map(|e| fluid::AttachmentChip {
+                                detail: match e.status {
+                                    DraftStatus::Uploading => i18n::tr("Uploading…").to_owned(),
+                                    DraftStatus::Error => i18n::tr("Couldn’t upload").to_owned(),
+                                    DraftStatus::Selected | DraftStatus::Ready => crate::desk::file_size(e.bytes),
+                                },
+                                failed: e.status == DraftStatus::Error,
+                                path: screens::board3::host::image_path(&e.id),
+                                name: e.name,
+                            })
+                            .collect()
+                    } else {
+                        Vec::new()
+                    },
                 }
             }
         };
@@ -4316,6 +4795,91 @@ impl OctoscodeView {
             || settings
             || palette;
         screens::keys::ShortcutFacts { target_is_text_input, in_dialog }
+    }
+
+    /// A field in the open sheet holds the keyboard.
+    fn sheet_field_focused(&mut self, cx: &mut Cx) -> bool {
+        self.b3_inputs.clone().iter().any(|(id, _)| self.view.text_input(cx, &[live_id!(board3_splash), *id]).key_focus(cx))
+    }
+
+    /// A palette opened from the keyboard types in its own field, and closing it
+    /// gives the keyboard back to the composer. While the composer's slash draft
+    /// drives the palette, the composer keeps the keyboard.
+    fn palette_keyboard(&mut self, cx: &mut Cx) {
+        let (open, slash) = {
+            let b = self.bridge.lock().unwrap();
+            let u = b.ui.lock();
+            u.map(|u| (u.palette_open(), u.draft().starts_with('/'))).unwrap_or((false, false))
+        };
+        let field = self.view.widget(cx, ids!(palette_search));
+        if open && !slash {
+            if !field.key_focus(cx) {
+                self.view.text_input(cx, &[live_id!(palette_search)]).set_text(cx, "");
+                screens::palette::set_query("");
+                self.fit_palette_list(cx);
+                self.palette_refocus = true;
+            }
+        } else if !open {
+            let had_keyboard = field.key_focus(cx);
+            self.view.text_input(cx, &[live_id!(palette_search)]).set_text(cx, "");
+            if had_keyboard {
+                screens::palette::set_query("");
+                self.view.widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_0)]).set_key_focus(cx);
+            }
+        }
+    }
+
+    /// Return on a Mac sheet with a blue default: its Done, or a safe question's
+    /// answer, unless one of its fields holds the keyboard. Whether it answered.
+    fn sheet_return(&mut self, cx: &mut Cx) -> bool {
+        // A first-run window's alert or empty state: its blue button.
+        if let Some(go) = self.first_run_default.clone() {
+            let live = { self.bridge.lock().unwrap().store.keeps_shell() };
+            if !live && !screens::board1::is_open() && screens::dialog::current().is_none() {
+                self.perform_action(cx, &go, 0);
+                self.sync_labels(cx);
+                return true;
+            }
+        }
+        if screens::dialog::current().is_some() && screens::dialog::pending_confirm().is_some() {
+            self.perform_action(cx, screens::dialog::ACTION_CONFIRM, 0);
+            return true;
+        }
+        if screens::activity::showing_list() && !screens::surfaces::detail_open() {
+            if self.view.text_input(cx, &[live_id!(a9_act_search)]).key_focus(cx) {
+                return false;
+            }
+            self.a9_escape(cx);
+            return true;
+        }
+        let settings_open = {
+            let b = self.bridge.lock().unwrap();
+            let open = b.ui.lock().map(|u| u.settings_open()).unwrap_or(false);
+            open
+        };
+        if settings_open && !settings_covered() {
+            self.perform_action(cx, "settings.panel.close", 0);
+            self.sync_chrome(cx);
+            self.view.redraw(cx);
+            return true;
+        }
+        use screens::board3::host;
+        let owned = screens::dialog::current().is_some()
+            || screens::surfaces::detail_open()
+            || host::open_dialog().is_some_and(|d| d != host::Dialog::Fleet);
+        if !owned {
+            return false;
+        }
+        let Some((event, fields)) = screens::board3::ui::sheet_done() else {
+            return false;
+        };
+        if fields.iter().any(|f| self.view.text_input(cx, &[LiveId::from_str(f)]).key_focus(cx)) {
+            return false;
+        }
+        let (base, row) = screens::taps::split_row(&event);
+        self.perform_action(cx, base, row.unwrap_or(0));
+        self.sync_labels(cx);
+        true
     }
 
     /// A7 — one of the composer extras' controls (fluid.rs `composer_extras`).
@@ -4438,6 +5002,19 @@ impl OctoscodeView {
                 input.set_is_read_only(cx, want);
             }
         }
+        // On a Mac's window the sidebar stays beside the Fleet pane, so Settings,
+        // the palette, Review and the folder browser open from there: they dock
+        // under the pane, which has to give way or they would only dim the
+        // sidebar.
+        if crate::desk::active()
+            && screens::board3::host::open_dialog() == Some(screens::board3::host::Dialog::Fleet)
+            && (screens::board1::is_open()
+                || self.view.widget(cx, ids!(settings_dock)).visible()
+                || self.view.widget(cx, ids!(review_dock)).visible()
+                || self.view.widget(cx, ids!(palette_dock)).visible())
+        {
+            screens::board3::host::close();
+        }
         let lowered = screens::board3::host::lower_open(&store);
         self.view.widget(cx, ids!(board3_dock)).set_visible(cx, lowered.is_some());
         // A10 — the Fleet pane REPLACES the chat area (FleetPane.tsx): the
@@ -4451,12 +5028,26 @@ impl OctoscodeView {
         let Some(lowered) = lowered else {
             self.b3_taps.clear();
             self.b3_inputs.clear();
+            // The list sheet that took the keyboard closed: the composer has it again.
+            if std::mem::take(&mut self.b3_took_keys) {
+                self.view.widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_0)]).set_key_focus(cx);
+            }
             return;
         };
         self.b3_taps = screens::taps::wired_taps(&lowered.dsl)
             .into_iter()
             .map(|(n, e)| (LiveId::from_str(&n), e))
             .collect();
+        // A remount rebuilds every field: on a desktop the one being typed in
+        // keeps the keyboard.
+        let typing = if crate::desk::active() {
+            self.b3_inputs
+                .iter()
+                .map(|(id, _)| *id)
+                .find(|id| self.view.text_input(cx, &[live_id!(board3_splash), *id]).key_focus(cx))
+        } else {
+            None
+        };
         self.b3_inputs = lowered
             .inputs
             .iter()
@@ -4492,6 +5083,15 @@ impl OctoscodeView {
                 if same_dialog && keep_scroll.y > 0.0 {
                     screens::board3::host::set_pending_scroll(keep_scroll.y);
                 }
+                // A Mac's list sheet takes the keyboard (its arrows, Return, Delete)
+                // from the composer it was opened from.
+                if !same_dialog && crate::desk::active() && screens::board3::host::has_list() {
+                    let composer = self.view.widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_0)]);
+                    if composer.key_focus(cx) {
+                        cx.set_key_focus(Area::Empty);
+                        self.b3_took_keys = true;
+                    }
+                }
                 // A17 — the onboarding API key lives only in its masked
                 // input (never in the DSL): put it back after the remount.
                 for (id, text) in screens::board3::host::post_mount_texts() {
@@ -4499,6 +5099,7 @@ impl OctoscodeView {
                         .text_input(cx, &[live_id!(board3_splash), LiveId::from_str(&id)])
                         .set_text(cx, &text);
                 }
+                self.b3_refocus = typing.filter(|id| self.b3_inputs.iter().any(|(i, _)| i == id));
                 makepad_widgets::log!(
                     "[octoscode] board3 mounted {:?}: {} tap(s), {} input(s)",
                     screens::board3::host::open_dialog(),
@@ -4774,6 +5375,7 @@ impl OctoscodeView {
                     let (ox, oy) = self.chrome.origin;
                     self.chrome.menu_anchor =
                         Some((rect.pos.x + rect.size.x - ox, rect.pos.y + rect.size.y - oy));
+                    self.chrome.menu_anchor_left = rect.pos.x - ox;
                     self.perform_action(cx, "workspace.menu", i);
                 }
                 chrome::Intent::ChatMenu(i, (x, y)) => {
@@ -4794,6 +5396,7 @@ impl OctoscodeView {
                 chrome::Intent::OpenSettings => self.perform_action(cx, "settings.panel.open", 0),
                 chrome::Intent::CloseSettings => self.perform_action(cx, "settings.panel.close", 0),
                 chrome::Intent::ToggleReview => self.perform_action(cx, "review.toggle", 0),
+                chrome::Intent::Sort(sort) => screens::sidebar::choose_sort(sort),
                 chrome::Intent::CloseMenu => {
                     screens::sidebar::close_menu();
                     if screens::sidebar::renaming().is_some() {
@@ -4819,7 +5422,18 @@ impl OctoscodeView {
             };
             let field = self.view.text_input(cx, ids!(sb_rename_input));
             field.set_text(cx, &label);
-            self.view.widget(cx, ids!(sb_rename_input)).set_key_focus(cx);
+            if crate::desk::active() {
+                // A Mac's rename in place (E7 6): the whole name selected, so
+                // typing replaces it; the focus lands once the field is drawn.
+                use makepad_widgets::text::selection::{Cursor, Selection};
+                field.take_key_focus(cx);
+                field.set_selection(cx, Selection {
+                    anchor: Cursor { index: 0, prefer_next_row: false },
+                    cursor: Cursor { index: label.len(), prefer_next_row: false },
+                });
+            } else {
+                self.view.widget(cx, ids!(sb_rename_input)).set_key_focus(cx);
+            }
         }
         self.sync_chrome(cx);
         self.view.redraw(cx);
@@ -4856,7 +5470,8 @@ impl OctoscodeView {
     /// the desktop's Escape closes it (the `KeyDown` arms in
     /// `handle_event`, in their order): a board-1 dialog, an A5 dialog, an
     /// A9 surface, the board-3 dialog or the Fleet pane, the task detail,
-    /// then the chrome (review, menus, Settings, the drawer). The phone
+    /// then the chrome (review, menus, Settings, the drawer) and command
+    /// palette. The phone
     /// shell never delivers Escape itself (`mobile_app.rs` makes it Back,
     /// `mobile_back.rs` offers it here), so before this the Fleet pane and
     /// every dialog stayed open while the phone left the app. Returns
@@ -4875,8 +5490,26 @@ impl OctoscodeView {
             self.sync_labels(cx);
         } else if screens::surfaces::detail_open() {
             self.perform_action(cx, "cv.detail.close", 0);
+        } else if self.escape_chrome(cx) {
+            return true;
         } else {
-            return self.escape_chrome(cx);
+            // Back has the same ordering as desktop Escape: after higher
+            // surfaces have declined it, close the command palette before
+            // allowing the phone shell to leave the app. Keep the draft.
+            let ui = self.bridge.lock().unwrap().ui.clone();
+            let open = {
+                let mut ui = ui.lock().unwrap();
+                let open = ui.palette_open();
+                if open {
+                    ui.set_palette_open(false);
+                }
+                open
+            };
+            if !open {
+                return false;
+            }
+            self.sync_labels(cx);
+            self.view.redraw(cx);
         }
         makepad_widgets::log!("[octoscode] back: the top surface closed");
         true
@@ -4913,6 +5546,9 @@ impl OctoscodeView {
             screens::sidebar::close_menu();
             self.perform_action(cx, "workspace.rename.cancel", 0);
             self.perform_action(cx, "session.rename.cancel", 0);
+            true
+        } else if screens::sidebar::sort_menu_open() {
+            screens::sidebar::close_menu();
             true
         } else if settings_open {
             self.perform_action(cx, "settings.panel.close", 0);
@@ -4958,10 +5594,12 @@ impl OctoscodeView {
     /// is set in place.
     fn mount_connect_card(&mut self, cx: &mut Cx) {
         let m = conv_layout::current();
-        let left = if m.density == conv_layout::Density::Phone {
+        let left = if m.density == conv_layout::Density::Phone
+            || (self.window_w != 0.0 && self.window_w < conv_layout::breakpoint())
+        {
             0.0
         } else {
-            conv_layout::FIRST_RUN_SIDEBAR_W
+            conv_layout::first_run_seat()
         };
         // A Connect still "in flight" after the transport gave up is a failed
         // attempt (the dial is asynchronous; only a URL error comes back from
@@ -5000,10 +5638,39 @@ impl OctoscodeView {
         // (sticky), so a dismissal hides it in place below instead of
         // remounting the fields being typed into.
         let offer = screens::discovery::offer();
+        // A desktop that already has its server (a shell's kernel, or a live
+        // connection with no session yet) asks for a workspace, never a server.
+        let (workspace_busy, workspace_failed, ask_workspace) = {
+            let b = self.bridge.lock().unwrap();
+            let state = b.store.connection();
+            let ask = crate::desk::active() && (self.embedded_in_octosense || state == "Live");
+            // A shell's port that closed stays closed until someone asks again.
+            let failed = ask && self.embedded_in_octosense && state == "Failed";
+            // The port stays short of `Live` until a session opens there: once
+            // the kernel has said what it offers, this window waits for a
+            // folder from the person, not for the kernel.
+            let up = !b.store.domains.config.supported_methods().is_empty();
+            (ask && state != "Live" && !failed && !up, failed, ask)
+        };
+        let no_provider = screens::board1::no_provider();
+        // A sheet gets a quiet, non-interactive reminder of the underlying step.
+        let sheet_up = (ask_workspace || crate::desk::active()) && screens::board1::is_open();
+        self.first_run_default = if sheet_up || !ask_workspace || workspace_busy {
+            None
+        } else if workspace_failed {
+            Some("host.retry".to_owned())
+        } else if no_provider && crate::desk::hosted() {
+            Some("host.providers".to_owned())
+        } else {
+            Some("b1.open.workspace".to_owned())
+        };
+        // Only what the card draws: a transport's retries change the connection
+        // state many times a minute, and each remount would take the fields
+        // being typed into.
         let key = (
             view.error.clone(),
             format!(
-                "{}|{}|{}|{:?}|{}|{}|{}",
+                "{ask_workspace}|{workspace_busy}|{workspace_failed}|{no_provider}|{sheet_up}|{}|{}|{}|{:?}|{}|{}|{}",
                 view.error_actions,
                 view.last_tried,
                 view.connecting,
@@ -5015,7 +5682,14 @@ impl OctoscodeView {
             ),
         );
         if self.connect_key.as_ref() != Some(&key) {
-            let dsl = screens::theme::retint_dsl(&fluid::connect_card_with_offer(&view, &m, left, offer.as_ref()));
+            let dsl = if sheet_up {
+                fluid::first_run_backdrop(ask_workspace)
+            } else if ask_workspace {
+                fluid::open_workspace_state(left, workspace_busy, workspace_failed, no_provider, &view.error)
+            } else {
+                fluid::connect_card_with_offer(&view, &m, left, offer.as_ref())
+            };
+            let dsl = screens::theme::retint_dsl(&dsl);
             let splash = self.view.splash(cx, ids!(screen_splash));
             match self.mounts.mount(cx, &splash, &dsl) {
                 Ok(_) => {
@@ -5027,6 +5701,10 @@ impl OctoscodeView {
                     self.screen_taps = vec![
                         (live_id!(connect_btn), "connect".to_owned()),
                         (live_id!(connect_solo), "connect.use_local_solo".to_owned()),
+                        (live_id!(open_ws_retry), "host.retry".to_owned()),
+                        (live_id!(open_ws_providers), "host.providers".to_owned()),
+                        (live_id!(open_ws_close), "host.close".to_owned()),
+                        (live_id!(open_ws_cancel), "host.close".to_owned()),
                     ];
                     self.connect_inputs = vec![
                         (live_id!(connect_server), "input.server".to_owned()),
@@ -5059,6 +5737,18 @@ impl OctoscodeView {
         self.view
             .widget(cx, &[live_id!(screen_splash), live_id!(connect_server_error)])
             .set_visible(cx, endpoint_error.is_some());
+        // A Mac's default stays off until there is an address that can be tried.
+        if crate::desk::active() {
+            let ready = endpoint_error.is_none() && !view.server.trim().is_empty();
+            for (id, shown) in [
+                (live_id!(connect_btn_on), ready),
+                (live_id!(connect_btn_label), ready),
+                (live_id!(connect_btn_off), !ready),
+                (live_id!(connect_btn_label_off), !ready),
+            ] {
+                self.view.widget(cx, &[live_id!(screen_splash), id]).set_visible(cx, shown);
+            }
+        }
         // A11: a used or dismissed offer leaves the card in place.
         self.view
             .widget(cx, &[live_id!(screen_splash), live_id!(connect_offer_box)])
@@ -5088,12 +5778,21 @@ impl OctoscodeView {
             screens::board3::seats::permission_seat(&store),
             screens::board3::seats::model_seat(&store),
         );
+        let (perm_held, model_held) = screens::board3::seats::seats_held(&store);
         self.view
             .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_2)])
-            .set_visible(cx, perm);
+            .set_visible(cx, perm || perm_held);
         self.view
             .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_model)])
-            .set_visible(cx, model);
+            .set_visible(cx, model || model_held);
+        if crate::desk::active() {
+            self.view
+                .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_2_veil)])
+                .set_visible(cx, perm_held);
+            self.view
+                .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_model_veil)])
+                .set_visible(cx, model_held);
+        }
         let origin = self.view.area().rect(cx).pos;
         let anchor = |r: Rect| {
             (r.size.x > 0.0).then(|| screens::board3::seats::Anchor {
@@ -5128,13 +5827,22 @@ impl OctoscodeView {
     /// (`composer.permission`, `composer.model`); the phone keeps the mode
     /// word alone (`fluid::compact_permission_label`).
     fn sync_composer_seats(&mut self, cx: &mut Cx, remounted: bool) {
-        let (approval, model) = {
+        let (approval, mut model, unchosen_in) = {
             let b = self.bridge.lock().unwrap();
+            let unchosen = !b.store.domains.profile.llm_models().iter().any(|m| m.selected);
             (
                 screens::board3::seats::permission_seat_label(&b.store),
                 screens::board3::seats::model_seat_label(&b.store),
+                if unchosen { b.store.active_session() } else { None },
             )
         };
+        // A server that lists no models still says which one is running, in
+        // the words people read ("DeepSeek V4 Flash", not its id).
+        if let (true, Some(session)) = (crate::desk::active(), unchosen_in) {
+            if let Some(running) = screens::board3::strip::reported_model(&session, &screens::board3::host::state().strip) {
+                model = crate::desk::model_word(&running);
+            }
+        }
         let approval = approval.unwrap_or_else(|| crate::i18n::tr("Ask for approval").to_owned());
         let approval = match conv_layout::current().density {
             conv_layout::Density::Phone => fluid::compact_permission_label(&approval).to_owned(),
@@ -5260,6 +5968,13 @@ impl OctoscodeView {
         // REAL width: a WM resize of the module window fires no window event
         // (WindowGeomChange reports the shell's native window).
         if std::env::var_os("OCTOSENSE_WINDOW_SIZE").is_none() && (win_w - self.window_w).abs() > 0.5 {
+            // A menu anchored to the old field must not be left over the
+            // wrong controls when the shell resizes an embedded window.
+            if crate::desk::active() && screens::board3::host::open_dialog() == Some(screens::board3::host::Dialog::Launch)
+                && screens::launch::is_no_profile(&screens::launch::snapshot()) && screens::onboarding::menu_open()
+            {
+                screens::onboarding::perform("b3.onb.menu.close", 0);
+            }
             self.window_w = win_w;
             SignalToUI::set_ui_signal();
         }
@@ -5269,10 +5984,10 @@ impl OctoscodeView {
         // kept the desktop's 261 px offset and squeezed to 119 px).
         let pane_w = if pane_w > 0.0 {
             pane_w
-        } else if win_w >= conv_layout::PHONE_BREAKPOINT {
+        } else if win_w >= conv_layout::breakpoint() {
             // A12: the shell (live or a retained outage) seats the sidebar.
             let live = self.bridge.lock().unwrap().store.keeps_shell();
-            let seat = if live { conv_layout::SIDEBAR_W } else { conv_layout::FIRST_RUN_SIDEBAR_W };
+            let seat = if live { conv_layout::sidebar_seat() } else { conv_layout::first_run_seat() };
             (win_w - seat).max(1.0)
         } else {
             win_w
@@ -5294,7 +6009,7 @@ impl OctoscodeView {
             dock.layout.padding.left = side;
             dock.layout.padding.right = side;
             let (top, bottom) = match m.density {
-                conv_layout::Density::Desktop => (10.0, 16.0),
+                conv_layout::Density::Desktop => crate::desk::by((10.0, 16.0), (8.0, 12.0)),
                 conv_layout::Density::Phone => (8.0, 10.0),
             };
             dock.layout.padding.top = top;
@@ -5359,13 +6074,15 @@ impl OctoscodeView {
         let wide = self.window_w == 0.0 || self.window_w >= 1260.0;
         // A1: at phone width the first-run sidebar hides like the live one;
         // the Connect card then takes the whole screen.
-        let width_hides_sidebar = self.window_w != 0.0 && self.window_w < 760.0;
+        let width_hides_sidebar = self.window_w != 0.0 && self.window_w < conv_layout::breakpoint();
+        // A Mac's window has no sidebar until it has something to list.
+        let first_run_side = !width_hides_sidebar && !crate::desk::active();
         self.view
             .widget(cx, ids!(first_run_sidebar))
-            .set_visible(cx, !width_hides_sidebar);
+            .set_visible(cx, first_run_side);
         self.view
             .widget(cx, ids!(first_run_rule))
-            .set_visible(cx, !width_hides_sidebar);
+            .set_visible(cx, first_run_side);
         self.view.widget(cx, ids!(base)).set_visible(cx, live);
         self.view.widget(cx, ids!(first_run)).set_visible(cx, !live);
         // A3 (board 2): the sidebar's seat — the desktop column over its
@@ -5377,17 +6094,31 @@ impl OctoscodeView {
             self.sidebar_open = false;
             screens::sidebar::set_drawer_open(true);
         }
-        if self.window_h == 0.0 {
-            self.window_h = self.view.area().rect(cx).size.y;
+        if self.window_h == 0.0 || (crate::desk::active() && env_frame().is_none()) {
+            let h = self.view.area().rect(cx).size.y;
+            if h > 0.0 || self.window_h == 0.0 {
+                self.window_h = h;
+            }
         }
         {
-            let (store, history_unsettled) = {
+            let (store, history_unsettled, no_rows) = {
                 let b = self.bridge.lock().unwrap();
-                let unsettled = match (b.store.active_session(), b.conv.as_ref()) {
-                    (Some(s), Some(conv)) => conv.history(&s) != flow::History::Ready,
-                    _ => false,
+                let history = match (b.store.active_session(), b.conv.as_ref()) {
+                    (Some(s), Some(conv)) => Some(conv.history(&s)),
+                    _ => None,
                 };
-                (b.store.clone(), unsettled)
+                let open_phase = match (b.store.active_session(), b.conv.as_ref()) {
+                    (Some(s), Some(conv)) => conv.open_phase(&s),
+                    _ => None,
+                };
+                crate::desk::note_chat_open(open_phase);
+                let no_rows = crate::desk::active() && screen::timeline_rows(&b.store, false).is_empty();
+                // A chat with rows on screen isn't loading or failed to a
+                // person, whatever its older history did.
+                crate::desk::note_history_loading(no_rows && matches!(history, Some(flow::History::Loading)));
+                crate::desk::note_history_failed(no_rows && matches!(history, Some(flow::History::Failed(_))));
+                let unsettled = history.is_some_and(|h| h != flow::History::Ready);
+                (b.store.clone(), unsettled, no_rows)
             };
             let (w, h) = (self.window_w, self.window_h);
             let mut chrome = std::mem::take(&mut self.chrome);
@@ -5396,6 +6127,7 @@ impl OctoscodeView {
                 (r.pos.x, r.pos.y)
             };
             chrome.history_unsettled = history_unsettled;
+            chrome.no_rows = no_rows;
             chrome.sync(cx, &self.view, &store, live, settings, w, h);
             self.chrome = chrome;
         }
@@ -5406,27 +6138,71 @@ impl OctoscodeView {
             .set_visible(cx, wide && review);
         // A3: Settings is the centred dialog (desktop) / full sheet (compact)
         // over the dimmer — no docked column, so its spacer stays hidden.
-        self.view.widget(cx, ids!(settings_dock)).set_visible(cx, settings && live);
-        self.view.widget(cx, ids!(settings_drawer)).set_visible(cx, settings && live);
+        // On a desktop a sheet opened from it takes its place, and closing that
+        // sheet brings it back: one sheet at a time, as on a Mac.
+        // Settings' own Model menu opens over it, and Settings stays.
+        let settings_shown = settings && (!settings_covered() || screens::board3::host::settings_menu_up());
+        self.view.widget(cx, ids!(settings_dock)).set_visible(cx, settings_shown && live);
+        self.view.widget(cx, ids!(settings_drawer)).set_visible(cx, settings_shown && live);
         self.view
             .widget(cx, ids!(columns_settings_spacer))
             .set_visible(cx, false);
         self.view.widget(cx, ids!(palette)).set_visible(cx, palette);
         self.view.widget(cx, ids!(palette_dock)).set_visible(cx, palette);
-        // A5: the palette fits a phone frame (the web's palette spans the
-        // composer): 560 on desktop, the frame less 12 px gutters below.
-        let pw = if self.window_w > 0.0 { (self.window_w - 24.0).min(560.0) } else { 560.0 };
+        let mut driven = false;
+        if crate::desk::active() && palette {
+            // The composer is typing the command: one "/" on screen, there.
+            driven = {
+                let b = self.bridge.lock().unwrap();
+                let slash = b.ui.lock().map(|u| u.draft().starts_with('/')).unwrap_or(false);
+                slash
+            };
+            self.view.widget(cx, ids!(palette_search_box)).set_visible(cx, !driven);
+        }
+        let near_composer = crate::desk::unified() && driven;
+        let composer = self.view.widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_0)]).area().rect(cx);
+        // Completion fits the composer so a narrow window needn't cover the
+        // sidebar. The separate palette keeps its 560-point maximum.
+        let pw = if near_composer && composer.size.x > 0.0 {
+            composer.size.x.min(560.0)
+        } else if self.window_w > 0.0 {
+            (self.window_w - 24.0).min(560.0)
+        } else {
+            560.0
+        };
         if palette && (pw - self.palette_w).abs() > 0.5 {
             self.palette_w = pw;
             let mut p = self.view.widget(cx, ids!(palette));
             script_apply_eval!(cx, p, { width: #(pw) });
         }
         if palette {
+            self.view.widget(cx, ids!(palette_hint)).set_visible(cx, !near_composer);
+            self.view.widget(cx, ids!(palette_rule)).set_visible(cx, !near_composer);
+            let root = self.view.area().rect(cx);
+            let placement = if near_composer && root.size.x > 0.0 && composer.size.y > 0.0 {
+                let room = (root.size.x - pw).max(0.0);
+                let left = (composer.pos.x - root.pos.x).clamp(0.0, room);
+                let x = if room > 0.0 { (left / room * 1000.0).round() / 1000.0 } else { 0.5 };
+                let bottom = (root.pos.y + root.size.y - composer.pos.y + 6.0).max(0.0).round();
+                (x, 1.0, 0.0, bottom)
+            } else {
+                (0.5, 0.0, if crate::desk::active() { 60.0 } else { 120.0 }, 0.0)
+            };
+            if self.palette_placement != Some(placement) {
+                self.palette_placement = Some(placement);
+                let (x, y, top, bottom) = placement;
+                let mut dock = self.view.widget(cx, ids!(palette_dock));
+                script_apply_eval!(cx, dock, { use mod.prelude.widgets.* align: Align{x: #(x) y: #(y)} });
+                let mut card = self.view.widget(cx, ids!(palette));
+                script_apply_eval!(cx, card, { use mod.prelude.widgets.* margin: Inset{top: #(top) bottom: #(bottom)} });
+            }
+        }
+        if palette {
             self.fit_palette_list(cx);
         }
         self.view
             .widget(cx, ids!(dimmer))
-            .set_visible(cx, palette || settings || (review && !wide));
+            .set_visible(cx, (palette && !near_composer) || settings_shown || (review && !wide));
         // #28e4: the #29d proof-screen dock is visible only when
         // OCTOSCODE_SCREEN names one of them — a visible Fill/Fill wrapper
         // shadows the clicks under it. `connect` is NOT docked: it mounts in
@@ -5533,7 +6309,7 @@ impl OctoscodeView {
         // A1: the empty conversation — the mark, the question and the hint,
         // centered over the empty transcript (Timeline.tsx:111-134).
         {
-            let (empty, workspace, history) = {
+            let (empty, workspace, history, refused) = {
                 let b = self.bridge.lock().unwrap();
                 let rows_empty = screen::timeline_rows(&b.store, false).is_empty();
                 // A19b — a Session whose history is still loading, or could
@@ -5542,25 +6318,36 @@ impl OctoscodeView {
                     (Some(s), Some(conv)) => conv.history(&s),
                     _ => flow::History::Ready,
                 };
+                // A Mac's refused new chat says so where it would start.
+                let refused = match (b.store.active_session(), b.conv.as_ref()) {
+                    (Some(s), Some(conv)) if crate::desk::active() => conv.start_refused(&s),
+                    _ => None,
+                };
                 let ws = b.store.active_session().and_then(|s| {
                     b.store
                         .domains
                         .session
                         .workspace_root(&s)
                         .and_then(|root| {
+                            if crate::desk::active() {
+                                if let Some(name) = screens::sidebar::renamed(&root) {
+                                    return Some(name);
+                                }
+                            }
                             std::path::Path::new(root.trim_end_matches('/'))
                                 .file_name()
                                 .map(|n| n.to_string_lossy().to_string())
                         })
                 });
-                (rows_empty, ws, history)
+                (rows_empty, ws, history, refused)
             };
             self.view.widget(cx, ids!(empty_state)).set_visible(cx, empty);
             if empty {
-                let dsl = screens::theme::retint_dsl(&match &history {
-                    flow::History::Loading => fluid::history_state(None, &metrics),
-                    flow::History::Failed(reason) => fluid::history_state(Some(reason), &metrics),
-                    flow::History::Ready => fluid::empty_state(workspace.as_deref(), &metrics),
+                let dsl = screens::theme::retint_dsl(&match (&history, &refused) {
+                    (flow::History::Ready, Some(reason)) => fluid::start_state(reason),
+                    (flow::History::Loading, _) => fluid::history_state(None, &metrics),
+                    (flow::History::Failed(reason), _) => fluid::history_state(Some(reason), &metrics),
+                    (flow::History::Ready, None) => fluid::empty_state(workspace.as_deref(), &metrics),
                 });
                 let splash = self.view.splash(cx, ids!(empty_splash));
                 if let Err(e) = self.mounts.mount(cx, &splash, &dsl) {
@@ -5578,6 +6365,7 @@ impl OctoscodeView {
         let bridge = self.bridge.clone();
         let mut tail_seen = self.tail_seen;
         let hold = self.tail_hold.is_some();
+        let menu_folds = crate::desk::unified();
 
         while let Some(step) = self.view.draw_walk(cx, scope, walk).step() {
             if let Some(mut list) = step.as_portal_list().borrow_mut() {
@@ -5608,7 +6396,7 @@ impl OctoscodeView {
                             .unwrap_or(false);
                         // A4 + A1: the board-3 transcript rows (thinking, files,
                         // notices) composed over A1's folded base rows.
-                        let rows = screens::board3::rows::timeline_folded(&b.store, live, &folded);
+                        let rows = screens::board3::rows::timeline_folded_with_menu(&b.store, live, &folded, menu_folds);
                         (live, rows)
                     };
                     let _ = live;
@@ -5687,9 +6475,14 @@ impl OctoscodeView {
                         // LIVE selection (↑/↓ move it; CommandPalette.tsx:66's
                         // roving selection), no longer hardcoded row 0.
                         item.widget(cx, ids!(palette_row_bg)).set_visible(cx, Some(row) == sel);
-                        item.label(cx, ids!(palette_row_name)).set_text(cx, cmd.name);
                         // A24: the description in the current language (the name is an identifier).
-                        item.label(cx, ids!(palette_row_desc)).set_text(cx, i18n::tr(cmd.description));
+                        let description = crate::desk::command(cmd.description, i18n::tr(cmd.description));
+                        // n11o (E9 2): a Mac leads with what the command does and keeps
+                        // its slash name muted at the trailing edge, as a menu its key.
+                        let (lead, trail): (&str, &str) =
+                            if crate::desk::active() { (description.as_ref(), cmd.name) } else { (cmd.name, description.as_ref()) };
+                        item.label(cx, ids!(palette_row_name)).set_text(cx, lead);
+                        item.label(cx, ids!(palette_row_desc)).set_text(cx, trail);
                         item.draw_all_unscoped(cx);
                     }
                 } else if uid == review_files_uid {
@@ -5844,6 +6637,39 @@ impl OctoscodeView {
                 .view(cx, &[live_id!(board3_splash), live_id!(b3_scroll)])
                 .set_scroll_pos(cx, dvec2(0.0, y));
             self.view.redraw(cx);
+        } else if let Some(row) = screens::board3::host::take_pending_reveal() {
+            // A Mac list's selection, moved by the keyboard, stays in view.
+            let scroll = self.view.view(cx, &[live_id!(board3_splash), live_id!(b3_scroll)]);
+            let r = self.view.widget(cx, &[live_id!(board3_splash), LiveId::from_str(&row)]).area().rect(cx);
+            let s = scroll.area().rect(cx);
+            if r.size.y > 0.0 && s.size.y > 0.0 {
+                let dy = if r.pos.y < s.pos.y {
+                    r.pos.y - s.pos.y
+                } else if r.pos.y + r.size.y > s.pos.y + s.size.y {
+                    (r.pos.y + r.size.y) - (s.pos.y + s.size.y)
+                } else {
+                    0.0
+                };
+                if let Some(at) = host_makepad::scroll_y(&scroll).filter(|_| dy != 0.0) {
+                    let y = (at + dy).max(0.0);
+                    scroll.set_scroll_pos(cx, dvec2(0.0, y));
+                    self.view.redraw(cx);
+                }
+            }
+        }
+        if let Some(y) = screens::onboarding::take_menu_scroll() {
+            let scroll = self.view.view(cx, &[live_id!(board3_splash), live_id!(b3_onb_list_scroll)]);
+            if scroll.area().rect(cx).size.y > 0.0 {
+                scroll.set_scroll_pos(cx, dvec2(0.0, y));
+                self.view.redraw(cx);
+            }
+        }
+        // A field needs this frame's layout before it can take the keyboard.
+        if let Some(id) = self.b3_refocus.take() {
+            self.view.widget(cx, &[live_id!(board3_splash), id]).set_key_focus(cx);
+        }
+        if std::mem::take(&mut self.palette_refocus) {
+            self.view.widget(cx, ids!(palette_search)).set_key_focus(cx);
         }
         // A23 — the board-1 editor's body likewise.
         if let Some(y) = screens::board1::take_pending_scroll() {
@@ -5856,6 +6682,7 @@ impl OctoscodeView {
     }
 
     fn handle_event_unguarded(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.follow_host_style(cx);
         // #36g device round: on Android the platform marks itself packaged
         // (package_root = Some("makepad"), android.rs:3455) but the packaged
         // script-resource branch is compiled OUT for android (res.rs,
@@ -5898,10 +6725,13 @@ impl OctoscodeView {
                 }
             }
         }
+        // A row's right-click menu is up: the arrows, Return and Escape are the
+        // menu's (Escape closes only it); nothing behind it hears them.
+        let menu_keys = matches!(event, Event::KeyDown(_) | Event::KeyUp(_)) && host_makepad::row_menu_up(cx);
         // Inspect selection BEFORE TextInput handles Ctrl+X. After a native
         // cut the selection is empty, which would incorrectly send pending work.
         if let Event::KeyDown(e) = event {
-            if e.key_code == KeyCode::KeyX && !e.is_repeat && e.modifiers.control
+            if !menu_keys && e.key_code == KeyCode::KeyX && !e.is_repeat && e.modifiers.control
                 && !e.modifiers.logo && !e.modifiers.alt && !e.modifiers.shift {
                 let input = self.view.text_input(cx, &[live_id!(i0_composer_0)]);
                 let selection = input.selection();
@@ -5919,6 +6749,15 @@ impl OctoscodeView {
         }
         self.handle_sidebar_resize(cx, event);
         self.view.handle_event(cx, event, scope);
+        if menu_keys {
+            // A menu that went with its view (a remount) leaves the flag up: an
+            // Escape that finds it still up gives the keys back.
+            if matches!(event, Event::KeyDown(e) if e.key_code == KeyCode::Escape) && host_makepad::row_menu_up(cx) {
+                host_makepad::forget_row_menu(cx);
+            } else {
+                return;
+            }
+        }
         // A29 — a scroll in the transcript, or a press inside it, ends the
         // aside's tail hold (the person is reading back or opening a row).
         if let Some(at) = self.tail_hold {
@@ -5943,6 +6782,10 @@ impl OctoscodeView {
             attention::start(cx);
             self.sync_labels(cx);
         }
+        // A Mac sheet's list, laid out: its scroll area ends on a row.
+        if self.row_edge_frame.is_event(event).is_some() && self.end_scroll_on_a_row(cx) {
+            self.sync_labels(cx);
+        }
         match event {
             Event::Signal => {
                 // #32h item 1: drain the card taps the NAV global enqueued
@@ -5951,6 +6794,13 @@ impl OctoscodeView {
                 for t in taps {
                     if self.dialog_events.contains(&t) {
                         continue; // A5: routed by the dialog's clicked() path
+                    }
+                    // A Mac list row's right-click menu: the row's own event.
+                    if let Some(ev) = t.strip_prefix("menu:") {
+                        makepad_widgets::log!("[octoscode] row menu: {ev}");
+                        let (base, row) = screens::taps::split_row(ev);
+                        self.perform_action(cx, base, row.unwrap_or(0));
+                        continue;
                     }
                     makepad_widgets::log!("[octoscode] nav route: {t}");
                     self.perform_screen_action(&t, None);
@@ -5962,6 +6812,9 @@ impl OctoscodeView {
                     self.run_palette_row(cx, row, &args);
                 }
                 self.sync_labels(cx);
+                // A finished job (a row's download or preview, a fold's fetch)
+                // wakes the UI here: its rows re-lower when they are drawn.
+                self.view.redraw(cx);
             }
             // #28e3 item 1: track the window width — the responsive layout
             // (center min 420, review overlay when narrow, sidebar hidden
@@ -5969,6 +6822,12 @@ impl OctoscodeView {
             Event::WindowGeomChange(ev) => {
                 self.window_w = ev.new_geom.inner_size.x;
                 self.window_h = ev.new_geom.inner_size.y;
+                if crate::desk::active() && screens::board3::host::open_dialog() == Some(screens::board3::host::Dialog::Launch)
+                    && screens::launch::is_no_profile(&screens::launch::snapshot()) && screens::onboarding::menu_open()
+                {
+                    self.perform_action(cx, "b3.onb.menu.close", 0);
+                    self.sync_labels(cx);
+                }
                 self.sync_chrome(cx);
             }
             // A25: a notice fires only while the window is not focused, and
@@ -6023,8 +6882,19 @@ impl OctoscodeView {
                 // always-mounted entries (the Connect screen's pairing link,
                 // the Settings rows) and the platform's QR answer.
                 let board1_events = screens::board1::collect(cx, &self.view, &self.board1_controls, actions);
+                let board1_acted = !board1_events.is_empty();
                 for (action, value) in board1_events {
                     self.perform_board1(cx, &action, value.as_deref());
+                }
+                if board1_acted {
+                    let dock = self.board1_dock_ref(cx);
+                    let faces = screens::board1::live_visibility();
+                    for (id, shown) in &faces {
+                        dock.widget(cx, &[live_id!(board1_splash), LiveId::from_str(id)]).set_visible(cx, *shown);
+                    }
+                    if !faces.is_empty() {
+                        self.view.redraw(cx);
+                    }
                 }
                 // Card #21c item 5: the ONE composer is the mounted #16
                 // component. Its own input is a real `TextInput` (id
@@ -6069,7 +6939,8 @@ impl OctoscodeView {
                         if text.trim_start().starts_with('/') {
                             screens::palette::set_query(&text);
                             self.fit_palette_list(cx);
-                            if open {
+                            // A Mac's composer is the one field typing here.
+                            if open && !crate::desk::active() {
                                 self.view
                                     .text_input(cx, &[live_id!(palette_search)])
                                     .set_text(cx, &text);
@@ -6239,7 +7110,33 @@ impl OctoscodeView {
                         self.view.text_input(cx, &[wid]).returned(actions).is_some()
                     });
                     if returned {
-                        self.submit_dialog_form(cx);
+                        let values = self.dialog_form_values(cx, &form);
+                        if !crate::desk::active() || screens::dialog::form_ready(&form, &values) {
+                            self.submit_dialog_form(cx);
+                        }
+                    }
+                    if crate::desk::active() {
+                        let typed = form.fields.iter().any(|(id, _, _)| {
+                            let wid = LiveId::from_str(&screens::dialog::form_input_id(form.dialog, id));
+                            self.view.text_input(cx, &[wid]).changed(actions).is_some()
+                        });
+                        if typed {
+                            let values = self.dialog_form_values(cx, &form);
+                            let ready = screens::dialog::form_ready(&form, &values);
+                            for (face, shown) in [("ff_submit_on", ready), ("ff_submit_off", !ready)] {
+                                let wid = LiveId::from_str(&screens::dialog::form_input_id(form.dialog, face));
+                                self.view.widget(cx, &[wid]).set_visible(cx, shown);
+                            }
+                            // The reason beside an off default says what is still to fill in (E7 5).
+                            let wants = screens::dialog::form_wants(&form, &values);
+                            let wid = LiveId::from_str(&screens::dialog::form_input_id(form.dialog, "ff_reason"));
+                            self.view.widget(cx, &[wid]).set_visible(cx, wants.is_some());
+                            if let Some(words) = wants {
+                                let lid = LiveId::from_str(&screens::dialog::form_input_id(form.dialog, "ff_reason_label"));
+                                self.view.label(cx, &[lid]).set_text(cx, crate::i18n::tr(words));
+                            }
+                            self.view.redraw(cx);
+                        }
                     }
                 }
                 // A5 — a palette row runs its command on click; the search
@@ -6285,6 +7182,9 @@ impl OctoscodeView {
                         let store = { self.bridge.lock().unwrap().store.clone() };
                         let outcome = screens::board3::host::input_returned(key, &store);
                         makepad_widgets::log!("[octoscode] board3 return in {key} -> {outcome:?}");
+                        if crate::desk::active() && screens::board3::host::take_blur() {
+                            cx.set_key_focus(Area::Empty);
+                        }
                         self.board3_outcome(cx, outcome);
                         b3_dirty = true;
                     }
@@ -6306,6 +7206,15 @@ impl OctoscodeView {
                 ] {
                     if self.view.button(cx, &[live_id!(queue_splash), id]).clicked(actions) {
                         self.composer_extra_tap(which);
+                    }
+                }
+                // n12g (E10 3): an attached image's x in the composer (a desktop's).
+                for i in 0..screens::media::MAX_TURN_IMAGES {
+                    let id = LiveId::from_str(&format!("composer_att_remove_{i}"));
+                    if self.view.button(cx, &[live_id!(queue_splash), id]).clicked(actions) {
+                        makepad_widgets::log!("[octoscode] composer attachment {i} removed");
+                        self.perform_action(cx, "b3.img.remove", i);
+                        self.sync_composer_extras(cx);
                     }
                 }
                 // A29 — the aside's Close and its collapse chevron
@@ -6346,20 +7255,48 @@ impl OctoscodeView {
                     && self.view.button(cx, ids!(fleet_nav_hit)).clicked(actions)
                 {
                     makepad_widgets::log!("[octoscode] sidebar: fleet");
-                    self.perform_action(cx, "b3.open.fleet", 0);
+                    // On a desktop the row is the way in and the way back.
+                    let action = if crate::desk::fleet_is_selected() { "b3.close" } else { "b3.open.fleet" };
+                    self.perform_action(cx, action, 0);
                     // A destination closes the phone drawer (a no-op on the
                     // desktop column).
                     self.perform_action(cx, "drawer.close", 0);
                 }
-                // A4 — the image picker's answer (screen 10).
+                // A4 — the image picker's answer (screen 10), and the folder panel's.
                 for action in actions.iter() {
-                    if let Some(FileDialogAction::FileSelected { id, paths }) =
-                        action.downcast_ref::<FileDialogAction>()
-                    {
-                        if *id == live_id!(b3_images) {
+                    match action.downcast_ref::<FileDialogAction>() {
+                        Some(FileDialogAction::FileSelected { id, paths }) if *id == live_id!(b3_images) => {
                             makepad_widgets::log!("[octoscode] board3 images chosen: {}", paths.len());
+                            // n12g (E10 3): a desktop's + attaches what the panel chose to the
+                            // composer itself (no sheet); they go up with the message.
+                            if crate::desk::active() && std::mem::take(&mut self.plus_picking) {
+                                let conv = { self.bridge.lock().unwrap().conv.clone() };
+                                if let Some(conv) = conv {
+                                    screens::board3::host::attach_chosen(&conv, paths);
+                                }
+                                self.sync_composer_extras(cx);
+                                continue;
+                            }
+                            if std::mem::take(&mut self.plus_picking) {
+                                let conv = { self.bridge.lock().unwrap().conv.clone() };
+                                if let Some(out) = conv.and_then(|conv| screens::board3::host::command("images", "", &conv)) {
+                                    self.board3_outcome(cx, out);
+                                }
+                            }
                             screens::board3::host::files_chosen(paths);
                         }
+                        Some(FileDialogAction::FileCancelled { id }) if *id == live_id!(b3_images) => {
+                            self.plus_picking = false;
+                        }
+                        Some(FileDialogAction::FolderSelected(path)) if screens::board1::take_folder_panel() => {
+                            for work in screens::board1::folder_chosen(&path.to_string_lossy()) {
+                                self.perform_board1_work(cx, work);
+                            }
+                        }
+                        Some(FileDialogAction::FolderCancelled) => {
+                            screens::board1::take_folder_panel();
+                        }
+                        _ => {}
                     }
                 }
                 // The #16 `new-chat` component, and the host hit target laid over
@@ -6389,6 +7326,29 @@ impl OctoscodeView {
                 if new_chat_clicked {
                     makepad_widgets::log!("[octoscode] new_chat clicked");
                     self.perform_action(cx, bindings::ACTION_NEW_CHAT, 0);
+                }
+                // A Mac's refused new chat: Try Again opens it again, as its
+                // sidebar row would (`flow::RowClick::Reopen`).
+                if crate::desk::active() && self.view.button(cx, ids!(new_chat_retry)).clicked(actions) {
+                    let index = {
+                        let b = self.bridge.lock().unwrap();
+                        let active = b.store.active_session();
+                        b.store.sessions().iter().position(|s| Some(&s.id) == active.as_ref())
+                    };
+                    makepad_widgets::log!("[octoscode] new chat: Try Again (row {index:?})");
+                    if let Some(index) = index {
+                        self.perform_action(cx, "session.open", index);
+                    }
+                }
+                if crate::desk::active() && self.view.button(cx, ids!(history_retry)).clicked(actions) {
+                    let index = {
+                        let b = self.bridge.lock().unwrap();
+                        let active = b.store.active_session();
+                        b.store.sessions().iter().position(|s| Some(&s.id) == active.as_ref())
+                    };
+                    if let Some(index) = index {
+                        self.perform_action(cx, "session.open", index);
+                    }
                 }
                 // The composer's send control. While a turn is running the same
                 // control is STOP (scene 08 / Codex) and sends `turn/interrupt`
@@ -6420,12 +7380,14 @@ impl OctoscodeView {
                 // menu — a dangerous preset goes through its confirmation,
                 // never a blind cycle — and the model label (model seat)
                 // opens the model menu.
-                if self.view.button(cx, ids!(approval_pill_hit)).clicked(actions) {
+                // While a lost connection re-dials a Mac's seats stay, dimmed: no menu.
+                let seats_live = !crate::desk::active() || { self.bridge.lock().unwrap().store.is_live() };
+                if self.view.button(cx, ids!(approval_pill_hit)).clicked(actions) && seats_live {
                     makepad_widgets::log!("[octoscode] permission seat clicked");
                     let out = screens::board3::host::open(screens::board3::host::Dialog::Permission);
                     self.board3_outcome(cx, out);
                 }
-                if self.view.button(cx, ids!(model_seat_hit)).clicked(actions) {
+                if self.view.button(cx, ids!(model_seat_hit)).clicked(actions) && seats_live {
                     makepad_widgets::log!("[octoscode] model seat clicked");
                     let out = screens::board3::host::open(screens::board3::host::Dialog::ModelMenu);
                     self.board3_outcome(cx, out);
@@ -6437,7 +7399,12 @@ impl OctoscodeView {
                 // a protocol method yet; it stays a hit target.
                 if self.view.button(cx, ids!(plus_hit)).clicked(actions) {
                     makepad_widgets::log!("[octoscode] composer plus clicked: turn images");
-                    if !self.refuse_palette_offline(cx, "/images") {
+                    if crate::desk::active() && !self.refuse_palette_offline(cx, "/images") {
+                        // A Mac's + opens the file panel straight away (Mail, Messages);
+                        // Turn images opens with what was chosen, and nothing opens on Cancel.
+                        self.plus_picking = true;
+                        self.board3_outcome(cx, screens::board3::host::Outcome::PickFiles);
+                    } else if !crate::desk::active() && !self.refuse_palette_offline(cx, "/images") {
                         let conv = { self.bridge.lock().unwrap().conv.clone() };
                         if let Some(out) = conv.and_then(|conv| screens::board3::host::command("images", "", &conv)) {
                             self.board3_outcome(cx, out);
@@ -6462,7 +7429,8 @@ impl OctoscodeView {
                         .unwrap_or(false);
                     let folded = b.ui.lock().unwrap().folded_turns();
                     // A4 + A1: board-3 rows composed over A1's folded base rows.
-                    let rows = screens::board3::rows::timeline_folded(&b.store, live, &folded);
+                    let menu_folds = crate::desk::unified();
+                    let rows = screens::board3::rows::timeline_folded_with_menu(&b.store, live, &folded, menu_folds);
                     (live, rows)
                 };
                 let _ = live;
@@ -6486,6 +7454,9 @@ impl OctoscodeView {
                                     }
                                     let (base, r) = screens::taps::split_row(&ev);
                                     self.perform_action(cx, base, r.unwrap_or(0));
+                                    // The row re-lowers when it is drawn: a fold's
+                                    // state lives outside the store's change feed.
+                                    self.view.redraw(cx);
                                     routed = true;
                                 }
                             }
@@ -6701,6 +7672,98 @@ impl OctoscodeView {
                     handled.set(true);
                 }
             }
+            // On a desktop a question before something goes for good answers
+            // Cancel to Return, its default, and to Escape.
+            Event::KeyDown(e)
+                if crate::desk::active()
+                    && screens::settings::snapshot().stop_pending
+                    && matches!(e.key_code, KeyCode::ReturnKey | KeyCode::NumpadEnter | KeyCode::Escape) =>
+            {
+                self.perform_action(cx, "server.stop.cancel", 0);
+                self.sync_chrome(cx);
+                self.view.redraw(cx);
+            }
+            Event::KeyDown(e)
+                if crate::desk::active()
+                    && screens::a9_settings::pending().is_some()
+                    && matches!(e.key_code, KeyCode::ReturnKey | KeyCode::NumpadEnter) =>
+            {
+                self.a9_escape(cx);
+            }
+            // The New Chat alert: Return answers its default, Try Again.
+            Event::KeyDown(e)
+                if crate::desk::active()
+                    && screens::start_alert::pending().is_some()
+                    && matches!(e.key_code, KeyCode::ReturnKey | KeyCode::NumpadEnter) =>
+            {
+                self.perform_action(cx, screens::start_alert::ACTION_RETRY, 0);
+            }
+            // A setup menu owns its navigation keys until a choice or Escape.
+            Event::KeyDown(e)
+                if crate::desk::active()
+                    && screens::board3::host::open_dialog() == Some(screens::board3::host::Dialog::Launch)
+                    && screens::launch::is_no_profile(&screens::launch::snapshot())
+                    && screens::onboarding::menu_open()
+                    && matches!(e.key_code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::ReturnKey | KeyCode::NumpadEnter | KeyCode::Escape) =>
+            {
+                match e.key_code {
+                    KeyCode::ArrowUp => self.perform_action(cx, "b3.onb.menu.up", 0),
+                    KeyCode::ArrowDown => self.perform_action(cx, "b3.onb.menu.down", 0),
+                    KeyCode::ReturnKey | KeyCode::NumpadEnter => {
+                        if let Some(i) = screens::onboarding::menu_cursor() {
+                            self.perform_action(cx, "b3.onb.pick", i);
+                        }
+                    }
+                    KeyCode::Escape => self.perform_action(cx, "b3.onb.menu.close", 0),
+                    _ => {}
+                }
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+            }
+            // n11o (E9 5): the interval's unit menu owns its keys while it is up:
+            // the arrows move its highlight, Return picks, Escape closes only the menu.
+            Event::KeyDown(e)
+                if crate::desk::active()
+                    && screens::dialog::current().is_some()
+                    && screens::dialog::unit_menu().is_some()
+                    && screens::dialog::pending_form().is_some_and(|f| f.unit.is_some())
+                    && matches!(e.key_code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::ReturnKey | KeyCode::NumpadEnter | KeyCode::Escape) =>
+            {
+                let pick = screens::dialog::unit_cursor().map(|u| format!("{}{u}", screens::dialog::ACTION_FORM_UNIT));
+                let action = match e.key_code {
+                    KeyCode::ArrowUp => screens::dialog::ACTION_FORM_UNIT_CURSOR_UP.to_owned(),
+                    KeyCode::ArrowDown => screens::dialog::ACTION_FORM_UNIT_CURSOR_DOWN.to_owned(),
+                    KeyCode::ReturnKey | KeyCode::NumpadEnter => pick.unwrap_or_else(|| screens::dialog::ACTION_FORM_UNIT_MENU.to_owned()),
+                    _ => screens::dialog::ACTION_FORM_UNIT_MENU.to_owned(),
+                };
+                makepad_widgets::log!("[octoscode] key {:?} -> {action}", e.key_code);
+                self.perform_action(cx, &action, 0);
+            }
+            Event::KeyDown(e)
+                if crate::desk::active()
+                    && matches!(e.key_code, KeyCode::ReturnKey | KeyCode::NumpadEnter | KeyCode::Escape)
+                    && screens::board3::host::destructive_question().is_some()
+                    && (e.key_code == KeyCode::Escape || !self.sheet_field_focused(cx)) =>
+            {
+                if let Some(cancel) = screens::board3::host::destructive_question() {
+                    self.perform_action(cx, cancel, 0);
+                }
+                self.sync_labels(cx);
+            }
+            Event::KeyDown(e)
+                if crate::desk::active()
+                    && matches!(e.key_code, KeyCode::ReturnKey | KeyCode::NumpadEnter | KeyCode::Escape)
+                    && screens::dialog::current().is_some()
+                    // Escape is every question's Cancel; Return is only when Cancel is the default.
+                    && screens::dialog::pending_confirm().is_some_and(|c| e.key_code == KeyCode::Escape || screens::dialog::confirm_destroys(&c)) =>
+            {
+                self.perform_action(cx, screens::dialog::ACTION_CANCEL, 0);
+            }
+            // A Mac's default: Return answers a sheet's blue button.
+            Event::KeyDown(e)
+                if crate::desk::active()
+                    && matches!(e.key_code, KeyCode::ReturnKey | KeyCode::NumpadEnter)
+                    && self.sheet_return(cx) => {}
             // #A2: while a board-1 dialog is open its fields own the
             // keyboard — Return must not submit the composer's draft and "/"
             // must not open the palette. Escape steps back (the web's
@@ -6734,8 +7797,33 @@ impl OctoscodeView {
             {
                 // A4 — Escape closes the open board-3 dialog first
                 // (`ui/ModalSurface.tsx` onEscape), never interrupting a turn.
-                screens::board3::host::close();
+                if crate::desk::active() && screens::board3::host::on_note_form() {
+                    self.perform_action(cx, "b3.mem.add.cancel", 0);
+                } else if crate::desk::active() && screens::board3::host::on_research_form() {
+                    self.perform_action(cx, "b3.research.list", 0);
+                } else if crate::desk::active() && screens::board3::host::fleet_menu_open() {
+                    self.perform_action(cx, "b3.fleet.lane.toggle", 0);
+                } else {
+                    screens::board3::host::close();
+                }
                 makepad_widgets::log!("[octoscode] board3 closed (Escape)");
+                self.sync_labels(cx);
+            }
+            // A Mac's list sheet: the arrows move its selection, Delete asks to
+            // delete the selected row (never while one of its fields types).
+            Event::KeyDown(e)
+                if crate::desk::active()
+                    && !e.modifiers.logo
+                    && !e.modifiers.alt
+                    && !e.modifiers.control
+                    && matches!(e.key_code, KeyCode::ArrowUp | KeyCode::ArrowDown | KeyCode::Delete | KeyCode::Backspace)
+                    && screens::board3::host::list_key(list_step(e.key_code)).is_some()
+                    && !self.sheet_field_focused(cx) =>
+            {
+                if let Some(event) = screens::board3::host::list_key(list_step(e.key_code)) {
+                    let (base, row) = screens::taps::split_row(event);
+                    self.perform_action(cx, base, row.unwrap_or(0));
+                }
                 self.sync_labels(cx);
             }
             // A6 — Escape closes the task detail (`TaskDetailDialog.tsx:33`).
@@ -6779,7 +7867,9 @@ impl OctoscodeView {
                         // dispatch / availability notice).
                         screens::keys::ParityShortcut::FocusDispatch => {
                             makepad_widgets::log!("[octoscode] shortcut Alt+D -> fleet");
-                            self.perform_action(cx, "b3.open.fleet", 0);
+                            if !crate::desk::hosted() {
+                                self.perform_action(cx, "b3.open.fleet", 0);
+                            }
                             self.sync_labels(cx);
                             return;
                         }
@@ -6790,6 +7880,31 @@ impl OctoscodeView {
                             return;
                         }
                         screens::keys::ParityShortcut::ShowApproval => {}
+                    }
+                }
+                // A Mac's menu chords, where nothing modal holds the keyboard.
+                if crate::desk::active() && e.modifiers.logo && !e.modifiers.alt && !self.shortcut_facts(cx).in_dialog {
+                    let action = match (e.key_code, e.modifiers.shift, e.modifiers.control) {
+                        (KeyCode::KeyN, false, false) => Some("new_chat"),
+                        (KeyCode::KeyF, false, false) => Some("search.open"),
+                        (KeyCode::KeyO, false, false) => Some("workspace.add"),
+                        (KeyCode::Comma, false, false) => Some("settings.toggle"),
+                        (KeyCode::KeyS, false, true) => Some(if screens::sidebar::snapshot().rail { "sidebar.expand" } else { "sidebar.collapse" }),
+                        (KeyCode::KeyE, false, true) => Some("cv.fold.expand_all"),
+                        (KeyCode::KeyC, false, true) => Some("cv.fold.collapse_all"),
+                        _ => None,
+                    };
+                    if let Some(action) = action {
+                        makepad_widgets::log!("[octoscode] menu chord -> {action}");
+                        if action == "settings.toggle" {
+                            let ui = self.bridge.lock().unwrap().ui.clone();
+                            ui.lock().unwrap().toggle_settings();
+                        } else {
+                            self.perform_action(cx, action, 0);
+                        }
+                        self.sync_labels(cx);
+                        self.view.redraw(cx);
+                        return;
                     }
                 }
                 // A3: Escape closes the top-most chrome surface first.
@@ -7005,6 +8120,9 @@ impl OctoscodeView {
                 }
                 if open_changed {
                     self.sync_labels(cx);
+                    if crate::desk::active() {
+                        self.palette_keyboard(cx);
+                    }
                     // The palette's rows (and the highlight that follows the
                     // LIVE selection) draw in `draw_walk` — an explicit redraw
                     // or the move paints only on some future frame.
@@ -7033,6 +8151,8 @@ fn screen_owned(action: &str) -> bool {
 
 /// Register the native UI without a shell or AppModule host.
 pub fn register_widgets(vm: &mut ScriptVm) {
+    // The Mac look on a desktop, before any template or lowering reads it.
+    desk::note_style(vm);
     // #32f: seed the design root from the host's files dir BEFORE any
     // design read — register() itself reads the component ledger below
     // (`components::log_resolutions`), and on the phone root() would
@@ -7085,6 +8205,7 @@ pub fn register_widgets(vm: &mut ScriptVm) {
     // (`beauty.rs:356-364`).
     octoscript_widgets::design::script_mod(vm);
     octoscript_widgets::kit::script_mod(vm);
+    desk::register_vocabulary(vm);
     // Card #15b: the same vocabulary, process-wide, for any OTHER isolate
     // (the tests and the card probes lower there).
     l0_host::register_vocabulary();

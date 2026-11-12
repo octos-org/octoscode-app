@@ -71,6 +71,12 @@ pub mod copy {
     pub const SELECTION_BLOCKED: &str = "This configured model contains settings this editor cannot preserve. Edit it through Core configuration instead.";
     pub const INFERENCE_UNSAFE: &str = "The configured model inference settings cannot be safely preserved.";
     pub const EDITOR_INTRO: &str = "Configure one Core model identity, endpoint route, and write-only credential.";
+    pub const FIXED_DESK: &str = "The provider and route of a saved model can't be changed. Add another provider instead.";
+    pub const ENV_HINT_DESK: &str = "Stored under this name. Never shown again.";
+    pub const KEY_WRITE_ONLY_DESK: &str = "Sent only when you test, fetch models or save, and never shown again.";
+    pub const PARAMETERS_DESK: &str = "Request parameters are shown for reference and can't be changed here.";
+    pub const EMPTY_HINT_DESK: &str = "Add a provider to make its models available.";
+    pub const EDIT_BLOCKED_DESK: &str = "This entry has settings the editor can't keep, so it can't be edited here.";
     pub const FIXED_PROVIDER: &str = "Provider identity is fixed. Add another provider to change it.";
     pub const FIXED_ROUTE: &str = "Route identity is fixed for existing configurations.";
     pub const ENV_HINT: &str = "Core stores the write-only key under this environment-name reference; the value itself is never read back.";
@@ -350,7 +356,10 @@ pub fn parse_configured(value: &Value) -> Option<ConfiguredModel> {
         .collect();
     let inference = parse_inference(&present)?;
     let edit_blocked = v.iter().any(|(k, x)| {
-        !CONFIGURED_KEYS.contains(&k.as_str()) && !((k == "cost_per_m" || k == "strong") && x.is_null())
+        !CONFIGURED_KEYS.contains(&k.as_str())
+            // A display name a shell's kernel may send: nothing a person set, nothing to keep.
+            && !(k == "title" && crate::desk::active())
+            && !((k == "cost_per_m" || k == "strong") && x.is_null())
     }) || route.keys().any(|k| !ROUTE_KEYS.contains(&k.as_str()));
     Some(ConfiguredModel { family_id, model_id, route: r, has_api_key, selected, available, inference, edit_blocked })
 }
@@ -489,15 +498,17 @@ pub struct Projection {
 }
 
 fn title_case(value: &str) -> String {
-    value
-        .split(['-', '_'])
-        .filter(|p| !p.is_empty())
-        .map(|p| {
-            let mut c = p.chars();
-            c.next().map(|f| f.to_uppercase().collect::<String>() + c.as_str()).unwrap_or_default()
-        })
-        .collect::<Vec<_>>()
-        .join(" ")
+    crate::desk::brand_case(
+        value
+            .split(['-', '_'])
+            .filter(|p| !p.is_empty())
+            .map(|p| {
+                let mut c = p.chars();
+                c.next().map(|f| f.to_uppercase().collect::<String>() + c.as_str()).unwrap_or_default()
+            })
+            .collect::<Vec<_>>()
+            .join(" "),
+    )
 }
 
 /// `familyLabel`.
@@ -518,7 +529,7 @@ pub fn model_label(id: &str) -> String {
     if id == "glm-5.3-flash" {
         return "GLM-5.3-Flash".into();
     }
-    id.split('-')
+    let words = id.split('-')
         .map(|part| {
             if part.eq_ignore_ascii_case("glm") {
                 "GLM".to_owned()
@@ -530,7 +541,8 @@ pub fn model_label(id: &str) -> String {
             }
         })
         .collect::<Vec<_>>()
-        .join(" ")
+        .join(" ");
+    crate::desk::brand_case(words)
 }
 
 /// `routeLabel`.

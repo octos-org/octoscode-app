@@ -33,6 +33,27 @@ pub const FIRST_RUN_SIDEBAR_W: f64 = 261.0;
 /// (`lib.rs` `width_hides_sidebar`, the web's `@media (max-width: 760px)`).
 pub const PHONE_BREAKPOINT: f64 = 760.0;
 
+/// A desktop's seats and breakpoint (`crate::desk`): the 220-point sidebar and
+/// its rule, and the width below which the sidebar becomes a drawer. A desktop
+/// window never takes the phone's density, whatever its width.
+pub const DESK_SIDEBAR_W: f64 = 221.0;
+pub const DESK_BREAKPOINT: f64 = 600.0;
+
+/// The live sidebar's seat, by the running look.
+pub fn sidebar_seat() -> f64 {
+    crate::desk::by(SIDEBAR_W, DESK_SIDEBAR_W)
+}
+
+/// The first-run sidebar's seat, by the running look.
+pub fn first_run_seat() -> f64 {
+    crate::desk::by(FIRST_RUN_SIDEBAR_W, 0.0)
+}
+
+/// Below this module width the sidebar hides, by the running look.
+pub fn breakpoint() -> f64 {
+    crate::desk::by(PHONE_BREAKPOINT, DESK_BREAKPOINT)
+}
+
 /// Text and spacing density: the web's desktop numbers, or the approved
 /// phone boards' (the 406 px artboards are the phone design).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -68,9 +89,9 @@ impl Metrics {
     /// says whether the 260 px thread column takes part of it.
     pub fn for_window(window_w: f64, sidebar_shown: bool) -> Metrics {
         let window_w = if window_w > 0.0 { window_w } else { 990.0 };
-        let phone = window_w < PHONE_BREAKPOINT;
-        let pane_w = if sidebar_shown && !phone {
-            (window_w - SIDEBAR_W).max(1.0)
+        let narrow = window_w < breakpoint();
+        let pane_w = if sidebar_shown && !narrow {
+            (window_w - sidebar_seat()).max(1.0)
         } else {
             window_w
         };
@@ -84,6 +105,22 @@ impl Metrics {
     pub fn for_geometry(window_w: f64, pane_w: f64) -> Metrics {
         let window_w = if window_w > 0.0 { window_w } else { 990.0 };
         let pane_w = if pane_w > 0.0 { pane_w } else { window_w };
+        // A desktop's conversation is the pane: no phone density at any width,
+        // no reading column, a Mac window's gutters.
+        if crate::desk::active() {
+            const GUTTER: f64 = 20.0;
+            let column_w = (pane_w - 2.0 * GUTTER).max(1.0).floor();
+            return Metrics {
+                density: Density::Desktop,
+                pane_w,
+                column_w,
+                column_pad: GUTTER,
+                composer_w: column_w,
+                composer_pad: GUTTER,
+                prose_max_w: column_w,
+                bubble_max_w: (0.8 * column_w).min(620.0).floor(),
+            };
+        }
         let phone = window_w < PHONE_BREAKPOINT;
         let (column_pad, composer_pad) = if phone { (16.0, 12.0) } else { (24.0, 24.0) };
         // clamp(736px, 62vw, 1040px) — `vw` is the whole window, as in the

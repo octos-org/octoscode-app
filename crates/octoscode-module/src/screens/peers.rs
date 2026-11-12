@@ -450,6 +450,8 @@ pub fn compose_gather_prompt(peers: &[octoscode_client::domains::peer::PeerGathe
 pub fn row_label(index: usize, model: Option<&str>) -> String {
     let peer = crate::i18n::tr1("Peer {value0}", &(index + 1).to_string());
     match model {
+        // A Mac names the model ("Peer 1 · GLM-4.6"), a phone shows its id.
+        Some(m) if !m.is_empty() && crate::desk::active() => format!("{peer} · {}", crate::desk::model_word(m)),
         Some(m) if !m.is_empty() => format!("{peer} · {m}"),
         _ => peer,
     }
@@ -483,6 +485,17 @@ pub fn format_tokens(n: u64) -> String {
     } else {
         format!("↓ {n}")
     }
+}
+
+/// A peer's token count as a Mac's label says it, in words: "12.4K tokens" (as
+/// the App Store counts its ratings), never the web's `↓ 12.4k`. As
+/// [`format_tokens`] on a phone.
+pub fn token_words(n: u64) -> String {
+    if !crate::desk::active() {
+        return format_tokens(n);
+    }
+    let short = format_tokens(n).trim_start_matches("↓ ").replace('k', "K");
+    crate::i18n::tr1(if n == 1 { "{value0} token" } else { "{value0} tokens" }, &short)
 }
 
 /// The product row actions (`PeerRowAction`).

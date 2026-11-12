@@ -138,6 +138,13 @@ pub struct RoutesState {
     pub config: Option<Config>,
     /// A23 — the provider catalog (the Add form's families).
     pub catalog: Option<octoscode_client::domains::profile::LlmCatalogResult>,
+    /// A Mac's list: the selected route (else the first).
+    pub selected: Option<usize>,
+}
+
+/// A Mac's list selection: the chosen route, else the first.
+pub fn selection(st: &RoutesState) -> Option<usize> {
+    ui::selection_of(st.selected, None, st.routes.len())
 }
 
 impl RoutesState {
@@ -202,6 +209,33 @@ fn seed(st: &RoutesState, store: &Store, proj: &ms::Projection) -> provider::See
 
 pub fn perform(st: &mut RoutesState, action: &str, index: usize, store: &Store) -> Outcome {
     st.model_snap = st.model.clone();
+    // A Mac's list: a press selects, a second press edits; the arrows move the
+    // selection; the foot's buttons and the route's menu act on it.
+    match action {
+        "b3.routes.select" => {
+            if index >= st.routes.len() {
+                return Outcome::Done;
+            }
+            let double = ui::second_click("routes", index);
+            st.selected = Some(index);
+            return if double { perform(st, "b3.routes.edit", index, store) } else { Outcome::Done };
+        }
+        "b3.routes.up" | "b3.routes.down" => {
+            let step = if action == "b3.routes.up" { -1 } else { 1 };
+            st.selected = ui::step_selection(selection(st), step, st.routes.len());
+            if let Some(i) = st.selected {
+                super::host::set_pending_reveal(format!("b3_routes_row_{i}"));
+            }
+            return Outcome::Done;
+        }
+        "b3.routes.edit_sel" | "b3.routes.add_sel" | "b3.routes.delete_sel" => {
+            let Some(i) = selection(st) else { return Outcome::Done };
+            st.selected = Some(i);
+            return perform(st, action.trim_end_matches("_sel"), i, store);
+        }
+        "b3.routes.edit" | "b3.routes.add" | "b3.routes.delete" if index < st.routes.len() => st.selected = Some(index),
+        _ => {}
+    }
     if st.busy && action != "b3.routes.cancel" {
         return Outcome::Done;
     }
@@ -552,6 +586,14 @@ fn status_line(d: &mut Dsl, id: &str, text: &str, ok: bool) {
 /// line in the web's quiet box — the tip fill and hairline of the read-only
 /// note (board 1 #4's neutral callout), without its glyph, as on the web.
 fn state_notice(d: &mut Dsl, id: &str, text: &str) {
+    if crate::desk::active() {
+        // Centred in the sheet, like Memory's read.
+        d.view(&format!("{id}_box"), "width: Fill height: Fit flow: Right align: Align{x: 0.5 y: 0.5} spacing: 8 padding: Inset{top: 18 bottom: 18}");
+        d.icon(&format!("{id}_icon"), "b1_spinner.svg", 16.0, tok::MUTED);
+        d.text(id, text, &Txt::new(13.0, Face::Regular, tok::MUTED));
+        d.close();
+        return;
+    }
     d.surface(
         &format!("{id}_box"),
         "width: Fill height: Fit flow: Right padding: Inset{left: 13 right: 13 top: 11 bottom: 11}",
@@ -567,6 +609,10 @@ fn state_notice(d: &mut Dsl, id: &str, text: &str) {
 /// and `:683-686`): an UNREAD configuration's cause in board 1 #3's light red
 /// callout, "Try again" beside it (under it on a phone).
 fn state_error(d: &mut Dsl, st: &RoutesState, msg: &str, compact: bool) {
+    if crate::desk::active() {
+        ui::failure_state(d, "b3_routes_error", copy::LOAD_FAILED, msg, ("b3_routes_retry", "b3.routes.retry"));
+        return;
+    }
     d.surface(
         "b3_routes_error_box",
         &format!(
@@ -592,6 +638,10 @@ fn state_error(d: &mut Dsl, st: &RoutesState, msg: &str, compact: bool) {
 /// the title and hint in a bordered box (26 / 16 insets), centred while the
 /// hint fits on one line, left-aligned where it must wrap (a phone).
 fn empty_state(d: &mut Dsl, body_w: f64) {
+    if crate::desk::active() {
+        ui::mac_state(d, "b3_routes_empty", "b3_sparkle.svg", tr(EMPTY), Some(("b3_routes_empty_hint", tr(copy::EMPTY_HINT_DESK))), None);
+        return;
+    }
     let fits = ui::text_w(tr(copy::EMPTY_HINT), 12.0, Face::Regular) + 34.0 <= body_w;
     d.surface(
         "b3_routes_empty_box",
@@ -613,11 +663,52 @@ fn empty_state(d: &mut Dsl, body_w: f64) {
 #[allow(clippy::too_many_arguments)]
 fn route_card(d: &mut Dsl, st: &RoutesState, i: usize, r: &Route, p: Option<&ms::Provider>, inner_w: f64, caps: ms::Caps, compact: bool) {
     let id = format!("b3_routes_row_{i}");
-    ui::card_open(d, &id, 4.0);
+    let desk = crate::desk::active();
+    let editable = p.is_some_and(|p| p.editable) && caps.can_save();
+    // A Mac's route: its menu holds what the foot does to the selection; a
+    // press selects it; the selection is the gray band.
+    let menu = if desk { row_menu(r, editable, caps, i) } else { Vec::new() };
+    if !menu.is_empty() {
+        d.menu_open(&format!("{id}_menu"), &menu);
+    }
+    let mark = d.mark();
+    if desk {
+        d.view(&format!("{id}_hit"), "width: Fill height: Fit flow: Overlay");
+        let band = ui::selection_fill();
+        let fill = if selection(st) == Some(i) { band.as_str() } else { tok::SURFACE };
+        d.surface(&id, "width: Fill height: Fit flow: Down spacing: 4 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}", fill, 8.0, Some(tok::HAIRLINE));
+    } else {
+        ui::card_open(d, &id, 4.0);
+    }
+    let idle = !st.busy && st.editing.is_none() && st.deleting.is_none();
+    let kind = if idle { Btn::Outline } else { Btn::OutlineOff };
+    // It asks first.
+    let delete_word = if desk { format!("{}\u{2026}", tr("Delete")) } else { tr("Delete").to_owned() };
+    let mut pills: Vec<(String, &str, String)> = Vec::new();
+    if r.removable() {
+        if editable {
+            pills.push((format!("{id}_edit"), tr("Edit"), format!("b3.routes.edit#{i}")));
+        }
+        if caps.can_save() {
+            let add = crate::desk::by("Add a model on this route", "Add Model\u{2026}");
+            pills.push((format!("{id}_add"), tr(add), format!("b3.routes.add#{i}")));
+        }
+        if caps.delete {
+            pills.push((format!("{id}_delete"), &delete_word, format!("b3.routes.delete#{i}")));
+        }
+    }
+    let total: f64 = pills.iter().map(|(_, l, _)| pill_w(l) + 8.0).sum();
     let head = d.anon();
     d.view(&head, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5}");
     let title = p.map(|p| p.name().to_owned()).unwrap_or_else(|| r.name());
-    d.text(&format!("{id}_name"), &ui::fit_w(&title, inner_w - 90.0, 13.5, Face::Semibold), &Txt::new(13.5, Face::Semibold, tok::TEXT).w(W::Fill));
+    // A route with no label of its own is named by its model, in words.
+    let title = match p {
+        Some(p) if desk => crate::desk::model_title(p.name(), &p.model_id),
+        None if desk => crate::desk::model_word(&r.model_id),
+        _ => title,
+    };
+    let title_w = inner_w - 90.0;
+    d.text(&format!("{id}_name"), &ui::fit_w(&title, title_w, 13.5, Face::Semibold), &Txt::new(13.5, Face::Semibold, tok::TEXT).w(W::Fill));
     if r.primary {
         d.chip(&format!("{id}_primary"), tr(copy::PRIMARY), tok::BLUE_TEXT, tok::BLUE_BG, None, false);
     }
@@ -626,12 +717,15 @@ fn route_card(d: &mut Dsl, st: &RoutesState, i: usize, r: &Route, p: Option<&ms:
         Some(p) => (p.family_label.clone(), p.route.label.clone()),
         None => (r.family_id.clone(), if r.label.is_empty() { r.route_id.clone() } else { r.label.clone() }),
     };
-    d.text(&format!("{id}_meta"), &ui::fit_w(&format!("{family} · {label}"), inner_w, 12.5, Face::Regular), &ui::meta().w(W::Fill));
-    let mut endpoint = r.model_id.clone();
-    if !r.api_type.is_empty() {
-        endpoint.push_str(&format!(" · {}", r.api_type));
+    let meta = format!("{family} · {label}");
+    d.text(&format!("{id}_meta"), &ui::fit_w(&meta, inner_w, 12.5, Face::Regular), &ui::meta().w(W::Fill));
+    if !desk {
+        let mut endpoint = r.model_id.clone();
+        if !r.api_type.is_empty() {
+            endpoint.push_str(&format!(" · {}", r.api_type));
+        }
+        d.text(&format!("{id}_endpoint"), &ui::fit_w(&endpoint, inner_w, 12.0, Face::Mono), &Txt::new(12.0, Face::Mono, tok::MUTED).w(W::Fill));
     }
-    d.text(&format!("{id}_endpoint"), &ui::fit_w(&endpoint, inner_w, 12.0, Face::Mono), &Txt::new(12.0, Face::Mono, tok::MUTED).w(W::Fill));
     // The base URL on its own line, never cut: it tells two routes of one
     // model apart.
     if !r.base_url.is_empty() {
@@ -653,21 +747,7 @@ fn route_card(d: &mut Dsl, st: &RoutesState, i: usize, r: &Route, p: Option<&ms:
         d.text(&rid, tr(reason), &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
         d.close();
     }
-    if r.removable() {
-        let idle = !st.busy && st.editing.is_none() && st.deleting.is_none();
-        let kind = if idle { Btn::Outline } else { Btn::OutlineOff };
-        let editable = p.is_some_and(|p| p.editable) && caps.can_save();
-        let mut pills: Vec<(String, &str, String)> = Vec::new();
-        if editable {
-            pills.push((format!("{id}_edit"), tr("Edit"), format!("b3.routes.edit#{i}")));
-        }
-        if caps.can_save() {
-            pills.push((format!("{id}_add"), tr("Add a model on this route"), format!("b3.routes.add#{i}")));
-        }
-        if caps.delete {
-            pills.push((format!("{id}_delete"), tr("Delete"), format!("b3.routes.delete#{i}")));
-        }
-        let total: f64 = pills.iter().map(|(_, l, _)| pill_w(l) + 8.0).sum();
+    if r.removable() && !desk {
         if total - 8.0 <= inner_w || !compact {
             let acts = d.anon();
             d.view(&acts, if total - 8.0 <= inner_w {
@@ -697,6 +777,55 @@ fn route_card(d: &mut Dsl, st: &RoutesState, i: usize, r: &Route, p: Option<&ms:
         }
     }
     d.close();
+    if desk {
+        d.tap(&format!("{id}_tap"), &format!("b3.routes.select#{i}"));
+        d.close(); // the hit area
+        if selection(st) == Some(i) {
+            d.accent_since(mark);
+        }
+    }
+    if !menu.is_empty() {
+        d.close(); // the menu
+    }
+}
+
+/// A Mac route's right-click menu: what the foot does to the selected route.
+fn row_menu(r: &Route, editable: bool, caps: ms::Caps, i: usize) -> Vec<(String, String)> {
+    let mut items = Vec::new();
+    if !r.removable() {
+        return items;
+    }
+    if editable {
+        items.push((ui::menu_word("Edit…"), format!("b3.routes.edit#{i}")));
+    }
+    if caps.can_save() {
+        items.push((ui::menu_word("Add Model\u{2026}"), format!("b3.routes.add#{i}")));
+    }
+    if caps.delete {
+        if !items.is_empty() {
+            items.push(("-".to_owned(), String::new()));
+        }
+        items.push((ui::menu_word("Delete…"), format!("b3.routes.delete#{i}")));
+    }
+    items
+}
+
+/// A Mac's foot: what can be done to the selected route (its menu holds the same).
+fn desk_actions(d: &mut Dsl, st: &RoutesState, proj: &ms::Projection, caps: ms::Caps) {
+    let idle = !st.busy && st.editing.is_none() && st.deleting.is_none();
+    let sel = selection(st).and_then(|i| st.routes.get(i).map(|r| (i, r)));
+    let removable = sel.is_some_and(|(_, r)| r.removable());
+    let editable = caps.can_save() && sel.is_some_and(|(i, _)| proj.providers.get(i).is_some_and(|p| p.editable));
+    let kind = |on: bool| if on && idle { Btn::Outline } else { Btn::OutlineOff };
+    d.foot_begin(ui::Foot::Lead);
+    if caps.can_save() {
+        d.button("b3_routes_edit", tr("Edit…"), "b3.routes.edit_sel", kind(removable && editable), W::Fit, 28.0);
+        d.button("b3_routes_add_model", tr("Add Model\u{2026}"), "b3.routes.add_sel", kind(removable), W::Fit, 28.0);
+    }
+    if caps.delete {
+        d.button("b3_routes_delete", tr("Delete…"), "b3.routes.delete_sel", kind(removable), W::Fit, 28.0);
+    }
+    d.foot_end();
 }
 
 /// The "Add model provider" editor for one route: Model ID, "Fetch available
@@ -715,8 +844,10 @@ fn editor(d: &mut Dsl, st: &RoutesState, r: &Route, store: &Store, compact: bool
         &format!("{} · {} ({})", r.family_id, if r.label.is_empty() { &r.route_id } else { &r.label }, r.route_id),
         &ui::meta().w(W::Fill),
     );
-    ui::field_label(d, "b3_routes_model_label", tr("Model ID"));
+    let key_w = ui::form_key_w(&["Model ID"]);
+    ui::form_open(d, "b3_routes_model_label", tr("Model ID"), key_w);
     d.input("b3_routes_model", "routes.model", &st.model_snap, "", true, 36.0);
+    ui::form_close(d);
     if has(store, "profile/llm/fetch_models") {
         let kind = if st.busy { Btn::OutlineOff } else { Btn::Outline };
         let label = tr(if st.busy { copy::FETCHING } else { copy::FETCH });
@@ -734,7 +865,7 @@ fn editor(d: &mut Dsl, st: &RoutesState, r: &Route, store: &Store, compact: bool
         for (j, m) in st.fetched.iter().enumerate() {
             let chosen = st.model_snap == *m;
             let kind = if chosen { Btn::Primary } else { Btn::Secondary };
-            d.button(&format!("b3_routes_pick_{j}"), m, &format!("b3.routes.pick#{j}"), kind, W::Fit, 30.0);
+            d.data_button(&format!("b3_routes_pick_{j}"), m, &format!("b3.routes.pick#{j}"), kind, W::Fit, 30.0);
         }
         d.close();
     }
@@ -762,7 +893,7 @@ fn delete_card(d: &mut Dsl, st: &RoutesState, r: &Route, name: &str, compact: bo
         &format!("b3_routes_delete_card_{}", st.form_gen),
         "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{left: 14 right: 14 top: 12 bottom: 14}",
         tok::RED_BG,
-        12.0,
+        crate::desk::by(12.0, 6.0),
         Some("#f3c4c7ff"),
     );
     d.text("b3_routes_delete_title", tr("Delete model provider?"), &ui::heading().w(W::Fill));
@@ -783,7 +914,11 @@ fn delete_card(d: &mut Dsl, st: &RoutesState, r: &Route, name: &str, compact: bo
     let foot = d.anon();
     d.view(&foot, &format!("width: Fill height: Fit flow: {} align: Align{{x: 1.0 y: 0.5}} spacing: 8", if compact { "Down" } else { "Right" }));
     let w = if compact { W::Fill } else { W::Fit };
-    d.button("b3_routes_delete_cancel", tr(copy::CANCEL), "b3.routes.cancel", if st.busy { Btn::OutlineOff } else { Btn::Outline }, w, 34.0);
+    // A Mac's question: the red word first, Cancel last and the default.
+    let desk = crate::desk::active();
+    if !desk {
+        d.button("b3_routes_delete_cancel", tr(copy::CANCEL), "b3.routes.cancel", if st.busy { Btn::OutlineOff } else { Btn::Outline }, w, 34.0);
+    }
     let both = d.anon();
     let label = tr(if st.busy { "Deleting…" } else { "Delete provider" });
     d.view(&both, &format!("width: {} height: 34 flow: Overlay", if compact { "Fill".to_owned() } else { format!("{}", (ui::text_w(tr("Delete provider"), 13.0, Face::Medium) + 32.0).ceil()) }));
@@ -794,11 +929,21 @@ fn delete_card(d: &mut Dsl, st: &RoutesState, r: &Route, name: &str, compact: bo
     danger(d, "b3_routes_delete_go", label, "b3.routes.confirm_delete", !st.busy);
     d.close();
     d.close();
+    if desk {
+        d.button("b3_routes_delete_cancel", tr(copy::CANCEL), "b3.routes.cancel", if st.busy { Btn::OutlineOff } else { Btn::Primary }, w, 28.0);
+    }
     d.close();
     d.close();
 }
 
 fn danger(d: &mut Dsl, id: &str, label: &str, event: &str, armed: bool) {
+    if crate::desk::active() {
+        if armed {
+            d.red_word();
+        }
+        d.button(id, label, event, if armed { Btn::Outline } else { Btn::Disabled }, W::Fill, 28.0);
+        return;
+    }
     let (fill, ink) = if armed { (tok::RED, tok::WHITE) } else { (tok::DISABLED_BG, tok::DISABLED_INK) };
     d.surface(&format!("{id}_box"), "width: Fill height: 34 flow: Overlay align: Align{x: 0.5 y: 0.5}", fill, 17.0, None);
     d.text(&format!("{id}_label"), label, &Txt::new(13.0, Face::Medium, ink));
@@ -820,7 +965,12 @@ fn heading(d: &mut Dsl, st: &RoutesState, ready: bool, caps: ms::Caps, compact: 
         if compact { 8 } else { 16 }
     ));
     d.text("b3_routes_intro", tr(copy::INTRO), &ui::meta().w(W::Fill).wrap());
-    if add {
+    if add && crate::desk::active() {
+        d.foot_begin(ui::Foot::Lead);
+        let word = format!("{}\u{2026}", tr(copy::ADD_PROVIDER));
+        d.button("b3_routes_add_provider", &word, "b3.routes.add_provider", if idle { Btn::Outline } else { Btn::OutlineOff }, W::Fit, 28.0);
+        d.foot_end();
+    } else if add {
         let kind = if idle { Btn::Primary } else { Btn::Disabled };
         d.button("b3_routes_add_provider", tr(copy::ADD_PROVIDER), "b3.routes.add_provider", kind, W::Fit, 32.0);
     }
@@ -837,15 +987,19 @@ pub fn build(d: &mut Dsl, st: &RoutesState, frame: &Frame, store: &Store) {
     ui::shell_open(d, frame, width);
     let row = d.anon();
     d.view(&row, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4");
-    d.text("b3_title", tr(TITLE), &ui::title().w(W::Fill));
+    d.text("b3_title", &crate::desk::title(tr(TITLE)), &ui::title().w(W::Fill));
     ui::icon_button(d, "b3_routes_refresh", "b3_refresh.svg", 16.0, "b3.routes.refresh");
     ui::close_glyph(d, "b3.close");
     d.close();
     let profile = store.domains.profile.current().unwrap_or_default();
     d.text("b3_routes_scope", &format!("{} {profile}", tr("Server Profile:")), &ui::micro().w(W::Fill));
     d.gap(W::Fill, 10.0);
+    ui::end_scroll_on_rows("b3_routes_row_", st.routes.len());
     ui::body_open(d, frame, width, 60.0);
     heading(d, st, proj.state == ViewState::Ready, caps, compact);
+    if crate::desk::active() && proj.state == ViewState::Ready && !st.routes.is_empty() {
+        desk_actions(d, st, &proj, caps);
+    }
     // The web section's rhythm (`.section` gap 14, `.providerRows` gap 10):
     // one SECTION gap before every block, ROWS between provider cards.
     const SECTION: f64 = 12.0;

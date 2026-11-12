@@ -1,0 +1,940 @@
+{
+  "hydrate": {
+    "context": {
+      "compaction": {
+        "count": 0,
+        "last": null
+      },
+      "schema": "octos.context.lifecycle.v1",
+      "state": {
+        "generation": 9,
+        "item_count": 13,
+        "last_checkpoint_id": null,
+        "last_compaction_id": null,
+        "recovery_state": "exact",
+        "session_id": "dsflash:main",
+        "thread_id": null,
+        "token_estimate": 3174,
+        "transcript_hash": "sha256:8f1fdcc2299a7bf72bd983e35d570d370c273f43adc1062f3141e3a3d017aaf3"
+      }
+    },
+    "context_state": {
+      "generation": 9,
+      "item_count": 13,
+      "recovery_state": "exact",
+      "session_id": "dsflash:main",
+      "token_estimate": 3174,
+      "transcript_hash": "sha256:8f1fdcc2299a7bf72bd983e35d570d370c273f43adc1062f3141e3a3d017aaf3"
+    },
+    "cursor": {
+      "seq": 51,
+      "stream": "dsflash:main\u0000~cwd-demo"
+    },
+    "messages": [
+      {
+        "content": "Search in the sidebar drops the last character when I type quickly. Can you find out why?",
+        "message_id": "dsflash:main:0:1790868480000000000",
+        "persisted_at": "2026-11-02T15:10:00.000000Z",
+        "role": "user",
+        "seq": 0,
+        "thread_id": "01a0f8a0-0000-7000-8000-000000000000"
+      },
+      {
+        "content": "",
+        "message_id": "dsflash:main:1:1790868480000000001",
+        "persisted_at": "2026-11-02T15:10:02.000000Z",
+        "role": "assistant",
+        "seq": 1,
+        "thread_id": "01a0f8a0-0000-7000-8000-000000000000",
+        "reasoning_content": "The filter probably runs on a debounced copy of the query. Read the input handler and see what happens when the timer fires."
+      },
+      {
+        "content": "fn on_key(&mut self, ch: char) {\n    self.timer.reset();\n    self.debounced.push(ch);\n}\n",
+        "message_id": "dsflash:main:2:1790868480000000002",
+        "persisted_at": "2026-11-02T15:10:03.000000Z",
+        "role": "tool",
+        "seq": 2,
+        "thread_id": "01a0f8a0-0000-7000-8000-000000000000"
+      },
+      {
+        "content": "src/sidebar/search.rs:18:    debounced: String,\nsrc/sidebar/search.rs:41:    let query = self.debounced.take();\n",
+        "message_id": "dsflash:main:3:1790868480000000003",
+        "persisted_at": "2026-11-02T15:10:06.000000Z",
+        "role": "tool",
+        "seq": 3,
+        "thread_id": "01a0f8a0-0000-7000-8000-000000000000"
+      },
+      {
+        "content": "`on_key` resets the timer before it stores the character. When the timer fires in between, the filter reads the query without the last key, and nothing runs it again:\n\n```rust\nfn on_key(&mut self, ch: char) {\n    self.timer.reset();\n    self.debounced.push(ch);\n}\n```\n\nStoring the character first fixes the order. Do you want me to make the change?",
+        "message_id": "dsflash:main:4:1790868480000000004",
+        "persisted_at": "2026-11-02T15:10:12.000000Z",
+        "role": "assistant",
+        "seq": 4,
+        "thread_id": "01a0f8a0-0000-7000-8000-000000000000"
+      },
+      {
+        "content": "Yes, please fix it and add a test.",
+        "message_id": "dsflash:main:5:1790868480000000005",
+        "persisted_at": "2026-11-02T15:16:00.000000Z",
+        "role": "user",
+        "seq": 5,
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000"
+      },
+      {
+        "content": "",
+        "message_id": "dsflash:main:6:1790868480000000006",
+        "persisted_at": "2026-11-02T15:16:02.000000Z",
+        "role": "assistant",
+        "seq": 6,
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000",
+        "reasoning_content": "Swap the two lines, then add a test that fires the timer between keys."
+      },
+      {
+        "content": "Edited src/sidebar/search.rs: 2 lines changed",
+        "message_id": "dsflash:main:7:1790868480000000007",
+        "persisted_at": "2026-11-02T15:16:03.000000Z",
+        "role": "tool",
+        "seq": 7,
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000"
+      },
+      {
+        "content": "Wrote 24 lines to tests/search_keys.rs",
+        "message_id": "dsflash:main:8:1790868480000000008",
+        "persisted_at": "2026-11-02T15:16:06.000000Z",
+        "role": "tool",
+        "seq": 8,
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000"
+      },
+      {
+        "content": "running 12 tests\ntest search_keys::keeps_the_last_key ... ok\ntest result: ok. 12 passed; 0 failed\n\nExit code: 0",
+        "message_id": "dsflash:main:9:1790868480000000009",
+        "persisted_at": "2026-11-02T15:16:09.000000Z",
+        "role": "tool",
+        "seq": 9,
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000"
+      },
+      {
+        "content": "Fixed. The character is stored before the timer restarts:\n\n```diff\n fn on_key(&mut self, ch: char) {\n-    self.timer.reset();\n     self.debounced.push(ch);\n+    self.timer.reset();\n }\n```\n\n| File | Change |\n| --- | --- |\n| `src/sidebar/search.rs` | Stores the key first |\n| `tests/search_keys.rs` | New test for a timer firing between keys |\n\nAll 12 search tests pass.",
+        "message_id": "dsflash:main:10:1790868480000000010",
+        "persisted_at": "2026-11-02T15:16:15.000000Z",
+        "role": "assistant",
+        "seq": 10,
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000"
+      },
+      {
+        "content": "Thanks. Is anything else nearby worth cleaning up?",
+        "message_id": "dsflash:main:11:1790868480000000011",
+        "persisted_at": "2026-11-02T15:22:00.000000Z",
+        "role": "user",
+        "seq": 11,
+        "thread_id": "01a0f8a2-0000-7000-8000-000000000000"
+      },
+      {
+        "content": "Two small things, neither of them urgent:\n\n1. `Sidebar::refresh` sorts the whole list on every key. It only needs to sort when the list changes.\n2. `search.rs` keeps the query twice, in `query` and `debounced`. One field is enough now that the order is right.\n\nI can do either one next.",
+        "message_id": "dsflash:main:12:1790868480000000012",
+        "persisted_at": "2026-11-02T15:22:06.000000Z",
+        "role": "assistant",
+        "seq": 12,
+        "thread_id": "01a0f8a2-0000-7000-8000-000000000000"
+      }
+    ],
+    "pending_approvals": [],
+    "pending_questions": [],
+    "projection_thread_sequences": {
+      "01a0f8a0-0000-7000-8000-000000000000": 1,
+      "01a0f8a1-0000-7000-8000-000000000000": 1,
+      "01a0f8a2-0000-7000-8000-000000000000": 1
+    },
+    "replayed_envelopes": [],
+    "replayed_projection_envelopes": [],
+    "replayed_tool_envelopes": [
+      {
+        "cursor": {
+          "seq": 41,
+          "stream": "dsflash:main\u0000~cwd-demo"
+        },
+        "payload": {
+          "data": {
+            "arguments_preview": "path: \"src/sidebar/search.rs\"",
+            "name": "read_file",
+            "tool_call_id": "call_00_00"
+          },
+          "type": "tool_start"
+        },
+        "seq": 41,
+        "thread_id": "01a0f8a0-0000-7000-8000-000000000000",
+        "turn_id": "01a0f8a0-0000-7000-8000-000000000000"
+      },
+      {
+        "cursor": {
+          "seq": 42,
+          "stream": "dsflash:main\u0000~cwd-demo"
+        },
+        "payload": {
+          "data": {
+            "duration_ms": 800,
+            "output_preview": "fn on_key(&mut self, ch: char) {\n    self.timer.reset();\n    self.debounced.push(ch);\n}\n",
+            "status": "complete",
+            "tool_call_id": "call_00_00"
+          },
+          "type": "tool_end"
+        },
+        "seq": 42,
+        "thread_id": "01a0f8a0-0000-7000-8000-000000000000",
+        "turn_id": "01a0f8a0-0000-7000-8000-000000000000"
+      },
+      {
+        "cursor": {
+          "seq": 43,
+          "stream": "dsflash:main\u0000~cwd-demo"
+        },
+        "payload": {
+          "data": {
+            "arguments_preview": "pattern: \"debounced\", path: \"src\"",
+            "name": "grep",
+            "tool_call_id": "call_00_01"
+          },
+          "type": "tool_start"
+        },
+        "seq": 43,
+        "thread_id": "01a0f8a0-0000-7000-8000-000000000000",
+        "turn_id": "01a0f8a0-0000-7000-8000-000000000000"
+      },
+      {
+        "cursor": {
+          "seq": 44,
+          "stream": "dsflash:main\u0000~cwd-demo"
+        },
+        "payload": {
+          "data": {
+            "duration_ms": 1200,
+            "output_preview": "src/sidebar/search.rs:18:    debounced: String,\nsrc/sidebar/search.rs:41:    let query = self.debounced.take();\n",
+            "status": "complete",
+            "tool_call_id": "call_00_01"
+          },
+          "type": "tool_end"
+        },
+        "seq": 44,
+        "thread_id": "01a0f8a0-0000-7000-8000-000000000000",
+        "turn_id": "01a0f8a0-0000-7000-8000-000000000000"
+      },
+      {
+        "cursor": {
+          "seq": 45,
+          "stream": "dsflash:main\u0000~cwd-demo"
+        },
+        "payload": {
+          "data": {
+            "arguments_preview": "path: \"src/sidebar/search.rs\", old: \"self.timer.reset();\", new: \"self.debounced.push(ch);\"",
+            "name": "edit_file",
+            "tool_call_id": "call_01_00"
+          },
+          "type": "tool_start"
+        },
+        "seq": 45,
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000",
+        "turn_id": "01a0f8a1-0000-7000-8000-000000000000"
+      },
+      {
+        "cursor": {
+          "seq": 46,
+          "stream": "dsflash:main\u0000~cwd-demo"
+        },
+        "payload": {
+          "data": {
+            "duration_ms": 800,
+            "output_preview": "Edited src/sidebar/search.rs: 2 lines changed",
+            "status": "complete",
+            "tool_call_id": "call_01_00"
+          },
+          "type": "tool_end"
+        },
+        "seq": 46,
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000",
+        "turn_id": "01a0f8a1-0000-7000-8000-000000000000"
+      },
+      {
+        "cursor": {
+          "seq": 47,
+          "stream": "dsflash:main\u0000~cwd-demo"
+        },
+        "payload": {
+          "data": {
+            "arguments_preview": "path: \"tests/search_keys.rs\", content: \"#[test] fn keeps_the_last_key()\"",
+            "name": "write_file",
+            "tool_call_id": "call_01_01"
+          },
+          "type": "tool_start"
+        },
+        "seq": 47,
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000",
+        "turn_id": "01a0f8a1-0000-7000-8000-000000000000"
+      },
+      {
+        "cursor": {
+          "seq": 48,
+          "stream": "dsflash:main\u0000~cwd-demo"
+        },
+        "payload": {
+          "data": {
+            "duration_ms": 1200,
+            "output_preview": "Wrote 24 lines to tests/search_keys.rs",
+            "status": "complete",
+            "tool_call_id": "call_01_01"
+          },
+          "type": "tool_end"
+        },
+        "seq": 48,
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000",
+        "turn_id": "01a0f8a1-0000-7000-8000-000000000000"
+      },
+      {
+        "cursor": {
+          "seq": 49,
+          "stream": "dsflash:main\u0000~cwd-demo"
+        },
+        "payload": {
+          "data": {
+            "arguments_preview": "command: \"cargo test search\"",
+            "name": "shell",
+            "tool_call_id": "call_01_02"
+          },
+          "type": "tool_start"
+        },
+        "seq": 49,
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000",
+        "turn_id": "01a0f8a1-0000-7000-8000-000000000000"
+      },
+      {
+        "cursor": {
+          "seq": 50,
+          "stream": "dsflash:main\u0000~cwd-demo"
+        },
+        "payload": {
+          "data": {
+            "duration_ms": 1600,
+            "output_preview": "running 12 tests\ntest search_keys::keeps_the_last_key ... ok\ntest result: ok. 12 passed; 0 failed\n\nExit code: 0",
+            "status": "complete",
+            "tool_call_id": "call_01_02"
+          },
+          "type": "tool_end"
+        },
+        "seq": 50,
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000",
+        "turn_id": "01a0f8a1-0000-7000-8000-000000000000"
+      }
+    ],
+    "session_id": "dsflash:main",
+    "threads": [
+      {
+        "message_seqs": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "root_seq": 0,
+        "status": "unknown",
+        "thread_id": "01a0f8a0-0000-7000-8000-000000000000"
+      },
+      {
+        "message_seqs": [
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "root_seq": 5,
+        "status": "unknown",
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000"
+      },
+      {
+        "message_seqs": [
+          11,
+          12
+        ],
+        "root_seq": 11,
+        "status": "unknown",
+        "thread_id": "01a0f8a2-0000-7000-8000-000000000000"
+      }
+    ],
+    "turns": [
+      {
+        "completed_at": "2026-11-02T15:10:13.000000Z",
+        "started_at": "2026-11-02T15:10:00.000000Z",
+        "state": "completed",
+        "thread_id": "01a0f8a0-0000-7000-8000-000000000000",
+        "turn_id": "01a0f8a0-0000-7000-8000-000000000000"
+      },
+      {
+        "completed_at": "2026-11-02T15:16:16.000000Z",
+        "started_at": "2026-11-02T15:16:00.000000Z",
+        "state": "completed",
+        "thread_id": "01a0f8a1-0000-7000-8000-000000000000",
+        "turn_id": "01a0f8a1-0000-7000-8000-000000000000"
+      },
+      {
+        "completed_at": "2026-11-02T15:22:07.000000Z",
+        "started_at": "2026-11-02T15:22:00.000000Z",
+        "state": "completed",
+        "thread_id": "01a0f8a2-0000-7000-8000-000000000000",
+        "turn_id": "01a0f8a2-0000-7000-8000-000000000000"
+      }
+    ]
+  },
+  "others": {
+    "dsflash:api:startup": {
+      "context": {
+        "compaction": {
+          "count": 0,
+          "last": null
+        },
+        "schema": "octos.context.lifecycle.v1",
+        "state": {
+          "generation": 9,
+          "item_count": 2,
+          "last_checkpoint_id": null,
+          "last_compaction_id": null,
+          "recovery_state": "exact",
+          "session_id": "dsflash:api:startup",
+          "thread_id": null,
+          "token_estimate": 3174,
+          "transcript_hash": "sha256:1ab261520737ff9a905b8caaf1cc8fb5c65bbe19a39699e257c6c52ad518f4b4"
+        }
+      },
+      "context_state": {
+        "generation": 9,
+        "item_count": 2,
+        "recovery_state": "exact",
+        "session_id": "dsflash:api:startup",
+        "token_estimate": 3174,
+        "transcript_hash": "sha256:1ab261520737ff9a905b8caaf1cc8fb5c65bbe19a39699e257c6c52ad518f4b4"
+      },
+      "cursor": {
+        "seq": 41,
+        "stream": "dsflash:main\u0000~cwd-demo"
+      },
+      "messages": [
+        {
+          "content": "Why is startup slow on a cold cache?",
+          "message_id": "dsflash:api:startup:0:1790868480000000000",
+          "persisted_at": "2026-11-02T11:10:00.000000Z",
+          "role": "user",
+          "seq": 0,
+          "thread_id": "01a0f8b0-0000-7000-8000-000000000000"
+        },
+        {
+          "content": "Most of it is the font scan: `FontCatalog::load` walks every system folder before the first frame. Loading the catalog on first use saves about 400 ms.",
+          "message_id": "dsflash:api:startup:1:1790868480000000001",
+          "persisted_at": "2026-11-02T11:10:06.000000Z",
+          "role": "assistant",
+          "seq": 1,
+          "thread_id": "01a0f8b0-0000-7000-8000-000000000000"
+        }
+      ],
+      "pending_approvals": [],
+      "pending_questions": [],
+      "projection_thread_sequences": {
+        "01a0f8b0-0000-7000-8000-000000000000": 1
+      },
+      "replayed_envelopes": [],
+      "replayed_projection_envelopes": [],
+      "replayed_tool_envelopes": [],
+      "session_id": "dsflash:api:startup",
+      "threads": [
+        {
+          "message_seqs": [
+            0,
+            1
+          ],
+          "root_seq": 0,
+          "status": "unknown",
+          "thread_id": "01a0f8b0-0000-7000-8000-000000000000"
+        }
+      ],
+      "turns": [
+        {
+          "completed_at": "2026-11-02T11:10:07.000000Z",
+          "started_at": "2026-11-02T11:10:00.000000Z",
+          "state": "completed",
+          "thread_id": "01a0f8b0-0000-7000-8000-000000000000",
+          "turn_id": "01a0f8b0-0000-7000-8000-000000000000"
+        }
+      ]
+    }
+  },
+  "sessions": [
+    {
+      "id": "",
+      "title": "Search drops the last character",
+      "last_prompt": "Thanks. Is anything else nearby worth cleaning up?",
+      "message_count": 12,
+      "updated_at": "2026-11-02T15:24:00Z",
+      "active_turn": false
+    },
+    {
+      "id": "dsflash:api:startup",
+      "title": "Why is startup slow on a cold cache?",
+      "last_prompt": "Why is startup slow on a cold cache?",
+      "message_count": 2,
+      "updated_at": "2026-11-02T11:05:00Z",
+      "active_turn": false
+    },
+    {
+      "id": "dsflash:api:preview",
+      "title": "Add dark mode to the preview pane",
+      "last_prompt": "Add dark mode to the preview pane",
+      "message_count": 6,
+      "updated_at": "2026-11-01T17:40:00Z",
+      "active_turn": false
+    },
+    {
+      "id": "dsflash:api:notes",
+      "title": "Release notes for 0.4",
+      "last_prompt": "Release notes for 0.4",
+      "message_count": 4,
+      "updated_at": "2026-10-30T09:12:00Z",
+      "active_turn": false
+    },
+    {
+      "id": "dsflash:api:http",
+      "title": "Upgrade the HTTP client",
+      "last_prompt": "Upgrade the HTTP client",
+      "message_count": 9,
+      "updated_at": "2026-10-28T14:30:00Z",
+      "active_turn": false
+    }
+  ],
+  "root": "/Users/demo/Projects/lumen",
+  "folders": {
+    "/": {
+      "canonical_path": "/",
+      "parent_path": null,
+      "writable": true,
+      "truncated": false,
+      "hidden_skipped": 0,
+      "entries": [
+        {
+          "name": "Users",
+          "path": "/Users",
+          "writable": true
+        }
+      ]
+    },
+    "/Users": {
+      "canonical_path": "/Users",
+      "parent_path": "/",
+      "writable": true,
+      "truncated": false,
+      "hidden_skipped": 0,
+      "entries": [
+        {
+          "name": "demo",
+          "path": "/Users/demo",
+          "writable": true
+        },
+        {
+          "name": "Shared",
+          "path": "/Users/demo/Shared",
+          "writable": true
+        }
+      ]
+    },
+    "/Users/demo": {
+      "canonical_path": "/Users/demo",
+      "parent_path": "/Users",
+      "writable": true,
+      "truncated": false,
+      "hidden_skipped": 4,
+      "entries": [
+        {
+          "name": "Desktop",
+          "path": "/Users/demo/Desktop",
+          "writable": true
+        },
+        {
+          "name": "Documents",
+          "path": "/Users/demo/Documents",
+          "writable": true
+        },
+        {
+          "name": "Downloads",
+          "path": "/Users/demo/Downloads",
+          "writable": true
+        },
+        {
+          "name": "Projects",
+          "path": "/Users/demo/Projects",
+          "writable": true
+        }
+      ]
+    },
+    "/Users/demo/Projects": {
+      "canonical_path": "/Users/demo/Projects",
+      "parent_path": "/Users/demo",
+      "writable": true,
+      "truncated": false,
+      "hidden_skipped": 0,
+      "entries": [
+        {
+          "name": "lumen",
+          "path": "/Users/demo/Projects/lumen",
+          "writable": true
+        },
+        {
+          "name": "notes-site",
+          "path": "/Users/demo/Projects/notes-site",
+          "writable": true
+        },
+        {
+          "name": "sketchbook",
+          "path": "/Users/demo/Projects/sketchbook",
+          "writable": true
+        }
+      ]
+    },
+    "/Users/demo/Projects/lumen": {
+      "canonical_path": "/Users/demo/Projects/lumen",
+      "parent_path": "/Users/demo/Projects",
+      "writable": true,
+      "truncated": false,
+      "hidden_skipped": 2,
+      "entries": [
+        {
+          "name": "assets",
+          "path": "/Users/demo/Projects/lumen/assets",
+          "writable": true
+        },
+        {
+          "name": "benches",
+          "path": "/Users/demo/Projects/lumen/benches",
+          "writable": true
+        },
+        {
+          "name": "docs",
+          "path": "/Users/demo/Projects/lumen/docs",
+          "writable": true
+        },
+        {
+          "name": "src",
+          "path": "/Users/demo/Projects/lumen/src",
+          "writable": true
+        },
+        {
+          "name": "tests",
+          "path": "/Users/demo/Projects/lumen/tests",
+          "writable": true
+        }
+      ]
+    }
+  },
+  "replies": {
+    "tool/status/list": {
+      "session_id": "",
+      "profile_id": "",
+      "policy_id": "profile",
+      "tools": [
+        {
+          "name": "read_file",
+          "category": "read",
+          "status": "available",
+          "policy": "allowed",
+          "aliases": [],
+          "backend_tool": "native"
+        },
+        {
+          "name": "grep",
+          "category": "read",
+          "status": "available",
+          "policy": "allowed",
+          "aliases": [],
+          "backend_tool": "native"
+        },
+        {
+          "name": "list_files",
+          "category": "read",
+          "status": "available",
+          "policy": "allowed",
+          "aliases": [],
+          "backend_tool": "native"
+        },
+        {
+          "name": "edit_file",
+          "category": "edit",
+          "status": "available",
+          "policy": "allowed",
+          "aliases": [
+            "diff_edit"
+          ],
+          "backend_tool": "native"
+        },
+        {
+          "name": "write_file",
+          "category": "edit",
+          "status": "available",
+          "policy": "allowed",
+          "aliases": [],
+          "backend_tool": "native"
+        },
+        {
+          "name": "shell",
+          "category": "runtime",
+          "status": "available",
+          "policy": "approval_gated",
+          "aliases": [
+            "bash"
+          ],
+          "backend_tool": "native"
+        },
+        {
+          "name": "web_fetch",
+          "category": "network",
+          "status": "available",
+          "policy": "approval_gated",
+          "aliases": [],
+          "backend_tool": "native"
+        },
+        {
+          "name": "browser",
+          "category": "network",
+          "status": "unavailable",
+          "policy": "denied",
+          "aliases": [],
+          "backend_tool": "native",
+          "detail": "No browser is set up for this profile."
+        }
+      ]
+    },
+    "mcp/status/list": {
+      "session_id": "",
+      "profile_id": "",
+      "summary": {
+        "connected": 1,
+        "connecting": 0,
+        "failed": 1,
+        "disabled": 0
+      },
+      "servers": [
+        {
+          "id": "github",
+          "display_name": "GitHub",
+          "transport": "stdio",
+          "status": "connected",
+          "tool_count": 3,
+          "tools": [
+            "search_issues",
+            "get_pull_request",
+            "list_commits"
+          ]
+        },
+        {
+          "id": "docs-search",
+          "display_name": "Docs Search",
+          "transport": "http",
+          "status": "failed",
+          "tool_count": 0,
+          "tools": [],
+          "error": "The server did not answer."
+        }
+      ]
+    },
+    "thread/graph/get": {
+      "session_id": "",
+      "cursor": {
+        "seq": 40,
+        "stream": "dsflash:main\u0000~cwd-demo"
+      },
+      "orphans": [],
+      "threads": [
+        {
+          "message_seqs": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "root_seq": 0,
+          "status": "unknown",
+          "thread_id": "01a0f8a0-0000-7000-8000-000000000000"
+        },
+        {
+          "message_seqs": [
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "root_seq": 5,
+          "status": "unknown",
+          "thread_id": "01a0f8a1-0000-7000-8000-000000000000"
+        },
+        {
+          "message_seqs": [
+            11,
+            12
+          ],
+          "root_seq": 11,
+          "status": "unknown",
+          "thread_id": "01a0f8a2-0000-7000-8000-000000000000"
+        }
+      ]
+    },
+    "approval/scopes/list": {
+      "scopes": [
+        {
+          "session_id": "dsflash:main",
+          "scope": "shell",
+          "scope_match": "cargo test",
+          "decision": "approve",
+          "turn_id": "01a0f8a1-0000-7000-8000-000000000000"
+        },
+        {
+          "session_id": "dsflash:main",
+          "scope": "edit_file",
+          "scope_match": "src/sidebar",
+          "decision": "approve"
+        }
+      ]
+    },
+    "profile/llm/list": {
+      "session_id": "",
+      "models": [
+        {
+          "model": "deepseek-v4-flash",
+          "provider": "deepseek",
+          "title": "DeepSeek V4 Flash",
+          "family": "deepseek",
+          "route": "official",
+          "selected": true,
+          "available": true
+        },
+        {
+          "model": "kimi-k3",
+          "provider": "moonshot",
+          "title": "Kimi K3",
+          "family": "moonshot",
+          "route": "official",
+          "selected": false,
+          "available": true
+        },
+        {
+          "model": "glm-5.3-flash",
+          "provider": "zhipu",
+          "title": "GLM 5.3 Flash",
+          "family": "zhipu",
+          "route": "official",
+          "selected": false,
+          "available": false
+        }
+      ]
+    },
+    "task/list": {
+      "session_id": "",
+      "tasks": [
+        {
+          "id": "01a0f8b0-0000-7000-8000-000000000000",
+          "child_session_key": "k",
+          "parent_session_key": "k",
+          "session_key": "k",
+          "lifecycle_state": "running",
+          "runtime_state": "executing_tool",
+          "started_at": "2026-11-02T20:16:54.326113Z",
+          "updated_at": "2026-11-02T20:16:54.326588Z",
+          "state": "running",
+          "status": "running",
+          "tool_call_id": "spawn-subagent-0",
+          "tool_name": "Run the search tests"
+        },
+        {
+          "id": "01a0f8b1-0000-7000-8000-000000000000",
+          "child_session_key": "k",
+          "parent_session_key": "k",
+          "session_key": "k",
+          "lifecycle_state": "ready",
+          "runtime_state": "completed",
+          "child_terminal_state": "completed",
+          "started_at": "2026-11-02T20:12:40.891459Z",
+          "completed_at": "2026-11-02T20:14:13.239905Z",
+          "updated_at": "2026-11-02T20:14:13.239905Z",
+          "state": "completed",
+          "status": "completed",
+          "tool_call_id": "spawn-subagent-1",
+          "tool_name": "Build the sidebar",
+          "summary": "Build the sidebar"
+        }
+      ]
+    },
+    "agent/list": {
+      "session_id": "",
+      "profile_id": "dsflash",
+      "agents": [
+        {
+          "agent_id": "search-tests",
+          "artifact_count": 0,
+          "artifacts": [],
+          "backend_kind": "spawn_child_session",
+          "context_contract": null,
+          "context_mode": null,
+          "context_refs": [],
+          "created_at_ms": 1793650000000,
+          "cwd": null,
+          "last_task": "Run the search tests",
+          "nickname": "Search tests",
+          "output_tail": null,
+          "parent_agent_id": "master",
+          "path": "search-tests",
+          "profile_id": "dsflash",
+          "role": "background_task",
+          "runtime_policy_stamp": {
+            "approval_policy": "on-request",
+            "profile_id": "dsflash",
+            "sandbox": "workspace-write",
+            "tool_policy_id": "coding-v1"
+          },
+          "session_id": "dsflash:main",
+          "status": "running",
+          "summary": "Run the search tests",
+          "task_id": "01a0f8b0-0000-7000-8000-000000000000",
+          "title": "Search tests",
+          "updated_at_ms": 1793650000000
+        },
+        {
+          "agent_id": "sidebar-build",
+          "artifact_count": 0,
+          "artifacts": [],
+          "backend_kind": "spawn_child_session",
+          "context_contract": null,
+          "context_mode": null,
+          "context_refs": [],
+          "created_at_ms": 1793650000000,
+          "cwd": null,
+          "last_task": "Build the sidebar",
+          "nickname": "Sidebar build",
+          "output_tail": null,
+          "parent_agent_id": "master",
+          "path": "sidebar-build",
+          "profile_id": "dsflash",
+          "role": "background_task",
+          "runtime_policy_stamp": {
+            "approval_policy": "on-request",
+            "profile_id": "dsflash",
+            "sandbox": "workspace-write",
+            "tool_policy_id": "coding-v1"
+          },
+          "session_id": "dsflash:main",
+          "status": "completed",
+          "summary": "Build the sidebar",
+          "task_id": "01a0f8b0-0000-7000-8000-000000000000",
+          "title": "Sidebar build",
+          "updated_at_ms": 1793650000000
+        }
+      ]
+    }
+  }
+}

@@ -162,6 +162,7 @@ struct BodyKey {
     width: i64,
     sheet: bool,
     lang: u64,
+    look: crate::screens::theme::Look,
 }
 
 fn advertised(store: &Store) -> bool {
@@ -312,10 +313,12 @@ pub fn mix(fg: &str, alpha: f64, bg: &str) -> String {
 /// A word mark's fill: the success colour at 22 % on an added row, the error
 /// colour at 20 % on a removed row, over that row's tint.
 pub fn mark_fill(added: bool) -> String {
+    // On a desktop, over the tint its look draws the row in.
+    let row = |tint: &str| if crate::desk::active() { crate::screens::theme::retint_dsl(tint) } else { tint.to_owned() };
     if added {
-        mix(SUCCESS, 0.22, tok::GREEN_BG)
+        mix(SUCCESS, 0.22, &row(tok::GREEN_BG))
     } else {
-        mix(ERROR, 0.20, tok::RED_BG)
+        mix(ERROR, 0.20, &row(tok::RED_BG))
     }
 }
 
@@ -323,11 +326,12 @@ pub fn mark_fill(added: bool) -> String {
 /// the text ink until it reads >= 4.5:1 on the mark (the A18 contrast rule;
 /// the web's own pair reads 4.0:1 for a keyword on a removed mark).
 pub fn mark_ink(t: Option<Tok>, added: bool) -> String {
-    let base = token_ink(t);
+    let text = if crate::desk::active() { crate::screens::theme::retint_dsl(tok::TEXT) } else { tok::TEXT.to_owned() };
+    let base = if t.is_none() { text.as_str() } else { token_ink(t) };
     let fill = mark_fill(added);
     let mut step = 0.0;
     loop {
-        let ink = mix(tok::TEXT, step, base);
+        let ink = mix(&text, step, base);
         if crate::screens::theme::wcag_ratio(&ink, &fill) + 1e-9 >= 4.5 || step >= 1.0 {
             return ink;
         }
@@ -335,13 +339,29 @@ pub fn mark_ink(t: Option<Tok>, added: bool) -> String {
     }
 }
 
-/// A token's ink on a plain row (the web's `--shiki-token-*`, light).
+/// A token's ink on a plain row (the web's light `--shiki-token-*`; a desktop's
+/// in its look).
 pub fn token_ink(t: Option<Tok>) -> &'static str {
     match t {
         None => tok::TEXT,
+        Some(t) if crate::desk::active() => t.color_look(crate::screens::theme::current_look()),
         Some(t) => t.color(false),
     }
 }
+
+/// The templates' own inks are light-theme literals no retint pass reaches, so
+/// a desktop's dark look names them on each line: a code run's (`B3DiffCode`)
+/// and a line number's (`B3DiffNum`). Empty otherwise, whose lines stay as they were.
+fn dark_ink(ink: &str) -> String {
+    if crate::desk::active() && crate::screens::theme::resolved() == "dark" {
+        format!(" draw_text.color: {ink}")
+    } else {
+        String::new()
+    }
+}
+
+/// The ink of `B3DiffNum`'s template.
+const NUM_INK: &str = "#5f646bff";
 
 /// A run's class in its widget id: `tx` = no grammar, else the token class.
 pub fn class_id(t: Option<Tok>) -> &'static str {
@@ -439,6 +459,11 @@ pub use kit::script_mod;
 /// min(780, 100%)` of the frame less the 24 px backdrop inset; at <= 760 px
 /// the whole frame (the compact full-screen sheet).
 pub fn geometry(frame: &Frame) -> (bool, f64, f64) {
+    if crate::desk::active() {
+        // A Mac's sheet, at any window size: a table's width, hanging under the
+        // toolbar; `build` lets it be as tall as what it holds.
+        return (false, frame.dialog_w(MAX_W), frame.dialog_max_h());
+    }
     if frame.avail_w <= SHEET_BELOW {
         return (true, frame.avail_w.floor(), frame.avail_h.floor());
     }
@@ -499,17 +524,25 @@ fn empty_box(d: &mut Dsl, id: &str, head: Option<&str>, body: &str, alert: bool)
 /// `.review-dialog`; on the compact sheet no radius, no border).
 fn shell_open(d: &mut Dsl, sheet: bool, w: f64, h: f64) {
     let ids = &ui::B3_IDS;
-    d.open(ids.root, "KeyboardView", "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5} keyboard_min_shift: 56.");
-    d.rule(ids.backdrop, "width: Fill height: Fill", tok::MASK);
+    d.open(ids.root, "KeyboardView", &format!("width: Fill height: Fill flow: Overlay align: {} keyboard_min_shift: 56.", ui::sheet_align()));
+    d.rule(ids.backdrop, "width: Fill height: Fill", crate::desk::by(tok::MASK, ui::mac_mask()));
     d.view(ids.backdrop_box, "width: Fill height: Fill flow: Overlay");
     d.tap(ids.backdrop_hit, ids.backdrop_event.unwrap_or("b3.noop"));
     d.close();
+    ui::sheet_begin(d, Some(side_pad(sheet)));
+    if crate::desk::active() {
+        d.sheet_surface(ids.dialog, &format!("width: {w} height: Fit flow: Down padding: 0"), 16.0);
+        return;
+    }
     let (radius, border) = if sheet { (0.0, None) } else { (16.0, Some(tok::HAIRLINE)) };
     d.surface(ids.dialog, &format!("width: {w} height: {h} flow: Down padding: 0"), tok::SURFACE, radius, border);
 }
 
 pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
     let (sheet, width, height) = geometry(frame);
+    // A Mac's sheet is as large as what it holds: a form's width for a sentence
+    // while there is nothing to review yet.
+    let width = if crate::desk::active() && st.preview_id.is_none() { width.min(520.0) } else { width };
     let pad = side_pad(sheet);
     shell_open(d, sheet, width, height);
 
@@ -554,7 +587,10 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
     } else {
         d.view("b3_diff_head", &format!("width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8 padding: Inset{{left: {pad} right: 16 top: 16 bottom: 14}}"));
         d.view("b3_diff_head_col", "width: Fill height: Fit flow: Down spacing: 2");
-        d.text("b3_diff_eyebrow", tr(EYEBROW), &Txt::new(11.0, Face::Medium, tok::MUTED));
+        // A Mac's sheet leads with its title.
+        if !crate::desk::active() {
+            d.text("b3_diff_eyebrow", tr(EYEBROW), &Txt::new(11.0, Face::Medium, tok::MUTED));
+        }
         let budget = (width - pad - 16.0 - refresh_w - 8.0 - 28.0 - 8.0 - totals_w - 8.0).max(80.0);
         d.text("b3_title", &ui::fit_w(&title, budget, 17.0, Face::Semibold), &ui::title().w(W::Fill));
         d.close();
@@ -571,34 +607,61 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
             None if st.loading => "loading".to_owned(),
             None => "error".to_owned(),
         };
-        d.view(
-            "b3_diff_status_row",
-            &format!("width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8 padding: Inset{{left: {pad} right: {pad} top: 10 bottom: 6}}"),
-        );
-        d.chip("b3_diff_status", &status, tok::TEXT, tok::CHIP, None, true);
-        let mut used = ui::text_w(&status, 11.0, Face::Mono) + 14.0;
-        if let Some(r) = &st.result {
-            let source = wire(&r.source);
-            used += ui::text_w(&source, 11.0, Face::Mono) + 14.0 + 8.0;
-            d.chip("b3_diff_source", &source, tok::TEXT, tok::CHIP, None, true);
-        }
-        if !sheet {
-            d.view("b3_diff_status_gap", "width: Fill height: 1");
+        if crate::desk::active() {
+            // A Mac's sheet says nothing while all is well, and the preview's
+            // source and key are the protocol's, not a reader's.
+            if let Some(r) = &st.result {
+                d.unseen("b3_diff_source", &wire(&r.source));
+            }
+            d.unseen("b3_diff_preview_id", pid);
+            if status == "ready" {
+                d.unseen("b3_diff_status", &status);
+            } else {
+                d.view(
+                    "b3_diff_status_row",
+                    &format!("width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8 padding: Inset{{left: {pad} right: {pad} top: 10 bottom: 0}}"),
+                );
+                d.chip("b3_diff_status", &status, tok::TEXT, tok::CHIP, None, false);
+                d.close();
+            }
+        } else {
+            d.view(
+                "b3_diff_status_row",
+                &format!("width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8 padding: Inset{{left: {pad} right: {pad} top: 10 bottom: 6}}"),
+            );
+            d.chip("b3_diff_status", &status, tok::TEXT, tok::CHIP, None, true);
+            let mut used = ui::text_w(&status, 11.0, Face::Mono) + 14.0;
+            if let Some(r) = &st.result {
+                let source = wire(&r.source);
+                used += ui::text_w(&source, 11.0, Face::Mono) + 14.0 + 8.0;
+                d.chip("b3_diff_source", &source, tok::TEXT, tok::CHIP, None, true);
+            }
+            if !sheet {
+                d.view("b3_diff_status_gap", "width: Fill height: 1");
+                d.close();
+                let budget = (width - 2.0 * pad - used - 16.0).max(60.0);
+                d.text("b3_diff_preview_id", &ui::fit_middle(pid, budget, 11.5, Face::Mono), &Txt::new(11.5, Face::Mono, tok::MUTED));
+            }
             d.close();
-            let budget = (width - 2.0 * pad - used - 16.0).max(60.0);
-            d.text("b3_diff_preview_id", &ui::fit_middle(pid, budget, 11.5, Face::Mono), &Txt::new(11.5, Face::Mono, tok::MUTED));
         }
-        d.close();
     }
 
     // The body (`.review-content`): it fills the rest of the box and scrolls
     // (the web's 16 px content inset; 12 on the compact sheet, where the
     // cards keep the board's ~12 px margins).
     let body_pad = if sheet { 12.0 } else { pad };
+    // On a Mac it takes what the head (59), a status row (30) and the foot (53)
+    // leave of the room under the toolbar.
+    let body_h = if crate::desk::active() {
+        let row = st.preview_id.is_some() && st.result.as_ref().map(|r| wire(&r.status)).as_deref() != Some("ready");
+        format!("height: Fit max_height: {}", (height - 59.0 - 53.0 - if row { 30.0 } else { 0.0 }).max(120.0).floor())
+    } else {
+        "height: Fill".to_owned()
+    };
     d.open(
         ui::B3_IDS.scroll,
         "ScrollYView",
-        &format!("width: Fill height: Fill flow: Down padding: Inset{{left: {body_pad} top: 12 right: {body_pad} bottom: 16}}"),
+        &format!("width: Fill {body_h} flow: Down padding: Inset{{left: {body_pad} top: 12 right: {body_pad} bottom: 16}}"),
     );
     d.view("b3_diff_body", "width: Fill height: Fit flow: Down spacing: 12");
     // The content width (a file card's): the box less the body's equal
@@ -608,7 +671,25 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
     if st.preview_id.is_none() {
         // Native: the entry exists before any preview does.
         let body_text = if advertised(store) { NO_PREVIEW_BODY } else { NO_METHOD };
-        d.surface("b3_diff_empty", "width: Fill height: Fit flow: Down spacing: 10 padding: Inset{left: 14 right: 14 top: 14 bottom: 14}", tok::SURFACE2, 10.0, Some(tok::HAIRLINE));
+        if crate::desk::active() {
+            d.view("b3_diff_empty", "width: Fill height: Fit flow: Down");
+            let action = native_review_available(store).then(|| ("b3_diff_native", tr(NATIVE_REVIEW), "b3.diff.native"));
+            ui::mac_state(
+                d,
+                "b3_diff_empty_head",
+                "oc_diff.svg",
+                &crate::desk::title(tr(NO_PREVIEW_HEAD)),
+                Some(("b3_diff_empty_body", tr(body_text))),
+                action,
+            );
+            d.close();
+            d.close();
+            d.close();
+            ui::shell_close(d);
+            return;
+        } else {
+            d.surface("b3_diff_empty", "width: Fill height: Fit flow: Down spacing: 10 padding: Inset{left: 14 right: 14 top: 14 bottom: 14}", tok::SURFACE2, 10.0, Some(tok::HAIRLINE));
+        }
         d.text("b3_diff_empty_head", tr(NO_PREVIEW_HEAD), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
         d.text("b3_diff_empty_body", tr(body_text), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
         if native_review_available(store) {
@@ -643,6 +724,7 @@ fn body_cached(st: &DiffReviewState, r: &DiffPreviewGetResult, sheet: bool, inne
         width: inner_w.round() as i64,
         sheet,
         lang: crate::i18n::generation() * 2 + u64::from(crate::i18n::is_zh()),
+        look: crate::screens::theme::current_look(),
     };
     let mut slot = st.cache.0.lock().unwrap_or_else(|p| p.into_inner());
     if let Some((k, body)) = slot.as_ref() {
@@ -704,7 +786,11 @@ pub fn files_dsl(files: &[DiffPreviewFile], inner_w: f64) -> String {
             d.open(
                 &format!("{hid}_scroll"),
                 "ScrollXView",
-                "width: Fill height: Fit flow: Down\nscroll_bars.scroll_bar_x.bar_side_margin: 4\nscroll_bars.scroll_bar_x.draw_bg.color: #d1d1d6ff\nscroll_bars.scroll_bar_x.draw_bg.color_hover: #aeaeb2ff\nscroll_bars.scroll_bar_x.draw_bg.color_drag: #aeaeb2ff",
+                // A Mac's overlay scroller is the system's: no colour of its own.
+                crate::desk::by(
+                    "width: Fill height: Fit flow: Down\nscroll_bars.scroll_bar_x.bar_side_margin: 4\nscroll_bars.scroll_bar_x.draw_bg.color: #d1d1d6ff\nscroll_bars.scroll_bar_x.draw_bg.color_hover: #aeaeb2ff\nscroll_bars.scroll_bar_x.draw_bg.color_drag: #aeaeb2ff",
+                    "width: Fill height: Fit flow: Down\nscroll_bars.scroll_bar_x.bar_side_margin: 4",
+                ),
             );
             d.view(&format!("{hid}_lines"), &format!("width: Fit height: Fit flow: Down padding: Inset{{top: 4 bottom: {bottom}}}"));
             let mut out = String::new();
@@ -755,8 +841,9 @@ fn decorated_row(out: &mut String, lid: &str, l: &DiffPreviewLine, toks: &[DiffT
         "width: {rw} height: {ROW_H} flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 6 padding: Inset{{left: 12 right: 12 top: 0 bottom: 0}}"
     );
     let _ = writeln!(out, "{}", surface_props(fill, 0.0));
-    let _ = writeln!(out, "{lid}_old := mod.widgets.B3DiffNum{{width: {nw} text: {}}}", ui::lit(&num(l.old_line)));
-    let _ = writeln!(out, "{lid}_new := mod.widgets.B3DiffNum{{width: {nw} text: {}}}", ui::lit(&num(l.new_line)));
+    let num_ink = dark_ink(NUM_INK);
+    let _ = writeln!(out, "{lid}_old := mod.widgets.B3DiffNum{{width: {nw} text: {}{num_ink}}}", ui::lit(&num(l.old_line)));
+    let _ = writeln!(out, "{lid}_new := mod.widgets.B3DiffNum{{width: {nw} text: {}{num_ink}}}", ui::lit(&num(l.new_line)));
     let _ = writeln!(out, "{lid}_prefix := mod.widgets.B3DiffCode{{width: 10 text: {} draw_text.color: {ink}}}", ui::lit(prefix));
     let _ = writeln!(out, "{lid}_code := View {{");
     let _ = writeln!(out, "width: Fit height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}}");
@@ -784,8 +871,8 @@ fn decorated_row(out: &mut String, lid: &str, l: &DiffPreviewLine, toks: &[DiffT
             format!(" draw_text.color: {}", mark_ink(t.tok, added))
         } else {
             match t.tok {
-                None | Some(Tok::Plain) => String::new(),
-                Some(tk) => format!(" draw_text.color: {}", tk.color(false)),
+                None | Some(Tok::Plain) => dark_ink(token_ink(t.tok)),
+                Some(_) => format!(" draw_text.color: {}", token_ink(t.tok)),
             }
         };
         // A run inside a mark names it (`<line>_w<m>_c<k>_<class>`), so a
@@ -833,8 +920,9 @@ fn plain_blocks(out: &mut String, hid: &str, lines: &[DiffPreviewLine], rw: f64,
             "width: {rw} height: Fit flow: Right align: Align{{x: 0.0 y: 0.0}} spacing: 6 padding: Inset{{left: 12 right: 12 top: {BLOCK_PAD:.3} bottom: {BLOCK_PAD:.3}}}"
         );
         let _ = writeln!(out, "{}", surface_props(fill, 0.0));
-        let _ = writeln!(out, "{bid}_old := mod.widgets.B3DiffNum{{width: {nw} text: {}}}", ui::lit(&col(&|l| num(l.old_line))));
-        let _ = writeln!(out, "{bid}_new := mod.widgets.B3DiffNum{{width: {nw} text: {}}}", ui::lit(&col(&|l| num(l.new_line))));
+        let num_ink = dark_ink(NUM_INK);
+        let _ = writeln!(out, "{bid}_old := mod.widgets.B3DiffNum{{width: {nw} text: {}{num_ink}}}", ui::lit(&col(&|l| num(l.old_line))));
+        let _ = writeln!(out, "{bid}_new := mod.widgets.B3DiffNum{{width: {nw} text: {}{num_ink}}}", ui::lit(&col(&|l| num(l.new_line))));
         let _ = writeln!(out, "{bid}_prefix := mod.widgets.B3DiffCode{{width: 10 text: {} draw_text.color: {ink}}}", ui::lit(&col(&|_| prefix.to_owned())));
         let _ = writeln!(out, "{bid}_code := mod.widgets.B3DiffCode{{text: {} draw_text.color: {code_ink}}}", ui::lit(&col(&|l| l.content.clone())));
         out.push_str("}\n");

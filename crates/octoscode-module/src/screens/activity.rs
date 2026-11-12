@@ -465,6 +465,12 @@ pub fn is_open() -> bool {
     state().open
 }
 
+/// The list is up, not its first read's loading sheet, so its Done can answer.
+pub fn showing_list() -> bool {
+    let st = state();
+    st.open && !(st.available && st.reads == 0)
+}
+
 /// Test seam.
 pub fn reset() {
     let frame = state().frame;
@@ -685,8 +691,9 @@ pub fn dialog_box(frame: &Frame) -> (f64, f64, bool) {
     if compact {
         (frame.avail_w.floor(), frame.avail_h.floor(), true)
     } else {
-        let w = (frame.avail_w - 32.0).min(900.0).floor();
-        let h = (frame.avail_h - 32.0).min(720.0).max(360f64.min(frame.avail_h - 32.0)).floor();
+        let w = (frame.avail_w - 32.0).min(crate::desk::by(900.0, 640.0)).floor();
+        let room = crate::desk::by(frame.avail_h - 32.0, crate::desk::sheet_room(frame.avail_h));
+        let h = room.min(crate::desk::by(720.0, 560.0)).max(360f64.min(room)).floor();
         (w, h, false)
     }
 }
@@ -695,7 +702,7 @@ pub fn dialog_box(frame: &Frame) -> (f64, f64, bool) {
 /// in the device's zone; an unparsable value is shown verbatim.
 pub fn format_time(value: &str) -> String {
     match chrono::DateTime::parse_from_rfc3339(value) {
-        Ok(t) => t.with_timezone(&chrono::Local).format("%b %-d, %I:%M %p").to_string(),
+        Ok(t) => t.with_timezone(&chrono::Local).format(crate::desk::by("%b %-d, %I:%M %p", "%b %-d, %-I:%M %p")).to_string(),
         Err(_) => value.to_owned(),
     }
 }
@@ -766,19 +773,16 @@ pub fn lower(store: &Store) -> Option<Lowered> {
 
     // Backdrop: the web's mask; a press outside the card closes it
     // (`closeOnBackdrop`). The card swallows its own presses.
-    d.view("a9_act_root", "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}");
-    d.rule("a9_act_mask", "width: Fill height: Fill", tok::MASK);
+    d.view("a9_act_root", &format!("width: Fill height: Fill flow: Overlay align: {}", ui::sheet_align()));
+    d.rule("a9_act_mask", "width: Fill height: Fill", crate::desk::by(tok::MASK, ui::mac_mask()));
     d.view("a9_act_backdrop_box", "width: Fill height: Fill flow: Overlay");
     d.tap("a9_act_backdrop", ACTION_BACKDROP);
     d.close();
-    let (radius, border) = if compact { (0.0, None) } else { (16.0, Some(tok::HAIRLINE)) };
-    d.surface(
-        "a9_act_dialog",
-        &format!("width: {w} height: {h} flow: Overlay"),
-        tok::SURFACE,
-        radius,
-        border,
-    );
+    if compact {
+        d.surface("a9_act_dialog", &format!("width: {w} height: {h} flow: Overlay"), tok::SURFACE, 0.0, None);
+    } else {
+        d.sheet_surface("a9_act_dialog", &format!("width: {w} height: {h} flow: Overlay"), 16.0);
+    }
     // The card's own swallow layer: a press on its empty space must not
     // reach the backdrop (it would close the dialog).
     d.view("a9_act_swallow_box", "width: Fill height: Fill flow: Overlay");
@@ -794,14 +798,21 @@ pub fn lower(store: &Store) -> Option<Lowered> {
         ),
     );
     d.view("a9_act_head_col", "width: Fill height: Fit flow: Down spacing: 4");
-    d.text("a9_act_eyebrow", &tr("Across recent sessions").to_uppercase(), &Txt::new(11.0, Face::Medium, tok::MUTED));
+    // A Mac's sheet leads with its title and closes from its foot.
+    let mac = crate::desk::active();
+    if !mac {
+        d.text("a9_act_eyebrow", &tr("Across recent sessions").to_uppercase(), &Txt::new(11.0, Face::Medium, tok::MUTED));
+    }
     d.text("a9_act_title", tr("Activity"), &Txt::new(20.0, Face::Semibold, tok::TEXT));
+    if !mac {
     d.text(
         "a9_act_scope",
         tr("Server-owned tasks; no session is opened by this scan."),
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
+    }
     d.close();
+    if !mac {
     // The 32 px bordered close (`styles.css:1431-1443`).
     d.surface(
         "a9_act_close_box",
@@ -813,8 +824,11 @@ pub fn lower(store: &Store) -> Option<Lowered> {
     d.icon("a9_act_close_icon", "b3_close.svg", 14.0, tok::MUTED);
     d.tap("a9_act_close", ACTION_CLOSE);
     d.close();
+    }
     d.close();
-    d.hairline();
+    if !mac {
+        d.hairline();
+    }
 
     // ---- toolbar (`styles.css:1445-1484`): search, then the status filters
     // (side by side on a desktop card, stacked on a phone).
@@ -822,17 +836,21 @@ pub fn lower(store: &Store) -> Option<Lowered> {
     d.view(
         "a9_act_toolbar",
         &format!(
-            "width: Fill height: Fit flow: {tool_flow} align: Align{{x: 0.0 y: 0.5}} spacing: 12 padding: Inset{{left: {pad} right: {pad} top: 12 bottom: 12}}"
+            "width: Fill height: Fit flow: {tool_flow} align: Align{{x: 0.0 y: 0.5}} spacing: 12 padding: Inset{{left: {pad} right: {pad} top: {top} bottom: 12}}",
+            top = crate::desk::by(12, 0),
         ),
     );
     d.surface(
         "a9_act_search_field",
-        "width: Fill height: 38 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 12 right: 12 top: 0 bottom: 0}",
+        crate::desk::by(
+            "width: Fill height: 38 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 12 right: 12 top: 0 bottom: 0}",
+            "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 6 padding: Inset{left: 8 right: 8 top: 0 bottom: 0}",
+        ),
         tok::SURFACE,
-        10.0,
+        crate::desk::by(10.0, 6.0),
         Some("#d1d1d6ff"),
     );
-    d.icon("a9_act_search_icon", "b3_search.svg", 16.0, tok::FAINT);
+    d.icon("a9_act_search_icon", "b3_search.svg", crate::desk::by(16.0, 13.0), tok::FAINT);
     search_input(&mut d, &st.query_snap);
     d.close();
     let labels: Vec<String> = Filter::ALL
@@ -846,22 +864,21 @@ pub fn lower(store: &Store) -> Option<Lowered> {
         .map(|(f, l)| (l.as_str(), format!("{ACTION_FILTER}{}", f.id())))
         .collect();
     let selected = Filter::ALL.iter().position(|f| *f == st.filter).unwrap_or(0);
-    let seg_w = if compact { W::Fill } else { W::Px(392.0) };
+    let seg_w = if compact { W::Fill } else { W::Px(crate::desk::by(392.0, 320.0)) };
     d.segmented("a9_act_filter", &options, selected, seg_w, ui::Seg::Tab);
     d.close();
     d.hairline();
 
     // ---- the blocked-switch warning (`ActivityNavigator.tsx:97-101`)
     if blocked {
-        d.surface(
-            "a9_act_warning",
-            &format!(
-                "width: Fill height: Fit flow: Right spacing: 8 align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {pad} right: {pad} top: 8 bottom: 8}}"
-            ),
-            tok::AMBER_BG,
-            0.0,
-            None,
+        let warning = format!(
+            "width: Fill height: Fit flow: Right spacing: 8 align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {pad} right: {pad} top: 8 bottom: 8}}"
         );
+        if crate::desk::active() {
+            d.view("a9_act_warning", &warning);
+        } else {
+            d.surface("a9_act_warning", &warning, tok::AMBER_BG, 0.0, None);
+        }
         d.icon("a9_act_warning_icon", "b3_warning.svg", 14.0, tok::AMBER);
         d.text(
             "a9_act_warning_text",
@@ -869,7 +886,7 @@ pub fn lower(store: &Store) -> Option<Lowered> {
             &Txt::new(12.0, Face::Regular, tok::TEXT).w(W::Fill).wrap(),
         );
         d.close();
-        d.rule("a9_act_warning_rule", "width: Fill height: 1", tok::AMBER_LINE);
+        d.rule("a9_act_warning_rule", "width: Fill height: 1", crate::desk::by(tok::AMBER_LINE, tok::HAIRLINE));
     }
 
     // ---- results (`styles.css:1499-1601`): a scroll region filling the
@@ -924,13 +941,20 @@ pub fn lower(store: &Store) -> Option<Lowered> {
     d.view(
         "a9_act_footer",
         &format!(
-            "width: Fill height: 36 flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8 padding: Inset{{left: {pad} right: {pad} top: 0 bottom: 0}}"
+            "width: Fill height: {h} flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8 padding: Inset{{left: {pad} right: {pad} top: 0 bottom: 0}}",
+            h = crate::desk::by(36, 52),
         ),
     );
-    d.text("a9_act_footer_status", footer_text(&st), &Txt::new(11.0, Face::Mono, tok::MUTED).w(W::Fill));
-    // The keyboard hint only where there is a keyboard (a phone frame closes
-    // with the ×).
-    if !compact {
+    d.text(
+        "a9_act_footer_status",
+        footer_text(&st),
+        &Txt::new(11.0, crate::desk::by(Face::Mono, Face::Regular), tok::MUTED).w(W::Fill),
+    );
+    if mac {
+        d.button_ids("a9_act_close_box", "a9_act_close_label", "a9_act_close", crate::i18n::tr_ctx("button", "Done"), ACTION_CLOSE, Btn::Primary, W::Fit, 28.0);
+    } else if !compact {
+        // The keyboard hint only where there is a keyboard (a phone frame
+        // closes with the ×).
         d.text("a9_act_footer_esc", tr("Esc closes"), &Txt::new(11.0, Face::Mono, tok::MUTED));
     }
     d.close();
@@ -949,21 +973,33 @@ pub const ACTION_CANCEL: &str = "a9.act.cancel";
 /// The loading fallback (`UnavailableSurface` with `loading`): a centred
 /// panel "Loading activity…", what it is waiting for, and Cancel.
 fn lower_loading(frame: &Frame) -> Lowered {
-    let w = (frame.avail_w - 32.0).min(360.0).max(240.0).floor();
+    let mac = crate::desk::active();
+    let w = (frame.avail_w - 32.0).min(crate::desk::by(360.0, crate::desk::sheet_w(360.0))).max(240.0).floor();
     let mut d = Dsl::new();
-    d.view("a9_act_root", "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}");
-    d.rule("a9_act_mask", "width: Fill height: Fill", tok::MASK);
+    d.view("a9_act_root", &format!("width: Fill height: Fill flow: Overlay align: {}", ui::sheet_align()));
+    d.rule("a9_act_mask", "width: Fill height: Fill", crate::desk::by(tok::MASK, ui::mac_mask()));
     d.view("a9_act_backdrop_box", "width: Fill height: Fill flow: Overlay");
     d.tap("a9_act_backdrop", ACTION_CANCEL);
     d.close();
-    d.surface(
+    d.sheet_surface(
         "a9_act_loading",
-        &format!("width: {w} height: Fit flow: Down spacing: 10 padding: Inset{{left: 22 right: 22 top: 22 bottom: 20}}"),
-        tok::SURFACE,
+        &if mac {
+            format!("width: {w} height: Fit flow: Down spacing: 10 padding: Inset{{left: 20 right: 20 top: 16 bottom: 16}}")
+        } else {
+            format!("width: {w} height: Fit flow: Down spacing: 10 padding: Inset{{left: 22 right: 22 top: 22 bottom: 20}}")
+        },
         16.0,
-        Some(tok::HAIRLINE),
     );
-    d.text("a9_act_loading_title", tr("Loading activity…"), &Txt::new(17.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    if mac {
+        // A Mac's one spinner idiom, beside what it is waiting for.
+        let head = d.anon();
+        d.view(&head, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5}");
+        d.raw(&crate::fluid::spinner("a9_act_spin", 16.0));
+        d.text("a9_act_loading_title", tr("Loading activity…"), &Txt::new(15.0, Face::Semibold, tok::TEXT).w(W::Fill));
+        d.close();
+    } else {
+        d.text("a9_act_loading_title", tr("Loading activity…"), &Txt::new(17.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    }
     d.text(
         "a9_act_loading_detail",
         tr("Reading task snapshots from your confirmed sessions."),
@@ -986,16 +1022,17 @@ fn status_line(d: &mut Dsl, id: &str, text: &str) {
 
 fn search_input(d: &mut Dsl, snap: &str) {
     d.inputs.push(("a9_act_search".to_owned(), INPUT_SEARCH.to_owned()));
-    let style = ui::text_style(Face::Regular, 13.5);
+    let style = ui::text_style(Face::Regular, crate::desk::by(13.5, 13.0));
     d.open(
         "a9_act_search",
         "TextInput",
         &format!(
-            "width: Fill height: Fit padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: {}\nflow: Right is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {f} color_empty: {f} color_empty_hover: {f} color_empty_focus: {f}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
+            "width: Fill height: Fit padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: {}\nflow: Right is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {f} color_empty: {ph} color_empty_hover: {ph} color_empty_focus: {ph}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
             ui::lit(snap),
             ui::lit(tr("Search session, task, role, or status…")),
             t = tok::TEXT,
             f = tok::FAINT,
+            ph = crate::desk::by(tok::FAINT, crate::desk::placeholder()),
         ),
     );
     d.close();
@@ -1025,7 +1062,7 @@ fn row(d: &mut Dsl, i: usize, r: &Row, current: bool, enabled: bool, compact: bo
         &ui::fit_w(&r.session_title, text_w, 12.0, Face::Regular),
         &Txt::new(12.0, Face::Regular, tok::MUTED),
     );
-    let detail = if r.detail.is_empty() { r.task_id.clone() } else { r.detail.clone() };
+    let detail = if r.detail.is_empty() { r.task_id.clone() } else { crate::desk::capital(&r.detail).into_owned() };
     let detail = match &r.updated_at {
         Some(t) => format!("{detail} · {}", format_time(t)),
         None => detail,
@@ -1033,7 +1070,7 @@ fn row(d: &mut Dsl, i: usize, r: &Row, current: bool, enabled: bool, compact: bo
     d.text(
         &format!("{id}_detail"),
         &ui::fit_w(&detail, text_w, 11.0, Face::Mono),
-        &Txt::new(11.0, Face::Mono, tok::MUTED),
+        &Txt::new(11.0, crate::desk::by(Face::Mono, Face::Regular), tok::MUTED),
     );
     let label = tr(if current { "Inspect" } else { "Open session" });
     let kind = if enabled { Btn::Outline } else { Btn::OutlineOff };
@@ -1061,6 +1098,10 @@ fn row(d: &mut Dsl, i: usize, r: &Row, current: bool, enabled: bool, compact: bo
 /// The row's action pill (`styles.css:1565-1583`): a 30 px outline button
 /// with micro text; a disabled one routes nothing.
 fn pill(d: &mut Dsl, id: &str, label: &str, event: &str, kind: Btn, w: f64) {
+    if crate::desk::active() {
+        d.button_ids(&format!("{id}_box"), &format!("{id}_label"), id, label, event, kind, W::Fit, 28.0);
+        return;
+    }
     let (fg, border) = match kind {
         Btn::OutlineOff => (tok::DISABLED_INK, tok::HAIRLINE),
         _ => (tok::TEXT, "#c7c7ccff"),

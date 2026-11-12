@@ -235,7 +235,7 @@ def main():
     w.check("wire: session/btw #1 carries X", f"session_id={XID}" in asked(w, 1))
     w.check("X: the panel shows above X's composer", w.wait(lambda: panel_shown(w), 6))
     w.check("X: Aside — /btw · Answering… · the scope line · the note",
-            w.wait(lambda: w.text("btw_aside_title") == "Aside — /btw" and w.text("btw_aside_status_label") == "Answering…", 4)
+            w.wait(lambda: w.text("btw_aside_title") == ("Aside — /btw" if w.mode == "phone" else "Aside") and w.text("btw_aside_status_label") == "Answering…", 4)
             and w.text("btw_aside_scope") == f"octos · {X}"
             and w.text("btw_aside_note") == "This aside is not saved to the conversation.",
             f"{w.text('btw_aside_title')!r} {w.text('btw_aside_status_label')!r} {w.text('btw_aside_scope')!r}")

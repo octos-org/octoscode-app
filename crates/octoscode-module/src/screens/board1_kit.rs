@@ -61,7 +61,51 @@ pub fn set_type_scale(s: f64) {
 }
 
 fn scaled(px: f64) -> f64 {
+    if crate::desk::active() {
+        return mac_px(px);
+    }
     (px * TYPE_SCALE.with(|c| c.get()) * 4.0).round() / 4.0
+}
+
+/// A board size on a Mac: the sheet's title 15 points, its text 13, what is
+/// secondary to that 12 and a caption 11.
+fn mac_px(px: f64) -> f64 {
+    match px {
+        p if p >= 20.0 => 15.0,
+        p if p >= 15.0 => 13.0,
+        p if p >= 13.0 => 12.0,
+        _ => 11.0,
+    }
+}
+
+thread_local! {
+    /// The label column of the form being built on a Mac.
+    static LABEL_W: std::cell::Cell<f64> = const { std::cell::Cell::new(104.0) };
+}
+
+/// Lay the next forms' labels out in a column this wide (a Mac form's
+/// right-aligned labels beside their fields).
+pub fn set_label_w(w: f64) {
+    LABEL_W.with(|c| c.set(w));
+}
+
+/// A Mac form's row: the label right-aligned in its column, the control beside.
+pub fn form_row(label: &str, control: &str) -> String {
+    let w = LABEL_W.with(|c| c.get());
+    let width = format!("{w}");
+    format!(
+        "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.0}} spacing: 8\nView {{ width: {w} height: 28 align: Align{{x: 1.0 y: 0.5}}\n{}}}\nView {{ width: Fill height: Fit flow: Down\n{control}}}\n}}\n",
+        Text::new("", label).width_of(&width).right().one_line().dsl()
+    )
+}
+
+/// What reads under a form row's control: a hint, a validation message.
+pub fn under_control(inner: &str) -> String {
+    if !crate::desk::active() {
+        return inner.to_owned();
+    }
+    let w = LABEL_W.with(|c| c.get()) + 8.0;
+    format!("View {{ width: Fill height: Fit flow: Down padding: Inset{{left: {w}}}\n{inner}}}\n")
 }
 
 /// One Inter face at `px` logical pixels (the renderer's `size * 0.75` point
@@ -141,6 +185,10 @@ impl<'a> Text<'a> {
         self.width = "Fill";
         self
     }
+    pub fn width_of(mut self, width: &'a str) -> Self {
+        self.width = width;
+        self
+    }
     pub fn centered(mut self) -> Self {
         self.align_x = 0.5;
         self
@@ -166,12 +214,14 @@ impl<'a> Text<'a> {
             format!("{} := ", self.id)
         };
         format!(
-            "{name}Label {{\nwidth: {} height: Fit padding: 0 margin: 0 {flow}\nalign: Align{{x: {} y: 0.5}}\ntext: {}\ndraw_text.color: {}\ndraw_text.text_style: {}\n}}\n",
+            "{name}Label {{\nwidth: {} height: Fit padding: 0 margin: 0 {flow}\nalign: Align{{x: {} y: 0.5}}\ntext: {}\ndraw_text.color: {}\ndraw_text.text_style: {}{}\n}}\n",
             self.width,
             self.align_x,
             lit(self.text),
             self.color,
-            font_spaced(self.weight, self.px, spacing)
+            font_spaced(self.weight, self.px, spacing),
+            // No padding: without this g, y and p lose their tails.
+            if crate::desk::active() { "\nclip_y: false" } else { "" }
         )
     }
 }
@@ -186,14 +236,91 @@ pub fn hairline() -> String {
     format!("SolidView {{ width: Fill height: 1 draw_bg.color: {HAIR} }}\n")
 }
 
+/// The rule between a list's rows: on a Mac inset on both sides.
+pub fn row_rule() -> String {
+    if crate::desk::active() {
+        format!("View {{ width: Fill height: 1 padding: Inset{{left: 10 right: 10}}\nSolidView {{ width: Fill height: 1 draw_bg.color: {HAIR} }}\n}}\n")
+    } else {
+        hairline()
+    }
+}
+
 /// The black primary pill (`atlas-prompt.md`: solid #000, white text, 999 radius).
 pub fn pill_primary(id: &str, label: &str, width: &str) -> String {
+    if crate::desk::active() {
+        return push_button(id, label, true);
+    }
     pill(id, label, width, BLACK, "#2a2a2cff", "#3a3a3cff", WHITE, None)
 }
 
 /// The secondary outline pill (white, 1.5 px ink edge).
 pub fn pill_outline(id: &str, label: &str, width: &str) -> String {
+    if crate::desk::active() {
+        return push_button(id, label, false);
+    }
     pill(id, label, width, WHITE, "#f5f5f7ff", "#ececeeff", INK, Some(INK))
+}
+
+/// A Mac push button at its label's width: 28 points, a 6-point corner, the
+/// default action in the system blue, the others a raised neutral face.
+pub fn push_button(id: &str, label: &str, default: bool) -> String {
+    let t = crate::desk::current();
+    let label = crate::desk::title(label);
+    let label: &str = &label;
+    let (bg, hover, down, ink, border, edge) = if default {
+        (t.primary.as_str(), t.primary_hover.as_str(), t.primary_down.as_str(), "#fffffe", 0.0, CLEAR)
+    } else {
+        (t.button.as_str(), t.button_hover.as_str(), t.button_down.as_str(), t.ink.as_str(), 1.0, t.border.as_str())
+    };
+    // A short label keeps the width a Mac's push button does not go under.
+    let w = super::board3::ui::text_w(label, 13.0, super::board3::ui::Face::Regular);
+    let pad = ((72.0 - w) / 2.0).max(12.0).ceil();
+    format!(
+        "{id} := ButtonFlat {{\nwidth: Fit height: 28 padding: Inset{{left: {pad} right: {pad}}} margin: 0 align: Align{{x: 0.5 y: 0.5}}\ntext: {}\ndraw_bg +: {{color: {bg} color_hover: {hover} color_down: {down} color_focus: {bg} color_disabled: {bg} border_size: {border} border_radius: 3.0 border_color: {edge} border_color_hover: {edge} border_color_down: {edge} border_color_focus: {edge} border_color_disabled: {edge}}}\ndraw_text +: {{color: {ink} color_hover: {ink} color_down: {ink} color_focus: {ink} color_disabled: {ink} text_style: {}}}\n}}\n",
+        lit(label),
+        font(400, 15.0)
+    )
+}
+
+/// A Mac push button that can't act yet: the neutral face and a quieter label.
+pub fn push_button_off(id: &str, label: &str) -> String {
+    let t = crate::desk::current();
+    let label = crate::desk::title(label);
+    let label: &str = &label;
+    let (face, edge) = (t.button.as_str(), t.border.as_str());
+    let ink = super::board3::ui::tok::DISABLED_INK;
+    let w = super::board3::ui::text_w(label, 13.0, super::board3::ui::Face::Regular);
+    let pad = ((72.0 - w) / 2.0).max(12.0).ceil();
+    format!(
+        "{id} := ButtonFlat {{\nwidth: Fit height: 28 padding: Inset{{left: {pad} right: {pad}}} margin: 0 align: Align{{x: 0.5 y: 0.5}}\ntext: {}\ndraw_bg +: {{color: {face} color_hover: {face} color_down: {face} color_focus: {face} color_disabled: {face} border_size: 1.0 border_radius: 3.0 border_color: {edge} border_color_hover: {edge} border_color_down: {edge} border_color_focus: {edge} border_color_disabled: {edge}}}\ndraw_text +: {{color: {ink} color_hover: {ink} color_down: {ink} color_focus: {ink} color_disabled: {ink} text_style: {}}}\n}}\n",
+        lit(label),
+        font(400, 15.0)
+    )
+}
+
+/// A row of a phone's full-width buttons, as they stand: a Mac's sit at their
+/// label's width at the row's trailing edge.
+pub fn action_row(buttons: &[String]) -> String {
+    if crate::desk::active() {
+        return format!(
+            "View {{ width: Fill height: Fit flow: Right align: Align{{x: 1.0 y: 0.5}} spacing: 8\n{}}}\n",
+            buttons.concat()
+        );
+    }
+    match buttons {
+        [one] => one.clone(),
+        many => format!("View {{ width: Fill height: Fit flow: Right spacing: 12\n{}}}\n", many.concat()),
+    }
+}
+
+/// A Mac sheet's button row: secondary actions at its leading edge; the way
+/// out and the default action at its trailing edge.
+pub fn sheet_buttons(leading: &[String], trailing: &[String]) -> String {
+    format!(
+        "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8\n{}View {{ width: Fill height: 1 }}\n{}}}\n",
+        leading.concat(),
+        trailing.concat()
+    )
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -224,6 +351,9 @@ fn pill(
 /// "Test connection" / "Fetch available models"): the board's outline pill
 /// (1.5 px ink edge, 999 radius) with side padding instead of a Fill width.
 pub fn pill_outline_fit(id: &str, label: &str, height: f64) -> String {
+    if crate::desk::active() {
+        return push_button(id, label, false);
+    }
     let edge = INK;
     format!(
         "{id} := ButtonFlat {{\nwidth: Fit height: {height} padding: Inset{{left: 18 right: 18}} margin: 0 align: Align{{x: 0.5 y: 0.5}}\ntext: {}\ndraw_bg +: {{color: {WHITE} color_hover: #f5f5f7ff color_down: #ececeeff color_focus: {WHITE} color_disabled: {WHITE} border_size: 1.5 border_radius: {} border_color: {edge} border_color_hover: {edge} border_color_down: {edge} border_color_focus: {edge} border_color_disabled: {edge}}}\ndraw_text +: {{color: {INK} color_hover: {INK} color_down: {INK} color_focus: {INK} color_disabled: {INK} text_style: {}}}\n}}\n",
@@ -247,6 +377,36 @@ pub fn status_line(id: &str, text: &str, ok: bool) -> String {
 
 /// A text-only control (the board's blue link, or the red "Forget this device").
 pub fn link(id: &str, label: &str, color: &str, px: f64, weight: u16) -> String {
+    link_as_written(id, &crate::desk::title(label), color, px, weight)
+}
+
+/// [`link`] for a name that is data (a folder's), which keeps its own case.
+pub fn link_as_written(id: &str, label: &str, color: &str, px: f64, weight: u16) -> String {
+    if crate::desk::active() {
+        let t = crate::desk::current();
+        // A Mac's action is a push button, never a blue word; a red word says it
+        // can't be undone. A folder in a path stays a quiet word.
+        if color != MUTED {
+            let ink = if color == RED { crate::desk::danger_on_face() } else { t.ink.as_str() };
+            return format!(
+                "{id} := ButtonFlat {{\nwidth: Fit height: 28 padding: Inset{{left: 12 right: 12}} margin: 0 align: Align{{x: 0.5 y: 0.5}}\ntext: {}\ndraw_bg +: {{color: {f} color_hover: {fh} color_down: {fd} color_focus: {f} color_disabled: {f} border_size: 1.0 border_radius: 3.0 border_color: {e} border_color_hover: {e} border_color_down: {e} border_color_focus: {e} border_color_disabled: {e}}}\ndraw_text +: {{color: {ink} color_hover: {ink} color_down: {ink} color_focus: {ink} color_disabled: {ink} text_style: {}}}\n}}\n",
+                lit(label),
+                font(400, 13.0),
+                f = t.button,
+                fh = t.button_hover,
+                fd = t.button_down,
+                e = t.border,
+            );
+        }
+        let ink = color;
+        return format!(
+            "{id} := ButtonFlat {{\nwidth: Fit height: 28 padding: Inset{{left: 6 right: 6}} margin: 0 align: Align{{x: 0.5 y: 0.5}}\ntext: {}\ndraw_bg +: {{color: {CLEAR} color_hover: {h} color_down: {d} color_focus: {CLEAR} color_disabled: {CLEAR} border_size: 0.0 border_radius: 3.0 border_color: {CLEAR} border_color_hover: {CLEAR} border_color_down: {CLEAR} border_color_focus: {CLEAR} border_color_disabled: {CLEAR}}}\ndraw_text +: {{color: {ink} color_hover: {ink} color_down: {ink} color_focus: {ink} color_disabled: {ink} text_style: {}}}\n}}\n",
+            lit(label),
+            font(400, px),
+            h = t.wash,
+            d = t.wash_down,
+        );
+    }
     format!(
         "{id} := ButtonFlat {{\nwidth: Fit height: 32 padding: Inset{{left: 6 right: 6}} margin: 0 align: Align{{x: 0.5 y: 0.5}}\ntext: {}\ndraw_bg +: {{color: {CLEAR} color_hover: #00000008 color_down: #00000012 color_focus: {CLEAR} color_disabled: {CLEAR} border_size: 0.0 border_radius: 6.0 border_color: {CLEAR} border_color_hover: {CLEAR} border_color_down: {CLEAR} border_color_focus: {CLEAR} border_color_disabled: {CLEAR}}}\ndraw_text +: {{color: {color} color_hover: {color} color_down: {color} color_focus: {color} color_disabled: {color} text_style: {}}}\n}}\n",
         lit(label),
@@ -257,18 +417,23 @@ pub fn link(id: &str, label: &str, color: &str, px: f64, weight: u16) -> String 
 /// A transparent hit target laid over a composite (a row, an icon). Fill/Fill
 /// inside an Overlay parent.
 pub fn hit(id: &str, hover: bool) -> String {
-    let (h, d) = if hover {
-        ("#0000000a", "#00000014")
-    } else {
-        (CLEAR, CLEAR)
+    let t = crate::desk::active().then(crate::desk::current);
+    let (h, d) = match (&t, hover) {
+        (Some(t), true) => (t.wash.as_str(), t.wash_down.as_str()),
+        (None, true) => ("#0000000a", "#00000014"),
+        _ => (CLEAR, CLEAR),
     };
+    let radius = if t.is_some() { 3.0 } else { 6.0 };
     format!(
-        "{id} := ButtonFlat {{\nwidth: Fill height: Fill padding: 0 margin: 0 text: \"\"\ndraw_bg +: {{color: {CLEAR} color_hover: {h} color_down: {d} color_focus: {CLEAR} color_disabled: {CLEAR} border_size: 0.0 border_radius: 6.0 border_color: {CLEAR} border_color_hover: {CLEAR} border_color_down: {CLEAR} border_color_focus: {CLEAR} border_color_disabled: {CLEAR}}}\n}}\n"
+        "{id} := ButtonFlat {{\nwidth: Fill height: Fill padding: 0 margin: 0 text: \"\"\ndraw_bg +: {{color: {CLEAR} color_hover: {h} color_down: {d} color_focus: {CLEAR} color_disabled: {CLEAR} border_size: 0.0 border_radius: {radius:.1} border_color: {CLEAR} border_color_hover: {CLEAR} border_color_down: {CLEAR} border_color_focus: {CLEAR} border_color_disabled: {CLEAR}}}\n}}\n"
     )
 }
 
 /// An SVG icon of `size` px.
 pub fn svg(id: &str, file: &str, size: f64) -> String {
+    if file == "b1_spinner.svg" && crate::desk::active() {
+        return crate::fluid::spinner(id, size);
+    }
     let name = if id.is_empty() {
         String::new()
     } else {
@@ -350,7 +515,38 @@ impl<'a> Field<'a> {
         self.trailing = Some(t);
         self
     }
+    /// A Mac form's field: 28 points, the label beside it in the form's column.
+    fn mac_dsl(&self) -> String {
+        let (edge, width) = if self.error { (RED, 1.5) } else { (FIELD_EDGE, 1.0) };
+        // A Mac's placeholder is the system's (E7 5).
+        let ph = if self.placeholder_ink { INK } else { crate::desk::placeholder() };
+        let ph_focus = crate::desk::placeholder();
+        let empty_default = if self.text.is_empty() {
+            "animator +: {empty +: {default: @on}}\n"
+        } else {
+            ""
+        };
+        let field = format!(
+            "DesignSurface {{\nwidth: Fill height: 28 flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 8 right: {}}}\ndraw_bg.color: {WHITE} draw_bg.radius: 6 draw_bg.border_width: {width} draw_bg.border_position: 1 draw_bg.border_color: {edge}\n{} := TextInputFlat {{\n{empty_default}width: Fill height: Fill padding: Inset{{top: 5 bottom: 5}} margin: 0 flow: Right\ntext: {}\nempty_text: {}\nis_password: {} is_read_only: {}\ndraw_bg +: {{color: {CLEAR} color_hover: {CLEAR} color_focus: {CLEAR} color_down: {CLEAR} color_empty: {CLEAR} color_disabled: {CLEAR} border_size: 0.0 border_color: {CLEAR} border_color_hover: {CLEAR} border_color_focus: {CLEAR} border_color_down: {CLEAR} border_color_empty: {CLEAR} border_color_disabled: {CLEAR}}}\ndraw_text +: {{color: {INK} color_hover: {INK} color_focus: {INK} color_down: {INK} color_disabled: {MUTED} color_empty: {ph} color_empty_hover: {ph} color_empty_focus: {ph_focus} text_style: {}}}\ndraw_cursor.color: {INK}\n}}\n{}}}\n",
+            if self.trailing.is_some() { 2.0 } else { 8.0 },
+            self.id,
+            lit(self.text),
+            lit(self.placeholder),
+            self.password,
+            self.read_only,
+            font(400, 15.0),
+            self.trailing.as_deref().unwrap_or(""),
+        );
+        match self.label {
+            Some(l) => form_row(l, &field),
+            None => field,
+        }
+    }
+
     pub fn dsl(&self) -> String {
+        if crate::desk::active() {
+            return self.mac_dsl();
+        }
         let mut out = String::new();
         if let Some(l) = self.label {
             // The board's field labels are regular weight ("Server", "Name").
@@ -400,13 +596,19 @@ pub fn callout(red: bool, info_icon: bool, head: &str, next: Option<&str>) -> St
     };
     // A24: a callout carries product copy only (the pairing / browse
     // message tables): shown in the current language.
+    let desk = crate::desk::active();
     let mut body = String::new();
     body.push_str(&Text::new("", crate::i18n::tr(head)).px(15.0).color(head_ink).fill().dsl());
     if let Some(n) = next {
-        body.push_str(&gap(6.0));
+        body.push_str(&gap(if desk { 2.0 } else { 6.0 }));
         body.push_str(&Text::new("", crate::i18n::tr(n)).px(14.0).color(MUTED).fill().dsl());
     }
-    let icon_dsl = if info_icon {
+    let icon_dsl = if info_icon && desk {
+        format!(
+            "View {{ width: 16 height: Fit padding: Inset{{top: 1}} {}}}\n",
+            svg("", "b1_info.svg", 16.0)
+        )
+    } else if info_icon {
         format!(
             "View {{ width: 24 height: Fit padding: Inset{{top: 0}} {}}}\n",
             svg("", "b1_info.svg", 22.0)
@@ -414,6 +616,17 @@ pub fn callout(red: bool, info_icon: bool, head: &str, next: Option<&str>) -> St
     } else {
         String::new()
     };
+    if desk && red {
+        // A Mac's refusal is plain words in the form, not a tinted card.
+        return format!(
+            "View {{\nwidth: Fill height: Fit flow: Right spacing: 8\n{icon_dsl}View {{ width: Fill height: Fit flow: Down\n{body}}}\n}}\n"
+        );
+    }
+    if desk {
+        return format!(
+            "DesignSurface {{\nwidth: Fill height: Fit flow: Right spacing: 8 padding: Inset{{left: 10 right: 10 top: 8 bottom: 8}}\ndraw_bg.color: {bg} draw_bg.radius: 6 draw_bg.border_width: 1 draw_bg.border_position: 1 draw_bg.border_color: {edge}\n{icon_dsl}View {{ width: Fill height: Fit flow: Down\n{body}}}\n}}\n"
+        );
+    }
     format!(
         "DesignSurface {{\nwidth: Fill height: Fit flow: Right spacing: 12 padding: Inset{{left: 16 right: 16 top: 14 bottom: 14}}\ndraw_bg.color: {bg} draw_bg.radius: 12 draw_bg.border_width: 1 draw_bg.border_position: 1 draw_bg.border_color: {edge}\n{icon_dsl}View {{ width: Fill height: Fit flow: Down\n{body}}}\n}}\n"
     )
@@ -425,7 +638,7 @@ pub fn list_card(id: &str, rows: &[String]) -> String {
     let mut inner = String::new();
     for (i, r) in rows.iter().enumerate() {
         if i > 0 {
-            inner.push_str(&hairline());
+            inner.push_str(&row_rule());
         }
         inner.push_str(r);
     }
@@ -435,7 +648,8 @@ pub fn list_card(id: &str, rows: &[String]) -> String {
         format!("{id} := ")
     };
     format!(
-        "{name}DesignSurface {{\nwidth: Fill height: Fit flow: Down padding: 1\ndraw_bg.color: {WHITE} draw_bg.radius: 12 draw_bg.border_width: 1 draw_bg.border_position: 1 draw_bg.border_color: {HAIR}\n{inner}}}\n"
+        "{name}DesignSurface {{\nwidth: Fill height: Fit flow: Down padding: 1\ndraw_bg.color: {WHITE} draw_bg.radius: {r} draw_bg.border_width: 1 draw_bg.border_position: 1 draw_bg.border_color: {HAIR}\n{inner}}}\n",
+        r = crate::desk::by(12, 8),
     )
 }
 
@@ -447,19 +661,21 @@ pub fn list_card_scroll(id: &str, rows: &[String], max_h: Option<f64>) -> String
     let mut inner = String::new();
     for (i, r) in rows.iter().enumerate() {
         if i > 0 {
-            inner.push_str(&hairline());
+            inner.push_str(&row_rule());
         }
         inner.push_str(r);
     }
     format!(
-        "{id} := DesignSurface {{\nwidth: Fill height: Fit flow: Down padding: 1\ndraw_bg.color: {WHITE} draw_bg.radius: 12 draw_bg.border_width: 1 draw_bg.border_position: 1 draw_bg.border_color: {HAIR}\nScrollYView {{ width: Fill height: {h} flow: Down\n{inner}}}\n}}\n"
+        "{id} := DesignSurface {{\nwidth: Fill height: Fit flow: Down padding: 1\ndraw_bg.color: {WHITE} draw_bg.radius: {r} draw_bg.border_width: 1 draw_bg.border_position: 1 draw_bg.border_color: {HAIR}\nScrollYView {{ width: Fill height: {h} flow: Down\n{inner}}}\n}}\n",
+        r = crate::desk::by(12, 8),
     )
 }
 
 /// A key/value settings row (p4-05: "Server  192.168.1.20:50190").
 pub fn kv_row(key: &str, value: &str) -> String {
+    let (height, pad) = crate::desk::by((52, 16), (32, 10));
     format!(
-        "View {{ width: Fill height: 52 flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 16 right: 16}} spacing: 12\n{}{}}}\n",
+        "View {{ width: Fill height: {height} flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {pad} right: {pad}}} spacing: 12\n{}{}}}\n",
         // A24: the key is product copy (the value is data, shown as is).
         Text::new("", crate::i18n::tr(key)).px(15.0).one_line().dsl(),
         Text::new("", value).px(15.0).color(MUTED).fill().right().one_line().dsl()
@@ -468,8 +684,9 @@ pub fn kv_row(key: &str, value: &str) -> String {
 
 /// A single-text row (p4-05's "Stays on this device only").
 pub fn note_row(text: &str, color: &str) -> String {
+    let (height, pad) = crate::desk::by((52, 16), (32, 10));
     format!(
-        "View {{ width: Fill height: 52 flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 16 right: 16}}\n{}}}\n",
+        "View {{ width: Fill height: {height} flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {pad} right: {pad}}}\n{}}}\n",
         Text::new("", crate::i18n::tr(text)).px(15.0).color(color).fill().one_line().dsl()
     )
 }

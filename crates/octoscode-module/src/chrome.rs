@@ -56,22 +56,65 @@ script_mod! {
     // (lib.rs's script_mod does the same at its top; eval is idempotent).
     #(crate::screens::theme::eval_roles(vm))
 
+    // The Mac look on a desktop (`crate::desk`): a phone keeps the first value
+    // of every `by(phone, desk)`, so its tree and metrics stay what they were.
+    let desk = #(crate::desk::active())
+    fn by(phone, pointer){ if desk { pointer } else { phone } }
+    let svg_own = vec4(-1.0, -1.0, -1.0, -1.0)
+    let mac_wash = #(crate::desk::color("wash"))
+    let mac_wash_down = #(crate::desk::color("wash_down"))
+    let mac_selected = #(crate::desk::color("selected"))
+    let mac_sidebar = #(crate::desk::color("sidebar"))
+    let mac_bar = #(crate::desk::color("bar"))
+    let mac_bar_veil = #(crate::desk::color("bar_veil"))
+    let mac_surface = #(crate::desk::color("surface"))
+    let mac_border = #(crate::desk::color("border"))
+    let mac_button = #(crate::desk::color("button"))
+    let mac_segment_on = #(crate::desk::color("segment_on"))
+    // Use the active phone theme's page and ink for readable sidebar states.
+    let phone_muted = #(crate::desk::phone_color("muted"))
+    let phone_selected = #(crate::desk::phone_color("selected"))
+    let mac_switch_off = #(crate::desk::color("switch_off"))
+    let mac_ring = #(crate::desk::color("ring"))
+    let mac_primary = #(crate::desk::color("primary"))
+    let mac_link = #(crate::desk::color("link"))
+    let mac_ink = #(crate::desk::color("ink"))
+    let mac_muted = #(crate::desk::color("muted"))
+    let mac_danger = #(crate::desk::color("danger"))
+    let mac_field = #(crate::desk::color("field"))
+    // A Mac field's placeholder: the system's (E7 5).
+    let mac_placeholder = #(crate::desk::color("placeholder"))
+    let mac_bar_h = #(crate::desk::bar_h())
+    // A menu's material and edge (E7 2), the framework's menus'.
+    let mac_menu = #(crate::desk::color("menu"))
+    let mac_menu_edge = #(crate::desk::color("menu_edge"))
+    let OcMenuPanel = if desk {
+        RoundedShadowView{new_batch: true draw_bg +: {shadow_color: #x00000052 shadow_radius: 14.0 shadow_offset: vec2(0.0, 0.0)}}
+    } else {
+        RoundedView{}
+    }
+
+    // While the list of chats is still reading: a Mac's one spinner idiom.
+    let OcListSpinner = if desk { View{width: Fill height: Fit visible: false align: Align{x: 0.5} padding: Inset{top: 2 bottom: 6} LoadingSpinner{width: 12 height: 12}} } else { View{width: 0 height: 0 visible: false} }
+    // Over a toolbar control that can't act right now.
+    let OcToolbarVeil = if desk { RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: mac_bar_veil border_radius: 3.0}} } else { View{width: 0 height: 0 visible: false} }
+
     // ---------------------------------------------------------- type + ink
-    let OcFace400 = FontFamily{
+    let OcFace400 = if desk { theme.font_regular.font_family } else { FontFamily{
         latin := FontMember{res: file_resource(#(crate::chrome::face(400))) asc: 0.04 desc: 0.04 weight: 400}
         cjk := FontMember{res: file_resource(#(crate::design::cjk_face_path(400))) asc: 0.0 desc: 0.0 weight: 400}
         cjk_rare := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiRegular.ttf") asc: 0.0 desc: 0.0 lazy: 1}
-    }
-    let OcFace500 = FontFamily{
+    } }
+    let OcFace500 = if desk { theme.font_regular.font_family } else { FontFamily{
         latin := FontMember{res: file_resource(#(crate::chrome::face(500))) asc: 0.04 desc: 0.04 weight: 500}
         cjk := FontMember{res: file_resource(#(crate::design::cjk_face_path(500))) asc: 0.0 desc: 0.0 weight: 500}
         cjk_rare := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiRegular.ttf") asc: 0.0 desc: 0.0 lazy: 1}
-    }
-    let OcFace600 = FontFamily{
+    } }
+    let OcFace600 = if desk { theme.font_bold.font_family } else { FontFamily{
         latin := FontMember{res: file_resource(#(crate::chrome::face(600))) asc: 0.04 desc: 0.04 weight: 600}
         cjk := FontMember{res: file_resource(#(crate::design::cjk_face_path(600))) asc: 0.0 desc: 0.0 weight: 600}
         cjk_rare := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiBold.ttf") asc: 0.0 desc: 0.0 lazy: 1}
-    }
+    } }
 
     // The shell's own labels (lib.rs: the brand, the autonomy sections) use
     // the same faces through these roles.
@@ -81,37 +124,37 @@ script_mod! {
 
     // A label: Inter 14px, primary ink, no padding (the stock Label pads).
     let OcLabel = Label{
-        width: Fit height: Fit padding: 0
+        width: Fit height: Fit padding: 0 clip_y: by(true, false)
         // The stock Label flow does not wrap here (measured: only an
         // explicit wrap flow breaks a long help line).
         flow: Right{wrap: true}
         draw_text +: {
             color: theme.color_fg_app
-            text_style: TextStyle{font_family: OcFace400 font_size: 10.5 line_spacing: 1.25}
+            text_style: TextStyle{font_family: OcFace400 font_size: by(10.5, 9.75) line_spacing: 1.25}
         }
     }
     let OcMuted = Label{
-        width: Fit height: Fit padding: 0
+        width: Fit height: Fit padding: 0 clip_y: by(true, false)
         flow: Right{wrap: true}
         draw_text +: {
             color: theme.color_text_muted
-            text_style: TextStyle{font_family: OcFace400 font_size: 9.75 line_spacing: 1.3}
+            text_style: TextStyle{font_family: OcFace400 font_size: by(9.75, 9.0) line_spacing: 1.3}
         }
     }
     let OcMedium = Label{
-        width: Fit height: Fit padding: 0
+        width: Fit height: Fit padding: 0 clip_y: by(true, false)
         flow: Right{wrap: true}
         draw_text +: {
             color: theme.color_fg_app
-            text_style: TextStyle{font_family: OcFace500 font_size: 10.5 line_spacing: 1.25}
+            text_style: TextStyle{font_family: OcFace500 font_size: by(10.5, 9.75) line_spacing: 1.25}
         }
     }
     let OcStrong = Label{
-        width: Fit height: Fit padding: 0
+        width: Fit height: Fit padding: 0 clip_y: by(true, false)
         flow: Right{wrap: true}
         draw_text +: {
             color: theme.color_fg_app
-            text_style: TextStyle{font_family: OcFace600 font_size: 12.75 line_spacing: 1.2}
+            text_style: TextStyle{font_family: OcFace600 font_size: by(12.75, 11.25) line_spacing: 1.2}
         }
     }
 
@@ -124,17 +167,17 @@ script_mod! {
         // never sends hover-out, so a tint would stick on the last clicked
         // row; the press tint is enough feedback.
         draw_bg.color: #00000000
-        draw_bg.color_hover: #00000000
-        draw_bg.color_down: #8080801F
+        draw_bg.color_hover: by(#00000000, mac_wash)
+        draw_bg.color_down: by(#8080801F, mac_wash_down)
         draw_bg.color_focus: #00000000
         draw_bg.color_disabled: #00000000
         draw_bg.color_2: #00000000
-        draw_bg.color_2_hover: #00000000
-        draw_bg.color_2_down: #8080801F
+        draw_bg.color_2_hover: by(#00000000, mac_wash)
+        draw_bg.color_2_down: by(#8080801F, mac_wash_down)
         draw_bg.color_2_focus: #00000000
         draw_bg.color_2_disabled: #00000000
         draw_bg.border_size: 0.0
-        draw_bg.border_radius: 8.0
+        draw_bg.border_radius: by(8.0, 3.0)
         draw_bg.border_color: #00000000
         draw_bg.border_color_hover: #00000000
         draw_bg.border_color_down: #00000000
@@ -154,6 +197,13 @@ script_mod! {
         draw_bg.color_2_down: #8080801A
     }
 
+    // A source list's row: a Mac's sidebar does not answer a hover, only the
+    // press and the selection (identical to OcHit on a phone).
+    let OcRowHit = OcHit{
+        draw_bg.color_hover: #00000000
+        draw_bg.color_2_hover: #00000000
+    }
+
     // A full-window backdrop hit (a scrim's "click outside"): every face and
     // stroke state transparent, no press tint either.
     mod.widgets.OcBackdrop = OcHit{
@@ -163,7 +213,7 @@ script_mod! {
     }
 
     // A round icon button's hit (the drawer's and the dock's close).
-    mod.widgets.OcHitRound = OcHit{draw_bg.border_radius: 16.0}
+    mod.widgets.OcHitRound = OcHit{draw_bg.border_radius: by(16.0, 3.0)}
 
     // A 28+ px square icon button: the svg centred under a transparent hit.
     let OcIconButton = View{
@@ -180,32 +230,33 @@ script_mod! {
     // (on); the host flips the four layers' visibility (no runtime colours).
     let OcToggle = View{
         // The hit is 44x32 (>= 28 px both ways); the drawn track is 40x24.
-        width: 44 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+        // On a desktop: a Mac's small switch, 28x16 on a 28-point row.
+        width: by(44, 32) height: by(32, 28) flow: Overlay align: Align{x: by(0.5, 1.0) y: 0.5}
         View{
-            width: 40 height: 24 flow: Overlay
-            tg_off := RoundedView{width: Fill height: Fill draw_bg +: {color: #(crate::chrome::ink("track")) border_radius: 12.0}}
+            width: by(40, 28) height: by(24, 16) flow: Overlay
+            tg_off := RoundedView{width: Fill height: Fill draw_bg +: {color: by(#(crate::chrome::ink("track")), mac_switch_off) border_radius: by(12.0, 4.0)}}
             // A26: the accent fill follows the display palette.
-            tg_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: #(crate::chrome::ink("accent")) border_radius: 12.0}}
+            tg_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: #(crate::chrome::ink("accent")) border_radius: by(12.0, 4.0)}}
             tg_knob_off := View{
-                width: Fill height: Fill align: Align{x: 0.0 y: 0.5} padding: Inset{left: 2}
-                RoundedView{width: 20 height: 20 draw_bg +: {color: #FFFFFF border_radius: 10.0 border_size: 0.5 border_color: #0000001F}}
+                width: Fill height: Fill align: Align{x: 0.0 y: 0.5} padding: Inset{left: by(2, 1)}
+                RoundedView{width: by(20, 14) height: by(20, 14) draw_bg +: {color: #FFFFFF border_radius: by(10.0, 3.5) border_size: 0.5 border_color: #0000001F}}
             }
             tg_knob_on := View{
-                width: Fill height: Fill align: Align{x: 1.0 y: 0.5} padding: Inset{right: 2} visible: false
-                RoundedView{width: 20 height: 20 draw_bg +: {color: #FFFFFF border_radius: 10.0}}
+                width: Fill height: Fill align: Align{x: 1.0 y: 0.5} padding: Inset{right: by(2, 1)} visible: false
+                RoundedView{width: by(20, 14) height: by(20, 14) draw_bg +: {color: #FFFFFF border_radius: by(10.0, 3.5)}}
             }
         }
-        tg_hit := OcHitQuiet{draw_bg.border_radius: 12.0}
+        tg_hit := OcHitQuiet{draw_bg.border_radius: by(12.0, 4.0)}
     }
 
     // A radio dot: an off ring, an on ring with its centre dot.
     let OcRadio = View{
-        width: 18 height: 18 flow: Overlay align: Align{x: 0.5 y: 0.5}
-        rd_off := RoundedView{width: 18 height: 18 draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.5 border_color: #C7C7CC}}
+        width: by(18, 14) height: by(18, 14) flow: Overlay align: Align{x: 0.5 y: 0.5}
+        rd_off := RoundedView{width: by(18, 14) height: by(18, 14) draw_bg +: {color: by(theme.color_bg_app, mac_button) border_radius: by(9.0, 3.5) border_size: by(1.5, 1.0) border_color: by(#C7C7CC, mac_ring)}}
         rd_on := View{
-            width: 18 height: 18 flow: Overlay align: Align{x: 0.5 y: 0.5} visible: false
-            RoundedView{width: 18 height: 18 draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.5 border_color: #(crate::chrome::ink("accent"))}}
-            RoundedView{width: 8 height: 8 draw_bg +: {color: #(crate::chrome::ink("accent")) border_radius: 4.0}}
+            width: by(18, 14) height: by(18, 14) flow: Overlay align: Align{x: 0.5 y: 0.5} visible: false
+            RoundedView{width: by(18, 14) height: by(18, 14) draw_bg +: {color: by(theme.color_bg_app, #(crate::chrome::ink("accent"))) border_radius: by(9.0, 3.5) border_size: by(1.5, 0.0) border_color: #(crate::chrome::ink("accent"))}}
+            RoundedView{width: by(8, 6) height: by(8, 6) draw_bg +: {color: by(#(crate::chrome::ink("accent")), #FFFFFF) border_radius: by(4.0, 1.5)}}
         }
     }
 
@@ -215,11 +266,12 @@ script_mod! {
         width: 64 height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}
         sg_pill := RoundedView{
             width: Fill height: Fill visible: false
-            draw_bg +: {color: theme.color_bg_app border_radius: 7.0 border_size: 0.5 border_color: #0000001A}
+            draw_bg +: {color: by(theme.color_bg_app, mac_segment_on) border_radius: by(7.0, 2.5) border_size: by(0.5, 1.0) border_color: by(#0000001A, mac_border)}
         }
-        sg_text_on := OcMedium{text: "" visible: false draw_text +: {text_style +: {font_size: 9.75}}}
-        sg_text_off := OcLabel{text: "" draw_text +: {color: theme.color_text_muted text_style +: {font_size: 9.75}}}
-        sg_hit := OcHitQuiet{draw_bg.border_radius: 7.0}
+        sg_text_on := OcMedium{text: "" visible: false draw_text +: {text_style +: {font_size: by(9.75, 9.0)}}}
+        sg_text_off := OcLabel{text: "" draw_text +: {color: by(phone_muted, mac_ink) text_style +: {font_size: by(9.75, 9.0)}}}
+        // On a Mac the 24-point segment takes a press across its 28-point track.
+        sg_hit := OcHitQuiet{margin: Inset{top: by(0, -2) bottom: by(0, -2)} draw_bg.border_radius: by(7.0, 2.5)}
     }
 
     // A hairline (a painted 1 px rule; SolidView, so no SDF rounding eats it).
@@ -229,32 +281,57 @@ script_mod! {
     // The sidebar BODY: New chat, the search field, the mode/sort row and the
     // tree. The shell's `threads_column` (lib.rs) owns the brand row above it
     // and the autonomy sections + the Add-workspace footer below it.
+    let OcMatchTail = if desk { OcLabel{width: Fill max_lines: 1 text_overflow: TextOverflow.Ellipsis} } else { OcLabel{} }
+    let OcMatchHit = if desk { OcLabel{draw_text +: {color: #1c1c1d}} } else { OcLabel{} }
+    // No hits: a phone's link, a Mac's push button under the note.
+    let OcClearSearchRow = if desk {
+        View{
+            width: Fill height: 36 flow: Right align: Align{y: 0.5} padding: Inset{left: 8}
+            View{
+                width: 104 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                RoundedView{width: Fill height: Fill draw_bg +: {color: mac_button border_radius: 3.0 border_size: 1.0 border_color: mac_border}}
+                sb_c_text := OcLabel{text: "Clear search"}
+                sb_c_hit := OcHit{draw_bg.border_radius: 3.0}
+            }
+        }
+    } else {
+        View{
+            width: Fill height: 30 flow: Overlay
+            View{
+                width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: 28}
+                sb_c_text := OcLabel{text: "Clear search" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
+            }
+            sb_c_hit := OcRowHit{}
+        }
+    }
+
     mod.widgets.OcSidebarBody = View{
         width: Fill height: Fill flow: Down spacing: 0
 
         // New chat (pencil + label), the web's `newSession` row.
         sb_new_chat := View{
-            width: Fill height: 34 flow: Overlay
+            width: Fill height: by(34, 28) flow: Overlay
             View{
-                width: Fill height: Fill flow: Right spacing: 10 align: Align{y: 0.5}
+                width: Fill height: Fill flow: Right spacing: by(10, 7) align: Align{y: 0.5}
                 padding: Inset{left: 8}
                 Svg{
                     width: 16 height: 16 animating: false
                     draw_svg.svg: file_resource(#(crate::chrome::icon("pencil")))
                     draw_svg.preserve_viewbox: true
+                    draw_svg.color: by(svg_own, mac_link)
                 }
                 OcLabel{text: "New chat"}
             }
-            sb_new_chat_hit := OcHit{}
+            sb_new_chat_hit := OcRowHit{}
         }
 
         // Search chats: the field, its magnifier and the clear button.
         sb_search_box := View{
-            width: Fill height: 34 flow: Overlay margin: Inset{top: 8}
+            width: Fill height: by(34, 28) flow: Overlay margin: Inset{top: by(8, 6)}
             sb_search := TextInput{
                 width: Fill height: Fill text: ""
                 empty_text: "Search chats"
-                padding: Inset{left: 32 right: 30 top: 9 bottom: 7}
+                padding: Inset{left: by(32, 26) right: by(30, 26) top: by(9, 6) bottom: by(7, 6)}
                 margin: 0
                 draw_bg.color: theme.color_bg_app
                 draw_bg.color_hover: theme.color_bg_app
@@ -262,17 +339,17 @@ script_mod! {
                 draw_bg.color_down: theme.color_bg_app
                 draw_bg.color_empty: theme.color_bg_app
                 draw_bg.color_disabled: theme.color_bg_app
-                draw_bg.border_radius: 4.0
+                draw_bg.border_radius: by(4.0, 3.0)
                 draw_bg.border_size: 1.0
                 draw_bg.border_color: theme.color_outset_1
                 draw_bg.border_color_2: theme.color_outset_1
                 draw_bg.border_color_2_hover: theme.color_outset_1
-                draw_bg.border_color_2_focus: #2F6FEB
+                draw_bg.border_color_2_focus: by(#2F6FEB, mac_primary)
                 draw_bg.border_color_2_down: theme.color_outset_1
                 draw_bg.border_color_2_empty: theme.color_outset_1
                 draw_bg.border_color_2_disabled: theme.color_outset_1
                 draw_bg.border_color_hover: theme.color_outset_1
-                draw_bg.border_color_focus: #2F6FEB
+                draw_bg.border_color_focus: by(#2F6FEB, mac_primary)
                 draw_bg.border_color_down: theme.color_outset_1
                 draw_bg.border_color_empty: theme.color_outset_1
                 draw_bg.border_color_disabled: theme.color_outset_1
@@ -283,17 +360,17 @@ script_mod! {
                 // A18: the placeholder is the secondary ink (the web's
                 // `.searchInput::placeholder` is the tertiary label, one
                 // level with it); #8E8E93 read 3.26:1 on the field.
-                draw_text.color_empty: theme.color_text_muted
-                draw_text.color_empty_hover: theme.color_text_muted
-                draw_text.color_empty_focus: theme.color_text_muted
+                draw_text.color_empty: by(phone_muted, mac_placeholder)
+                draw_text.color_empty_hover: by(phone_muted, mac_placeholder)
+                draw_text.color_empty_focus: by(phone_muted, mac_placeholder)
                 draw_text.color_disabled: #8E8E93
-                draw_text.text_style: TextStyle{font_family: OcFace400 font_size: 10.5 line_spacing: 1.2}
-                draw_cursor.color: #2F6FEB
+                draw_text.text_style: TextStyle{font_family: OcFace400 font_size: by(10.5, 9.75) line_spacing: 1.2}
+                draw_cursor.color: by(#2F6FEB, mac_primary)
             }
             View{
-                width: 32 height: Fill align: Align{x: 0.5 y: 0.5}
+                width: by(32, 26) height: Fill align: Align{x: 0.5 y: 0.5}
                 Svg{
-                    width: 15 height: 15 animating: false
+                    width: by(15, 13) height: by(15, 13) animating: false
                     draw_svg.svg: file_resource(#(crate::chrome::icon("search")))
                     draw_svg.preserve_viewbox: true
                 }
@@ -302,13 +379,13 @@ script_mod! {
                 width: Fill height: Fill align: Align{x: 1.0 y: 0.5} padding: Inset{right: 3}
                 visible: false
                 View{
-                    width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                    width: by(28, 22) height: by(28, 22) flow: Overlay align: Align{x: 0.5 y: 0.5}
                     Svg{
                         width: 12 height: 12 animating: false
                         draw_svg.svg: file_resource(#(crate::chrome::icon("x")))
                         draw_svg.preserve_viewbox: true
                     }
-                    sb_search_clear := OcHit{draw_bg.border_radius: 14.0}
+                    sb_search_clear := OcHit{draw_bg.border_radius: by(14.0, 3.0)}
                 }
             }
         }
@@ -316,12 +393,12 @@ script_mod! {
         // By workspace | All, and the sort control on the right.
         sb_modes := View{
             // 32 tall: the segments (track minus its 2 px inset) are 28.
-            width: Fill height: 32 flow: Overlay margin: Inset{top: 12 bottom: 8}
+            width: Fill height: by(32, 28) flow: Overlay margin: Inset{top: by(12, 6) bottom: by(8, 4)}
             RoundedView{
                 width: Fit height: Fill flow: Right padding: 2
-                draw_bg +: {color: theme.color_bg_even border_radius: 9.0}
-                sb_seg_ws := OcSegment{width: 118}
-                sb_seg_all := OcSegment{width: 64}
+                draw_bg +: {color: by(phone_selected, mac_selected) border_radius: by(9.0, 3.5)}
+                sb_seg_ws := OcSegment{width: by(118, 94)}
+                sb_seg_all := OcSegment{width: by(64, 34)}
             }
             View{
                 width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
@@ -329,10 +406,10 @@ script_mod! {
                     width: Fit height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}
                     View{
                         width: Fit height: Fill flow: Right spacing: 4 align: Align{y: 0.5}
-                        padding: Inset{left: 8 right: 6}
-                        sb_sort_label := OcLabel{text: "Recent" draw_text +: {text_style +: {font_size: 9.75}}}
+                        padding: Inset{left: by(8, 4) right: by(6, 2)}
+                        sb_sort_label := OcLabel{text: "Recent" draw_text +: {text_style +: {font_size: by(9.75, 9.0)}}}
                         Svg{
-                            width: 12 height: 12 animating: false
+                            width: by(12, 10) height: by(12, 10) animating: false
                             draw_svg.svg: file_resource(#(crate::chrome::icon("chev_down")))
                             draw_svg.preserve_viewbox: true
                         }
@@ -342,16 +419,19 @@ script_mod! {
             }
         }
 
+        // Under the sort row, in the list's own place: the row has no room to spare.
+        sb_list_spinner := OcListSpinner{}
+
         // The tree: one PortalList, one template per row kind. The rows are
         // native labels bound to the store's sessions (never measured text).
         thread_list := PortalList{
             width: Fill height: Fill flow: Down drag_scrolling: true
 
             SbGroupTpl := View{
-                width: Fill height: 36 flow: Overlay
+                width: Fill height: by(36, 28) flow: Overlay
                 View{
-                    width: Fill height: Fill flow: Right spacing: 6 align: Align{y: 0.5}
-                    padding: Inset{left: 6 right: 4}
+                    width: Fill height: Fill flow: Right spacing: by(6, 4) align: Align{y: 0.5}
+                    padding: Inset{left: by(6, 4) right: 4}
                     View{
                         width: 16 height: 16 flow: Overlay align: Align{x: 0.5 y: 0.5}
                         sb_g_open := View{
@@ -374,19 +454,19 @@ script_mod! {
                     sb_g_label := OcMedium{
                         width: Fill text: ""
                         max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                        draw_text +: {text_style +: {font_size: 11.25}}
+                        draw_text +: {color: by(theme.color_fg_app, mac_muted) text_style +: {font_family: by(OcFace500, OcFace600) font_size: by(11.25, 8.25)}}
                     }
                     sb_g_count := RoundedView{
-                        width: Fit height: 20 align: Align{x: 0.5 y: 0.5} visible: false
-                        padding: Inset{left: 8 right: 8}
-                        draw_bg +: {color: theme.color_bg_even border_radius: 10.0}
-                        sb_g_count_label := OcMuted{text: "" draw_text +: {text_style +: {font_size: 9.0}}}
+                        width: Fit height: by(20, 16) align: Align{x: 0.5 y: 0.5} visible: false
+                        padding: Inset{left: by(8, 5) right: by(8, 5)}
+                        draw_bg +: {color: by(theme.color_bg_even, mac_selected) border_radius: by(10.0, 4.0)}
+                        sb_g_count_label := OcMuted{text: "" draw_text +: {text_style +: {font_size: by(9.0, 8.25)}}}
                     }
                     View{
-                        width: 32 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        width: by(32, 24) height: by(28, 24) flow: Overlay align: Align{x: 0.5 y: 0.5}
                         sb_g_more_on := RoundedView{
                             width: Fill height: Fill visible: false
-                            draw_bg +: {color: theme.color_bg_even border_radius: 14.0}
+                            draw_bg +: {color: by(theme.color_bg_even, mac_selected) border_radius: by(14.0, 3.0)}
                         }
                         Svg{
                             width: 16 height: 16 animating: false
@@ -395,28 +475,28 @@ script_mod! {
                         }
                     }
                 }
-                sb_g_hit := OcHit{}
+                sb_g_hit := OcRowHit{}
                 // The "⋯" hit sits ABOVE the row's hit (later siblings take
                 // the press first), so it opens the menu, not the toggle.
                 View{
-                    width: Fill height: Fill align: Align{x: 1.0 y: 0.5} padding: Inset{right: 4}
-                    sb_g_more := OcHit{width: 32 height: 28 draw_bg.border_radius: 14.0}
+                    width: Fill height: Fill align: Align{x: 1.0 y: 0.5} padding: Inset{right: by(4, 2)}
+                    sb_g_more := OcHit{width: by(32, 28) height: 28 draw_bg.border_radius: by(14.0, 3.0)}
                 }
             }
 
             SbRowTpl := View{
-                width: Fill height: 32 flow: Overlay
+                width: Fill height: by(32, 28) flow: Overlay
                 sb_r_sel := RoundedView{
                     width: Fill height: Fill visible: false
-                    draw_bg +: {color: theme.color_bg_even border_radius: 8.0}
+                    draw_bg +: {color: by(phone_selected, mac_selected) border_radius: by(8.0, 3.0)}
                 }
                 sb_r_focus := RoundedView{
                     width: Fill height: Fill visible: false
-                    draw_bg +: {color: #00000000 border_radius: 8.0 border_size: 1.5 border_color: #2F6FEB}
+                    draw_bg +: {color: #00000000 border_radius: by(8.0, 3.0) border_size: 1.5 border_color: by(#2F6FEB, mac_primary)}
                 }
                 sb_r_body := View{
-                    width: Fill height: Fill flow: Right spacing: 6 align: Align{y: 0.5}
-                    padding: Inset{left: 6 right: 8}
+                    width: Fill height: Fill flow: Right spacing: by(6, 6) align: Align{y: 0.5}
+                    padding: Inset{left: by(6, 4) right: 8}
                     View{
                         width: 16 height: 16 flow: Overlay align: Align{x: 0.5 y: 0.5}
                         sb_st_run := View{
@@ -445,32 +525,32 @@ script_mod! {
                         sb_r_pre := OcLabel{text: ""}
                         RoundedView{
                             width: Fit height: Fit padding: Inset{left: 2 right: 2 top: 1 bottom: 1}
-                            draw_bg +: {color: #FCE8B2 border_radius: 4.0}
-                            sb_r_hit := OcLabel{text: ""}
+                            draw_bg +: {color: #FCE8B2 border_radius: by(4.0, 2.0)}
+                            sb_r_hit := OcMatchHit{text: ""}
                         }
-                        sb_r_post := OcLabel{text: ""}
+                        sb_r_post := OcMatchTail{text: ""}
                     }
                     // A29 — a Session holding a /btw aside while another is
                     // on screen: a small "/btw" chip (blue dot answering,
                     // red dot failed / stale), the operator's 2026-10-02 ask.
                     sb_r_aside := RoundedView{
-                        width: Fit height: 18 visible: false
+                        width: Fit height: by(18, 16) visible: false
                         flow: Right spacing: 4 align: Align{y: 0.5}
-                        padding: Inset{left: 6 right: 7}
-                        draw_bg +: {color: theme.color_bg_even border_radius: 9.0}
+                        padding: Inset{left: by(6, 5) right: by(7, 5)}
+                        draw_bg +: {color: by(theme.color_bg_even, mac_selected) border_radius: by(9.0, 3.0)}
                         sb_r_aside_run := RoundedView{width: 6 height: 6 visible: false draw_bg +: {color: #2F6FEB border_radius: 3.0}}
                         sb_r_aside_fail := RoundedView{width: 6 height: 6 visible: false draw_bg +: {color: #D93025 border_radius: 3.0}}
                         sb_r_aside_label := OcMuted{text: "" draw_text +: {text_style +: {font_size: 8.25}}}
                     }
-                    sb_r_time := OcMuted{text: "" draw_text +: {text_style +: {font_size: 9.0}}}
+                    sb_r_time := OcMuted{text: "" draw_text +: {color: by(phone_muted, theme.color_text_muted) text_style +: {font_size: by(9.0, 9.0)}}}
                     // #18 — room for the delete × laid over the row below.
                     sb_r_del_room := View{width: 18 height: 1 visible: false}
                 }
                 // The row's context menu: a right-click (or a long press)
                 // anywhere on it. It shares the press with the hits above
                 // (`capture_overload`), which act on the primary button only.
-                sb_r_ctx := View{width: Fill height: Fill cursor: MouseCursor.Hand capture_overload: true}
-                sb_r_open := OcHit{}
+                sb_r_ctx := View{width: Fill height: Fill cursor: by(MouseCursor.Hand, MouseCursor.Default) capture_overload: true}
+                sb_r_open := OcRowHit{}
                 // #18 — the delete ×, ABOVE the row's open hit (later siblings
                 // take the press first); never on the open chat.
                 sb_r_del := View{
@@ -488,10 +568,11 @@ script_mod! {
                 // #18 — the explicit confirmation in place of the row (and
                 // "Deleting…" while it runs); the title stays so the chat
                 // being deleted is never in doubt. Its left inset is the
-                // body's 6 + the 16 px status box + 6, so the title stays put.
+                // body's 6 + the 16 px status box + 6 (a Mac's body 4), so the
+                // title stays put.
                 sb_r_ask := View{
                     width: Fill height: Fill flow: Right spacing: 4 align: Align{y: 0.5}
-                    padding: Inset{left: 28 right: 4} visible: false
+                    padding: Inset{left: by(28, 26) right: 4} visible: false
                     sb_r_ask_title := OcMuted{
                         width: Fill text: ""
                         max_lines: 1 text_overflow: TextOverflow.Ellipsis
@@ -511,43 +592,44 @@ script_mod! {
                 }
                 // Rename: the title becomes a field in place (Return saves;
                 // Escape or a click elsewhere keeps the title). Its text
-                // starts where the title does (28 = the body's 6 + 16 + 6).
+                // starts where the title does (28 = the body's 6 + 16 + 6; a
+                // Mac's 26 = 4 + 16 + 6, less the Mac field's 4).
                 sb_r_rename := View{
                     width: Fill height: Fill align: Align{y: 0.5}
-                    padding: Inset{left: 21 right: 4} visible: false
+                    padding: Inset{left: by(21, 22) right: 4} visible: false
                     sb_r_rename_input := TextInput{
-                        width: Fill height: 26 text: ""
-                        padding: Inset{left: 7 right: 7 top: 5 bottom: 3} margin: 0
-                        draw_bg.color: theme.color_bg_app
-                        draw_bg.color_hover: theme.color_bg_app
-                        draw_bg.color_focus: theme.color_bg_app
-                        draw_bg.color_down: theme.color_bg_app
-                        draw_bg.color_empty: theme.color_bg_app
-                        draw_bg.color_disabled: theme.color_bg_app
-                        draw_bg.border_radius: 6.0
+                        width: Fill height: by(26, 22) text: ""
+                        padding: Inset{left: by(7, 4) right: by(7, 4) top: by(5, 4) bottom: 3} margin: 0
+                        draw_bg.color: by(theme.color_bg_app, mac_field)
+                        draw_bg.color_hover: by(theme.color_bg_app, mac_field)
+                        draw_bg.color_focus: by(theme.color_bg_app, mac_field)
+                        draw_bg.color_down: by(theme.color_bg_app, mac_field)
+                        draw_bg.color_empty: by(theme.color_bg_app, mac_field)
+                        draw_bg.color_disabled: by(theme.color_bg_app, mac_field)
+                        draw_bg.border_radius: by(6.0, 2.0)
                         draw_bg.border_size: 1.0
-                        draw_bg.border_color: #2F6FEB
-                        draw_bg.border_color_2: #2F6FEB
-                        draw_bg.border_color_2_hover: #2F6FEB
-                        draw_bg.border_color_2_focus: #2F6FEB
-                        draw_bg.border_color_2_down: #2F6FEB
-                        draw_bg.border_color_2_empty: #2F6FEB
-                        draw_bg.border_color_2_disabled: theme.color_outset_1
-                        draw_bg.border_color_hover: #2F6FEB
-                        draw_bg.border_color_focus: #2F6FEB
-                        draw_bg.border_color_down: #2F6FEB
-                        draw_bg.border_color_empty: #2F6FEB
-                        draw_bg.border_color_disabled: theme.color_outset_1
+                        draw_bg.border_color: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_2: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_2_hover: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_2_focus: by(#2F6FEB, mac_primary)
+                        draw_bg.border_color_2_down: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_2_empty: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_2_disabled: by(theme.color_outset_1, mac_border)
+                        draw_bg.border_color_hover: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_focus: by(#2F6FEB, mac_primary)
+                        draw_bg.border_color_down: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_empty: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_disabled: by(theme.color_outset_1, mac_border)
                         draw_text.color: theme.color_fg_app
                         draw_text.color_hover: theme.color_fg_app
                         draw_text.color_focus: theme.color_fg_app
                         draw_text.color_down: theme.color_fg_app
-                        draw_text.color_empty: theme.color_text_muted
-                        draw_text.color_empty_hover: theme.color_text_muted
-                        draw_text.color_empty_focus: theme.color_text_muted
-                        draw_text.color_disabled: #8E8E93
-                        draw_text.text_style: TextStyle{font_family: OcFace400 font_size: 10.5 line_spacing: 1.2}
-                        draw_cursor.color: #2F6FEB
+                        draw_text.color_empty: by(theme.color_text_muted, mac_placeholder)
+                        draw_text.color_empty_hover: by(theme.color_text_muted, mac_placeholder)
+                        draw_text.color_empty_focus: by(theme.color_text_muted, mac_placeholder)
+                        draw_text.color_disabled: by(#8E8E93, mac_muted)
+                        draw_text.text_style: TextStyle{font_family: OcFace400 font_size: by(10.5, 9.75) line_spacing: 1.2}
+                        draw_cursor.color: by(#2F6FEB, mac_primary)
                     }
                 }
             }
@@ -557,14 +639,7 @@ script_mod! {
                 sb_n_text := OcMuted{width: Fill text: ""}
             }
 
-            SbClearTpl := View{
-                width: Fill height: 30 flow: Overlay
-                View{
-                    width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: 28}
-                    sb_c_text := OcLabel{text: "Clear search" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
-                }
-                sb_c_hit := OcHit{}
-            }
+            SbClearTpl := OcClearSearchRow{}
 
             SbDividerTpl := View{
                 width: Fill height: 13 align: Align{y: 0.5} padding: Inset{left: 4 right: 4}
@@ -577,17 +652,19 @@ script_mod! {
     // Search (expands + focuses the field), Add workspace — icon buttons
     // with 36 px hit targets.
     let OcRailButton = View{
-        width: 36 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
+        width: by(36, 28) height: by(36, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
         rb_icon := Svg{
-            width: 18 height: 18 animating: false
+            width: by(18, 16) height: by(18, 16) animating: false
             draw_svg.svg: file_resource(#(crate::chrome::icon("pencil")))
             draw_svg.preserve_viewbox: true
+            draw_svg.color: by(svg_own, mac_link)
         }
-        rb_hit := OcHit{draw_bg.border_radius: 10.0}
+        rb_hit := OcHit{draw_bg.border_radius: by(10.0, 3.0)}
     }
     mod.widgets.OcSidebarRail = View{
-        width: Fill height: Fill flow: Down spacing: 12 align: Align{x: 0.5}
-        padding: Inset{top: 6}
+        width: Fill height: Fill flow: Down spacing: by(12, 4) align: Align{x: 0.5}
+        // The window's lights hold the rail's top on a window with no title bar.
+        padding: Inset{top: #(crate::desk::by(6.0, if crate::desk::unified() { 60.0 } else { 6.0 }))}
         rail_expand := OcRailButton{rb_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("panel")))}}}
         rail_new_chat := OcRailButton{rb_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("pencil")))}}}
         rail_search := OcRailButton{rb_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("search")))}}}
@@ -598,18 +675,19 @@ script_mod! {
     mod.widgets.OcSidebarFoot = View{
         width: Fill height: Fit flow: Down
         sb_add := View{
-            width: Fill height: 34 flow: Overlay
+            width: Fill height: by(34, 28) flow: Overlay
             View{
-                width: Fill height: Fill flow: Right spacing: 10 align: Align{y: 0.5}
+                width: Fill height: Fill flow: Right spacing: by(10, 7) align: Align{y: 0.5}
                 padding: Inset{left: 8}
                 Svg{
-                    width: 15 height: 15 animating: false
+                    width: by(15, 16) height: by(15, 16) animating: false
                     draw_svg.svg: file_resource(#(crate::chrome::icon("plus")))
                     draw_svg.preserve_viewbox: true
+                    draw_svg.color: by(svg_own, mac_link)
                 }
                 OcLabel{text: "Add workspace"}
             }
-            sb_add_hit := OcHit{}
+            sb_add_hit := OcRowHit{}
         }
     }
 
@@ -624,263 +702,376 @@ script_mod! {
     mod.widgets.OcSidebarFootNav = View{
         width: Fill height: Fit flow: Down
         sb_theme := View{
-            width: Fill height: 34 flow: Overlay
+            width: Fill height: by(34, 28) flow: Overlay
             sb_theme_row := View{
-                width: Fill height: Fill flow: Right spacing: 10 align: Align{y: 0.5}
+                width: Fill height: Fill flow: Right spacing: by(10, 7) align: Align{y: 0.5}
                 padding: Inset{left: 8}
                 View{
-                    width: 15 height: 15 flow: Overlay
+                    width: by(15, 16) height: by(15, 16) flow: Overlay
                     sb_theme_ic_system := View{
-                        width: 15 height: 15
-                        Svg{width: 15 height: 15 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("monitor"))) draw_svg.preserve_viewbox: true}
+                        width: by(15, 16) height: by(15, 16)
+                        Svg{width: by(15, 16) height: by(15, 16) animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("monitor"))) draw_svg.preserve_viewbox: true draw_svg.color: by(svg_own, mac_link)}
                     }
                     sb_theme_ic_light := View{
-                        width: 15 height: 15 visible: false
-                        Svg{width: 15 height: 15 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("sun"))) draw_svg.preserve_viewbox: true}
+                        width: by(15, 16) height: by(15, 16) visible: false
+                        Svg{width: by(15, 16) height: by(15, 16) animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("sun"))) draw_svg.preserve_viewbox: true draw_svg.color: by(svg_own, mac_link)}
                     }
                     sb_theme_ic_dark := View{
-                        width: 15 height: 15 visible: false
-                        Svg{width: 15 height: 15 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("moon"))) draw_svg.preserve_viewbox: true}
+                        width: by(15, 16) height: by(15, 16) visible: false
+                        Svg{width: by(15, 16) height: by(15, 16) animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("moon"))) draw_svg.preserve_viewbox: true draw_svg.color: by(svg_own, mac_link)}
                     }
                 }
-                sb_theme_label := OcLabel{text: "System"}
+                View{width: Fill height: 1 visible: by(false, true)}
+                sb_theme_label := OcLabel{text: "System" margin: Inset{right: by(0, 8)} draw_text +: {color: by(theme.color_fg_app, mac_muted)}}
             }
-            sb_theme_hit := OcHit{}
+            sb_theme_hit := OcHit{draw_bg.color_hover: #00000000 draw_bg.color_2_hover: #00000000}
         }
         sb_settings := View{
-            width: Fill height: 34 flow: Overlay
+            width: Fill height: by(34, 28) flow: Overlay
             sb_settings_row := View{
-                width: Fill height: Fill flow: Right spacing: 10 align: Align{y: 0.5}
+                width: Fill height: Fill flow: Right spacing: by(10, 7) align: Align{y: 0.5}
                 padding: Inset{left: 8}
-                Svg{width: 15 height: 15 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("gear"))) draw_svg.preserve_viewbox: true}
+                Svg{width: by(15, 16) height: by(15, 16) animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("gear"))) draw_svg.preserve_viewbox: true draw_svg.color: by(svg_own, mac_link)}
                 sb_settings_label := OcLabel{text: "Settings"}
             }
-            sb_settings_hit := OcHit{}
+            sb_settings_hit := OcHit{draw_bg.color_hover: #00000000 draw_bg.color_2_hover: #00000000}
         }
+    }
+
+    // A desktop's sort control is a pop-up: the chosen order checked at the
+    // leading edge, the way every menu here marks it.
+    mod.widgets.OcSortMenu = OcMenuPanel{
+        width: 132 height: Fit flow: Down padding: by(4, 5) visible: false
+        draw_bg +: {color: by(theme.color_bg_app, mac_menu) border_radius: by(10.0, 6.0) border_size: by(1.0, 0.65) border_color: by(theme.color_outset_1, mac_menu_edge)}
+        View{
+            width: Fill height: 24 flow: Overlay
+            View{
+                width: Fill height: Fill flow: Right spacing: 4 align: Align{y: 0.5} padding: Inset{left: 6}
+                View{width: 14 height: 14 sb_sort_recent_on := View{width: 14 height: 14 visible: false Svg{width: 14 height: 14 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("check"))) draw_svg.preserve_viewbox: true}}}
+                sb_sort_recent_word := OcLabel{text: "Recent"}
+            }
+            sb_sort_recent := OcHit{}
+        }
+        View{
+            width: Fill height: 24 flow: Overlay
+            View{
+                width: Fill height: Fill flow: Right spacing: 4 align: Align{y: 0.5} padding: Inset{left: 6}
+                View{width: 14 height: 14 sb_sort_oldest_on := View{width: 14 height: 14 visible: false Svg{width: 14 height: 14 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("check"))) draw_svg.preserve_viewbox: true}}}
+                sb_sort_oldest_word := OcLabel{text: "Oldest"}
+            }
+            sb_sort_oldest := OcHit{}
+        }
+        View{
+            width: Fill height: 24 flow: Overlay
+            View{
+                width: Fill height: Fill flow: Right spacing: 4 align: Align{y: 0.5} padding: Inset{left: 6}
+                View{width: 14 height: 14 sb_sort_fixed_on := View{width: 14 height: 14 visible: false Svg{width: 14 height: 14 animating: false draw_svg.svg: file_resource(#(crate::chrome::icon("check"))) draw_svg.preserve_viewbox: true}}}
+                sb_sort_fixed_word := OcLabel{text: "Fixed"}
+            }
+            sb_sort_fixed := OcHit{}
+        }
+    }
+
+    // A phone renames a workspace on its menu's card; a Mac renames the row in
+    // place (E7 6): its name becomes a field over itself (`sb_rename_place`, which
+    // the host lays over the group's name). Return keeps the name, Escape leaves
+    // it, a press elsewhere keeps what was typed.
+    let OcRenameInMenu = if desk {
+        View{width: 0 height: 0 visible: false}
+    } else {
+        View{
+            width: Fill height: Fit
+            sb_rename_form := View{
+                width: Fill height: Fit flow: Down spacing: 8 padding: 8 visible: false
+                OcMuted{text: "Rename workspace"}
+                sb_rename_input := TextInput{
+                    width: Fill height: by(32, 28) text: "" empty_text: "Workspace name"
+                    padding: Inset{left: 8 right: 8 top: by(8, 6) bottom: 6} margin: 0
+                    draw_bg.color: theme.color_bg_app
+                    draw_bg.color_hover: theme.color_bg_app
+                    draw_bg.color_focus: theme.color_bg_app
+                    draw_bg.color_down: theme.color_bg_app
+                    draw_bg.color_empty: theme.color_bg_app
+                    draw_bg.color_disabled: theme.color_bg_app
+                    draw_bg.border_radius: by(6.0, 3.0)
+                    draw_bg.border_size: 1.0
+                    draw_bg.border_color: theme.color_outset_1
+                    draw_bg.border_color_2: theme.color_outset_1
+                    draw_bg.border_color_2_hover: theme.color_outset_1
+                    draw_bg.border_color_2_focus: by(#2F6FEB, mac_primary)
+                    draw_bg.border_color_2_down: theme.color_outset_1
+                    draw_bg.border_color_2_empty: theme.color_outset_1
+                    draw_bg.border_color_2_disabled: theme.color_outset_1
+                    draw_bg.border_color_hover: by(#C7C7CC, mac_border)
+                    draw_bg.border_color_focus: by(#2F6FEB, mac_primary)
+                    draw_bg.border_color_down: by(#C7C7CC, mac_border)
+                    draw_bg.border_color_empty: theme.color_outset_1
+                    draw_bg.border_color_disabled: theme.color_outset_1
+                    draw_text.color: theme.color_fg_app
+                    draw_text.color_hover: theme.color_fg_app
+                    draw_text.color_focus: theme.color_fg_app
+                    draw_text.color_down: theme.color_fg_app
+                    draw_text.color_empty: by(theme.color_text_muted, mac_placeholder)
+                    draw_text.color_empty_hover: by(theme.color_text_muted, mac_placeholder)
+                    draw_text.color_empty_focus: by(theme.color_text_muted, mac_placeholder)
+                    draw_text.color_disabled: #8E8E93
+                    draw_text.text_style: TextStyle{font_family: OcFace400 font_size: by(10.5, 9.75) line_spacing: 1.2}
+                    draw_cursor.color: by(#2F6FEB, mac_primary)
+                }
+                View{
+                    width: Fill height: by(30, 28) flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5}
+                    View{
+                        width: by(70, 64) height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        RoundedView{width: Fill height: Fill draw_bg +: {color: by(theme.color_bg_app, mac_button) border_radius: by(7.0, 3.0) border_size: 1.0 border_color: theme.color_outset_1}}
+                        OcLabel{text: "Cancel" draw_text +: {text_style +: {font_size: 9.75}}}
+                        sb_rename_cancel := OcHit{draw_bg.border_radius: by(7.0, 3.0)}
+                    }
+                    View{
+                        width: by(70, 64) height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        RoundedView{width: Fill height: Fill draw_bg +: {color: by(#1D1D1F, mac_primary) border_radius: by(7.0, 3.0)}}
+                        OcLabel{text: "Save" draw_text +: {color: #FFFFFF text_style +: {font_size: 9.75}}}
+                        sb_rename_save := OcHit{draw_bg.border_radius: by(7.0, 3.0) draw_bg.color_hover: by(#00000000, #00000012) draw_bg.color_2_hover: by(#00000000, #00000012) draw_bg.color_down: by(#8080801F, #00000020) draw_bg.color_2_down: by(#8080801F, #00000020)}
+                    }
+                }
+            }
+        }
+    }
+    mod.widgets.OcRenameInPlace = if desk {
+        View{
+            width: Fill height: 22 flow: Overlay
+            sb_rename_form := View{
+                width: Fill height: Fill flow: Overlay visible: false
+                sb_rename_input := TextInput{
+                    width: Fill height: Fill text: "" empty_text: "Workspace name"
+                    padding: Inset{left: 4 right: 4 top: 4 bottom: 3} margin: 0
+                    draw_bg.color: mac_field
+                    draw_bg.color_hover: mac_field
+                    draw_bg.color_focus: mac_field
+                    draw_bg.color_down: mac_field
+                    draw_bg.color_empty: mac_field
+                    draw_bg.color_disabled: mac_field
+                    draw_bg.border_radius: 2.0
+                    draw_bg.border_size: 1.0
+                    draw_bg.border_color: mac_border
+                    draw_bg.border_color_2: mac_border
+                    draw_bg.border_color_2_hover: mac_border
+                    draw_bg.border_color_2_focus: mac_primary
+                    draw_bg.border_color_2_down: mac_border
+                    draw_bg.border_color_2_empty: mac_border
+                    draw_bg.border_color_2_disabled: mac_border
+                    draw_bg.border_color_hover: mac_border
+                    draw_bg.border_color_focus: mac_primary
+                    draw_bg.border_color_down: mac_border
+                    draw_bg.border_color_empty: mac_border
+                    draw_bg.border_color_disabled: mac_border
+                    draw_text.color: theme.color_fg_app
+                    draw_text.color_hover: theme.color_fg_app
+                    draw_text.color_focus: theme.color_fg_app
+                    draw_text.color_down: theme.color_fg_app
+                    draw_text.color_empty: mac_placeholder
+                    draw_text.color_empty_hover: mac_placeholder
+                    draw_text.color_empty_focus: mac_placeholder
+                    draw_text.color_disabled: mac_muted
+                    draw_text.text_style: TextStyle{font_family: OcFace600 font_size: 8.25 line_spacing: 1.2}
+                    draw_cursor.color: mac_primary
+                }
+            }
+        }
+    } else {
+        View{width: 0 height: 0 visible: false}
     }
 
     // The workspace overflow menu (board 4): New chat here / Rename / Remove
     // from sidebar, and the inline rename form. The host positions it next to
     // the clicked row's "⋯" (a margin inside a full-window overlay).
-    mod.widgets.OcWorkspaceMenu = RoundedView{
-        width: 200 height: Fit flow: Down padding: 4
-        draw_bg +: {color: theme.color_bg_app border_radius: 10.0 border_size: 1.0 border_color: theme.color_outset_1}
+    mod.widgets.OcWorkspaceMenu = OcMenuPanel{
+        width: 200 height: Fit flow: Down padding: by(4, 5)
+        draw_bg +: {color: by(theme.color_bg_app, mac_menu) border_radius: by(10.0, 6.0) border_size: by(1.0, 0.65) border_color: by(theme.color_outset_1, mac_menu_edge)}
         sb_menu_items := View{
             width: Fill height: Fit flow: Down
             View{
-                width: Fill height: 34 flow: Overlay
-                View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: 12} OcLabel{text: "New chat here"}}
+                width: Fill height: by(34, 24) flow: Overlay
+                View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: by(12, 8)} OcLabel{text: "New chat here"}}
                 sb_menu_new := OcHit{}
             }
             View{
-                width: Fill height: 34 flow: Overlay
-                View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: 12} OcLabel{text: "Rename"}}
+                width: Fill height: by(34, 24) flow: Overlay
+                View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: by(12, 8)} OcLabel{text: "Rename"}}
                 sb_menu_rename := OcHit{}
             }
             View{
-                width: Fill height: 34 flow: Overlay
-                View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: 12} OcLabel{text: "Remove from sidebar"}}
+                width: Fill height: by(34, 24) flow: Overlay
+                View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: by(12, 8)} OcLabel{text: "Remove from sidebar"}}
                 sb_menu_remove := OcHit{}
             }
         }
-        sb_rename_form := View{
-            width: Fill height: Fit flow: Down spacing: 8 padding: 8 visible: false
-            OcMuted{text: "Rename workspace"}
-            sb_rename_input := TextInput{
-                width: Fill height: 32 text: "" empty_text: "Workspace name"
-                padding: Inset{left: 8 right: 8 top: 8 bottom: 6} margin: 0
-                draw_bg.color: theme.color_bg_app
-                draw_bg.color_hover: theme.color_bg_app
-                draw_bg.color_focus: theme.color_bg_app
-                draw_bg.color_down: theme.color_bg_app
-                draw_bg.color_empty: theme.color_bg_app
-                draw_bg.color_disabled: theme.color_bg_app
-                draw_bg.border_radius: 6.0
-                draw_bg.border_size: 1.0
-                draw_bg.border_color: theme.color_outset_1
-                draw_bg.border_color_2: theme.color_outset_1
-                draw_bg.border_color_2_hover: theme.color_outset_1
-                draw_bg.border_color_2_focus: #2F6FEB
-                draw_bg.border_color_2_down: theme.color_outset_1
-                draw_bg.border_color_2_empty: theme.color_outset_1
-                draw_bg.border_color_2_disabled: theme.color_outset_1
-                draw_bg.border_color_hover: #C7C7CC
-                draw_bg.border_color_focus: #2F6FEB
-                draw_bg.border_color_down: #C7C7CC
-                draw_bg.border_color_empty: theme.color_outset_1
-                draw_bg.border_color_disabled: theme.color_outset_1
-                draw_text.color: theme.color_fg_app
-                draw_text.color_hover: theme.color_fg_app
-                draw_text.color_focus: theme.color_fg_app
-                draw_text.color_down: theme.color_fg_app
-                draw_text.color_empty: theme.color_text_muted
-                draw_text.color_empty_hover: theme.color_text_muted
-                draw_text.color_empty_focus: theme.color_text_muted
-                draw_text.color_disabled: #8E8E93
-                draw_text.text_style: TextStyle{font_family: OcFace400 font_size: 10.5 line_spacing: 1.2}
-                draw_cursor.color: #2F6FEB
-            }
-            View{
-                width: Fill height: 30 flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5}
-                View{
-                    width: 70 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 7.0 border_size: 1.0 border_color: theme.color_outset_1}}
-                    OcLabel{text: "Cancel" draw_text +: {text_style +: {font_size: 9.75}}}
-                    sb_rename_cancel := OcHit{draw_bg.border_radius: 7.0}
-                }
-                View{
-                    width: 70 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                    RoundedView{width: Fill height: Fill draw_bg +: {color: #1D1D1F border_radius: 7.0}}
-                    OcLabel{text: "Save" draw_text +: {color: #FFFFFF text_style +: {font_size: 9.75}}}
-                    sb_rename_save := OcHit{draw_bg.border_radius: 7.0}
-                }
-            }
-        }
+        OcRenameInMenu{}
     }
 
     // A chat row's context menu (a right-click or a long press on the row):
     // Rename, and Delete where the row offers it. The host positions it at
-    // the press, in the same full-window layer as the workspace menu.
-    mod.widgets.OcChatMenu = RoundedView{
-        width: 168 height: Fit flow: Down padding: 4
-        draw_bg +: {color: theme.color_bg_app border_radius: 10.0 border_size: 1.0 border_color: theme.color_outset_1}
+    // the press, in the same full-window layer as the workspace menu. A Mac's
+    // is the workspace menu's material, its rows in the menu's own ink.
+    mod.widgets.OcChatMenu = OcMenuPanel{
+        width: 168 height: Fit flow: Down padding: by(4, 5)
+        draw_bg +: {color: by(theme.color_bg_app, mac_menu) border_radius: by(10.0, 6.0) border_size: by(1.0, 0.65) border_color: by(theme.color_outset_1, mac_menu_edge)}
         sb_chat_rename_row := View{
-            width: Fill height: 34 flow: Overlay
-            View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: 12} OcLabel{text: "Rename"}}
+            width: Fill height: by(34, 24) flow: Overlay
+            View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: by(12, 8)} OcLabel{text: "Rename"}}
             sb_chat_rename := OcHit{}
         }
         sb_chat_delete_row := View{
-            width: Fill height: 34 flow: Overlay
-            View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: 12} OcLabel{text: "Delete" draw_text +: {color: #(crate::chrome::ink("danger"))}}}
+            width: Fill height: by(34, 24) flow: Overlay
+            View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: by(12, 8)} OcLabel{text: "Delete" draw_text +: {color: by(#(crate::chrome::ink("danger")), theme.color_fg_app)}}}
             sb_chat_delete := OcHit{}
         }
     }
 
     // ============================================================ HEADER
+    // A desktop's parts with no phone twin: the toolbar's fill, the segmented
+    // "Chat | Trajectory" track and its raised segment (host.rs moves the face).
+    let OcBarBase = if desk { SolidView{draw_bg +: {color: mac_bar}} } else { View{} }
+    let OcTabsBase = if desk { RoundedView{draw_bg +: {color: mac_selected border_radius: 3.5}} } else { View{} }
+    let OcTabFace = if desk { RoundedView{draw_bg +: {color: #00000000 border_radius: 2.5 border_size: 1.0 border_color: #00000000}} } else { View{} }
     // The conversation header (the web's `.conversation-header`, 52 px): the
     // compact menu trigger, the session title + workspace path, and the Review
     // / Settings actions — they live HERE, where they have room (the old
     // sidebar header truncated "Settings" to "Setti…" inside 260 px).
     mod.widgets.OcHeaderBar = View{
         width: Fill height: Fit flow: Down
-        hd_bar := View{
-            width: Fill height: 52 flow: Overlay
+        hd_bar := OcBarBase{
+            width: Fill height: by(52, mac_bar_h) flow: Overlay
             hd_left := View{
-                width: Fill height: Fill flow: Right spacing: 6 align: Align{y: 0.5}
+                width: Fill height: Fill flow: Right spacing: by(6, 8) align: Align{y: 0.5}
                 padding: Inset{left: 16 right: 200}
-                hd_menu := View{
-                    width: 36 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5} visible: false
+                // A desktop's collapsed sidebar: the way back, by the lights.
+                hd_expand := View{
+                    width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5} visible: false
                     Svg{
-                        width: 20 height: 20 animating: false
+                        width: 16 height: 16 animating: false
+                        draw_svg.svg: file_resource(#(crate::chrome::icon("panel_muted")))
+                        draw_svg.preserve_viewbox: true
+                    }
+                    hd_expand_hit := OcHit{draw_bg.border_radius: 3.0}
+                }
+                hd_menu := View{
+                    width: by(36, 28) height: by(36, 28) flow: Overlay align: Align{x: 0.5 y: 0.5} visible: false
+                    Svg{
+                        width: by(20, 16) height: by(20, 16) animating: false
                         draw_svg.svg: file_resource(#(crate::chrome::icon("menu")))
                         draw_svg.preserve_viewbox: true
                     }
-                    sidebar_toggle_hit := OcHit{draw_bg.border_radius: 8.0}
+                    sidebar_toggle_hit := OcHit{draw_bg.border_radius: by(8.0, 3.0)}
                 }
                 View{
-                    width: Fill height: Fit flow: Down spacing: 1
+                    width: Fill height: Fit flow: Down spacing: by(1, 0)
                     hd_title := OcMedium{
                         width: Fill text: ""
                         max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                        draw_text +: {text_style +: {font_size: 9.75}}
+                        draw_text +: {text_style +: {font_family: by(OcFace500, OcFace600) font_size: by(9.75, 11.25)}}
                     }
                     hd_path := OcMuted{
                         width: Fill text: ""
                         max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                        draw_text +: {text_style +: {font_size: 8.25}}
+                        draw_text +: {text_style +: {font_size: by(8.25, 9.0)}}
                     }
                 }
                 // A6 — the web's "Chat | Trajectory" session views
                 // (`App.tsx:2377-2403`, `.conversationTabs`): shown only while
                 // the server advertises a supervision surface; the current
                 // view is ink with a 2 px blue underline, the other muted.
-                hd_tabs := View{
-                    width: Fit height: Fill flow: Right spacing: 2 visible: false
+                hd_tabs := OcTabsBase{
+                    width: Fit height: by(Fill, 28) flow: Right spacing: 2 visible: false padding: by(0, 2)
                     hd_tab_chat := View{
                         width: Fit height: Fill flow: Overlay
-                        hd_tab_chat_pad := View{
+                        hd_tab_chat_pad := OcTabFace{
                             width: Fit height: Fill flow: Right align: Align{y: 0.5}
                             padding: Inset{left: 10 right: 10}
-                            hd_tab_chat_on := OcLabel{text: "Chat" draw_text +: {text_style +: {font_size: 9.75}}}
-                            hd_tab_chat_off := OcMuted{text: "Chat" visible: false draw_text +: {text_style +: {font_size: 9.75}}}
+                            hd_tab_chat_on := OcLabel{text: "Chat" draw_text +: {text_style +: {font_size: by(9.75, 9.0)}}}
+                            hd_tab_chat_off := OcMuted{text: "Chat" visible: false draw_text +: {color: by(theme.color_text_muted, mac_ink) text_style +: {font_size: 9.75}}}
                         }
                         hd_tab_chat_barpad := View{
-                            width: Fill height: Fill flow: Down align: Align{y: 1.0}
+                            width: Fill height: Fill flow: Down align: Align{y: 1.0} visible: by(true, false)
                             padding: Inset{left: 9 right: 9}
                             hd_tab_chat_bar := RoundedView{width: Fill height: 2 draw_bg +: {color: #2F6FEB border_radius: 1.0}}
                         }
-                        hd_tab_chat_hit := OcHit{draw_bg.border_radius: 6.0}
+                        hd_tab_chat_hit := OcHitQuiet{draw_bg.border_radius: by(6.0, 2.5) draw_bg.color_down: by(#8080801F, #00000000) draw_bg.color_2_down: by(#8080801F, #00000000)}
+                        // While a lost connection re-dials (`sync_surfaces`).
+                        hd_tab_chat_veil := OcToolbarVeil{}
                     }
                     hd_tab_traj := View{
                         width: Fit height: Fill flow: Overlay
-                        hd_tab_traj_pad := View{
+                        hd_tab_traj_pad := OcTabFace{
                             width: Fit height: Fill flow: Right align: Align{y: 0.5}
                             padding: Inset{left: 10 right: 10}
-                            hd_tab_traj_on := OcLabel{text: "Trajectory" visible: false draw_text +: {text_style +: {font_size: 9.75}}}
-                            hd_tab_traj_off := OcMuted{text: "Trajectory" draw_text +: {text_style +: {font_size: 9.75}}}
+                            hd_tab_traj_on := OcLabel{text: "Trajectory" visible: false draw_text +: {text_style +: {font_size: by(9.75, 9.0)}}}
+                            hd_tab_traj_off := OcMuted{text: "Trajectory" draw_text +: {color: by(theme.color_text_muted, mac_ink) text_style +: {font_size: 9.75}}}
                         }
                         hd_tab_traj_barpad := View{
-                            width: Fill height: Fill flow: Down align: Align{y: 1.0}
+                            width: Fill height: Fill flow: Down align: Align{y: 1.0} visible: by(true, false)
                             padding: Inset{left: 9 right: 9}
                             hd_tab_traj_bar := RoundedView{width: Fill height: 2 visible: false draw_bg +: {color: #2F6FEB border_radius: 1.0}}
                         }
-                        hd_tab_traj_hit := OcHit{draw_bg.border_radius: 6.0}
+                        hd_tab_traj_hit := OcHitQuiet{draw_bg.border_radius: by(6.0, 2.5) draw_bg.color_down: by(#8080801F, #00000000) draw_bg.color_2_down: by(#8080801F, #00000000)}
+                        hd_tab_traj_veil := OcToolbarVeil{}
                     }
                 }
             }
             hd_actions := View{
-                width: Fill height: Fill flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5}
-                padding: Inset{right: 16}
+                width: Fill height: Fill flow: Right spacing: by(8, 2) align: Align{x: 1.0 y: 0.5}
+                padding: Inset{right: by(16, 10)}
                 // A8: the web's header "Copy as Markdown"
                 // (CopyConversationButton.tsx; desktop only).
                 hd_copy := View{
-                    width: Fit height: 30 flow: Overlay visible: false
+                    width: Fit height: by(30, 28) flow: Overlay visible: false
                     RoundedView{
-                        width: Fit height: Fill flow: Right spacing: 6 align: Align{y: 0.5}
-                        padding: Inset{left: 10 right: 12}
-                        draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}
+                        width: Fit height: Fill flow: Right spacing: by(6, 5) align: Align{y: 0.5}
+                        padding: Inset{left: by(10, 8) right: by(12, 8)}
+                        draw_bg +: {color: by(theme.color_bg_app, #00000000) border_radius: by(9.0, 3.0) border_size: by(1.0, 0.0) border_color: theme.color_outset_1}
                         Svg{
-                            width: 14 height: 14 animating: false
+                            width: by(14, 16) height: by(14, 16) animating: false
                             draw_svg.svg: file_resource(#(crate::chrome::icon("copy")))
                             draw_svg.preserve_viewbox: true
                         }
-                        hd_copy_label := OcLabel{text: "Copy as Markdown" draw_text +: {text_style +: {font_size: 9.75}}}
+                        hd_copy_label := OcLabel{text: "Copy as Markdown" width: by(Fit, 136) draw_text +: {text_style +: {font_size: 9.75}}}
                     }
-                    copy_open_hit := OcHit{draw_bg.border_radius: 9.0}
+                    copy_open_hit := OcHit{draw_bg.border_radius: by(9.0, 3.0)}
+                    hd_copy_veil := OcToolbarVeil{}
                 }
                 hd_review := View{
-                    width: Fit height: 30 flow: Overlay
+                    width: Fit height: by(30, 28) flow: Overlay
                     // The pill IS the sized container (a Fill background laid
                     // out before a Fit overlay's size is known resolves to 0x0).
                     RoundedView{
-                        width: Fit height: Fill flow: Right spacing: 6 align: Align{y: 0.5}
-                        padding: Inset{left: 10 right: 12}
-                        draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}
+                        width: Fit height: Fill flow: Right spacing: by(6, 5) align: Align{y: 0.5}
+                        padding: Inset{left: by(10, 8) right: by(12, 8)}
+                        draw_bg +: {color: by(theme.color_bg_app, #00000000) border_radius: by(9.0, 3.0) border_size: by(1.0, 0.0) border_color: theme.color_outset_1}
                         Svg{
-                            width: 14 height: 14 animating: false
+                            width: by(14, 16) height: by(14, 16) animating: false
                             draw_svg.svg: file_resource(#(crate::chrome::icon("diff")))
                             draw_svg.preserve_viewbox: true
                         }
                         hd_review_label := OcLabel{text: "Review" draw_text +: {text_style +: {font_size: 9.75}}}
                     }
-                    review_open_hit := OcHit{draw_bg.border_radius: 9.0}
+                    review_open_hit := OcHit{draw_bg.border_radius: by(9.0, 3.0)}
+                    hd_review_veil := OcToolbarVeil{}
                 }
                 hd_settings := View{
-                    width: Fit height: 30 flow: Overlay
+                    width: Fit height: by(30, 28) flow: Overlay
                     // The pill IS the sized container (a Fill background laid
                     // out before a Fit overlay's size is known resolves to 0x0).
                     RoundedView{
-                        width: Fit height: Fill flow: Right spacing: 6 align: Align{y: 0.5}
-                        padding: Inset{left: 10 right: 12}
-                        draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}
+                        width: Fit height: Fill flow: Right spacing: by(6, 5) align: Align{y: 0.5}
+                        padding: Inset{left: by(10, 8) right: by(12, 8)}
+                        draw_bg +: {color: by(theme.color_bg_app, #00000000) border_radius: by(9.0, 3.0) border_size: by(1.0, 0.0) border_color: theme.color_outset_1}
                         Svg{
-                            width: 14 height: 14 animating: false
+                            width: by(14, 16) height: by(14, 16) animating: false
                             draw_svg.svg: file_resource(#(crate::chrome::icon("gear")))
                             draw_svg.preserve_viewbox: true
                         }
                         hd_settings_label := OcLabel{text: "Settings" draw_text +: {text_style +: {font_size: 9.75}}}
                     }
-                    settings_open_hit := OcHit{draw_bg.border_radius: 9.0}
+                    settings_open_hit := OcHit{draw_bg.border_radius: by(9.0, 3.0)}
                 }
             }
         }
@@ -895,9 +1086,9 @@ script_mod! {
             draw_bg +: {color: theme.color_bg_odd border_radius: 1.0}
             View{
                 width: Fill height: Fit flow: Right spacing: 12 align: Align{y: 0.5}
-                padding: Inset{left: 16 right: 12 top: 12 bottom: 12}
+                padding: Inset{left: 16 right: 12 top: by(12, 6) bottom: by(12, 6)}
                 Svg{
-                    width: 22 height: 22 animating: false
+                    width: by(22, 16) height: by(22, 16) animating: false
                     draw_svg.svg: file_resource(#(crate::chrome::icon("info")))
                     draw_svg.preserve_viewbox: true
                 }
@@ -906,10 +1097,10 @@ script_mod! {
                     draw_text +: {text_style +: {font_size: 9.75 line_spacing: 1.35}}
                 }
                 View{
-                    width: 100 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                    RoundedView{width: Fill height: Fill draw_bg +: {color: #000000 border_radius: 18.0}}
-                    OcMedium{text: "Take over" draw_text +: {color: #FFFFFF text_style +: {font_size: 10.5}}}
-                    hd_take_over := OcHit{draw_bg.border_radius: 18.0}
+                    width: by(100, 84) height: by(36, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
+                    RoundedView{width: Fill height: Fill draw_bg +: {color: by(#000000, mac_primary) border_radius: by(18.0, 3.0)}}
+                    OcMedium{text: "Take over" draw_text +: {color: #FFFFFF text_style +: {font_size: by(10.5, 9.75)}}}
+                    hd_take_over := OcHit{draw_bg.border_radius: by(18.0, 3.0) draw_bg.color_hover: by(#00000000, #00000012) draw_bg.color_2_hover: by(#00000000, #00000012) draw_bg.color_down: by(#8080801F, #00000020) draw_bg.color_2_down: by(#8080801F, #00000020)}
                 }
             }
             OcRule{}
@@ -920,18 +1111,18 @@ script_mod! {
             width: Fill height: Fit flow: Down visible: false
             View{
                 width: Fill height: Fit flow: Right spacing: 8 align: Align{y: 0.5}
-                padding: Inset{left: 16 right: 8 top: 8 bottom: 8}
+                padding: Inset{left: by(16, 20) right: by(8, 12) top: by(8, 4) bottom: by(8, 4)}
                 // A13 (judge: the strip wrapped to 3 lines on a 360 px
                 // phone): ONE line at every width, ellipsized; the full
                 // defaults are one tap away (Change -> Settings).
                 hd_defaults_text := OcLabel{
                     width: Fill text: "New chat defaults"
                     max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                    draw_text +: {text_style +: {font_size: 9.75 line_spacing: 1.45}}
+                    draw_text +: {color: by(theme.color_fg_app, mac_muted) text_style +: {font_size: by(9.75, 9.0) line_spacing: 1.45}}
                 }
                 View{
-                    width: 72 height: 30 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                    OcLabel{text: "Change" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
+                    width: by(72, 60) height: by(30, 24) flow: Overlay align: Align{x: by(0.5, 1.0) y: 0.5}
+                    OcLabel{text: "Change" draw_text +: {color: by(#(crate::chrome::ink("link")), mac_link) text_style +: {font_size: 9.75}}}
                     hd_defaults_change := OcHit{}
                 }
             }
@@ -942,18 +1133,19 @@ script_mod! {
     // ========================================================== SETTINGS
     // One nav cell (desktop): icon + label, 40 px, an active fill layer.
     let OcNavCell = View{
-        width: Fill height: 40 flow: Overlay
-        nv_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: theme.color_bg_even border_radius: 10.0}}
+        width: Fill height: by(40, 28) flow: Overlay
+        nv_on := RoundedView{width: Fill height: Fill visible: false draw_bg +: {color: by(theme.color_bg_even, mac_selected) border_radius: by(10.0, 3.0)}}
         nv_row := View{
-            width: Fill height: Fill flow: Right spacing: 10 align: Align{y: 0.5} padding: Inset{left: 12}
+            width: Fill height: Fill flow: Right spacing: by(10, 7) align: Align{y: 0.5} padding: Inset{left: by(12, 8)}
             nv_icon := Svg{
-                width: 17 height: 17 animating: false
+                width: by(17, 16) height: by(17, 16) animating: false
                 draw_svg.svg: file_resource(#(crate::chrome::icon("gear")))
                 draw_svg.preserve_viewbox: true
+                draw_svg.color: by(svg_own, mac_link)
             }
             nv_label := OcLabel{text: ""}
         }
-        nv_hit := OcHit{draw_bg.border_radius: 10.0}
+        nv_hit := OcRowHit{draw_bg.border_radius: by(10.0, 3.0)}
     }
     // One rail cell (phone): the icon in a 40 px chip; the selected cell
     // shows the accent icon on a blue-tinted chip (board 6).
@@ -982,17 +1174,18 @@ script_mod! {
         rl_hit := OcHit{draw_bg.border_radius: 10.0}
     }
     // Settings row text.
-    let OcRowTitle = OcLabel{width: Fill text: "" draw_text +: {text_style +: {font_size: 11.25}}}
+    let OcRowTitle = OcLabel{width: Fill text: "" draw_text +: {text_style +: {font_size: by(11.25, 9.75)}}}
     let OcRowHelp = OcMuted{width: Fill text: ""}
     // A text column (title + help) for the Fill side of a row.
-    let OcRowText = View{width: Fill height: Fit flow: Down spacing: 4}
+    let OcRowText = View{width: Fill height: Fit flow: Down spacing: by(4, 2)}
     // A fixed trailing slot that right-aligns its control.
     let OcRowSlot = View{width: 160 height: Fit align: Align{x: 1.0 y: 0.5}}
     // A value button: text + chevron, its own hit (the web's select).
+    let OcVbFace = if desk { RoundedView{draw_bg +: {color: mac_button border_radius: 3.0 border_size: 1.0 border_color: mac_border}} } else { View{} }
     let OcValueButton = View{
-        width: Fit height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
-        View{
-            width: Fit height: Fill flow: Right spacing: 4 align: Align{y: 0.5} padding: Inset{left: 8 right: 6}
+        width: Fit height: by(32, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
+        OcVbFace{
+            width: Fit height: Fill flow: Right spacing: by(4, 6) align: Align{y: 0.5} padding: Inset{left: by(8, 10) right: by(6, 7)}
             vb_text := OcLabel{text: ""}
             Svg{
                 width: 13 height: 13 animating: false
@@ -1008,32 +1201,146 @@ script_mod! {
     // over the row. An Overlay of two aligned rows (a Fill spacer between Fit
     // siblings does not resolve here, #40b).
     let OcPaletteRow = View{
-        width: Fill height: 30 flow: Overlay
+        width: Fill height: by(30, 24) flow: Overlay
         pl_left := View{
-            width: Fill height: Fill flow: Right spacing: 12 align: Align{y: 0.5}
+            width: Fill height: Fill flow: Right spacing: by(12, 8) align: Align{y: 0.5}
             pl_radio := OcRadio{}
             pl_title := OcRowTitle{width: Fit text: ""}
         }
         pl_right := View{
             width: Fill height: Fill flow: Right spacing: 4 align: Align{x: 1.0 y: 0.5}
-            pl_sw_1 := RoundedView{width: 18 height: 18 draw_bg +: {color: #FFFFFF border_radius: 5.0 border_size: 1.0 border_color: #8080805A}}
-            pl_sw_2 := RoundedView{width: 18 height: 18 draw_bg +: {color: #2F6FEB border_radius: 5.0 border_size: 1.0 border_color: #8080805A}}
-            pl_sw_3 := RoundedView{width: 18 height: 18 draw_bg +: {color: #1C1F22 border_radius: 5.0 border_size: 1.0 border_color: #8080805A}}
+            pl_sw_1 := RoundedView{width: by(18, 14) height: by(18, 14) draw_bg +: {color: #FFFFFF border_radius: by(5.0, 2.5) border_size: 1.0 border_color: #8080805A}}
+            pl_sw_2 := RoundedView{width: by(18, 14) height: by(18, 14) draw_bg +: {color: #2F6FEB border_radius: by(5.0, 2.5) border_size: 1.0 border_color: #8080805A}}
+            pl_sw_3 := RoundedView{width: by(18, 14) height: by(18, 14) draw_bg +: {color: #1C1F22 border_radius: by(5.0, 2.5) border_size: 1.0 border_color: #8080805A}}
         }
         pl_hit := OcHit{}
     }
 
-    mod.widgets.OcSettingsPanel = RoundedView{
+    // A desktop's sheet: the nav is a sidebar (its outer corners follow the
+    // sheet's), the sections are grouped rows on the content pane.
+    let OcSetNavBase = if desk { RoundedAllView{draw_bg +: {color: mac_sidebar border_inset: vec4(1.0, 1.0, 0.0, 1.0) border_radius: vec4(5.0, 1.0, 1.0, 5.0)}} } else { View{} }
+    let OcSection = if desk { RoundedView{padding: Inset{left: 14 right: 14} margin: Inset{bottom: 16} draw_bg +: {color: mac_surface border_radius: 5.0 border_size: 1.0 border_color: mac_border}} } else { View{} }
+    let OcDoneFace = if desk { RoundedView{draw_bg +: {color: mac_button border_radius: 3.0 border_size: 1.0 border_color: mac_border}} } else { View{} }
+    // A phone closes the panel from its head; a Mac's sheet from its foot,
+    // with Preferences' Save beside Done.
+    let OcSetCloseHead = if desk { View{width: 0 height: 0} } else {
+        View{
+            width: Fit height: Fit
+            set_close_slot := View{
+                width: 32 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                View{
+                    width: Fit height: Fit
+                    Svg{
+                        width: 14 height: 14 animating: false
+                        draw_svg.svg: file_resource(#(crate::chrome::icon("x")))
+                        draw_svg.preserve_viewbox: true
+                    }
+                }
+                settings_close := OcHit{draw_bg.border_radius: 16.0}
+            }
+        }
+    }
+    let OcSetFoot = if desk {
+        View{
+            width: Fill height: Fit flow: Down
+            OcRule{}
+            set_foot_row := View{
+                width: Fill height: 48 flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5} padding: Inset{left: 20 right: 20}
+                set_close_slot := View{
+                    width: 72 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                    RoundedView{
+                        width: Fill height: Fill align: Align{x: 0.5 y: 0.5} draw_bg +: {color: mac_primary border_radius: 3.0}
+                        set_done_label := OcLabel{text: "Done" draw_text +: {color: #fffffe}}
+                    }
+                    settings_close := OcHit{draw_bg.border_radius: 3.0 draw_bg.color_hover: #00000012 draw_bg.color_2_hover: #00000012 draw_bg.color_down: #00000020 draw_bg.color_2_down: #00000020}
+                }
+                prefs_save_slot := View{
+                    width: 128 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5} visible: false
+                    RoundedView{width: Fill height: Fill draw_bg +: {color: mac_primary border_radius: 3.0}}
+                    OcLabel{text: "Save preferences" draw_text +: {color: #fffffe text_style +: {font_size: 9.75}}}
+                    prefs_save := OcHit{draw_bg.border_radius: 3.0 draw_bg.color_hover: by(#00000000, #00000012) draw_bg.color_2_hover: by(#00000000, #00000012) draw_bg.color_down: by(#8080801F, #00000020) draw_bg.color_2_down: by(#8080801F, #00000020)}
+                }
+            }
+        }
+    } else { View{width: 0 height: 0 visible: false} }
+    let OcPrefsSaveRow = if desk {
+        View{
+            width: Fill height: Fit flow: Down
+            prefs_status := OcMuted{width: Fill text: ""}
+        }
+    } else {
+        View{
+            width: Fill height: Fit flow: Right spacing: 12 align: Align{y: 0.5}
+            View{
+                width: 148 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_even border_radius: 9.0}}
+                OcLabel{text: "Save preferences" draw_text +: {color: theme.color_fg_app text_style +: {font_size: 9.75}}}
+                prefs_save := OcHit{draw_bg.border_radius: 9.0}
+            }
+            View{
+                width: Fill height: Fit flow: Down
+                prefs_status := OcMuted{width: Fill text: ""}
+            }
+        }
+    }
+    // A phone's link, a Mac's push button.
+    let OcAdvancedButton = if desk {
+        View{
+            width: 92 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+            OcDoneFace{
+                width: Fill height: Fill align: Align{x: 0.5 y: 0.5}
+                OcLabel{text: "Advanced…"}
+            }
+            settings_advanced := OcHit{draw_bg.border_radius: 3.0}
+        }
+    } else {
+        View{
+            width: 96 height: 30 flow: Overlay align: Align{x: 0.0 y: 0.5}
+            OcLabel{text: "Advanced…" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
+            settings_advanced := OcHit{}
+        }
+    }
+    // What stops the server: a phone's row is the control, a Mac's holds a push
+    // button with the red word of something that can't be undone.
+    let OcStopServerRow = if desk {
+        View{
+            width: Fill height: 48 flow: Right spacing: 12 align: Align{y: 0.5}
+            OcLabel{width: Fill text: "Shuts down Octos on this computer"}
+            View{
+                width: 112 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                RoundedView{width: Fill height: Fill draw_bg +: {color: mac_button border_radius: 3.0 border_size: 1.0 border_color: mac_border}}
+                OcLabel{text: "Stop server…" draw_text +: {color: #(crate::desk::color("danger_button"))}}
+                server_stop_request := OcHit{draw_bg.border_radius: 3.0}
+            }
+        }
+    } else {
+        View{
+            width: Fill height: 66 flow: Overlay
+            View{
+                width: Fill height: Fill flow: Down spacing: 4 align: Align{y: 0.5}
+                OcLabel{text: "Stop server…" draw_text +: {color: #(crate::chrome::ink("danger")) text_style +: {font_size: 11.25}}}
+                OcRowHelp{text: "Shuts down Octos on this computer"}
+            }
+            server_stop_request := OcHit{}
+        }
+    }
+    // A Mac sheet's surface, as a mounted sheet's (`desk::OcMacSheet`).
+    let OcSheetPanel = if desk {
+        RoundedShadowView{new_batch: true draw_bg +: {shadow_color: #x00000040 shadow_radius: 24.0 shadow_offset: vec2(0.0, 8.0)}}
+    } else {
+        RoundedView{}
+    }
+    mod.widgets.OcSettingsPanel = OcSheetPanel{
         width: Fill height: Fill flow: Right
-        draw_bg +: {color: theme.color_bg_app border_radius: 16.0 border_size: 1.0 border_color: theme.color_outset_1}
+        draw_bg +: {color: by(theme.color_bg_app, mac_surface) border_radius: by(16.0, 5.0) border_size: 1.0 border_color: theme.color_outset_1}
 
         // Desktop nav (the web's 188 px `.nav`): the title, one cell per section.
-        set_nav := View{
-            width: 188 height: Fill flow: Down spacing: 4
-            padding: Inset{left: 12 right: 12 top: 20}
+        set_nav := OcSetNavBase{
+            width: by(188, 180) height: Fill flow: Down spacing: by(4, 1)
+            padding: Inset{left: by(12, 8) right: by(12, 8) top: by(20, 0)}
             View{
-                width: Fill height: Fit padding: Inset{left: 12 bottom: 12}
-                OcStrong{text: "Settings" draw_text +: {text_style +: {font_size: 12.0}}}
+                width: Fill height: by(Fit, 40) align: Align{y: 0.5} padding: Inset{left: by(12, 8) bottom: by(12, 0)}
+                OcStrong{text: "Settings" draw_text +: {text_style +: {font_size: by(12.0, 11.25)}}}
             }
             set_nav_general := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("gear")))}} nv_label +: {text: "General"}}}
             set_nav_permissions := OcNavCell{nv_row +: {nv_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("shield")))}} nv_label +: {text: "Permissions"}}}
@@ -1072,17 +1379,9 @@ script_mod! {
         View{
             width: Fill height: Fill flow: Down
             View{
-                width: Fill height: 56 flow: Right align: Align{y: 0.5} padding: Inset{left: 24 right: 12}
-                set_title := OcStrong{width: Fill text: "General" draw_text +: {text_style +: {font_size: 13.5}}}
-                set_close_slot := View{
-                    width: 32 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                    Svg{
-                        width: 14 height: 14 animating: false
-                        draw_svg.svg: file_resource(#(crate::chrome::icon("x")))
-                        draw_svg.preserve_viewbox: true
-                    }
-                    settings_close := OcHit{draw_bg.border_radius: 16.0}
-                }
+                width: Fill height: by(56, 40) flow: Right align: Align{y: 0.5} padding: Inset{left: by(24, 20) right: by(12, 8)}
+                set_title := OcStrong{width: Fill text: "General" draw_text +: {text_style +: {font_size: by(13.5, 11.25)}}}
+                OcSetCloseHead{}
             }
             OcRule{}
             // A ScrollYView (as the board-3 dialog bodies, ui::body_open_id):
@@ -1092,10 +1391,10 @@ script_mod! {
             // width-Fill inside the body's bounded width.
             set_body := ScrollYView{
                 width: Fill height: Fill flow: Down
-                padding: Inset{left: 24 right: 24 top: 4 bottom: 16}
+                padding: Inset{left: by(24, 20) right: by(24, 20) top: by(4, 16) bottom: 16}
 
                 // ----- General (board 6)
-                sec_general := View{
+                sec_general := OcSection{
                     width: Fill height: Fit flow: Down
                     // A25: the web's toggle row (GeneralSettingsContent.tsx
                     // :213-247) on board 2's toggle: the toggle while the OS
@@ -1104,34 +1403,34 @@ script_mod! {
                     // process cannot post notices; the message under it
                     // (role=status), red when it is an error (role=alert).
                     notify_row := View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(10, 7) bottom: by(14, 9)}
                         View{
-                            width: Fill height: 32 flow: Overlay
+                            width: Fill height: by(32, 28) flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Desktop notifications"}}
                             View{
                                 width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
                                 tg_notify := OcToggle{}
-                                notify_state := OcMuted{text: "" visible: false draw_text +: {text_style +: {font_size: 10.5}}}
+                                notify_state := OcMuted{text: "" visible: false draw_text +: {text_style +: {font_size: by(10.5, 9.0)}}}
                             }
                         }
                         // Help text wraps only as a direct child of a Down
                         // flow (inside a Right/Overlay row it stays one line).
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{right: 64}
+                            width: Fill height: Fit flow: Down padding: Inset{right: by(64, 44)}
                             notify_help := OcRowHelp{text: "Notify when a turn needs you or finishes while OctosCode is in the background"}
                             notify_alert := OcRowHelp{text: "" visible: false draw_text +: {color: #(crate::chrome::ink("danger"))}}
                         }
                     }
-                    OcRule{}
+                    set_server_rule := OcRule{}
                     // A9: the web's "Octos server" row (GeneralSettingsContent
                     // .tsx:150-168): the title over the connection state (a
                     // status dot + one of five states), the origin on the
                     // right. One layout at every width (the state moved under
                     // the title, so the origin alone fits the phone row).
                     set_server_row := View{
-                        width: Fill height: Fit flow: Overlay padding: Inset{top: 12 bottom: 12}
+                        width: Fill height: Fit flow: Overlay padding: Inset{top: by(12, 8) bottom: by(12, 8)}
                         View{
-                            width: Fill height: Fit flow: Down spacing: 5
+                            width: Fill height: Fit flow: Down spacing: by(5, 2)
                             OcRowTitle{width: Fit text: "Octos server"}
                             View{
                                 width: Fit height: Fit flow: Right spacing: 7 align: Align{y: 0.5}
@@ -1153,9 +1452,9 @@ script_mod! {
                         width: Fill height: Fit flow: Down visible: false
                         OcRule{}
                         View{
-                            width: Fill height: Fit flow: Overlay padding: Inset{top: 12 bottom: 12}
+                            width: Fill height: Fit flow: Overlay padding: Inset{top: by(12, 8) bottom: by(12, 8)}
                             View{
-                                width: Fill height: Fit flow: Down spacing: 5 padding: Inset{right: 120}
+                                width: Fill height: Fit flow: Down spacing: by(5, 2) padding: Inset{right: 120}
                                 OcRowTitle{width: Fit text: "Current workspace"}
                                 set_ws_path := OcMuted{width: Fill text: ""}
                             }
@@ -1169,9 +1468,9 @@ script_mod! {
                         width: Fill height: Fit flow: Down visible: false
                         OcRule{}
                         View{
-                            width: Fill height: Fit flow: Overlay padding: Inset{top: 12 bottom: 12}
+                            width: Fill height: Fit flow: Overlay padding: Inset{top: by(12, 8) bottom: by(12, 8)}
                             View{
-                                width: Fill height: Fit flow: Down spacing: 5 padding: Inset{right: 120}
+                                width: Fill height: Fit flow: Down spacing: by(5, 2) padding: Inset{right: 120}
                                 OcRowTitle{width: Fit text: "Profile"}
                                 OcMuted{width: Fill text: "The Octos profile backing this session."}
                             }
@@ -1184,15 +1483,7 @@ script_mod! {
                     set_stop_row := View{
                         width: Fill height: Fit flow: Down
                         OcRule{}
-                        View{
-                            width: Fill height: 66 flow: Overlay
-                            View{
-                                width: Fill height: Fill flow: Down spacing: 4 align: Align{y: 0.5}
-                                OcLabel{text: "Stop server…" draw_text +: {color: #(crate::chrome::ink("danger")) text_style +: {font_size: 11.25}}}
-                                OcRowHelp{text: "Shuts down Octos on this computer"}
-                            }
-                            server_stop_request := OcHit{}
-                        }
+                        OcStopServerRow{}
                     }
                 }
 
@@ -1201,19 +1492,19 @@ script_mod! {
                 // flags a command (sudo, rm -rf, force push, hard reset), and
                 // `never` refuses those instead of approving them; the
                 // readback under the presets is the server's own report.
-                sec_permissions := View{
+                sec_permissions := OcSection{
                     width: Fill height: Fit flow: Down visible: false
                     View{
                         width: Fill height: Fit flow: Overlay margin: Inset{top: 6}
                         View{
-                            width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 10}
+                            width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(10, 7) bottom: by(10, 7)}
                             View{
-                                width: Fill height: 26 flow: Right spacing: 12 align: Align{y: 0.5}
+                                width: Fill height: by(26, 20) flow: Right spacing: by(12, 8) align: Align{y: 0.5}
                                 pm_ask_radio := OcRadio{}
                                 OcRowTitle{text: "Ask for approval"}
                             }
                             View{
-                                width: Fill height: Fit flow: Down padding: Inset{left: 30}
+                                width: Fill height: Fit flow: Down padding: Inset{left: by(30, 22)}
                                 OcRowHelp{text: "No network · asks before risky commands"}
                             }
                         }
@@ -1222,14 +1513,14 @@ script_mod! {
                     View{
                         width: Fill height: Fit flow: Overlay
                         View{
-                            width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 10}
+                            width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(10, 7) bottom: by(10, 7)}
                             View{
-                                width: Fill height: 26 flow: Right spacing: 12 align: Align{y: 0.5}
+                                width: Fill height: by(26, 20) flow: Right spacing: by(12, 8) align: Align{y: 0.5}
                                 pm_ws_radio := OcRadio{}
                                 OcRowTitle{text: "Auto-approve in workspace"}
                             }
                             View{
-                                width: Fill height: Fit flow: Down padding: Inset{left: 30}
+                                width: Fill height: Fit flow: Down padding: Inset{left: by(30, 22)}
                                 OcRowHelp{text: "No network · never asks, refuses risky commands"}
                             }
                         }
@@ -1238,55 +1529,65 @@ script_mod! {
                     View{
                         width: Fill height: Fit flow: Overlay margin: Inset{bottom: 6}
                         View{
-                            width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 10}
+                            width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(10, 7) bottom: by(10, 7)}
                             View{
-                                width: Fill height: 26 flow: Right spacing: 12 align: Align{y: 0.5}
+                                width: Fill height: by(26, 20) flow: Right spacing: by(12, 8) align: Align{y: 0.5}
                                 pm_full_radio := OcRadio{}
                                 OcRowTitle{text: "Full access"}
                             }
                             View{
-                                width: Fill height: Fit flow: Down padding: Inset{left: 30}
+                                width: Fill height: Fit flow: Down padding: Inset{left: by(30, 22)}
                                 OcRowHelp{text: "No prompts · full read/write/network"}
                             }
                         }
                         perm_full := OcHit{}
                     }
+                    // What Octos runs when none of the three says it: no choice
+                    // to make, so it has no hit.
+                    perm_custom := View{
+                        width: Fill height: Fit flow: Down spacing: 2 visible: false padding: Inset{top: 7 bottom: 7} margin: Inset{bottom: 6}
+                        View{
+                            width: Fill height: 20 flow: Right spacing: 8 align: Align{y: 0.5}
+                            pm_custom_radio := OcRadio{}
+                            OcRowTitle{text: "Custom"}
+                        }
+                        View{
+                            width: Fill height: Fit flow: Down padding: Inset{left: 22}
+                            perm_custom_help := OcRowHelp{text: ""}
+                        }
+                    }
                     OcRule{}
                     View{
-                        width: Fill height: Fit flow: Down spacing: 6 padding: Inset{top: 14}
+                        width: Fill height: Fit flow: Down spacing: 6 padding: Inset{top: by(14, 8) bottom: by(0, 8)}
                         set_perm_readback := OcMuted{width: Fill text: "Server: permissions not reported yet"}
                         set_perm_state := OcMuted{width: Fill text: "" visible: false}
-                        View{
-                            width: 96 height: 30 flow: Overlay align: Align{x: 0.0 y: 0.5}
-                            OcLabel{text: "Advanced…" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
-                            settings_advanced := OcHit{}
-                        }
+                        OcAdvancedButton{}
                     }
                 }
 
                 // ----- Model (board 11)
-                sec_model := View{
+                sec_model := OcSection{
                     width: Fill height: Fit flow: Down visible: false
                     View{
-                        width: Fill height: 52 flow: Right align: Align{y: 0.5}
-                        OcRowTitle{text: "Model"}
-                        OcRowSlot{width: 200 set_model := OcValueButton{}}
+                        width: Fill height: by(52, 44) flow: Right align: Align{y: 0.5}
+                        OcRowTitle{width: by(Fill, 120) text: "Model"}
+                        OcRowSlot{width: by(200, Fill) set_model := OcValueButton{}}
                     }
                     OcRule{}
                     View{
-                        width: Fill height: Fit flow: Down spacing: 10 padding: Inset{top: 14 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: by(10, 4) padding: Inset{top: by(14, 8) bottom: by(14, 8)}
                         View{
-                            width: Fill height: 34 flow: Right align: Align{y: 0.5}
+                            width: Fill height: by(34, 28) flow: Right align: Align{y: 0.5}
                             OcRowTitle{width: Fit text: "Thinking"}
                             View{width: Fill height: 1}
                             View{
-                                width: 188 height: 34 align: Align{x: 1.0 y: 0.5}
+                                width: by(188, 160) height: by(34, 28) align: Align{x: 1.0 y: 0.5}
                                 RoundedView{
-                                    width: Fit height: 34 flow: Right padding: 2
-                                    draw_bg +: {color: theme.color_bg_even border_radius: 9.0}
-                                    th_off := OcSegment{width: 60}
-                                    th_on := OcSegment{width: 60}
-                                    th_high := OcSegment{width: 60}
+                                    width: Fit height: by(34, 28) flow: Right padding: 2
+                                    draw_bg +: {color: by(phone_selected, mac_selected) border_radius: by(9.0, 3.5)}
+                                    th_off := OcSegment{width: by(60, 48)}
+                                    th_on := OcSegment{width: by(60, 48)}
+                                    th_high := OcSegment{width: by(60, 48)}
                                 }
                             }
                         }
@@ -1301,22 +1602,22 @@ script_mod! {
                         width: Fill height: Fit flow: Down visible: false
                         OcRule{}
                         View{
-                            width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                            width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(12, 7) bottom: by(14, 9)}
                             View{
-                                width: Fill height: 34 flow: Overlay
+                                width: Fill height: by(34, 28) flow: Overlay
                                 View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "All models"}}
                                 View{
                                     width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
                                     View{
-                                        width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                                        RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                        width: by(112, 72) height: by(32, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                        RoundedView{width: Fill height: Fill draw_bg +: {color: by(theme.color_bg_app, mac_button) border_radius: by(9.0, 3.0) border_size: 1.0 border_color: theme.color_outset_1}}
                                         OcLabel{text: "Open" draw_text +: {text_style +: {font_size: 9.75}}}
-                                        set_models_manage := OcHit{draw_bg.border_radius: 9.0}
+                                        set_models_manage := OcHit{draw_bg.border_radius: by(9.0, 3.0)}
                                     }
                                 }
                             }
                             View{
-                                width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                                width: Fill height: Fit flow: Down padding: Inset{right: by(124, 84)}
                                 OcRowHelp{text: "Each provider's models"}
                             }
                         }
@@ -1326,23 +1627,30 @@ script_mod! {
                     // provider editor (screens::board1 `b1.open.provider`).
                     OcRule{}
                     View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(12, 7) bottom: by(14, 9)}
                         View{
-                            width: Fill height: 34 flow: Overlay
+                            width: Fill height: by(34, 28) flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Model providers"}}
                             View{
                                 width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
-                                View{
-                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                set_provider_edit := View{
+                                    width: by(112, 72) height: by(32, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: by(theme.color_bg_app, mac_button) border_radius: by(9.0, 3.0) border_size: 1.0 border_color: theme.color_outset_1}}
                                     OcLabel{text: "Edit" draw_text +: {text_style +: {font_size: 9.75}}}
-                                    b1_set_provider := OcHit{draw_bg.border_radius: 9.0}
+                                    b1_set_provider := OcHit{draw_bg.border_radius: by(9.0, 3.0)}
+                                }
+                                set_provider_open := View{
+                                    width: 150 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5} visible: false
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: mac_button border_radius: 3.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                    OcLabel{text: "Open AI Providers…" draw_text +: {text_style +: {font_size: 9.75}}}
+                                    set_provider_open_hit := OcHit{draw_bg.border_radius: 3.0}
                                 }
                             }
                         }
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
-                            OcRowHelp{text: "The provider route and its API key"}
+                            width: Fill height: Fit flow: Down padding: Inset{right: by(124, 84)}
+                            set_provider_help := View{width: Fill height: Fit OcRowHelp{text: "The provider route and its API key"}}
+                            set_provider_hosted := View{width: Fill height: Fit visible: false OcRowHelp{text: "Set up in AI Providers."}}
                         }
                     }
                 }
@@ -1352,158 +1660,158 @@ script_mod! {
                 // "Open" pill, help under it) and opens the EXISTING surface
                 // (`settings::CAPABILITY_ROWS`); a row shows only when the
                 // server advertises the method its surface reads.
-                sec_capabilities := View{
+                sec_capabilities := OcSection{
                     width: Fill height: Fit flow: Down visible: false
                     set_cap_skills_row := View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(12, 7) bottom: by(14, 9)}
                         View{
-                            width: Fill height: 34 flow: Overlay
+                            width: Fill height: by(34, 28) flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Skills"}}
                             View{
                                 width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
                                 View{
-                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                    width: by(112, 72) height: by(32, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: by(theme.color_bg_app, mac_button) border_radius: by(9.0, 3.0) border_size: 1.0 border_color: theme.color_outset_1}}
                                     OcLabel{text: "Open" draw_text +: {text_style +: {font_size: 9.75}}}
-                                    set_cap_skills := OcHit{draw_bg.border_radius: 9.0}
+                                    set_cap_skills := OcHit{draw_bg.border_radius: by(9.0, 3.0)}
                                 }
                             }
                         }
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                            width: Fill height: Fit flow: Down padding: Inset{right: by(124, 84)}
                             OcRowHelp{text: "Installed skills, the skill registry and background jobs."}
                         }
                     }
                     set_cap_rule_mcp := View{width: Fill height: Fit OcRule{}}
                     set_cap_mcp_row := View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(12, 7) bottom: by(14, 9)}
                         View{
-                            width: Fill height: 34 flow: Overlay
+                            width: Fill height: by(34, 28) flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "MCP servers"}}
                             View{
                                 width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
                                 View{
-                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                    width: by(112, 72) height: by(32, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: by(theme.color_bg_app, mac_button) border_radius: by(9.0, 3.0) border_size: 1.0 border_color: theme.color_outset_1}}
                                     OcLabel{text: "Open" draw_text +: {text_style +: {font_size: 9.75}}}
-                                    set_cap_mcp := OcHit{draw_bg.border_radius: 9.0}
+                                    set_cap_mcp := OcHit{draw_bg.border_radius: by(9.0, 3.0)}
                                 }
                             }
                         }
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                            width: Fill height: Fit flow: Down padding: Inset{right: by(124, 84)}
                             OcRowHelp{text: "The status this server reports. Servers are configured on the server."}
                         }
                     }
                     set_cap_rule_tools := View{width: Fill height: Fit OcRule{}}
                     set_cap_tools_row := View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(12, 7) bottom: by(14, 9)}
                         View{
-                            width: Fill height: 34 flow: Overlay
+                            width: Fill height: by(34, 28) flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Tools"}}
                             View{
                                 width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
                                 View{
-                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                    width: by(112, 72) height: by(32, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: by(theme.color_bg_app, mac_button) border_radius: by(9.0, 3.0) border_size: 1.0 border_color: theme.color_outset_1}}
                                     OcLabel{text: "Open" draw_text +: {text_style +: {font_size: 9.75}}}
-                                    set_cap_tools := OcHit{draw_bg.border_radius: 9.0}
+                                    set_cap_tools := OcHit{draw_bg.border_radius: by(9.0, 3.0)}
                                 }
                             }
                         }
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                            width: Fill height: Fit flow: Down padding: Inset{right: by(124, 84)}
                             OcRowHelp{text: "Executable tools available to this session."}
                         }
                     }
                     // A36b (board 5) — Memory: the Session profile's memory dialog.
                     set_cap_rule_memory := View{width: Fill height: Fit OcRule{}}
                     set_cap_memory_row := View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(12, 7) bottom: by(14, 9)}
                         View{
-                            width: Fill height: 34 flow: Overlay
+                            width: Fill height: by(34, 28) flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Memory"}}
                             View{
                                 width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
                                 View{
-                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                    width: by(112, 72) height: by(32, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: by(theme.color_bg_app, mac_button) border_radius: by(9.0, 3.0) border_size: 1.0 border_color: theme.color_outset_1}}
                                     OcLabel{text: "Open" draw_text +: {text_style +: {font_size: 9.75}}}
-                                    set_cap_memory := OcHit{draw_bg.border_radius: 9.0}
+                                    set_cap_memory := OcHit{draw_bg.border_radius: by(9.0, 3.0)}
                                 }
                             }
                         }
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                            width: Fill height: Fit flow: Down padding: Inset{right: by(124, 84)}
                             OcRowHelp{text: "What Octos remembers for this profile: notes, entities and search."}
                         }
                     }
                     // Nothing advertised: say so instead of an empty section.
                     set_cap_none := View{
-                        width: Fill height: Fit flow: Down padding: Inset{top: 14 bottom: 14} visible: false
+                        width: Fill height: Fit flow: Down padding: Inset{top: by(14, 8) bottom: by(14, 8)} visible: false
                         OcRowHelp{text: "This server offers no skills, MCP status, tools or memory."}
                     }
                 }
 
                 // ----- Sandbox (board 9): the new-chat sandbox defaults.
-                sec_sandbox := View{
+                sec_sandbox := OcSection{
                     width: Fill height: Fit flow: Down visible: false
                     View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(10, 7) bottom: by(14, 9)}
                         View{
-                            width: Fill height: 32 flow: Overlay
+                            width: Fill height: by(32, 28) flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Workspace write"}}
                             View{width: Fill height: Fill align: Align{x: 1.0 y: 0.5} tg_sb_write := OcToggle{}}
                         }
                         // Help text wraps only as a direct child of a Down
                         // flow (inside a Right/Overlay row it stays one line).
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{right: 64}
+                            width: Fill height: Fit flow: Down padding: Inset{right: by(64, 44)}
                             OcRowHelp{text: "Allow writes inside the workspace"}
                         }
                     }
                     OcRule{}
                     View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(10, 7) bottom: by(14, 9)}
                         View{
-                            width: Fill height: 32 flow: Overlay
+                            width: Fill height: by(32, 28) flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Network access"}}
                             View{width: Fill height: Fill align: Align{x: 1.0 y: 0.5} tg_sb_network := OcToggle{}}
                         }
                         // Help text wraps only as a direct child of a Down
                         // flow (inside a Right/Overlay row it stays one line).
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{right: 64}
+                            width: Fill height: Fit flow: Down padding: Inset{right: by(64, 44)}
                             OcRowHelp{text: "Allow outbound network requests"}
                         }
                     }
                     OcRule{}
                     View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(10, 7) bottom: by(14, 9)}
                         View{
-                            width: Fill height: 32 flow: Overlay
+                            width: Fill height: by(32, 28) flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Session sandbox"}}
                             View{width: Fill height: Fill align: Align{x: 1.0 y: 0.5} tg_sb_read := OcToggle{}}
                         }
                         // Help text wraps only as a direct child of a Down
                         // flow (inside a Right/Overlay row it stays one line).
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{right: 64}
+                            width: Fill height: Fit flow: Down padding: Inset{right: by(64, 44)}
                             OcRowHelp{text: "Open new chats in the server's session sandbox"}
                         }
                     }
                     OcRule{}
                     View{
-                        width: Fill height: Fit padding: Inset{top: 16}
+                        width: Fill height: Fit padding: Inset{top: by(16, 8) bottom: by(0, 8)}
                         OcMuted{width: Fill text: "Re-opening a session never re-applies these defaults. They apply once, when the session is created."}
                     }
                 }
 
                 // ----- Connection
-                sec_connection := View{
+                sec_connection := OcSection{
                     width: Fill height: Fit flow: Down visible: false
                     View{
-                        width: Fill height: Fit padding: Inset{top: 14 bottom: 14}
+                        width: Fill height: Fit padding: Inset{top: by(14, 8) bottom: by(14, 8)}
                         OcRowText{
                             OcRowTitle{text: "Octos server"}
                             set_conn_value := OcRowHelp{text: ""}
@@ -1516,7 +1824,7 @@ script_mod! {
                     // first while work is unfinished or a draft would be lost
                     // (screens::a9_settings, LeaveConnectionDialog.tsx).
                     View{
-                        width: Fill height: Fit flow: Down spacing: 6 padding: Inset{top: 12 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 6 padding: Inset{top: by(12, 7) bottom: by(14, 9)}
                         OcRowTitle{width: Fit text: "Connection"}
                         View{
                             width: Fill height: Fit flow: Down
@@ -1525,16 +1833,16 @@ script_mod! {
                         View{
                             width: Fill height: Fit flow: Right spacing: 10 margin: Inset{top: 6}
                             View{
-                                width: 112 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                                RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_even border_radius: 9.0}}
+                                width: by(112, 88) height: by(36, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                RoundedView{width: Fill height: Fill draw_bg +: {color: by(theme.color_bg_even, mac_button) border_radius: by(9.0, 3.0) border_size: by(0.0, 1.0) border_color: by(#00000000, mac_border)}}
                                 OcLabel{text: "Disconnect" draw_text +: {text_style +: {font_size: 9.75}}}
-                                settings_disconnect := OcHit{draw_bg.border_radius: 9.0}
+                                settings_disconnect := OcHit{draw_bg.border_radius: by(9.0, 3.0)}
                             }
                             View{
-                                width: 120 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                                RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
-                                OcLabel{text: "Forget server" draw_text +: {color: #(crate::chrome::ink("danger_strong")) text_style +: {font_size: 9.75}}}
-                                settings_forget := OcHit{draw_bg.border_radius: 9.0}
+                                width: by(120, 104) height: by(36, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                RoundedView{width: Fill height: Fill draw_bg +: {color: by(theme.color_bg_app, mac_button) border_radius: by(9.0, 3.0) border_size: 1.0 border_color: theme.color_outset_1}}
+                                OcLabel{text: "Forget server" draw_text +: {color: by(#(crate::chrome::ink("danger_strong")), #(crate::desk::color("danger_button"))) text_style +: {font_size: 9.75}}}
+                                settings_forget := OcHit{draw_bg.border_radius: by(9.0, 3.0)}
                             }
                         }
                     }
@@ -1543,22 +1851,22 @@ script_mod! {
                     // `b1.open.connection`).
                     OcRule{}
                     View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: by(12, 7) bottom: by(14, 9)}
                         View{
-                            width: Fill height: 34 flow: Overlay
+                            width: Fill height: by(34, 28) flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "This device"}}
                             View{
                                 width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
                                 View{
-                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                    width: by(112, 72) height: by(32, 28) flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                    RoundedView{width: Fill height: Fill draw_bg +: {color: by(theme.color_bg_app, mac_button) border_radius: by(9.0, 3.0) border_size: 1.0 border_color: theme.color_outset_1}}
                                     OcLabel{text: "Details" draw_text +: {text_style +: {font_size: 9.75}}}
-                                    b1_set_connection := OcHit{draw_bg.border_radius: 9.0}
+                                    b1_set_connection := OcHit{draw_bg.border_radius: by(9.0, 3.0)}
                                 }
                             }
                         }
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                            width: Fill height: Fit flow: Down padding: Inset{right: by(124, 84)}
                             OcRowHelp{text: "Pairing and the saved access token"}
                         }
                     }
@@ -1567,23 +1875,23 @@ script_mod! {
                 // ----- Preferences (A9: the web's "Browser preferences",
                 // PreferencesDialog.tsx; screens::a9_prefs). Changes apply at
                 // once; Save writes only the display whitelist.
-                sec_preferences := View{
+                sec_preferences := OcSection{
                     width: Fill height: Fit flow: Down visible: false
                     // A24: Language — the web dialog's first field
                     // (PreferencesDialog.tsx:42-55, its options "English" /
                     // "简体中文"); a choice re-renders every surface at once.
                     View{
-                        width: Fill height: Fit flow: Down padding: Inset{top: 6 bottom: 8}
+                        width: Fill height: Fit flow: Down padding: Inset{top: by(6, 8) bottom: 8}
                         View{
-                            width: Fill height: 32 flow: Overlay
+                            width: Fill height: by(32, 28) flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Language"}}
                             View{
                                 width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
                                 RoundedView{
                                     width: Fit height: Fill flow: Right padding: 2
-                                    draw_bg +: {color: theme.color_bg_even border_radius: 9.0}
-                                    lang_en := OcSegment{width: 84}
-                                    lang_zh := OcSegment{width: 84}
+                                    draw_bg +: {color: by(phone_selected, mac_selected) border_radius: by(9.0, 3.5)}
+                                    lang_en := OcSegment{width: by(84, 72)}
+                                    lang_zh := OcSegment{width: by(84, 72)}
                                 }
                             }
                         }
@@ -1595,7 +1903,7 @@ script_mod! {
                         width: Fill height: Fit flow: Down spacing: 0 padding: Inset{top: 8 bottom: 6}
                         pal_title := OcRowTitle{width: Fit text: "Theme"}
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{top: 2 bottom: 2 right: 24}
+                            width: Fill height: Fit flow: Down padding: Inset{top: 2 bottom: by(2, 6) right: 24}
                             pal_help := OcRowHelp{text: "Choose System, Light, Dark, or a named dark theme. Save remembers your choice."}
                         }
                         pal_system := OcPaletteRow{
@@ -1631,30 +1939,30 @@ script_mod! {
                     View{
                         width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 8 bottom: 8}
                         View{
-                            width: Fill height: 32 flow: Overlay
+                            width: Fill height: by(32, 28) flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Vim editing"}}
                             View{width: Fill height: Fill align: Align{x: 1.0 y: 0.5} tg_vim := OcToggle{}}
                         }
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{right: 64}
+                            width: Fill height: Fit flow: Down padding: Inset{right: by(64, 44)}
                             OcRowHelp{text: "Use Vim-style normal and insert modes in the composer."}
                         }
                     }
                 }
 
                 // ----- About
-                sec_about := View{
+                sec_about := OcSection{
                     width: Fill height: Fit flow: Down visible: false
                     View{
-                        width: Fill height: Fit padding: Inset{top: 14 bottom: 14}
+                        width: Fill height: Fit padding: Inset{top: by(14, 8) bottom: by(14, 8)}
                         OcRowText{
                             OcRowTitle{text: "OctosCode"}
                             set_about_version := OcRowHelp{text: ""}
                         }
                     }
-                    OcRule{}
-                    View{
-                        width: Fill height: Fit padding: Inset{top: 14 bottom: 14}
+                    set_about_rule := OcRule{}
+                    set_about_server_row := View{
+                        width: Fill height: Fit padding: Inset{top: by(14, 8) bottom: by(14, 8)}
                         OcRowText{
                             OcRowTitle{text: "Server"}
                             set_about_server := OcRowHelp{text: ""}
@@ -1665,48 +1973,79 @@ script_mod! {
             // The Preferences footer (the web dialog's fixed footer: the body scrolls,
             // Save stays in view). Shown only while Preferences is the section.
             set_footer := View{
-                width: Fill height: Fit flow: Down visible: false padding: Inset{left: 24 right: 24 top: 0 bottom: 0}
+                width: Fill height: Fit flow: Down visible: false padding: Inset{left: by(24, 20) right: by(24, 20) top: 0 bottom: 0}
                 OcRule{}
                 View{
-                    width: Fill height: Fit flow: Down spacing: 10 padding: Inset{top: 10 bottom: 8}
-                    View{
+                    width: Fill height: Fit flow: Down spacing: by(10, 8) padding: Inset{top: by(10, 8) bottom: by(8, 12)}
+                    prefs_help := View{
                         width: Fill height: Fit flow: Down
                         OcRowHelp{text: "Changes apply immediately. Save remembers them on this device; no server configuration, credentials or conversations are stored."}
                     }
-                    View{
-                        width: Fill height: Fit flow: Right spacing: 12 align: Align{y: 0.5}
-                        View{
-                            width: 148 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                            RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_even border_radius: 9.0}}
-                            OcLabel{text: "Save preferences" draw_text +: {text_style +: {font_size: 9.75}}}
-                            prefs_save := OcHit{draw_bg.border_radius: 9.0}
-                        }
-                        View{
-                            width: Fill height: Fit flow: Down
-                            prefs_status := OcMuted{width: Fill text: ""}
-                        }
-                    }
+                    OcPrefsSaveRow{}
                 }
             }
+            OcSetFoot{}
         }
     }
 
+    // The command palette's field: the theme's on a phone, a Mac's white field
+    // under a hairline with the focus ring in the accent on a desktop.
+    let OcPaletteFieldMac = TextInput{
+        margin: 0
+        padding: Inset{left: 8 right: 8 top: 6 bottom: 6}
+        draw_bg.color: mac_field
+        draw_bg.color_hover: mac_field
+        draw_bg.color_focus: mac_field
+        draw_bg.color_down: mac_field
+        draw_bg.color_empty: mac_field
+        draw_bg.color_disabled: mac_field
+        draw_bg.border_radius: 3.0
+        draw_bg.border_size: 1.0
+        draw_bg.border_color: mac_border
+        draw_bg.border_color_2: mac_border
+        draw_bg.border_color_2_hover: mac_border
+        draw_bg.border_color_2_focus: mac_primary
+        draw_bg.border_color_2_down: mac_border
+        draw_bg.border_color_2_empty: mac_border
+        draw_bg.border_color_2_disabled: mac_border
+        draw_bg.border_color_hover: mac_border
+        draw_bg.border_color_focus: mac_primary
+        draw_bg.border_color_down: mac_border
+        draw_bg.border_color_empty: mac_border
+        draw_bg.border_color_disabled: mac_border
+        draw_text.color: theme.color_fg_app
+        draw_text.color_hover: theme.color_fg_app
+        draw_text.color_focus: theme.color_fg_app
+        draw_text.color_down: theme.color_fg_app
+        draw_text.color_empty: mac_placeholder
+        draw_text.color_empty_hover: mac_placeholder
+        draw_text.color_empty_focus: mac_placeholder
+        draw_text.color_disabled: mac_muted
+        draw_text.text_style: TextStyle{font_family: OcFace400 font_size: 9.75 line_spacing: 1.2}
+        draw_cursor.color: mac_primary
+    }
+    mod.widgets.OcPaletteField = if desk { OcPaletteFieldMac{} } else { TextInput{} }
+
     // Board 7: the Stop-server confirm (the web's ModalSurface dialog).
-    mod.widgets.OcStopConfirm = RoundedView{
-        width: Fill height: Fit flow: Down spacing: 10 align: Align{x: 0.5}
-        padding: Inset{left: 24 right: 24 top: 26 bottom: 22}
-        draw_bg +: {color: theme.color_bg_app border_radius: 16.0 border_size: 1.0 border_color: theme.color_outset_1}
-        OcStrong{text: "Stop the Octos server?" draw_text +: {text_style +: {font_size: 13.5}}}
-        OcLabel{
-            width: Fill text: "All sessions on this computer stop.\nRunning turns are interrupted."
-            align: Align{x: 0.5}
-            draw_text +: {text_style +: {font_size: 10.5 line_spacing: 1.4}}
+    // A question before something goes for good: on a Mac the destructive word
+    // comes first and Cancel is the blue default.
+    let OcStopActions = if desk {
+        View{
+            width: Fill height: 28 flow: Right spacing: 8 align: Align{x: 0.5 y: 0.5} margin: Inset{top: 16}
+            stop_confirm_slot := View{
+                width: Fill height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                RoundedView{width: Fill height: Fill draw_bg +: {color: mac_button border_radius: 3.0 border_size: 1.0 border_color: mac_border}}
+                stop_confirm_label := OcLabel{text: "Stop server" draw_text +: {color: #(crate::desk::color("danger_button"))}}
+                server_stop_confirm := OcHit{draw_bg.border_radius: 3.0}
+            }
+            stop_cancel_slot := View{
+                width: Fill height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                RoundedView{width: Fill height: Fill draw_bg +: {color: mac_primary border_radius: 3.0}}
+                OcLabel{text: "Cancel" draw_text +: {color: #fffffe}}
+                server_stop_cancel := OcHit{draw_bg.border_radius: 3.0 draw_bg.color_hover: #00000012 draw_bg.color_2_hover: #00000012 draw_bg.color_down: #00000020 draw_bg.color_2_down: #00000020}
+            }
         }
-        stop_error := OcLabel{
-            width: Fill text: "Shutdown was not confirmed. Check the server before trying again."
-            visible: false align: Align{x: 0.5}
-            draw_text +: {color: #(crate::chrome::ink("danger")) text_style +: {font_size: 9.75}}
-        }
+    } else {
         View{
             width: Fill height: 44 flow: Right spacing: 12 align: Align{x: 0.5 y: 0.5} margin: Inset{top: 10}
             stop_cancel_slot := View{
@@ -1717,11 +2056,38 @@ script_mod! {
             }
             stop_confirm_slot := View{
                 width: Fill height: 44 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                RoundedView{width: Fill height: Fill draw_bg +: {color: #D1242F border_radius: 12.0}}
+                RoundedView{width: Fill height: Fill draw_bg +: {color: #D1242F border_radius: 12.0 border_size: 0.0 border_color: #00000000}}
                 stop_confirm_label := OcMedium{text: "Stop server" draw_text +: {color: #FFFFFF}}
                 server_stop_confirm := OcHit{draw_bg.border_radius: 12.0}
             }
         }
+    }
+    // A Mac's alert carries the app's icon over what it asks (E7 1).
+    let OcStopIcon = if desk {
+        View{width: Fit height: Fit stop_icon := AppIcon{name: "octoscode" width: 64 height: 64}}
+    } else {
+        View{visible: false width: 0 height: 0}
+    }
+    // On a Mac, an alert: 260 points (`stop_frame`), the icon on top, the
+    // question in bold (13 points) and its words (11) centred under it.
+    mod.widgets.OcStopConfirm = OcSheetPanel{
+        width: Fill height: Fit flow: Down spacing: by(10, 0) align: Align{x: 0.5}
+        padding: Inset{left: by(24, 16) right: by(24, 16) top: by(26, 32) bottom: by(22, 16)}
+        draw_bg +: {color: by(theme.color_bg_app, mac_surface) border_radius: by(16.0, 5.0) border_size: 1.0 border_color: theme.color_outset_1}
+        OcStopIcon{}
+        // A label's top margin moves its words twice the margin: half the kit's gaps.
+        OcStrong{text: "Stop the Octos server?" margin: Inset{top: by(0, 5)} draw_text +: {text_style +: {font_size: by(13.5, 9.75)}}}
+        OcLabel{
+            width: Fill text: "All sessions on this computer stop.\nRunning turns are interrupted."
+            align: Align{x: 0.5} margin: Inset{top: by(0, 2.5)}
+            draw_text +: {text_style +: {font_size: by(10.5, 8.25) line_spacing: by(1.4, 1.25)}}
+        }
+        stop_error := OcLabel{
+            width: Fill text: "Shutdown was not confirmed. Check the server before trying again."
+            visible: false align: Align{x: 0.5} margin: Inset{top: by(0, 5)}
+            draw_text +: {color: #(crate::chrome::ink("danger")) text_style +: {font_size: by(9.75, 8.25)}}
+        }
+        OcStopActions{}
     }
 }
 
@@ -1856,6 +2222,13 @@ pub fn sync_notify_row<W: Find>(cx: &mut Cx, view: &W, s: &crate::attention::Att
     let row = notify_row(s);
     show(cx, view, ids!(tg_notify), row.toggle.is_some());
     set_toggle(cx, view, live_id!(tg_notify), row.toggle == Some(true));
+    // A desktop doesn't list what this process can't do.
+    let unavailable = crate::desk::active() && !s.available;
+    show(cx, view, ids!(notify_row), !unavailable);
+    if unavailable {
+        show(cx, view, ids!(set_server_rule), false);
+    }
+    show(cx, view, ids!(prefs_help), !crate::desk::active());
     show(cx, view, ids!(notify_state), !row.state.is_empty());
     text(cx, view, ids!(notify_state), tr(row.state));
     show(cx, view, ids!(notify_help), !row.alert);
@@ -1871,6 +2244,8 @@ pub fn set_radio<W: Find>(cx: &mut Cx, root: &W, radio: LiveId, on: bool) {
 
 /// Label + select a segment of a segmented control.
 pub fn set_segment<W: Find>(cx: &mut Cx, root: &W, seg: LiveId, label: &str, on: bool) {
+    let label = crate::desk::title(label);
+    let label: &str = &label;
     text(cx, root, &[seg, live_id!(sg_text_on)], label);
     text(cx, root, &[seg, live_id!(sg_text_off)], label);
     show(cx, root, &[seg, live_id!(sg_pill)], on);
@@ -1880,12 +2255,25 @@ pub fn set_segment<W: Find>(cx: &mut Cx, root: &W, seg: LiveId, label: &str, on:
 
 /// Whether a path's button was clicked.
 pub fn clicked<W: Widget>(cx: &mut Cx, root: &W, path: &[LiveId], actions: &Actions) -> bool {
-    root.button(cx, path).clicked(actions)
+    let button = root.button(cx, path);
+    let hit = button.clicked(actions);
+    // What that click opens covers the hit, and a covered hit hears no
+    // hover-out: on a Mac it must not stay lit behind a sheet.
+    if hit && crate::desk::active() {
+        button.reset_hover(cx);
+    }
+    hit
 }
 
 /// The compact layout's threshold (the web's `(max-width: 760px)`,
 /// use-compact-layout.ts:3).
 pub const COMPACT_MAX: f64 = 760.0;
+
+/// The compact threshold of the running look: a desktop window keeps its
+/// sidebar well below the phone's breakpoint.
+pub fn compact_max() -> f64 {
+    crate::conv_layout::breakpoint()
+}
 
 /// The session title's least width beside the header's tabs and actions.
 pub const HEADER_TITLE_MIN: f64 = 140.0;
@@ -1900,22 +2288,30 @@ pub const HEADER_TITLE_MIN: f64 = 140.0;
 /// "Trajectory" and the title was gone. `copy`: the copy pill's label when it
 /// shows, and whether its phase is not idle (that short word — "Copied",
 /// "Copy failed" — stays beside the icon: the click's only feedback).
+const DESK_COPY_LABEL_W: f64 = 136.0;
+
 pub fn header_actions_fit(pane_w: f64, compact: bool, copy: Option<(&str, bool)>, tabs: bool) -> (f64, bool) {
     use crate::screens::board3::ui::{text_w, Face};
     // A pill: padding 10 + the 14 px icon + padding 12, then 6 + its label.
-    const PILL_ICON: f64 = 36.0;
-    const LABEL_GAP: f64 = 6.0;
     // `hd_actions`: 8 between pills, 16 at the right edge, + 8 to the title row.
-    const SPACING: f64 = 8.0;
-    const EDGE: f64 = 24.0;
+    // A desktop's tools: padding 8 + the 16 px icon + padding 8, then 5 + the
+    // label; 2 between tools, 10 at the edge, + 8 to the title row.
+    let (pill_icon, label_gap, spacing, edge) = crate::desk::by((36.0, 6.0, 8.0, 24.0), (32.0, 5.0, 2.0, 18.0));
     let label = |s: &str| (text_w(s, 13.0, Face::Regular) * 1.06 + 4.0).ceil();
-    let pill = |text: Option<&str>| PILL_ICON + text.map_or(0.0, |t| LABEL_GAP + label(t));
+    let pill = |text: Option<&str>| pill_icon + text.map_or(0.0, |t| label_gap + label(t));
     let reserve = |labelled: bool| {
-        let mut w = pill(labelled.then(|| tr("Review"))) + SPACING + pill(labelled.then(|| tr("Settings")));
+        let mut w = pill(labelled.then(|| tr("Review"))) + spacing + pill((labelled && !crate::desk::active()).then(|| tr("Settings")));
         if let Some((text, busy)) = copy {
-            w += SPACING + pill((labelled || busy).then_some(text));
+            // A desktop's label holds one width (`hd_copy_label`), so the
+            // short word never moves the tabs under the tool.
+            w += spacing
+                + if crate::desk::active() && (labelled || busy) {
+                    pill_icon + label_gap + DESK_COPY_LABEL_W
+                } else {
+                    pill((labelled || busy).then_some(text))
+                };
         }
-        w + EDGE
+        w + edge
     };
     let tabs_w = if tabs { header_tabs_w(false) } else { 0.0 };
     let labelled = !compact && pane_w >= 12.0 + HEADER_TITLE_MIN + tabs_w + reserve(true);
@@ -1929,7 +2325,8 @@ pub fn header_tabs_w(narrow: bool) -> f64 {
     use crate::screens::board3::ui::{text_w, Face};
     let label = |s: &str| (text_w(s, 13.0, Face::Regular) * 1.06 + 4.0).ceil();
     let pad = if narrow { 4.0 } else { 10.0 };
-    2.0 * 2.0 * pad + 2.0 + label(tr("Chat")) + label(tr("Trajectory"))
+    // A desktop's segmented track adds its 2 px inset on each side.
+    2.0 * 2.0 * pad + 2.0 + crate::desk::by(0.0, 4.0) + label(tr("Chat")) + label(tr("Trajectory"))
 }
 
 /// Whether a screen name docks into `screen_dock` (#D2a's root cause: the
@@ -1950,11 +2347,16 @@ pub struct ChromeRuntime {
     /// The open workspace menu's anchor, module-local (x, y): the "⋯"
     /// button's right edge and bottom.
     pub menu_anchor: Option<(f64, f64)>,
+    /// That "⋯" button's leading edge, module-local: a Mac's pull-down hangs
+    /// from it.
+    pub menu_anchor_left: f64,
     /// The open chat context menu's anchor, module-local (x, y): the press.
     pub chat_menu_at: Option<(f64, f64)>,
     /// The geometry key last applied (frame margins, drawer width) — the
     /// runtime script-apply runs only when it changes.
     pub applied: String,
+    /// The segment words their widths were fitted to (a desktop's only).
+    pub seg_words: String,
     /// A screen docked IN-APP (e.g. the folder browser from + Add
     /// workspace); `OCTOSCODE_SCREEN` stays the dev override.
     pub docked: Option<String>,
@@ -1962,10 +2364,19 @@ pub struct ChromeRuntime {
     pub driver_probe: Option<String>,
     /// The profile's model list was requested for this connection.
     pub models_requested: bool,
+    /// The session it was last requested for: opening another empties it.
+    pub models_session: Option<String>,
+    /// The open (`Conversation::generation`) it was last requested after: a
+    /// desktop's list follows each open, this session's again included.
+    pub models_generation: u64,
     /// A19b — the active Session's history is still loading or could not be
     /// read (`flow::History`): its conversation is not a New chat's, so the
     /// "New chat defaults" strip stays off.
     pub history_unsettled: bool,
+    /// A desktop's open chat has no rows yet, a first turn's included.
+    pub no_rows: bool,
+    /// A desktop's chat with nothing in it has nothing to copy or review.
+    pub toolbar_off: bool,
     /// A24 — the static shell's English sources, re-texted on a language
     /// switch (`i18n::tree`).
     pub texts: crate::i18n::tree::StaticTexts,
@@ -2012,6 +2423,8 @@ pub enum Intent {
     ToggleReview,
     /// Close the workspace menu (click outside).
     CloseMenu,
+    /// A desktop's sort pop-up: this order.
+    Sort(crate::screens::sidebar::Sort),
     /// Close the in-app docked screen.
     CloseDock,
 }
@@ -2057,12 +2470,31 @@ impl ChromeRuntime {
         // (A chat menu that offers nothing any more is not drawn, so it
         // holds no clicks either.)
         let chat_menu = sidebar::chat_menu(store);
-        if sb.menu_for.is_some() || sb.renaming.is_some() || chat_menu.is_some() {
+        let sort_open = sidebar::sort_menu_open();
+        if sb.menu_for.is_some() || sb.renaming.is_some() || chat_menu.is_some() || sort_open {
+            if sort_open {
+                use sidebar::Sort;
+                for (hit, sort) in [
+                    (live_id!(sb_sort_recent), Sort::Recent),
+                    (live_id!(sb_sort_oldest), Sort::Oldest),
+                    (live_id!(sb_sort_fixed), Sort::Fixed),
+                ] {
+                    if c(cx, hit) {
+                        out.push(Intent::Sort(sort));
+                    }
+                }
+            }
             // A right-click (or a long press) outside the open menu: on a
             // chat row it opens that row's menu there, anywhere else it
             // closes the menu; on the menu itself it does nothing.
             if sb.renaming.is_none() {
-                let shown = if chat_menu.is_some() { ids!(sb_chat_menu) } else { ids!(sb_menu) };
+                let shown = if chat_menu.is_some() {
+                    ids!(sb_chat_menu)
+                } else if sort_open {
+                    ids!(sb_sort_menu)
+                } else {
+                    ids!(sb_menu)
+                };
                 let menu = view.widget(cx, shown).area().rect(cx);
                 let list = view.portal_list(cx, ids!(thread_list));
                 let row = sidebar_list_clicks(cx, &list, store, actions).into_iter().find_map(|click| match click {
@@ -2105,7 +2537,12 @@ impl ChromeRuntime {
                 out.push(Intent::Action("workspace.rename.cancel", 0));
             }
             if out.is_empty() && c(cx, live_id!(sb_menu_dismiss)) {
-                out.push(Intent::CloseMenu);
+                if crate::desk::active() && sb.renaming.is_some() {
+                    // A Mac's rename in place ends on a press elsewhere with what was typed (E7 6).
+                    out.push(Intent::RenameCommit(view.text_input(cx, ids!(sb_rename_input)).text()));
+                } else {
+                    out.push(Intent::CloseMenu);
+                }
             }
             return out;
         }
@@ -2160,8 +2597,9 @@ impl ChromeRuntime {
             }
             // The model row selects the next configured model (the web's
             // model select, a `profile/llm/select` write).
+            // A Mac's pop-up button opens its menu instead.
             if clicked(cx, view, &[live_id!(set_model), live_id!(vb_hit)], actions) {
-                out.push(Intent::Action("settings.model.next", 0));
+                out.push(Intent::Action(if crate::desk::active() { "settings.model.menu" } else { "settings.model.next" }, 0));
             }
             // A5: "Manage models…" opens the Models dialog over Settings.
             if c(cx, live_id!(set_models_manage)) {
@@ -2221,10 +2659,10 @@ impl ChromeRuntime {
         if c(cx, live_id!(settings_open_hit)) {
             out.push(Intent::OpenSettings);
         }
-        if c(cx, live_id!(review_open_hit)) {
+        if c(cx, live_id!(review_open_hit)) && !self.toolbar_off {
             out.push(Intent::ToggleReview);
         }
-        if c(cx, live_id!(copy_open_hit)) {
+        if c(cx, live_id!(copy_open_hit)) && !self.toolbar_off {
             out.push(Intent::Action(crate::screens::copy_button::ACTION, 0));
         }
         if c(cx, live_id!(hd_defaults_change)) {
@@ -2273,6 +2711,9 @@ impl ChromeRuntime {
         if c(cx, live_id!(sidebar_collapse)) {
             out.push(Intent::Action("sidebar.collapse", 0));
         }
+        if c(cx, live_id!(hd_expand_hit)) {
+            out.push(Intent::Action("sidebar.expand", 0));
+        }
         if sb.rail {
             let rail = |cx: &mut Cx, id: LiveId| clicked(cx, view, &[id, live_id!(rb_hit)], actions);
             if rail(cx, live_id!(rail_expand)) {
@@ -2314,7 +2755,7 @@ impl ChromeRuntime {
         window_h: f64,
     ) {
         use crate::screens::{settings, sidebar};
-        let compact = window_w > 0.0 && window_w < COMPACT_MAX;
+        let compact = window_w > 0.0 && window_w < compact_max();
         self.compact = compact;
         let sb = sidebar::snapshot();
         let st = settings::snapshot();
@@ -2334,8 +2775,11 @@ impl ChromeRuntime {
 
         // ---- seats: the sidebar column (desktop) or drawer (compact).
         let drawer = compact && sb.drawer_open && live;
-        show(cx, view, ids!(sidebar_spacer), !compact);
-        side.set_visible(cx, live && (!compact || drawer));
+        // A desktop's collapsed sidebar leaves no column at all.
+        let no_sidebar = crate::desk::active() && sb.rail && !compact;
+        show(cx, view, ids!(sidebar_spacer), !compact && !no_sidebar);
+        side.set_visible(cx, live && (!compact || drawer) && !no_sidebar);
+        show(cx, &header, ids!(hd_expand), live && no_sidebar);
         show(cx, view, ids!(drawer_scrim), drawer);
         show(cx, &side, ids!(drawer_close_slot), drawer);
         show(cx, &header, ids!(hd_menu), compact);
@@ -2345,18 +2789,24 @@ impl ChromeRuntime {
         let sidebar_w = if compact {
             (window_w - 48.0).min(320.0).max(240.0)
         } else if rail {
-            56.0
+            crate::desk::by(56.0, 0.0)
         } else {
-            sidebar::bounded_width(sb.width, window_w.max(COMPACT_MAX))
+            sidebar::bounded_width(sb.width, window_w.max(compact_max()))
         };
         show(cx, view, ids!(sidebar_resize), live && !compact && !rail && !settings_open);
         show(cx, &side, ids!(oc_sidebar_rail), rail);
         show(cx, &side, ids!(oc_sidebar_body), !rail);
         show(cx, &side, ids!(oc_sidebar_foot), !rail);
         show(cx, &side, ids!(sidebar_header), !rail);
+        // Visibility survives a host style reapply, so explicitly follow the
+        // current style when a phone becomes a Mac window and vice versa.
+        show(cx, &side, ids!(sidebar_brand_icon), !crate::desk::active());
+        show(cx, &side, ids!(sidebar_brand_name), !crate::desk::active());
         // The collapsed rail keeps the Fleet entry as its icon only; the web
         // drops the label (ProductSidebar.tsx:980). Left in, it clipped to 3 px.
         show(cx, &side, ids!(fleet_nav_label), !rail);
+        show(cx, &side, ids!(fleet_nav_sel), !rail && crate::desk::fleet_is_selected());
+        show(cx, &side, ids!(fleet_nav), !crate::desk::hosted());
         show(cx, &side, ids!(history_nav_label), !rail);
         // A26 — the footer's theme toggle and Settings: icons only in the
         // rail too (ProductSidebar.tsx:995/1015); the toggle's icon and label
@@ -2373,17 +2823,26 @@ impl ChromeRuntime {
             // A24: the footer's words in the current language ("System" is
             // the theme's 跟随系统 here, `i18n::tr_ctx`).
             text(cx, &side, ids!(sb_theme_label), crate::i18n::tr_ctx("theme", theme_label(&pref)));
-            text(cx, &side, ids!(sb_settings_label), tr(a26_copy::SETTINGS));
+            text(cx, &side, ids!(sb_settings_label), &crate::desk::title(tr(a26_copy::SETTINGS)));
+            // Preferences holds the same choice: a desktop's sidebar keeps its room.
+            if crate::desk::active() {
+                show(cx, &side, ids!(sb_theme), false);
+            }
         }
         show(cx, &side, ids!(sidebar_collapse_slot), !compact && !rail);
         if crate::screens::sidebar::take_focus_search() {
             side.widget(cx, ids!(sb_search)).set_key_focus(cx);
         }
         // Settings: the centred dialog on desktop, a full sheet on compact.
-        let (frame_margin, max_w, max_h, radius) = if compact {
-            (0.0, window_w.max(1.0), window_h.max(1.0), 1.0)
+        let (frame_margin, max_w, max_h, radius) = if crate::desk::active() {
+            // A Mac sheet: its own size, a window's corner, not a page, hanging
+            // from the foot of the toolbar.
+            let side = if compact { 12.0 } else { 24.0 };
+            (Inset { left: side, right: side, top: crate::desk::bar_h(), bottom: 16.0 }, 640.0, crate::desk::sheet_room(window_h).clamp(320.0, 500.0), 5.0)
+        } else if compact {
+            (Inset { left: 0.0, right: 0.0, top: 0.0, bottom: 0.0 }, window_w.max(1.0), window_h.max(1.0), 1.0)
         } else {
-            (24.0, 800.0, (window_h - 48.0).clamp(320.0, 800.0), 16.0)
+            (Inset { left: 24.0, right: 24.0, top: 24.0, bottom: 24.0 }, 800.0, (window_h - 48.0).clamp(320.0, 800.0), 16.0)
         };
         let copy_offered = crate::screens::copy_button::offered(store, compact);
         // The header actions fit the MEASURED conversation pane (the
@@ -2394,7 +2853,17 @@ impl ChromeRuntime {
         let tabs_shown = header.widget(cx, ids!(hd_tabs)).visible();
         let (left_pad, labelled) =
             header_actions_fit(crate::conv_layout::current().pane_w, compact, copy_pill, tabs_shown);
-        let key = format!("{sidebar_w}|{frame_margin}|{max_w}|{max_h}|{compact}|{copy_offered}|{left_pad}");
+        // What lies left of the toolbar: the lights take their room where no
+        // sidebar holds them.
+        let bar_lead = if !crate::desk::active() {
+            12.0
+        } else if compact || no_sidebar {
+            crate::desk::bar_lead(0.0)
+        } else {
+            crate::desk::bar_lead(sidebar_w + 1.0)
+        };
+        show(cx, view, ids!(rail_cap), live && rail && crate::desk::unified() && !no_sidebar);
+        let key = format!("{sidebar_w}|{}|{}|{max_w}|{max_h}|{compact}|{copy_offered}|{left_pad}|{bar_lead}", frame_margin.left, frame_margin.top);
         if self.applied != key {
             self.applied = key;
             let mut col = side.widget(cx, ids!(threads_column));
@@ -2426,14 +2895,20 @@ impl ChromeRuntime {
             // height (44 px), so inside the desktop's 34 px box its bottom
             // border was clipped (phone drawer capture). Compact gets a 44 px
             // field: a proper touch target, fully drawn.
-            let search_h = if compact { 44.0 } else { 34.0 };
+            let search_h = if crate::desk::active() {
+                28.0
+            } else if compact {
+                44.0
+            } else {
+                34.0
+            };
             let mut search = side.widget(cx, ids!(sb_search_box));
             script_apply_eval!(cx, search, { height: #(search_h) });
             // The header actions' reserve (`header_actions_fit`): labelled
             // pills when the pane holds them beside the tabs and the title,
             // icon-only otherwise (always on compact).
             let mut left = header.widget(cx, ids!(hd_left));
-            let pad = Inset { left: 12.0, right: left_pad, top: 0.0, bottom: 0.0 };
+            let pad = Inset { left: bar_lead, right: left_pad, top: 0.0, bottom: 0.0 };
             script_apply_eval!(cx, left, { padding: #(pad) });
             // A13 — the web's phone header (`AppProduct.module.css`, max-width
             // 400px: `.conversationTabs button { padding: 0 4px }`): the tabs'
@@ -2452,12 +2927,12 @@ impl ChromeRuntime {
             script_apply_eval!(cx, v, { padding: #(bar) });
         }
         show(cx, &header, ids!(hd_review_label), labelled);
-        show(cx, &header, ids!(hd_settings_label), labelled);
+        show(cx, &header, ids!(hd_settings_label), labelled && !crate::desk::active());
         // A8: the copy pill's phase label, keyed by the active Session — kept
         // beside the icon while a result shows (icon-only when idle and narrow).
         show(cx, &header, ids!(hd_copy), copy_offered);
         if let Some((label, busy)) = copy_pill {
-            text(cx, &header, ids!(hd_copy_label), label);
+            text(cx, &header, ids!(hd_copy_label), &crate::desk::title(label));
             show(cx, &header, ids!(hd_copy_label), labelled || busy);
         }
 
@@ -2468,7 +2943,7 @@ impl ChromeRuntime {
             .and_then(|a| store.sessions().into_iter().find(|s| s.id == a));
         let title = session
             .as_ref()
-            .map(|s| s.label_stem().unwrap_or_else(|| tr("New chat").to_owned()))
+            .map(|s| sidebar::title_for(store, s))
             .unwrap_or_else(|| tr("New chat").to_owned());
         let root = active
             .as_deref()
@@ -2476,7 +2951,16 @@ impl ChromeRuntime {
             .or_else(|| std::env::var("OCTOS_WORKSPACE_CWD").ok())
             .unwrap_or_default();
         text(cx, &header, ids!(hd_title), &title);
-        text(cx, &header, ids!(hd_path), &root);
+        // n11o (E9 6): a Mac's toolbar names the workspace by its folder, as
+        // Finder's and Xcode's windows do; Settings › General has the path.
+        if crate::desk::active() {
+            // n12g (E10 2): a renamed workspace is called by its new name here
+            // too, as its sidebar group is.
+            let name = sb.names.get(&root).cloned().unwrap_or_else(|| crate::desk::folder_name(&root));
+            text(cx, &header, ids!(hd_path), &name);
+        } else {
+            text(cx, &header, ids!(hd_path), &root);
+        }
         // An empty path line still takes its height and lifts a lone title
         // above the tabs' centre line; without a path the title centres.
         show(cx, &header, ids!(hd_path), !root.is_empty());
@@ -2488,8 +2972,14 @@ impl ChromeRuntime {
             .map(|a| store.domains.session.timeline.entries(a).is_empty())
             .unwrap_or(true)
             && !self.history_unsettled;
-        show(cx, &header, ids!(hd_defaults), live && empty);
-        if live && empty {
+        // Nothing on screen, nothing to copy or review, whatever its history is doing.
+        self.toolbar_off = crate::desk::active() && live && self.no_rows;
+        show(cx, &header, ids!(hd_copy_veil), self.toolbar_off);
+        show(cx, &header, ids!(hd_review_veil), self.toolbar_off);
+        // A desktop's composer names the model and the permissions; Settings has the rest.
+        let defaults_strip = live && empty && !crate::desk::active();
+        show(cx, &header, ids!(hd_defaults), defaults_strip);
+        if defaults_strip {
             // A13: on a phone the one line ends at a whole segment, then "…"
             // (the label's own ellipsis stays the safety net). The label's
             // width: the strip's insets (16 + 8), its spacing (8), Change (72).
@@ -2517,6 +3007,22 @@ impl ChromeRuntime {
         let grouped = sb.mode == sidebar::Mode::Grouped;
         set_segment(cx, &side, live_id!(sb_seg_ws), tr("By workspace"), grouped);
         set_segment(cx, &side, live_id!(sb_seg_all), crate::i18n::tr_ctx("sidebar", "All"), !grouped);
+        // A Mac's segments fit their words, in every language (the template's
+        // widths are the English ones).
+        if crate::desk::active() {
+            use crate::screens::board3::ui::{text_w, Face};
+            let face = |s: &str| (text_w(s, 12.0, Face::Regular) + 16.0).ceil().max(34.0);
+            let all_word = crate::i18n::tr_ctx("sidebar", "All");
+            let key = format!("{}|{}", tr("By workspace"), all_word);
+            if self.seg_words != key {
+                let (ws, all) = (face(tr("By workspace")), face(all_word));
+                let mut seg = side.widget(cx, ids!(sb_seg_ws));
+                script_apply_eval!(cx, seg, { width: #(ws) });
+                let mut seg = side.widget(cx, ids!(sb_seg_all));
+                script_apply_eval!(cx, seg, { width: #(all) });
+                self.seg_words = key;
+            }
+        }
         text(cx, &side, ids!(sb_sort_label), tr(sb.sort.label()));
         show(cx, &side, ids!(sb_search_clear_row), !sb.query.is_empty());
         if sb.query.is_empty() {
@@ -2530,14 +3036,68 @@ impl ChromeRuntime {
         // A chat's context menu takes the same layer, at the press.
         let menu = sidebar::menu_for();
         let renaming = sidebar::renaming();
+        let sort_open = sidebar::sort_menu_open();
         let chat_menu = sidebar::chat_menu(store);
-        menu_dock.set_visible(cx, live && (menu.is_some() || renaming.is_some() || chat_menu.is_some()));
-        show(cx, &menu_dock, ids!(sb_menu), chat_menu.is_none());
+        menu_dock.set_visible(cx, live && (menu.is_some() || renaming.is_some() || chat_menu.is_some() || sort_open));
+        show(cx, &menu_dock, ids!(sb_menu), chat_menu.is_none() && (menu.is_some() || (renaming.is_some() && !crate::desk::active())));
         show(cx, &menu_dock, ids!(sb_chat_menu), chat_menu.is_some());
+        show(cx, &menu_dock, ids!(sb_sort_menu), sort_open);
+        show(cx, &side, ids!(sb_list_spinner), live && crate::flow::session_list_loading());
+        if sort_open {
+            use sidebar::Sort;
+            show(cx, &menu_dock, ids!(sb_sort_recent_on), sb.sort == Sort::Recent);
+            show(cx, &menu_dock, ids!(sb_sort_oldest_on), sb.sort == Sort::Oldest);
+            show(cx, &menu_dock, ids!(sb_sort_fixed_on), sb.sort == Sort::Fixed);
+            text(cx, &menu_dock, ids!(sb_sort_recent_word), tr(Sort::Recent.label()));
+            text(cx, &menu_dock, ids!(sb_sort_oldest_word), tr(Sort::Oldest.label()));
+            text(cx, &menu_dock, ids!(sb_sort_fixed_word), tr(Sort::Fixed.label()));
+            // Under its control, its trailing edge on the control's.
+            let r = side.widget(cx, ids!(sb_sort)).area().rect(cx);
+            let (ox, oy) = self.origin;
+            let at = if crate::desk::active() {
+                // A Mac's pop-up (E7 2): the chosen order's row over the control,
+                // its word over the control's (a row's word starts 29 points in:
+                // the menu's 5, the row's 6, the tick's 14 and 4 after it).
+                let k = match sb.sort {
+                    Sort::Recent => 0.0,
+                    Sort::Oldest => 1.0,
+                    Sort::Fixed => 2.0,
+                };
+                let words = side.widget(cx, ids!(sb_sort_label)).area().rect(cx);
+                let left = (words.pos.x - ox - 29.0).min((window_w - 132.0 - 8.0).max(8.0)).max(8.0);
+                let top = (r.pos.y - oy + r.size.y / 2.0 - (5.0 + 24.0 * k + 12.0)).max(8.0);
+                Inset { left, top, right: 0.0, bottom: 0.0 }
+            } else {
+                Inset { left: (r.pos.x - ox + r.size.x - 132.0).max(8.0), top: r.pos.y - oy + r.size.y + 2.0, right: 0.0, bottom: 0.0 }
+            };
+            let mut m = menu_dock.widget(cx, ids!(sb_sort_menu));
+            script_apply_eval!(cx, m, { margin: #(at) });
+        }
         show(cx, &menu_dock, ids!(sb_menu_items), renaming.is_none());
         show(cx, &menu_dock, ids!(sb_rename_form), renaming.is_some());
+        // A Mac renames the row in place (E7 6): the field where the group's name is.
+        if crate::desk::active() && renaming.is_some() {
+            let group = renaming.as_ref().and_then(|key| sidebar::snapshot().last_groups.iter().position(|g| &g.key == key));
+            if let Some(r) = group.and_then(group_name_rect) {
+                let (ox, oy) = self.origin;
+                // The name's own box, 4 points out at the leading edge (the
+                // field's padding) so the words stay where they were.
+                let at = Inset {
+                    left: (r.pos.x - ox - 4.0).max(0.0),
+                    top: (r.pos.y - oy + r.size.y / 2.0 - 11.0).max(0.0),
+                    right: 0.0,
+                    bottom: 0.0,
+                };
+                let w = (r.size.x + 4.0).min((window_w - at.left).max(40.0));
+                let mut place = menu_dock.widget(cx, ids!(sb_rename_place));
+                script_apply_eval!(cx, place, { margin: #(at) width: #(w) });
+            }
+        }
         if let Some((ax, ay)) = self.menu_anchor {
-            let (mx, my) = ((ax - 200.0).max(8.0).min((window_w - 208.0).max(8.0)), ay + 4.0);
+            // A Mac's pull-down (E7 2) hangs from its button's leading edge, out
+            // over the content; the phone's lies along the sidebar.
+            let lead = if crate::desk::active() { self.menu_anchor_left } else { ax - 200.0 };
+            let (mx, my) = (lead.max(8.0).min((window_w - 208.0).max(8.0)), ay + 4.0);
             let mut m = menu_dock.widget(cx, ids!(sb_menu));
             let at = Inset { left: mx, top: my, right: 0.0, bottom: 0.0 };
             script_apply_eval!(cx, m, { margin: #(at) });
@@ -2566,11 +3126,28 @@ impl ChromeRuntime {
             show(cx, &panel, &[rail, live_id!(rl_on_icon)], on);
             show(cx, &panel, &[rail, live_id!(rl_off_icon)], !on);
             show(cx, &panel, &[sec], on);
+            // On the shell's own kernel there is nothing to connect or forget.
+            let offered = !(crate::desk::hosted() && s == Section::Connection);
+            show(cx, &panel, &[nav], offered);
+            show(cx, &panel, &[rail], offered);
         }
-        show(cx, &panel, ids!(set_footer), st.section == Section::Preferences);
+        show(cx, &panel, ids!(set_provider_edit), !crate::desk::hosted());
+        show(cx, &panel, ids!(set_provider_help), !crate::desk::hosted());
+        show(cx, &panel, ids!(set_provider_hosted), crate::desk::hosted());
+        show(cx, &panel, ids!(set_provider_open), crate::desk::hosted());
+        show(cx, &panel, ids!(set_server_rule), !crate::desk::hosted());
+        show(cx, &panel, ids!(set_server_row), !crate::desk::hosted());
+        show(cx, &panel, ids!(set_about_rule), !crate::desk::hosted());
+        show(cx, &panel, ids!(set_about_server_row), !crate::desk::hosted());
+        // A Mac keeps a preference when it changes: there is no button, and words only if that fails.
+        let prefs_failed = crate::screens::a9_prefs::snapshot().error.is_some();
+        show(cx, &panel, ids!(set_footer), st.section == Section::Preferences && (!crate::desk::active() || prefs_failed));
         show(cx, &panel, ids!(set_nav), !compact);
         show(cx, &panel, ids!(set_rail), compact);
         show(cx, &panel, ids!(set_close_slot), !compact);
+        show(cx, &panel, ids!(set_foot_row), !compact);
+        text(cx, &panel, ids!(set_done_label), crate::i18n::tr_ctx("button", "Done"));
+        show(cx, &panel, ids!(prefs_save_slot), st.section == Section::Preferences && !crate::desk::active());
         text(cx, &panel, ids!(set_title), tr(st.section.title()));
         // General.
         sync_notify_row(cx, &panel, &crate::attention::settings());
@@ -2586,16 +3163,21 @@ impl ChromeRuntime {
             show(cx, &panel, ids!(set_server_dot_busy), dot == Dot::Busy);
             show(cx, &panel, ids!(set_server_dot_err), dot == Dot::Err);
             show(cx, &panel, ids!(set_server_dot_idle), dot == Dot::Idle);
-            text(cx, &panel, ids!(set_server_value), &endpoint);
+            text(cx, &panel, ids!(set_server_value), &server_word());
             let rows = a9s::info_rows(store, &store.domains.profile.current().unwrap_or_default());
             let ws = rows.iter().find(|r| r.title == "Current workspace");
             let profile = rows.iter().find(|r| r.title == "Profile");
             show(cx, &panel, ids!(set_ws_row), ws.is_some());
             if let Some(r) = ws {
                 text(cx, &panel, ids!(set_ws_value), &r.value);
-                text(cx, &panel, ids!(set_ws_path), &r.description);
+                // n11o (E9 6): under the person's home a Mac writes `~/…`.
+                if crate::desk::active() {
+                    text(cx, &panel, ids!(set_ws_path), &crate::desk::home_path(&r.description));
+                } else {
+                    text(cx, &panel, ids!(set_ws_path), &r.description);
+                }
             }
-            show(cx, &panel, ids!(set_profile_row), profile.is_some());
+            show(cx, &panel, ids!(set_profile_row), profile.is_some() && !crate::desk::hosted());
             if let Some(r) = profile {
                 text(cx, &panel, ids!(set_profile_value), &r.value);
             }
@@ -2609,6 +3191,14 @@ impl ChromeRuntime {
         set_radio(cx, &panel, live_id!(pm_ws_radio), preset == Some(settings::Preset::Workspace));
         set_radio(cx, &panel, live_id!(pm_full_radio), preset == Some(settings::Preset::Full));
         text(cx, &panel, ids!(set_perm_readback), &settings::permission_readback(store));
+        // A desktop's radios always say which is in use.
+        let custom = settings::permission_summary(store).filter(|_| crate::desk::active() && preset.is_none());
+        show(cx, &panel, ids!(perm_custom), custom.is_some());
+        show(cx, &panel, ids!(set_perm_readback), custom.is_none());
+        set_radio(cx, &panel, live_id!(pm_custom_radio), custom.is_some());
+        if let Some(words) = custom {
+            text(cx, &panel, ids!(perm_custom_help), &words);
+        }
         let state_line = if st.saving.is_some() {
             Some(tr("Saving…").to_owned())
         } else {
@@ -2645,13 +3235,15 @@ impl ChromeRuntime {
         set_toggle(cx, &panel, live_id!(tg_sb_write), st.sandbox.workspace_write);
         set_toggle(cx, &panel, live_id!(tg_sb_network), st.sandbox.network);
         set_toggle(cx, &panel, live_id!(tg_sb_read), st.sandbox.read_outside);
-        // Connection / About.
+        // Connection / About. A Mac names the server as it names a computer; its
+        // address is in This Device's Details, opened on purpose.
         text(
             cx,
             &panel,
             ids!(set_conn_value),
             &format!(
-                "{endpoint} · {}",
+                "{} · {}",
+                if crate::desk::active() { server_word() } else { endpoint },
                 tr(crate::screens::a9_settings::status_of(&store.connection(), false).copy())
             ),
         );
@@ -2663,10 +3255,12 @@ impl ChromeRuntime {
             set_segment(cx, &panel, live_id!(lang_en), "English", !zh);
             set_segment(cx, &panel, live_id!(lang_zh), "简体中文", zh);
             set_toggle(cx, &panel, live_id!(tg_vim), prefs.current.vim_mode);
-            text(cx, &panel, ids!(prefs_status), tr(prefs.status()));
+            let status = if crate::desk::active() { prefs.error.unwrap_or("") } else { prefs.status() };
+            text(cx, &panel, ids!(prefs_status), tr(status));
+            show(cx, &panel, ids!(prefs_status), !crate::desk::active() || !status.is_empty());
             // A26 — the display palette: the chosen row's radio is on.
             text(cx, &panel, ids!(pal_title), tr(a26_copy::PALETTE_TITLE));
-            text(cx, &panel, ids!(pal_help), tr(a26_copy::PALETTE_HELP));
+            text(cx, &panel, ids!(pal_help), &crate::desk::command(a26_copy::PALETTE_HELP, tr(a26_copy::PALETTE_HELP)));
             for id in crate::screens::a9_prefs::DISPLAY_THEMES {
                 let row = LiveId::from_str(&format!("pal_{id}"));
                 let on = prefs.current.theme == id;
@@ -2681,10 +3275,10 @@ impl ChromeRuntime {
             cx,
             &panel,
             ids!(set_about_server),
-            &if methods > 0 {
+            &if methods > 0 && !crate::desk::active() {
                 tr_with("{server} · {methods} protocol methods advertised", &[("server", &server_label()), ("methods", &methods.to_string())])
             } else {
-                server_label()
+                server_word()
             },
         );
         let _ = s_open;
@@ -2692,7 +3286,7 @@ impl ChromeRuntime {
         // ---- the Stop dialog.
         stop.set_visible(cx, live && st.stop_pending);
         show(cx, &stop, ids!(stop_error), st.stop_failed);
-        text(cx, &stop, ids!(stop_confirm_label), tr(if st.stop_busy { "Stopping…" } else { "Stop server" }));
+        text(cx, &stop, ids!(stop_confirm_label), &crate::desk::title(tr(if st.stop_busy { "Stopping…" } else { "Stop server" })));
 
         // ---- A24: the static shell's copy in the current language (on the
         // first sync and after every switch; `i18n::tree`).
@@ -2756,6 +3350,27 @@ pub fn server_label() -> String {
         .trim_start_matches("ws://")
         .trim_start_matches("wss://");
     trimmed.split('/').next().unwrap_or(trimmed).to_owned()
+}
+
+/// What a Mac's General, Connection and About rows call the server: this Mac
+/// when it runs here, else the computer's name (its host, without the port or
+/// `.local`). The address itself is in This Device's Details.
+fn server_word() -> String {
+    let label = server_label();
+    if crate::desk::active() {
+        let host = match label.rsplit_once(':') {
+            // An IPv6 address keeps its colons inside its brackets.
+            Some((host, port)) if port.chars().all(|c| c.is_ascii_digit()) && !host.ends_with(':') => host,
+            _ => label.as_str(),
+        };
+        if matches!(host, "127.0.0.1" | "localhost" | "[::1]") {
+            return tr("This Mac").to_owned();
+        }
+        if !host.is_empty() {
+            return host.strip_suffix(".local").unwrap_or(host).to_owned();
+        }
+    }
+    label
 }
 
 /// The Theme row's value ("System" / "Dark" / "Light", the web's labels,
@@ -2847,7 +3462,8 @@ pub fn footer_theme_icon(pref: &str) -> &'static str {
 /// content box (the rail buttons' own centre).
 pub fn footer_row_inset(rail: bool) -> f64 {
     if rail {
-        (36.0 - 15.0) / 2.0
+        // A desktop's rail: 44 wide with 8 px insets, a 16 px icon.
+        crate::desk::by((36.0 - 15.0) / 2.0, (28.0 - 16.0) / 2.0)
     } else {
         8.0
     }
@@ -2946,6 +3562,24 @@ pub fn held_by_other(store: &octoscode_store::Store) -> Option<String> {
         .iter()
         .find(|(s, _)| *s == active)
         .map(|(_, h)| h.label.clone())
+        .map(|who| if crate::desk::active() && who.contains(':') { tr("another client").to_owned() } else { who })
+}
+
+/// Where each group's name was last drawn (window coordinates), by its index
+/// in the projection: a Mac renames a workspace in place, its field laid over
+/// the name (E7 6).
+static GROUP_NAMES: std::sync::Mutex<Vec<(usize, Rect)>> = std::sync::Mutex::new(Vec::new());
+
+fn note_group_name(group: usize, rect: Rect) {
+    let mut names = GROUP_NAMES.lock().unwrap();
+    match names.iter_mut().find(|(g, _)| *g == group) {
+        Some(at) => at.1 = rect,
+        None => names.push((group, rect)),
+    }
+}
+
+fn group_name_rect(group: usize) -> Option<Rect> {
+    GROUP_NAMES.lock().unwrap().iter().find(|(g, _)| *g == group).map(|(_, r)| *r)
 }
 
 /// Draw the sidebar tree's visible rows (the `thread_list` PortalList arm of
@@ -2958,7 +3592,7 @@ pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode
     while let Some(id) = list.next_visible_item(cx) {
         let Some(row) = proj.rows.get(id) else { continue };
         match row {
-            Row::Group { label, count, expanded, menu_open, .. } => {
+            Row::Group { group, label, count, expanded, menu_open } => {
                 let item = list.item(cx, id, id!(SbGroupTpl));
                 item.label(cx, ids!(sb_g_label)).set_text(cx, label);
                 item.widget(cx, ids!(sb_g_open)).set_visible(cx, *expanded);
@@ -2968,6 +3602,9 @@ pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode
                 item.label(cx, ids!(sb_g_count_label)).set_text(cx, &count.to_string());
                 item.widget(cx, ids!(sb_g_more_on)).set_visible(cx, *menu_open);
                 item.draw_all_unscoped(cx);
+                if crate::desk::active() {
+                    note_group_name(*group, item.widget(cx, ids!(sb_g_label)).area().rect(cx));
+                }
             }
             Row::Session { title, time, status, selected, matched, aside, delete, renaming, .. } => {
                 let item = list.item(cx, id, id!(SbRowTpl));
@@ -2979,8 +3616,11 @@ pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode
                     item.widget(cx, ids!(sb_r_body)).set_visible(cx, plain);
                     item.widget(cx, ids!(sb_r_ctx)).set_visible(cx, plain);
                     item.widget(cx, ids!(sb_r_open)).set_visible(cx, plain);
-                    item.widget(cx, ids!(sb_r_del)).set_visible(cx, plain && *delete == RowDelete::Offered);
-                    item.widget(cx, ids!(sb_r_del_room)).set_visible(cx, *delete == RowDelete::Offered);
+                    // A Mac's source list draws no × on its rows: the row's
+                    // context menu holds Delete.
+                    let cross = *delete == RowDelete::Offered && !crate::desk::active();
+                    item.widget(cx, ids!(sb_r_del)).set_visible(cx, plain && cross);
+                    item.widget(cx, ids!(sb_r_del_room)).set_visible(cx, cross);
                     item.widget(cx, ids!(sb_r_ask)).set_visible(cx, asking);
                     item.widget(cx, ids!(sb_r_rename)).set_visible(cx, *renaming);
                     if *renaming {
@@ -3015,7 +3655,7 @@ pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode
                     item.widget(cx, ids!(sb_r_aside_fail)).set_visible(cx, *aside == Some(Mark::Failed));
                     item.label(cx, ids!(sb_r_aside_label)).set_text(cx, crate::screens::btw::MARK_LABEL);
                 }
-                item.widget(cx, ids!(sb_r_sel)).set_visible(cx, *selected);
+                item.widget(cx, ids!(sb_r_sel)).set_visible(cx, *selected && !crate::desk::fleet_is_selected());
                 item.widget(cx, ids!(sb_r_focus)).set_visible(cx, focus_row == Some(id));
                 for (wid, st) in [
                     (live_id!(sb_st_run), Status::Running),
@@ -3073,7 +3713,7 @@ pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode
             Row::ClearSearch => {
                 let item = list.item(cx, id, id!(SbClearTpl));
                 // A24: a list row is drawn from data (the static pass skips lists).
-                item.label(cx, ids!(sb_c_text)).set_text(cx, tr("Clear search"));
+                item.label(cx, ids!(sb_c_text)).set_text(cx, &crate::desk::title(tr("Clear search")));
                 item.draw_all_unscoped(cx);
             }
             Row::Divider => {
@@ -3113,7 +3753,11 @@ pub fn sidebar_list_clicks(cx: &mut Cx, list: &PortalListRef, store: &octoscode_
         let Some(row) = proj.rows.get(item_id) else { continue };
         match row {
             Row::Group { group, .. } => {
-                if item.button(cx, ids!(sb_g_more)).clicked(actions) {
+                let more = item.button(cx, ids!(sb_g_more));
+                if more.clicked(actions) {
+                    if crate::desk::active() {
+                        more.reset_hover(cx);
+                    }
                     let rect = item.widget(cx, ids!(sb_g_more)).area().rect(cx);
                     out.push(TreeClick::Menu(*group, rect));
                 } else if item.button(cx, ids!(sb_g_hit)).clicked(actions) {

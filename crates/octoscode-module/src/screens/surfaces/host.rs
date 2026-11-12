@@ -40,6 +40,17 @@ pub(crate) fn quiet(dsl: &str) -> String {
     out
 }
 
+/// A Mac's "Chat | Trajectory" control while a lost connection re-dials: it
+/// stays where it was, dimmed under its veils, and takes no click (the web
+/// drops it until the connection is back: the toolbar changed shape).
+fn tabs_held(store: &octoscode_store::Store) -> bool {
+    crate::desk::active()
+        && !sf::tabs_available(store)
+        && store.outage().is_some()
+        && store.active_session().is_some()
+        && sf::trajectory::Avail::of(store).any()
+}
+
 impl crate::OctoscodeView {
     /// Mount the surfaces for this sync: the header tabs, the Trajectory
     /// pane (or the transcript + composer), the takeover (or the composer),
@@ -49,6 +60,7 @@ impl crate::OctoscodeView {
             let b = self.bridge.lock().unwrap();
             (b.store.clone(), b.ui.clone())
         };
+        crate::desk::note_sheet_up(crate::sheet_is_up(ui.lock().map(|u| u.settings_open()).unwrap_or(false)));
         let rect = self.view.area().rect(cx);
         sf::set_frame(rect.size.x, rect.size.y);
         let m = crate::conv_layout::current();
@@ -60,10 +72,17 @@ impl crate::OctoscodeView {
             }
         };
 
-        // 1. The header's "Chat | Trajectory" tabs.
+        // 1. The header's "Chat | Trajectory" tabs (a Mac's stay, dimmed,
+        // while a lost connection re-dials: the toolbar keeps its shape).
         let tabs = sf::tabs_available(&store);
         let traj = sf::showing_trajectory(&store);
-        self.view.widget(cx, ids!(hd_tabs)).set_visible(cx, tabs);
+        let held = tabs_held(&store);
+        self.view.widget(cx, ids!(hd_tabs)).set_visible(cx, tabs || held);
+        if crate::desk::active() {
+            for id in [live_id!(hd_tab_chat_veil), live_id!(hd_tab_traj_veil)] {
+                self.view.widget(cx, &[id]).set_visible(cx, held);
+            }
+        }
         for (id, on) in [
             (live_id!(hd_tab_chat_on), !traj),
             (live_id!(hd_tab_chat_off), traj),
@@ -73,6 +92,20 @@ impl crate::OctoscodeView {
             (live_id!(hd_tab_traj_bar), traj),
         ] {
             self.view.widget(cx, &[id]).set_visible(cx, on);
+        }
+        // A desktop's tabs are a segmented control: the raised face follows.
+        if crate::desk::active() && self.desk_tab_face != Some(traj) {
+            self.desk_tab_face = Some(traj);
+            let t = crate::desk::current();
+            let raised = (crate::desk::rgba_value(&t.button), crate::desk::rgba_value(&t.border));
+            let flat = (Vec4f::default(), Vec4f::default());
+            for (id, (fill, edge)) in [
+                (live_id!(hd_tab_chat_pad), if traj { flat } else { raised }),
+                (live_id!(hd_tab_traj_pad), if traj { raised } else { flat }),
+            ] {
+                let mut face = self.view.widget(cx, &[id]);
+                script_apply_eval!(cx, face, { draw_bg +: { color: #(fill) border_color: #(edge) } });
+            }
         }
 
         // 2. The Trajectory replaces the transcript and the composer.
@@ -252,7 +285,8 @@ impl crate::OctoscodeView {
             let store = { self.bridge.lock().unwrap().store.clone() };
             self.surfaces_live(cx, &store);
         }
-        if self.view.widget(cx, ids!(hd_tabs)).visible() {
+        let held = { tabs_held(&self.bridge.lock().unwrap().store) };
+        if self.view.widget(cx, ids!(hd_tabs)).visible() && !held {
             if self.view.button(cx, ids!(hd_tab_chat_hit)).clicked(actions) {
                 self.perform_action(cx, "cv.tab.chat", 0);
             }

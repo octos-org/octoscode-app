@@ -159,7 +159,7 @@ def layout_checks():
     for label, pill in (("hd_review_label", "hd_review"), ("hd_settings_label", "hd_settings")):
         l, p = visible(s, label), visible(s, pill)
         if not l:
-            check(f"layout: {label} is icon-only in this mode", MODE == "phone")
+            check(f"layout: {label} is icon-only in this mode", MODE == "phone" or label == "hd_settings_label")
             continue
         lx, ly, lw, lh = l[0]["r"]
         px, py, pw, ph = p[0]["r"]
@@ -174,9 +174,10 @@ def row_checks():
     # 2. Uniform row heights: every session row 32, every group header 36.
     rows = [w for w in visible(s, "sb_r_open")]
     groups = [w for w in visible(s, "sb_g_hit")]
-    check("layout: session rows are 32 px", rows and all(w["r"][3] == 32 for w in rows),
+    row_h, group_h = (32, 36) if MODE == "phone" else (28, 28)
+    check("layout: session rows are 32 px", rows and all(w["r"][3] == row_h for w in rows),
           f"{sorted({w['r'][3] for w in rows})}")
-    check("layout: group headers are 36 px", groups and all(w["r"][3] == 36 for w in groups),
+    check("layout: group headers are 36 px", groups and all(w["r"][3] == group_h for w in groups),
           f"{sorted({w['r'][3] for w in groups})}")
     # 3. Consistent left inset: every row and header starts at one x.
     xs = {w["r"][0] for w in rows + groups}
@@ -191,7 +192,8 @@ def hit_checks():
                 "sb_g_hit", "sb_r_open", "sb_add_hit", "review_open_hit", "settings_open_hit",
                 "sidebar_toggle_hit", "sidebar_collapse", "drawer_close"):
         for w in visible(s, wid):
-            if w["r"][2] < 28 or w["r"][3] < 28:
+            # A Mac's sidebar segments sit under a phone's 28.
+            if w["r"][2] < (28 if MODE == "phone" else 22) or w["r"][3] < (28 if MODE == "phone" else 22):
                 small.append((wid, w["r"]))
     check("layout: chrome hit targets >= 28 px", not small, f"{small}")
     # 5. Nothing overflows the module's frame on the right.
@@ -227,8 +229,9 @@ def settings_walk():
     # flips once it answers.
     if not is_shown("tg_notify"):
         state = texts("notify_state")
-        check("Desktop notifications toggles", state[:1] == ["Unavailable"]
-              and any("unavailable" in t for t in texts("notify_help")),
+        # A Mac's Settings doesn't list what this process can't do.
+        check("Desktop notifications toggles", (state[:1] == ["Unavailable"]
+              and any("unavailable" in t for t in texts("notify_help"))) if MODE == "phone" else not is_shown("notify_row"),
               f"this process has no notification backend: the row reads {state} (A25)")
     else:
         before = inside("tg_on", "tg_notify")
@@ -268,6 +271,45 @@ def settings_walk():
          log_needle="settings.panel.close")
 
 
+def rename_in_place_checks():
+    """A Mac renames the row in place (E7 6): the field lies over the group's
+    own name (no card, no Cancel or Save) with the name selected; Escape leaves
+    it, Return keeps what was typed, and a press elsewhere keeps what is in the
+    field (a blank name gives the folder's name back)."""
+    f, g = rect("sb_rename_input"), rect("sb_g_label", 1)
+    check("Rename edits the name in place",
+          f is not None and g is not None and abs(f[0] - (g[0] - 4)) <= 2
+          and abs((f[1] + f[3] / 2) - (g[1] + g[3] / 2)) <= 2
+          and not is_shown("sb_menu_items") and not is_shown("sb_menu"),
+          f"field {f} name {g}")
+    log_since()
+    get("/k?c=escape&wait=1")
+    time.sleep(0.2)
+    lines = log_since()
+    check("Escape leaves the name", not is_shown("sb_menu_dock")
+          and any("workspace.rename.cancel" in l for l in lines), f"{len(lines)} log lines")
+    names0 = texts("sb_g_label")
+    click("sb_g_more", 1)
+    click("sb_menu_rename")
+    type_text("Renamed here")
+    get("/k?c=return&wait=1")
+    time.sleep(0.2)
+    names1 = texts("sb_g_label")
+    check("Return keeps the typed name", "Renamed here" in names1 and not is_shown("sb_menu_dock"),
+          f"{names0} -> {names1}")
+    click("sb_g_more", 1)
+    click("sb_menu_rename")
+    get("/k?c=backspace&wait=1")
+    time.sleep(0.15)
+    c = rect("conversation_column")
+    if c:
+        get(f"/click?x={c[0] + c[2] / 2}&y={c[1] + c[3] / 2}&wait=1")
+        time.sleep(0.2)
+    names2 = texts("sb_g_label")
+    check("A press elsewhere keeps the field's name (blank: the folder's)",
+          c is not None and names2 == names0 and not is_shown("sb_menu_dock"), f"{names1} -> {names2}")
+
+
 def sidebar_walk():
     if MODE == "phone":
         step("Menu opens the drawer", "sidebar_toggle_hit",
@@ -296,23 +338,35 @@ def sidebar_walk():
          log_needle="workspace.menu")
     step("Rename opens the form", "sb_menu_rename", lambda: is_shown("sb_rename_form"),
          log_needle="workspace.rename")
-    step("Cancel closes the form", "sb_rename_cancel", lambda: not is_shown("sb_menu_dock"),
-         log_needle="workspace.rename.cancel")
+    if MODE == "phone":
+        step("Cancel closes the form", "sb_rename_cancel", lambda: not is_shown("sb_menu_dock"),
+             log_needle="workspace.rename.cancel")
+    else:
+        rename_in_place_checks()
     sort0 = texts("sb_sort_label")
-    step("Sort cycles the order", "sb_sort", lambda: texts("sb_sort_label") != sort0,
-         log_needle="sidebar.sort")
-    click("sb_sort")
-    click("sb_sort")  # back to Recent
+    if MODE == "phone":
+        step("Sort cycles the order", "sb_sort", lambda: texts("sb_sort_label") != sort0,
+             log_needle="sidebar.sort")
+        click("sb_sort")
+        click("sb_sort")  # back to Recent
+    else:
+        # A Mac's sort is a pop-up with the choices in it.
+        step("Sort opens its pop-up", "sb_sort", lambda: is_shown("sb_sort_menu"),
+             log_needle="sidebar.sort")
+        step("Oldest sorts the list", "sb_sort_oldest", lambda: texts("sb_sort_label") != sort0)
+        click("sb_sort")
+        click("sb_sort_recent")  # back to Recent
     step("A session row opens its session", "sb_r_open", lambda: True, nth=1,
          log_needle="session.open")
     if MODE == "phone":
         check("Opening a row dismisses the drawer", not is_shown("drawer_scrim"))
     else:
+        # A Mac's sidebar collapses away; the toolbar's button brings it back.
         step("The sidebar collapses to its rail", "sidebar_collapse",
-             lambda: is_shown("oc_sidebar_rail") and (rect("threads_column") or [0, 0, 0])[2] == 56,
+             lambda: is_shown("hd_expand_hit") and not is_shown("sidebar_dock"),
              log_needle="sidebar.collapse")
-        step("The rail's search expands the sidebar", "rb_hit",
-             lambda: is_shown("sb_search"), nth=2, log_needle="search.open")
+        step("The rail's search expands the sidebar", "hd_expand_hit",
+             lambda: is_shown("sb_search"), log_needle="sidebar.expand")
         # A2: + Add workspace opens board 1's workspace surfaces (the folder
         # browser over the picker; the picker alone when browsing is not
         # advertised), each with its own back chevron.
@@ -332,7 +386,7 @@ def sidebar_walk():
         # A10: the header's Review entry opens the web's DiffReviewDialog
         # (a board-3 modal with its own 28 px close), not the old sheet.
         step("Review opens from the header", "review_open_hit",
-             lambda: soon(lambda: is_shown("b3_diff_eyebrow")), log_needle="ToggleReview")
+             lambda: soon(lambda: is_shown("b3_diff_head")), log_needle="ToggleReview")
         click("b3_close")
 
 

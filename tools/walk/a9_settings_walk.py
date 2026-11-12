@@ -85,7 +85,7 @@ def general_checks():
     check("General: the state reads Connected", text_of("set_server_status", s) == "Connected", f"{text_of('set_server_status', s)!r}")
     check("General: the green dot shows (one dot)",
           is_shown("set_server_dot_ok", s) and not any(is_shown(f"set_server_dot_{d}", s) for d in ("busy", "err", "idle")))
-    check("General: the origin is the connected server", text_of("set_server_value", s) == f"127.0.0.1:{SERVE}", f"{text_of('set_server_value', s)!r}")
+    check("General: the origin is the connected server", text_of("set_server_value", s) == (f"127.0.0.1:{SERVE}" if MODE == "phone" else "This Mac"), f"{text_of('set_server_value', s)!r}")
     check("General: Current workspace shows (known)", is_shown("set_ws_row", s) and bool(text_of("set_ws_value", s)), f"{text_of('set_ws_value', s)!r} {text_of('set_ws_path', s)!r}")
     check("General: Profile shows the opened Profile", text_of("set_profile_value", s) == "a9walk", f"{text_of('set_profile_value', s)!r}")
     body = rect("set_body", s=s)
@@ -156,15 +156,30 @@ def main():
     click("settings_forget")
     check("Forget with an unsent draft asks first", soon(lambda: is_shown("a9_lv_dialog")))
     s = snap()
-    check("…'Forget this server?' with the draft warning",
-          text_of("a9_lv_title", s) == "Forget this server?"
-          and text_of("a9_lv_p1", s) == "This input has not been saved. Copy it before leaving this conversation.",
-          f"{text_of('a9_lv_title', s)!r} {text_of('a9_lv_p1', s)!r}")
+    if MODE == "phone":
+        check("…'Forget this server?' with the draft warning",
+              text_of("a9_lv_title", s) == "Forget this server?"
+              and text_of("a9_lv_p1", s) == "This input has not been saved. Copy it before leaving this conversation.",
+              f"{text_of('a9_lv_title', s)!r} {text_of('a9_lv_p1', s)!r}")
+    else:
+        # oc7 (round 8 E, E7 1): a Mac's alert says it in two short sentences,
+        # the unsent message among them.
+        check("…'Forget This Server?' in two short sentences, the unsent message among them",
+              text_of("a9_lv_title", s) == "Forget This Server?"
+              and text_of("a9_lv_p0", s) == "Running work may stop, and your unsent message will be lost."
+              and text_of("a9_lv_p1", s) == "The saved address and access token are removed.",
+              f"{text_of('a9_lv_title', s)!r} {text_of('a9_lv_p0', s)!r} {text_of('a9_lv_p1', s)!r}")
     dlg = rect("a9_lv_dialog", s=s)
-    check("…the confirmation is centred, min(440, w - 40) wide",
-          dlg is not None and abs(dlg[2] - min(440, (rect("a9_lv_root", s=s) or [0, 0, 0, 0])[2] - 40)) <= 1, f"{dlg}")
-    small = [(i, rect(i, s=s)) for i in ("a9_lv_cancel", "a9_lv_confirm") if not rect(i, s=s) or rect(i, s=s)[3] < 44]
-    check("…its buttons are the web's 44 px", not small, f"{small}")
+    # A Mac's question is its compact alert, 260 points wide.
+    if MODE == "phone":
+        check("…the confirmation is centred, min(440, w - 40) wide",
+              dlg is not None and abs(dlg[2] - min(440, (rect("a9_lv_root", s=s) or [0, 0, 0, 0])[2] - 40)) <= 1, f"{dlg}")
+    else:
+        root = rect("a9_lv_root", s=s) or [0, 0, 0, 0]
+        check("…the confirmation is a Mac's alert, 260 wide and centred",
+              dlg is not None and abs(dlg[2] - 260) <= 1 and abs((dlg[0] + dlg[2] / 2) - (root[0] + root[2] / 2)) <= 2, f"{dlg} in {root}")
+    small = [(i, rect(i, s=s)) for i in ("a9_lv_cancel", "a9_lv_confirm") if not rect(i, s=s) or rect(i, s=s)[3] < (44 if MODE == "phone" else 28)]
+    check("…its buttons are the web's 44 px" if MODE == "phone" else "…its buttons are a Mac's 28", not small, f"{small}")
     shot(f"{MODE}-forget-confirm")
     click("a9_lv_cancel")
     check("Cancel closes the confirmation and keeps the connection",

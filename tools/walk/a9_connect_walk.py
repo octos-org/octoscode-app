@@ -88,7 +88,7 @@ def main():
     ok = soon(lambda: (text_of("connect_error_text") or "").startswith("Can't reach"), tries=120, pause=0.25)
     check("an unreachable address: 'Can't reach <address>'", ok, f"{text_of('connect_error_text')!r}")
     detail = text_of("connect_error_detail") or ""
-    check("…with its actions (check the address · Retry)", "check the address · Retry" in detail, detail)
+    check("…with its actions (check the address · Retry)", ("check the address · Retry" if MODE == "phone" else "Check the address, then click Connect.") in detail, detail)
     check("…the probe said Unreachable", any("a9 connect probe: Unreachable" in l for l in log_since()))
     shot(f"{MODE}-connect-unreachable")
 
@@ -99,7 +99,7 @@ def main():
     lines = log_since()
     check("…told apart by the probe (401), not guessed", any("a9 connect probe: Rejected" in l for l in lines))
     detail = text_of("connect_error_detail") or ""
-    check("…with its actions (Re-enter the token · Retry)", "Re-enter the token · Retry" in detail, detail)
+    check("…with its actions (Re-enter the token · Retry)", ("Re-enter the token · Retry" if MODE == "phone" else "Enter the token again, then click Connect.") in detail, detail)
     lines += log_since()
     # The focus is handed to the remounted token input once it has been drawn
     # (TextInput::take_key_focus). A hidden window's own focus state decides

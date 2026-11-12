@@ -93,10 +93,16 @@ def walk(W: Walk) -> None:
     W.check("loops: Self-paced segment CLICK -> no interval field",
             click_logged(W, "dlg_loops_fm_seg_self_paced_control", "dialog form mode: self_paced",
                          lambda: not W.visible("dlg_loops_lf_interval")))
-    W.check("loops: Create with an empty self-paced prompt is refused ON the form (nothing sent)",
-            click_logged(W, "dlg_loops_ff_submit_control", "dialog form refused",
-                         lambda: "A prompt is required" in W.text("dlg_loops_ff_error"))
-            and W.replay_saw("loop/create", 0) == 0)
+    if MODE == "desktop":
+        W.check("loops: Create stays off with an empty self-paced prompt (nothing sent)",
+                W.wait(lambda: bool(W.visible("dlg_loops_ff_submit_idle_label")), 4)
+                and not W.visible("dlg_loops_ff_submit_control")
+                and W.replay_saw("loop/create", 0) == 0)
+    else:
+        W.check("loops: Create with an empty self-paced prompt is refused ON the form (nothing sent)",
+                click_logged(W, "dlg_loops_ff_submit_control", "dialog form refused",
+                             lambda: "A prompt is required" in W.text("dlg_loops_ff_error"))
+                and W.replay_saw("loop/create", 0) == 0)
     W.shot(f"03-loop-form-refused-{MODE}")
     W.check("loops: Maintenance segment CLICK, then Create -> loop/create maintenance",
             click_logged(W, "dlg_loops_fm_seg_maintenance_control", "dialog form mode: maintenance")
@@ -119,16 +125,33 @@ def walk(W: Walk) -> None:
     type_into(W, "dlg_monitors_mf_filter", "(")
     numeric(W, "monitor form", ("dlg_monitors_",))
     W.shot(f"05-monitor-form-{MODE}")
-    W.check("monitors: Create CLICK -> monitor/create refused by the server -> the dialog's alert line",
-            click_logged(W, "dlg_monitors_ff_submit_control", "dialog form submitted: monitor.create",
-                         lambda: "filter_regex does not compile" in W.text("dlg_monitors_dialog_notice"), 10))
+    if MODE == "desktop":
+        # oc7 (round 8 E): a Mac keeps the form, with what was typed and the
+        # refusal under its fields (as a refused loop interval is).
+        W.check("monitors: Create CLICK -> monitor/create refused by the server -> the form stays, the refusal under its fields",
+                click_logged(W, "dlg_monitors_ff_submit_control", "dialog form submitted: monitor.create",
+                             lambda: "valid pattern" in W.text("dlg_monitors_ff_error"), 10))
+        W.check("monitors: …with what was typed, and no alert line over the list",
+                W.text("dlg_monitors_mf_name") == "watch-build" and W.text("dlg_monitors_mf_filter") == "("
+                and not W.visible("dlg_monitors_dialog_notice"),
+                f"name={W.text('dlg_monitors_mf_name')!r} filter={W.text('dlg_monitors_mf_filter')!r}")
+        f, e = W.rect("dlg_monitors_mf_filter"), W.rect("dlg_monitors_ff_error")
+        W.check("monitors: the refusal sits under the filter field",
+                bool(f and e) and e[1] >= f[1] + f[3], f"filter={f} error={e}")
+    else:
+        W.check("monitors: Create CLICK -> monitor/create refused by the server -> the dialog's alert line",
+                click_logged(W, "dlg_monitors_ff_submit_control", "dialog form submitted: monitor.create",
+                             lambda: "filter_regex does not compile" in W.text("dlg_monitors_dialog_notice"), 10))
     numeric(W, "monitors alert", ("dlg_monitors_",))
     W.shot(f"06-monitor-alert-{MODE}")
-    W.check("monitors: + New monitor again, a valid regex, Create -> created, the alert clears",
-            click_logged(W, "dlg_monitors_new_monitor_control", "dialog form opened: monitor.create",
-                         lambda: bool(W.visible("dlg_monitors_mf_name"))))
-    type_into(W, "dlg_monitors_mf_name", "watch-build")
-    type_into(W, "dlg_monitors_mf_argv", '["./scripts/watch.sh", "--verbose"]')
+    if MODE == "desktop":
+        W.note("the corrected filter, on the same form")
+    else:
+        W.check("monitors: + New monitor again, a valid regex, Create -> created, the alert clears",
+                click_logged(W, "dlg_monitors_new_monitor_control", "dialog form opened: monitor.create",
+                             lambda: bool(W.visible("dlg_monitors_mf_name"))))
+        type_into(W, "dlg_monitors_mf_name", "watch-build")
+        type_into(W, "dlg_monitors_mf_argv", '["./scripts/watch.sh", "--verbose"]')
     type_into(W, "dlg_monitors_mf_filter", "ERROR.*")
     W.check("monitors: the corrected create succeeds; the row appears and no alert remains",
             click_logged(W, "dlg_monitors_ff_submit_control", "dialog form submitted: monitor.create",

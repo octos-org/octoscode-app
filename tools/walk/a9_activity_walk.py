@@ -247,7 +247,8 @@ def layout_checks(tag):
         if MODE == "phone":
             check(f"{tag}: full-bleed on the phone (the web's 100% x 100%)", abs(dlg[2] - rw) <= 1, f"{dlg[2]} vs {rw}")
         else:
-            check(f"{tag}: desktop width is min(900, w - 32)", abs(dlg[2] - min(900, rw - 32)) <= 1, f"{dlg[2]}")
+            # A Mac's sheet takes one of the four widths (desk::sheet_w).
+            check(f"{tag}: desktop width is min(640, w - 32)", abs(dlg[2] - min(640, rw - 32)) <= 1, f"{dlg[2]}")
     small = []
     for wid in ("a9_act_close", "a9_act_search_field"):
         for w in visible(s, wid):
@@ -258,7 +259,8 @@ def layout_checks(tag):
         if w.get("v", 1) == 0 or w["r"][2] == 0:
             continue
         if (i.startswith("a9_act_filter_") and i.endswith("_box")) or (i.startswith("a9_act_row_") and i.endswith("_act_box")):
-            if w["r"][3] < 28:
+            segment = MODE != "phone" and i.startswith("a9_act_filter_")
+            if w["r"][3] < (24 if segment else 28):
                 small.append((i, w["r"]))
     check(f"{tag}: hit targets >= 28 px", not small, f"{small}")
     rs = rows(s)
@@ -311,12 +313,12 @@ def main():
     labels = [w.get("t") for w in s if w.get("i", "").startswith("a9_act_filter_") and w.get("i", "").endswith("_label") and w.get("v", 1) != 0]
     check("status filters carry the counts", labels == ["All 3", "Running 1", "Failed 1", "Done 1"], f"{labels}")
     check("the failed reads fail closed into the status line",
-          text_of("a9_act_error", s) == "2 Session task snapshots unavailable", f"{text_of('a9_act_error', s)!r}")
+          text_of("a9_act_error", s) == ("2 Session task snapshots unavailable" if MODE == "phone" else "2 sessions couldn\u2019t be read"), f"{text_of('a9_act_error', s)!r}")
     check("footer names the refresh", text_of("a9_act_footer_status", s) == "Read-only · refreshes every 10 seconds")
     order = [text_of(f"a9_act_row_{n}_title", s) for n, _ in rows(s)]
     check("rows: running, failed, done", order == ["c24b-probe", "Rebuild after the octos-core bump", "c24b-probe completed"], f"{order}")
     acts = [text_of(f"a9_act_row_{n}_act_label", s) for n, _ in rows(s)]
-    check("Inspect on the current session, Open session elsewhere", acts == ["Inspect", "Open session", "Open session"], f"{acts}")
+    check("Inspect on the current session, Open session elsewhere", acts == (["Inspect", "Open session", "Open session"] if MODE == "phone" else ["Inspect", "Open Session", "Open Session"]), f"{acts}")
     layout_checks("open")
     shot(f"{MODE}-activity")
 

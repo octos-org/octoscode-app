@@ -144,6 +144,9 @@ pub fn model_option_id(m: &ProfileLlmModel) -> String {
 
 /// `providerLabel`: "zai-coding" -> "Zai Coding".
 pub fn provider_label(provider: &str) -> String {
+    if crate::desk::active() {
+        return crate::screens::models::family_label(provider);
+    }
     provider
         .split(['-', '_'])
         .filter(|p| !p.is_empty())
@@ -208,7 +211,8 @@ pub fn restart_notice(profile_default: Option<&str>, runtime: Option<&str>) -> S
 }
 
 /// The model seat's label (`ModelControl` trigger): the selected model's
-/// name (title, else id), else the select prompt.
+/// name (title, else id; on a Mac the name people read, never the id), else
+/// the select prompt.
 pub fn model_seat_label(store: &Store) -> String {
     store
         .domains
@@ -216,7 +220,15 @@ pub fn model_seat_label(store: &Store) -> String {
         .llm_models()
         .into_iter()
         .find(|m| m.selected)
-        .map(|m| if m.title.is_empty() { m.model } else { m.title })
+        .map(|m| {
+            if crate::desk::active() {
+                crate::desk::model_title(&m.title, &m.model)
+            } else if m.title.is_empty() {
+                m.model
+            } else {
+                m.title
+            }
+        })
         .unwrap_or_else(|| tr(MODEL_SELECT).to_owned())
 }
 
@@ -311,6 +323,11 @@ pub struct SeatsState {
     pub turn_busy: bool,
     pub perm_anchor: Option<Anchor>,
     pub model_anchor: Option<Anchor>,
+    /// Settings' Model button, while its menu is open (a Mac): the menu opens
+    /// under it instead of over the composer's seat.
+    pub settings_anchor: Option<Anchor>,
+    /// The button an opening from Settings hands to `host::open`.
+    pub settings_next: Option<Anchor>,
     /// The Session whose permission profile the seat already asked for (the
     /// web reads it once per opened Session, `refreshPermission`).
     pub read_for: Option<String>,
@@ -328,6 +345,14 @@ pub fn permission_seat(store: &Store) -> bool {
 
 pub fn model_seat(store: &Store) -> bool {
     store.is_live() && has(store, "profile/llm/list")
+}
+
+/// A Mac's composer keeps its shape while a lost connection re-dials: a seat
+/// the server offered stays, dimmed under its veil, and takes no click
+/// (`OctoscodeView::sync_seats`). (permission, model)
+pub fn seats_held(store: &Store) -> (bool, bool) {
+    let held = crate::desk::active() && !store.is_live() && store.outage().is_some();
+    (held && has(store, "permission/profile/list"), held && has(store, "profile/llm/list"))
 }
 
 pub fn permission_locked(st: &SeatsState, store: &Store) -> bool {
@@ -715,6 +740,7 @@ pub async fn select_model(conv: &crate::flow::Conversation, index: usize) -> Res
 /// The popover root: a transparent full-frame press target (the web's
 /// outside-press dismiss) and the menu card above its seat.
 fn popover_open(d: &mut Dsl, frame: &Frame, anchor: Option<Anchor>, right: bool, width: f64) {
+    ui::no_sheet_done();
     d.view("b3_root", "width: Fill height: Fill flow: Overlay");
     d.view("b3_backdrop_box", "width: Fill height: Fill flow: Overlay");
     d.tap("b3_backdrop_hit", "b3.close");
@@ -741,8 +767,64 @@ fn popover_open(d: &mut Dsl, frame: &Frame, anchor: Option<Anchor>, right: bool,
         "b3_dialog",
         &format!("width: {} height: Fit flow: Down padding: Inset{{left: 4 right: 4 top: 4 bottom: 4}}", width.floor()),
         tok::SURFACE,
-        12.0,
+        crate::desk::by(12.0, 8.0),
         Some(tok::HAIRLINE),
+    );
+}
+
+/// Where a menu row's words start, from the menu's edge: the menu's 4, the row's
+/// 6, the tick's 18 and the 4 after it.
+const MENU_WORDS: f64 = 32.0;
+/// Where a seat's words start, from its edge.
+const SEAT_WORDS: f64 = 8.0;
+
+/// A Mac's pop-up button opens its menu over itself (E7 2): the ticked row
+/// (`ticked`: its middle, from the menu's top) over the button and its words
+/// over the button's. Where that would run past the window's foot (`est_h`:
+/// the menu's height as its rows add up), the menu moves up until it fits,
+/// still over its button; 16 points inside the frame's top and sides, 8 above
+/// its foot (the composer's seats sit 19 over it: a ticked last row fits on its seat).
+fn popup_open(d: &mut Dsl, frame: &Frame, anchor: Option<Anchor>, width: f64, ticked: Option<f64>, est_h: f64) {
+    ui::no_sheet_done();
+    d.view("b3_root", "width: Fill height: Fill flow: Overlay");
+    d.view("b3_backdrop_box", "width: Fill height: Fill flow: Overlay");
+    d.tap("b3_backdrop_hit", "b3.close");
+    d.close();
+    let a = anchor.unwrap_or(Anchor { x: 16.0, y: frame.avail_h - 96.0, w: 120.0, h: 30.0 });
+    let left = (a.x + SEAT_WORDS - MENU_WORDS).clamp(16.0, (frame.avail_w - 16.0 - width).max(16.0)).floor();
+    let top = ticked.map_or(a.y, |t| a.y + a.h / 2.0 - t).max(16.0).floor();
+    let place = if top + est_h <= frame.avail_h - 8.0 {
+        format!("align: Align{{x: 0.0 y: 0.0}} padding: Inset{{left: {left} right: 16 top: {top} bottom: 8}}")
+    } else {
+        format!("align: Align{{x: 0.0 y: 1.0}} padding: Inset{{left: {left} right: 16 top: 16 bottom: 8}}")
+    };
+    d.view("b3_anchor", &format!("width: Fill height: Fill flow: Overlay {place}"));
+    d.menu_surface(
+        "b3_dialog",
+        &format!("width: {} height: Fit flow: Down padding: Inset{{left: 4 right: 4 top: 4 bottom: 4}}", width.floor()),
+        8.0,
+    );
+}
+
+/// Under a pop-up button (Settings' Model on a Mac): the menu's top 4 points under
+/// it, its trailing edge on the button's, inside the frame's 16-point margin.
+fn popover_under(d: &mut Dsl, frame: &Frame, a: Anchor, width: f64) {
+    ui::no_sheet_done();
+    d.view("b3_root", "width: Fill height: Fill flow: Overlay");
+    d.view("b3_backdrop_box", "width: Fill height: Fill flow: Overlay");
+    d.tap("b3_backdrop_hit", "b3.close");
+    d.close();
+    let room = (frame.avail_w - 16.0 - width).max(16.0);
+    let right_pad = (frame.avail_w - (a.x + a.w)).clamp(16.0, room).floor();
+    let top = (a.y + a.h + 4.0).floor();
+    d.view(
+        "b3_anchor",
+        &format!("width: Fill height: Fill flow: Overlay align: Align{{x: 1.0 y: 0.0}} padding: Inset{{left: 16 right: {right_pad} top: {top} bottom: 16}}"),
+    );
+    d.menu_surface(
+        "b3_dialog",
+        &format!("width: {} height: Fit flow: Down padding: Inset{{left: 4 right: 4 top: 4 bottom: 4}}", width.floor()),
+        crate::desk::by(12.0, 8.0),
     );
 }
 
@@ -761,6 +843,11 @@ fn menu_width(frame: &Frame, natural: f64) -> f64 {
 /// The menu's label (`aria-label={labels.menu}`), drawn as the group
 /// titles are (12 px tertiary, the options' 8 px inset).
 fn menu_title(d: &mut Dsl, text: &str) {
+    // A Mac's pop-up menu opens on its choices.
+    if crate::desk::active() {
+        d.unseen("b3_title", tr(text));
+        return;
+    }
     let row = d.anon();
     d.view(&row, "width: Fill height: Fit padding: Inset{left: 8 right: 8 top: 4 bottom: 2}");
     d.text("b3_title", tr(text), &Txt::new(12.0, Face::Medium, tok::FAINT).w(W::Fill));
@@ -775,6 +862,19 @@ fn status_line(d: &mut Dsl, id: &str, text: &str) {
 }
 
 fn error_line(d: &mut Dsl, id: &str, message: &str, retry: &str) {
+    // A Mac's menu says what happened, not which method returned what.
+    let message = if crate::desk::active() && (ui::is_protocol_error(message) || message.contains("returned another session")) {
+        tr("Couldn't load this list.")
+    } else {
+        message
+    };
+    if crate::desk::active() {
+        d.view(id, "width: Fill height: Fit flow: Down spacing: 6 align: Align{x: 0.5 y: 0.0} padding: Inset{left: 8 right: 8 top: 8 bottom: 8}");
+        d.text(&format!("{id}_text"), message, &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill).wrap().centre());
+        d.button_ids(&format!("{id}_retry_box"), &format!("{id}_retry_label"), &format!("{id}_retry"), tr("Try again"), retry, Btn::Outline, W::Fit, 28.0);
+        d.close();
+        return;
+    }
     d.surface(
         id,
         "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.0} padding: Inset{left: 8 right: 8 top: 7 bottom: 7} margin: Inset{bottom: 4}",
@@ -798,7 +898,7 @@ fn error_line(d: &mut Dsl, id: &str, message: &str, retry: &str) {
 /// One menu option (`.option`: min-height 42, 6/8 padding, radius 10, the
 /// icon / copy / check columns).
 #[allow(clippy::too_many_arguments)]
-fn option_row(
+pub(super) fn option_row(
     d: &mut Dsl,
     id: &str,
     icon: Option<&str>,
@@ -810,31 +910,53 @@ fn option_row(
     copy_w: f64,
 ) {
     d.view(&format!("{id}_box"), "width: Fill height: Fit flow: Overlay");
+    // A Mac's menu row: one line is 28 points, and its marks don't set the height.
+    let (pad, cell) = crate::desk::by(("top: 6 bottom: 6", 30.0), ("top: 5 bottom: 5", 18.0));
     let row = d.anon();
-    d.view(&row, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5} padding: Inset{left: 8 right: 8 top: 6 bottom: 6}");
-    if let Some(file) = icon {
+    d.view(&row, &format!("width: Fill height: Fit flow: Right spacing: {} align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {} right: 8 {pad}}}", crate::desk::by(8, 4), crate::desk::by(8, 6)));
+    // A Mac's menu keeps its check at the leading edge, before the name.
+    let desk = crate::desk::active();
+    if desk {
+        check_cell(d, id, cell, checked);
+    }
+    if let Some(file) = icon.filter(|_| !desk) {
         let ic = d.anon();
-        d.view(&ic, "width: 18 height: 30 flow: Overlay align: Align{x: 0.5 y: 0.5}");
+        d.view(&ic, &format!("width: 18 height: {cell} flow: Overlay align: Align{{x: 0.5 y: 0.5}}"));
         d.icon(&format!("{id}_icon"), file, 16.0, tok::MUTED);
         d.close();
     }
     let copy = d.anon();
     d.view(&copy, "width: Fill height: Fit flow: Down spacing: 1");
-    let ink = if enabled { tok::TEXT } else { tok::DISABLED_INK };
-    d.text(&format!("{id}_name"), &ui::fit_w(name, copy_w, 14.0, Face::Medium), &Txt::new(14.0, Face::Medium, ink).w(W::Fill));
+    let ink = if enabled || (checked && crate::desk::active()) {
+        tok::TEXT
+    } else if crate::desk::active() {
+        // On the menu's material (`menu_surface`), not a sheet's page.
+        crate::desk::disabled_menu_ink()
+    } else {
+        tok::DISABLED_INK
+    };
+    let name_face = crate::desk::by(Face::Medium, Face::Regular);
+    d.text(&format!("{id}_name"), &ui::fit_w(name, copy_w, 14.0, Face::Medium), &Txt::new(14.0, name_face, ink).w(W::Fill));
     if let Some(desc) = description {
         d.text(&format!("{id}_desc"), &ui::fit_w(desc, copy_w, 12.0, Face::Regular), &Txt::new(12.0, Face::Regular, tok::FAINT).w(W::Fill));
     }
     d.close();
-    let ck = d.anon();
-    d.view(&ck, "width: 18 height: 30 flow: Overlay align: Align{x: 0.5 y: 0.5}");
-    if checked {
-        d.icon(&format!("{id}_check"), "b3_check.svg", 16.0, tok::TEXT);
+    if !desk {
+        check_cell(d, id, cell, checked);
     }
-    d.close();
     d.close();
     if enabled {
         d.tap(id, event);
+    }
+    d.close();
+}
+
+/// A menu row's check column.
+fn check_cell(d: &mut Dsl, id: &str, cell: f64, checked: bool) {
+    let ck = d.anon();
+    d.view(&ck, &format!("width: 18 height: {cell} flow: Overlay align: Align{{x: 0.5 y: 0.5}}"));
+    if checked {
+        d.icon(&format!("{id}_check"), "b3_check.svg", crate::desk::by(16.0, 14.0), tok::TEXT);
     }
     d.close();
 }
@@ -853,10 +975,21 @@ pub fn build_permission(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Sto
         .fold(260.0_f64, f64::max);
     let width = menu_width(frame, natural);
     let copy_w = width - 8.0 - 16.0 - 18.0 - 18.0 - 16.0;
-    popover_open(d, frame, st.perm_anchor, false, width);
-    menu_title(d, PERMISSION_MENU);
     let locked = permission_locked(st, store);
     let available = permission_seat(store);
+    if crate::desk::active() {
+        // The current preset is the last row (`order`, below): the seat sits at
+        // the window's foot and a menu can't run on past it, so the ticked row
+        // opens over the seat as a Mac's pop-up's does, unless a line about the
+        // list comes first.
+        let lines = !available || (st.perm_loading && options.is_empty()) || st.perm_error.is_some();
+        let ticked = (!lines && !options.is_empty()).then(|| 4.0 + 28.0 * (options.len() - 1) as f64 + 14.0);
+        let est_h = 8.0 + 28.0 * options.len() as f64 + (if lines || options.is_empty() { 72.0 } else { 0.0 });
+        popup_open(d, frame, st.perm_anchor, width, ticked, est_h);
+    } else {
+        popover_open(d, frame, st.perm_anchor, false, width);
+    }
+    menu_title(d, PERMISSION_MENU);
     if !available {
         status_line(d, "b3_perm_unavailable", PERMISSION_UNAVAILABLE);
     } else if st.perm_loading && options.is_empty() {
@@ -866,7 +999,15 @@ pub fn build_permission(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Sto
         error_line(d, "b3_perm_error", e, "b3.perm.retry");
     }
     let selected = options.first().map(|o| o.id.clone());
-    for (i, o) in options.iter().enumerate() {
+    // A Mac's rows: the others in their order, then the current one (its ids
+    // and choices keep their index).
+    let order: Vec<usize> = if crate::desk::active() && !options.is_empty() {
+        (1..options.len()).chain(0..1).collect()
+    } else {
+        (0..options.len()).collect()
+    };
+    for i in order {
+        let o = &options[i];
         let icon = if o.dangerous { "b3_shield_danger.svg" } else { "b3_shield.svg" };
         let enabled = !locked && available && !(st.perm_loading && options.is_empty());
         option_row(
@@ -950,9 +1091,9 @@ fn danger_button(d: &mut Dsl, id: &str, label: &str, event: &str, armed: bool) {
     let (fill, ink) = if armed { (tok::RED, tok::WHITE) } else { (tok::DISABLED_BG, tok::DISABLED_INK) };
     d.surface(
         &format!("{id}_box"),
-        &format!("width: {w} height: 36 flow: Overlay align: Align{{x: 0.5 y: 0.5}}"),
+        &format!("width: {w} height: {} flow: Overlay align: Align{{x: 0.5 y: 0.5}}", crate::desk::by(36, 28)),
         fill,
-        18.0,
+        crate::desk::by(18.0, 6.0),
         None,
     );
     d.text(&format!("{id}_label"), label, &Txt::new(14.0, Face::Medium, ink));
@@ -962,13 +1103,62 @@ fn danger_button(d: &mut Dsl, id: &str, label: &str, event: &str, armed: bool) {
     d.close();
 }
 
+/// A Mac's notice names the model (the menu's name for it, else its id in words),
+/// never its id.
+fn desk_notice(n: &notices::Notice, models: &[ProfileLlmModel]) -> String {
+    let name = |id: &str| {
+        models
+            .iter()
+            .find(|m| m.model == id)
+            .map(|m| crate::desk::model_title(&m.title, &m.model))
+            .unwrap_or_else(|| crate::desk::model_word(id))
+    };
+    match (n.kind, n.model.as_ref(), n.running_model.as_deref()) {
+        (Disposition::Reloaded, Some(m), _) => crate::i18n::tr1("Saved. Your next message uses {value0}", &name(&m.model)),
+        (Disposition::RestartRequired, _, Some(r)) => crate::i18n::tr1("Saved. The server keeps running {value0} until it restarts", &name(r)),
+        _ => n.message.clone(),
+    }
+}
+
+/// A Mac's model menu as its rows add up: where they end and the middle of the
+/// ticked row (a group's title 23 points, a row 28, 41 with a line under it, 4
+/// between groups, the menu's 4 over the first).
+fn desk_rows_end(groups: &[(String, String, Vec<(usize, ProfileLlmModel)>)]) -> (f64, Option<f64>) {
+    let (mut y, mut ticked) = (4.0, None);
+    for (g, (_, _, rows)) in groups.iter().enumerate() {
+        y += (if g > 0 { 4.0 } else { 0.0 }) + 23.0;
+        for (_, m) in rows {
+            let h = if desk_model_line(m, rows).is_some() { 41.0 } else { 28.0 };
+            if m.selected {
+                ticked = Some(y + h / 2.0);
+            }
+            y += h;
+        }
+    }
+    (y, ticked)
+}
+
+/// A Mac's model row's line under its name: why it can't be used, or which
+/// route it takes when two rows read alike (the rows' own logic, below).
+fn desk_model_line(m: &ProfileLlmModel, rows: &[(usize, ProfileLlmModel)]) -> Option<String> {
+    let name_of = |m: &ProfileLlmModel| crate::desk::model_title(&m.title, &m.model);
+    let name = name_of(m);
+    let description = (!m.available).then(|| tr(MODEL_UNAVAILABLE_REASON).to_owned());
+    let twin = rows.iter().filter(|(_, o)| name_of(o) == name).count() > 1;
+    match (twin, m.route.as_deref(), description) {
+        (true, Some(route), Some(d)) if m.available => Some(format!("{d} · {route}")),
+        (true, Some(route), None) => Some(crate::screens::models::family_label(route)),
+        (_, _, d) => d,
+    }
+}
+
 /// The model menu (`ModelMenu`): the catalog by provider; unusable entries
 /// stay visible, disabled, with their reason; the selected one checked;
 /// under it the Session's notice board (Saving…, an external change, the
 /// latest disposition notice).
 pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) {
     let models = store.domains.profile.llm_models();
-    let groups = model_groups(&models);
+    let mut groups = model_groups(&models);
     // `width: max-content` (260..420): the widest name or description.
     let natural = models
         .iter()
@@ -986,10 +1176,45 @@ pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) 
         .fold(260.0_f64, f64::max);
     let width = menu_width(frame, natural);
     let copy_w = width - 8.0 - 16.0 - 18.0 - 8.0;
-    popover_open(d, frame, st.model_anchor, true, width);
-    menu_title(d, MODEL_MENU);
     let available = model_seat(store);
     let locked = model_locked(st, store);
+    let desk = crate::desk::active();
+    // The rows' room: under a phone's Settings button, what is left under it
+    // less the notice's; a Mac's menu opens over its button anywhere.
+    let body_h = match st.settings_anchor {
+        Some(a) if !desk => (frame.avail_h - (a.y + a.h + 4.0) - 16.0 - 96.0).clamp(120.0, 380.0),
+        _ => (frame.avail_h - 32.0 - 180.0).clamp(160.0, 380.0),
+    };
+    if desk {
+        // The composer's seat sits at the window's foot and a menu can't run on
+        // past it: there the ticked model's group comes last, and its row last
+        // in it, so the row opens over the seat as a Mac's pop-up's does (E7 2).
+        // Under Settings' Model button the list keeps its order, ticked row
+        // over the button, as onboarding's.
+        if st.settings_anchor.is_none() && desk_rows_end(&groups).0 - 4.0 <= body_h {
+            if let Some(g) = groups.iter().position(|(_, _, rows)| rows.iter().any(|(_, m)| m.selected)) {
+                let mut group = groups.remove(g);
+                if let Some(r) = group.2.iter().position(|(_, m)| m.selected) {
+                    let row = group.2.remove(r);
+                    group.2.push(row);
+                }
+                groups.push(group);
+            }
+        }
+        let lines = !available || (st.models_loading && models.is_empty()) || st.models_error.is_some();
+        let (y, ticked) = desk_rows_end(&groups);
+        let ticked = ticked.filter(|t| !lines && *t + 14.0 <= 4.0 + body_h);
+        let board = store.domains.models.board(&session_of(store));
+        let notice = if board.saving || board.external_change || board.latest().is_some() { 72.0 } else { 0.0 };
+        let est_h = 8.0 + (y - 4.0).min(body_h) + notice + (if lines || models.is_empty() { 72.0 } else { 0.0 });
+        popup_open(d, frame, st.settings_anchor.or(st.model_anchor), width, ticked, est_h);
+    } else {
+        match st.settings_anchor {
+            Some(a) => popover_under(d, frame, a, width),
+            None => popover_open(d, frame, st.model_anchor, true, width),
+        }
+    }
+    menu_title(d, MODEL_MENU);
     if !available {
         status_line(d, "b3_model_unavailable", MODEL_UNAVAILABLE);
     } else if st.models_loading && models.is_empty() {
@@ -998,7 +1223,6 @@ pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) 
     if let Some(e) = &st.models_error {
         error_line(d, "b3_model_error", e, "b3.model.retry");
     }
-    let body_h = (frame.avail_h - 32.0 - 180.0).clamp(160.0, 380.0);
     d.open(
         "b3_scroll",
         "ScrollYView",
@@ -1009,12 +1233,20 @@ pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) 
         d.view(&gt, "width: Fill height: Fit padding: Inset{left: 8 right: 8 top: 5 bottom: 3}");
         d.text(&format!("b3_model_group_{g}"), name, &Txt::new(12.0, Face::Medium, tok::FAINT).w(W::Fill));
         d.close();
-        let name_of = |m: &ProfileLlmModel| if m.title.is_empty() { m.model.clone() } else { m.title.clone() };
+        let name_of = |m: &ProfileLlmModel| {
+            if desk {
+                crate::desk::model_title(&m.title, &m.model)
+            } else if m.title.is_empty() {
+                m.model.clone()
+            } else {
+                m.title.clone()
+            }
+        };
         for (i, m) in rows {
             let name = name_of(m);
             let description = if !m.available {
                 Some(tr(MODEL_UNAVAILABLE_REASON).to_owned())
-            } else if !m.title.is_empty() && m.title != m.model {
+            } else if !crate::desk::active() && !m.title.is_empty() && m.title != m.model {
                 Some(m.model.clone())
             } else {
                 None
@@ -1024,7 +1256,8 @@ pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) 
             let twin = rows.iter().filter(|(_, o)| name_of(o) == name).count() > 1;
             let description = match (twin, m.route.as_deref(), description) {
                 (true, Some(route), Some(d)) if m.available => Some(format!("{d} · {route}")),
-                (true, Some(route), None) => Some(route.to_owned()),
+                (true, Some(route), None) if crate::desk::active() => Some(crate::screens::models::family_label(route)),
+        (true, Some(route), None) => Some(route.to_owned()),
                 (_, _, d) => d,
             };
             option_row(
@@ -1062,7 +1295,8 @@ pub fn build_models(d: &mut Dsl, st: &SeatsState, frame: &Frame, store: &Store) 
         }
         if let Some(n) = board.latest() {
             let ink = if n.kind == Disposition::Refused { tok::RED_TEXT } else { tok::TEXT };
-            d.text("b3_model_notice", &n.message, &Txt::new(12.5, Face::Regular, ink).w(W::Fill).wrap());
+            let message = if crate::desk::active() { desk_notice(n, &models) } else { n.message.clone() };
+            d.text("b3_model_notice", &message, &Txt::new(12.5, Face::Regular, ink).w(W::Fill).wrap());
         }
         d.close();
     }

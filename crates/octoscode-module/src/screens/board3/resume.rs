@@ -447,7 +447,9 @@ fn candidate_row(d: &mut Dsl, i: usize, c: &Candidate, selected: bool, divider: 
     let l2 = d.anon();
     d.view(&l2, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
     let tag = c.id.split(':').next().unwrap_or(&c.id).to_owned();
-    d.chip("", &tag, tok::TEXT, tok::CHIP, None, true);
+    if !crate::desk::active() {
+        d.chip("", &tag, tok::TEXT, tok::CHIP, None, true);
+    }
     let mut meta = tr1(
         if c.message_count == 1 { "{value0} listed message" } else { "{value0} listed messages" },
         &c.message_count.to_string(),
@@ -458,7 +460,7 @@ fn candidate_row(d: &mut Dsl, i: usize, c: &Candidate, selected: bool, divider: 
     d.text("", &meta, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
     d.close();
     if c.active_turn {
-        d.text("", tr("Busy — another client is working in this session"), &Txt::new(11.5, Face::Regular, tok::BLUE_TEXT).w(W::Fill));
+        d.text("", tr("Busy — another client is working in this session"), &Txt::new(11.5, Face::Regular, crate::desk::by(tok::BLUE_TEXT, tok::MUTED)).w(W::Fill));
     }
     d.close();
     d.chip(&format!("{rid}_unverified"), tr("unverified"), tok::AMBER, tok::AMBER_BG, Some(tok::AMBER_LINE), false);
@@ -471,21 +473,27 @@ fn candidate_row(d: &mut Dsl, i: usize, c: &Candidate, selected: bool, divider: 
 fn confirm_area(d: &mut Dsl, st: &ResumeState) {
     let sel = st.selected.and_then(|i| st.candidates.get(i));
     ui::card_open(d, "b3_resume_confirm_card", 8.0);
-    ui::field_label(d, "b3_resume_confirm_label", tr("Confirm exact title to resume:"));
+    let key_w = ui::form_key_w(&["Confirm exact title to resume:"]);
+    ui::form_open(d, "b3_resume_confirm_label", tr("Confirm exact title to resume:"), key_w);
     let placeholder = tr(match sel {
         Some(_) => "Type the exact thread title above",
         None => "Select a candidate first",
     });
     d.input("b3_resume_confirm", "resume.confirm", &st.confirm_snap, placeholder, false, 38.0);
+    ui::form_close(d);
     // Both variants are emitted; the live gate shows one (no remount while
     // typing — `live_visibility`).
     let label = tr(if st.opening { "Opening…" } else { "Resume chat" });
-    d.view("b3_resume_go_off", "width: Fill height: Fit flow: Down");
-    d.button("b3_resume_go_disabled", label, "b3.resume.confirm", Btn::Disabled, W::Fill, 38.0);
+    d.foot_begin(ui::Foot::Default);
+    let go = crate::desk::by("width: Fill height: Fit flow: Down", "width: Fit height: Fit flow: Down");
+    let go_w = crate::desk::by(W::Fill, W::Fit);
+    d.view("b3_resume_go_off", go);
+    d.button("b3_resume_go_disabled", label, "b3.resume.confirm", Btn::Disabled, go_w, 38.0);
     d.close();
-    d.view("b3_resume_go_on", "width: Fill height: Fit flow: Down");
-    d.button("b3_resume_go", label, "b3.resume.confirm", Btn::Primary, W::Fill, 38.0);
+    d.view("b3_resume_go_on", go);
+    d.button("b3_resume_go", label, "b3.resume.confirm", Btn::Primary, go_w, 38.0);
     d.close();
+    d.foot_end();
     d.text(
         "b3_resume_note",
         tr("A confirmed source Session is required to browse history. Opening does not submit a prompt."),

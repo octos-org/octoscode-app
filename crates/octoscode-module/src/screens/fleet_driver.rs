@@ -823,6 +823,8 @@ pub const STALE_DRAWN: &str = "Already handled";
 /// silent no-op: a person who taps Stop and sees nothing assumes it
 /// stopped); `i18n/native.rs` carries its Chinese.
 pub const CHANGED_DRAWN: &str = "This peer changed. Review it and tap again.";
+/// [`CHANGED_DRAWN`] where a pointer clicks.
+pub const CHANGED_DRAWN_DESK: &str = "This peer changed. Review it and click again.";
 
 /// A30 follow-up — why a control drawn with `drawn`'s ids must NOT act on
 /// `row` now (`None` = it acts):
@@ -837,7 +839,7 @@ pub const CHANGED_DRAWN: &str = "This peer changed. Review it and tap again.";
 ///   target) even when the pending approval was re-issued meanwhile.
 pub fn drawn_refusal(row: &octoscode_store::domains::peer::PeerRow, action: RowAction, drawn: &DrawnTarget) -> Option<&'static str> {
     if row.operation_id != drawn.operation_id || row.turn_id != drawn.turn_id {
-        return Some(CHANGED_DRAWN);
+        return Some(crate::desk::by(CHANGED_DRAWN, CHANGED_DRAWN_DESK));
     }
     let kind = match action {
         RowAction::Approve | RowAction::ApproveSession | RowAction::Deny => RequestKind::Approval,
@@ -847,7 +849,7 @@ pub fn drawn_refusal(row: &octoscode_store::domains::peer::PeerRow, action: RowA
     if drawn.request_id.is_some() && row.request_kind == Some(kind) && row.request_id == drawn.request_id {
         return None;
     }
-    Some(if row.request_id.is_some() { CHANGED_DRAWN } else { STALE_DRAWN })
+    Some(if row.request_id.is_some() { crate::desk::by(CHANGED_DRAWN, CHANGED_DRAWN_DESK) } else { STALE_DRAWN })
 }
 
 /// Whether a control drawn with `drawn`'s ids acts on `row` now

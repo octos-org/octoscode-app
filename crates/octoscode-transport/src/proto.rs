@@ -35,6 +35,7 @@ pub(crate) struct PendingRequest {
 
 pub(crate) enum PendingReply {
     Lifecycle,
+    TrackedOpen { session_id: String, generation: u64 },
     Approval(oneshot::Sender<Result<ApprovalRespondResult, RpcError>>),
     DiffPreview(oneshot::Sender<Result<DiffPreviewGetResult, RpcError>>),
     TaskOutput(oneshot::Sender<Result<TaskOutputReadResult, RpcError>>),
@@ -150,6 +151,16 @@ pub(crate) fn build_outbound(cmd: OutboundCommand, shared: &mut SharedState) -> 
             shared.opened.insert(params.session_id.clone(), params.clone());
             (methods::SESSION_OPEN, to_value(&params), Some(PendingReply::Lifecycle))
         }
+        OutboundCommand::OpenSessionTracked { mut params, generation } => {
+            if params.after.is_none() {
+                params.after = shared.cursors.get(&params.session_id).cloned()
+                    .or_else(|| shared.pending_initial.take());
+            }
+            let session_id = params.session_id.0.clone();
+            shared.opened.insert(params.session_id.clone(), params.clone());
+            (methods::SESSION_OPEN, to_value(&params),
+                Some(PendingReply::TrackedOpen { session_id, generation }))
+        }
         OutboundCommand::OpenSessionFresh(params) => {
             // Open WITHOUT a replay bracket (`params.after` stays None). With
             // per-session cursors (W08) there is no shared cursor to reset —
@@ -230,11 +241,20 @@ pub(crate) fn build_reopens(shared: &mut SharedState) -> Vec<(JsonRpcId, String,
 pub(crate) async fn fail_all_pending(shared: &mut SharedState, events: &mpsc::Sender<TransportEvent>, error: RpcError) {
     let pending: Vec<_> = shared.pending.drain().collect();
     for (id, pending) in pending {
-        let method = pending.method.to_owned();
-        let surface = matches!(pending.reply, PendingReply::Lifecycle);
-        fail_pending(pending, error.clone());
-        if surface {
-            emit(events, TransportEvent::RpcError { request_id: id, method, error: error.clone() }).await;
+        match pending {
+            PendingRequest { reply: PendingReply::TrackedOpen { session_id, generation }, .. } => {
+                emit(events, TransportEvent::SessionOpenTrackedError {
+                    session_id, generation, error: error.clone(),
+                }).await;
+            }
+            other => {
+                let method = other.method.to_owned();
+                let surface = matches!(other.reply, PendingReply::Lifecycle);
+                fail_pending(other, error.clone());
+                if surface {
+                    emit(events, TransportEvent::RpcError { request_id: id, method, error: error.clone() }).await;
+                }
+            }
         }
     }
 }
@@ -269,6 +289,8 @@ fn event_kind(evt: &TransportEvent) -> &'static str {
         TransportEvent::DurableNotification { .. } => "a notification",
         TransportEvent::EphemeralNotification { .. } => "a live delta",
         TransportEvent::RpcResult(_) => "a reply",
+        TransportEvent::SessionOpenTracked { .. } => "a tracked open reply",
+        TransportEvent::SessionOpenTrackedError { .. } => "a tracked open error",
         TransportEvent::RpcError { .. } => "an error reply",
         TransportEvent::CapabilityNegotiated(_) => "the capabilities",
         TransportEvent::SessionsListed { .. } => "a session/list reply",
@@ -306,19 +328,22 @@ pub(crate) async fn handle_inbound_text(
         RpcEnvelope::ErrorResponse(er) => {
             if let Some(id) = er.id.clone() {
                 if let Some(pending) = shared.pending.remove(&id) {
-                    let method = pending.method.to_owned();
-                    let reopen = matches!(pending.reply, PendingReply::Reopen);
-                    fail_pending(pending, er.error.clone());
-                    if !reopen {
-                        emit(
-                            events,
-                            TransportEvent::RpcError {
-                                request_id: id,
-                                method,
-                                error: er.error,
-                            },
-                        )
-                        .await;
+                    match pending {
+                        PendingRequest { reply: PendingReply::TrackedOpen { session_id, generation }, .. } => {
+                            emit(events, TransportEvent::SessionOpenTrackedError {
+                                session_id, generation, error: er.error,
+                            }).await;
+                        }
+                        other => {
+                            let method = other.method.to_owned();
+                            let reopen = matches!(other.reply, PendingReply::Reopen);
+                            fail_pending(other, er.error.clone());
+                            if !reopen {
+                                emit(events, TransportEvent::RpcError {
+                                    request_id: id, method, error: er.error,
+                                }).await;
+                            }
+                        }
                     }
                 }
             } else {
@@ -341,6 +366,27 @@ async fn handle_response(
 ) -> Option<ConnectionState> {
     let method = pending.method;
     match pending.reply {
+        PendingReply::TrackedOpen { session_id, generation } => {
+            match UiRpcResult::from_method_and_result(&method, result_value.clone()) {
+                Ok(UiRpcResult::SessionOpen(result)) => {
+                    let capabilities = Capabilities::parse(&result_value);
+                    emit(events, TransportEvent::SessionOpenTracked {
+                        session_id, generation, result, capabilities,
+                    }).await;
+                    if !matches!(state, ConnectionState::Live) {
+                        *state = ConnectionState::Live;
+                        return Some(ConnectionState::Live);
+                    }
+                }
+                other => {
+                    let message = format!("invalid session/open response: {other:?}");
+                    emit(events, TransportEvent::SessionOpenTrackedError {
+                        session_id, generation, error: RpcError::invalid_params(message),
+                    }).await;
+                }
+            }
+            None
+        }
         PendingReply::Reopen => {
             if !matches!(state, ConnectionState::Live) {
                 *state = ConnectionState::Live;
@@ -424,6 +470,7 @@ async fn handle_response(
 fn fail_pending(pending: PendingRequest, err: RpcError) {
     match pending.reply {
         PendingReply::Lifecycle => {} // surfaced as TransportEvent::RpcError
+        PendingReply::TrackedOpen { .. } => {} // surfaced by the caller with its generation
         PendingReply::Approval(reply) => {
             let _ = reply.send(Err(err));
         }
@@ -566,6 +613,59 @@ mod tests {
         };
         shared.pending.insert(id.clone(), pending.expect("a reply is awaited"));
         id.as_str().to_owned()
+    }
+
+    fn tracked_open(session: &str, generation: u64) -> OutboundCommand {
+        OutboundCommand::OpenSessionTracked {
+            params: octos_core::app_ui::AppUiOpenSession {
+                session_id: SessionKey(session.to_owned()),
+                topic: None,
+                profile_id: None,
+                cwd: None,
+                sandbox: None,
+                after: None,
+                client_commands: None,
+            },
+            generation,
+        }
+    }
+
+    #[tokio::test]
+    async fn tracked_open_errors_keep_their_request_scope_when_replies_reverse() {
+        let mut shared = SharedState::new(None, None);
+        let a = sent(tracked_open("p:api:a", 11), &mut shared);
+        let b = sent(tracked_open("p:api:b", 12), &mut shared);
+        let (tx, mut rx) = mpsc::channel(4);
+        let mut state = ConnectionState::Live;
+        for id in [b, a] {
+            let frame = serde_json::json!({"jsonrpc": "2.0", "id": id,
+                "error": {"code": -32603, "message": "synthetic refusal"}}).to_string();
+            handle_inbound_text(&frame, &mut shared, &tx, &mut state).await;
+        }
+        for (want_session, want_generation) in [("p:api:b", 12), ("p:api:a", 11)] {
+            match rx.recv().await.expect("tracked error") {
+                TransportEvent::SessionOpenTrackedError { session_id, generation, error } => {
+                    assert_eq!((session_id.as_str(), generation), (want_session, want_generation));
+                    assert_eq!(error.message, "synthetic refusal");
+                }
+                other => panic!("unexpected event: {other:?}"),
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn kernel_reset_fails_the_specific_tracked_open() {
+        let mut shared = SharedState::new(None, None);
+        sent(tracked_open("p:api:retry", 23), &mut shared);
+        let (tx, mut rx) = mpsc::channel(4);
+        fail_all_pending(&mut shared, &tx, RpcError::new(-32000, "synthetic reset")).await;
+        match rx.recv().await.expect("tracked reset") {
+            TransportEvent::SessionOpenTrackedError { session_id, generation, error } => {
+                assert_eq!((session_id.as_str(), generation), ("p:api:retry", 23));
+                assert_eq!(error.message, "synthetic reset");
+            }
+            other => panic!("unexpected event: {other:?}"),
+        }
     }
 
     fn hydrate_reply(id: &str, session: &str, seq: u64) -> String {

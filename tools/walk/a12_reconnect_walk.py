@@ -357,6 +357,13 @@ def server_label(port):
     return f"127.0.0.1:{port}"
 
 
+def settled_words():
+    """The strip once nothing is under way. The replay server's `session/hydrate`
+    answers without a session id, so this chat reads "Couldn't Load This Chat":
+    a Mac's strip says so instead of Ready."""
+    return ("Ready",) if MODE == "phone" or SERVER != "replay" else ("Not loaded",)
+
+
 def outage_checks(tag, port):
     # The banner is laid out (its first frame) before it is measured.
     soon(lambda: rect("a12_link_detail") is not None and rect("a12_link_retry") is not None, 5)
@@ -365,8 +372,13 @@ def outage_checks(tag, port):
     check(f"{tag}: the banner shows", banner is not None, f"{banner}")
     check(f"{tag}: 'Reconnecting to Octos'", text("a12_link_title", s) == "Reconnecting to Octos", f"{text('a12_link_title', s)!r}")
     detail = text("a12_link_detail", s) or ""
-    check(f"{tag}: the detail names the server in use + the retry count",
-          detail.startswith("Connection lost") and server_label(port) in detail and "50190" not in detail, repr(detail))
+    if MODE == "phone":
+        check(f"{tag}: the detail names the server in use + the retry count",
+              detail.startswith("Connection lost") and server_label(port) in detail and "50190" not in detail, repr(detail))
+    else:
+        # A Mac's banner keeps retries and addresses to itself.
+        check(f"{tag}: the detail says the connection was lost and that it keeps trying",
+              detail == "The connection was lost. OctosCode keeps trying.", repr(detail))
     check(f"{tag}: the shell stays (no Connect card)",
           not shown("connect_card", s) and shown("conversation_column", s) and shown("i0_composer_0", s))
     if MODE == "phone":
@@ -510,7 +522,7 @@ def main():
 
 def run(serve):
     check("the shell is up and live", soon(lambda: shown("i0_composer_0") and not shown("connect_card"), 60))
-    check("strip Ready", soon(lambda: text("b3_strip_state") == "Ready", 30), f"{text('b3_strip_state')!r}")
+    check("strip Ready", soon(lambda: text("b3_strip_state") in settled_words(), 30), f"{text('b3_strip_state')!r}")
     session0 = [t["body"].get("session_id") for t in wire("session/open")]
     session0 = session0[-1] if session0 else None
     title0 = text("hd_title")
@@ -583,7 +595,7 @@ def run(serve):
     else:
         check("recovered: the banner goes by itself (the transport's own re-dial)",
               soon(lambda: not shown("a12_link_banner"), 45), f"{time.time() - t_back:.1f}s")
-    check("recovered: strip Ready", soon(lambda: text("b3_strip_state") == "Ready", 20), repr(text("b3_strip_state")))
+    check("recovered: strip Ready", soon(lambda: text("b3_strip_state") in settled_words(), 20), repr(text("b3_strip_state")))
     reopen = [t for t in wire("session/open")[n_open:] if t["body"].get("reconnect")]
     check("recovered: the SAME Session re-opened ({reconnect: true})",
           bool(reopen) and reopen[-1]["body"].get("session_id") == session0, f"{[t['body'] for t in reopen]} vs {session0!r}")

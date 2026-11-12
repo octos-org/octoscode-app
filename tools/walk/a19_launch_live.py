@@ -188,7 +188,7 @@ def pick(w: a10_lib.Walk, which: str, label: str) -> bool:
         (x for x in sn if str(x.get("i", "")).startswith("b3_onb_opt_") and str(x.get("i", "")).endswith("_label")),
         key=lambda x: int(str(x["i"]).split("_")[3]),
     )
-    idx = next((int(str(x["i"]).split("_")[3]) for x in opts if (x.get("t") or "") == label), None)
+    idx = next((int(str(x["i"]).split("_")[3]) for x in opts if ((x.get("t") or "") == label if w.mode == "phone" else (x.get("t") or "").lower() == label.lower())), None)
     if idx is None:
         w.check(f"the {which} list offers {label!r}", False, repr([x.get("t") for x in opts][:12]))
         w.click("b3_onb_back" if w.mode == "phone" else f"b3_onb_{which}")
@@ -199,7 +199,7 @@ def pick(w: a10_lib.Walk, which: str, label: str) -> bool:
     w.wait_shown("b3_onb_list", 4, gone=True)
     w.scroll_into(f"b3_onb_{which}", "b3_scroll")
     val = w.text(f"b3_onb_{which}_value")
-    return w.check(f"the {which} field shows {label!r}", val == label or (val.endswith("…") and label.startswith(val[:-1])), repr(val))
+    return w.check(f"the {which} field shows {label!r}", (val == label if w.mode == "phone" else val.lower() == label.lower()) or (val.endswith("…") and label.startswith(val[:-1])), repr(val))
 
 
 # ------------------------------------------------------------------- phases

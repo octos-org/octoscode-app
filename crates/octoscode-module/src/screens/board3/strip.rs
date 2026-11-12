@@ -200,6 +200,11 @@ pub fn state_word_held(store: &Store, active_turn: Option<&str>, handover: Optio
     "Ready".into()
 }
 
+/// The model the active session's status names, once it has said.
+pub fn reported_model(session: &str, st: &StripState) -> Option<String> {
+    st.model.as_ref().filter(|(s, _)| s == session).map(|(_, m)| m.clone())
+}
+
 /// The three facts.
 pub fn facts(store: &Store, st: &StripState, active_turn: Option<&str>, mode: Option<&str>) -> (String, String, String) {
     let session = store.active_session().unwrap_or_default();
@@ -227,7 +232,16 @@ pub fn facts(store: &Store, st: &StripState, active_turn: Option<&str>, mode: Op
         .or_else(|| permission_label(mode))
         .unwrap_or("Permissions not reported")
         .to_owned();
-    (model, state_word_held(store, active_turn, st.handover.as_deref(), st.self_held), perm)
+    let state = state_word_held(store, active_turn, st.handover.as_deref(), st.self_held);
+    // A Mac says what it is doing, not Ready over a chat still loading.
+    let state = match (state == "Ready", crate::desk::chat_open(), crate::desk::active(), crate::desk::history_loading(), crate::desk::history_failed()) {
+        (true, 1, _, _, _) => tr("Opening chat…").to_owned(),
+        (true, 2, _, _, _) => tr("Chat not open").to_owned(),
+        (true, _, true, true, _) => "Loading…".to_owned(),
+        (true, _, true, _, true) => tr("Not loaded").to_owned(),
+        _ => state,
+    };
+    (model, state, perm)
 }
 
 /// `session/status/read` -> the model label for the active Session.
@@ -310,6 +324,9 @@ pub fn lower(
     vim_note: Option<&str>,
 ) -> String {
     let (model, state, perm) = facts(store, st, active_turn, mode);
+    if crate::desk::active() {
+        return lower_mac(&crate::screens::models::model_name(store, &model), &state, &perm, vim_note);
+    }
     let mut d = Dsl::new();
     let width = st.width.map(|w| format!("{w}")).unwrap_or_else(|| "Fill".into());
     let narrow = st.width.is_some_and(|w| w < 420.0);
@@ -416,6 +433,39 @@ pub fn lower(
     // follows the theme (the byte passthrough in light): unmapped, a dark
     // composer area showed a white strip and its caption at 3.26:1.
     crate::screens::theme::retint_dsl(&d.finish())
+}
+
+/// The strip on a Mac: one quiet line of 12-point facts over the composer, the
+/// way a developer app's status line reads, and the click into the session's
+/// details. What it is needs no caption there.
+fn lower_mac(model: &str, state: &str, perm: &str, vim_note: Option<&str>) -> String {
+    let model_missing = model == "Model not reported";
+    let model = if model_missing { tr(model).to_owned() } else { model.to_owned() };
+    let perm = tr(perm).to_owned();
+    let state_shown = state_display(state);
+    let mut d = Dsl::new();
+    d.view("b3_strip_root", "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{bottom: 4}");
+    let run = |s: &str, f: Face| super::ui::text_w(s, 12.0, f) * 1.12;
+    let width = run(&state_shown, Face::Regular) + 16.0;
+    d.view("b3_strip", &format!("width: {} height: 22 flow: Overlay align: Align{{x: 0.0 y: 0.5}}", width.ceil()));
+    let row = d.anon();
+    d.view(&row, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 8 right: 8}");
+    let plain = |ink: &'static str| Txt::new(12.0, Face::Regular, ink);
+    // The composer's own controls name the model and the permissions.
+    d.unseen("b3_strip_model", &model);
+    // Quiet in every state: a blue word would read as a link.
+    d.text("b3_strip_state", &state_shown, &plain(tok::MUTED));
+    d.unseen("b3_strip_perm", &perm);
+    d.close();
+    d.tap("b3_strip_tap", "b3.strip.settings");
+    d.close();
+    if let Some(note) = vim_note {
+        d.text("b3_strip_vim", note, &Txt::new(12.0, Face::Medium, tok::TEXT));
+    }
+    d.close();
+    // The click is routed natively (`b3_strip_tap` in the module's event pass);
+    // what it opens replaces the script body its deferred NAV closure points at.
+    crate::screens::taps::native_clicks_only(&crate::screens::theme::retint_dsl(&d.finish()))
 }
 
 /// A24 — the state word as shown: the web's key for it in the current

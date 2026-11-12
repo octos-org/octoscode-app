@@ -54,7 +54,7 @@ script_mod! {
                 window.inner_size: vec2(1280, 800)
                 caption_bar +: {
                     caption_label +: {
-                        label +: { draw_text.text_style: theme.oc_text_row }
+                        label +: { draw_text +: { text_style: theme.oc_text_row color: theme.color_text } }
                     }
                 }
                 body +: {

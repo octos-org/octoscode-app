@@ -65,7 +65,18 @@ impl Layout {
     pub fn of(surface: Surface, w: f64, h: f64) -> Layout {
         let w = if w > 0.0 { w } else { 990.0 };
         let h = if h > 0.0 { h } else { 603.0 };
-        let phone = w < PHONE_MAX;
+        let desk = crate::desk::active();
+        // A Mac keeps a sheet in a narrow window, never a phone's full page.
+        let phone = w < PHONE_MAX && !desk;
+        if desk {
+            let max = match surface {
+                Surface::Pairing => 460.0,
+                Surface::Provider => 560.0,
+                Surface::Picker | Surface::Browser => 500.0,
+            };
+            let card_w = crate::desk::sheet_w(max).min(w - 32.0).max(240.0);
+            return Layout { w, h, phone, card_w, pad: 20.0, content_w: card_w - 40.0 };
+        }
         // The web's dialog widths: the connection card 440, the picker 540.
         let max = match surface {
             Surface::Pairing => 440.0,
@@ -121,6 +132,13 @@ impl Ui {
     /// (the board's optical alignment) but never so far that the card clips
     /// it below the 28 px target (judge: b1_pk_back / b1_pair_back measured 24 px).
     pub fn header(&mut self, l: &Layout, back_id: &str, back_action: &str, title: &str) {
+        if crate::desk::active() {
+            // A Mac sheet's title sits at its head; the way back is the
+            // sheet's Cancel at the foot, under the same control id.
+            self.push(Text::new("b1_title", title).px(23.0).weight(600).fill().one_line().dsl());
+            self.button(back_id, back_action);
+            return;
+        }
         let t = Text::new("b1_title", title)
             .px(title_px(l, title))
             .weight(600)
@@ -148,6 +166,9 @@ impl Ui {
 /// phone type scale), shrunk so a long title still fits its row on a narrow
 /// phone (Inter SemiBold runs ~0.5 em per character; 0.56 keeps a margin).
 pub fn title_px(l: &Layout, title: &str) -> f64 {
+    if crate::desk::active() {
+        return 23.0;
+    }
     let (target, scale, avail) = if l.phone {
         (24.0, 1.08, l.content_w)
     } else {
@@ -186,6 +207,10 @@ pub struct PickerUi {
     pub starting: Option<String>,
     /// The last failure, in our own words.
     pub error: Option<String>,
+    /// On a desktop inside OctoSense: a session works in one of the person's
+    /// own folders, which this process lists itself ([`browser::local`]), so
+    /// there is no server folder to offer.
+    pub hosted: bool,
 }
 
 #[derive(Default)]
@@ -208,6 +233,15 @@ struct Host {
     awaiting_connect: bool,
     /// The open reply's `supported_methods`, from the last [`note_context`].
     methods: Vec<String>,
+    /// On a desktop, the folder browser came straight from Add Workspace…:
+    /// its Cancel closes the sheet rather than uncovering the picker.
+    browser_alone: bool,
+    /// The Mac's open panel is up, and its answer belongs to the picker.
+    folder_panel: bool,
+    /// [`folder_chosen`] is opening the sheet for the panel's answer.
+    panel_answered: bool,
+    /// The last session was refused for want of a model provider.
+    no_provider: bool,
     /// A surface was open at the last [`take_ime_reset`].
     was_open: bool,
     /// The view was rebuilt since the last [`take_ime_reset`].
@@ -234,6 +268,35 @@ pub fn mark_dirty() {
 
 pub fn is_open() -> bool {
     !host().stack.is_empty()
+}
+
+/// What typing shows or hides on the open surface, without a remount.
+pub fn live_visibility() -> Vec<(String, bool)> {
+    match top() {
+        Some(Surface::Pairing) => pairing::live_visibility(),
+        _ => Vec::new(),
+    }
+}
+
+/// What a hosted window says when its kernel has no model provider: the
+/// Assistant's words, for the same state.
+pub const NO_PROVIDER_NOTE: &str = "No model provider is set up yet. Add one in AI Providers.";
+
+/// The kernel just refused a session for want of a model provider.
+pub fn note_no_provider() {
+    let mut h = host();
+    h.no_provider = true;
+    h.dirty += 1;
+}
+
+pub fn no_provider() -> bool {
+    host().no_provider
+}
+
+/// No folder has been used on this connection: the picker has nothing of its
+/// own to offer yet.
+pub fn nothing_recent() -> bool {
+    super::recents::load_recent_workspaces(&*super::recents::store(), &super::recents::endpoint()).is_empty()
 }
 
 pub fn top() -> Option<Surface> {
@@ -320,6 +383,8 @@ pub enum Work {
     Forget,
     /// `profile/llm/list` + `profile/llm/catalog` into the editor.
     ProviderLoad,
+    /// Open the Mac's folder panel; its answer comes as a platform action.
+    PickFolder,
     /// The editor's Test / Save / Fetch (A23). It carries no key: the
     /// transport reads it from the editor when it runs.
     ProviderTransport(provider::Effect),
@@ -350,6 +415,7 @@ pub const OPENERS: &[(&str, &str)] = &[
     ("b1.open.provider", "open Edit provider (p4-06) — Settings → Model"),
     ("b1.open.provider.routes", "A23: the providers dialog's Edit / Add provider — the editor the dialog seeded (no reload)"),
     ("b1.open.picker", "open the new-session workspace picker (the web's view \"choose\")"),
+    ("b1.open.workspace", "the empty state's action: the picker, or the folder sheet when nothing is recent"),
     ("b1.open.add", "+ Add workspace: the folder browser over the picker (the web's view \"add\"/\"browse\"; the picker alone when browsing is not advertised)"),
     ("b1.backdrop", "a click on the dialog's backdrop closes it (ModalSurface closeOnBackdrop)"),
     ("b1.open.discovered", "A11: the Connect card's discovery offer \"Connect to <host>\" — pairing (p4-01) with the remembered server that answered /pair/info, or a tokenless connect when it needs no token"),
@@ -427,10 +493,18 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
                 h.picker.loading = true;
                 h.picker.error = None;
                 h.picker.starting = None;
+                h.browser_alone = false;
             }
             push_surface(Surface::Picker);
             out.push(Work::PickerLoad { list_root: true });
         }
+        "b1.open.workspace" => {
+            host().no_provider = false;
+            let hosted = host().picker.hosted;
+            let first = if hosted && nothing_recent() { "b1.open.add" } else { "b1.open.picker" };
+            out.extend(route(first, None));
+        }
+        "b1.open.add" if panel_asked() => out.push(Work::PickFolder),
         "b1.open.add" => {
             // The web's + Add workspace opens the picker at its "add" view,
             // whose Browse… is the folder browser and whose back returns to
@@ -457,6 +531,7 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
                     }
                 }
                 out.extend(browse);
+                host().browser_alone = crate::desk::active();
             }
         }
         "b1.open.discovered" => {
@@ -565,7 +640,17 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
                 }
                 // An in-flight session start stays visible (the web disables
                 // the back button and Escape while creating).
-                Some(browser::Effect::Close) if !starting() => pop(),
+                Some(browser::Effect::Close) if !starting() => {
+                    let alone = {
+                        let h = host();
+                        h.browser_alone && h.picker.recents.is_empty()
+                    };
+                    if alone {
+                        close_all();
+                    } else {
+                        pop();
+                    }
+                }
                 Some(_) => {}
             }
         }
@@ -579,6 +664,35 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
 fn is_typing(action: &str) -> bool {
     matches!(action, "pair.paste" | "connect.server" | "connect.token" | "browser.path" | "browser.create_name")
         || provider::is_input(action)
+}
+
+/// A Mac choosing among the person's own folders uses its own open panel. The
+/// sheet stays for another server's folders, and to say why a folder is refused.
+fn panel_asked() -> bool {
+    let mut h = host();
+    if !cfg!(target_os = "macos") || !h.picker.hosted || !h.picker.browse_advertised || h.panel_answered {
+        return false;
+    }
+    h.folder_panel = true;
+    true
+}
+
+/// The open panel's answer, once: whether it was this picker's question.
+pub fn take_folder_panel() -> bool {
+    std::mem::take(&mut host().folder_panel)
+}
+
+/// The panel chose `path`: what the sheet's Use this folder does, so a refused
+/// folder shows the sheet, its reason and the way to another.
+pub fn folder_chosen(path: &str) -> Vec<Work> {
+    browser::state().chosen = Some(path.to_owned());
+    let picker_up = host().stack.contains(&Surface::Picker);
+    host().panel_answered = true;
+    let mut out = route(if picker_up { "picker.browse" } else { "b1.open.add" }, None);
+    host().panel_answered = false;
+    browser::state().path_draft = path.to_owned();
+    out.extend(route("browser.use", None));
+    out
 }
 
 fn route_picker(action: &str) -> Vec<Work> {
@@ -597,6 +711,7 @@ fn route_picker(action: &str) -> Vec<Work> {
                 start(root, &mut out);
             }
         }
+        "picker.browse" if panel_asked() => out.push(Work::PickFolder),
         "picker.browse" | "picker.newfolder" => {
             if !pk.browse_advertised {
                 // Fail closed: no affordance, no request (row 166).
@@ -612,6 +727,8 @@ fn route_picker(action: &str) -> Vec<Work> {
                 b.screen = browser::Screen::Browser;
                 b.failure = None;
                 b.attempted = None;
+                b.hosted = pk.hosted;
+                b.use_problem = None;
                 b.new_folder_open = action == "picker.newfolder";
                 b.new_folder.clear();
                 b.name_problem = None;
@@ -646,7 +763,86 @@ fn route_picker(action: &str) -> Vec<Work> {
 
 // -------------------------------------------------------------- the picker
 
+/// The picker as a Mac sheet: a list of folders, the way to others at the
+/// foot's leading edge, Cancel at its trailing edge.
+fn mac_picker_view(pk: &PickerUi, l: &Layout) -> Ui {
+    let mut v = Ui::default();
+    v.header(l, "b1_pk_back", "picker.close", tr("Open a workspace"));
+    v.push(kit::gap(12.0));
+    let (root_label, root_path) = match &pk.server_root {
+        Some(p) => (tr("Server folder"), p.clone()),
+        None if pk.loading => (tr("Server folder"), tr("Reading the server\u{2026}").to_owned()),
+        None => (tr("Server folder (path not reported)"), String::new()),
+    };
+    let row = |id: &str, name_id: &str, name: &str, path_id: &str, path: &str| {
+        let path = if path.is_empty() {
+            String::new()
+        } else {
+            Text::new(path_id, path).px(12.0).color(kit::MUTED).fill().one_line().dsl()
+        };
+        format!(
+            "View {{ width: Fill height: 40 flow: Overlay\nView {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 10 right: 10}} spacing: 8\n{}View {{ width: Fill height: Fit flow: Down spacing: 1\n{}{path}}}\n}}\n{}}}\n",
+            kit::svg("", "b1_folder.svg", 18.0),
+            Text::new(name_id, name).px(15.0).fill().one_line().dsl(),
+            kit::hit(id, true)
+        )
+    };
+    if !pk.hosted {
+        let root_row = row("b1_pk_server", "b1_pk_server_t", root_label, "b1_pk_server_p", &root_path);
+        v.push(kit::list_card("b1_pk_server_card", &[root_row]));
+        v.button("b1_pk_server", "picker.server");
+        v.push(kit::gap(12.0));
+    }
+    let rows: Vec<String> = pk
+        .recents
+        .iter()
+        .take(4)
+        .enumerate()
+        .map(|(i, (name, path))| {
+            let id = format!("b1_pk_recent_{i}");
+            v.button(&id, &format!("picker.recent.{i}"));
+            row(&id, &format!("b1_pk_recent_t{i}"), name, "", path)
+        })
+        .collect();
+    v.push(Text::new("", tr("Recent")).px(12.0).weight(600).color(kit::MUTED).fill().one_line().dsl());
+    v.push(kit::gap(4.0));
+    if rows.is_empty() {
+        v.push(Text::new("b1_pk_norecent", tr("No recent workspaces yet.")).px(15.0).color(kit::MUTED).fill().dsl());
+    } else {
+        v.push(kit::list_card("b1_pk_recents", &rows));
+    }
+    if let Some(e) = &pk.error {
+        v.push(kit::gap(8.0));
+        v.push(Text::new("b1_pk_error", tr(e)).px(14.0).color(kit::RED).fill().dsl());
+    }
+    if let Some(p) = &pk.starting {
+        v.push(kit::gap(8.0));
+        let line = crate::i18n::tr1("Starting a session in {value0}\u{2026}", &super::recents::workspace_name(p));
+        v.push(Text::new("b1_pk_starting", &line).px(14.0).color(kit::MUTED).fill().one_line().dsl());
+    }
+    v.push(kit::gap(16.0));
+    let mut leading = Vec::new();
+    let mut trailing = vec![kit::push_button("b1_pk_back", tr("Cancel"), false)];
+    if pk.browse_advertised {
+        // With no server folder to pick, choosing one is what this sheet is for.
+        let browse = tr("Browse folders\u{2026}");
+        if pk.hosted {
+            trailing.push(kit::push_button("b1_pk_browse", browse, true));
+        } else {
+            leading.push(kit::pill_outline("b1_pk_browse", browse, "Fit"));
+        }
+        v.button("b1_pk_browse", "picker.browse");
+        leading.push(kit::pill_outline("b1_pk_newfolder", tr("New folder"), "Fit"));
+        v.button("b1_pk_newfolder", "picker.newfolder");
+    }
+    v.push(kit::sheet_buttons(&leading, &trailing));
+    v
+}
+
 fn picker_view(pk: &PickerUi, l: &Layout) -> Ui {
+    if crate::desk::active() {
+        return mac_picker_view(pk, l);
+    }
     let mut v = Ui::default();
     v.header(l, "b1_pk_back", "picker.close", tr("Open a workspace"));
     v.push(kit::gap(if l.phone { 22.0 } else { 16.0 }));
@@ -730,6 +926,11 @@ fn picker_view(pk: &PickerUi, l: &Layout) -> Ui {
 fn compose(surface: Surface, w: f64, h: f64) -> Ui {
     let l = Layout::of(surface, w, h);
     kit::set_type_scale(if l.phone { 1.08 } else { 1.0 });
+    kit::set_label_w(match surface {
+        Surface::Provider => 152.0,
+        Surface::Pairing => 116.0,
+        Surface::Picker | Surface::Browser => 104.0,
+    });
     let body = match surface {
         Surface::Pairing => pairing::view(&pairing::state(), &l),
         Surface::Provider => provider::view(&provider::state(), &l),
@@ -746,7 +947,22 @@ fn compose(surface: Surface, w: f64, h: f64) -> Ui {
 /// The dialog (desktop) or sheet (phone) around a surface's body.
 fn wrap(body: Ui, l: &Layout) -> Ui {
     let mut ui = Ui { dsl: String::new(), ..body.clone() };
-    if l.phone {
+    if crate::desk::active() {
+        // A Mac sheet: the shared dim, hanging from the foot of the toolbar.
+        ui.dsl = format!(
+            "View {{ width: Fill height: Fill flow: Overlay\nSolidView {{ width: Fill height: Fill draw_bg.color: {dim} }}\n{}View {{ width: Fill height: Fill align: Align{{x: 0.5 y: 0.0}} padding: Inset{{left: 16 right: 16 top: {top} bottom: 16}}\nb1_card := OcMacSheet {{ width: {} height: Fit flow: Down\ndraw_bg.color: {} draw_bg.border_color: {}\nView {{ width: Fill height: Fit flow: Down padding: Inset{{left: {} right: {} top: 16 bottom: 16}}\n{}}}\n}}\n}}\n}}\n",
+            kit::hit("b1_backdrop", false),
+            l.card_w,
+            kit::WHITE,
+            kit::HAIR,
+            l.pad,
+            l.pad,
+            body.dsl,
+            dim = crate::desk::sheet_dim(),
+            top = crate::desk::bar_h(),
+        );
+        ui.buttons.insert(0, ("b1_backdrop".to_owned(), "b1.backdrop".to_owned()));
+    } else if l.phone {
         // An opaque sheet: a plain `View`'s `show_bg` paints nothing on this
         // fork (the first phone capture showed the Connect card through it),
         // a `SolidView` does (the desktop scrim below is one).
@@ -810,7 +1026,7 @@ pub fn begin_build(w: f64, h: f64) -> Option<BuildTicket> {
 /// Store a composed view.
 pub fn finish_build(ticket: BuildTicket, ui: Ui) {
     let mut hh = host();
-    hh.dsl = ui.dsl.clone();
+    hh.dsl = crate::desk::in_words(ui.dsl.clone());
     hh.ui = ui;
     hh.size = ticket.size;
     // Only what this build saw: a change that landed while it composed keeps
@@ -951,6 +1167,8 @@ pub struct Context {
     pub capabilities: Vec<String>,
     /// The open reply's `supported_methods` (the per-method gates).
     pub methods: Vec<String>,
+    /// The window runs inside OctoSense, on the shell's port.
+    pub hosted: bool,
 }
 
 /// Fold the connection state in. Closes pairing once the connection a claim
@@ -960,11 +1178,16 @@ pub fn note_context(ctx: &Context) {
         // A11: a live connection leaves the discovery offer nothing to do.
         super::discovery::note_live();
     }
-    let advertised = ctx.capabilities.iter().any(|c| c == browser::BROWSE_FEATURE);
+    let hosted = ctx.hosted && crate::desk::active();
+    let advertised = hosted || ctx.capabilities.iter().any(|c| c == browser::BROWSE_FEATURE);
     {
         let mut h = host();
         if h.picker.browse_advertised != advertised {
             h.picker.browse_advertised = advertised;
+            h.dirty += 1;
+        }
+        if h.picker.hosted != hosted {
+            h.picker.hosted = hosted;
             h.dirty += 1;
         }
         if h.methods != ctx.methods {
@@ -1096,6 +1319,8 @@ pub fn settings_controls() -> Vec<(String, String)> {
     vec![
         ("b1_set_provider".to_owned(), "b1.open.provider".to_owned()),
         ("b1_set_connection".to_owned(), "b1.open.connection".to_owned()),
+        // A shell's own window: its providers live in AI Providers.
+        ("set_provider_open_hit".to_owned(), "host.providers".to_owned()),
     ]
 }
 
@@ -1108,6 +1333,9 @@ pub fn entry_controls() -> Vec<(String, String)> {
         // A11: the discovery offer's button on the same card
         // (`fluid::connect_card_with_offer`, shown while `discovery::offer`).
         ("connect_offer".to_owned(), "b1.open.discovered".to_owned()),
+        // A desktop's first-run pane once the connection is up (or a shell
+        // hosts it): `fluid::open_workspace_state`'s one action.
+        ("b1_open_workspace".to_owned(), "b1.open.workspace".to_owned()),
     ];
     v.extend(settings_controls());
     v
@@ -1249,6 +1477,7 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
                 h.picker.server_root = listed.or(session_root);
             }
             h.picker.browse_advertised = advertised;
+            h.picker.hosted = hosted && crate::desk::active();
             h.picker.loading = false;
             Ok(())
         }
@@ -1297,9 +1526,17 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
                 }
                 Err(e) => {
                     makepad_widgets::log!("[octoscode] board1 new session: {e}");
-                    let mut h = host();
-                    h.picker.starting = None;
-                    h.picker.error = Some("The session didn’t open. Check the folder, then try again.".to_owned());
+                    let problem = "The session didn’t open. Check the folder, then try again.";
+                    let hosted = {
+                        let mut h = host();
+                        h.picker.starting = None;
+                        h.picker.error = Some(problem.to_owned());
+                        h.picker.hosted
+                    };
+                    if hosted {
+                        // The folder browser may be what the person is looking at.
+                        browser::state().use_problem = Some(problem.to_owned());
+                    }
                     Err(e)
                 }
             }
@@ -1308,6 +1545,7 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
         | Work::LeaveToForm { .. }
         | Work::Scan
         | Work::Forget
+        | Work::PickFolder
         | Work::ReturnToProviders { .. }
         | Work::OpenUrl(_) => {
             makepad_widgets::log!("[octoscode] board1: {work:?} is the host's to perform");

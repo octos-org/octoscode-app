@@ -36,6 +36,8 @@ pub struct SwitchState {
     /// A13 — what failed, in plain words, with the cause it was recorded
     /// for (`ui::dialog_error`).
     pub failed: Option<(&'static str, String)>,
+    /// A Mac's list: the selected row (else the open session's, else the first).
+    pub selected: Option<usize>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -57,7 +59,11 @@ fn catalog_rows(st: &SwitchState, store: &Store) -> Vec<Row> {
     let current_profile = store.domains.profile.current();
     catalog.iter().map(|item| Row {
         id: item.target.key(), title:item.title.clone(),
-        tag:format!("{} · {}", item.target.profile, item.target.cwd.as_deref().unwrap_or("Profile history")),
+        tag:format!("{} · {}", item.target.profile, match item.target.cwd.as_deref() {
+            // n12g (E10 2): a desktop names the workspace as its sidebar does (a rename's name, else its folder).
+            Some(cwd) if crate::desk::active() && !cwd.trim().is_empty() => crate::screens::sidebar::renamed(cwd).unwrap_or_else(|| ui::leaf(cwd)),
+            cwd => cwd.unwrap_or("Profile history").to_owned(),
+        }),
         when:item.updated_at.as_deref().and_then(ui::parse_iso_ms).map(|ms| ui::rel_time(ui::now_ms(), ms)).unwrap_or_default(),
         current:active.as_deref() == Some(item.target.session.as_str()) && current_profile.as_deref() == Some(item.target.profile.as_str()) && item.target.cwd == current_root,
     }).collect()
@@ -128,7 +134,12 @@ pub fn rows(store: &Store) -> Vec<Row> {
         .map(|s| {
             let root = store.domains.session.workspace_root(&s.id);
             let tag = match &root {
+                // n12g (E10 2): a desktop calls a renamed workspace by its new name, as the sidebar does.
+                Some(r) if !r.is_empty() && crate::desk::active() => {
+                    crate::screens::sidebar::renamed(r).unwrap_or_else(|| ui::leaf(r))
+                }
                 Some(r) if !r.is_empty() => ui::leaf(r),
+                _ if crate::desk::active() => String::new(),
                 _ => s.id.split(':').next().unwrap_or("").to_owned(),
             };
             let when = s
@@ -248,6 +259,11 @@ pub async fn delete(conv: &crate::flow::Conversation, id: String) -> Result<Stri
     }
 }
 
+/// A Mac list's selection: the chosen row, else the open session's, else the first.
+fn selection(st: &SwitchState, rows: &[Row]) -> Option<usize> {
+    ui::selection_of(st.selected, rows.iter().position(|r| r.current), rows.len())
+}
+
 /// The one `session/delete` path (the switcher above, the sidebar's chat
 /// rows — #18): never the open Session; on success the Session leaves the
 /// store with its drafts, a failure returns the server's own message.
@@ -279,6 +295,35 @@ pub async fn delete_session(conv: &crate::flow::Conversation, id: &str) -> Resul
 
 pub fn perform(st: &mut SwitchState, action: &str, index: usize, store: &Store) -> Outcome {
     if action.starts_with("b3.switch.delete") && st.catalog.is_some() { return Outcome::Done; }
+    // A Mac's list: a press selects, a second press opens; the arrows move the
+    // selection; the foot's Open and Delete… act on it.
+    match action {
+        "b3.switch.select" => {
+            if index >= catalog_rows(st, store).len() {
+                return Outcome::Done;
+            }
+            let double = ui::second_click("switch", index);
+            st.selected = Some(index);
+            return if double { perform(st, "b3.switch.open", index, store) } else { Outcome::Done };
+        }
+        "b3.switch.up" | "b3.switch.down" => {
+            let rows = catalog_rows(st, store);
+            let step = if action == "b3.switch.up" { -1 } else { 1 };
+            st.selected = ui::step_selection(selection(st, &rows), step, rows.len());
+            st.confirm_delete = None;
+            if let Some(i) = st.selected {
+                super::host::set_pending_reveal(format!("b3_switch_row_{i}"));
+            }
+            return Outcome::Done;
+        }
+        "b3.switch.open_sel" | "b3.switch.delete_sel" => {
+            let rows = catalog_rows(st, store);
+            let Some(i) = selection(st, &rows) else { return Outcome::Done };
+            let base = if action == "b3.switch.open_sel" { "b3.switch.open" } else { "b3.switch.delete" };
+            return perform(st, base, i, store);
+        }
+        _ => {}
+    }
     match action {
         "b3.switch.more" => {
             if st.loading { return Outcome::Done; }
@@ -294,6 +339,7 @@ pub fn perform(st: &mut SwitchState, action: &str, index: usize, store: &Store) 
                 return Outcome::Done;
             }
             st.error = None;
+            st.selected = Some(index);
             st.confirm_delete = Some(row.id.clone());
             return Outcome::Done;
         }
@@ -331,15 +377,44 @@ pub fn perform(st: &mut SwitchState, action: &str, index: usize, store: &Store) 
 pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
     let rows = catalog_rows(st, store);
     if !st.coverage.is_empty() { d.text("b3_switch_coverage", &st.coverage, &ui::meta().w(W::Fill).wrap()); d.gap(W::Fill, 8.0); }
-    d.button("b3_switch_refresh", tr("Refresh history"), "b3.switch.refresh", ui::Btn::Outline, W::Fit, 30.0);
+    let desk = crate::desk::active();
+    let sel = if desk { selection(st, &rows) } else { None };
+    let can_delete = st.catalog.is_none() && delete_offered(store);
+    d.foot_begin(ui::Foot::Lead);
+    if desk && can_delete {
+        let ok = sel.and_then(|i| rows.get(i)).is_some_and(|r| !r.current) && st.deleting.is_none() && st.confirm_delete.is_none();
+        d.button("b3_switch_delete", tr("Delete…"), "b3.switch.delete_sel", if ok { ui::Btn::Outline } else { ui::Btn::OutlineOff }, W::Fit, 28.0);
+    }
+    // A Mac's refresh sits in the title row (`header`), the wheel in its place while it reads.
+    if !desk {
+        d.button("b3_switch_refresh", tr("Refresh history"), "b3.switch.refresh", ui::Btn::Outline, W::Fit, 30.0);
+    }
     if st.next_offset.is_some() {
         d.button("b3_switch_more", tr("Load more"), "b3.switch.more", ui::Btn::Outline, W::Fit, 30.0);
+    }
+    d.foot_end();
+    if desk {
+        let ok = sel.is_some() && st.opening.is_none();
+        d.foot_begin(ui::Foot::Default);
+        d.button("b3_switch_open", tr("Open"), "b3.switch.open_sel", if ok { ui::Btn::Primary } else { ui::Btn::Disabled }, W::Fit, 28.0);
+        d.foot_end();
+        if ok {
+            d.foot_default_event("b3.switch.open_sel");
+        }
     }
     // A phone-narrow list: the delete confirmation sits on the row's meta
     // line (bottom right), so the title keeps its width.
     let narrow = inner_w > 0.0 && inner_w < 360.0;
     if st.loading && rows.is_empty() {
-        d.text("b3_switch_loading", tr("Loading sessions…"), &ui::meta());
+        if desk {
+            let wait = d.anon();
+            d.view(&wait, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5} padding: Inset{top: 4 bottom: 4}");
+            d.raw(&crate::fluid::spinner("b3_switch_spin", 16.0));
+            d.text("b3_switch_loading", tr("Loading sessions…"), &ui::meta());
+            d.close();
+        } else {
+            d.text("b3_switch_loading", tr("Loading sessions…"), &ui::meta());
+        }
     }
     if let Some(e) = &st.error {
         ui::dialog_error(d, "b3_switch_error", e, st.failed.as_ref(), OPEN_FAILED);
@@ -352,20 +427,44 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
     for (i, r) in rows.iter().enumerate() {
         let rid = format!("b3_switch_row_{i}");
         // The board: the current session is a grey card with a black check;
-        // the others are open rows split by hairlines.
-        if i > 0 && !r.current && !rows[i - 1].current {
+        // the others are open rows split by hairlines. A Mac's list has no
+        // rules: its selection is the gray band, the open session its check.
+        if !desk && i > 0 && !r.current && !rows[i - 1].current {
             d.hairline();
         }
-        let (fill, border) = if r.current { (tok::SURFACE2, Some(tok::HAIRLINE)) } else { (tok::TRANSPARENT, None) };
-        d.surface(&rid, "width: Fill height: Fit flow: Overlay", fill, 12.0, border);
+        let deletable = !r.current && can_delete;
+        if desk {
+            let mut items = vec![(ui::menu_word("Open"), format!("b3.switch.open#{i}"))];
+            if deletable && st.deleting.is_none() {
+                items.push(("-".to_owned(), String::new()));
+                items.push((ui::menu_word("Delete…"), format!("b3.switch.delete#{i}")));
+            }
+            d.menu_open(&format!("{rid}_menu"), &items);
+        }
+        let band = ui::selection_fill();
+        let (fill, border) = if desk {
+            (if sel == Some(i) { band.as_str() } else { tok::TRANSPARENT }, None)
+        } else if r.current {
+            (tok::SURFACE2, Some(tok::HAIRLINE))
+        } else {
+            (tok::TRANSPARENT, None)
+        };
+        let mark = d.mark();
+        d.surface(&rid, "width: Fill height: Fit flow: Overlay", fill, crate::desk::by(12.0, 6.0), border);
         // A8 — the trailing delete control sits on a layer over the row, so
         // the row's text keeps clear of it (a phone-width title ran under the
         // "Delete? Cancel Delete" pill): the right inset is the control's
         // width plus its 8 px edge and a 6 px gap.
         let confirming = st.confirm_delete.as_deref() == Some(r.id.as_str());
-        let trailing = if !r.current && st.catalog.is_none() && delete_offered(store) {
+        // A Mac's push button: the kit's `W::Fit` width.
+        let push = |s: &str| (ui::text_w(s, 13.0, Face::Medium) + 24.0).max(72.0);
+        let trailing = if deletable {
             if st.deleting.as_deref() == Some(r.id.as_str()) {
                 ui::text_w(tr("Deleting…"), 12.0, Face::Regular) + 14.0
+            } else if desk && confirming {
+                ui::text_w(tr("Delete?"), 13.0, Face::Regular) + 8.0 + push(tr("Delete")) + 8.0 + push(tr("Cancel")) + 14.0
+            } else if desk {
+                0.0
             } else if confirming && !narrow {
                 10.0 + ui::text_w(tr("Delete?"), 12.0, Face::Medium)
                     + 4.0
@@ -385,17 +484,27 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
         d.view(
             &row,
             &format!(
-                "width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 10 padding: Inset{{left: 12 right: {} top: 12 bottom: 12}}",
-                trailing.max(12.0).ceil()
+                "width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 10 padding: Inset{{left: 12 right: {} top: {v} bottom: {v}}}",
+                trailing.max(12.0).ceil(),
+                v = crate::desk::by(12, 7),
             ),
         );
         let col = d.anon();
-        d.view(&col, "width: Fill height: Fit flow: Down spacing: 8");
-        let color = if r.current { tok::MUTED } else { tok::TEXT };
+        d.view(&col, crate::desk::by(
+            "width: Fill height: Fit flow: Down spacing: 8",
+            "width: Fill height: Fit flow: Down spacing: 3",
+        ));
+        let color = if r.current { crate::desk::by(tok::MUTED, tok::TEXT) } else { tok::TEXT };
         d.text(&format!("{rid}_title"), &r.title, &Txt::new(14.0, Face::Regular, color).w(W::Fill).wrap());
         let meta = d.anon();
         d.view(&meta, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-        d.chip(&format!("{rid}_tag"), &r.tag, tok::TEXT, tok::CHIP, None, true);
+        if crate::desk::active() {
+            if !r.tag.trim().is_empty() {
+                d.text(&format!("{rid}_tag"), &r.tag, &Txt::new(11.0, Face::Regular, tok::MUTED));
+            }
+        } else {
+            d.chip(&format!("{rid}_tag"), &r.tag, tok::TEXT, tok::CHIP, None, true);
+        }
         let opening = st.opening.as_deref() == Some(r.id.as_str());
         let when = if opening { tr("Opening…").to_owned() } else { r.when.clone() };
         d.text(&format!("{rid}_when"), &when, &Txt::new(12.0, Face::Regular, tok::MUTED));
@@ -403,16 +512,22 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
         d.close();
         if r.current {
             let badge = format!("{rid}_check");
+            if crate::desk::active() {
+                d.icon(&badge, "b3_check.svg", 14.0, tok::TEXT);
+            } else {
             d.surface(&badge, "width: 24 height: 24 flow: Overlay align: Align{x: 0.5 y: 0.5}", tok::BLACK, 12.0, None);
             d.icon(&format!("{badge}_icon"), "b3_check_white.svg", 14.0, tok::WHITE);
             d.close();
+            }
         }
         d.close();
-        d.tap(&format!("{rid}_tap"), &format!("b3.switch.open#{i}"));
+        // A Mac's press selects (a second one opens); a phone's opens.
+        d.tap(&format!("{rid}_tap"), &if desk { format!("b3.switch.select#{i}") } else { format!("b3.switch.open#{i}") });
         // A8 — delete: a trailing × above the row's open target (never on the
         // open Session; only when `session/delete` is advertised), then an
-        // explicit confirmation in place.
-        if !r.current && st.catalog.is_none() && delete_offered(store) {
+        // explicit confirmation in place. A Mac asks only on the row it deletes.
+        let asking = confirming || st.deleting.as_deref() == Some(r.id.as_str());
+        if deletable && (!desk || asking) {
             let layer = d.anon();
             if confirming && narrow {
                 d.view(&layer, "width: Fill height: Fill flow: Right align: Align{x: 1.0 y: 1.0} padding: Inset{right: 8 bottom: 8}");
@@ -421,6 +536,17 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
             }
             if st.deleting.as_deref() == Some(r.id.as_str()) {
                 d.text(&format!("{rid}_deleting"), tr("Deleting…"), &Txt::new(12.0, Face::Regular, tok::MUTED));
+            } else if desk && confirming {
+                // A question before something goes for good: the red word
+                // first, the blue Cancel last; Return and Escape answer Cancel.
+                d.view(&format!("{rid}_confirm"), "width: Fit height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
+                d.text(&format!("{rid}_confirm_q"), tr("Delete?"), &Txt::new(13.0, Face::Regular, tok::TEXT));
+                d.red_word();
+                d.button(&format!("{rid}_confirm_yes"), tr("Delete"), "b3.switch.delete.confirm", ui::Btn::Outline, W::Fit, 28.0);
+                d.button(&format!("{rid}_confirm_no"), tr("Cancel"), "b3.switch.delete.cancel", ui::Btn::Primary, W::Fit, 28.0);
+                d.close();
+            } else if desk {
+                d.button(&format!("{rid}_delete"), tr("Delete…"), &format!("b3.switch.delete#{i}"), ui::Btn::Outline, W::Fit, 28.0);
             } else if st.confirm_delete.as_deref() == Some(r.id.as_str()) {
                 d.surface(
                     &format!("{rid}_confirm"),
@@ -442,6 +568,12 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
             d.close();
         }
         d.close();
+        if desk && sel == Some(i) {
+            d.accent_since(mark);
+        }
+        if desk {
+            d.close(); // the row's menu
+        }
     }
     d.close();
 }
@@ -449,13 +581,35 @@ pub fn panel(d: &mut Dsl, st: &SwitchState, store: &Store, inner_w: f64) {
 /// The switcher. With Vim editing on, the board's split: the session list on
 /// the left, the composer's key legend on the right (stacked under the list
 /// on a phone-narrow frame).
+/// The title row. A Mac's also holds the refresh (as Agents' and Research Models' do): refreshing over a
+/// list it already shows, the wheel takes the icon's place and the list stays.
+fn header(d: &mut Dsl, st: &SwitchState, store: &Store) {
+    if !crate::desk::active() {
+        ui::header(d, tr("Open a different session"), "b3.close");
+        return;
+    }
+    let row = d.anon();
+    d.view(&row, "width: Fill height: 32 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4");
+    d.text("b3_title", tr("Open a different session"), &ui::title().w(W::Fill));
+    if st.loading && !catalog_rows(st, store).is_empty() {
+        let wrap = d.anon();
+        d.view(&wrap, "width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}");
+        d.raw(&crate::fluid::spinner("b3_switch_spin", 16.0));
+        d.close();
+    } else {
+        ui::icon_button(d, "b3_switch_refresh", "b3_refresh.svg", 16.0, "b3.switch.refresh");
+    }
+    ui::close_glyph(d, "b3.close");
+    d.close();
+}
+
 pub fn build(d: &mut Dsl, st: &SwitchState, frame: &Frame, store: &Store, vim: &super::vim::VimState) {
     let split = vim.enabled && !frame.compact(frame.dialog_w(760.0));
     let width = if split { frame.dialog_w(760.0) } else { frame.dialog_w(480.0) };
     let pad = ui::dialog_pad(frame, width);
     ui::shell_open(d, frame, width);
     if split {
-        ui::header(d, tr("Open a different session"), "b3.close");
+        header(d, st, store);
         d.gap(W::Fill, 12.0);
         let cols = d.anon();
         d.view(&cols, "width: Fill height: Fit flow: Right spacing: 18");
@@ -468,7 +622,7 @@ pub fn build(d: &mut Dsl, st: &SwitchState, frame: &Frame, store: &Store, vim: &
         super::vim::legend(d, vim, W::Px(LEGEND_W));
         d.close();
     } else {
-        ui::header(d, tr("Open a different session"), "b3.close");
+        header(d, st, store);
         d.gap(W::Fill, 12.0);
         ui::body_open(d, frame, width, 50.0);
         panel(d, st, store, width - 2.0 * pad);

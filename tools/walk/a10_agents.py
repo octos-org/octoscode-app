@@ -37,6 +37,12 @@ MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a10/agents/{MODE}"
 
 
+def act(verb: str, row: int = 0) -> str:
+    """The control that does `verb` to agent `row`: a phone's row has its own;
+    a Mac's toolbar acts on the selection (the first agent until one is chosen)."""
+    return f"b3_agents_row_{row}_act_{verb}" if MODE == "phone" else f"b3_agents_{verb}_sel"
+
+
 def shown(W: Walk, wid: str) -> bool:
     """Visible — scrolled into the panel body first when it is in there."""
     if W.visible(wid):
@@ -81,7 +87,7 @@ def walk(W: Walk) -> None:
 
     W.note("== 2. Read status (row 0) -> the status card")
     W.check("agents: Read status CLICK -> agent/status/read -> 'Status — <id>' card",
-            click_logged(W, "b3_agents_row_0_act_status", "AgentStatus", lambda: shown(W, "b3_agents_status_title")))
+            click_logged(W, act("status"), "AgentStatus", lambda: shown(W, "b3_agents_status_title")))
     W.check("agents: the status card shows Owner session / Backend",
             shown(W, "b3_agents_status_backend") and "spawn_child_session" in W.text("b3_agents_status_backend")
             and shown(W, "b3_agents_status_session") and W.text("b3_agents_status_session").endswith(":main"))
@@ -90,7 +96,7 @@ def walk(W: Walk) -> None:
 
     W.note("== 3. List artifacts -> Read artifact (by id)")
     W.check("agents: List artifacts CLICK -> one detail viewer shows the artifacts (status card replaced)",
-            click_logged(W, "b3_agents_row_0_act_artifacts", "AgentArtifacts", lambda: shown(W, "b3_agents_artifacts_title"))
+            click_logged(W, act("artifacts"), "AgentArtifacts", lambda: shown(W, "b3_agents_artifacts_title"))
             and not shown(W, "b3_agents_status_title"))
     W.check("agents: Read artifact CLICK -> agent/artifact/read -> the content card (markup inert)",
             click_logged(W, "b3_agents_artifact_read_0", "AgentArtifactRead", lambda: shown(W, "b3_agents_artifact_title"))
@@ -100,7 +106,7 @@ def walk(W: Walk) -> None:
 
     W.note("== 4. Read output -> Load more (appends from next_cursor)")
     W.check("agents: Read output CLICK -> the output card with Load more",
-            click_logged(W, "b3_agents_row_0_act_output", "AgentOutput", lambda: shown(W, "b3_agents_output_more")))
+            click_logged(W, act("output"), "AgentOutput", lambda: shown(W, "b3_agents_output_more")))
     W.check("agents: Load more CLICK -> the next page appended, Load more gone",
             click_logged(W, "b3_agents_output_more", "AgentOutput", lambda: not W.visible("b3_agents_output_more")
                          and shown(W, "b3_agents_output_text") and "12 passed, 0 failed" in W.text("b3_agents_output_text")))
@@ -109,11 +115,11 @@ def walk(W: Walk) -> None:
 
     W.note("== 5. Interrupt agent (row 0, running) -> the recorded receipt")
     W.check("agents: Interrupt agent CLICK -> agent/interrupt -> status 'interrupted' + activity line",
-            click_logged(W, "b3_agents_row_0_act_interrupt", "AgentControl", lambda: shown(W, "b3_agents_activity")
+            click_logged(W, act("interrupt"), "AgentControl", lambda: shown(W, "b3_agents_activity")
                          and "interrupted" in W.text("b3_agents_activity")))
     W.check("agents: the interrupted row offers no further control",
-            not shown(W, "b3_agents_row_0_act_interrupt") or not any(
-                w["i"] == "b3_agents_row_0_act_interrupt" and w.get("ty") == "Button" for w in W.snap()))
+            not shown(W, act("interrupt")) or not any(
+                w["i"] == act("interrupt") and w.get("ty") == "Button" for w in W.snap()))
     W.scroll_into("b3_agents_activity", "b3_scroll")
     W.shot(f"05-interrupted-{MODE}")
 

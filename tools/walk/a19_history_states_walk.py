@@ -200,6 +200,9 @@ def geometry(tag, s):
     area = rect("empty_splash", s) or rect("empty_state", s)
     comp = rect("i0_composer_0", s)
     head = rect("hd_title", s)
+    # A Mac's loading pane is its spinner and title: no hint to measure.
+    if not PHONE and not text("history_hint", s):
+        hint = [title[0], title[1] + title[3], title[2], 0] if title else None
     check(f"{tag}: the column, title and hint are laid out", bool(col and title and hint and area),
           f"col {col} title {title} hint {hint} area {area}")
     if not (col and title and hint and area):
@@ -254,8 +257,9 @@ def run_loading():
               welcome == 0 and n > 0, f"{n} frames: {welcome} welcome, {loading} loading")
         check("loading: 'Loading conversation…' while the read is in flight", loading > 0)
         if first_loading is not None:
-            check("loading: the hint is 'Restoring session state'",
-                  text("history_hint", first_loading) == "Restoring session state", repr(text("history_hint", first_loading)))
+            hint = "Restoring session state" if PHONE else ""
+            check(f"loading: the hint is '{hint}'",
+                  text("history_hint", first_loading) == hint, repr(text("history_hint", first_loading)))
             check("loading: no transcript row under it", not rows_on_screen(first_loading))
             geometry("loading", first_loading)
         s = snap()
@@ -281,11 +285,11 @@ def run_failed():
             s = snap()
             n += 1
             welcome += bool(visible(s, "empty_title"))
-            if text("history_title", s) == "Session recovery required":
+            if text("history_title", s) == ("Session recovery required" if PHONE else "Couldn’t Load This Chat"):
                 break
             time.sleep(0.15)
         check("failed: 'Session recovery required' once the retry is refused too",
-              text("history_title", s) == "Session recovery required", repr(text("history_title", s)))
+              text("history_title", s) == ("Session recovery required" if PHONE else "Couldn’t Load This Chat"), repr(text("history_title", s)))
         check("failed: never the empty welcome on the way", welcome == 0, f"{n} frames: {welcome} welcome")
         hint = text("history_hint", s) or ""
         check("failed: the reason is shown (the server's message)", "unknown session: dsflash:main" in hint, repr(hint))

@@ -129,20 +129,24 @@ fn state_word(state: &AsideState) -> (&'static str, &'static str) {
 /// K1 / `dialog_view::PILL_H`, as region 4 draws it) — with its host hit.
 fn close_pill(m: &Metrics) -> String {
     let s = scale(m.density);
+    let (h, corner) = crate::desk::by((32.0, 16.0), (28.0, 3.0));
+    let (face, px, line) = crate::desk::by((Face::Medium, s.small, s.small_line), (Face::Regular, s.body, s.body_line));
+    let t = crate::desk::current();
+    let (fill, edge) = crate::desk::by((SURFACE, BORDER), (t.button.as_str(), t.border.as_str()));
     format!(
-        "btw_aside_close := View{{width: Fit height: 32 flow: Overlay\n\
-         RoundedView{{width: Fit height: 32 flow: Right align: Align{{y: 0.5}} padding: Inset{{left: 12 right: 12}}\n\
-         draw_bg +: {{color: {SURFACE} border_radius: 16.0 border_size: 1.0 border_color: {BORDER}}}\n\
+        "btw_aside_close := View{{width: Fit height: {h} flow: Overlay\n\
+         RoundedView{{width: Fit height: {h} flow: Right align: Align{{y: 0.5}} padding: Inset{{left: 12 right: 12}}\n\
+         draw_bg +: {{color: {fill} border_radius: {corner} border_size: 1.0 border_color: {edge}}}\n\
          {l}}}\n\
-         {h}}}\n",
+         {h_hit}}}\n",
         l = label(
             "btw_aside_close_label",
             tr("Close"),
-            &style(Face::Medium, s.small, s.small_line),
+            &style(face, px, line),
             INK,
             "width: Fit height: Fit",
         ),
-        h = hit("btw_aside_close_hit", 16.0),
+        h_hit = hit("btw_aside_close_hit", corner),
     )
 }
 
@@ -150,7 +154,9 @@ fn close_pill(m: &Metrics) -> String {
 pub fn panel(v: &PanelView, m: &Metrics, window_h: f64) -> String {
     let s = scale(m.density);
     let title_style = style(Face::SemiBold, s.body, s.body_line);
-    let title = label("btw_aside_title", tr("Aside — /btw"), &title_style, INK, "width: Fit height: Fit");
+    let title_word = crate::desk::command("Aside — /btw", tr("Aside — /btw"));
+    let title = label("btw_aside_title", &title_word, &title_style, INK, "width: Fit height: Fit");
+    let corner = crate::desk::by(12.0, 4.0);
     if v.aside.collapsed {
         // Region 5b: › Aside — /btw · the question (one line) · state · Close.
         // A phone's 336 px card keeps the question readable: "Answered" (the
@@ -172,7 +178,7 @@ pub fn panel(v: &PanelView, m: &Metrics, window_h: f64) -> String {
         return format!(
             "btw_aside := RoundedView{{width: Fill height: Fit flow: Right align: Align{{y: 0.5}} spacing: 8 \
              padding: Inset{{left: 8 right: 10 top: 6 bottom: 6}}\n\
-             draw_bg +: {{color: {SURFACE} border_radius: 12.0 border_size: 1.0 border_color: {BORDER}}}\n\
+             draw_bg +: {{color: {SURFACE} border_radius: {corner} border_size: 1.0 border_color: {BORDER}}}\n\
              btw_aside_toggle := View{{width: Fill height: {HEAD_H} flow: Overlay\n\
              View{{width: Fill height: Fill flow: Right align: Align{{y: 0.5}} spacing: {gap} padding: Inset{{left: 4 right: 4}}\n\
              {chev}{title}{question}{word}}}\n\
@@ -196,7 +202,7 @@ pub fn panel(v: &PanelView, m: &Metrics, window_h: f64) -> String {
     body.push_str(&label(
         "btw_aside_scope",
         &v.scope,
-        &style(Face::Mono, s.tiny, s.small_line - 2.0),
+        &crate::desk::by(style(Face::Mono, s.tiny, s.small_line - 2.0), style(Face::Regular, s.small, s.small_line)),
         MUTED,
         "width: Fill height: Fit max_lines: 1 text_overflow: TextOverflow.Ellipsis",
     ));
@@ -267,7 +273,7 @@ pub fn panel(v: &PanelView, m: &Metrics, window_h: f64) -> String {
     format!(
         "btw_aside := RoundedView{{width: Fill height: Fit flow: Down spacing: {HEAD_GAP} \
          padding: Inset{{left: 16 right: 12 top: {PAD_TOP} bottom: {PAD_BOTTOM}}}\n\
-         draw_bg +: {{color: {SURFACE} border_radius: 12.0 border_size: 1.0 border_color: {BORDER}}}\n\
+         draw_bg +: {{color: {SURFACE} border_radius: {corner} border_size: 1.0 border_color: {BORDER}}}\n\
          btw_aside_head := View{{width: Fill height: {HEAD_H} flow: Right align: Align{{y: 0.5}} spacing: 8\n\
          btw_aside_toggle := View{{width: Fit height: {HEAD_H} flow: Overlay\n\
          View{{width: Fit height: Fill flow: Right align: Align{{y: 0.5}} spacing: 6 padding: Inset{{right: 6}}\n\

@@ -658,9 +658,31 @@ fn section_title(d: &mut Dsl, id: &str, label: &str, count: Option<usize>) {
     d.view(&row, "width: Fill height: 26 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
     d.text(id, label, &Txt::new(13.5, Face::Semibold, tok::TEXT).w(W::Fill));
     if let Some(n) = count {
-        d.chip(&format!("{id}_count"), &n.to_string(), tok::MUTED, tok::CHIP, None, false);
+        if crate::desk::active() {
+            d.text(&format!("{id}_count"), &n.to_string(), &Txt::new(11.0, Face::Regular, tok::MUTED));
+        } else {
+            d.chip(&format!("{id}_count"), &n.to_string(), tok::MUTED, tok::CHIP, None, false);
+        }
     }
     d.close();
+}
+
+/// A Mac's list: one group with hairlines between its rows, not a stack of
+/// cards. The rows inside it draw no surface of their own.
+fn list_open(d: &mut Dsl, phone_props: &str) {
+    let list = d.anon();
+    if crate::desk::active() {
+        d.surface(&list, "width: Fill height: Fit flow: Down", tok::SURFACE, 8.0, Some(tok::HAIRLINE));
+    } else {
+        d.view(&list, phone_props);
+    }
+}
+
+fn list_rule(d: &mut Dsl, i: usize) {
+    if crate::desk::active() && i > 0 {
+        let id = d.anon();
+        d.rule(&id, "width: Fill height: 1 margin: Inset{left: 12 right: 12}", tok::HAIRLINE);
+    }
 }
 
 fn empty_box(d: &mut Dsl, id: &str, text: &str) {
@@ -668,7 +690,7 @@ fn empty_box(d: &mut Dsl, id: &str, text: &str) {
         &format!("{id}_box"),
         "width: Fill height: Fit flow: Down padding: Inset{left: 14 right: 14 top: 14 bottom: 14}",
         tok::SURFACE,
-        12.0,
+        crate::desk::by(12.0, 8.0),
         Some("#d9d9dcff"),
     );
     d.text(id, text, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
@@ -689,7 +711,12 @@ fn state_color(state: &str) -> &'static str {
 pub fn pane(d: &mut Dsl, store: &Store, st: &TrajState, width: f64, phone: bool) {
     let avail = Avail::of(store);
     let session = store.active_session().unwrap_or_default();
-    let col_w = (width - if phone { 32.0 } else { 48.0 }).min(760.0).max(200.0).floor();
+    // A Mac's content fills its pane, with the pane's gutters.
+    let col_w = if crate::desk::active() {
+        (width - 40.0).max(200.0).floor()
+    } else {
+        (width - if phone { 32.0 } else { 48.0 }).min(760.0).max(200.0).floor()
+    };
     d.view("cv_tr_root", "width: Fill height: Fill flow: Down align: Align{x: 0.5 y: 0.0}");
     d.open(
         "cv_tr_scroll",
@@ -741,10 +768,12 @@ pub fn pane(d: &mut Dsl, store: &Store, st: &TrajState, width: f64, phone: bool)
         match status {
             Some(r) => {
                 ui::card_open(d, "cv_tr_status", 0.0);
+                // n11o (E9 2): a Mac says a session's health as it says a
+                // battery's: Condition, Normal.
                 for (i, (label, value)) in [
                     ("Model", r.model.clone()),
                     ("Permission", r.permission.clone()),
-                    ("Health", r.health.clone()),
+                    (crate::desk::by("Health", "Condition"), r.health.clone()),
                 ]
                 .iter()
                 .enumerate()
@@ -755,9 +784,15 @@ pub fn pane(d: &mut Dsl, store: &Store, st: &TrajState, width: f64, phone: bool)
                     let row = d.anon();
                     d.view(&row, "width: Fill height: 34 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 12");
                     d.text(&format!("cv_tr_st_label_{i}"), tr(label), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
+                    let shown = value.as_deref().map(|v| match (crate::desk::active(), i) {
+                        (true, 0) => crate::screens::models::model_name(store, v),
+                        (true, 2) if v.eq_ignore_ascii_case("ok") => tr("Normal").to_owned(),
+                        (true, _) => crate::desk::sentence(&v.replace('_', " ")),
+                        (false, _) => v.to_owned(),
+                    });
                     d.text(
                         &format!("cv_tr_st_value_{i}"),
-                        value.as_deref().unwrap_or(tr("Not reported")),
+                        shown.as_deref().unwrap_or(tr("Not reported")),
                         &Txt::new(12.5, Face::Medium, if value.is_some() { tok::TEXT } else { tok::FAINT }),
                     );
                     d.close();
@@ -775,17 +810,24 @@ pub fn pane(d: &mut Dsl, store: &Store, st: &TrajState, width: f64, phone: bool)
         d.gap(W::Fill, 8.0);
         match plan {
             Some(p) => {
-                let list = d.anon();
-                d.view(&list, "width: Fill height: Fit flow: Down spacing: 6");
+                list_open(d, "width: Fill height: Fit flow: Down spacing: 6");
                 for (i, item) in p.items.iter().enumerate() {
-                    d.surface(
-                        &format!("cv_tr_plan_{i}"),
-                        "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{left: 12 right: 12 top: 11 bottom: 11}",
-                        tok::SURFACE,
-                        12.0,
-                        Some(tok::HAIRLINE),
-                    );
-                    d.icon(&format!("cv_tr_plan_mark_{i}"), super::plan::mark(&item.status), 20.0, tok::BLUE);
+                    list_rule(d, i);
+                    if crate::desk::active() {
+                        d.view(
+                            &format!("cv_tr_plan_{i}"),
+                            "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 12 right: 12 top: 7 bottom: 7}",
+                        );
+                    } else {
+                        d.surface(
+                            &format!("cv_tr_plan_{i}"),
+                            "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{left: 12 right: 12 top: 11 bottom: 11}",
+                            tok::SURFACE,
+                            12.0,
+                            Some(tok::HAIRLINE),
+                        );
+                    }
+                    d.icon(&format!("cv_tr_plan_mark_{i}"), super::plan::mark(&item.status), crate::desk::by(20.0, 16.0), tok::BLUE);
                     d.text(
                         &format!("cv_tr_plan_title_{i}"),
                         item.title.trim(),
@@ -817,9 +859,9 @@ pub fn pane(d: &mut Dsl, store: &Store, st: &TrajState, width: f64, phone: bool)
         if rows.is_empty() {
             empty_box(d, "cv_tr_tasks_empty", tr("No background tasks in this session."));
         } else {
-            let list = d.anon();
-            d.view(&list, "width: Fill height: Fit flow: Down spacing: 6");
+            list_open(d, "width: Fill height: Fit flow: Down spacing: 6");
             for (i, t) in rows.iter().enumerate() {
+                list_rule(d, i);
                 task_row(d, i, t, &avail, col_w);
             }
             d.close();
@@ -831,17 +873,27 @@ pub fn pane(d: &mut Dsl, store: &Store, st: &TrajState, width: f64, phone: bool)
 }
 
 fn task_row(d: &mut Dsl, i: usize, t: &TaskSnapshot, avail: &Avail, col_w: f64) {
-    d.surface(
-        &format!("cv_tr_task_{i}"),
-        "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 4 right: 6 top: 4 bottom: 4}",
-        tok::SURFACE,
-        12.0,
-        Some(tok::HAIRLINE),
-    );
+    if crate::desk::active() {
+        d.view(
+            &format!("cv_tr_task_{i}"),
+            "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 4 right: 10 top: 2 bottom: 2}",
+        );
+    } else {
+        d.surface(
+            &format!("cv_tr_task_{i}"),
+            "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 4 right: 6 top: 4 bottom: 4}",
+            tok::SURFACE,
+            12.0,
+            Some(tok::HAIRLINE),
+        );
+    }
     // The body: a tap target when the detail can open (`SessionTrajectory.tsx:117-130`).
     d.view(&format!("cv_tr_task_body_{i}"), "width: Fill height: Fit flow: Overlay");
     let row = d.anon();
-    d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{left: 10 right: 6 top: 8 bottom: 8}");
+    d.view(&row, crate::desk::by(
+        "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{left: 10 right: 6 top: 8 bottom: 8}",
+        "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{left: 10 right: 6 top: 5 bottom: 5}",
+    ));
     d.dot(state_color(&t.state), 8.0);
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 2");
@@ -853,7 +905,7 @@ fn task_row(d: &mut Dsl, i: usize, t: &TaskSnapshot, avail: &Avail, col_w: f64) 
     );
     d.text(
         &format!("cv_tr_task_meta_{i}"),
-        &ui::fit_w(&task_meta(t), budget, 11.5, Face::Regular),
+        &ui::fit_w(&crate::desk::capital(&task_meta(t)), budget, 11.5, Face::Regular),
         &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill),
     );
     if let Some(err) = t.error.as_deref().filter(|e| !e.trim().is_empty()) {
@@ -890,7 +942,9 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
     d.view(&head, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.0} spacing: 10");
     let tcol = d.anon();
     d.view(&tcol, "width: Fill height: Fit flow: Down spacing: 3");
-    d.text("cv_td_eyebrow", &tr("Supervised task").to_uppercase(), &Txt::new(11.0, Face::Medium, tok::BLUE_TEXT).w(W::Fill));
+    if !crate::desk::active() {
+        d.text("cv_td_eyebrow", &tr("Supervised task").to_uppercase(), &Txt::new(11.0, Face::Medium, tok::BLUE_TEXT).w(W::Fill));
+    }
     let title = task.as_ref().map(task_title).unwrap_or_else(|| tr("Task output").into());
     d.text("cv_td_title", &ui::fit_w(&title, width - 180.0, 17.0, Face::Semibold), &Txt::new(17.0, Face::Semibold, tok::TEXT).w(W::Fill));
     d.close();
@@ -920,17 +974,22 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
         d.view(&ph, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
         d.text("cv_td_out_title", tr("Output"), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
         if let Some(o) = &det.output {
-            // :70-73 — the count, t("bytes ·"), the source as sent.
-            d.text(
-                "cv_td_out_meta",
-                &format!(
-                    "{} {} {}",
-                    group_thousands(o.total_bytes),
-                    tr("bytes ·"),
-                    if o.source.is_empty() { "runtime".into() } else { o.source.replace('_', " ") }
-                ),
-                &Txt::new(11.5, Face::Regular, tok::MUTED),
-            );
+            // :70-73 — the count, t("bytes ·"), the source as sent. A Mac's
+            // reader has the count; where the bytes came from is the runtime's.
+            let source = if crate::desk::active() {
+                String::new()
+            } else if o.source.is_empty() {
+                "runtime".into()
+            } else {
+                o.source.replace('_', " ")
+            };
+            let meta = format!("{} {} {}", group_thousands(o.total_bytes), tr("bytes ·"), source);
+            let meta = if crate::desk::active() {
+                meta.trim_end_matches(|c: char| c == ' ' || c == '·').to_owned()
+            } else {
+                meta
+            };
+            d.text("cv_td_out_meta", &meta, &Txt::new(11.5, Face::Regular, tok::MUTED));
         }
         d.close();
         d.surface(
@@ -973,7 +1032,12 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
         let ph = d.anon();
         d.view(&ph, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
         d.text("cv_td_art_title", tr("Artifacts"), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
-        d.chip("cv_td_art_count", &det.artifacts.as_ref().map(Vec::len).unwrap_or(0).to_string(), tok::MUTED, tok::CHIP, None, false);
+        let art_count = det.artifacts.as_ref().map(Vec::len).unwrap_or(0).to_string();
+        if crate::desk::active() {
+            d.text("cv_td_art_count", &art_count, &Txt::new(11.0, Face::Regular, tok::MUTED));
+        } else {
+            d.chip("cv_td_art_count", &art_count, tok::MUTED, tok::CHIP, None, false);
+        }
         d.close();
         let arts = det.artifacts.clone().unwrap_or_default();
         if arts.is_empty() {
@@ -983,12 +1047,18 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
             d.view(&list, "width: Fill height: Fit flow: Down spacing: 6");
             for (i, a) in arts.iter().enumerate() {
                 let on = det.selected.as_ref().map(|s| s.artifact.id == a.id).unwrap_or(false);
+                let mac_selected = crate::desk::active().then(|| crate::desk::current().selected);
+                let fill = match (&mac_selected, on) {
+                    (Some(gray), true) => gray.as_str(),
+                    (None, true) => tok::BLUE_BG,
+                    _ => tok::SURFACE,
+                };
                 d.surface(
                     &format!("cv_td_art_{i}_box"),
                     "width: Fill height: Fit flow: Overlay",
-                    if on { tok::BLUE_BG } else { tok::SURFACE },
+                    fill,
                     10.0,
-                    Some(if on { tok::BLUE } else { tok::HAIRLINE }),
+                    Some(if on && mac_selected.is_none() { tok::BLUE } else { tok::HAIRLINE }),
                 );
                 let col = d.anon();
                 d.view(&col, "width: Fill height: Fit flow: Down spacing: 2 padding: Inset{left: 12 right: 12 top: 9 bottom: 9}");

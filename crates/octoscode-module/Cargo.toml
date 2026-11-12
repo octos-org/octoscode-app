@@ -8,12 +8,13 @@ description = "Native OctosCode UI with optional OctoSense module integration"
 
 [features]
 default = []
-octosense-module = ["dep:makepad-app-module"]
+octosense-module = ["dep:makepad-app-module", "dep:makepad-wm-api"]
 
 [dependencies]
 # The Makepad AppModule surface (re-homed from the D9 shape-(i) spike).
 makepad-widgets = { workspace = true }
 makepad-app-module = { workspace = true, optional = true }
+makepad-wm-api = { workspace = true, optional = true }
 # Our crates.
 octoscode-client = { workspace = true }
 octoscode-store = { workspace = true }

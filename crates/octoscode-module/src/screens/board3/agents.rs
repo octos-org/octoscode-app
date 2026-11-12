@@ -76,6 +76,13 @@ pub struct AgentsState {
     /// A turn is running or queued in the owning session (the spawn is
     /// idle-only); the host reports it every frame.
     pub turn_busy: bool,
+    /// A Mac's roster: the selected agent (else the first).
+    pub selected: Option<usize>,
+}
+
+/// A Mac roster's selection: the chosen agent, else the first.
+fn selection(st: &AgentsState, rows: usize) -> Option<usize> {
+    ui::selection_of(st.selected, None, rows)
 }
 
 impl Default for AgentsState {
@@ -95,6 +102,7 @@ impl Default for AgentsState {
             form_gen: 0,
             loading: false,
             turn_busy: false,
+            selected: None,
         }
     }
 }
@@ -252,7 +260,33 @@ pub fn perform(st: &mut AgentsState, action: &str, index: usize, store: &Store) 
             let (id, path) = (st.query_id.trim().to_owned(), st.path.trim().to_owned());
             one(caps.artifact_read && !id.is_empty() && !path.is_empty(), Job::AgentArtifactRead(id, None, Some(path)))
         }
+        // A Mac's roster: a press selects, a second press reads the output; the
+        // arrows move the selection; the toolbar and the menu act on it.
+        "b3.agents.select" => {
+            if index >= store.domains.autonomy.agents().len() {
+                return Outcome::Done;
+            }
+            let double = ui::second_click("agents", index);
+            st.selected = Some(index);
+            if double { perform(st, "b3.agents.output", index, store) } else { Outcome::Done }
+        }
+        "b3.agents.up" | "b3.agents.down" => {
+            let rows = store.domains.autonomy.agents().len();
+            let step = if action == "b3.agents.up" { -1 } else { 1 };
+            st.selected = ui::step_selection(selection(st, rows), step, rows);
+            if let Some(i) = st.selected {
+                super::host::set_pending_reveal(format!("b3_agents_row_{i}"));
+            }
+            Outcome::Done
+        }
+        a if a.ends_with("_sel") => match selection(st, store.domains.autonomy.agents().len()) {
+            Some(i) => perform(st, a.trim_end_matches("_sel"), i, store),
+            None => Outcome::Done,
+        },
         a => {
+            if !a.contains(".id.") && index < store.domains.autonomy.agents().len() {
+                st.selected = Some(index);
+            }
             let Some(id) = target(st, store, a, index) else { return Outcome::Done };
             let verb = a.rsplit('.').next().unwrap_or("");
             let terminal = !a.contains(".id.")
@@ -604,14 +638,88 @@ fn actions(d: &mut Dsl, prefix: &str, base: &str, suffix: &str, caps: &Caps, ena
     d.close();
 }
 
+/// The verbs a Mac roster offers for one agent: (verb, words, needs control).
+fn verbs(caps: &Caps) -> Vec<(&'static str, &'static str, bool)> {
+    let mut v = Vec::new();
+    if caps.status {
+        v.push(("status", "Read status", false));
+    }
+    if caps.output {
+        v.push(("output", "Read output", false));
+    }
+    if caps.artifacts {
+        v.push(("artifacts", "List artifacts", false));
+    }
+    if caps.interrupt {
+        v.push(("interrupt", "Interrupt agent", true));
+    }
+    if caps.close {
+        v.push(("close", "Close agent", true));
+    }
+    v
+}
+
+/// A Mac agent's right-click menu: what the toolbar does to the selection.
+fn row_menu(caps: &Caps, i: usize, enabled: bool, controllable: bool) -> Vec<(String, String)> {
+    let mut items: Vec<(String, String)> = Vec::new();
+    if !enabled {
+        return items;
+    }
+    let mut ruled = false;
+    for (verb, words, control) in verbs(caps) {
+        if control && !controllable {
+            continue;
+        }
+        // One rule between reading an agent and stopping it.
+        if control && !ruled {
+            ruled = true;
+            if !items.is_empty() {
+                items.push(("-".to_owned(), String::new()));
+            }
+        }
+        items.push((ui::menu_word(words), format!("b3.agents.{verb}#{i}")));
+    }
+    items
+}
+
+/// A Mac's toolbar over the roster: what can be done to the selected agent
+/// (its right-click menu holds the same). Beside the roster's label while it
+/// fits, under it when it doesn't.
+fn roster_toolbar(d: &mut Dsl, caps: &Caps, (enabled, controllable): (bool, bool), width: f64) {
+    let verbs = verbs(caps);
+    let pill = |w: &str| (ui::text_w(&crate::desk::title(tr(w)), 13.0, Face::Medium) + 24.0).max(72.0);
+    let need = verbs.iter().map(|(_, w, _)| pill(w) + 8.0).sum::<f64>() + ui::text_w(tr("Agents"), 12.0, Face::Medium) + 16.0;
+    let beside = need <= width;
+    let row = d.anon();
+    d.view(&row, if beside {
+        "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{bottom: 2}"
+    } else {
+        "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{bottom: 2}"
+    });
+    ui::field_label(d, "b3_agents_roster_label", tr("Agents"));
+    let bar = d.anon();
+    d.view(&bar, if beside { "width: Fit height: Fit flow: Right spacing: 8" } else { "width: Fill height: Fit flow: Right{wrap: true} spacing: 8" });
+    for (verb, words, control) in verbs {
+        let on = enabled && (!control || controllable);
+        if verb == "close" && on {
+            d.red_word();
+        }
+        d.button(&format!("b3_agents_{verb}_sel"), tr(words), &format!("b3.agents.{verb}_sel"), if on { Btn::Outline } else { Btn::OutlineOff }, W::Fit, 28.0);
+    }
+    d.close();
+    d.close();
+}
+
 /// The web's `.danger` button: red text on a white pill with a red hairline.
 fn danger_button(d: &mut Dsl, id: &str, label: &str, event: &str, on: bool) {
-    let w = ui::text_w(label, 13.0, Face::Medium) + 32.0;
+    let mac = crate::desk::active();
+    let w = if mac { (ui::text_w(label, 13.0, Face::Medium) + 24.0).max(72.0) } else { ui::text_w(label, 13.0, Face::Medium) + 32.0 };
     let (fg, line) = if on { (tok::RED_TEXT, "#f1b8bcff") } else { (tok::DISABLED_INK, tok::HAIRLINE) };
-    d.surface(&format!("{id}_box"), &format!("width: {w} height: 30 flow: Overlay align: Align{{x: 0.5 y: 0.5}}"), tok::SURFACE, 15.0, Some(line));
+    let (h, radius, line) = if mac { (28, 6.0, crate::desk::current().border) } else { (30, 15.0, line.to_owned()) };
+    d.surface(&format!("{id}_box"), &format!("width: {w} height: {h} flow: Overlay align: Align{{x: 0.5 y: 0.5}}"), tok::SURFACE, radius, Some(&line));
     let inner = d.anon();
     d.view(&inner, "width: Fill height: Fill flow: Right align: Align{x: 0.5 y: 0.5}");
-    d.text(&format!("{id}_label"), label, &Txt::new(13.0, Face::Medium, fg));
+    d.text(&format!("{id}_label"), label, &Txt::new(13.0, if mac { Face::Regular } else { Face::Medium }, fg));
     d.close();
     if on {
         d.tap(id, event);
@@ -622,13 +730,16 @@ fn danger_button(d: &mut Dsl, id: &str, label: &str, event: &str, on: bool) {
 /// A labelled one-line input ("Agent count", "Agent ID").
 fn field(d: &mut Dsl, label_id: &str, label: &str, input_id: &str, key: &str, value: &str, placeholder: &str, mono: bool, w: W) {
     let col = d.anon();
-    d.view(&col, &format!("width: {} height: Fit flow: Down spacing: 6", match w {
+    let width = if crate::desk::active() { W::Fill } else { w };
+    d.view(&col, &format!("width: {} height: Fit flow: Down spacing: 6", match width {
         W::Px(v) => format!("{v}"),
         W::Fill => "Fill".into(),
         W::Fit => "Fit".into(),
     }));
-    ui::field_label(d, label_id, label);
+    let key_w = ui::form_key_w(&["Agent count", "Agent task", "Agent ID", "Artifact path"]);
+    ui::form_open(d, label_id, label, key_w);
     d.input(input_id, key, value, placeholder, mono, 36.0);
+    ui::form_close(d);
     d.close();
 }
 
@@ -666,6 +777,7 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
     let session = store.active_session().unwrap_or_default();
     d.text("b3_agents_scope", &session, &ui::micro().w(W::Fill));
     d.gap(W::Fill, 12.0);
+    ui::end_scroll_on_rows("b3_agents_row_", agents.len());
     ui::body_open(d, frame, width, 60.0);
     if !caps.any() {
         d.text(
@@ -682,8 +794,8 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
         ui::card_open(d, "b3_agents_spawn", 10.0);
         ui::section_title(d, "b3_agents_spawn_title", tr("Request parallel agents"));
         let fields = format!("b3_agents_form_{}", st.form_gen);
-        if compact {
-            d.view(&fields, "width: Fill height: Fit flow: Down spacing: 10");
+        if compact || crate::desk::active() {
+            d.view(&fields, &format!("width: Fill height: Fit flow: Down spacing: {}", crate::desk::by(10, 8)));
             field(d, "", tr("Agent count"), "b3_agents_count", "agents.count", &st.count_snap, "1", false, W::Fill);
         } else {
             d.view(&fields, "width: Fill height: Fit flow: Right spacing: 10");
@@ -703,15 +815,27 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
         d.button("b3_agents_spawn_disabled", tr("Request parallel agents"), "b3.agents.spawn", Btn::Disabled, W::Fit, 34.0);
         d.close();
         d.view("b3_agents_spawn_on", "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5}");
-        d.button("b3_agents_spawn_go", tr("Request parallel agents"), "b3.agents.spawn", Btn::Primary, W::Fit, 34.0);
+        // On a Mac the sheet's Done is its default; a word's weight shouldn't move as you type.
+        d.button("b3_agents_spawn_go", tr("Request parallel agents"), "b3.agents.spawn", crate::desk::by(Btn::Primary, Btn::Outline), W::Fit, 34.0);
         d.close();
         d.close();
         d.close();
         d.gap(W::Fill, 12.0);
     }
     // ---- The roster (`:165-195`).
+    let desk = crate::desk::active();
+    let sel = if desk { selection(st, agents.len()) } else { None };
     if caps.list {
-        ui::field_label(d, "b3_agents_roster_label", tr("Agents"));
+        let picked = sel.and_then(|i| agents.get(i)).map(|a| {
+            let on = !a.agent_id.trim().is_empty();
+            let pending = viewer.pending.iter().any(|p| p == &a.agent_id);
+            (on, on && !pending && !TERMINAL.contains(&a.status.as_str()))
+        });
+        if desk && !agents.is_empty() {
+            roster_toolbar(d, &caps, picked.unwrap_or((false, false)), inner_w + 28.0);
+        } else {
+            ui::field_label(d, "b3_agents_roster_label", tr("Agents"));
+        }
         if st.loading && agents.is_empty() {
             d.text("b3_agents_loading", tr("Loading agents…"), &ui::meta());
         } else if agents.is_empty() {
@@ -719,22 +843,54 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
         }
         for (i, a) in agents.iter().enumerate() {
             let id = format!("b3_agents_row_{i}");
-            ui::card_open(d, &id, 8.0);
+            let pending = viewer.pending.iter().any(|p| p == &a.agent_id);
+            let terminal = TERMINAL.contains(&a.status.as_str());
+            let enabled = !a.agent_id.trim().is_empty();
+            // A Mac's agent: a press selects it (the gray band); its menu holds
+            // what the toolbar does to the selection.
+            let menu = if desk { row_menu(&caps, i, enabled, enabled && !pending && !terminal) } else { Vec::new() };
+            if !menu.is_empty() {
+                d.menu_open(&format!("{id}_menu"), &menu);
+            }
+            let mark = d.mark();
+            if desk {
+                d.view(&format!("{id}_hit"), "width: Fill height: Fit flow: Overlay");
+                let band = ui::selection_fill();
+                d.surface(
+                    &id,
+                    "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}",
+                    if sel == Some(i) { band.as_str() } else { tok::SURFACE },
+                    8.0,
+                    Some(tok::HAIRLINE),
+                );
+            } else {
+                ui::card_open(d, &id, 8.0);
+            }
             let head = d.anon();
             d.view(&head, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
             d.text(&format!("{id}_name"), &ui::fit_w(&a.nickname, inner_w - 120.0, 13.0, Face::Semibold), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
             status_chip(d, &format!("{id}_status"), &a.status);
             d.close();
-            meta_row(d, &format!("{id}_role"), tr("Role"), &a.role, inner_w, compact);
+            meta_row(d, &format!("{id}_role"), tr("Role"), &crate::desk::wire_word(&a.role), inner_w, compact);
             let last = a.last_task.clone().or_else(|| a.title.clone()).unwrap_or_else(|| "—".into());
             meta_row(d, &format!("{id}_last"), tr("Last task"), &last, inner_w, compact);
             if let Some(tail) = a.output_tail.as_deref().filter(|t| !t.trim().is_empty()) {
                 pre(d, &format!("{id}_tail"), tail);
             }
-            let pending = viewer.pending.iter().any(|p| p == &a.agent_id);
-            let terminal = TERMINAL.contains(&a.status.as_str());
-            actions(d, &format!("{id}_act"), "b3.agents.", &format!("#{i}"), &caps, !a.agent_id.trim().is_empty(), !pending && !terminal);
+            if !desk {
+                actions(d, &format!("{id}_act"), "b3.agents.", &format!("#{i}"), &caps, enabled, !pending && !terminal);
+            }
             d.close();
+            if desk {
+                d.tap(&format!("{id}_tap"), &format!("b3.agents.select#{i}"));
+                d.close(); // the hit area
+                if sel == Some(i) {
+                    d.accent_since(mark);
+                }
+            }
+            if !menu.is_empty() {
+                d.close(); // the menu
+            }
         }
         d.gap(W::Fill, 4.0);
     }
@@ -847,7 +1003,11 @@ pub fn build(d: &mut Dsl, st: &AgentsState, frame: &Frame, store: &Store) {
     }
     if let Some(e) = store.domains.autonomy.error(FAMILY) {
         d.gap(W::Fill, 6.0);
-        ui::error_line(d, "b3_agents_error", failure_lead(&e), &e);
+        if crate::desk::active() && ui::is_protocol_error(&e) {
+            ui::failure_state(d, "b3_agents_error", failure_lead(&e), &e, ("b3_agents_retry", "b3.agents.refresh"));
+        } else {
+            ui::error_line(d, "b3_agents_error", failure_lead(&e), &e);
+        }
     }
     ui::body_close(d);
     ui::shell_close(d);

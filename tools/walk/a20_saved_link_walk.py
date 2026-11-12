@@ -71,7 +71,7 @@ def panel_checks(w, name):
 def refused(w):
     shot = lambda n: w.shot(f"{MODE}-{n}")
     w.check("the panel 'Open saved conversation' is offered",
-            w.wait(lambda: w.text("b3_title") == "Open saved conversation", 20), repr(w.text("b3_title")))
+            w.wait(lambda: w.text("b3_title") == ("Open saved conversation" if MODE == "phone" else "Open Saved Conversation"), 20), repr(w.text("b3_title")))
     w.check("panel: the workspace the link names", w.text("b3_link_workspace") == LINK_WS, repr(w.text("b3_link_workspace")))
     w.check("panel: the server in use", f"127.0.0.1:{FPORT}" in (w.text("b3_link_server") or ""), repr(w.text("b3_link_server")))
     w.check("panel: the conversation details start closed (the web's <details>)", not w.visible("b3_link_session"))
@@ -109,7 +109,7 @@ def refused(w):
 
 def exact(w):
     shot = lambda n: w.shot(f"{MODE}-{n}")
-    w.check("B: the panel is offered", w.wait(lambda: w.text("b3_title") == "Open saved conversation", 20))
+    w.check("B: the panel is offered", w.wait(lambda: w.text("b3_title") == ("Open saved conversation" if MODE == "phone" else "Open Saved Conversation"), 20))
     w.check("B: CLICK Open conversation", w.click("b3_link_open"))
     w.check("B: wire: session/open {session: <link>, cwd: <the exact workspace>}",
             w.wait(lambda: any(p.get("cwd") == REAL_WS for p in w.wire("session/open", XID)), 10), str(w.wire("session/open", XID)))
@@ -122,7 +122,7 @@ def exact(w):
 
 def invalid(w):
     shot = lambda n: w.shot(f"{MODE}-{n}")
-    w.check("C: an invalid link says so", w.wait(lambda: w.text("b3_title") == "This conversation link is invalid", 20),
+    w.check("C: an invalid link says so", w.wait(lambda: w.text("b3_title") == ("This conversation link is invalid" if MODE == "phone" else "This Conversation Link Is Invalid"), 20),
             repr(w.text("b3_title")))
     shot("15-link-invalid")
     w.check("C: CLICK Dismiss link", w.click("b3_link_dismiss"))

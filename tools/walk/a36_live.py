@@ -97,7 +97,7 @@ def walk(W: Walk):
     joined = " ".join(texts(W))
     W.check("live: no raw server error, no admin memory shown as dsflash's, no Add note (D1)",
             not any(x in joined for x in ("ProfileRuntime", "admin", "No knowledge pages yet")) and not W.visible("b3_mem_add"))
-    W.check("live: the scope line names the Session's profile in plain text (D1)", W.text("b3_mem_scope") == "Server Profile: dsflash")
+    W.check("live: the scope line names the Session's profile in plain text (D1)", (W.text("b3_mem_scope") if PHONE else W.text_hidden_too("b3_mem_scope")) == "Server Profile: dsflash")
     numeric(W, "live refused")
     W.shot(f"04-memory-refused-live-{MODE}")
     r = W.rect("b3_mem_query")

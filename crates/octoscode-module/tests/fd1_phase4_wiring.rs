@@ -141,8 +141,8 @@ fn the_connect_screen_and_the_settings_rows_open_board_one() {
         let b = a + chrome[a..].find(end).unwrap_or_else(|| panic!("{end} missing"));
         &chrome[a..b]
     };
-    assert!(section("sec_model := View{", "sec_sandbox := View{").contains("b1_set_provider := OcHit"));
-    assert!(section("sec_connection := View{", "sec_about := View{").contains("b1_set_connection := OcHit"));
+    assert!(section("sec_model := OcSection{", "sec_sandbox := OcSection{").contains("b1_set_provider := OcHit"));
+    assert!(section("sec_connection := OcSection{", "sec_about := OcSection{").contains("b1_set_connection := OcHit"));
     // The sidebar's + Add workspace (A3's `workspace.add`) opens board 1.
     let lib = include_str!("../src/lib.rs");
     let arm = section_of(lib, "if screens::sidebar::take_add_request() {", "}");

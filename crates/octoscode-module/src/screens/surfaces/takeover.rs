@@ -362,8 +362,8 @@ pub fn approval_card(
     }
     // `{tool} · {kind}` (ApprovalPanel.tsx:81-84).
     let tool_line = match a.kind.as_deref().filter(|k| !k.is_empty()) {
-        Some(k) => format!("{} · {k}", a.tool_name),
-        None => a.tool_name.clone(),
+        Some(k) => format!("{} · {}", crate::desk::tool_word(&a.tool_name), crate::desk::tool_word(k)),
+        None => crate::desk::tool_word(&a.tool_name),
     };
     d.text("cv_ap_tool", &tool_line, &Txt::new(12.0, Face::Regular, tok::FAINT).w(W::Fill));
     if let Some((id, err)) = &ui_state.error {
@@ -374,10 +374,12 @@ pub fn approval_card(
     }
     d.gap(W::Fill, if look.phone { 16.0 } else { 14.0 });
     let hint = if diff { "Y / S / N / D" } else { "Y / S / N" };
+    // Under a sheet, the sheet's default is the only one.
+    let sheet_up = crate::desk::sheet_up();
     let kind = |primary: bool| {
         if busy {
             Btn::Disabled
-        } else if primary {
+        } else if primary && !sheet_up {
             Btn::Primary
         } else {
             Btn::Outline
@@ -405,7 +407,10 @@ pub fn approval_card(
         // hint at its start.
         let row = d.anon();
         d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-        d.text("cv_ap_hint", hint, &Txt::new(12.0, Face::Regular, tok::FAINT));
+        // A Mac's buttons don't spell out their keys.
+        if !crate::desk::active() {
+            d.text("cv_ap_hint", hint, &Txt::new(12.0, Face::Regular, tok::FAINT));
+        }
         d.gap(W::Fill, 1.0);
         if diff {
             d.button("cv_ap_diff", tr("Review diff"), "cv.approval.diff", kind(false), W::Fit, 34.0);
@@ -469,8 +474,8 @@ pub fn question_card(d: &mut Dsl, q: &PendingQuestion, qs: &[Question], st: &Que
         // card's title already says it.
         d.text(
             &format!("cv_q_{qi}_header"),
-            &question.header.to_uppercase(),
-            &Txt::new(11.0, Face::Medium, tok::MUTED).w(W::Fill),
+            &crate::desk::by(question.header.to_uppercase(), question.header.clone()),
+            &Txt::new(crate::desk::by(11.0, 12.0), Face::Medium, tok::MUTED).w(W::Fill),
         );
         if !single {
             d.gap(W::Fill, 3.0);
@@ -525,14 +530,15 @@ pub fn question_card(d: &mut Dsl, q: &PendingQuestion, qs: &[Question], st: &Que
         d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
         // `Esc stops the active turn` (UserQuestionPanel.tsx:188-192), as a
         // control too: the phone has no Escape key.
-        d.link("cv_q_stop", tr("Stop turn · Esc"), if st.busy { None } else { Some("cv.q.stop") }, 12.5);
+        // A Mac's button doesn't spell out its key.
+        d.link("cv_q_stop", tr(crate::desk::by("Stop turn · Esc", "Stop turn")), if st.busy { None } else { Some("cv.q.stop") }, 12.5);
         d.gap(W::Fill, 1.0);
         let col = d.anon();
         d.view(&col, "width: Fit height: Fit flow: Down align: Align{x: 1.0 y: 0.5} spacing: 2");
         d.text("cv_q_consequence", tr(CONSEQUENCE), &Txt::new(12.0, Face::Regular, tok::MUTED));
         d.text("cv_q_reason", reason, &Txt::new(12.0, Face::Regular, tok::FAINT));
         d.close();
-        d.button("cv_q_submit", primary_label, "cv.q.submit", Btn::Primary, W::Px(150.0), 38.0);
+        d.button("cv_q_submit", primary_label, "cv.q.submit", if crate::desk::sheet_up() { Btn::Outline } else { Btn::Primary }, W::Px(150.0), 38.0);
         d.button("cv_q_submit_off", primary_label, "cv.q.submit", Btn::Disabled, W::Px(150.0), 38.0);
         d.close();
     }
@@ -553,7 +559,12 @@ fn option_row(
 ) {
     let id = format!("cv_q_{qi}_opt_{oi}");
     let ring = if focused { Some(tok::BLUE) } else { None };
-    let fill = if selected { tok::BLUE_BG } else { tok::SURFACE };
+    let mac_selected = crate::desk::active().then(|| crate::desk::current().selected);
+    let fill = match (&mac_selected, selected) {
+        (Some(gray), true) => gray.as_str(),
+        (None, true) => tok::BLUE_BG,
+        _ => tok::SURFACE,
+    };
     d.surface(
         &format!("{id}_box"),
         "width: Fill height: Fit flow: Overlay",
@@ -586,7 +597,8 @@ fn option_row(
             .wrap(),
     );
     if !desc.trim().is_empty() {
-        d.text(&format!("{id}_desc"), desc.trim(), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        let ink = if selected && mac_selected.is_some() { tok::TEXT } else { tok::MUTED };
+        d.text(&format!("{id}_desc"), desc.trim(), &Txt::new(12.0, Face::Regular, ink).w(W::Fill).wrap());
     }
     d.close();
     d.close();

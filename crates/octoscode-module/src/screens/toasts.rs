@@ -128,6 +128,29 @@ pub fn clean_cause(s: &str) -> String {
     out
 }
 
+/// What a toast says of its cause. On a desktop, a shell's refusal or a
+/// protocol error is the log's to keep (`push` logs it whole): the lead stands
+/// alone, or with the refusal in a person's words.
+pub(crate) fn cause_shown(cause: &str) -> String {
+    if crate::desk::active() {
+        if cause.contains(" may not call session/open") {
+            return crate::i18n::tr("OctosCode may not work in that folder.").to_owned();
+        }
+        if is_no_provider(cause) {
+            return crate::i18n::tr(crate::screens::board1::NO_PROVIDER_NOTE).to_owned();
+        }
+        if cause.contains(" may not call ") || cause.contains(":api:") || ui::is_protocol_error(cause) {
+            return String::new();
+        }
+    }
+    clean_cause(cause)
+}
+
+/// The kernel has no model provider yet, so it opens no session.
+pub fn is_no_provider(cause: &str) -> bool {
+    cause.contains("is not configured for this AppUI session")
+}
+
 /// A failure of `op` with the client's error text: queue it and wake the UI.
 /// Called from the runtime threads (the `lib.rs` arms that used to only log).
 pub fn failed(op: Op, cause: &str) {
@@ -137,7 +160,7 @@ pub fn failed(op: Op, cause: &str) {
 
 /// Queue one toast. Returns its id.
 pub fn push(lead: &str, cause: &str) -> u64 {
-    let cause_shown = clean_cause(cause);
+    let cause_shown = cause_shown(cause);
     makepad_widgets::log!("[octoscode] toast: {lead} — {}", cause.trim());
     with(|q| {
         if let Some(t) = q.items.iter_mut().find(|t| t.lead == lead && t.cause == cause_shown) {
@@ -322,7 +345,9 @@ pub fn lower(width: f64, room: f64) -> Option<Lowered> {
     // hairline divider, not a box"), so nothing under the stack shows
     // between its rows; raised over a dark look's window (the window and
     // the light card are both the surface colour there).
-    let fill = if crate::screens::theme::resolved() == "dark" { tok::CHIP } else { tok::SURFACE };
+    // A Mac's dark surface already stands off its pane, and carries the red.
+    let mac = matches!(crate::screens::theme::current_look(), crate::screens::theme::Look::Mac(_));
+    let fill = if crate::screens::theme::resolved() == "dark" && !mac { tok::CHIP } else { tok::SURFACE };
     let mut d = Dsl::new();
     d.surface(
         "a26_toasts",

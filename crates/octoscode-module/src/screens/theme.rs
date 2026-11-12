@@ -33,7 +33,7 @@
 //! drawn default is dark. The resolution is deterministic and tested; the OS
 //! read itself is **unverified on platform** and disclosed in docs/cards/30e.md.
 
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Mutex, OnceLock, RwLock};
 
 use octoscode_store::Store;
 use serde_json::Value;
@@ -139,11 +139,17 @@ pub fn appearance() -> &'static str {
     match pref {
         Theme::Light => "light",
         Theme::Dark => "dark",
-        Theme::System => match OS_READER.read().unwrap().as_ref() {
-            Some(read) if read() => "dark",
-            Some(_) => "light",
-            None => "dark",
-        },
+        Theme::System => {
+            // Hosted on a desktop, System is the shell's appearance.
+            if let Some(dark) = crate::desk::host_dark() {
+                return if dark { "dark" } else { "light" };
+            }
+            match OS_READER.read().unwrap().as_ref() {
+                Some(read) if read() => "dark",
+                Some(_) => "light",
+                None => "dark",
+            }
+        }
     }
 }
 
@@ -396,17 +402,22 @@ pub enum Look {
     Light,
     Dark,
     Named(Palette),
+    /// The desktop's Terminal look: the Mac tokens (`crate::desk`) of the
+    /// appearance, dark or not. Only a desktop's [`current_look`] says it.
+    Mac(bool),
 }
 
 /// Every look the contrast guard checks: both of Terminal's, and each named
 /// palette.
-pub const LOOKS: [Look; 6] = [
+pub const LOOKS: [Look; 8] = [
     Look::Light,
     Look::Dark,
     Look::Named(Palette::Codex),
     Look::Named(Palette::Claude),
     Look::Named(Palette::Slate),
     Look::Named(Palette::Solarized),
+    Look::Mac(false),
+    Look::Mac(true),
 ];
 
 impl Look {
@@ -415,6 +426,8 @@ impl Look {
             Look::Light => "light",
             Look::Dark => "dark",
             Look::Named(p) => p.id(),
+            Look::Mac(false) => "mac-light",
+            Look::Mac(true) => "mac-dark",
         }
     }
 
@@ -429,6 +442,7 @@ impl Look {
 /// The look in effect now.
 pub fn current_look() -> Look {
     match palette() {
+        Palette::Terminal if crate::desk::active() => Look::Mac(appearance() == "dark"),
         Palette::Terminal if appearance() == "dark" => Look::Dark,
         Palette::Terminal => Look::Light,
         named => Look::Named(named),
@@ -816,6 +830,13 @@ fn retint_hex(hex: &str, look: Look) -> Option<String> {
     match look {
         Look::Light => None,
         Look::Dark => twin.map(str::to_owned),
+        Look::Mac(dark) => {
+            let out = match twin {
+                Some(role) => crate::desk::role_hex(role, dark),
+                None => crate::desk::literal_hex(hex, dark),
+            }?;
+            (out != hex).then_some(out)
+        }
         Look::Named(p) => {
             let colors = p.named()?;
             let dark = twin.unwrap_or(hex);
@@ -1072,6 +1093,15 @@ mod.theme.color_bg_container = #ffffff
 "#
         .to_owned(),
         Look::Dark => DARK_ROLES.to_owned(),
+        Look::Mac(dark) => DARK_ROLES
+            .lines()
+            .map(|l| match l.split_once(" = ") {
+                Some((role, hex)) => {
+                    format!("{role} = {}\n", crate::desk::role_hex(hex, dark).unwrap_or_else(|| hex.to_owned()))
+                }
+                None => format!("{l}\n"),
+            })
+            .collect(),
         Look::Named(p) => match p.named() {
             Some(colors) => DARK_ROLES
                 .lines()
@@ -1127,6 +1157,14 @@ pub fn shell_ink_look(name: &str, look: Look) -> String {
     match look {
         Look::Light => (*light).to_owned(),
         Look::Dark => (*dark).to_owned(),
+        Look::Mac(on_dark) if name == "accent" => crate::desk::tokens(on_dark).accent,
+        Look::Mac(on_dark) => {
+            let source = if on_dark { *dark } else { *light };
+            crate::desk::literal_hex(source, on_dark).unwrap_or_else(|| {
+                // A light ink's dark twin names the role both share.
+                crate::desk::role_hex(dark, on_dark).unwrap_or_else(|| source.to_owned())
+            })
+        }
         Look::Named(_) => match look.colors() {
             Some(colors) => named_hex(colors, dark),
             None => (*light).to_owned(),
@@ -1176,23 +1214,50 @@ fn read_stock_roles(vm: &mut makepad_widgets::ScriptVm) -> String {
 /// A26: the seed and the persisted state are read ONCE per process — a live
 /// re-theme re-runs this evaluator, and must keep the person's new choice
 /// (the env seed would otherwise reset it).
-/// Inside OctoSense the shell's palette is the app's: its base roles are the
-/// shell's (it restyles every app it hosts alike), and the app adds only the
-/// role the stock theme lacks ([`embedded_roles`]).
+/// Inside OctoSense, System follows the shell. An explicit phone theme applies
+/// in the app's isolate; the cached host roles restore System after a change.
 static EMBEDDED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+static EMBEDDED_HOST_ROLES: RwLock<String> = RwLock::new(String::new());
+
+/// Remember the host's current palette before this module applies its own.
+/// A later return from an explicit theme can then restore every changed role.
+pub fn note_embedded_host(vm: &mut makepad_widgets::ScriptVm) {
+    use makepad_widgets::{script_eval, ScriptMod};
+    let read = [
+        ("mod.theme.color_bg_app", script_eval!(vm, { mod.theme.color_bg_app })),
+        ("mod.theme.color_bg_odd", script_eval!(vm, { mod.theme.color_bg_odd })),
+        ("mod.theme.color_bg_even", script_eval!(vm, { mod.theme.color_bg_even })),
+        ("mod.theme.color_outset_1", script_eval!(vm, { mod.theme.color_outset_1 })),
+        ("mod.theme.color_outset_2", script_eval!(vm, { mod.theme.color_outset_2 })),
+        ("mod.theme.color_bg_container", script_eval!(vm, { mod.theme.color_bg_container })),
+        ("mod.theme.color_text", script_eval!(vm, { mod.theme.color_text })),
+        ("mod.theme.color_text_hover", script_eval!(vm, { mod.theme.color_text_hover })),
+        ("mod.theme.color_bg_highlight", script_eval!(vm, { mod.theme.color_bg_highlight })),
+        ("mod.theme.color_bg_highlight_inline", script_eval!(vm, { mod.theme.color_bg_highlight_inline })),
+        ("mod.widgets.Window.pass.clear_color", script_eval!(vm, { mod.widgets.Window.pass.clear_color })),
+    ];
+    let _ = vm.take_errors();
+    let roles = read.iter()
+        .filter_map(|(role, value)| value.as_color().map(|c| format!("{role} = #{c:08x}\n")))
+        .collect();
+    *EMBEDDED_HOST_ROLES.write().unwrap() = roles;
+}
 
 /// The roles the app assigns inside OctoSense, from the shell's: its chrome
 /// writes with `color_fg_app` (the shell's text colour), and its secondary
-/// text is `color_text_muted` (the shell's `color_text_meta`, a role the stock
-/// theme lacks). Read here and assigned as values (as [`read_stock_roles`]
-/// does). The shell's own palette roles stay as the shell set them.
+/// text is `color_text_muted`, a role the stock theme lacks. The phone uses
+/// the current look's readable secondary ink: the host's generic meta role
+/// can be too faint on its own page. The shell's palette stays unchanged.
 pub fn embedded_roles(vm: &mut makepad_widgets::ScriptVm) -> String {
     use makepad_widgets::{script_eval, ScriptMod};
-    let text = script_eval!(vm, { mod.theme.color_text }).as_color();
-    let meta = script_eval!(vm, { mod.theme.color_text_meta }).as_color();
+    let text = crate::desk::phone_color("ink").as_color()
+        .or_else(|| script_eval!(vm, { mod.theme.color_text }).as_color());
+    let meta = crate::desk::phone_color("muted").as_color()
+        .or_else(|| script_eval!(vm, { mod.theme.color_text_meta }).as_color());
     let _ = vm.take_errors();
     format!(
-        "mod.theme.color_fg_app = #{:08x}\nmod.theme.color_text_muted = #{:08x}\n",
+        "{}mod.theme.color_fg_app = #{:08x}\nmod.theme.color_text_muted = #{:08x}\n",
+        EMBEDDED_HOST_ROLES.read().unwrap().as_str(),
         text.unwrap_or(0x1d1d1fff),
         meta.unwrap_or(0x61666bff)
     )
@@ -1207,13 +1272,42 @@ pub fn eval_roles(vm: &mut makepad_widgets::ScriptVm) -> bool {
     use makepad_widgets::ScriptMod;
     static SEEDED: std::sync::Once = std::sync::Once::new();
     SEEDED.call_once(|| {
-        if let Ok(pref) = std::env::var("OCTOSCODE_THEME") {
-            set_preference(&pref);
+        let seed = || {
+            if let Ok(pref) = std::env::var("OCTOSCODE_THEME") {
+                set_preference(&pref);
+            }
+        };
+        if crate::desk::active() {
+            // The persisted file first, so the seed wins as documented above: the
+            // templates evaluate here, and must draw the look the lowerings do.
+            init_persistence();
+            seed();
+        } else {
+            seed();
+            init_persistence();
         }
-        init_persistence();
     });
-    let mut code = if EMBEDDED.load(std::sync::atomic::Ordering::Relaxed) {
-        embedded_roles(vm)
+    let mut code = if crate::desk::active() {
+        // The Mac surfaces, in this isolate only: a hosted app's own widgets
+        // read them, the shell's stay as the shell set them.
+        role_assignments()
+    } else if EMBEDDED.load(std::sync::atomic::Ordering::Relaxed) {
+        match selection().as_str() {
+            "system" => embedded_roles(vm),
+            "light" => {
+                // Light's normal standalone evaluator also restores stock
+                // roles. Here the host may be dark or a named palette may
+                // have just been active, so restore the missing roles too.
+                let mut code = role_assignments();
+                code.push_str("mod.theme.color_text = #1d1d1f\n\
+mod.theme.color_text_hover = #1d1d1f\n\
+mod.theme.color_bg_highlight = #2f6feb\n\
+mod.theme.color_bg_highlight_inline = #f0f0f2\n\
+mod.widgets.Window.pass.clear_color = #ffffff\n");
+                code
+            }
+            _ => role_assignments(),
+        }
     } else {
         let stock = STOCK_ROLES.get_or_init(|| read_stock_roles(vm)).clone();
         let mut code = role_assignments();
@@ -1320,6 +1414,8 @@ pub const CONTRAST_PAIRS: &[ContrastPair] = &[
     pair(Fixed("#ffffff"), Fixed("#d1242f"), BODY_TEXT, "the Stop server confirm's label on its red fill"),
     pair(Fixed("#ffffff"), Fixed("#1d1d1f"), BODY_TEXT, "the rename form's Save"),
     pair(Fixed("#ffffff"), Fixed("#000000"), BODY_TEXT, "the held banner's Take over"),
+    pair(Fixed("#fffffe"), Fixed("#0071e3"), BODY_TEXT, "a desktop's Save Preferences on its blue"),
+    pair(Fixed("#1c1c1d"), Fixed("#fce8b2"), BODY_TEXT, "a desktop's sidebar search match on its mark, in either appearance"),
     // ---- the conversation components (fluid.rs; themed by retint_dsl).
     pair(Themed(fl::INK), Themed(fl::SURFACE), BODY_TEXT, "answer prose, the empty state, the connect card"),
     pair(Themed(fl::INK), Themed(fl::TIP), BODY_TEXT, "a tool group, a code block"),
@@ -1504,8 +1600,9 @@ pub fn swatch_hex_look(s: Swatch, look: Look) -> String {
         }
         Swatch::Code(tok) => rgb(tok.color_look(look)),
         Swatch::Icon => match look {
-            Look::Light => "#1d1d1f".to_owned(),
+            Look::Light | Look::Mac(false) => "#1d1d1f".to_owned(),
             Look::Dark => rgb(super::board3::ui::DARK_ICON_INK),
+            Look::Mac(true) => crate::desk::tokens(true).muted,
             Look::Named(_) => match look.colors() {
                 Some(colors) => named_hex(colors, super::board3::ui::DARK_ICON_INK),
                 None => rgb(super::board3::ui::DARK_ICON_INK),

@@ -388,9 +388,15 @@ fn disclosure_seat(d: &mut Dsl, st: &FleetState, store: &Store) {
             .map(|b| (b.driver_id, b.epoch, b.revision, b.lease_expires_at_ms))
             .or(disc.binding.clone());
         if let Some((driver, epoch, revision, lease)) = &binding {
-            fact(d, "b3_fleet_disc_driver", tr("Driver"), driver);
-            fact(d, "b3_fleet_disc_epoch", tr("Epoch"), &epoch.to_string());
-            fact(d, "b3_fleet_disc_revision", tr("Revision"), &revision.to_string());
+            if crate::desk::active() {
+                d.unseen("b3_fleet_disc_driver_v", driver);
+                d.unseen("b3_fleet_disc_epoch_v", &epoch.to_string());
+                d.unseen("b3_fleet_disc_revision_v", &revision.to_string());
+            } else {
+                fact(d, "b3_fleet_disc_driver", tr("Driver"), driver);
+                fact(d, "b3_fleet_disc_epoch", tr("Epoch"), &epoch.to_string());
+                fact(d, "b3_fleet_disc_revision", tr("Revision"), &revision.to_string());
+            }
             fact(d, "b3_fleet_disc_lease", tr("Lease"), &lease_copy(*lease));
         }
     }
@@ -463,17 +469,20 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
         .map(|b| (b.driver_id, b.epoch))
         .or_else(|| fleet_driver::disclosure(store).and_then(|d| d.binding.map(|b| (b.0, b.1))));
     if let Some((driver, epoch)) = binding {
-        d.text(
-            "b3_fleet_console_bound",
-            &tr_with("Bound to {value0} @ epoch {value1}", &[("value0", &driver), ("value1", &epoch.to_string())]),
-            &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
-        );
+        let bound = tr_with("Bound to {value0} @ epoch {value1}", &[("value0", &driver), ("value1", &epoch.to_string())]);
+        if crate::desk::active() {
+            d.unseen("b3_fleet_console_bound", &bound);
+        } else {
+            d.text("b3_fleet_console_bound", &bound, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        }
     }
     // The lane picker: the advertised keys verbatim, no default.
-    ui::field_label(d, "b3_fleet_console_lane_label", tr("Model lane"));
+    let key_w = ui::form_key_w(&["Model lane", "Brief", "Title"]);
+    ui::form_open(d, "b3_fleet_console_lane_label", tr("Model lane"), key_w);
     let keys = st.lane_keys();
     let lane = if keys.contains(&st.console.lane) { st.console.lane.clone() } else { String::new() };
-    d.surface("b3_fleet_console_lane", "width: Fill height: 34 flow: Overlay", if keys.is_empty() { tok::SURFACE2 } else { tok::SURFACE }, 8.0, Some("#d9d9dcff"));
+    let lane_h = crate::desk::by(34.0, 28.0);
+    d.surface("b3_fleet_console_lane", &format!("width: Fill height: {lane_h} flow: Overlay"), if keys.is_empty() { tok::SURFACE2 } else { tok::SURFACE }, 8.0, Some("#d9d9dcff"));
     let mrow = d.anon();
     d.view(&mrow, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 10 right: 10 top: 0 bottom: 0}");
     d.text("b3_fleet_console_lane_value", &lane, &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Fill));
@@ -487,7 +496,8 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
         d.surface("b3_fleet_console_opts", "width: Fill height: Fit flow: Down padding: Inset{left: 4 right: 4 top: 4 bottom: 4}", tok::SURFACE, 8.0, Some(tok::HAIRLINE));
         for (i, k) in keys.iter().enumerate() {
             let id = format!("b3_fleet_console_opt_{i}");
-            d.surface(&format!("{id}_box"), "width: Fill height: 30 flow: Overlay", if *k == lane { tok::CHIP } else { tok::TRANSPARENT }, 6.0, None);
+            let opt_h = crate::desk::by(30.0, 26.0);
+            d.surface(&format!("{id}_box"), &format!("width: Fill height: {opt_h} flow: Overlay"), if *k == lane { tok::CHIP } else { tok::TRANSPARENT }, 6.0, None);
             let r = d.anon();
             d.view(&r, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 8 right: 8 top: 0 bottom: 0}");
             d.text(&format!("{id}_label"), k, &Txt::new(12.5, Face::Mono, tok::TEXT).w(W::Fill));
@@ -497,10 +507,13 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
         }
         d.close();
     }
-    ui::field_label(d, "b3_fleet_console_brief_label", tr("Brief"));
+    ui::form_close(d);
+    ui::form_open(d, "b3_fleet_console_brief_label", tr("Brief"), key_w);
     d.input("b3_fleet_console_brief", "fleet.console.brief", &st.console.brief_snap, "", false, 34.0);
-    ui::field_label(d, "b3_fleet_console_title_label", tr("Title"));
+    ui::form_close(d);
+    ui::form_open(d, "b3_fleet_console_title_label", tr("Title"), key_w);
     d.input("b3_fleet_console_title", "fleet.console.title", &st.console.title_snap, "", false, 34.0);
+    ui::form_close(d);
     // The Staging group: Dispatch, Release seat and — whenever this app does
     // not hold the seat (P2q: opt-in; after a release, a hand-back or an
     // expiry) — Acquire seat; one line when they fit, else stacked.
@@ -579,7 +592,13 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w
         d.view(&head, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
         d.text(&format!("{id}_glyph"), g, &Txt::new(13.0, Face::Regular, tok::TEXT));
         d.text(&format!("{id}_word"), tr(word), &Txt::new(11.5, Face::Regular, tok::MUTED));
-        d.text(&format!("{id}_slug"), &super::inventory::fit(slug, content_w - 132.0, 12.0, true), &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill));
+        if crate::desk::active() {
+            let name = slug.replace(['-', '_'], " ");
+            let name = crate::desk::sentence(&name);
+            d.text(&format!("{id}_slug"), &super::inventory::fit(&name, content_w - 132.0, 13.0, false), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill));
+        } else {
+            d.text(&format!("{id}_slug"), &super::inventory::fit(slug, content_w - 132.0, 12.0, true), &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill));
+        }
         d.close();
         if *activity != "reaped" {
             let steer = st.console.steer.get(identity).cloned().unwrap_or_default();

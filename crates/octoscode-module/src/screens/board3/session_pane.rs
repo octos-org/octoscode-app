@@ -124,8 +124,11 @@ fn model_row(v: &Value, selected_default: bool) -> Option<ModelRow> {
     let route_label = route
         .and_then(|r| r.get("label").and_then(|x| x.as_str()).or_else(|| r.as_str()))
         .map(str::to_owned);
+    let title = str_of("title").unwrap_or_else(|| model_id.clone());
+    // A Mac names the model, never its id or its route and id.
+    let title = if crate::desk::active() { crate::desk::model_title(&title, &model_id) } else { title };
     Some(ModelRow {
-        title: str_of("title").unwrap_or_else(|| model_id.clone()),
+        title,
         model_id,
         provider: str_of("provider").unwrap_or_else(|| family_id.clone()),
         family_id,
@@ -169,12 +172,16 @@ pub fn disposition_notice(result: &Value, saved: &str, running: Option<&str>) ->
             Some(c) => tr1("Saved. The model is not active yet ({value0})", c),
             None => tr("Saved. The model is not active yet").into(),
         },
-        Some("restart_required") => tr1(
-            "Saved. The server keeps running {value0} until it restarts",
-            running
-                .or_else(|| result.pointer("/runtime_policy_stamp/model").and_then(|m| m.as_str()))
-                .unwrap_or(tr("the previous model")),
-        ),
+        Some("restart_required") => {
+            let running = running.or_else(|| result.pointer("/runtime_policy_stamp/model").and_then(|m| m.as_str()));
+            // A Mac names the model the server keeps serving.
+            let running = match running {
+                Some(m) if crate::desk::active() => crate::desk::model_word(m),
+                Some(m) => m.to_owned(),
+                None => tr("the previous model").to_owned(),
+            };
+            tr1("Saved. The server keeps running {value0} until it restarts", &running)
+        }
         Some("persisted_but_not_live") => tr1(
             "Saved, but not usable right now: {value0}",
             text("runtime_error").unwrap_or(tr("the runtime could not start")),
@@ -872,16 +879,30 @@ fn kv(d: &mut Dsl, id: &str, label: &str, value: &str, inner_w: f64) {
 }
 
 fn radio(d: &mut Dsl, id: &str, on: bool) {
+    // A Mac's radio is 14 points.
+    let (size, dot_size) = crate::desk::by((18.0, 9.0), (14.0, 6.0));
+    let mac = crate::desk::active();
+    let off_fill = crate::desk::current().button;
+    let off_ring = crate::desk::current().ring;
     d.surface(
         &format!("{id}_radio"),
-        "width: 18 height: 18 flow: Overlay align: Align{x: 0.5 y: 0.5}",
-        tok::SURFACE,
-        9.0,
-        Some(if on { tok::BLUE } else { "#c7c7ccff" }),
+        &format!("width: {size} height: {size} flow: Overlay align: Align{{x: 0.5 y: 0.5}}"),
+        match (mac, on) {
+            (true, true) => tok::BLUE,
+            (true, false) => off_fill.as_str(),
+            (false, _) => tok::SURFACE,
+        },
+        size / 2.0,
+        Some(match (on, mac) {
+            (true, _) => tok::BLUE,
+            (false, true) => off_ring.as_str(),
+            (false, false) => "#c7c7ccff",
+        }),
     );
     if on {
         let dot = d.anon();
-        d.surface(&dot, "width: 9 height: 9", tok::BLUE, 4.5, None);
+        let dot_fill = if mac { "#fffffeff" } else { tok::BLUE };
+        d.surface(&dot, &format!("width: {dot_size} height: {dot_size}"), dot_fill, dot_size / 2.0, None);
         d.close();
     }
     d.close();
@@ -891,7 +912,10 @@ fn radio(d: &mut Dsl, id: &str, on: bool) {
 fn choice_row(d: &mut Dsl, id: &str, title: &str, sub: Option<&str>, on: bool, event: Option<&str>, inner_w: f64) {
     d.view(&format!("{id}_box"), "width: Fill height: Fit flow: Overlay");
     let row = d.anon();
-    d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{top: 8 bottom: 8}");
+    d.view(&row, crate::desk::by(
+        "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{top: 8 bottom: 8}",
+        "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{top: 5 bottom: 5}",
+    ));
     radio(d, id, on);
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 2");
@@ -899,7 +923,17 @@ fn choice_row(d: &mut Dsl, id: &str, title: &str, sub: Option<&str>, on: bool, e
     d.text(
         &format!("{id}_title"),
         &ui::fit_w(title, budget, 13.0, Face::Regular),
-        &Txt::new(13.0, if on { Face::Medium } else { Face::Regular }, if event.is_some() || on { tok::TEXT } else { tok::DISABLED_INK }),
+        &Txt::new(
+            13.0,
+            if on { Face::Medium } else { Face::Regular },
+            if event.is_some() || on {
+                tok::TEXT
+            } else if crate::desk::active() {
+                crate::desk::disabled_option_ink()
+            } else {
+                tok::DISABLED_INK
+            },
+        ),
     );
     if let Some(s) = sub {
         d.text(&format!("{id}_sub"), &ui::fit_w(s, budget, 12.0, Face::Regular), &Txt::new(12.0, Face::Regular, tok::MUTED));
@@ -932,6 +966,19 @@ fn restart_box(d: &mut Dsl, id: &str, text: &str) {
     );
     d.text(&format!("{id}_text"), text, &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
     d.close();
+}
+
+/// An approval policy's word: on a desktop its control's, below it, in the window's
+/// language; on a phone the wire's.
+fn policy_word(policy: &str) -> String {
+    if !crate::desk::active() {
+        return policy.to_owned();
+    }
+    match policy {
+        "on-request" => tr("On request").to_owned(),
+        "never" => tr("Never ask").to_owned(),
+        other => crate::desk::wire_word(other),
+    }
 }
 
 pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetState, frame: &Frame, store: &Store) {
@@ -1000,6 +1047,8 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
     let saved = profile_default.as_ref().map(|(n, _, _)| n.clone()).unwrap_or_else(|| tr("(no model selected)").into());
     kv(d, "b3_sc_saved", tr("Saved for this profile:"), &saved, inner_w);
     let runtime = st.status.as_ref().and_then(|s| s.model.clone());
+    // A desktop names the model; a phone shows what the server reported.
+    let runtime = runtime.map(|rt| if crate::desk::active() { crate::screens::models::model_name(store, &rt) } else { rt });
     if let Some(rt) = &runtime {
         kv(d, "b3_sc_runtime", tr("Session runtime"), rt, inner_w);
     }
@@ -1041,10 +1090,11 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
         d.gap(W::Fill, 2.0);
         d.hairline();
         for (i, m) in st.models.iter().enumerate() {
+            let family = if crate::desk::active() { crate::screens::models::family_label(&m.family_id) } else { m.family_id.clone() };
             let sub = match (&m.route_label, m.available) {
-                (_, false) => format!("{} · {}", m.family_id, tr("unavailable")),
-                (Some(r), _) => format!("{} · {r}", m.family_id),
-                (None, _) => m.family_id.clone(),
+                (_, false) => format!("{family} · {}", crate::desk::wire_word(tr("unavailable"))),
+                (Some(r), _) => format!("{family} · {}", crate::desk::wire_word(r)),
+                (None, _) => family,
             };
             let event = (can_select && !st.model_saving && m.available && !m.selected).then(|| format!("b3.sc.model#{i}"));
             choice_row(d, &format!("b3_sc_model_{i}"), &m.title, Some(&sub), m.selected, event.as_deref(), inner_w);
@@ -1098,9 +1148,9 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
     let readback = st.status.as_ref().and_then(|s| s.approval_policy.clone());
     let has_readback = readback.is_some() || st.approval_set_here.is_some();
     match (readback, &st.approval_set_here) {
-        (Some(p), _) => kv(d, "b3_sc_policy", tr("Approval policy:"), &p, inner_w),
+        (Some(p), _) => kv(d, "b3_sc_policy", tr("Approval policy:"), &policy_word(&p), inner_w),
         (None, Some(p)) => {
-            kv(d, "b3_sc_policy", tr("Approval policy:"), p, inner_w);
+            kv(d, "b3_sc_policy", tr("Approval policy:"), &policy_word(p), inner_w);
             status_line(d, "b3_sc_policy_unverified", tr("Current approval policy not verified (as set here)"), tok::AMBER);
         }
         (None, None) => {}
@@ -1183,7 +1233,7 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
     d.close();
 
     // 6. Advanced (`:369-417`): collapsed by default, remembered.
-    d.view("b3_sc_adv_box", "width: Fill height: 36 flow: Overlay");
+    d.view("b3_sc_adv_box", crate::desk::by("width: Fill height: 36 flow: Overlay", "width: Fill height: 28 flow: Overlay"));
     let row = d.anon();
     d.view(&row, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 2}");
     d.icon(

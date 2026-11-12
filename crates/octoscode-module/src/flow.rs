@@ -44,6 +44,48 @@ use url::Url;
 #[path = "flow_controller.rs"]
 mod controller;
 pub use controller::hydrated_turns;
+
+/// `session/list` reads under way, and since when: past a moment, a desktop's
+/// sidebar shows it is still reading.
+static LIST_READS: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+static LIST_SINCE_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+const LIST_PATIENCE_MS: u64 = 400;
+
+/// One read of the list, for as long as it lives.
+struct ListRead;
+
+impl ListRead {
+    fn begin() -> Self {
+        use std::sync::atomic::Ordering::Relaxed;
+        if crate::desk::active() {
+            if LIST_READS.fetch_add(1, Relaxed) == 0 {
+                LIST_SINCE_MS.store(crate::screens::board3::ui::now_ms(), Relaxed);
+            }
+            std::thread::spawn(|| {
+                std::thread::sleep(Duration::from_millis(LIST_PATIENCE_MS + 50));
+                makepad_widgets::SignalToUI::set_ui_signal();
+            });
+        }
+        ListRead
+    }
+}
+
+impl Drop for ListRead {
+    fn drop(&mut self) {
+        use std::sync::atomic::Ordering::Relaxed;
+        if crate::desk::active() {
+            LIST_READS.fetch_sub(1, Relaxed);
+            makepad_widgets::SignalToUI::set_ui_signal();
+        }
+    }
+}
+
+/// The list has been reading for longer than a moment.
+pub fn session_list_loading() -> bool {
+    use std::sync::atomic::Ordering::Relaxed;
+    LIST_READS.load(Relaxed) > 0
+        && crate::screens::board3::ui::now_ms().saturating_sub(LIST_SINCE_MS.load(Relaxed)) >= LIST_PATIENCE_MS
+}
 // A29 — the `/btw` aside owned by the Session that asked (parity row 6).
 #[path = "flow_btw.rs"]
 mod btw;
@@ -727,6 +769,11 @@ pub struct Conversation {
     /// #32h: set by open_workspace_as — submit must never target an
     /// un-opened session (the web's first message creates the thread).
     workspace_opened: Mutex<bool>,
+    /// The latest open of each Session, including its local authority generation.
+    open_attempts: Mutex<HashMap<String, OpenAttempt>>,
+    /// Serialize a new selection with adoption of an open response.
+    /// This is never held over an async wait.
+    open_apply: Mutex<()>,
     /// #P4g1 row 204: the cwd the in-flight `session/open` requested, so the
     /// reply arm can compare it with the server's returned
     /// `workspace_root` (the web's `requireExactWorkspace` resume path,
@@ -844,6 +891,21 @@ struct Candidate {
     started: Instant,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum OpenPhase { Opening, Ready, Failed }
+
+#[derive(Debug, Clone)]
+struct OpenAttempt {
+    generation: u64,
+    phase: OpenPhase,
+    cwd: Option<String>,
+    sandbox: Option<octos_core::ui_protocol::SessionSandboxParams>,
+    /// A Mac's refused new chat: the server's reason
+    /// ([`Conversation::start_refused`]), kept by a retry until an open of
+    /// it is accepted.
+    refused: Option<String>,
+}
+
 /// `CANDIDATE_NOTIFICATION_LIMIT` (`candidate-session.ts:11`).
 pub const CANDIDATE_LIMIT: usize = 4_096;
 
@@ -892,6 +954,9 @@ pub enum RowClick {
 /// A19b — how long a history read may stay unanswered before the window says
 /// so (a visible failure instead of an endless "Loading conversation…").
 pub const HISTORY_WAIT: std::time::Duration = std::time::Duration::from_secs(20);
+
+/// A server that never confirms an open must leave a manual retry path.
+pub const OPEN_WAIT: std::time::Duration = std::time::Duration::from_secs(30);
 
 /// Core's `UNKNOWN_SESSION` (octos-core `ui_protocol.rs:802-811`).
 const UNKNOWN_SESSION_CODE: i64 = -32100;
@@ -1236,6 +1301,8 @@ impl Conversation {
                     format!("{profile}:main")
                 }),
                 workspace_opened: Mutex::new(false),
+                open_attempts: Mutex::new(HashMap::new()),
+                open_apply: Mutex::new(()),
                 pending_open_cwd: Mutex::new(None),
                 creation_defaults: crate::screens::session_defaults::Pending::new(),
                 epoch: AUTHORITY_EPOCH.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1,
@@ -1267,6 +1334,122 @@ impl Conversation {
     }
 
     // ------------------------------------------------ A22 row 203: candidates
+
+    /// Begin an open under one generation; caller holds `open_apply` so an
+    /// older reply cannot settle while the new candidate is being prepared.
+    fn begin_open_attempt(&self, session: &str, cwd: Option<String>,
+                          sandbox: Option<octos_core::ui_protocol::SessionSandboxParams>) -> u64 {
+        let generation = {
+            let mut seq = self.open_seq.lock().unwrap();
+            *seq += 1;
+            *seq
+        };
+        {
+            let mut opens = self.open_attempts.lock().unwrap();
+            // A refused new chat keeps saying so while it is tried again.
+            let refused = opens.get(session).filter(|o| o.phase != OpenPhase::Ready).and_then(|o| o.refused.clone());
+            opens.insert(session.to_owned(), OpenAttempt {
+                generation, phase: OpenPhase::Opening, cwd, sandbox, refused,
+            });
+        }
+        // The candidate and its generation must change as one operation.
+        self.begin_candidate(session);
+        generation
+    }
+
+    /// A not-yet-confirmed creation must keep its original sandbox on retry.
+    fn pending_open_sandbox(&self, session: &str) -> Option<octos_core::ui_protocol::SessionSandboxParams> {
+        self.open_attempts.lock().unwrap().get(session)
+            .filter(|open| open.phase != OpenPhase::Ready)
+            .and_then(|open| open.sandbox.clone())
+    }
+
+    fn current_open_attempt(&self, session: &str, generation: u64) -> Option<OpenAttempt> {
+        let seq = self.open_seq.lock().unwrap();
+        if *seq != generation { return None; }
+        self.open_attempts.lock().unwrap().get(session)
+            .filter(|open| open.generation == generation && open.phase == OpenPhase::Opening)
+            .cloned()
+    }
+
+    fn settle_open_attempt(&self, session: &str, generation: u64, phase: OpenPhase) {
+        let seq = self.open_seq.lock().unwrap();
+        if *seq != generation { return; }
+        if let Some(open) = self.open_attempts.lock().unwrap().get_mut(session) {
+            if open.generation == generation && open.phase == OpenPhase::Opening {
+                open.phase = phase;
+            }
+        }
+    }
+
+    /// Refuse a send until this exact Session's open has been accepted.
+    fn open_is_ready(&self, session: &str) -> bool {
+        self.open_attempts.lock().unwrap().get(session).is_some_and(|o| o.phase == OpenPhase::Ready)
+    }
+
+    pub(crate) fn open_phase(&self, session: &str) -> Option<OpenPhase> {
+        self.open_attempts.lock().unwrap().get(session).map(|o| o.phase)
+    }
+
+    fn hold_for_open(&self, session: &str) -> bool {
+        let phase = self.open_attempts.lock().unwrap().get(session).map(|o| o.phase);
+        if phase == Some(OpenPhase::Ready) { return false; }
+        let (lead, detail) = if phase == Some(OpenPhase::Failed) {
+            ("This chat couldn't open.", "Select it in the sidebar to retry. Your draft is kept.")
+        } else {
+            ("This chat is still opening.", "Wait for it to open. Your draft is kept.")
+        };
+        crate::screens::toasts::push(crate::i18n::tr(lead), crate::i18n::tr(detail));
+        makepad_widgets::SignalToUI::set_ui_signal();
+        true
+    }
+
+    fn reject_tracked_open(&self, session: &str, generation: u64,
+                           error: &octos_core::ui_protocol::RpcError, timed_out: bool) -> FlowEvent {
+        if self.current_open_attempt(session, generation).is_none() {
+            return FlowEvent::Other("stale session/open error".to_owned());
+        }
+        self.settle_open_attempt(session, generation, OpenPhase::Failed);
+        let restoring = self.store.outage().is_some_and(|o| o.restoring);
+        if restoring {
+            self.store.connection.note_outage_error(&error.message);
+        }
+        self.settle_open_watch(Err(error.message.clone()));
+        self.on_open_error(error, !restoring && !timed_out, Some(session));
+        if timed_out && !restoring {
+            crate::screens::toasts::push(
+                &error.message,
+                crate::i18n::tr("Select it in the sidebar to retry. Your draft is kept."),
+            );
+        }
+        FlowEvent::Other("rpc-error session/open".to_owned())
+    }
+
+    /// A timeout says only that confirmation was not received. It does not
+    /// resend an open or a prompt: the person may explicitly retry the row.
+    fn watch_open_timeout(&self, session: String, generation: u64) {
+        let weak = self.weak_self.lock().unwrap().clone();
+        let Ok(handle) = tokio::runtime::Handle::try_current() else { return };
+        handle.spawn(async move {
+            tokio::time::sleep(OPEN_WAIT).await;
+            let Some(me) = weak.upgrade() else { return };
+            let _gate = me.open_apply.lock().unwrap();
+            // Reconnect owns recovery while the link is down. Do not add an
+            // unrelated timeout message after a disconnect or an outage.
+            if me.link.is_closed() || me.store.connection.is_offline() || me.in_outage() {
+                return;
+            }
+            if me.current_open_attempt(&session, generation).is_none() {
+                return;
+            }
+            let reason = crate::i18n::tr("The server did not confirm this chat in time.");
+            let error = octos_core::ui_protocol::RpcError {
+                code: -32000, message: reason.to_owned(), data: None,
+            };
+            me.reject_tracked_open(&session, generation, &error, true);
+            makepad_widgets::SignalToUI::set_ui_signal();
+        });
+    }
 
     /// Begin preparing `session` (its open is about to go out under the
     /// current generation). A newer open replaces an older candidate (the
@@ -1305,10 +1488,11 @@ impl Conversation {
     /// (the window already says so) or whose buffer overflowed fails closed.
     fn stage_for_candidate(&self, evt: &TransportEvent, payload: &UiNotification) -> bool {
         let Some(session) = candidate_scope(payload) else { return false };
+        let opening = self.open_phase(&session) == Some(OpenPhase::Opening);
         let failed = {
             let mut c = self.candidate.lock().unwrap();
             let Some(cand) = c.as_mut().filter(|c| c.session == session) else { return false };
-            if cand.started.elapsed() > HISTORY_WAIT {
+            if !opening && cand.started.elapsed() > HISTORY_WAIT {
                 // The history read never answered: the window says so and
                 // stays on the Session — what waited applies now, in order.
                 makepad_widgets::log!(
@@ -1462,22 +1646,46 @@ impl Conversation {
         if self.store.active_session().as_deref() != Some(id) {
             return RowClick::Open;
         }
+        if self.open_phase(id) == Some(OpenPhase::Failed) {
+            return RowClick::Reopen;
+        }
         // A19b's notice for a history that could not be read says "Reopen it
         // from the sidebar to try again" — and the Session's row is the
         // selected one. There is no transcript to lose: the CLICK re-opens it.
         if matches!(self.history(id), History::Failed(_)) {
             return RowClick::Reopen;
         }
+        // A Mac's refused new chat offers Try Again; its row does the same.
+        if self.start_refused(id).is_some() {
+            return RowClick::Reopen;
+        }
         RowClick::AlreadyOpen
+    }
+
+    /// A Mac's new chat the server refused to open: the reason it gave, while
+    /// `session` is one this client minted and no open of it was accepted
+    /// since. The conversation says so where the chat would start
+    /// (`fluid::start_state`), with Try Again; a phone toasts it instead.
+    pub fn start_refused(&self, session: &str) -> Option<String> {
+        if !self.fresh_ids.lock().unwrap().contains(session) {
+            return None;
+        }
+        self.open_attempts
+            .lock()
+            .unwrap()
+            .get(session)
+            .filter(|o| o.phase != OpenPhase::Ready)
+            .and_then(|o| o.refused.clone())
     }
 
     /// A19b — what the conversation of `session` shows before its history is
     /// on screen: still loading, failed (with the reason), or settled.
     pub fn history(&self, session: &str) -> History {
+        let opening = self.open_phase(session) == Some(OpenPhase::Opening);
         match self.history.lock().unwrap().get(session) {
             None => History::Ready,
             Some(HistoryRead { failed: Some(reason), .. }) => History::Failed(reason.clone()),
-            Some(h) if h.started.elapsed() > HISTORY_WAIT => {
+            Some(h) if !opening && h.started.elapsed() > HISTORY_WAIT => {
                 History::Failed("the server did not answer in time".to_owned())
             }
             Some(_) => History::Loading,
@@ -1526,16 +1734,19 @@ impl Conversation {
     /// names its Session when Core gives one (`data.session_id`), else it is
     /// the open this client sent last (one socket answers in order; a later
     /// open's own read clears a misattributed failure when it is asked).
-    fn on_open_error(&self, error: &octos_core::ui_protocol::RpcError, toast: bool) -> bool {
-        let session = error
+    fn on_open_error(&self, error: &octos_core::ui_protocol::RpcError, toast: bool, requested: Option<&str>) -> bool {
+        let session = requested.map(str::to_owned).or_else(|| error
             .data
             .as_ref()
             .and_then(|d| d.get("session_id"))
             .and_then(|s| s.as_str())
-            .map(str::to_owned)
+            .map(str::to_owned))
             .unwrap_or_else(|| self.session_id());
         // A22 row 203 — a refused open fails the candidate closed.
         self.dispose_candidate(&session, "the open was refused");
+        if self.is_hosted() && crate::screens::toasts::is_no_provider(&error.message) {
+            crate::screens::board1::note_no_provider();
+        }
         let mut h = self.history.lock().unwrap();
         if let Some(e) = h.get_mut(&session) {
             if e.failed.is_none() {
@@ -1552,7 +1763,18 @@ impl Conversation {
         if !toast {
             return false;
         }
-        let op = if self.fresh_ids.lock().unwrap().contains(&session) {
+        let fresh = self.fresh_ids.lock().unwrap().contains(&session);
+        // A Mac says it where the chat would start, with Try Again
+        // (`start_refused`), never in a toast.
+        if fresh && crate::desk::active() {
+            if let Some(open) = self.open_attempts.lock().unwrap().get_mut(&session) {
+                open.refused = Some(error.message.clone());
+                makepad_widgets::log!("[octoscode] new chat refused: {}", error.message.trim());
+                makepad_widgets::SignalToUI::set_ui_signal();
+                return false;
+            }
+        }
+        let op = if fresh {
             crate::screens::toasts::Op::NewChat
         } else {
             crate::screens::toasts::Op::OpenSession
@@ -1870,7 +2092,10 @@ impl Conversation {
         let lost: Vec<(String, bool)> = {
             let mut h = self.history.lock().unwrap();
             h.iter_mut()
-                .filter(|(_, e)| e.failed.is_none() && e.started.elapsed() >= older_than)
+                // A history read cannot have started until its open is
+                // confirmed. Do not silently reopen a still-pending chat.
+                .filter(|(session, e)| e.failed.is_none() && e.started.elapsed() >= older_than
+                    && self.open_phase(session) != Some(OpenPhase::Opening))
                 .map(|(session, e)| {
                     let reopen = !e.resynced && active.as_deref() == Some(session.as_str());
                     if reopen {
@@ -2057,91 +2282,94 @@ impl Conversation {
             return Err(link::NOT_CONNECTED.to_owned());
         }
         let session_id = octos_core::SessionKey(id.to_owned());
-        // #P4e1b row 4: retire the previous commands identity BEFORE the open
-        // goes out, so the reply arm binds the NEW one and any result captured
-        // under the old identity is refused from the moment it is issued.
-        {
-            let mut seq = self.open_seq.lock().unwrap();
-            *seq += 1;
-        }
-        crate::screens::board3::memory::invalidate();
-        crate::screens::board3::inventory::invalidate();
-        crate::screens::models::invalidate_resources(&self.store);
-        // A22 row 203 — the opened Session is a candidate until its history
-        // commits: its live events wait (see `Candidate`).
-        self.begin_candidate(&session_id.0);
-        // #P4g1 row 204: remember what THIS open asked for, so the reply arm
-        // can fail closed on a different returned workspace.
-        *self.pending_open_cwd.lock().unwrap() = cwd.clone();
-        // Record the outbound frame BEFORE `cwd` moves into the params.
-        self.frames.out(
-            "session/open",
-            &serde_json::json!({
-                "session_id": session_id.0,
-                "profile_id": self.profile(),
-                "cwd": cwd,
-                "sandbox": sandbox,
-            }),
-        );
-        let params = SessionOpenParams {
-            session_id: session_id.clone(),
-            topic: None,
-            profile_id: Some(self.profile()),
-            cwd,
-            sandbox,
-            after: None,
-            client_commands: None,
+        // Capacity may require an async wait; never keep the selection gate
+        // across it. No selection is changed until it can actually be sent.
+        let permit = match self.cmd_tx.reserve().await {
+            Ok(permit) => permit,
+            Err(_) => return Err("transport channel closed".to_owned()),
         };
-        self.trace.record(
-            self.started,
-            Direction::Out,
-            "session/open",
-            None,
-            Some(format!("session={}", session_id.0)),
-        );
-        self.cmd_tx
-            .send(OutboundCommand::OpenSession(params))
-            .await
-            .map_err(|_| "transport channel closed".to_owned())?;
-        // Adopt the id we opened, so `turn/start` / `turn/interrupt` drive the
-        // session that is actually live (a fresh chat or a resume).
-        *self.session_id.lock().unwrap() = session_id.0.clone();
-        // #34b — seed the opened session NOW, synchronously: the web's
-        // tab-known registry knows the session the moment the tab is created
-        // (known-session-registry), so a session/list reply that lags the tab
-        // (the #39a row-2 gate behavior) can neither drop it nor dangle the
-        // active id. The session/open RpcResult arm re-notes idempotently.
-        self.store.note_session_opened(&session_id.0, None);
-        // A19b — the window switches NOW, before Core answers: the Session
-        // shows "Loading conversation…" until its history settles, never the
-        // empty welcome for the open's round trip.
-        self.history_pending(&session_id.0);
-        // A22 row 236 — the foreground follows the selected Session: the one
-        // left keeps its own live turn (now a background record), the new
-        // one shows its own (if a turn of it is still running), and it is
-        // read (`select`: `record.unread = false`, session-record-manager.ts:449).
-        let previous = self.store.active_session().unwrap_or_default();
-        let live = self.foreground_turn_of(&session_id.0);
         {
-            let mut ui = self.ui.lock().unwrap();
-            ui.switch_live(&previous, &session_id.0, live);
-            // A20 — a switch never carries one Session's live-prompt flags
-            // into another (the per-Session records stay in the ledger).
-            // A22 — they then read the selected Session's own pending
-            // interaction (its showing approval / its question), if any.
-            if previous != session_id.0 {
-                ui.clear_interaction_flags();
-                let approval = self.store.domains.approval.showing(&session_id.0).is_some();
-                let question = self.store.domains.approval.question_for(&session_id.0).is_some();
-                ui.set_pending_for_test(approval, question);
+            let _gate = self.open_apply.lock().unwrap();
+            if self.in_outage() {
+                return Err(link::NOT_CONNECTED.to_owned());
             }
+            // Retire the old authority and adopt the new selection atomically
+            // with respect to a tracked open reply.
+            let generation = self.begin_open_attempt(id, cwd.clone(), sandbox.clone());
+            crate::screens::board3::memory::invalidate();
+            crate::screens::board3::inventory::invalidate();
+            crate::screens::models::invalidate_resources(&self.store);
+            // #P4g1 row 204: remember what THIS open asked for, so the reply arm
+            // can fail closed on a different returned workspace.
+            *self.pending_open_cwd.lock().unwrap() = cwd.clone();
+            // Record the outbound frame BEFORE `cwd` moves into the params.
+            self.frames.out(
+                "session/open",
+                &serde_json::json!({
+                    "session_id": session_id.0,
+                    "profile_id": self.profile(),
+                    "cwd": cwd,
+                    "sandbox": sandbox,
+                }),
+            );
+            let params = SessionOpenParams {
+                session_id: session_id.clone(),
+                topic: None,
+                profile_id: Some(self.profile()),
+                cwd,
+                sandbox,
+                after: None,
+                client_commands: None,
+            };
+            self.trace.record(
+                self.started,
+                Direction::Out,
+                "session/open",
+                None,
+                Some(format!("session={}", session_id.0)),
+            );
+            permit.send(OutboundCommand::OpenSessionTracked { params, generation });
+            // Adopt the id we opened, so `turn/start` / `turn/interrupt` drive the
+            // session that is actually live (a fresh chat or a resume).
+            *self.session_id.lock().unwrap() = session_id.0.clone();
+            // #34b — seed the opened session NOW, synchronously: the web's
+            // tab-known registry knows the session the moment the tab is created
+            // (known-session-registry), so a session/list reply that lags the tab
+            // (the #39a row-2 gate behavior) can neither drop it nor dangle the
+            // active id. The session/open RpcResult arm re-notes idempotently.
+            self.store.note_session_opened(&session_id.0, None);
+            // A19b — the window switches NOW, before Core answers: the Session
+            // shows "Loading conversation…" until its history settles, never the
+            // empty welcome for the open's round trip.
+            self.history_pending(&session_id.0);
+            // A22 row 236 — the foreground follows the selected Session: the one
+            // left keeps its own live turn (now a background record), the new
+            // one shows its own (if a turn of it is still running), and it is
+            // read (`select`: `record.unread = false`, session-record-manager.ts:449).
+            let previous = self.store.active_session().unwrap_or_default();
+            let live = self.foreground_turn_of(&session_id.0);
+            {
+                let mut ui = self.ui.lock().unwrap();
+                ui.switch_live(&previous, &session_id.0, live);
+                // A20 — a switch never carries one Session's live-prompt flags
+                // into another (the per-Session records stay in the ledger).
+                // A22 — they then read the selected Session's own pending
+                // interaction (its showing approval / its question), if any.
+                if previous != session_id.0 {
+                    ui.clear_interaction_flags();
+                    let approval = self.store.domains.approval.showing(&session_id.0).is_some();
+                    let question = self.store.domains.approval.question_for(&session_id.0).is_some();
+                    ui.set_pending_for_test(approval, question);
+                }
+            }
+            self.store.domains.session.set_unread(&session_id.0, false);
+            self.store.set_active(Some(session_id.0.clone()));
+            *self.workspace_opened.lock().unwrap() = true;
+            self.watch_open_timeout(session_id.0.clone(), generation);
         }
-        self.store.domains.session.set_unread(&session_id.0, false);
-        self.store.set_active(Some(session_id.0.clone()));
         if let Err(e) = self.refresh_sessions().await {
             ::log::warn!("octoscode: session/list after open: {e}");
         }
-        *self.workspace_opened.lock().unwrap() = true;
         ::log::info!("octoscode: workspace open requested for {}", session_id.0);
         Ok(session_id.0)
     }
@@ -2490,7 +2718,8 @@ impl Conversation {
     /// Open a specific session id — the resume path (an id the server listed),
     /// or a freshly minted one from [`Conversation::fresh_session_id`].
     pub async fn open_session(&self, id: &str, cwd: Option<String>) -> Result<String, String> {
-        self.open_workspace_as(id, cwd).await
+        let sandbox = self.pending_open_sandbox(id);
+        self.open_workspace_with(id, cwd, sandbox).await
     }
 
     /// Open a server-attested history row with its complete storage identity.
@@ -2989,32 +3218,34 @@ impl Conversation {
     /// open's reply arm (every open hydrates), so a refused re-open asks for
     /// nothing and an accepted one asks exactly once.
     fn reopen_after_reconnect(&self) {
+        let _gate = self.open_apply.lock().unwrap();
         let session = self.session_id();
         let cwd = self.store.domains.session.workspace_root(&session);
         // A15 — the dropped socket's in-flight hydrates are never answered.
         self.hydrate_gen.lock().unwrap().clear();
-        *self.open_seq.lock().unwrap() += 1;
-        // A22 row 203 — the re-open is prepared like any open: the Session's
-        // live events wait for its hydrate (the web's recovery buffer,
-        // `active-session-runtime.ts` `#enqueueRecovery`).
-        self.begin_candidate(&session);
+        let sandbox = self.pending_open_sandbox(&session);
+        let generation = self.begin_open_attempt(&session, cwd.clone(), sandbox.clone());
         *self.pending_open_cwd.lock().unwrap() = cwd.clone();
         let params = SessionOpenParams {
             session_id: octos_core::SessionKey(session.clone()),
             topic: None,
             profile_id: Some(self.profile()),
             cwd,
-            sandbox: None,
+            sandbox,
             after: None,
             client_commands: None,
         };
         self.frames
             .out("session/open", &serde_json::json!({"session_id": session, "reconnect": true, "cwd": params.cwd}));
-        match self.cmd_tx.try_send(OutboundCommand::OpenSession(params)) {
+        match self.cmd_tx.try_send(OutboundCommand::OpenSessionTracked { params, generation }) {
             Ok(()) => {
+                self.watch_open_timeout(session.clone(), generation);
                 ::log::info!("octoscode: reconnect — re-opened {session} (generation {})", self.generation());
             }
-            Err(e) => ::log::warn!("octoscode: reconnect re-open of {session} failed: {e}"),
+            Err(e) => {
+                self.settle_open_attempt(&session, generation, OpenPhase::Failed);
+                ::log::warn!("octoscode: reconnect re-open of {session} failed: {e}");
+            }
         }
     }
 
@@ -3072,6 +3303,7 @@ impl Conversation {
     /// catalog rows projected. A failed read changes nothing (the web keeps
     /// the last attested rows, `:210-222`).
     pub async fn refresh_sessions(&self) -> Result<usize, ClientError> {
+        let _reading = ListRead::begin();
         let params = self.catalog_params();
         let result = self
             .client
@@ -3214,6 +3446,9 @@ impl Conversation {
                     reason: e,
                 });
             }
+        }
+        if self.hold_for_open(&self.session_id()) {
+            return Ok(String::new());
         }
         // #34a row 209 — a slash command is LOCAL on the web: it never
         // reaches the model, and a failed/unknown command restores the input
@@ -3361,6 +3596,25 @@ impl Conversation {
         if self.store.domains.composer.recovery(&session).is_some() {
             makepad_widgets::log!("[octoscode] submit held: the last response's outcome is unknown");
             return Ok(String::new());
+        }
+        // n12g (E10 3): a desktop's + attaches without a sheet, so what it
+        // attached goes up with the message, as Mail sends its attachments:
+        // every image not yet uploaded is uploaded here first. One that fails
+        // keeps the prompt and the draft (below), and its chip says so.
+        if crate::desk::active() {
+            let drafts = crate::screens::media::drafts_for_session(&session);
+            // A second Send while they go up waits for the first: the chips say "Uploading…".
+            if drafts.as_ref().is_some_and(|d| d.uploading()) {
+                makepad_widgets::log!("[octoscode] submit held: attachments still uploading (draft kept)");
+                return Ok(String::new());
+            }
+            let pending = drafts.is_some_and(|d| !d.upload_candidates().is_empty());
+            if pending {
+                match crate::screens::board3::images::upload(self).await {
+                    Ok(note) => makepad_widgets::log!("[octoscode] attachments uploaded before the send: {note}"),
+                    Err(e) => makepad_widgets::log!("[octoscode] attachments upload before the send failed: {e}"),
+                }
+            }
         }
         // A4 — the AttachmentsDialog's draft rides THIS turn when every image
         // is uploaded; any row not yet uploaded refuses the send and keeps
@@ -3529,7 +3783,33 @@ impl Conversation {
                 self.store.set_capabilities(accepted);
                 FlowEvent::Capabilities(n)
             }
-            TransportEvent::RpcResult(LifecycleResult::SessionOpen(r)) => {
+            TransportEvent::SessionOpenTrackedError { session_id, generation, error } => {
+                let _gate = self.open_apply.lock().unwrap();
+                self.reject_tracked_open(session_id, *generation, error, false)
+            }
+            TransportEvent::RpcResult(LifecycleResult::SessionOpen(r))
+            | TransportEvent::SessionOpenTracked { result: r, .. } => {
+                // Keep the generation check and every adoption of this reply
+                // atomic with respect to a newer session selection.
+                let _gate = match evt {
+                    TransportEvent::SessionOpenTracked { .. } => Some(self.open_apply.lock().unwrap()),
+                    _ => None,
+                };
+                let tracked = match evt {
+                    TransportEvent::SessionOpenTracked { session_id, generation, capabilities, .. } => {
+                        let Some(attempt) = self.current_open_attempt(session_id, *generation) else {
+                            return FlowEvent::Other("stale session/open reply".to_owned());
+                        };
+                        if r.opened.session_id.0 != *session_id {
+                            let error = octos_core::ui_protocol::RpcError::invalid_params(
+                                "The server opened a different chat.".to_owned());
+                            return self.reject_tracked_open(session_id, *generation, &error, false);
+                        }
+                        self.store.set_capabilities(capabilities.raw.keys().cloned().collect());
+                        Some((session_id.as_str(), *generation, attempt))
+                    }
+                    _ => None,
+                };
                 // #P4g1 row 204: a resume that ASKED for a workspace must not
                 // accept an open that answers a different one — the web's
                 // `validateCandidateWorkspace` throws "The server opened a
@@ -3538,7 +3818,10 @@ impl Conversation {
                 // and may be canonicalized, exactly like the web's
                 // `requireExactWorkspace = false` default.) Fail closed:
                 // record the reject, never adopt this open's authority.
-                let requested = self.pending_open_cwd.lock().unwrap().take();
+                let requested = match &tracked {
+                    Some((_, _, attempt)) => attempt.cwd.clone(),
+                    None => self.pending_open_cwd.lock().unwrap().take(),
+                };
                 if let (Some(req), Some(actual)) =
                     (requested.as_deref(), r.opened.workspace_root.as_deref())
                 {
@@ -3579,7 +3862,21 @@ impl Conversation {
                             &r.opened.session_id.0,
                             "The server opened a different workspace from this conversation's.".to_owned(),
                         );
+                        if let Some((session, generation, _)) = tracked {
+                            self.settle_open_attempt(session, generation, OpenPhase::Failed);
+                        }
                         return FlowEvent::Other("session/open-workspace-mismatch".to_owned());
+                    }
+                }
+                // History's wait starts when the server confirms the open,
+                // not while the open itself was still in flight. Retain its
+                // already-buffered notifications under that same candidate.
+                if let Some((session, generation, _)) = &tracked {
+                    let mut candidate = self.candidate.lock().unwrap();
+                    if let Some(cand) = candidate.as_mut().filter(|c|
+                        c.session == *session && c.generation == *generation)
+                    {
+                        cand.started = Instant::now();
                     }
                 }
                 // A22 row 203 — the reply names the Session the candidate is
@@ -3727,6 +4024,9 @@ impl Conversation {
                         &r.opened.session_id.0,
                         r.opened.workspace_root.as_deref(),
                     );
+                }
+                if let Some((session, generation, _)) = tracked {
+                    self.settle_open_attempt(session, generation, OpenPhase::Ready);
                 }
                 // Both picker entrypoints defer hosted navigation until this
                 // accepted reply. Use the same root as the session, and retire
@@ -3987,7 +4287,7 @@ impl Conversation {
                     // when no surface would, the error toast (never during a
                     // re-dial: the banner above owns that refusal).
                     let restoring = self.store.outage().is_some_and(|o| o.restoring);
-                    self.on_open_error(error, !restoring);
+                    self.on_open_error(error, !restoring, None);
                 }
                 // A19b — a refused history read: retried once with the
                 // Session's folder, else shown.
@@ -4303,7 +4603,8 @@ fn trace_params(evt: &TransportEvent) -> serde_json::Value {
         TransportEvent::EphemeralNotification { payload } => {
             octoscode_client::trace::wire_params(payload)
         }
-        TransportEvent::RpcResult(LifecycleResult::SessionOpen(r)) => serde_json::json!({
+        TransportEvent::RpcResult(LifecycleResult::SessionOpen(r))
+        | TransportEvent::SessionOpenTracked { result: r, .. } => serde_json::json!({
             "session_id": r.opened.session_id.0,
             "cursor": r.opened.cursor.as_ref().map(|c| serde_json::json!({"stream": c.stream, "seq": c.seq})),
             "capabilities": r.opened.capabilities,
@@ -4319,6 +4620,9 @@ fn trace_params(evt: &TransportEvent) -> serde_json::Value {
         TransportEvent::RpcError { method, error, .. } => {
             serde_json::json!({"method": method, "code": error.code, "message": error.message})
         }
+        TransportEvent::SessionOpenTrackedError { session_id, error, .. } => {
+            serde_json::json!({"session_id": session_id, "code": error.code, "message": error.message})
+        }
         other => serde_json::json!({ "debug": format!("{other:?}") }),
     }
 }
@@ -4328,7 +4632,9 @@ fn trace_method(evt: &TransportEvent) -> String {
         TransportEvent::ConnectionState(s) => format!("state:{s:?}"),
         TransportEvent::AuthExpired => "auth_expired".to_owned(),
         TransportEvent::CapabilityNegotiated(_) => "capabilities".to_owned(),
-        TransportEvent::RpcResult(LifecycleResult::SessionOpen(_)) => "session/open".to_owned(),
+        TransportEvent::RpcResult(LifecycleResult::SessionOpen(_))
+        | TransportEvent::SessionOpenTracked { .. } => "session/open".to_owned(),
+        TransportEvent::SessionOpenTrackedError { .. } => "error:session/open".to_owned(),
         TransportEvent::RpcResult(LifecycleResult::TurnStart(_)) => "turn/start".to_owned(),
         TransportEvent::RpcResult(LifecycleResult::TurnInterrupt(_)) => "turn/interrupt".to_owned(),
         TransportEvent::RpcError { method, .. } => format!("error:{method}"),

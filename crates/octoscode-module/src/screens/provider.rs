@@ -642,7 +642,11 @@ impl ProviderUi {
     fn apply_route(&mut self, r: &ProviderRoute) {
         self.route = r.id.clone();
         self.route_label = r.label.clone();
-        self.name = format!("{} \u{b7} {}", self.family_label, r.label);
+        self.name = if crate::desk::active() && r.label == self.family_label {
+            r.label.clone()
+        } else {
+            format!("{} \u{b7} {}", self.family_label, r.label)
+        };
         self.base_url = if r.base_url.is_empty() { self.default_base_url.clone() } else { r.base_url.clone() };
         self.api_type = Some(r.api_protocol.clone()).filter(|p| !p.is_empty());
         self.api_key_env = Some(r.api_key_env.clone());
@@ -1043,15 +1047,15 @@ fn mono(id: &str, s: &str, px: f64, color: &str) -> String {
 /// refused click found one.
 fn issue_line(v: &mut Ui, ui: &ProviderUi, field: ms::Field, id: &str) {
     if let Some(i) = ui.issues.iter().find(|i| i.field == field) {
-        v.push(kit::gap(6.0));
-        v.push(Text::new(id, tr(i.message)).px(14.0).color(kit::RED).fill().dsl());
+        v.push(kit::gap(if crate::desk::active() { 4.0 } else { 6.0 }));
+        v.push(kit::under_control(&Text::new(id, tr(i.message)).px(14.0).color(kit::RED).fill().dsl()));
     }
 }
 
 /// A grey footnote under a control (board 1's captions).
 fn hint(v: &mut Ui, id: &str, s: &str) {
-    v.push(kit::gap(6.0));
-    v.push(Text::new(id, s).px(13.0).color(kit::MUTED).fill().dsl());
+    v.push(kit::gap(if crate::desk::active() { 4.0 } else { 6.0 }));
+    v.push(kit::under_control(&Text::new(id, s).px(13.0).color(kit::MUTED).fill().dsl()));
 }
 
 /// A select: the board's field showing the choice, a chevron, and — open —
@@ -1068,17 +1072,23 @@ fn select_field(v: &mut Ui, l: &Layout, ui: &ProviderUi, which: Select, label: &
     };
     let open = ui.open_select == Some(which);
     let enabled = !ui.read_only() && !ui.busy;
+    let desk = crate::desk::active();
+    // A Mac form holds what follows in the control's column.
+    let start = v.dsl.len();
+    if !desk {
     v.push(Text::new("", tr(label)).px(15.0).fill().one_line().dsl());
     v.push(kit::gap(8.0));
+    }
     let edge = if open { kit::BLUE } else { kit::FIELD_EDGE };
     let ink = if enabled { kit::INK } else { kit::MUTED };
     let hit = if enabled { kit::hit(id, true) } else { String::new() };
+    let (field_h, field_radius, field_pad) = if desk { (28, 6, 8) } else { (44, 10, 14) };
     v.push(format!(
-        "View {{ width: Fill height: 44 flow: Overlay\nDesignSurface {{\nwidth: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 14 right: 12}} spacing: 8\ndraw_bg.color: {} draw_bg.radius: 10 draw_bg.border_width: 1 draw_bg.border_position: 1 draw_bg.border_color: {edge}\n{}{}{}}}\n{hit}}}\n",
+        "View {{ width: Fill height: {field_h} flow: Overlay\nDesignSurface {{\nwidth: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {field_pad} right: 12}} spacing: 8\ndraw_bg.color: {} draw_bg.radius: {field_radius} draw_bg.border_width: 1 draw_bg.border_position: 1 draw_bg.border_color: {edge}\n{}{}{}}}\n{hit}}}\n",
         kit::WHITE,
         Text::new(&format!("{id}_value"), tr(value)).px(15.0).color(ink).fill().one_line().dsl(),
-        mono("", detail, 12.0, kit::MUTED),
-        kit::svg("", "b3_chevron_down_dark.svg", 13.0),
+        if desk { String::new() } else { mono("", detail, 12.0, kit::MUTED) },
+        kit::svg("", if desk { "b3_updown.svg" } else { "b3_chevron_down_dark.svg" }, 13.0),
     ));
     if enabled {
         v.button(id, action);
@@ -1089,26 +1099,31 @@ fn select_field(v: &mut Ui, l: &Layout, ui: &ProviderUi, which: Select, label: &
             Select::Family => ui.family.clone(),
             Select::Protocol => ui.api_type.clone().unwrap_or_default(),
         };
-        let row_h = if l.phone { 46 } else { 40 };
+        let row_h = if desk { 28 } else if l.phone { 46 } else { 40 };
+        let check = if desk { 14.0 } else { 20.0 };
         let rows: Vec<String> = opts
             .iter()
             .enumerate()
             .map(|(i, (oid, olabel))| {
                 let rid = format!("b1_prov_opt_{i}");
                 v.button(&rid, &format!("provider.option.{i}"));
-                let mark = if *oid == chosen { kit::svg("", "b1_check_on.svg", 20.0) } else { "View { width: 20 height: 20 }\n".to_owned() };
+                let mark = if *oid == chosen { kit::svg("", "b1_check_on.svg", check) } else { format!("View {{ width: {check} height: {check} }}\n") };
                 format!(
                     "View {{ width: Fill height: {row_h} flow: Overlay\nView {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 14 right: 12}} spacing: 10\n{}{}{mark}}}\n{}}}\n",
-                    Text::new(&format!("b1_prov_opt_t{i}"), tr(olabel)).px(14.0).fill().one_line().dsl(),
-                    mono("", oid, 12.0, kit::MUTED),
+                    Text::new(&format!("b1_prov_opt_t{i}"), tr(olabel)).px(crate::desk::by(14.0, 15.0)).fill().one_line().dsl(),
+                    if desk { String::new() } else { mono("", oid, 12.0, kit::MUTED) },
                     kit::hit(&rid, true)
                 )
             })
             .collect();
         // Five full rows and their four hairlines.
         let max_h = (rows.len() > 5).then_some((row_h * 5 + 4) as f64);
-        v.push(kit::gap(6.0));
+        v.push(kit::gap(if desk { 4.0 } else { 6.0 }));
         v.push(kit::list_card_scroll("b1_prov_options", &rows, max_h));
+    }
+    if desk {
+        let inner = v.dsl.split_off(start);
+        v.push(kit::form_row(tr(label), &inner));
     }
 }
 
@@ -1120,7 +1135,10 @@ fn model_rows(v: &mut Ui, l: &Layout, ui: &ProviderUi, list: &[String], action: 
         .enumerate()
         .map(|(i, m)| {
             let on = *m == chosen;
-            let label = if on && ui.set_primary() { tr1("{value0} (default)", m) } else { m.clone() };
+            let desk = crate::desk::active();
+            // A Mac's list names a model as people read it, never its id.
+            let name = if desk { crate::desk::model_word(m) } else { m.clone() };
+            let label = if on && ui.set_primary() { tr1("{value0} (default)", &name) } else { name };
             let id = format!("{id_base}_{i}");
             let hit = if interactive {
                 v.button(&id, &format!("{action}.{i}"));
@@ -1135,20 +1153,28 @@ fn model_rows(v: &mut Ui, l: &Layout, ui: &ProviderUi, list: &[String], action: 
             // the kit's estimate runs ~15% short of the board-1 label's
             // measured run (claude-3-5-haiku-20241022 (default): 237
             // estimated, ~282 drawn), hence the 1.2.
-            let room = l.content_w - 2.0 - 14.0 - 12.0 - 10.0 - 23.0;
+            let room = if desk { l.content_w - 160.0 - 2.0 - 10.0 - 10.0 - 8.0 - 14.0 } else { l.content_w - 2.0 - 14.0 - 12.0 - 10.0 - 23.0 };
             let two = super::board3::ui::text_w(&label, 14.0, super::board3::ui::Face::Regular) * 1.2 > room;
             let text_id = format!("{id_base}_t{i}");
-            let text = Text::new(&text_id, &label).px(14.0).fill();
+            let text = Text::new(&text_id, &label).px(crate::desk::by(14.0, 15.0)).fill();
             let h = match (l.phone, two) {
+                _ if desk && two => 44.0,
+                _ if desk => 28.0,
                 (true, true) => 68.0,
                 (true, false) => 46.0,
                 (false, true) => 62.0,
                 (false, false) => 40.0,
             };
+            let (inset, gap, check) = if desk { (10, 8, 14.0) } else { (14, 10, 23.0) };
+            let words = if two { text.dsl() } else { text.one_line().dsl() };
+            // A Mac's one-of-many: a radio button leading the row.
+            let (first, last) = if desk {
+                (kit::svg("", if on { "cv_radio_on.svg" } else { "cv_radio_off.svg" }, check), words)
+            } else {
+                (words, kit::svg("", if on { "b1_check_on.svg" } else { "b1_check_off.svg" }, check))
+            };
             let row = format!(
-                "View {{ width: Fill height: {h} flow: Overlay\nView {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 14 right: 12}} spacing: 10\n{}{}}}\n{hit}}}\n",
-                if two { text.dsl() } else { text.one_line().dsl() },
-                kit::svg("", if on { "b1_check_on.svg" } else { "b1_check_off.svg" }, 23.0),
+                "View {{ width: Fill height: {h} flow: Overlay\nView {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {inset} right: 12}} spacing: {gap}\n{first}{last}}}\n{hit}}}\n",
             );
             (row, h)
         })
@@ -1161,14 +1187,28 @@ fn five_rows_h(rows: &[(String, f64)]) -> Option<f64> {
     (rows.len() > 5).then(|| rows.iter().take(5).map(|(_, h)| h).sum::<f64>() + 4.0)
 }
 
+/// On a desktop's Add sheet the fields below stay in view: three rows.
+fn list_h(ui: &ProviderUi, rows: &[(String, f64)]) -> Option<f64> {
+    if crate::desk::active() && ui.mode == Mode::Add {
+        (rows.len() > 3).then(|| rows.iter().take(3).map(|(_, h)| h).sum::<f64>() + 2.0)
+    } else {
+        five_rows_h(rows)
+    }
+}
+
 /// The Models list (board 1 #6), the endpoint's models after a fetch
 /// ("Available from endpoint" with its count) and "Fetch available models".
 fn models_section(v: &mut Ui, l: &Layout, ui: &ProviderUi, read_only: bool) {
+    let desk = crate::desk::active();
+    // A Mac form holds the section in the control's column.
+    let start = v.dsl.len();
+    if !desk {
     v.push(Text::new("", tr("Models")).px(15.0).fill().one_line().dsl());
     v.push(kit::gap(if l.phone { 8.0 } else { 6.0 }));
+    }
     let models: Vec<String> = ui.models.clone();
     let rows = model_rows(v, l, ui, &models, "provider.model", "b1_prov_model", !read_only);
-    let max_h = five_rows_h(&rows);
+    let max_h = list_h(ui, &rows);
     let rows: Vec<String> = rows.into_iter().map(|(r, _)| r).collect();
     if rows.is_empty() {
         v.push(Text::new("b1_prov_models_none", tr("No catalog models for this provider.")).px(14.0).color(kit::MUTED).fill().dsl());
@@ -1185,7 +1225,7 @@ fn models_section(v: &mut Ui, l: &Layout, ui: &ProviderUi, read_only: bool) {
         v.push(kit::gap(6.0));
         let fetched = ui.fetched.clone();
         let rows = model_rows(v, l, ui, &fetched, "provider.fetched", "b1_prov_fetched", !read_only);
-        let max_h = five_rows_h(&rows);
+        let max_h = list_h(ui, &rows);
         let rows: Vec<String> = rows.into_iter().map(|(r, _)| r).collect();
         v.push(kit::list_card_scroll("b1_prov_fetched_list", &rows, max_h));
     }
@@ -1199,6 +1239,10 @@ fn models_section(v: &mut Ui, l: &Layout, ui: &ProviderUi, read_only: bool) {
         v.push(kit::pill_outline_fit("b1_prov_fetch", label, 40.0));
         v.button("b1_prov_fetch", "provider.fetch");
     }
+    if desk {
+        let inner = v.dsl.split_off(start);
+        v.push(kit::form_row(tr("Models"), &inner));
+    }
 }
 
 /// The scroll budget of the editor's body: the window less the dialog's
@@ -1206,69 +1250,43 @@ fn models_section(v: &mut Ui, l: &Layout, ui: &ProviderUi, read_only: bool) {
 fn body_max(l: &Layout) -> f64 {
     if l.phone {
         (l.h - 214.0).max(240.0).floor()
+    } else if crate::desk::active() {
+        // Its title, its foot and the read-only notice stand outside the
+        // scrolling part.
+        (crate::desk::sheet_room(l.h) - 170.0).max(180.0).floor()
     } else {
         (l.h - 200.0).max(220.0).floor()
     }
 }
 
 /// The native view of the editor (p4-06, or p4-07 after a rejection).
-pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
-    let mut v = Ui::default();
-    let title = tr(if ui.mode == Mode::Add { copy::ADD_PROVIDER } else { "Edit provider" });
-    v.header(l, "b1_prov_back", "provider.back", title);
-    // Mutation not advertised, or a row the editor cannot preserve: the same
-    // editor, read-only, with the reason and a Close instead of Cancel/Save
-    // (fail closed).
-    let read_only = ui.read_only();
-    let field_gap = if l.phone { 14.0 } else { 10.0 };
-    v.push(kit::gap(if l.phone { 16.0 } else { 12.0 }));
-    // The scroll bar's gutter (board 3 measured the bar drawing over a row's
-    // right edge without one) sits inside the card's own side padding: the
-    // view reaches 10 px into it and pads 10 px back, so the fields keep the
-    // board's margins on both sides.
-    v.push(format!(
-        "b1_prov_scroll := ScrollYView {{ width: Fill height: Fit max_height: {} flow: Down margin: Inset{{right: -10}} padding: Inset{{right: 10}}\n",
-        body_max(l)
-    ));
-    if ui.mode == Mode::Add {
-        // The catalog-driven identity (`openAdd`): the family from the
-        // catalog, the model id (typed or picked below), the route id.
-        if ui.families.is_empty() {
-            v.push(Field::new("b1_prov_family_text", &ui.family).label(tr("Provider / family ID")).placeholder("deepseek").dsl());
-            v.input("b1_prov_family_text", "provider.family");
-        } else {
-            let label = ui.family_option().map(|f| f.label.clone()).unwrap_or_else(|| ui.family.clone());
-            select_field(&mut v, l, ui, Select::Family, "Provider", &label, &ui.family);
-        }
-        issue_line(&mut v, ui, ms::Field::FamilyId, "b1_prov_family_issue");
-        v.push(kit::gap(field_gap));
-        v.push(Field::new("b1_prov_model_id", &ui.model_id()).label(tr("Model ID")).placeholder("deepseek-chat").dsl());
-        v.input("b1_prov_model_id", "provider.model_id");
-        issue_line(&mut v, ui, ms::Field::ModelId, "b1_prov_model_issue");
-        // The catalog's (and the endpoint's) models, right under the id
-        // they fill (`SuggestionGroup`).
-        v.push(kit::gap(field_gap));
-        models_section(&mut v, l, ui, read_only);
-        v.push(kit::gap(if l.phone { 18.0 } else { 14.0 }));
+/// The key's write-only note.
+fn key_note(v: &mut Ui, ui: &ProviderUi) {
+    if ui.credential() != Credential::None {
+        v.push(kit::under_control(&Text::new("b1_prov_key_hint", tr(if ui.credential_configured() { copy::KEY_CONFIGURED_HINT } else { crate::desk::by(copy::KEY_WRITE_ONLY_HINT, copy::KEY_WRITE_ONLY_DESK) }))
+            .px(13.0)
+            .color(kit::MUTED)
+            .fill()
+            .dsl()));
     }
-    v.push(Field::new("b1_prov_name", &ui.name).label(tr("Name")).placeholder(tr("Provider · Route")).read_only(read_only).dsl());
-    v.input("b1_prov_name", "provider.name");
-    issue_line(&mut v, ui, ms::Field::RouteLabel, "b1_prov_name_issue");
-    v.push(kit::gap(field_gap));
-    let url_placeholder = if ui.default_base_url.is_empty() { tr("Provider default") } else { ui.default_base_url.as_str() };
-    v.push(Field::new("b1_prov_url", &ui.base_url).label(tr("Base URL")).placeholder(url_placeholder).read_only(read_only).dsl());
-    v.input("b1_prov_url", "provider.url");
-    issue_line(&mut v, ui, ms::Field::BaseUrl, "b1_prov_url_issue");
-    v.push(kit::gap(field_gap));
+}
+
+/// The API key, or that this provider takes none; a refused save reads under it.
+fn key_section(v: &mut Ui, ui: &ProviderUi, read_only: bool) {
     if ui.credential() == Credential::None {
         // `credentialRequirement === "none"`: no key field at all.
+        if crate::desk::active() {
+            v.push(kit::form_row(tr("API key"), &kit::callout(false, false, tr(copy::KEY_NONE), None)));
+        } else {
         v.push(Text::new("", tr("API key")).px(15.0).fill().one_line().dsl());
         v.push(kit::gap(8.0));
         v.push(kit::callout(false, false, tr(copy::KEY_NONE), None));
+        }
     } else {
+        let (eye_box, eye_glyph) = crate::desk::by((36, 22.0), (28, 14.0));
         let eye = format!(
-            "View {{ width: 36 height: 36 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n{}{}}}\n",
-            kit::svg("", if ui.key_revealed { "b1_eye_off.svg" } else { "b1_eye.svg" }, 22.0),
+            "View {{ width: {eye_box} height: {eye_box} flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n{}{}}}\n",
+            kit::svg("", if ui.key_revealed { "b1_eye_off.svg" } else { "b1_eye.svg" }, eye_glyph),
             kit::hit("b1_prov_eye", true)
         );
         // p4-07's red outline: the provider refused this key (on a Save or a
@@ -1293,16 +1311,92 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         v.input("b1_prov_key", "provider.key");
         v.returns("b1_prov_key", "provider.save");
         v.button("b1_prov_eye", "provider.key.reveal");
-        issue_line(&mut v, ui, ms::Field::ApiKey, "b1_prov_key_issue");
+        issue_line(v, ui, ms::Field::ApiKey, "b1_prov_key_issue");
     }
     // p4-07: a refused SAVE reads under the key it refused (the board).
     if ui.screen == Screen::Rejected {
         v.push(kit::gap(8.0));
-        v.push(Text::new("b1_prov_error", &ui.failure_line()).px(15.0).color(kit::RED).fill().dsl());
+        v.push(kit::under_control(&Text::new("b1_prov_error", &ui.failure_line()).px(15.0).color(kit::RED).fill().dsl()));
         if !ui.save_refused {
             v.push(kit::gap(2.0));
-            v.push(Text::new("b1_prov_kept", tr("Your draft is kept.")).px(15.0).color(kit::RED).fill().one_line().dsl());
+            v.push(kit::under_control(&Text::new("b1_prov_kept", tr("Your draft is kept.")).px(15.0).color(kit::RED).fill().one_line().dsl()));
         }
+    }
+}
+
+pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
+    let mut v = Ui::default();
+    let title = tr(if ui.mode == Mode::Add { copy::ADD_PROVIDER } else { "Edit provider" });
+    v.header(l, "b1_prov_back", "provider.back", title);
+    // Mutation not advertised, or a row the editor cannot preserve: the same
+    // editor, read-only, with the reason and a Close instead of Cancel/Save
+    // (fail closed).
+    let read_only = ui.read_only();
+    let field_gap = if l.phone { 14.0 } else { 10.0 };
+    // What a new provider needs first, right under it: on a desktop the sheet
+    // would otherwise leave the key below the fold.
+    let key_first = ui.mode == Mode::Add && crate::desk::active();
+    v.push(kit::gap(if l.phone { 16.0 } else { 12.0 }));
+    // The scroll bar's gutter (board 3 measured the bar drawing over a row's
+    // right edge without one) sits inside the card's own side padding: the
+    // view reaches 10 px into it and pads 10 px back, so the fields keep the
+    // board's margins on both sides.
+    v.push(format!(
+        "b1_prov_scroll := ScrollYView {{ width: Fill height: Fit max_height: {} flow: Down margin: Inset{{right: -10}} padding: Inset{{right: 10}}\n",
+        body_max(l)
+    ));
+    if ui.mode == Mode::Add {
+        // The catalog-driven identity (`openAdd`): the family from the
+        // catalog, the model id (typed or picked below), the route id.
+        if ui.families.is_empty() {
+            v.push(Field::new("b1_prov_family_text", &ui.family).label(tr("Provider / family ID")).placeholder("deepseek").dsl());
+            v.input("b1_prov_family_text", "provider.family");
+            if crate::desk::active() {
+                v.returns("b1_prov_family_text", "provider.save");
+            }
+        } else {
+            let label = ui.family_option().map(|f| f.label.clone()).unwrap_or_else(|| ui.family.clone());
+            select_field(&mut v, l, ui, Select::Family, "Provider", &label, &ui.family);
+        }
+        issue_line(&mut v, ui, ms::Field::FamilyId, "b1_prov_family_issue");
+        v.push(kit::gap(field_gap));
+        if key_first {
+            key_section(&mut v, ui, read_only);
+            if !read_only {
+                v.push(kit::gap(6.0));
+                key_note(&mut v, ui);
+            }
+            v.push(kit::gap(field_gap));
+        }
+        v.push(Field::new("b1_prov_model_id", &ui.model_id()).label(tr("Model ID")).placeholder("deepseek-chat").dsl());
+        v.input("b1_prov_model_id", "provider.model_id");
+        if crate::desk::active() {
+            v.returns("b1_prov_model_id", "provider.save");
+        }
+        issue_line(&mut v, ui, ms::Field::ModelId, "b1_prov_model_issue");
+        // The catalog's (and the endpoint's) models, right under the id
+        // they fill (`SuggestionGroup`).
+        v.push(kit::gap(field_gap));
+        models_section(&mut v, l, ui, read_only);
+        v.push(kit::gap(if l.phone { 18.0 } else { 14.0 }));
+    }
+    v.push(Field::new("b1_prov_name", &ui.name).label(tr("Name")).placeholder(tr("Provider · Route")).read_only(read_only).dsl());
+    v.input("b1_prov_name", "provider.name");
+    if crate::desk::active() {
+        v.returns("b1_prov_name", "provider.save");
+    }
+    issue_line(&mut v, ui, ms::Field::RouteLabel, "b1_prov_name_issue");
+    v.push(kit::gap(field_gap));
+    let url_placeholder = if ui.default_base_url.is_empty() { tr("Provider default") } else { ui.default_base_url.as_str() };
+    v.push(Field::new("b1_prov_url", &ui.base_url).label(tr("Base URL")).placeholder(url_placeholder).read_only(read_only).dsl());
+    v.input("b1_prov_url", "provider.url");
+    if crate::desk::active() {
+        v.returns("b1_prov_url", "provider.save");
+    }
+    issue_line(&mut v, ui, ms::Field::BaseUrl, "b1_prov_url_issue");
+    if !key_first {
+        v.push(kit::gap(field_gap));
+        key_section(&mut v, ui, read_only);
     }
     // The board's p4-06 order first (Name, Base URL, API key, Models), so
     // the editor opens on the approved composition; the web editor's other
@@ -1314,22 +1408,18 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
     // The credential and its probe: the key's write-only note, the last
     // Test connection's line (where it was clicked), Test connection.
     if !read_only {
-        v.push(kit::gap(if l.phone { 18.0 } else { 14.0 }));
-        if ui.credential() != Credential::None {
-            v.push(Text::new("b1_prov_key_hint", tr(if ui.credential_configured() { copy::KEY_CONFIGURED_HINT } else { copy::KEY_WRITE_ONLY_HINT }))
-                .px(13.0)
-                .color(kit::MUTED)
-                .fill()
-                .dsl());
+        if !key_first {
+            v.push(kit::gap(if l.phone { 18.0 } else { 14.0 }));
+            key_note(&mut v, ui);
         }
         if let Some(f) = &ui.feedback {
             v.push(kit::gap(8.0));
-            v.push(kit::status_line("b1_prov_feedback", tr(&f.text), f.ok));
+            v.push(kit::under_control(&kit::status_line("b1_prov_feedback", tr(&f.text), f.ok)));
         }
         if ui.caps.test {
             v.push(kit::gap(10.0));
             let label = tr(if ui.busy && ui.last_op == Op::Test { copy::TESTING } else { copy::TEST });
-            v.push(kit::pill_outline_fit("b1_prov_test", label, 40.0));
+            v.push(kit::under_control(&kit::pill_outline_fit("b1_prov_test", label, 40.0)));
             v.button("b1_prov_test", "prov.test");
         }
     }
@@ -1349,16 +1439,22 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         let env = ui.api_key_env.clone().unwrap_or_default();
         v.push(Field::new("b1_prov_env", &env).label(tr("Credential environment")).placeholder("ZAI_API_KEY").read_only(read_only).dsl());
         v.input("b1_prov_env", "provider.env");
+        if crate::desk::active() {
+            v.returns("b1_prov_env", "provider.save");
+        }
         if ui.issues.iter().any(|i| i.field == ms::Field::ApiKeyEnv) {
             issue_line(&mut v, ui, ms::Field::ApiKeyEnv, "b1_prov_env_issue");
         } else {
-            hint(&mut v, "b1_prov_env_hint", tr(copy::ENV_HINT));
+            hint(&mut v, "b1_prov_env_hint", tr(crate::desk::by(copy::ENV_HINT, copy::ENV_HINT_DESK)));
         }
     }
     v.push(kit::gap(field_gap));
     if ui.mode == Mode::Add {
         v.push(Field::new("b1_prov_route_id", &ui.route).label(tr("Route ID")).placeholder("deepseek").dsl());
         v.input("b1_prov_route_id", "provider.route_id");
+        if crate::desk::active() {
+            v.returns("b1_prov_route_id", "provider.save");
+        }
         issue_line(&mut v, ui, ms::Field::RouteId, "b1_prov_route_issue");
     } else {
         // The fixed identity (board 1 #5's rows): an edit never renames it.
@@ -1367,10 +1463,14 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
             kit::kv_row(tr("Route"), &ui.route),
         ];
         v.push(kit::list_card("b1_prov_identity", &rows));
-        hint(&mut v, "b1_prov_identity_hint", &format!("{} {}", tr(copy::FIXED_PROVIDER), tr(copy::FIXED_ROUTE)));
+        if crate::desk::active() {
+            hint(&mut v, "b1_prov_identity_hint", tr(copy::FIXED_DESK));
+        } else {
+            hint(&mut v, "b1_prov_identity_hint", &format!("{} {}", tr(copy::FIXED_PROVIDER), tr(copy::FIXED_ROUTE)));
+        }
     }
     v.push(kit::gap(if l.phone { 16.0 } else { 12.0 }));
-    v.push(kit::callout(false, true, tr(copy::PARAMETERS_HEAD), Some(tr(copy::PARAMETERS_BODY))));
+    v.push(kit::callout(false, true, tr(copy::PARAMETERS_HEAD), Some(tr(crate::desk::by(copy::PARAMETERS_BODY, copy::PARAMETERS_DESK)))));
     if ui.model_id().trim().eq_ignore_ascii_case("glm-5.3-flash") {
         v.push(kit::gap(12.0));
         glm_guidance(&mut v);
@@ -1379,10 +1479,10 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
     v.push("}\n");
     if read_only {
         v.push(kit::gap(14.0));
-        let why = tr(if ui.edit_blocked { copy::EDIT_BLOCKED } else { READ_ONLY });
+        let why = tr(if ui.edit_blocked { crate::desk::by(copy::EDIT_BLOCKED, copy::EDIT_BLOCKED_DESK) } else { READ_ONLY });
         v.push(kit::callout(false, true, why, None));
         v.spacer(l, 16.0, 22.0);
-        v.push(kit::pill_outline("b1_prov_cancel", tr("Close"), "Fill"));
+        v.push(kit::action_row(&[kit::pill_outline("b1_prov_cancel", tr("Close"), "Fill")]));
         v.button("b1_prov_cancel", "provider.cancel");
         if l.phone {
             v.push(kit::gap(24.0));
@@ -1393,18 +1493,24 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         v.push(kit::gap(10.0));
         v.push(Text::new("b1_prov_complete", tr(copy::COMPLETE_FIELDS)).px(14.0).color(kit::RED).fill().dsl());
     }
-    v.spacer(l, 16.0, 22.0);
+    if crate::desk::active() {
+        // The form scrolls under its foot.
+        v.push(kit::gap(8.0));
+        v.push(kit::hairline());
+        v.push(kit::gap(10.0));
+    } else {
+        v.spacer(l, 16.0, 22.0);
+    }
     let primary_label = tr(match (ui.busy, ui.screen) {
         (true, _) if ui.last_op == Op::Save => "Saving\u{2026}",
         (_, Screen::Rejected) => "Try again",
         _ => "Save",
     });
     let primary_action = if ui.screen == Screen::Rejected { "provider.retry" } else { "provider.save" };
-    v.push(format!(
-        "View {{ width: Fill height: Fit flow: Right spacing: 12\n{}{}}}\n",
+    v.push(kit::action_row(&[
         kit::pill_outline("b1_prov_cancel", tr("Cancel"), "Fill"),
-        kit::pill_primary("b1_prov_save", primary_label, "Fill")
-    ));
+        kit::pill_primary("b1_prov_save", primary_label, "Fill"),
+    ]));
     v.button("b1_prov_cancel", "provider.cancel");
     v.button("b1_prov_save", primary_action);
     if l.phone {

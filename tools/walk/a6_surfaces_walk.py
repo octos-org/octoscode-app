@@ -778,9 +778,10 @@ def walk_approvals():
         shot("approval-failed")
         return
     check("approval: title, risk, tool · kind, the typed command, Y / S / N",
-          text("cv_ap_title") == "M9 approval fixture" and "low" in text("cv_ap_risk")
-          and text("cv_ap_tool") == "shell · command" and "printf m9-approval-e2e" in text("cv_ap_cmd")
-          and "Y / S / N" in text("cv_ap_hint"),
+          text("cv_ap_title") == "M9 approval fixture" and ("low" if PHONE else "Low") in text("cv_ap_risk")
+          and text("cv_ap_tool") == ("shell · command" if PHONE else "Shell · Command") and "printf m9-approval-e2e" in text("cv_ap_cmd")
+          # A Mac's card names no keys: its buttons answer them.
+          and ("Y / S / N" in text("cv_ap_hint") if PHONE else not text("cv_ap_hint")),
           f"{text('cv_ap_title')!r} {text('cv_ap_risk')!r} {text('cv_ap_tool')!r} {text('cv_ap_cmd')!r} {text('cv_ap_hint')!r}")
     approval_layout("approval card")
     shot("approval")
@@ -863,14 +864,14 @@ def walk_plan_and_trajectory():
     # r4's live task/updated frames merge in after the list (newest on top):
     # running, then "fixture complete".
     merged = wait(lambda: task_titles()[:1] == ["M9 task output fixture"]
-                  and text("cv_tr_task_meta_0") == "fixture complete", 8)
+                  and text("cv_tr_task_meta_0") == ("fixture complete" if PHONE else "Fixture complete"), 8)
     check("trajectory: r4's live task/updated merges on top (running -> completed)", merged,
           f"{task_titles()} {text('cv_tr_task_meta_0')!r}")
     stable()
     ws = snap()
     status = [text(f"cv_tr_st_value_{i}", ws) for i in range(3)]
     check("trajectory: runtime status (model / permission / health)",
-          status == ["deepseek-v4-flash", "workspace_write", "ok"], f"{status}")
+          status == (["deepseek-v4-flash", "workspace_write", "ok"] if PHONE else ["DeepSeek V4 Flash", "Workspace write", "OK"]), f"{status}")
     shot("trajectory")
     reveal("cv_tr_task_title_2", "cv_tr_scroll")
     stable()
@@ -897,7 +898,7 @@ def walk_plan_and_trajectory():
     ws = snap()
     running = None
     for w in prefixed(ws, "cv_tr_task_meta_"):
-        if w.get("t", "").startswith("running"):
+        if w.get("t", "").startswith("running" if PHONE else "Running"):
             running = w["i"].rsplit("_", 1)[1]
             break
     if not check("trajectory: a running task row", running is not None):
@@ -930,7 +931,7 @@ def walk_plan_and_trajectory():
     stable()
     if click(f"cv_tr_task_cancel_{running}"):
         ok = wait(lambda: "<- task/cancel" in replay_log(), 6)
-        settled = wait(lambda: text(f"cv_tr_task_meta_{running}").startswith("cancelled"), 6)
+        settled = wait(lambda: text(f"cv_tr_task_meta_{running}").startswith("cancelled" if PHONE else "Cancelled"), 6)
         check("CLICK Cancel -> task/cancel on the wire, the row reads cancelled", ok and settled,
               repr(text(f"cv_tr_task_meta_{running}")))
     click("hd_tab_chat_hit")

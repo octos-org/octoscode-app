@@ -53,13 +53,22 @@ pub struct Offer {
 }
 
 impl Offer {
-    /// "Found Octos on 127.0.0.1:50190." (`ConnectionPanel.tsx:181`).
+    /// "Found Octos on 127.0.0.1:50190." (`ConnectionPanel.tsx:181`). A Mac
+    /// names the computer, not its address: only a server on this computer is
+    /// ever offered, and the address goes into the Server field when it is used.
     pub fn message(&self) -> String {
+        if crate::desk::active() {
+            return crate::i18n::tr("Found Octos on this Mac.").to_owned();
+        }
         crate::i18n::tr1("Found Octos on {value0}.", &self.label)
     }
 
-    /// "Connect to 127.0.0.1:50190" (`ConnectionPanel.tsx:190`).
+    /// "Connect to 127.0.0.1:50190" (`ConnectionPanel.tsx:190`); a Mac's button
+    /// names the computer too.
     pub fn action(&self) -> String {
+        if crate::desk::active() {
+            return crate::i18n::tr("Connect to This Mac").to_owned();
+        }
         crate::i18n::tr1("Connect to {value0}", &self.label)
     }
 }

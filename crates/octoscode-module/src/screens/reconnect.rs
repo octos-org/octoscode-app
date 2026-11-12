@@ -141,26 +141,30 @@ pub fn view(store: &Store, has_conversation: bool) -> Option<View> {
 /// The title / detail copy.
 pub fn copy(v: &View) -> (String, String) {
     match &v.kind {
+        // Its retries and its address are nobody's business on a desktop.
+        Kind::Reconnecting if crate::desk::active() => {
+            (tr("Reconnecting to Octos").to_owned(), tr("The connection was lost. OctosCode keeps trying.").to_owned())
+        }
         Kind::Reconnecting => {
             let mut detail = tr("Connection lost").to_owned();
             if v.attempt > 0 {
                 detail.push_str(&format!(" · {}", tr1("retry {value0}", &v.attempt.to_string())));
             }
-            if !v.server.is_empty() {
+            if !v.server.is_empty() && !crate::desk::hosted() {
                 detail.push_str(&format!(" · {}", v.server));
             }
             (tr("Reconnecting to Octos").to_owned(), detail)
         }
         Kind::Restoring => {
             let mut detail = tr("Restoring authoritative session state").to_owned();
-            if !v.server.is_empty() {
+            if !v.server.is_empty() && !crate::desk::hosted() {
                 detail.push_str(&format!(" · {}", v.server));
             }
             (tr("Restoring session state").to_owned(), detail)
         }
         Kind::RecoveryRequired(reason) => {
             let mut detail = reason.clone();
-            if !v.server.is_empty() {
+            if !v.server.is_empty() && !crate::desk::hosted() {
                 detail.push_str(&format!(" · {}", v.server));
             }
             (tr("Session recovery required").to_owned(), detail)
@@ -187,7 +191,12 @@ pub struct Lowered {
 /// the actions under the text (the composer is ~330 px there).
 pub fn lower(v: &View, width: f64, phone: bool) -> Lowered {
     let (title, detail) = copy(v);
-    let failed = matches!(v.kind, Kind::RecoveryRequired(_));
+    let desk = crate::desk::active();
+    // At a narrow Mac width, keep the message readable and move its actions
+    // below it. The touch layout already places actions on their own row.
+    let stack_actions = phone || (desk && width > 0.0 && width < 520.0);
+    // A Mac says it in the words and the mark; the box stays a neutral group.
+    let failed = !desk && matches!(v.kind, Kind::RecoveryRequired(_));
     let mut d = Dsl::new();
     // The banner box: the chat column's width, 1 px border, radius 16. The
     // in-progress states keep a neutral surface; a failed recovery reads as
@@ -204,55 +213,75 @@ pub fn lower(v: &View, width: f64, phone: bool) -> Lowered {
     // The in-progress states carry the web's accent edge (`inset 3px 0 0`
     // business blue): a 3 px bar on the banner's left edge, so the mark
     // still starts near the web's 14 px (3 + the 12 px gap).
-    let accent = matches!(v.kind, Kind::Reconnecting | Kind::Restoring);
-    d.view(
-        "a12_link_row",
-        &format!(
-            "width: Fill height: Fit flow: Right spacing: 12 align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {} right: 14 top: 12 bottom: 12}}",
-            // 1 px: the bar sits inside the 1 px border, like the web's inset.
-            if accent { 1 } else { 14 }
-        ),
-    );
+    let waiting = matches!(v.kind, Kind::Reconnecting | Kind::Restoring);
+    let accent = waiting && !desk;
+    if desk {
+        d.view(
+            "a12_link_row",
+            "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5} padding: Inset{left: 10 right: 8 top: 8 bottom: 8}",
+        );
+    } else {
+        d.view(
+            "a12_link_row",
+            &format!(
+                "width: Fill height: Fit flow: Right spacing: 12 align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {} right: 14 top: 12 bottom: 12}}",
+                // 1 px: the bar sits inside the 1 px border, like the web's inset.
+                if accent { 1 } else { 14 }
+            ),
+        );
+    }
     if accent {
         d.rule("a12_link_accent", "width: 3 height: 30", tok::BLUE);
     }
     // The 30 px warn-tinted mark with the refresh glyph (a warning glyph on
     // the blocking states).
-    d.surface(
-        "a12_link_mark",
-        "width: 30 height: 30 flow: Overlay align: Align{x: 0.5 y: 0.5}",
-        if failed { ERROR_MARK } else { tok::AMBER_BG },
-        10.0,
-        None,
-    );
-    let glyph = if accent { "a12_refresh_warn.svg" } else { "b3_warning.svg" };
-    d.icon("a12_link_icon", glyph, 16.0, tok::AMBER);
+    if desk {
+        d.view("a12_link_mark", "width: 16 height: 16 flow: Overlay align: Align{x: 0.5 y: 0.5}");
+    } else {
+        d.surface(
+            "a12_link_mark",
+            "width: 30 height: 30 flow: Overlay align: Align{x: 0.5 y: 0.5}",
+            if failed { ERROR_MARK } else { tok::AMBER_BG },
+            10.0,
+            None,
+        );
+    }
+    let glyph = if waiting { "a12_refresh_warn.svg" } else { "b3_warning.svg" };
+    let glyph_ink = if desk && matches!(v.kind, Kind::RecoveryRequired(_)) { tok::RED } else { tok::AMBER };
+    d.icon("a12_link_icon", glyph, 16.0, glyph_ink);
     d.close();
     // Title over detail (+ the refused-action line).
     d.view("a12_link_text", "width: Fill height: Fit flow: Down spacing: 3");
-    d.text("a12_link_title", &title, &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill));
-    d.text("a12_link_detail", &detail, &Txt::new(11.0, Face::Regular, tok::MUTED).w(W::Fill));
+    let title_style = Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill);
+    let detail_style = Txt::new(11.0, Face::Regular, tok::MUTED).w(W::Fill);
+    // The Mac's action buttons share this row; at narrower widths the
+    // message must grow rather than being cut off behind those buttons.
+    d.text("a12_link_title", &title, &if desk { title_style.wrap() } else { title_style });
+    d.text("a12_link_detail", &detail, &if desk { detail_style.wrap() } else { detail_style });
     if let Some(h) = &v.held {
         d.text("a12_link_held", h, &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
     }
     d.close();
-    if !phone {
+    if !stack_actions {
         actions(&mut d, v);
     }
     d.close(); // row
-    if phone {
+    if stack_actions {
         // Under the text: indented to the text column (1 + 3 accent + 12 gap
         // + 30 mark + 12 gap; 14 pad + 30 + 12 without the accent).
-        let indent = if accent { 58.0 } else { 56.0 };
-        d.view(
-            "a12_link_actions_row",
-            &format!("width: Fill height: Fit flow: Right spacing: 8 align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {indent} right: 14 top: 0 bottom: 12}}"),
-        );
+        if desk {
+            d.view("a12_link_actions_row", "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5} padding: Inset{left: 34 right: 8 top: 0 bottom: 8}");
+        } else {
+            let indent = if accent { 58.0 } else { 56.0 };
+            d.view(
+                "a12_link_actions_row",
+                &format!("width: Fill height: Fit flow: Right spacing: 8 align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: {indent} right: 14 top: 0 bottom: 12}}"),
+            );
+        }
         actions(&mut d, v);
         d.close();
     }
     d.close(); // banner
-    let _ = width;
     let taps = d.taps.clone();
     Lowered { dsl: d.finish(), taps }
 }
@@ -260,14 +289,20 @@ pub fn lower(v: &View, width: f64, phone: bool) -> Lowered {
 /// The banner's actions: Retry now + Disconnect while re-dialing, Disconnect
 /// while restoring, a dismiss for the no-conversation notice.
 fn actions(d: &mut Dsl, v: &View) {
+    // A shell's window has no server to leave.
+    let leave = !crate::desk::hosted();
+    let quiet = crate::desk::by(Btn::Ghost, Btn::Outline);
     match &v.kind {
         Kind::Reconnecting | Kind::RecoveryRequired(_) => {
             d.button("a12_link_retry", tr("Retry now"), ACTION_RETRY, Btn::Outline, W::Px(text_w(tr("Retry now"), 13.0, Face::Medium) + 28.0), 32.0);
-            d.button("a12_link_leave", tr("Disconnect"), ACTION_DISCONNECT, Btn::Ghost, W::Px(text_w(tr("Disconnect"), 13.0, Face::Medium) + 24.0), 32.0);
+            if leave {
+                d.button("a12_link_leave", tr("Disconnect"), ACTION_DISCONNECT, quiet, W::Px(text_w(tr("Disconnect"), 13.0, Face::Medium) + 24.0), 32.0);
+            }
         }
-        Kind::Restoring => {
-            d.button("a12_link_leave", tr("Disconnect"), ACTION_DISCONNECT, Btn::Ghost, W::Px(text_w(tr("Disconnect"), 13.0, Face::Medium) + 24.0), 32.0);
+        Kind::Restoring if leave => {
+            d.button("a12_link_leave", tr("Disconnect"), ACTION_DISCONNECT, quiet, W::Px(text_w(tr("Disconnect"), 13.0, Face::Medium) + 24.0), 32.0);
         }
+        Kind::Restoring => {}
         Kind::NotConnected => {
             d.button("a12_link_dismiss", tr("Dismiss"), ACTION_DISMISS, Btn::Ghost, W::Px(text_w(tr("Dismiss"), 13.0, Face::Medium) + 24.0), 32.0);
         }

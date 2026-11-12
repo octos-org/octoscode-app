@@ -102,6 +102,11 @@ cmd_start() {
     die "'$target' is neither a bundle directory (needs manifest.json) nor an executable"
   fi
 
+  # A phone-sized frame walks the phone's tree: the module takes its tree from the
+  # style, and a bare binary's style is its host's.
+  case "${OCTOSENSE_WINDOW_SIZE:-}" in
+    3[0-9][0-9]x*) export MAKEPAD_WIDGET_STYLE="${MAKEPAD_WIDGET_STYLE:-ios}" ;;
+  esac
   echo "[headless] launch: MAKEPAD_HIDE_WINDOWS=1 ${cmd[*]}" | tee "$log"
   MAKEPAD_HIDE_WINDOWS=1 MAKEPAD_REMOTE="$port" "${cmd[@]}" >>"$log" 2>&1 &
   local pid=$!

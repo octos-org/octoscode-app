@@ -584,10 +584,13 @@ def history_walk():
           wait(lambda: session_row("walk-fork") is not None, 6), f"{session_titles()}")
     close_drawer_if_phone()
     send("/undo")
-    if not check("history: /undo opens Undo workspace changes", wait(lambda: is_shown("b3_ck_snap_0_restore"), 6)):
+    first = "b3_ck_snap_0_restore" if MODE == "phone" else "b3_ck_go"
+    if not check("history: /undo opens Undo workspace changes", wait(lambda: is_shown(first), 6)):
         return
     grab("undo-list")
-    click("b3_ck_snap_0_restore")
+    # A phone's snapshot has its own Restore; a Mac's list selects the first,
+    # and the foot's Restore… asks.
+    click("b3_ck_snap_0_restore" if MODE == "phone" else "b3_ck_go")
     check("history: Restore asks for confirmation first", wait(lambda: is_shown("b3_ck_confirm_btn"), 3))
     grab("undo-confirm")
     log_since()
@@ -618,6 +621,10 @@ def peer_walk():
         click("b3_close") or key("Escape")
         return
     click(f"{row}_tap")
+    if MODE != "phone":
+        # A Mac's list selects the row on a press; the foot's Open opens it.
+        time.sleep(0.4)
+        click("b3_switch_open")
     wait(lambda: not is_shown(f"{row}_tap"), 4)
     ok = wait(lambda: is_shown("peer_readonly"), 6)
     check("peer: a focused peer Session shows the read-only row", ok)
@@ -644,8 +651,9 @@ def notifications_walk():
         # post a notice — the row reads "Unavailable" (no toggle, no prompt,
         # no consent). Launch with OCTOSCODE_NOTIFY_FAKE=granted to walk the
         # opt-in mechanics (tools/walk/a25_notifications.py walks every state).
+        # A Mac's Settings doesn't list what this process can't do.
         check("attention: no notification backend here — the row says Unavailable",
-              text_of("notify_state") == "Unavailable")
+              text_of("notify_state") == "Unavailable" if MODE == "phone" else not is_shown("notify_row"))
         click("set_back" if MODE == "phone" else "settings_close")
         wait(lambda: not is_shown("settings_drawer"), 3)
         close_drawer_if_phone()
@@ -670,9 +678,11 @@ def images_walk():
     shot = os.path.abspath(os.path.join("tmp", "a7-walk", "walk-shot.png"))
     png(shot)
     send("/images")
-    if not check("media: /images opens the images dialog", wait(lambda: is_shown("b3_img_slot_0"), 6)):
+    # A Mac's sheet draws what was chosen, so an empty one has no slots.
+    sheet_mark = "b3_img_slot_0" if MODE == "phone" else "b3_img_choose"
+    if not check("media: /images opens the images dialog", wait(lambda: is_shown(sheet_mark), 6)):
         return
-    r = rect("b3_img_slot_0")
+    r = rect(sheet_mark)
     get(f"/drop?path={urllib.parse.quote(shot)}&x={r[0] + r[2] / 2:.0f}&y={r[1] + r[3] / 2:.0f}&wait=1")
     check("media: a dropped PNG fills slot 0 (selected, not uploaded)",
           wait(lambda: "Selected; not uploaded" in (text_of("b3_img_row_0") or ""), 4), repr(text_of("b3_img_row_0")))
@@ -709,7 +719,7 @@ def images_walk():
     check("media: its late receipt does not resurrect it", text_of("b3_img_row_0") is None)
     check("media: the picker is available again", is_shown("b3_img_choose"))
     click("b3_img_close_btn") or key("Escape")
-    wait(lambda: not is_shown("b3_img_slot_0"), 4)
+    wait(lambda: not is_shown(sheet_mark), 4)
     # The composer's + opens the same surface for this Session (it was a dead
     # control until the judge's 2026-10-02 tour); a typed draft stays put.
     focus_composer()
@@ -717,10 +727,15 @@ def images_walk():
     dismiss_keyboard()  # phone: the shell's soft keyboard covers the composer row
     log_since()
     click("plus_hit")
-    check("media: the composer + opens Turn images", wait(lambda: is_shown("b3_img_slot_0"), 6))
-    check("media: + routes through the /images command arm", logged("composer plus clicked"))
-    click("b3_img_close_btn") or key("Escape")
-    wait(lambda: not is_shown("b3_img_slot_0"), 4)
+    if MODE == "phone":
+        check("media: the composer + opens Turn images", wait(lambda: is_shown(sheet_mark), 6))
+        check("media: + routes through the /images command arm", logged("composer plus clicked"))
+        click("b3_img_close_btn") or key("Escape")
+        wait(lambda: not is_shown(sheet_mark), 4)
+    else:
+        # A Mac's + opens the file panel straight away; a hidden run's panel answers cancelled.
+        check("media: the composer + opens the file panel", wait(lambda: logged("board3 image picker opened"), 6))
+        check("media: a cancelled panel opens nothing", logged("composer plus clicked") and not is_shown(sheet_mark))
     check("media: the draft survives +", composer_text() == "keep this draft", repr(composer_text()))
     clear_composer()
 

@@ -61,6 +61,11 @@ def inside(inner, outer, tol=TOL):
 
 def metrics(window_w, pane_w):
     phone = window_w < 760
+    if not phone:
+        # The desktop tree is the Mac look: content fills the pane inside a
+        # 20-point gutter, with no reading column.
+        column = int(pane_w - 40.0)
+        return False, 20.0, 20.0, column, column
     pad, cpad = (16.0, 12.0) if phone else (24.0, 24.0)
     chat = min(max(0.62 * window_w, 736.0), 1040.0)
     column = int(min(chat, pane_w - 2 * pad))
@@ -129,7 +134,7 @@ def conversation(rows, rep):
             rep.check(f"{b['i']} text inside", inside(lab["r"], b["r"]),
                       f"label {lab['r']} in bubble {b['r']}")
     for p in (w for w in items if w["i"].endswith("_assistantprose")):
-        rep.check(f"{p['i']} prose width", p["r"][2] <= min(col_w, 700 if not phone else col_w) + TOL
+        rep.check(f"{p['i']} prose width", p["r"][2] <= col_w + TOL
                   and p["r"][0] >= col_l - TOL,
                   f"{p['r'][2]:.0f} wide at x={p['r'][0]:.0f} (column {col_l:.0f}..{col_r:.0f})")
     comp = find(rows, "i0_composer")
@@ -144,9 +149,10 @@ def conversation(rows, rep):
         inp = find(rows, "i0_composer_0")
         if inp and full:
             dx = inp["r"][0] - col_l
-            want = 16 - (cw - (col_r - col_l)) / 2
+            card_pad = 16 if phone else 12
+            want = card_pad - (cw - (col_r - col_l)) / 2
             rep.check("composer text on the column edge", abs(dx - want) <= TOL,
-                      f"input x - column x = {dx:.0f} (card padding 16, card {cw - (col_r - col_l):.0f} px wider)",
+                      f"input x - column x = {dx:.0f} (card padding {card_pad}, card {cw - (col_r - col_l):.0f} px wider)",
                       f"composer text dx {dx:.0f}")
         rep.check("composer inside the module", inside(comp["r"], mod_r),
                   f"composer bottom {bottom(comp['r']):.0f} <= module bottom {bottom(mod_r):.0f}")
@@ -168,9 +174,11 @@ def conversation(rows, rep):
     hits = [w for w in rows if w["ty"] == "Button" and not cut(w) and (
         w["i"] in ("send_hit", "mic_hit", "plus_hit", "approval_pill_hit", "answer_copy_hit", "row_hit",
                    "tool_hit", "worked_hit"))]
-    small = [(w["i"], w["r"][2], w["r"][3]) for w in hits if w["r"][2] < 28 - 0.5 or w["r"][3] < 28 - 0.5]
-    rep.check("controls >= 28 px", not small, f"{len(hits)} hit targets; too small: {small}",
-              f"{len(hits)} controls>=28")
+    # A Mac's small tools (copy, plus, send, the composer's pills) sit under a phone's 28.
+    floor = 28 if phone else 22
+    small = [(w["i"], w["r"][2], w["r"][3]) for w in hits if w["r"][2] < floor - 0.5 or w["r"][3] < floor - 0.5]
+    rep.check(f"controls >= {floor} px", not small, f"{len(hits)} hit targets; too small: {small}",
+              f"{len(hits)} controls>={floor}")
     # Rows do not overlap.
     boxes = sorted((w["r"] for w in items if not w["i"].endswith("_userbubble")), key=lambda r: r[1])
     boxes += [w["r"] for w in items if w["i"].endswith("_userbubble")]
@@ -180,14 +188,19 @@ def conversation(rows, rep):
 
 
 def connect(rows, rep):
-    module = next(w for w in rows if w["ty"] == "MpModuleView")
+    # A standalone run (the walks) has no module view: its window is the module.
+    module = next((w for w in rows if w["ty"] == "MpModuleView"), None) or next(w for w in rows if w["ty"] == "Window")
     mod_r = module["r"]
     # Under an OCTOSENSE_WINDOW_SIZE cap the first-run chrome is narrower
     # than the module (the root's right padding).
     first = find(rows, "first_run")
     view_r = first["r"] if first else mod_r
     phone = view_r[2] < 760
-    sidebar = 0 if phone else 261
+    # The desktop tree is the Mac look: its first-run window (shell-hosted or standalone) has no
+    # sidebar, and its Connect form is a sheet of the form class.
+    mac = not phone
+    sidebar = 0 if phone or mac else 221
+    limit = 520 if mac else 480
     card = find(rows, "connect_card")
     pane_l, pane_r = view_r[0] + sidebar, right(view_r)
     c = card["r"]
@@ -195,7 +208,8 @@ def connect(rows, rep):
     rep.check("card centred in the pane", abs(gl - gr) <= TOL + 16 and gl >= 16 - TOL,
               f"gutters {gl:.0f}/{gr:.0f} (pane right of the {sidebar} px sidebar; card padding-left adds 16)",
               f"card gutters {gl:.0f}/{gr:.0f}")
-    rep.check("card width", c[2] <= 480 + TOL, f"{c[2]:.0f} <= 480 (board 4 frame 4)", f"card {c[2]:.0f}<=480")
+    rep.check("card width", c[2] <= limit + TOL, f"{c[2]:.0f} <= {limit} (board 4 frame 4; a Mac's form sheet)",
+              f"card {c[2]:.0f}<={limit}")
     rep.check("card inside the module", inside(c, mod_r), f"card {c} in module {mod_r}", "card inside")
     texts = [w for w in rows if w["i"].startswith("connect_") and w["ty"] in ("Label", "TextInput")]
     out = [w["i"] for w in texts if not inside(w["r"], c)]

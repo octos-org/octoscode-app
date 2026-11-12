@@ -282,6 +282,10 @@ pub struct Form {
     /// A10 — each field's label above its box (the web's `<label>` text:
     /// "Prompt", "Interval", "Name", "Command", …); empty = placeholders only.
     pub labels: Vec<String>,
+    /// n11o (E9 5): a Mac's fixed loop takes its interval as a number with a
+    /// stepper and a Minutes/Hours pop-up: the pop-up's unit (`'m'` or `'h'`);
+    /// `None` on every other form and on a phone.
+    pub unit: Option<char>,
 }
 
 /// A10 — the loop cadences, in the web's order, with their labels.
@@ -308,9 +312,19 @@ pub fn loop_form(mode: &str, prompt: &str, interval: &str) -> Form {
         ),
     };
     let mut fields = vec![("lf_prompt".to_owned(), placeholder.to_owned(), prompt.to_owned())];
+    let mut unit = None;
+    let mut hint = hint;
     if mode == "fixed" {
         let interval = if interval.trim().is_empty() { "5m" } else { interval };
-        fields.push(("lf_interval".to_owned(), "5m".to_owned(), interval.to_owned()));
+        if crate::desk::active() {
+            // n11o (E9 5): a Mac's number field, its unit in the pop-up beside it.
+            let (number, u) = mac_interval_parts(interval);
+            fields.push(("lf_interval".to_owned(), "5".to_owned(), number));
+            unit = Some(u);
+            hint = "How long the loop waits between runs: 1 minute to 24 hours.";
+        } else {
+            fields.push(("lf_interval".to_owned(), "5m".to_owned(), interval.to_owned()));
+        }
     }
     Form {
         dialog: Dialog::Loops,
@@ -329,7 +343,93 @@ pub fn loop_form(mode: &str, prompt: &str, interval: &str) -> Form {
             "fixed" => vec!["Prompt".to_owned(), "Interval".to_owned()],
             _ => vec!["Prompt".to_owned()],
         },
+        unit,
     }
+}
+
+/// n11o (E9 5): an interval as a Mac's number field and unit pop-up hold it:
+/// "15m" is 15 Minutes, "2h" 2 Hours, "120s" 2 Minutes, "1d" 24 Hours, a bare
+/// number Minutes; any other text stays in the field as typed.
+pub fn mac_interval_parts(raw: &str) -> (String, char) {
+    let v = raw.trim();
+    let split = v.find(|c: char| !c.is_ascii_digit()).unwrap_or(v.len());
+    let (num, unit) = v.split_at(split);
+    match (num.parse::<u64>().ok(), unit) {
+        (Some(n), "" | "m" | "min" | "mins") => (n.to_string(), 'm'),
+        (Some(n), "h" | "hr" | "hrs") => (n.to_string(), 'h'),
+        (Some(n), "s" | "sec" | "secs") if n % 60 == 0 => ((n / 60).to_string(), 'm'),
+        (Some(n), "d" | "day" | "days") => (n.saturating_mul(24).to_string(), 'h'),
+        _ => (v.to_owned(), 'm'),
+    }
+}
+
+/// The interval a Mac's number and unit say, in the grammar the server takes
+/// ("15m"); text that isn't a number goes as typed, for the form to refuse.
+pub fn mac_interval(number: &str, unit: char) -> String {
+    let n = number.trim();
+    if !n.is_empty() && n.chars().all(|c| c.is_ascii_digit()) {
+        format!("{n}{unit}")
+    } else {
+        n.to_owned()
+    }
+}
+
+/// The open form's interval as its fields hold it: a Mac's number and unit
+/// composed, so a rebuild (another cadence, a unit) keeps it.
+pub fn form_interval(f: &Form, values: &[String]) -> String {
+    let typed = values.get(1).cloned().unwrap_or_default();
+    match f.unit {
+        Some(u) => mac_interval(&typed, u),
+        None => typed,
+    }
+}
+
+/// The number a Mac's stepper leaves in the interval field: one more or less,
+/// within what the unit allows (1 to 1,440 minutes, 1 to 24 hours); text that
+/// isn't a number goes back to the default.
+pub fn stepped_interval(number: &str, unit: char, by: i64) -> String {
+    let max: i64 = if unit == 'h' { 24 } else { 1_440 };
+    match number.trim().parse::<i64>() {
+        Ok(n) => n.saturating_add(by).clamp(1, max).to_string(),
+        Err(_) => 5.min(max).to_string(),
+    }
+}
+
+/// n11o (E9 5): the unit pop-up's menu, open over the pop-up where it sits in
+/// the module view (the host measures it as it opens).
+static UNIT_MENU: Mutex<Option<crate::screens::board3::seats::Anchor>> = Mutex::new(None);
+
+pub fn unit_menu() -> Option<crate::screens::board3::seats::Anchor> {
+    *UNIT_MENU.lock().unwrap_or_else(|p| p.into_inner())
+}
+
+pub fn set_unit_menu(at: Option<crate::screens::board3::seats::Anchor>) {
+    if at.is_none() {
+        set_unit_cursor(None);
+    }
+    *UNIT_MENU.lock().unwrap_or_else(|p| p.into_inner()) = at;
+}
+
+/// n11o (E9 5): the unit menu's keyboard highlight, as a Mac's pop-up menu
+/// keeps one: it opens on the ticked unit, the arrows move it, Return picks it.
+static UNIT_CURSOR: Mutex<Option<char>> = Mutex::new(None);
+
+pub fn unit_cursor() -> Option<char> {
+    *UNIT_CURSOR.lock().unwrap_or_else(|p| p.into_inner())
+}
+
+pub fn set_unit_cursor(unit: Option<char>) {
+    *UNIT_CURSOR.lock().unwrap_or_else(|p| p.into_inner()) = unit;
+}
+
+/// The interval units in the pop-up's order.
+pub const INTERVAL_UNITS: [char; 2] = ['m', 'h'];
+
+/// The unit an arrow moves the highlight to: the one above or below, the
+/// ends stay where they are.
+pub fn stepped_unit(at: char, by: i64) -> char {
+    let i = INTERVAL_UNITS.iter().position(|u| *u == at).unwrap_or(0) as i64;
+    INTERVAL_UNITS[(i + by).clamp(0, INTERVAL_UNITS.len() as i64 - 1) as usize]
 }
 
 static FORM: Mutex<Option<Form>> = Mutex::new(None);
@@ -338,7 +438,65 @@ pub fn pending_form() -> Option<Form> {
     FORM.lock().unwrap().clone()
 }
 
+/// A Mac's create form waits for the server's answer ([`settle_form`]):
+/// the action whose Create is out, so a second press sends nothing.
+static SUBMITTING: Mutex<Option<String>> = Mutex::new(None);
+
+/// A Mac's Create is about to go out: `false` when one is already out.
+pub fn begin_submit(action: &str) -> bool {
+    let mut s = SUBMITTING.lock().unwrap_or_else(|p| p.into_inner());
+    if s.is_some() {
+        return false;
+    }
+    *s = Some(action.to_owned());
+    true
+}
+
+/// The server answered a Mac's Create of `action`: accepted, the form closes
+/// (the list shows what it made); refused, the form stays with what was
+/// typed and the refusal under its fields, in a person's words. `true` when
+/// that form was still up (a refusal is then the form's, not the list's).
+pub fn settle_form(action: &str, refused: Option<&str>) -> bool {
+    *SUBMITTING.lock().unwrap_or_else(|p| p.into_inner()) = None;
+    let mut f = FORM.lock().unwrap();
+    if !f.as_ref().is_some_and(|form| form.action == action) {
+        return false;
+    }
+    match refused {
+        None => *f = None,
+        Some(why) => {
+            if let Some(form) = f.as_mut() {
+                form.error = Some(refusal_words(why));
+            }
+        }
+    }
+    true
+}
+
+/// A server's refusal as a form says it: the RPC wrapping dropped, and a
+/// filter the regex parser refused said plainly.
+pub fn refusal_words(raw: &str) -> String {
+    let text = display_error(raw);
+    if text.contains("filter_regex does not compile") {
+        crate::i18n::tr("The filter isn’t a valid pattern.").to_owned()
+    } else {
+        text
+    }
+}
+
+/// The autonomy family a dialog shows the alert line of.
+pub fn family_of(d: Dialog) -> Option<&'static str> {
+    match d {
+        Dialog::Goal => Some(crate::screens::autonomy::FAMILY_GOAL),
+        Dialog::Loops => Some(crate::screens::autonomy::FAMILY_LOOPS),
+        Dialog::Monitors => Some(crate::screens::autonomy::FAMILY_MONITORS),
+        _ => None,
+    }
+}
+
 pub fn set_form(f: Option<Form>) {
+    // n11o (E9 5): a form that changes or goes closes its unit menu.
+    set_unit_menu(None);
     *FORM.lock().unwrap() = f;
 }
 
@@ -364,6 +522,7 @@ pub fn form_for(action: &str, seed: &str) -> Option<Form> {
             mode: None,
             note: String::new(),
             labels: vec!["Objective".to_owned(), "Token budget (optional)".to_owned()],
+            unit: None,
         }),
         // A10: the web's default cadence is Maintenance; a seeded "prompt |
         // 15m" opens as a fixed loop with both values.
@@ -380,7 +539,7 @@ pub fn form_for(action: &str, seed: &str) -> Option<Form> {
             // The web's placeholders (`AutonomyPanel.tsx:436-452`).
             fields: vec![
                 ("mf_name".to_owned(), "watch-build".to_owned(), first),
-                ("mf_argv".to_owned(), "[\"./scripts/watch.sh\", \"--verbose\"]".to_owned(), second),
+                ("mf_argv".to_owned(), crate::desk::by("[\"./scripts/watch.sh\", \"--verbose\"]", "./scripts/watch.sh --verbose").to_owned(), second),
                 ("mf_filter".to_owned(), "ERROR.*".to_owned(), String::new()),
             ],
             help: "The command is a JSON array of arguments; it is not run through a shell. \
@@ -391,6 +550,7 @@ pub fn form_for(action: &str, seed: &str) -> Option<Form> {
             mode: None,
             note: String::new(),
             labels: vec!["Name".to_owned(), "Command".to_owned(), "Filter regex (optional)".to_owned()],
+            unit: None,
         }),
         _ => None,
     }
@@ -404,10 +564,46 @@ pub fn form_effect(f: &Form, values: &[String]) -> Option<crate::screens::autono
     use crate::screens::autonomy as au;
     let v = |i: usize| values.get(i).map(String::as_str).unwrap_or("");
     match (f.action.as_str(), f.mode.as_deref()) {
-        ("loop.create", Some(mode)) => Some(au::loop_form_effect(mode, v(0), v(1))),
+        ("loop.create", Some(mode)) => Some(au::loop_form_effect(mode, v(0), &form_interval(f, values))),
         ("monitor.create", _) => Some(au::monitor_form_effect(v(0), v(1), v(2))),
         _ => None,
     }
+}
+
+/// Whether a form's default can go (a Mac's stays off until then). What only
+/// the attempt can tell, an interval's format or a filter's, still refuses on
+/// the form.
+pub fn form_ready(f: &Form, values: &[String]) -> bool {
+    let filled = |i: usize| values.get(i).is_some_and(|v| !v.trim().is_empty());
+    match (f.action.as_str(), f.mode.as_deref()) {
+        ("loop.create", Some("maintenance")) => true,
+        ("loop.create", Some("fixed")) | ("monitor.create", _) => filled(0) && filled(1),
+        _ => filled(0),
+    }
+}
+
+/// Why a Mac form's default can't go yet, in a person's words (drawn beside
+/// it): what is still to be filled in. `None` once it can.
+pub fn form_wants(f: &Form, values: &[String]) -> Option<&'static str> {
+    if form_ready(f, values) {
+        return None;
+    }
+    let blank = |i: usize| !values.get(i).is_some_and(|v| !v.trim().is_empty());
+    Some(match (f.action.as_str(), f.mode.as_deref()) {
+        ("loop.create", Some("fixed")) => match (blank(0), blank(1)) {
+            (true, true) => "Enter a prompt and an interval.",
+            (false, true) => "Enter an interval.",
+            _ => "Enter a prompt.",
+        },
+        ("loop.create", _) => "Enter a prompt.",
+        ("monitor.create", _) => match (blank(0), blank(1)) {
+            (true, true) => "Enter a name and a command.",
+            (false, true) => "Enter a command.",
+            _ => "Enter a name.",
+        },
+        ("goal.set", _) => "Enter an objective.",
+        _ => return None,
+    })
 }
 
 /// The entry text a form's values compose: the first field, then " | " and
@@ -430,6 +626,11 @@ pub fn form_input_id(d: Dialog, field: &str) -> String {
     format!("dlg_{}_{field}", d.id())
 }
 
+/// This confirmation asks before something goes for good.
+pub fn confirm_destroys(c: &Confirm) -> bool {
+    c.action.starts_with("skills.remove")
+}
+
 /// The pending confirmation, if any.
 pub fn pending_confirm() -> Option<Confirm> {
     CONFIRM.lock().unwrap().clone()
@@ -448,6 +649,17 @@ pub fn confirmation_for(action: &str, store: &octoscode_store::Store) -> Option<
     // t("Applies to Profile") + profile + t("and rebuilds its server skill runtime.") + …
     let applies = |tail: &str| {
         use crate::i18n::tr;
+        // n11o (E9 2): a Mac says what it means for the chats, not the
+        // profile's id and the server's runtime.
+        if crate::desk::active() {
+            return tr(match tail {
+                "Existing skills are not forcibly overwritten." => {
+                    "Every chat on this profile can use it. Skills you already have stay as they are."
+                }
+                _ => "Chats on this profile can\u{2019}t use it anymore. To get it back, install it again from its source.",
+            })
+            .to_owned();
+        }
         format!("{} {profile} {} {}", tr("Applies to Profile"), tr("and rebuilds its server skill runtime."), tr(tail))
     };
     if action == "context.compact_now" {
@@ -547,9 +759,11 @@ pub fn notice_for_refusal(id: &str) -> Option<&'static str> {
         // A10: the web's own refusals (`loop-creation.ts:68-107`).
         "loop.create[mode]" => "Choose Maintenance, Self-paced, or Fixed interval.",
         "loop.create[empty]" => "A prompt is required for self-paced and fixed-interval loops.",
-        i if i.starts_with("loop.create[interval") => {
-            "Use a whole-number native interval such as 60s, 5m, or 2h (60 seconds to 24 hours)."
-        }
+        // n11o (E9 5): a Mac's number field and unit pop-up say it their way.
+        i if i.starts_with("loop.create[interval") => crate::desk::by(
+            "Use a whole-number native interval such as 60s, 5m, or 2h (60 seconds to 24 hours).",
+            "Enter a whole number: 1 to 1,440 minutes, or 1 to 24 hours.",
+        ),
         "loop.create[prompt-too-long]" => "Loop prompt must fit within the server's 8192-byte limit.",
         // A10: `AutonomyPanel.tsx:455-459` (the argv alert) and the required name.
         "monitor.create[no-name]" => "Type the monitor's name first.",
@@ -619,11 +833,26 @@ pub enum Effect {
     CancelForm,
     /// A10 — the loop form's cadence selector (`dialog.form_mode.<mode>`).
     FormMode(String),
+    /// n11o (E9 5): a Mac's interval stepper, one up or down.
+    FormStep(i64),
+    /// n11o (E9 5): the interval's unit pop-up opens (or its menu closes).
+    FormUnitMenu,
+    /// n11o (E9 5): the unit chosen in that menu (`'m'` or `'h'`).
+    FormUnit(char),
+    /// n11o (E9 5): an arrow moves that menu's highlight, one up or down.
+    FormUnitCursor(i64),
     Unhandled(String),
 }
 
 /// A10 — `dialog.form_mode.<mode>`: pick the loop form's cadence.
 pub const ACTION_FORM_MODE: &str = "dialog.form_mode.";
+/// n11o (E9 5): a Mac's interval stepper and unit pop-up.
+pub const ACTION_FORM_STEP_UP: &str = "dialog.form_step.up";
+pub const ACTION_FORM_STEP_DOWN: &str = "dialog.form_step.down";
+pub const ACTION_FORM_UNIT_MENU: &str = "dialog.form_unit_menu";
+pub const ACTION_FORM_UNIT: &str = "dialog.form_unit.";
+pub const ACTION_FORM_UNIT_CURSOR_UP: &str = "dialog.form_unit_cursor.up";
+pub const ACTION_FORM_UNIT_CURSOR_DOWN: &str = "dialog.form_unit_cursor.down";
 
 pub fn resolve(id: &str) -> Effect {
     if id == ACTION_CLOSE {
@@ -638,6 +867,11 @@ pub fn resolve(id: &str) -> Effect {
     if let Some(m) = id.strip_prefix(ACTION_FORM_MODE).filter(|m| LOOP_MODES.iter().any(|(k, _)| k == m)) {
         return Effect::FormMode(m.to_owned());
     }
+    match id.strip_prefix(ACTION_FORM_UNIT) {
+        Some("m") => return Effect::FormUnit('m'),
+        Some("h") => return Effect::FormUnit('h'),
+        _ => {}
+    }
     if let Some(a) = id.strip_prefix(ACTION_FORM).filter(|a| !a.is_empty()) {
         return Effect::OpenForm(a.to_owned());
     }
@@ -646,6 +880,11 @@ pub fn resolve(id: &str) -> Effect {
         ACTION_CANCEL => Effect::Cancel,
         ACTION_FORM_SUBMIT => Effect::SubmitForm,
         ACTION_FORM_CANCEL => Effect::CancelForm,
+        ACTION_FORM_STEP_UP => Effect::FormStep(1),
+        ACTION_FORM_STEP_DOWN => Effect::FormStep(-1),
+        ACTION_FORM_UNIT_MENU => Effect::FormUnitMenu,
+        ACTION_FORM_UNIT_CURSOR_UP => Effect::FormUnitCursor(-1),
+        ACTION_FORM_UNIT_CURSOR_DOWN => Effect::FormUnitCursor(1),
         ACTION_REFRESH_PROFILE => Effect::RefreshProfile,
         ACTION_REFRESH_CONTEXT => Effect::RefreshContext,
         ACTION_REFRESH_FLEET => Effect::RefreshFleet,
@@ -1298,6 +1537,41 @@ mod tests {
             au::resolve("goal.set", 0, Some(&v("Ship it", "2000")), &ctx),
             au::Effect::SetGoal { objective: "Ship it".into(), token_budget: Some(2000) }
         );
+    }
+
+    /// n11o (E9 5): a Mac's interval number and unit, both ways, and its stepper.
+    #[test]
+    fn a_mac_interval_is_a_number_and_a_unit() {
+        assert_eq!(mac_interval_parts("15m"), ("15".to_owned(), 'm'));
+        assert_eq!(mac_interval_parts(" 2h "), ("2".to_owned(), 'h'));
+        assert_eq!(mac_interval_parts("120s"), ("2".to_owned(), 'm'));
+        assert_eq!(mac_interval_parts("1d"), ("24".to_owned(), 'h'));
+        assert_eq!(mac_interval_parts("7"), ("7".to_owned(), 'm'));
+        assert_eq!(mac_interval_parts("90s"), ("90s".to_owned(), 'm'), "not whole minutes: as typed");
+        assert_eq!(mac_interval_parts("soon"), ("soon".to_owned(), 'm'));
+        assert_eq!(mac_interval("15", 'm'), "15m");
+        assert_eq!(mac_interval(" 3 ", 'h'), "3h");
+        assert_eq!(mac_interval("soon", 'h'), "soon", "the form refuses it");
+        assert_eq!(crate::screens::autonomy::parse_loop_interval(&mac_interval("24", 'h')), Some(86_400));
+        assert_eq!(crate::screens::autonomy::parse_loop_interval(&mac_interval("1", 'm')), Some(60));
+        assert_eq!(stepped_interval("5", 'm', 1), "6");
+        assert_eq!(stepped_interval("1", 'm', -1), "1", "never under a minute");
+        assert_eq!(stepped_interval("24", 'h', 1), "24", "never over a day");
+        assert_eq!(stepped_interval("1440", 'm', 1), "1440");
+        assert_eq!(stepped_interval("soon", 'm', 1), "5");
+        assert_eq!(resolve(ACTION_FORM_STEP_UP), Effect::FormStep(1));
+        assert_eq!(resolve(ACTION_FORM_STEP_DOWN), Effect::FormStep(-1));
+        assert_eq!(resolve(ACTION_FORM_UNIT_MENU), Effect::FormUnitMenu);
+        assert_eq!(resolve("dialog.form_unit.h"), Effect::FormUnit('h'));
+        assert_eq!(resolve("dialog.form_unit.d"), Effect::Unhandled("dialog.form_unit.d".into()));
+        assert_eq!(resolve(ACTION_FORM_UNIT_CURSOR_DOWN), Effect::FormUnitCursor(1));
+        assert_eq!((stepped_unit('m', 1), stepped_unit('h', 1), stepped_unit('h', -1), stepped_unit('m', -1)), ('h', 'h', 'm', 'm'));
+        // A phone's form keeps the web's interval text.
+        let f = loop_form("fixed", "check", "15m");
+        assert_eq!((f.fields[1].2.as_str(), f.unit), ("15m", None));
+        assert_eq!(form_interval(&f, &["check".into(), "15m".into()]), "15m");
+        let mac = Form { unit: Some('h'), ..f };
+        assert_eq!(form_interval(&mac, &["check".into(), "2".into()]), "2h");
     }
 
     /// The registry search box is a real input only when the server

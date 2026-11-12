@@ -280,6 +280,24 @@ fn pill_w(label: &str) -> f64 {
 /// Right-aligned action pills; when a phone-narrow frame cannot hold them in
 /// one row, full-width pills stacked, the last (primary) first.
 fn actions(b: &mut B<'_>, items: &[(&str, &str, String, Btn)], avail: f64) {
+    if crate::desk::active() {
+        // A Mac sheet's actions sit on its foot: the default last, its own
+        // Cancel next to it, anything else at the leading edge.
+        for (base, label, ev, kind) in items {
+            let at = match kind {
+                Btn::Primary => ui::Foot::Default,
+                _ if base.ends_with("cancel") => {
+                    b.d.foot_own_close();
+                    ui::Foot::Trail
+                }
+                _ => ui::Foot::Lead,
+            };
+            b.d.foot_begin(at);
+            b.pill(base, tr(label), ev, *kind, W::Fit);
+            b.d.foot_end();
+        }
+        return;
+    }
     let need: f64 =
         items.iter().map(|(_, l, _, _)| pill_w(tr(l))).sum::<f64>() + 8.0 * items.len().saturating_sub(1) as f64;
     let row = b.d.anon();
@@ -334,6 +352,12 @@ fn open(b: &mut B<'_>, title_local: &str, title: &str, scope: &str, notice: Opti
     }
     if let Some((text, alert)) = notice {
         let text = tr(&dlg::display_error(text)).to_owned();
+        // The rest of that refusal is the regex parser's own.
+        let text = if crate::desk::active() && text.contains("filter_regex does not compile") {
+            tr("The filter isn’t a valid pattern.").to_owned()
+        } else {
+            text
+        };
         b.gap(6.0);
         let ink = if *alert { tok::RED_TEXT } else { tok::MUTED };
         b.text("dialog_notice", &text, &Txt::new(12.5, Face::Regular, ink).w(W::Fill).wrap());
@@ -396,7 +420,12 @@ fn models(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         b.text("t_ds_count", tr("No models are configured for this Profile."), &para(tok::MUTED));
         // A23 — an empty Profile still reaches its providers (the web's
         // empty state carries "Add provider", ModelManagementSection.tsx:1270).
-        if dlg::advertises(ctx.store, "profile/llm/list") {
+        if crate::desk::hosted() {
+            b.gap(8.0);
+            b.text("t_hosted_note", tr(HOSTED_PROVIDERS), &para(tok::MUTED));
+            let avail = b.inner;
+            actions(b, &[("open_providers", "Open AI Providers\u{2026}", "host.providers".into(), Btn::Outline)], avail);
+        } else if dlg::advertises(ctx.store, "profile/llm/list") {
             b.gap(8.0);
             let avail = b.inner;
             actions(b, &[("manage_providers", "Manage providers", "b3.open.routes".into(), Btn::Outline)], avail);
@@ -447,8 +476,23 @@ fn models(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
                     n => format!("t_m{n}"),
                 };
                 let r = b.d.anon();
-                b.d.view(&r, "width: Fill height: 36 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-                b.text(&id, &ui::fit_w(&m::model_row(x), b.card_w() - 60.0, 13.0, Face::Regular), &ui::body().w(W::Fill));
+                b.d.view(&r, crate::desk::by(
+                    "width: Fill height: 36 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8",
+                    "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8",
+                ));
+                // One model on two routes: the route tells the rows apart.
+                let mut row = m::model_row(x);
+                if crate::desk::active() && mine.iter().filter(|y| y.model == x.model).count() > 1 {
+                    if let Some(route) = x.route.as_deref() {
+                        // The server's name for it: only an English window spells it in words.
+                        row = if crate::i18n::is_zh() {
+                            format!("{row} · {route}")
+                        } else {
+                            format!("{row} · {}", crate::desk::capital(&crate::desk::title_case(&route.replace('-', " "))))
+                        };
+                    }
+                }
+                b.text(&id, &ui::fit_w(&row, b.card_w() - 60.0, 13.0, Face::Regular), &ui::body().w(W::Fill));
                 if x.selected {
                     let ck = b.id("icon_check");
                     b.d.icon(&ck, "b3_check.svg", 16.0, tok::TEXT);
@@ -462,18 +506,24 @@ fn models(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
                 b.gap(4.0);
                 let pr = b.d.anon();
                 b.d.view(&pr, "width: Fill height: Fit flow: Right spacing: 8");
+                let w = crate::desk::by(W::Fill, W::Fit);
                 if test {
-                    b.pill("btn_test", tr("Test route"), "models.test_route", Btn::Outline, W::Fill);
+                    b.pill("btn_test", tr("Test route"), "models.test_route", Btn::Outline, w);
                 }
                 if discover {
-                    b.pill("btn_discover", tr("Discover models"), "models.discover", Btn::Outline, W::Fill);
+                    b.pill("btn_discover", tr("Discover models"), "models.discover", Btn::Outline, w);
                 }
                 b.close();
             }
         }
         b.close();
     }
-    if dlg::advertises(ctx.store, "profile/llm/list") {
+    if crate::desk::hosted() {
+        b.gap(2.0);
+        b.text("t_hosted_note", tr(HOSTED_PROVIDERS), &para(tok::MUTED));
+        let avail = b.inner;
+        actions(b, &[("open_providers", "Open AI Providers\u{2026}", "host.providers".into(), Btn::Outline)], avail);
+    } else if dlg::advertises(ctx.store, "profile/llm/list") {
         b.gap(2.0);
         let avail = b.inner;
         actions(b, &[("manage_providers", "Manage providers", "b3.open.routes".into(), Btn::Outline)], avail);
@@ -489,21 +539,31 @@ fn models(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
 /// and the server-confirmed compaction mode — each control only when its
 /// method is advertised (`ContextPanel.tsx` compactAvailable /
 /// modeAvailable).
+/// In a window of OctoSense's own, the AI Providers app keeps the providers.
+const HOSTED_PROVIDERS: &str = "Set up in AI Providers.";
+
 fn context(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     use crate::screens::models as m;
     open(b, "t_title", "Context", &scope_line(b.dlg, ctx), notice);
     let q = |id: &str| m::query_binding(ctx, id).and_then(|v| v.as_str().map(str::to_owned));
     let usage = q("context.usage").unwrap_or_else(|| "—".into());
+    let usage = if crate::desk::active() && usage != "—" { crate::i18n::tr1("{value0} used", &usage) } else { usage };
     let pct = q("context.pct").unwrap_or_else(|| "—".into());
     let ur = b.d.anon();
     b.d.view(&ur, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-    b.text("t_usage", &usage, &ui::body_medium().w(W::Fill));
-    b.text("t_pct", &pct, &Txt::new(13.0, Face::Semibold, tok::TEXT));
-    b.close();
-    b.gap(8.0);
     let fill = pct.trim_end_matches('%').parse::<f64>().ok().map(|p| p / 100.0);
-    let track_w = b.inner;
-    b.bar("bar", fill, track_w);
+    // With no window to measure against, a desktop shows no empty meter.
+    let meter = fill.is_some() || !crate::desk::active();
+    b.text("t_usage", &usage, &ui::body_medium().w(W::Fill));
+    if meter {
+        b.text("t_pct", &pct, &Txt::new(13.0, Face::Semibold, tok::TEXT));
+    }
+    b.close();
+    if meter {
+        b.gap(8.0);
+        let track_w = b.inner;
+        b.bar("bar", fill, track_w);
+    }
     b.gap(14.0);
     let session = ctx.store.active_session().unwrap_or_default();
     let life = ctx.store.domains.session.context(&session);
@@ -526,11 +586,18 @@ fn context(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     ];
     b.list_card("facts_card");
     for (i, (lid, vid, label, value)) in rows.iter().enumerate() {
+        if i > 0 && crate::desk::active() {
+            // Bookkeeping, not something to act on.
+            let (l, v) = (b.id(lid), b.id(vid));
+            b.d.unseen(&l, tr(label));
+            b.d.unseen(&v, value);
+            continue;
+        }
         if i > 0 {
             b.d.hairline();
         }
         let r = b.d.anon();
-        b.d.view(&r, "width: Fill height: 34 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
+        b.d.view(&r, &format!("width: Fill height: {} flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8", crate::desk::by(34, 28)));
         b.text(lid, tr(label), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
         b.text(vid, value, &Txt::new(12.5, Face::Medium, tok::TEXT));
         b.close();
@@ -577,22 +644,26 @@ fn context(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
             b.d.view(&mr, "width: Fit height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
             b.text("t_comp", tr("Compaction:"), &Txt::new(12.5, Face::Regular, tok::MUTED));
             let mode = crate::screens::models::compact_mode(&session);
-            segmented(
-                b,
-                "seg_box",
-                &[
-                    ("seg_llm", "t_llm", "seg_llm_hit", "LLM", "context.mode.llm".into(), mode.as_deref() == Some("llm")),
-                    (
-                        "seg_heur",
-                        "t_heur",
-                        "seg_heur_hit",
-                        tr("Heuristic"),
-                        "context.mode.heuristic".into(),
-                        mode.as_deref() == Some("heuristic"),
-                    ),
-                ],
-                W::Px(200.0),
-            );
+            // Nothing reads a server's mode back, until it is set. The shell's
+            // own kernel starts without `--llm-compaction`, so that one is known.
+            let mode = mode.or_else(|| crate::desk::hosted().then(|| "heuristic".to_owned()));
+            let mut segs = vec![
+                ("seg_llm", "t_llm", "seg_llm_hit", "LLM", "context.mode.llm".to_owned(), mode.as_deref() == Some("llm")),
+                (
+                    "seg_heur",
+                    "t_heur",
+                    "seg_heur_hit",
+                    tr("Heuristic"),
+                    "context.mode.heuristic".to_owned(),
+                    mode.as_deref() == Some("heuristic"),
+                ),
+            ];
+            // A desktop says what is in force: another server's own default.
+            if mode.is_none() && crate::desk::active() {
+                segs.insert(0, ("seg_server", "t_server", "seg_server_hit", tr("Server Default"), String::new(), true));
+            }
+            let width = if segs.len() > 2 { 300.0 } else { 200.0 };
+            segmented(b, "seg_box", &segs, W::Px(width));
             b.close();
         }
         if !b.compact {
@@ -631,34 +702,47 @@ fn fmt_count(v: u64) -> String {
 #[allow(clippy::type_complexity)]
 fn segmented(b: &mut B<'_>, track: &str, segs: &[(&str, &str, &str, &str, String, bool)], width: W) {
     let track = b.id(track);
+    let desk = crate::desk::active();
+    let t = crate::desk::current();
     let w = match width {
         W::Px(v) => format!("{}", v.floor()),
+        // A Mac's segmented control is as wide as its labels.
+        W::Fill if desk => {
+            let widest = segs.iter().map(|s| ui::text_w(s.3, 12.0, Face::Regular)).fold(0.0, f64::max);
+            let n = segs.len() as f64;
+            format!("{}", (widest + 24.0).max(64.0).ceil() * n + 2.0 * (n - 1.0) + 4.0)
+        }
         W::Fill => "Fill".into(),
         W::Fit => "Fit".into(),
     };
+    let (track_h, inset, corner) = crate::desk::by((34.0, 3.0, 9.0), (28.0, 2.0, 7.0));
     b.d.surface(
         &track,
         &format!(
-            "width: {w} height: 34 flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 2 padding: Inset{{left: 3 right: 3 top: 3 bottom: 3}}"
+            "width: {w} height: {track_h} flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 2 padding: Inset{{left: {inset} right: {inset} top: {inset} bottom: {inset}}}"
         ),
-        tok::SURFACE2,
-        9.0,
-        Some(tok::HAIRLINE),
+        if desk { t.selected.as_str() } else { tok::SURFACE2 },
+        corner,
+        if desk { None } else { Some(tok::HAIRLINE) },
     );
     for (seg, label, tap, text, event, on) in segs {
-        let (fill, border, face, ink) = if *on {
-            (tok::SURFACE, Some(tok::HAIRLINE), Face::Medium, tok::TEXT)
-        } else {
-            (tok::TRANSPARENT, None, Face::Regular, tok::MUTED)
+        let (fill, border, face, ink) = match (desk, *on) {
+            (true, true) => (t.segment_on.as_str(), Some(t.border.as_str()), Face::Regular, tok::TEXT),
+            (true, false) => (tok::TRANSPARENT, None, Face::Regular, tok::TEXT),
+            (false, true) => (tok::SURFACE, Some(tok::HAIRLINE), Face::Medium, tok::TEXT),
+            (false, false) => (tok::TRANSPARENT, None, Face::Regular, tok::MUTED),
         };
         let sid = b.id(seg);
-        b.d.surface(&sid, "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}", fill, 7.0, border);
+        b.d.surface(&sid, "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}", fill, crate::desk::by(7.0, 5.0), border);
         let inner = b.d.anon();
         b.d.view(&inner, "width: Fill height: Fill flow: Right align: Align{x: 0.5 y: 0.5}");
-        b.text(label, text, &Txt::new(13.0, face, ink));
+        b.text(label, text, &Txt::new(crate::desk::by(13.0, 12.0), face, ink));
         b.close();
-        let tid = b.id(tap);
-        b.d.tap(&tid, event);
+        // No event: it only says what is in force.
+        if !event.is_empty() {
+            let tid = b.id(tap);
+            b.d.tap(&tid, event);
+        }
         b.close();
     }
     b.close();
@@ -678,6 +762,9 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
     // around its Background jobs section.
     use crate::i18n::tr;
     let store = ctx.store;
+    // A Mac's sheet ends its scroll on a job, not across one.
+    let jobs = crate::screens::skill_jobs::section(ctx.store, ui::now_ms()).map_or(0, |s| s.rows.len());
+    ui::end_scroll_on_rows(&b.id("job_"), jobs);
     open(b, "t_title", tr("Skills"), &scope_line(b.dlg, ctx), notice);
     let locked = dlg::profile_locked(ctx);
     b.text("skills_explanation", tr("Skills provide reusable instructions from SKILL.md, and some add tools. MCP servers and the full tool list have their own inventory."), &para(tok::MUTED));
@@ -687,9 +774,15 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         b.text("skills_locked", tr(dlg::SKILLS_LOCKED), &Txt::new(12.5, Face::Medium, tok::AMBER).w(W::Fill).wrap());
     }
     let catalog = crate::screens::models::effective_skills(store);
-    b.gap(12.0);
+    // A Mac leaves out a section with nothing to show.
+    let shown = catalog.available || !crate::desk::active();
+    if shown {
+        b.gap(12.0);
+    }
     let zh = crate::i18n::is_zh();
-    b.text("effective_head", tr("Skills for this session"), &ui::heading().w(W::Fill));
+    if shown {
+        b.text("effective_head", tr("Skills for this session"), &ui::heading().w(W::Fill));
+    }
     if catalog.available {
         b.text("effective_session", &catalog.session, &ui::meta().w(W::Fill).wrap());
         for (scope, en, cn) in [("builtin","Built-in","内置"),("global","Global · server deployment","Global · 服务端共享"),("profile","Profile","Profile"),("project","Project","项目")] {
@@ -707,7 +800,7 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
                 }
             }
         }
-    } else {
+    } else if shown {
         b.text("effective_unavailable", tr("Loading, or this server does not offer a session skill catalog."), &para(tok::MUTED));
     }
     // Profile installation management remains separate from effective skills.
@@ -834,15 +927,28 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         b.gap(18.0);
         b.text("src_head", tr("Install from source"), &ui::heading().w(W::Fill));
         b.gap(8.0);
-        b.card("card_source", 6.0);
+        // A Mac's form sits on the sheet, its labels measured in the words it shows.
+        let desk = crate::desk::active();
+        if desk {
+            let id = b.id("card_source");
+            b.d.view(&id, "width: Fill height: Fit flow: Down");
+        } else {
+            b.card("card_source", 6.0);
+        }
         let (repo, branch) = dlg::skills_source();
+        let key_w = if desk {
+            ui::form_key_w(&["Repository or folder path", "Branch (default: main)"])
+        } else {
+            ui::form_key_w(&["Repository or server-side path", "Branch (server default: main)"])
+        };
         for (id, label, value) in [
             ("src_repo", "Repository or server-side path", repo),
             ("src_branch", "Branch (server default: main)", branch),
         ] {
             let lid = b.id(&format!("{id}_label"));
-            ui::field_label(b.d, &lid, label);
+            ui::form_open(b.d, &lid, label, key_w);
             b.input(id, &value, "");
+            ui::form_close(b.d);
             b.gap(4.0);
         }
         let avail = b.card_w();
@@ -884,14 +990,16 @@ fn skill_jobs_section(b: &mut B<'_>, ctx: &Ctx<'_>) {
         b.text("jobs_count", &count.join(" · "), &ui::meta());
     }
     b.close();
-    if sec.announced_only {
+    // What it says about the rows, when there are rows.
+    if sec.announced_only && !(crate::desk::active() && sec.rows.is_empty()) {
         b.gap(4.0);
         b.text("jobs_note", tr(sj::ANNOUNCED_ONLY), &para(tok::MUTED));
     }
     if let ListState::Failed(e) = &sec.state {
         b.gap(6.0);
         let id = b.id("jobs_error");
-        ui::failure(b.d, &id, sj::LOAD_FAILED, &dlg::display_error(e));
+        let retry = b.id("jobs_retry");
+        ui::failure_state(b.d, &id, sj::LOAD_FAILED, &dlg::display_error(e), (&retry, dlg::ACTION_REFRESH_SKILL_JOBS));
     }
     if sec.rows.is_empty() && matches!(sec.state, ListState::Failed(_)) {
         // The failure says it; "no jobs" would be a guess.
@@ -918,13 +1026,20 @@ fn skill_jobs_section(b: &mut B<'_>, ctx: &Ctx<'_>) {
         // The skill and its action (mono), as the board's first line.
         let l1 = b.d.anon();
         b.d.view(&l1, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 6");
-        let skill = ui::fit_w(&row.skill, w * 0.5, 12.0, Face::Mono);
-        let action_room = (w - ui::text_w(&skill, 12.0, Face::Mono) - 6.0).max(40.0);
-        b.text(&format!("{rid}_skill"), &skill, &Txt::new(12.0, Face::Mono, tok::TEXT));
+        let (line_face, skill_ink) = crate::desk::by((Face::Mono, tok::TEXT), (Face::Regular, tok::MUTED));
+        let skill = ui::fit_w(&crate::desk::tool_word(&row.skill), w * 0.5, 12.0, line_face);
+        // `source.import` on the wire: its verb is the words.
+        let action_word = crate::desk::tool_word(if crate::desk::active() {
+            row.action.rsplit('.').next().unwrap_or(&row.action)
+        } else {
+            &row.action
+        });
+        let action_room = (w - ui::text_w(&skill, 12.0, line_face) - 6.0).max(40.0);
+        b.text(&format!("{rid}_skill"), &skill, &Txt::new(12.0, line_face, skill_ink));
         b.text(
             &format!("{rid}_action"),
-            &ui::fit_w(&format!("· {}", row.action), action_room, 12.0, Face::Mono),
-            &Txt::new(12.0, Face::Mono, tok::MUTED),
+            &ui::fit_w(&format!("· {action_word}"), action_room, 12.0, line_face),
+            &Txt::new(12.0, line_face, tok::MUTED),
         );
         b.close();
         // The file, its status chip, the time since its last change.
@@ -949,7 +1064,13 @@ fn skill_jobs_section(b: &mut B<'_>, ctx: &Ctx<'_>) {
             }
             sj::Message::Failure { lead, cause } => {
                 b.text(&format!("{rid}_msg"), tr(lead), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
-                if !cause.is_empty() {
+                if let Some(line) = desk_cause(cause).filter(|_| crate::desk::active()) {
+                    b.text(
+                        &format!("{rid}_cause"),
+                        &ui::fit_w(&line, two, 12.0, Face::Regular),
+                        &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
+                    );
+                } else if !cause.is_empty() && !crate::desk::active() {
                     b.text(
                         &format!("{rid}_cause"),
                         &ui::fit_w(cause, two, 12.0, Face::Mono),
@@ -971,6 +1092,22 @@ fn skill_jobs_section(b: &mut B<'_>, ctx: &Ctx<'_>) {
         b.close();
     }
     b.close();
+}
+
+/// A Mac's failed job says what happened in words, in the text face: a
+/// sentence the server wrote stays; a tool's exit status ("pdftotext exited
+/// with status 1"), a path or an identifier becomes the plain line.
+fn desk_cause(cause: &str) -> Option<String> {
+    let c = cause.trim();
+    if c.is_empty() {
+        return None;
+    }
+    let lower = c.to_ascii_lowercase();
+    let status = ["exited with", "exit status", "exit code", "status code", "errno", "signal ", "traceback", "panicked", "error:"]
+        .iter()
+        .any(|k| lower.contains(k));
+    let words = c.chars().next().is_some_and(char::is_uppercase) && c.contains(' ') && !c.contains(['/', '\\', '_']) && !c.contains("::");
+    Some(if status || !words { tr("A tool this job uses stopped with an error.").to_owned() } else { c.to_owned() })
 }
 
 // -------------------------------------------------------------------- Goal
@@ -1002,7 +1139,9 @@ fn goal(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(Strin
         b.gap(14.0);
         let r = b.d.anon();
         b.d.view(&r, "width: Fill height: Fit flow: Right");
+        b.d.foot_begin(ui::Foot::Default);
         b.pill("pause_btn", tr("Set goal"), &format!("{}goal.set", dlg::ACTION_FORM), Btn::Primary, W::Fit);
+        b.d.foot_end();
         b.close();
         finish(b);
         return;
@@ -1085,7 +1224,7 @@ fn loops(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(Stri
                 &ui::fit_w(prompt, 2.0 * text_w, 13.5, Face::Semibold),
                 &row_title().w(W::Fill).wrap(),
             );
-            b.text(&format!("loop_{r}_cad"), &au::cadence(l), &ui::meta().w(W::Fill));
+            b.text(&format!("loop_{r}_cad"), &crate::desk::capital(&au::cadence(l)), &ui::meta().w(W::Fill));
             b.close();
             b.dot(&format!("loop_{r}_dot"), if paused { "#c7c7ccff" } else { tok::GREEN });
             b.d.gap(W::Px(4.0), 1.0);
@@ -1102,7 +1241,13 @@ fn loops(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(Stri
         b.close();
     }
     b.gap(8.0);
-    b.link("new_loop", tr("+ New loop"), Some(&format!("{}loop.create", dlg::ACTION_FORM)), tok::BLUE_TEXT);
+    b.d.foot_begin(ui::Foot::Lead);
+    if crate::desk::active() {
+        b.pill("new_loop", tr("+ New loop"), &format!("{}loop.create", dlg::ACTION_FORM), Btn::Outline, W::Fit);
+    } else {
+        b.link("new_loop", tr("+ New loop"), Some(&format!("{}loop.create", dlg::ACTION_FORM)), tok::BLUE_TEXT);
+    }
+    b.d.foot_end();
     finish(b);
 }
 
@@ -1143,7 +1288,7 @@ fn monitors(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(S
             }
             let sub = b.d.anon();
             b.d.view(&sub, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 6");
-            b.text(&format!("mon_{r}_state"), &state, &ui::meta());
+            b.text(&format!("mon_{r}_state"), &crate::desk::capital(&state), &ui::meta());
             b.text("", "·", &ui::meta());
             let clock = b.id(&format!("mon_{r}_clock"));
             b.d.icon(&clock, "b3_clock.svg", 13.0, tok::MUTED);
@@ -1174,7 +1319,13 @@ fn monitors(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(S
     }
     if au::gated(ctx.store, "monitors", "monitor/create") {
         b.gap(8.0);
-        b.link("new_monitor", tr("+ New monitor"), Some(&format!("{}monitor.create", dlg::ACTION_FORM)), tok::BLUE_TEXT);
+        b.d.foot_begin(ui::Foot::Lead);
+        if crate::desk::active() {
+            b.pill("new_monitor", tr("+ New monitor"), &format!("{}monitor.create", dlg::ACTION_FORM), Btn::Outline, W::Fit);
+        } else {
+            b.link("new_monitor", tr("+ New monitor"), Some(&format!("{}monitor.create", dlg::ACTION_FORM)), tok::BLUE_TEXT);
+        }
+        b.d.foot_end();
     }
     finish(b);
 }
@@ -1206,6 +1357,14 @@ fn fleet(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         // #32c item 11: with no peer the goal heading goes too (an empty
         // slice heads nothing).
         empty_box(b, "fleet_empty", tr(f::FLEET_EMPTY));
+        if crate::desk::active() {
+            // An empty state says what to do and offers it.
+            b.gap(10.0);
+            b.text("fleet_empty_hint", tr("Open Fleet to start a peer, or ask the agent to start one."), &para(tok::MUTED));
+            b.d.foot_begin(ui::Foot::Default);
+            b.pill("fleet_open", tr("Open Fleet"), "b3.open.fleet", Btn::Primary, W::Fit);
+            b.d.foot_end();
+        }
     } else {
         // The session goal heads its peers (the Fleet pane's group heading).
         if let Some(goal) = f::query_binding(ctx, "fleet.goal").and_then(|v| v.as_str().map(str::to_owned)) {
@@ -1403,8 +1562,11 @@ fn review(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
         b.text("review_results", tr(dlg::REVIEW_RESULTS_HERE), &para(tok::MUTED));
         b.gap(14.0);
         let lid = b.id("prompt_label");
-        ui::field_label(b.d, &lid, tr("Review instructions (optional)"));
-        b.gap(6.0);
+        let key_w = ui::form_key_w(&["Review instructions (optional)"]);
+        ui::form_open(b.d, &lid, tr("Review instructions (optional)"), key_w);
+        if !crate::desk::active() {
+            b.gap(6.0);
+        }
         b.d.input_multiline(
             dlg::REVIEW_PROMPT_INPUT,
             dlg::REVIEW_PROMPT_INPUT,
@@ -1412,6 +1574,7 @@ fn review(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
             tr("Leave empty to review the current project changes."),
             96.0,
         );
+        ui::form_close(b.d);
     }
     b.gap(16.0);
     let avail = b.inner;
@@ -1425,6 +1588,10 @@ fn review(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
 /// `ContextDialog.tsx:155`): the title, the object of the change, the body
 /// naming the Profile, Cancel and the primary confirm.
 fn confirm_card(b: &mut B<'_>, ctx: &Ctx<'_>, c: &Confirm) {
+    if crate::desk::active() {
+        mac_confirm_alert(b, c);
+        return;
+    }
     open(b, "cf_title", &c.title, &scope_line(b.dlg, ctx), None);
     if !c.detail.is_empty() {
         b.text("cf_detail", &c.detail, &Txt::new(13.5, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
@@ -1432,6 +1599,20 @@ fn confirm_card(b: &mut B<'_>, ctx: &Ctx<'_>, c: &Confirm) {
     }
     b.text("cf_body", tr(&c.body), &para(tok::MUTED));
     b.gap(18.0);
+    if crate::desk::active() && dlg::confirm_destroys(c) {
+        // A question before something goes for good: the red word first, the
+        // blue Cancel last. Return and Escape answer Cancel.
+        b.d.foot_own_close();
+        b.d.foot_begin(ui::Foot::Trail);
+        b.d.red_word();
+        b.pill("cf_confirm", tr(&c.confirm_label), dlg::ACTION_CONFIRM, Btn::Outline, W::Fit);
+        b.d.foot_end();
+        b.d.foot_begin(ui::Foot::Default);
+        b.pill("cf_cancel", tr("Cancel"), dlg::ACTION_CANCEL, Btn::Primary, W::Fit);
+        b.d.foot_end();
+        finish(b);
+        return;
+    }
     let avail = b.inner;
     actions(
         b,
@@ -1442,6 +1623,29 @@ fn confirm_card(b: &mut B<'_>, ctx: &Ctx<'_>, c: &Confirm) {
         avail,
     );
     finish(b);
+}
+
+/// A Mac's alert for the confirm card (E7 1), as the native apps draw theirs:
+/// the app's icon on top, the question in bold, what it is about and what it
+/// does centred under it. A question before something goes for good has the
+/// red word first and the blue Cancel last (Return and Escape answer Cancel);
+/// any other, Cancel first and its answer the blue default.
+fn mac_confirm_alert(b: &mut B<'_>, c: &Confirm) {
+    let icon = b.id("cf_icon");
+    ui::mac_alert_open_ids(b.d, &IDS, &icon);
+    let (title, detail, body) = (b.id("cf_title"), b.id("cf_detail"), b.id("cf_body"));
+    ui::alert_words(b.d, (title.as_str(), tr(&c.title)), &[(detail.as_str(), c.detail.as_str()), (body.as_str(), tr(&c.body))]);
+    let pill = |base: &str| (format!("{base}_surface"), format!("{base}_label"), format!("{base}_control"));
+    let (go, cancel) = (pill(&b.id("cf_confirm")), pill(&b.id("cf_cancel")));
+    let go_word = tr(&c.confirm_label);
+    let answer = |ids: &(String, String, String), word, event, kind| ui::AlertButton::ids(&ids.0, &ids.1, &ids.2, word, event, kind);
+    let buttons = if dlg::confirm_destroys(c) {
+        [answer(&go, go_word, dlg::ACTION_CONFIRM, Btn::Outline).red(), answer(&cancel, "Cancel", dlg::ACTION_CANCEL, Btn::Primary)]
+    } else {
+        [answer(&cancel, "Cancel", dlg::ACTION_CANCEL, Btn::Outline), answer(&go, go_word, dlg::ACTION_CONFIRM, Btn::Primary)]
+    };
+    ui::alert_buttons(b.d, &buttons);
+    ui::shell_close(b.d);
 }
 
 /// A create form (the web's goal form, LoopCreationControls, the monitor
@@ -1471,14 +1675,26 @@ fn form_card(b: &mut B<'_>, ctx: &Ctx<'_>, f: &Form) {
         segmented(b, "fm_seg", &refs, W::Fill);
         b.gap(12.0);
     }
+    let labels: Vec<&str> = f.labels.iter().map(String::as_str).collect();
+    let key_w = ui::form_key_w(&labels);
     for (k, (id, placeholder, value)) in f.fields.iter().enumerate() {
-        if let Some(label) = f.labels.get(k).filter(|l| !l.is_empty()) {
+        let label = f.labels.get(k).filter(|l| !l.is_empty());
+        if let Some(label) = label {
             let lid = b.id(&format!("{id}_label"));
-            ui::field_label(b.d, &lid, tr(label));
-            b.gap(6.0);
+            ui::form_open(b.d, &lid, tr(label), key_w);
+            if !crate::desk::active() {
+                b.gap(6.0);
+            }
         }
-        b.input(id, value, tr(placeholder));
-        b.gap(10.0);
+        match f.unit {
+            // n11o (E9 5): a Mac's interval is a number, a stepper and a unit.
+            Some(unit) if id == "lf_interval" => interval_control(b, id, value, tr(placeholder), unit),
+            _ => b.input(id, value, tr(placeholder)),
+        }
+        if label.is_some() {
+            ui::form_close(b.d);
+        }
+        b.gap(crate::desk::by(10.0, 8.0));
     }
     if !f.help.is_empty() {
         b.text("cf_body", tr(&f.help), &para(tok::MUTED));
@@ -1492,6 +1708,38 @@ fn form_card(b: &mut B<'_>, ctx: &Ctx<'_>, f: &Form) {
         b.text("ff_error", tr(err), &para(tok::RED_TEXT));
     }
     b.gap(16.0);
+    if crate::desk::active() {
+        // Both faces of the default are mounted and the host shows one as the
+        // fields change: a remount for a letter typed would take the field.
+        let values: Vec<String> = f.fields.iter().map(|(_, _, value)| value.clone()).collect();
+        let ready = dlg::form_ready(f, &values);
+        let avail = b.inner;
+        // Why the default is off, beside it (E7 5); the host keeps it with the fields.
+        let wants = dlg::form_wants(f, &values);
+        let reason = b.id("ff_reason");
+        b.d.foot_begin(ui::Foot::Lead);
+        b.d.view(&reason, &format!("width: Fit height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} visible: {}", wants.is_some()));
+        b.text("ff_reason_label", wants.map(tr).unwrap_or(""), &Txt::new(11.0, Face::Regular, tok::MUTED));
+        b.d.close();
+        b.d.foot_end();
+        actions(b, &[("ff_cancel", "Cancel", dlg::ACTION_FORM_CANCEL.into(), Btn::Outline)], avail);
+        let (both, on, off) = (b.d.anon(), b.id("ff_submit_on"), b.id("ff_submit_off"));
+        b.d.foot_begin(ui::Foot::Default);
+        b.d.view(&both, "width: Fit height: Fit flow: Overlay");
+        b.d.view(&on, &format!("width: Fit height: Fit flow: Right visible: {ready}"));
+        b.pill("ff_submit", tr(&f.submit_label), dlg::ACTION_FORM_SUBMIT, Btn::Primary, W::Fit);
+        b.d.close();
+        b.d.view(&off, &format!("width: Fit height: Fit flow: Right visible: {}", !ready));
+        b.pill("ff_submit_idle", tr(&f.submit_label), dlg::ACTION_FORM_SUBMIT, Btn::Disabled, W::Fit);
+        b.d.close();
+        b.d.close();
+        b.d.foot_end();
+        if let (Some(unit), Some(at)) = (f.unit, dlg::unit_menu()) {
+            unit_menu(b, at, unit);
+        }
+        finish(b);
+        return;
+    }
     let avail = b.inner;
     actions(
         b,
@@ -1502,4 +1750,96 @@ fn form_card(b: &mut B<'_>, ctx: &Ctx<'_>, f: &Form) {
         avail,
     );
     finish(b);
+}
+
+/// n11o (E9 5): a Mac's two interval units, in the pop-up's order.
+const UNITS: [(char, &str); 2] = [('m', "Minutes"), ('h', "Hours")];
+
+fn unit_word(unit: char) -> &'static str {
+    UNITS.iter().find(|(u, _)| *u == unit).map(|(_, w)| *w).unwrap_or("Minutes")
+}
+
+/// n11o (E9 5): a Mac form's interval, as a Mac's own forms take one: a short
+/// number field, its stepper (the upper half up, the lower half down), and the
+/// Minutes/Hours pop-up whose menu opens over it ([`unit_menu`]).
+fn interval_control(b: &mut B<'_>, id: &str, value: &str, placeholder: &str, unit: char) {
+    let row = b.d.anon();
+    b.d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 4");
+    let field = b.d.anon();
+    b.d.view(&field, "width: 64 height: Fit");
+    b.input(id, value, placeholder);
+    b.d.close();
+    let (stepper, icon, up, down) = (b.id("lf_stepper"), b.id("lf_stepper_icon"), b.id("lf_step_up"), b.id("lf_step_down"));
+    b.d.surface(&stepper, "width: 16 height: 24 flow: Overlay align: Align{x: 0.5 y: 0.5}", tok::SURFACE, 4.0, Some("#d9d9dcff"));
+    b.d.icon(&icon, "b3_updown.svg", 12.0, tok::MUTED);
+    let halves = b.d.anon();
+    b.d.view(&halves, "width: Fill height: Fill flow: Down");
+    b.d.tap(&up, dlg::ACTION_FORM_STEP_UP);
+    b.d.tap(&down, dlg::ACTION_FORM_STEP_DOWN);
+    b.d.close();
+    b.d.close();
+    b.d.gap(W::Px(4.0), 1.0);
+    // The pop-up is as wide as its longest choice.
+    let widest = UNITS.iter().map(|(_, w)| ui::text_w(tr(w), 13.0, Face::Regular)).fold(0.0, f64::max);
+    let (popup, word, chevron, hit) = (b.id("lf_unit"), b.id("lf_unit_label"), b.id("lf_unit_chevron"), b.id("lf_unit_control"));
+    b.d.surface(
+        &popup,
+        &format!("width: {} height: 24 flow: Overlay", (widest * 1.1 + 10.0 + 6.0 + 12.0 + 8.0).ceil()),
+        tok::SURFACE,
+        6.0,
+        Some("#d9d9dcff"),
+    );
+    let face = b.d.anon();
+    b.d.view(&face, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 6 padding: Inset{left: 10 right: 8 top: 0 bottom: 0}");
+    b.d.text(&word, tr(unit_word(unit)), &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill));
+    b.d.icon(&chevron, "b3_updown.svg", 12.0, tok::MUTED);
+    b.d.close();
+    b.d.tap(&hit, dlg::ACTION_FORM_UNIT_MENU);
+    b.d.close();
+    b.d.close();
+}
+
+/// n11o (E9 5): the unit pop-up's menu, floating over the sheet as a Mac's
+/// pop-up menu does: the ticked unit's words over the pop-up's, a check at
+/// its leading edge; a press anywhere else closes it.
+fn unit_menu(b: &mut B<'_>, at: crate::screens::board3::seats::Anchor, unit: char) {
+    b.d.over_begin();
+    let (off_box, off) = (b.id("lf_unit_menu_off_box"), b.id("lf_unit_menu_off"));
+    b.d.view(&off_box, "width: Fill height: Fill flow: Overlay");
+    b.d.tap(&off, dlg::ACTION_FORM_UNIT_MENU);
+    b.d.close();
+    // A row is 28 points (5 + 18 + 5), the menu's 4 over the first; the words
+    // start 4 + 6 + 18 + 4 = 32 points in, the pop-up's 10.
+    const ROW: f64 = 28.0;
+    let ticked = UNITS.iter().position(|(u, _)| *u == unit).unwrap_or(0) as f64;
+    let est_h = 8.0 + ROW * UNITS.len() as f64;
+    let natural = UNITS.iter().map(|(_, w)| ui::text_w(tr(w), 14.0, Face::Regular) + 32.0 + 8.0 + 24.0).fold(at.w + 22.0, f64::max);
+    let width = natural.clamp(120.0, 260.0).floor();
+    let left = (at.x + 10.0 - 32.0).clamp(8.0, (b.frame.avail_w - 8.0 - width).max(8.0)).floor();
+    let top = (at.y + at.h / 2.0 - (4.0 + ROW * ticked + ROW / 2.0)).clamp(8.0, (b.frame.avail_h - 8.0 - est_h).max(8.0)).floor();
+    let (menu, options) = (b.id("lf_unit_menu"), b.id("lf_unit_options"));
+    b.d.view(&menu, &format!("width: Fill height: Fill flow: Overlay padding: Inset{{left: {left} top: {top}}}"));
+    b.d.menu_surface(&options, &format!("width: {width} height: Fit flow: Down padding: Inset{{left: 4 right: 4 top: 4 bottom: 4}}"), 8.0);
+    let cursor = dlg::unit_cursor();
+    for (u, w) in UNITS {
+        let id = b.id(&format!("lf_unit_{u}"));
+        // The keyboard's highlight, as the setup menus draw theirs.
+        let fill = if cursor == Some(u) { tok::SURFACE2 } else { tok::TRANSPARENT };
+        b.d.surface(&format!("{id}_box"), "width: Fill height: Fit flow: Overlay", fill, 5.0, None);
+        let line = b.d.anon();
+        b.d.view(&line, "width: Fill height: Fit flow: Right spacing: 4 align: Align{x: 0.0 y: 0.5} padding: Inset{left: 6 right: 8 top: 5 bottom: 5}");
+        let ck = b.d.anon();
+        b.d.view(&ck, "width: 18 height: 18 flow: Overlay align: Align{x: 0.5 y: 0.5}");
+        if u == unit {
+            b.d.icon(&format!("{id}_check"), "b3_check.svg", 14.0, tok::TEXT);
+        }
+        b.d.close();
+        b.d.text(&format!("{id}_name"), tr(w), &Txt::new(14.0, Face::Regular, tok::TEXT).w(W::Fill));
+        b.d.close();
+        b.d.tap(&id, &format!("{}{u}", dlg::ACTION_FORM_UNIT));
+        b.d.close();
+    }
+    b.d.close(); // options
+    b.d.close(); // menu
+    b.d.over_end();
 }

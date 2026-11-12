@@ -84,6 +84,8 @@ pub const FLEET_ZH: &[(&str, &str)] = &[
 /// are the pane's own.
 pub const GATHER_ZH: &[(&str, &str)] = &[
     ("Peer gather", "汇总协作结果"),
+    ("Gather results", "汇总协作结果"),
+    ("Goal", "目标"),
     ("No peers staged on the blackboard.", "黑板上没有已准备的协作会话。"),
     (
         "Peer synthesis was not queued. Check this Session’s authority and write availability, then retry.",

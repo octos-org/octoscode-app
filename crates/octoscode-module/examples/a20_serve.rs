@@ -45,6 +45,8 @@ struct Parked {
 
 #[derive(Default)]
 struct World {
+    /// `--demo`: read as a real server, for grabs.
+    demo: bool,
     sessions: Vec<(String, String)>,
     parked: Vec<Parked>,
     attest: Vec<(String, String)>,
@@ -69,11 +71,21 @@ async fn main() {
         .filter_map(|m| m.split_once('=').map(|(a, b)| (a.to_owned(), b.to_owned())))
         .collect();
     let world = Arc::new(Mutex::new(World {
-        sessions: vec![
-            ("a20:api:xray".into(), "Session X — clean the scratch dir".into()),
-            ("a20:api:yankee".into(), "Session Y — release notes".into()),
-            ("a20:main".into(), "Main".into()),
-        ],
+        demo: args.iter().any(|a| a == "--demo"),
+        // `--demo`: titles that read as a person's chats, for grabs.
+        sessions: if args.iter().any(|a| a == "--demo") {
+            vec![
+                ("a20:api:xray".into(), "Clean the scratch folder".into()),
+                ("a20:api:yankee".into(), "Release notes for 0.4".into()),
+                ("a20:main".into(), "Fix the reconnect bug".into()),
+            ]
+        } else {
+            vec![
+                ("a20:api:xray".into(), "Session X — clean the scratch dir".into()),
+                ("a20:api:yankee".into(), "Session Y — release notes".into()),
+                ("a20:main".into(), "Main".into()),
+            ]
+        },
         attest,
         log: flag("--log"),
         ..Default::default()
@@ -248,6 +260,9 @@ async fn ws(stream: TcpStream, world: Shared) {
                         None => Err(json!({"code": -32602, "message": format!("{kind} {rid} is not pending in {session}")})),
                     }
                 }
+                "profile/llm/list" if w.demo => Ok(json!({"session_id": session, "models": [
+                    {"model": "deepseek-v4-flash", "provider": "deepseek", "title": "DeepSeek V4 Flash", "family": "deepseek",
+                     "route": "deepseek", "selected": true, "available": true}]})),
                 _ => Ok(json!({})),
             }
         };

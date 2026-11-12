@@ -88,7 +88,7 @@ def numeric(W: Walk, name: str):
 def open_pane(W: Walk) -> bool:
     # The strip mounts once the Session's status is read (later on a phone).
     W.wait(lambda: bool(W.visible("b3_strip_tap")), 20)
-    ok = W.click("b3_strip_tap") and W.wait(lambda: W.text("b3_title") == "Session settings", 10)
+    ok = W.click("b3_strip_tap") and W.wait(lambda: W.text("b3_title") == ("Session settings" if MODE == "phone" else "Session Settings"), 10)
     if ok and not W.visible("b3_sc_who") and not W.scroll_into("b3_sc_who", VP):
         ok = click(W, "b3_sc_adv", lambda: seen(W, "b3_sc_who"))
     return ok
@@ -131,8 +131,10 @@ def walk_seat(W: Walk) -> None:
     W.check("held: the re-walked disclosure names this app's peer (SELF)",
             own == "A peer you started is using this session", repr(own))
     W.check("held: the console is bound to this app's stable driver id",
-            seen(W, "b3_fleet_console_bound") and W.text("b3_fleet_console_bound").startswith("Bound to octoscode-native:"),
-            repr(W.text("b3_fleet_console_bound")))
+            # A desktop keeps the driver's id out of sight.
+            (seen(W, "b3_fleet_console_bound") and W.text("b3_fleet_console_bound").startswith("Bound to octoscode-native:") if MODE == "phone"
+             else W.text_hidden_too("b3_fleet_console_bound").startswith("Bound to octoscode-native:")),
+            repr(W.text_hidden_too("b3_fleet_console_bound")))
     W.scroll_into("b3_fleet_console_title", VP)
     numeric(W, "held")
     W.shot(f"02-held-{MODE}")

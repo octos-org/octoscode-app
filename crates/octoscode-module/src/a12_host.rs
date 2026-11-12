@@ -79,7 +79,7 @@ impl OctoscodeView {
                 let low = reconnect::lower(&reconnect::View { attempt: 0, ..v.clone() }, width, phone);
                 self.dialog_events.extend(low.taps.iter().map(|(_, e)| e.clone()));
                 self.link_taps = low.taps.iter().map(|(n, e)| (LiveId::from_str(n), e.clone())).collect();
-                crate::screens::theme::retint_dsl(&low.dsl)
+                crate::screens::taps::native_clicks_only(&crate::screens::theme::retint_dsl(&low.dsl))
             }
             None => {
                 self.link_taps.clear();

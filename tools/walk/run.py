@@ -1374,7 +1374,8 @@ def p_altd_notice(app):
     notice = next((t for t in laid if "does not support" in t or "No peer models" in t
                    or t == "Start a peer"), None)
     if fleet(d):
-        app.click_id(d, "b3_fleet_back")
+        back = any(w.get("i") == "b3_fleet_back" for w in d.get("s", []))
+        app.click_id(d, "b3_fleet_back" if back else "fleet_nav_hit")
         try:
             app.wait_for(lambda s: not fleet(s), timeout=6, what="Fleet's Back to close it")
         except AssertionError:
@@ -2019,12 +2020,12 @@ def q_hint(app):
     # `palette_hint`; it was "move" / "run"). The old check read hidden texts;
     # this one opens the palette as a user does ('/' in the composer), asserts
     # the hint is LAID OUT under the list, then empties the composer.
-    hints = ("to move", "to run", "· esc")
+    hints = ("to move", "to run", ("· esc", "esc to close"))
     app.focus_composer(app.snap())
     app.clear_composer()
     app.type("/")
     try:
-        d = app.wait_for(lambda s: (app.rect(s, "palette_search") or [0, 0, 0, 0])[2] > 0,
+        d = app.wait_for(lambda s: (app.rect(s, "palette_list") or [0, 0, 0, 0])[2] > 0,
                          timeout=10, what="the palette to open on '/'")
     except AssertionError:
         app.clear_composer()
@@ -2033,7 +2034,7 @@ def q_hint(app):
     d = app.snap()
     laid = [str(w.get("t") or "").strip() for w in d.get("s", [])
             if (w.get("r") or [0, 0, 0, 0])[2] > 0]
-    shown = [h for h in hints if h in laid]
+    shown = [h for h in hints if any(line.startswith(h) for line in laid)]
     lst = app.rect(d, "palette_list") or [0, 0, 0, 0]
     hint_y = min((w["r"][1] for w in d.get("s", [])
                   if str(w.get("t") or "").strip() == "to move" and (w.get("r") or [0, 0, 0, 0])[2] > 0),
@@ -2072,7 +2073,7 @@ def q_execute(app):
     app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
     app.clear_composer()
     app.type("/")
-    app.wait_for(lambda s: (app.rect(s, "palette_search") or [0, 0, 0, 0])[2] > 0,
+    app.wait_for(lambda s: (app.rect(s, "palette_list") or [0, 0, 0, 0])[2] > 0,
                  timeout=10, what="the palette to open on '/'")
     app.type("model")
     time.sleep(1.0)
@@ -2091,7 +2092,7 @@ def q_execute(app):
         app.click(int(rc[0] + rc[2] / 2), int(rc[1] + rc[3] / 2))
     app.key("escape")  # close the palette so the keyboard area starts clean
     time.sleep(1.0)
-    closed = (app.rect(app.snap(), "palette_search") or [0, 0, 0, 0])[2] == 0
+    closed = (app.rect(app.snap(), "palette_list") or [0, 0, 0, 0])[2] == 0
     ok = "/model" in listed and opened and closed
     return ok, f"listed={listed} drawer_opened={opened} palette_closed={closed}"
 
@@ -2131,7 +2132,7 @@ def k_a11y_semantics(app):
     # The palette's mounted signal is the SEARCH field's rect (the proven
     # q_execute predicate) — the list rows carry generated ids.
     def pal_open(s):
-        return (app.rect(s, "palette_search") or [0, 0, 0, 0])[2] > 0
+        return (app.rect(s, "palette_list") or [0, 0, 0, 0])[2] > 0
     # ctrl, not cmd: keys.rs:106 accepts `logo || ctrl` (web App.tsx:1096
     # `metaKey || ctrlKey`), and the ctrl chord PROVES delivery — measured on
     # the walk host, keyk&ctrl opens the palette while keyk&cmd does not

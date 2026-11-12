@@ -74,6 +74,21 @@ pub fn timeline(store: &Arc<Store>, live: bool) -> Vec<TRow> {
     timeline_folded(store, live, &[])
 }
 
+/// A hosted Mac window puts the transcript's fold controls in its View menu.
+/// Both drawing and hit testing use this projection so row indices stay aligned.
+pub fn timeline_folded_with_menu(
+    store: &Arc<Store>,
+    live: bool,
+    folded: &[String],
+    menu_folds: bool,
+) -> Vec<TRow> {
+    let mut rows = timeline_folded(store, live, folded);
+    if menu_folds {
+        rows.retain(|row| !matches!(row, TRow::FoldBar));
+    }
+    rows
+}
+
 /// [`timeline`] over A1's folded base rows: a settled turn named in `folded`
 /// keeps its "Worked for" header but hides its tool rows; the board-3 rows
 /// (thinking, files, notices) compose onto whatever base rows remain, keyed by
@@ -257,7 +272,11 @@ pub fn notice_parts(e: &TimelineEntry) -> (String, String) {
         // A6: the readable error rides the terminal notice
         // (`octoscode_client::domains::turn::terminal_notice`): the server's
         // message, or `Server error (<code>).` — never protocol metadata.
-        let body = e.data.get("message").and_then(|m| m.as_str()).unwrap_or("").to_owned();
+        let body = if crate::desk::active() && outcome == "interrupted" {
+            String::new()
+        } else {
+            e.data.get("message").and_then(|m| m.as_str()).unwrap_or("").to_owned()
+        };
         return (title.to_owned(), body);
     }
     if let (Some(code), Some(msg)) = (
@@ -292,6 +311,10 @@ pub fn is_previewable(name: &str) -> bool {
 
 /// The size label (MiB with one decimal for ≥ 1 MiB, else KiB).
 pub fn size_label(bytes: u64) -> String {
+    // A Mac says it as Finder does.
+    if crate::desk::active() {
+        return crate::desk::file_size(bytes);
+    }
     if bytes >= 1_048_576 {
         format!("{:.1} MiB", bytes as f64 / 1_048_576.0)
     } else {
@@ -374,14 +397,19 @@ pub fn lower(row: &TRow, store: &Store) -> String {
             d.hairline();
             let row = d.anon();
             d.view(&row, "width: Fill height: Fit flow: Right spacing: 10 padding: Inset{top: 10}");
-            d.surface("b3_tl_notice_icon_box", "width: 26 height: 26 flow: Overlay align: Align{x: 0.5 y: 0.5}", tok::SURFACE2, 13.0, Some(tok::HAIRLINE));
+            if crate::desk::active() {
+                let glyph = d.anon();
+                d.view(&glyph, "width: 16 height: 18 flow: Overlay align: Align{x: 0.5 y: 0.5}");
+            } else {
+                d.surface("b3_tl_notice_icon_box", "width: 26 height: 26 flow: Overlay align: Align{x: 0.5 y: 0.5}", tok::SURFACE2, 13.0, Some(tok::HAIRLINE));
+            }
             d.icon("", "b3_info.svg", 14.0, tok::MUTED);
             d.close();
             let col = d.anon();
-            d.view(&col, "width: Fill height: Fit flow: Down spacing: 4");
+            d.view(&col, crate::desk::by("width: Fill height: Fit flow: Down spacing: 4", "width: Fill height: Fit flow: Down spacing: 1"));
             d.text(&format!("b3_tl_notice_title_{id}"), &title, &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill));
             if !body.is_empty() {
-                d.text(&format!("b3_tl_notice_body_{id}"), &body, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+                d.text(&format!("b3_tl_notice_body_{id}"), &body, &Txt::new(crate::desk::by(12.5, 11.0), Face::Regular, tok::MUTED).w(W::Fill).wrap());
             }
             d.close();
             d.close();
@@ -398,36 +426,42 @@ pub fn lower(row: &TRow, store: &Store) -> String {
             let size = e.data.get("size_bytes").and_then(|s| s.as_u64());
             let st = file_state().get(id).cloned().unwrap_or_default();
             d.view("b3_tl_file", "width: Fill height: Fit flow: Down padding: Inset{left: 0 right: 0 top: 4 bottom: 10}");
+            let mac = crate::desk::active();
             d.surface(
                 &format!("b3_tl_file_{id}"),
-                "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 12 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}",
+                crate::desk::by(
+                    "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 12 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}",
+                    "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10 padding: Inset{left: 10 right: 10 top: 7 bottom: 7}",
+                ),
                 tok::SURFACE,
-                12.0,
+                crate::desk::by(12.0, 8.0),
                 Some(tok::HAIRLINE),
             );
-            d.icon("", "b3_file.svg", 28.0, tok::TEXT);
+            d.icon("", "b3_file.svg", crate::desk::by(28.0, 22.0), tok::TEXT);
             let col = d.anon();
-            d.view(&col, "width: Fill height: Fit flow: Down spacing: 4");
-            d.text(&format!("b3_tl_file_name_{id}"), &super::inventory::fit(&name, 300.0, 14.0, false), &Txt::new(14.0, Face::Regular, tok::TEXT).w(W::Fill));
+            d.view(&col, crate::desk::by("width: Fill height: Fit flow: Down spacing: 4", "width: Fill height: Fit flow: Down spacing: 1"));
+            d.text(&format!("b3_tl_file_name_{id}"), &super::inventory::fit(&name, crate::desk::by(300.0, 560.0), 14.0, false), &Txt::new(14.0, Face::Regular, tok::TEXT).w(W::Fill));
             let meta = match (&st.saved_to, &st.error, size) {
                 (Some(p), _, _) => crate::i18n::tr1("Saved to {value0}", &ui::leaf(p)),
                 (_, Some(err), _) => crate::i18n::tr(err).to_owned(),
                 (_, _, Some(b)) => size_label(b),
                 _ => e.data.get("mime").and_then(|m| m.as_str()).unwrap_or("").to_owned(),
             };
-            d.text(&format!("b3_tl_file_meta_{id}"), &meta, &Txt::new(12.0, Face::Regular, if st.error.is_some() { tok::RED_TEXT } else { tok::MUTED }).w(W::Fill));
+            d.text(&format!("b3_tl_file_meta_{id}"), &meta, &Txt::new(crate::desk::by(12.0, 11.0), Face::Regular, if st.error.is_some() { tok::RED_TEXT } else { tok::MUTED }).w(W::Fill));
             d.close();
             let btns = d.anon();
-            d.view(&btns, "width: Fit height: Fit flow: Down spacing: 8");
+            // A Mac's row keeps its buttons side by side on its trailing edge.
+            d.view(&btns, crate::desk::by("width: Fit height: Fit flow: Down spacing: 8", "width: Fit height: Fit flow: Right spacing: 8"));
+            let button_w = if mac { W::Fit } else { W::Px(104.0) };
             if is_previewable(&name) {
-                d.button(&format!("b3_tl_file_preview_{id}"), crate::i18n::tr("Preview"), &format!("b3.file.preview#{id}"), if st.busy { Btn::Disabled } else { Btn::Outline }, W::Px(104.0), 32.0);
+                d.button(&format!("b3_tl_file_preview_{id}"), crate::i18n::tr("Preview"), &format!("b3.file.preview#{id}"), if st.busy { Btn::Disabled } else { Btn::Outline }, button_w, 32.0);
             }
             d.button(
                 &format!("b3_tl_file_download_{id}"),
                 crate::i18n::tr(if st.busy { "Downloading…" } else { "Download" }),
                 &format!("b3.file.download#{id}"),
                 if st.busy { Btn::Disabled } else { Btn::Outline },
-                W::Px(104.0),
+                button_w,
                 32.0,
             );
             d.close();
@@ -577,6 +611,19 @@ mod tests {
         assert!(rows.contains(&TRow::File(file)) && rows.contains(&TRow::Notice(notice)));
         // The base model is untouched underneath.
         assert_eq!(crate::screen::timeline_rows(&s, false).len(), 4);
+    }
+
+    #[test]
+    fn mac_menu_replaces_only_the_transcripts_fold_bar() {
+        let s = store();
+        let tl = &s.domains.session.timeline;
+        tl.upsert_user_message("s", "t1", "hello", serde_json::json!({}));
+        tl.append("s", Some("t1".into()), EntryKind::REASONING, "thinking".into());
+        let original = timeline_folded_with_menu(&s, false, &[], false);
+        assert!(original.contains(&TRow::FoldBar));
+        let menu = timeline_folded_with_menu(&s, false, &[], true);
+        let without_bar: Vec<_> = original.into_iter().filter(|row| *row != TRow::FoldBar).collect();
+        assert_eq!(menu, without_bar);
     }
 
     /// A15 — the live smoke's restart: a stopped turn Core persisted nothing
