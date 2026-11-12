@@ -89,6 +89,12 @@ pub struct Failure {
 /// The web's `classifyConnectFailure` + `connectFailureCopy`
 /// (`connect-failure.ts:16-72`): exact string matches, endpoint-dependent copy
 /// filled from the typed address; anything else stays unclassified.
+/// The Connect card's line when a tokenless connect found a loopback
+/// `--solo` server with no local profile yet ([`crate::flow::SoloLogin::NoProfile`]):
+/// the server's web app creates one (its login page shows the create form).
+pub const NO_SOLO_PROFILE: &str =
+    "This solo server has no local profile yet. Create one in the server's web app (/app/ on the same address), then connect again.";
+
 pub fn failure_for(raw: &str, endpoint: &str) -> Option<Failure> {
     let (kind, message, actions, focus_token) = match raw {
         "Could not open the Octos UI Protocol connection" => (

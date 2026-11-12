@@ -51,8 +51,8 @@ rc=$?
 t2=$(date +%s)
 echo "fresh-clone: build-macos.sh ${BUILD_ARGS[*]} exit $rc after $(( t2 - t1 )) s (clone to done: $(( t2 - t0 )) s)"
 for d in "$HOME/src/octoscode-app" "$HOME/src/octoscode-app/target" "$HOME/src/octoscode-app/.forks/makepad-fork" \
-         "$HOME/src/octoscode-app/.forks/octosense-fork" "$HOME/src/octoscode-app/.forks/octoscript-makepad-fork" \
-         "$HOME/src/octoscode-app/.forks/octosense-host" "$CARGO_HOME" "$OM"; do
+         "$HOME/src/octoscode-app/.forks/octoscript-makepad" "$HOME/src/octoscode-app/.forks/octosense" \
+         "$CARGO_HOME" "$OM"; do
   [ -e "$d" ] && printf 'fresh-clone: disk %8s  %s\n' "$(du -sh "$d" | cut -f1)" "${d#$OM/}"
 done
 exit $rc

@@ -107,21 +107,20 @@ def build_id(bin_path: pathlib.Path | None = None) -> str:
         pass
     return "unknown"
 
-# The desktop `octosense` binary is EXTERNAL to this repo (built from the
-# OctoSense fork, ~12 min), so the runner never builds it silently — it checks
-# once and fails fast with this recipe (card #19b, defect 2).
+# The desktop `octosense` binary is EXTERNAL to this repo (OctoSense main with
+# this checkout's module linked, tools/build-macos.sh --octosense, minutes), so
+# the runner never builds it silently — it checks once and fails fast with this
+# recipe (card #19b, defect 2).
 APP_BIN_HELP = f"""\
 the native desktop app binary is missing: {BIN}
 
-tools/walk drives the real desktop shell, which is built from the OctoSense fork
-(not from this repo). Point OCTOSCODE_APP_BIN at an existing build, or make one:
+tools/walk drives the real desktop shell: OctoSense with the octoscode module
+linked, built from OctoSense main (not from this repo). Point OCTOSCODE_APP_BIN
+at an existing build, or make one (idempotent):
 
-  tools/prepare-octosense-fork.sh                 # create the [patch] fork (idempotent)
-  cd <fork> && python3 tools/setup.py             # framework sources (.sources/)
-  cd <fork> && CARGO_TARGET_DIR=$PWD/tmp/octosense-target \\
-      cargo build --features app-appcard -p octosense
+  tools/build-macos.sh --octosense --debug        # OctoSense + this checkout's module, in .forks/octosense
 
-  export OCTOSCODE_APP_BIN=<fork>/tmp/octosense-target/debug/octosense
+  export OCTOSCODE_APP_BIN=$PWD/.forks/octosense/target/debug/octosense
 
 (A prebuilt copy may exist read-only at {DEFAULT_APP_BIN}; set that instead.)
 """

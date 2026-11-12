@@ -105,7 +105,7 @@ open target/macos-app/OctosCode.app
 ```sh
 tools/build-macos.sh --octosense --release
 MAKEPAD_WM_TEST_APP=octoscode OCTOSCODE_DESIGN_DIR="$PWD/design" \
-  .forks/octosense-host/target/release/octosense --module octoscode
+  .forks/octosense/target/release/octosense --module octoscode
 ```
 
 这里的 `--release` 同时作用于两个可执行文件（默认分支上默认即为优化构建）。独立版下载包不包含该可选宿主。

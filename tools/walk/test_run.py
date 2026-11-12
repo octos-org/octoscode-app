@@ -192,8 +192,8 @@ class PrereqMessage(unittest.TestCase):
     def test_app_bin_help_names_the_build_recipe(self):
         """The fail-fast message must tell an operator exactly what to run."""
         self.assertIn("OCTOSCODE_APP_BIN", run.APP_BIN_HELP)
-        self.assertIn("prepare-octosense-fork.sh", run.APP_BIN_HELP)
-        self.assertIn("cargo build", run.APP_BIN_HELP)
+        self.assertIn("build-macos.sh --octosense", run.APP_BIN_HELP)
+        self.assertIn(".forks/octosense/target/debug/octosense", run.APP_BIN_HELP)
 
     def test_default_shell_cwd_derives_from_a_repo_binary(self):
         """<repo>/tmp/octosense-target/debug/octosense -> <repo>/desktop, when present."""

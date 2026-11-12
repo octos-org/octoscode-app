@@ -404,3 +404,12 @@ fn every_alias_is_a_web_key_of_the_same_shape() {
         assert_eq!(tr_in(Lang::En, a.native), a.native);
     }
 }
+
+/// The sidebar's flat view reads 列表 (its own context entry), while the
+/// bare "All" keeps the web's alias and the memory filter its own 全部.
+#[test]
+fn the_sidebar_flat_view_reads_its_own_word() {
+    assert_eq!(native_zh("sidebar|All"), Some("列表"));
+    assert_eq!(tr_in(Lang::Zh, "All"), catalog()["In one list"]);
+    assert_eq!(native_zh("memory|All"), Some("全部"));
+}

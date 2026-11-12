@@ -103,6 +103,7 @@ fn record_inbound(trace: &FrameTrace, evt: &TransportEvent) {
         TransportEvent::ConnectionState(s) => {
             trace.inbound(&format!("state:{s:?}"), &json!({"state": format!("{s:?}")}));
         }
+        TransportEvent::AuthExpired => trace.inbound("auth_expired", &json!({})),
         TransportEvent::CapabilityNegotiated(caps) => trace.inbound(
             "capabilities",
             &json!({"accepted": caps.raw.keys().cloned().collect::<Vec<_>>()}),

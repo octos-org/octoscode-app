@@ -296,8 +296,16 @@ script_mod! {
                     // A4 — board-3 screen 8: the session strip (model · state ·
                     // permissions) above the composer (SessionStatusStrip.tsx,
                     // the web's composer footer, App.tsx:2963-2982).
+                    // #21: a widget-tree search barrier (A35b's board-1
+                    // dock). A turn's start and end REMOUNT the strip, and a
+                    // remount drops the path cache of every ancestor up to
+                    // the first barrier: without one, the module root's
+                    // ~290 per-event lookups each walked the whole tree again
+                    // (measured: 218k nodes, ~35 ms per Signal). Its splash
+                    // and tap are looked up FROM the row (`strip_row_ref`).
                     strip_row := View {
                         width: Fill height: Fit
+                        skip_widget_tree_search: true
                         strip_splash := Splash { width: Fill height: Fit }
                     }
                     // A7 — above the composer card: the turn recovery notice,
@@ -817,15 +825,20 @@ script_mod! {
 
         // A3 (board 2 screen 4): the workspace overflow menu, anchored to the
         // clicked "⋯" by sync_chrome (margin within this full-window layer);
-        // a click anywhere else closes it.
+        // a click anywhere else closes it. A chat row's context menu shares
+        // the layer, anchored at the press. `sb_menu_ctx` sees every press
+        // here (`capture_overload`, under the rest) so a right-click outside
+        // the open menu closes it, or opens the chat row's menu under it.
         sb_menu_dock := View {
             width: Fill height: Fill flow: Overlay
             visible: false
+            sb_menu_ctx := View {width: Fill height: Fill cursor: MouseCursor.Default capture_overload: true}
             sb_menu_dismiss := mod.widgets.OcBackdrop {}
             sb_menu := mod.widgets.OcWorkspaceMenu {}
             sb_sort_menu := mod.widgets.OcSortMenu {}
             // A Mac's rename in place (E7 6); a phone renames on the menu's card.
             sb_rename_place := mod.widgets.OcRenameInPlace {}
+            sb_chat_menu := mod.widgets.OcChatMenu {visible: false}
         }
 
         // Card #28e item 5 (board 4 frame 3): the floating 560 px command
@@ -2413,6 +2426,16 @@ impl OctoscodeView {
                     // session-defaults.ts:5-7) — the same `new_chat` path the
                     // router's `session.new` takes, scoped by the group's path.
                     let conv = { self.bridge.lock().unwrap().conv.clone() };
+                    // #19 — this workspace's active chat is still empty: it
+                    // stays, focused. Another workspace's gets a new chat.
+                    if let Some(id) = conv
+                        .as_ref()
+                        .and_then(|c| c.empty_chat_to_keep(flow::NewChatScope::Workspace(path.as_deref())))
+                    {
+                        makepad_widgets::log!("[octoscode] new chat in {workspace}: kept the empty chat {id}");
+                        self.focus_composer(cx);
+                        return;
+                    }
                     // A Mac's alert offers to start this same one again.
                     let retry = screens::start_alert::Retry::InWorkspace { workspace: workspace.clone(), path: path.clone() };
                     if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
@@ -2443,6 +2466,23 @@ impl OctoscodeView {
                     // The host docks the folder browser (sync_labels consumes
                     // `sidebar::take_add_request`).
                     makepad_widgets::log!("[octoscode] sidebar action: {action}");
+                    return;
+                }
+                screens::sidebar::Effect::DeleteSession { id } => {
+                    makepad_widgets::log!("[octoscode] sidebar action: {action} -> {id}");
+                    // #18 — Session history's own `session/delete` path: the
+                    // row goes on success, a failure keeps it and says why.
+                    let conv = { self.bridge.lock().unwrap().conv.clone() };
+                    match (self.runtime.as_ref(), conv) {
+                        (Some(rt), Some(conv)) => {
+                            rt.spawn(async move {
+                                let r = screens::board3::switcher::delete_session(&conv, &id).await;
+                                screens::sidebar::delete_finished(&id, r);
+                                SignalToUI::set_ui_signal();
+                            });
+                        }
+                        _ => screens::sidebar::delete_finished(&id, Err("not connected".into())),
+                    }
                     return;
                 }
             }
@@ -2784,6 +2824,13 @@ impl OctoscodeView {
             // Card #14 defect 4: "New chat" mints a FRESH session id, so a new
             // chat never reuses the previous run's context.
             actions::Effect::NewChat => {
+                // #19 — the active chat is still empty: it stays, focused,
+                // instead of another empty chat piling up in the sidebar.
+                if let Some(id) = conv.empty_chat_to_keep(flow::NewChatScope::Any) {
+                    makepad_widgets::log!("[octoscode] new chat: kept the empty chat {id}");
+                    self.focus_composer(cx);
+                    return;
+                }
                 let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
                 rt.spawn(async move {
                     match conv.new_chat(cwd).await {
@@ -3577,7 +3624,15 @@ impl OctoscodeView {
                 live: b.store.is_live(),
                 server: ui.server.clone(),
                 connect_failed: ui.failure.is_some() || ui.raw_error.is_some(),
-                capabilities: b.store.capabilities(),
+                capabilities: {
+                    // Over a shell's port the folder browser lists the
+                    // person's folders locally (`browser::list`).
+                    let mut caps = b.store.capabilities();
+                    if b.conv.as_ref().is_some_and(|c| c.is_hosted()) {
+                        caps.push(screens::browser::BROWSE_FEATURE.to_owned());
+                    }
+                    caps
+                },
                 methods: b.store.domains.config.supported_methods(),
                 hosted: self.embedded_in_octosense,
             }
@@ -3633,6 +3688,12 @@ impl OctoscodeView {
         self.view.widget(cx, ids!(board1_dock))
     }
 
+    /// #21: the session strip's row, a widget-tree search barrier (see its
+    /// DSL): the module root finds the row itself, never the strip inside.
+    fn strip_row_ref(&self, cx: &Cx) -> WidgetRef {
+        self.view.widget(cx, ids!(strip_row))
+    }
+
     /// #29a: run one board-2 screen action (`screens::connect::ACTIONS`).
     /// `value` carries an `input.*` payload (the field's live text) when the
     /// caller has one; without it the input effects no-op (the L0 input
@@ -3684,6 +3745,39 @@ impl OctoscodeView {
                 // so the connection carries it (as the previous build's did).
                 let start = screens::launch::resolve_migration(&server, start).await;
                 let profile = start.profile();
+                // The socket refuses an empty bearer (401), so "Use local solo
+                // server" — and any connect with no token — logs in to a
+                // loopback `--solo` server first and carries its session
+                // token. Only for this connection: it is not stored
+                // (credentials.rs keeps typed tokens); a server without solo
+                // login keeps the old empty-token attempt and its failure
+                // classification.
+                let token = if token.trim().is_empty() {
+                    match Conversation::solo_login(&server).await {
+                        flow::SoloLogin::Session { token: solo, .. } => {
+                            makepad_widgets::log!("[octoscode] connect: solo login session");
+                            solo
+                        }
+                        // Nothing to log in to: dialing with no token would
+                        // only be refused as a bad token.
+                        flow::SoloLogin::NoProfile => {
+                            makepad_widgets::log!(
+                                "[octoscode] connect: the solo server has no local profile yet"
+                            );
+                            if let Ok(mut ui) = screens.lock() {
+                                ui.note_connect_error(
+                                    screens::connect::NO_SOLO_PROFILE,
+                                    &screens::connect::clock_12h(),
+                                );
+                            }
+                            waker();
+                            return;
+                        }
+                        flow::SoloLogin::Unavailable => token,
+                    }
+                } else {
+                    token
+                };
                 match Conversation::connect(&server, &token, &profile, cwd.clone(), Some(waker.clone())) {
                     Ok((conv, evt_rx)) => {
                         screens::recents::set_connected_endpoint(&server);
@@ -3827,6 +3921,9 @@ impl OctoscodeView {
                     )
                 };
                 let client = conv.client().clone();
+                // The reconnect keeps this connection's credential (a typed
+                // token or the solo login's session), not an empty one.
+                let bearer = conv.bearer();
                 let screens2 = screens.clone();
                 let store2 = store.clone();
                 rt.spawn(async move {
@@ -3842,7 +3939,7 @@ impl OctoscodeView {
                             }
                             connect_now(
                                 handle, bridge, store2, screens2, server,
-                                String::new(), screens::launch::Start::Created(out.profile_id),
+                                bearer, screens::launch::Start::Created(out.profile_id),
                             );
                         }
                         Err(e) => {
@@ -4527,6 +4624,8 @@ impl OctoscodeView {
                 use octoscode_store::domains::composer::RecoveryPhase;
                 fluid::ComposerExtras {
                     queued: snap.pending.len(),
+                    send_now: composer.can_send_pending_now(session),
+                    queue_draft: snap.active.is_some() && conv.as_ref().is_some_and(|c| !c.ui().lock().unwrap().draft().trim().is_empty()),
                     steer: conv.as_ref().is_some_and(|c| c.can_steer()) && composer.can_steer_now(session),
                     recovery: composer.recovery(session).map(|r| {
                         match r.phase {
@@ -4756,6 +4855,22 @@ impl OctoscodeView {
         let session = conv.session_id();
         makepad_widgets::log!("[octoscode] composer extra: {which}");
         match which {
+            "queue_draft" => {
+                rt.spawn(async move {
+                    if let Err(e) = conv.queue_composer().await {
+                        screens::toasts::failed(screens::toasts::Op::Send, &e.to_string());
+                    }
+                    SignalToUI::set_ui_signal();
+                });
+            }
+            "send_now" => {
+                rt.spawn(async move {
+                    if let Err(e) = conv.send_pending_now_in(&session).await {
+                        screens::toasts::failed(screens::toasts::Op::Stop, &e.to_string());
+                    }
+                    SignalToUI::set_ui_signal();
+                });
+            }
             "steer" => {
                 // A22 — the chip of the Session it was tapped in.
                 let s = session.clone();
@@ -4817,7 +4932,8 @@ impl OctoscodeView {
             // ...but never wider than the strip's own slot: on a phone the
             // composer card measured 374 in a 344 column and the strip's
             // third cell was clipped.
-            let slot_w = self.view.widget(cx, ids!(strip_splash)).area().rect(cx).size.x;
+            let strip_row = self.strip_row_ref(cx);
+            let slot_w = strip_row.widget(cx, ids!(strip_splash)).area().rect(cx).size.x;
             let strip_w = if slot_w > 0.0 && composer_w > 0.0 { composer_w.min(slot_w) } else { composer_w };
             screens::board3::host::set_strip_width(strip_w);
             // A8 — the strip stays while the connection drops: its state word
@@ -4827,7 +4943,7 @@ impl OctoscodeView {
             } else {
                 String::new()
             };
-            let splash = self.view.splash(cx, ids!(strip_splash));
+            let splash = strip_row.splash(cx, ids!(strip_splash));
             if let Err(e) = self.mounts.mount(cx, &splash, &strip) {
                 makepad_widgets::log!("[octoscode] strip mount: {e}");
             }
@@ -5225,6 +5341,13 @@ impl OctoscodeView {
                     self.chrome.menu_anchor_left = rect.pos.x - ox;
                     self.perform_action(cx, "workspace.menu", i);
                 }
+                chrome::Intent::ChatMenu(i, (x, y)) => {
+                    // The menu opens at the press (module-local).
+                    let (ox, oy) = self.chrome.origin;
+                    self.chrome.chat_menu_at = Some((x - ox, y - oy));
+                    self.perform_action(cx, "session.menu", i);
+                }
+                chrome::Intent::RenameChat(t) => self.rename_chat(&store, &t),
                 chrome::Intent::Query(q) => {
                     screens::sidebar::set_query(&q);
                 }
@@ -5277,6 +5400,33 @@ impl OctoscodeView {
         }
         self.sync_chrome(cx);
         self.view.redraw(cx);
+    }
+
+    /// Commit a chat rename from its row's field: `session/title.set`, the
+    /// new title showing once the server keeps it; a failure keeps the old
+    /// one and says why. A blank or unchanged name sends nothing.
+    fn rename_chat(&mut self, store: &octoscode_store::Store, text: &str) {
+        let Some((id, title)) = screens::sidebar::rename_chat_commit(store, text) else { return };
+        makepad_widgets::log!("[octoscode] sidebar rename chat {id}");
+        let conv = { self.bridge.lock().unwrap().conv.clone() };
+        match (self.runtime.as_ref(), conv) {
+            (Some(rt), Some(conv)) => {
+                rt.spawn(async move {
+                    let r = screens::sidebar::rename_session(&conv, &id, &title).await;
+                    screens::sidebar::rename_finished(r);
+                    SignalToUI::set_ui_signal();
+                });
+            }
+            _ => screens::sidebar::rename_finished(Err("not connected".into())),
+        }
+    }
+
+    /// A chat rename in its sidebar row holds the keyboard while its chat is
+    /// still listed (one that left the list is abandoned, never a dead
+    /// keyboard).
+    fn chat_rename_owns_keys(&self) -> bool {
+        let store = { self.bridge.lock().unwrap().store.clone() };
+        screens::sidebar::live_rename(&store).is_some()
     }
 
     /// A24 — the phone's Back: the module's top surface closes exactly as
@@ -5351,9 +5501,14 @@ impl OctoscodeView {
         } else if screens::settings::snapshot().stop_pending {
             self.perform_action(cx, "server.stop.cancel", 0);
             true
-        } else if screens::sidebar::menu_for().is_some() || screens::sidebar::renaming().is_some() {
+        } else if screens::sidebar::menu_for().is_some()
+            || screens::sidebar::renaming().is_some()
+            || screens::sidebar::snapshot().chat_menu.is_some()
+            || screens::sidebar::renaming_chat().is_some()
+        {
             screens::sidebar::close_menu();
             self.perform_action(cx, "workspace.rename.cancel", 0);
+            self.perform_action(cx, "session.rename.cancel", 0);
             true
         } else if screens::sidebar::sort_menu_open() {
             screens::sidebar::close_menu();
@@ -5416,6 +5571,15 @@ impl OctoscodeView {
             let b = self.bridge.lock().unwrap();
             let state = b.store.connection();
             let mut ui = b.screens.lock().unwrap();
+            // The server closed the connection with auth_expired: say so once
+            // (the transport stopped re-dialing; a probe would only repeat the
+            // refused credential).
+            if b.conv.as_ref().is_some_and(|c| c.take_auth_expired()) {
+                ui.note_connect_error(
+                    screens::a9_connect::AUTH_EXPIRED,
+                    &screens::connect::clock_12h(),
+                );
+            }
             let gave_up = state == "Failed"
                 || state
                     .strip_prefix("Reconnecting { attempt: ")
@@ -5660,6 +5824,15 @@ impl OctoscodeView {
         self.composer_seats = Some(want);
         // A13: the room splits by what the two live labels need.
         self.apply_composer_fit(cx);
+    }
+
+    /// #19 — a New chat that kept the empty chat puts the person in its
+    /// composer, the caret after anything already there.
+    fn focus_composer(&mut self, cx: &mut Cx) {
+        let input = self.view.text_input(cx, &[live_id!(composer_splash), live_id!(i0_composer_0)]);
+        input.take_key_focus(cx);
+        let index = input.text().len();
+        input.set_cursor(cx, makepad_widgets::text::selection::Cursor { index, prefer_next_row: false }, false);
     }
 
     /// Give the focus and the caret back to a re-mounted composer once its
@@ -6518,6 +6691,25 @@ impl OctoscodeView {
         // A row's right-click menu is up: the arrows, Return and Escape are the
         // menu's (Escape closes only it); nothing behind it hears them.
         let menu_keys = matches!(event, Event::KeyDown(_) | Event::KeyUp(_)) && makepad_widgets::gesture_view::view_menu_up(cx);
+        // Inspect selection BEFORE TextInput handles Ctrl+X. After a native
+        // cut the selection is empty, which would incorrectly send pending work.
+        if let Event::KeyDown(e) = event {
+            if !menu_keys && e.key_code == KeyCode::KeyX && !e.is_repeat && e.modifiers.control
+                && !e.modifiers.logo && !e.modifiers.alt && !e.modifiers.shift {
+                let input = self.view.text_input(cx, &[live_id!(i0_composer_0)]);
+                let selection = input.selection();
+                let available = {
+                    let b = self.bridge.lock().unwrap();
+                    let u = b.ui.lock().unwrap();
+                    !u.palette_open() && b.conv.as_ref().is_some_and(|c|
+                        b.store.domains.composer.can_send_pending_now(&c.session_id()))
+                };
+                if available && input.key_focus(cx) && selection.anchor == selection.cursor {
+                    self.composer_extra_tap("send_now");
+                    return;
+                }
+            }
+        }
         self.handle_sidebar_resize(cx, event);
         self.view.handle_event(cx, event, scope);
         if menu_keys {
@@ -6969,6 +7161,8 @@ impl OctoscodeView {
                 // Check status / Continue without it.
                 for (id, which) in [
                     (live_id!(queue_steer_hit), "steer"),
+                    (live_id!(queue_send_now_hit), "send_now"),
+                    (live_id!(queue_draft_hit), "queue_draft"),
                     (live_id!(queue_remove_hit), "remove"),
                     (live_id!(recovery_check_hit), "check"),
                     (live_id!(recovery_continue_hit), "continue"),
@@ -7001,7 +7195,7 @@ impl OctoscodeView {
                 }
                 // A4 — the session strip opens the Session settings pane.
                 if self
-                    .view
+                    .strip_row_ref(cx)
                     .button(cx, &[live_id!(strip_splash), live_id!(b3_strip_tap)])
                     .clicked(actions)
                 {
@@ -7381,6 +7575,15 @@ impl OctoscodeView {
             // (:1491-1492). The action button on the single-line composer IS
             // Enter (the web: bare Enter submits, ComposerInput.tsx:237-243).
             // Android-only: desktop submits via KeyDown ReturnKey already.
+            // The chat rename field's Done saves it, as its Return does.
+            #[cfg(target_os = "android")]
+            Event::ImeAction(_) if self.chat_rename_owns_keys() => {
+                let store = { self.bridge.lock().unwrap().store.clone() };
+                let typed = screens::sidebar::chat_title();
+                self.rename_chat(&store, &typed);
+                self.sync_chrome(cx);
+                self.view.redraw(cx);
+            }
             #[cfg(target_os = "android")]
             Event::ImeAction(_) => {
                 // Bind the value FIRST: the tail expression's temporary
@@ -7591,6 +7794,10 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] task detail closed (Escape)");
                 self.perform_action(cx, "cv.detail.close", 0);
             }
+            // A chat rename in its sidebar row owns the keyboard: its field
+            // takes Return (save) and Escape (cancel) itself; no takeover
+            // key, shortcut or composer submit acts behind it.
+            Event::KeyDown(_) if self.chat_rename_owns_keys() => {}
             // A30 — ⌥Y / ⌥N on the sidebar peer dock's focused row (its
             // drawn approval); suppressed in a text field or a dialog.
             Event::KeyDown(e) if self.peer_dock_key(cx, e) => {}
@@ -7760,7 +7967,14 @@ impl OctoscodeView {
                         }
                         open_changed = true;
                     }
-                    KeyAction::ComposerSubmit => {
+                    // Handled before TextInput so selecting and cutting never
+                    // becomes an interrupt after the selection collapses.
+                    KeyAction::SendPendingNow => {}
+                    KeyAction::ComposerSubmit | KeyAction::ComposerQueue => {
+                        let queue_only = action == KeyAction::ComposerQueue;
+                        if queue_only && !self.view.text_input(cx, &[live_id!(i0_composer_0)]).key_focus(cx) {
+                            return;
+                        }
                         // :237-243 — the bare Enter sends the draft (the same
                         // production path the composer's send affordance takes).
                         // A1: and re-follows the latest turn, like the send click.
@@ -7769,7 +7983,8 @@ impl OctoscodeView {
                         match (handle, conv) {
                             (Some(handle), Some(conv)) => {
                                 handle.spawn(async move {
-                                    if let Err(e) = conv.submit_composer().await {
+                                    let result = if queue_only { conv.queue_composer().await } else { conv.submit_composer().await };
+                                    if let Err(e) = result {
                                         makepad_widgets::log!("[octoscode] submit dropped: {e}");
                                         screens::toasts::failed(screens::toasts::Op::Send, &e.to_string());
                                     }

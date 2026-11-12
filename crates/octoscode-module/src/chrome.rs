@@ -494,7 +494,7 @@ script_mod! {
                     width: Fill height: Fill visible: false
                     draw_bg +: {color: #00000000 border_radius: by(8.0, 3.0) border_size: 1.5 border_color: by(#2F6FEB, mac_primary)}
                 }
-                View{
+                sb_r_body := View{
                     width: Fill height: Fill flow: Right spacing: by(6, 6) align: Align{y: 0.5}
                     padding: Inset{left: by(6, 4) right: 8}
                     View{
@@ -543,8 +543,95 @@ script_mod! {
                         sb_r_aside_label := OcMuted{text: "" draw_text +: {text_style +: {font_size: 8.25}}}
                     }
                     sb_r_time := OcMuted{text: "" draw_text +: {color: by(phone_muted, theme.color_text_muted) text_style +: {font_size: by(9.0, 9.0)}}}
+                    // #18 — room for the delete × laid over the row below.
+                    sb_r_del_room := View{width: 18 height: 1 visible: false}
                 }
+                // The row's context menu: a right-click (or a long press)
+                // anywhere on it. It shares the press with the hits above
+                // (`capture_overload`), which act on the primary button only.
+                sb_r_ctx := View{width: Fill height: Fill cursor: by(MouseCursor.Hand, MouseCursor.Default) capture_overload: true}
                 sb_r_open := OcRowHit{}
+                // #18 — the delete ×, ABOVE the row's open hit (later siblings
+                // take the press first); never on the open chat.
+                sb_r_del := View{
+                    width: Fill height: Fill align: Align{x: 1.0 y: 0.5} padding: Inset{right: 4} visible: false
+                    View{
+                        width: 24 height: 24 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        Svg{
+                            width: 10 height: 10 animating: false
+                            draw_svg.svg: file_resource(#(crate::chrome::icon("x")))
+                            draw_svg.preserve_viewbox: true
+                        }
+                        sb_r_del_hit := OcHit{draw_bg.border_radius: 12.0}
+                    }
+                }
+                // #18 — the explicit confirmation in place of the row (and
+                // "Deleting…" while it runs); the title stays so the chat
+                // being deleted is never in doubt. Its left inset is the
+                // body's 6 + the 16 px status box + 6 (a Mac's body 4), so the
+                // title stays put.
+                sb_r_ask := View{
+                    width: Fill height: Fill flow: Right spacing: 4 align: Align{y: 0.5}
+                    padding: Inset{left: by(28, 26) right: 4} visible: false
+                    sb_r_ask_title := OcMuted{
+                        width: Fill text: ""
+                        max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                    }
+                    sb_r_ask_q := OcMedium{text: "Delete?" draw_text +: {text_style +: {font_size: 9.75}}}
+                    sb_r_ask_no_box := View{
+                        width: 56 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        sb_r_ask_no_label := OcLabel{text: "Cancel" draw_text +: {color: #(crate::chrome::ink("link")) text_style +: {font_size: 9.75}}}
+                        sb_r_ask_no := OcHit{}
+                    }
+                    sb_r_ask_yes_box := View{
+                        width: 52 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        sb_r_ask_yes_label := OcMedium{text: "Delete" draw_text +: {color: #(crate::chrome::ink("danger")) text_style +: {font_size: 9.75}}}
+                        sb_r_ask_yes := OcHit{}
+                    }
+                    sb_r_ask_busy := OcMuted{text: "Deleting…" draw_text +: {text_style +: {font_size: 9.0}}}
+                }
+                // Rename: the title becomes a field in place (Return saves;
+                // Escape or a click elsewhere keeps the title). Its text
+                // starts where the title does (28 = the body's 6 + 16 + 6; a
+                // Mac's 26 = 4 + 16 + 6, less the Mac field's 4).
+                sb_r_rename := View{
+                    width: Fill height: Fill align: Align{y: 0.5}
+                    padding: Inset{left: by(21, 22) right: 4} visible: false
+                    sb_r_rename_input := TextInput{
+                        width: Fill height: by(26, 22) text: ""
+                        padding: Inset{left: by(7, 4) right: by(7, 4) top: by(5, 4) bottom: 3} margin: 0
+                        draw_bg.color: by(theme.color_bg_app, mac_field)
+                        draw_bg.color_hover: by(theme.color_bg_app, mac_field)
+                        draw_bg.color_focus: by(theme.color_bg_app, mac_field)
+                        draw_bg.color_down: by(theme.color_bg_app, mac_field)
+                        draw_bg.color_empty: by(theme.color_bg_app, mac_field)
+                        draw_bg.color_disabled: by(theme.color_bg_app, mac_field)
+                        draw_bg.border_radius: by(6.0, 2.0)
+                        draw_bg.border_size: 1.0
+                        draw_bg.border_color: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_2: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_2_hover: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_2_focus: by(#2F6FEB, mac_primary)
+                        draw_bg.border_color_2_down: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_2_empty: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_2_disabled: by(theme.color_outset_1, mac_border)
+                        draw_bg.border_color_hover: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_focus: by(#2F6FEB, mac_primary)
+                        draw_bg.border_color_down: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_empty: by(#2F6FEB, mac_border)
+                        draw_bg.border_color_disabled: by(theme.color_outset_1, mac_border)
+                        draw_text.color: theme.color_fg_app
+                        draw_text.color_hover: theme.color_fg_app
+                        draw_text.color_focus: theme.color_fg_app
+                        draw_text.color_down: theme.color_fg_app
+                        draw_text.color_empty: by(theme.color_text_muted, mac_placeholder)
+                        draw_text.color_empty_hover: by(theme.color_text_muted, mac_placeholder)
+                        draw_text.color_empty_focus: by(theme.color_text_muted, mac_placeholder)
+                        draw_text.color_disabled: by(#8E8E93, mac_muted)
+                        draw_text.text_style: TextStyle{font_family: OcFace400 font_size: by(10.5, 9.75) line_spacing: 1.2}
+                        draw_cursor.color: by(#2F6FEB, mac_primary)
+                    }
+                }
             }
 
             SbNoteTpl := View{
@@ -819,6 +906,25 @@ script_mod! {
             }
         }
         OcRenameInMenu{}
+    }
+
+    // A chat row's context menu (a right-click or a long press on the row):
+    // Rename, and Delete where the row offers it. The host positions it at
+    // the press, in the same full-window layer as the workspace menu. A Mac's
+    // is the workspace menu's material, its rows in the menu's own ink.
+    mod.widgets.OcChatMenu = OcMenuPanel{
+        width: 168 height: Fit flow: Down padding: by(4, 5)
+        draw_bg +: {color: by(theme.color_bg_app, mac_menu) border_radius: by(10.0, 6.0) border_size: by(1.0, 0.65) border_color: by(theme.color_outset_1, mac_menu_edge)}
+        sb_chat_rename_row := View{
+            width: Fill height: by(34, 24) flow: Overlay
+            View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: by(12, 8)} OcLabel{text: "Rename"}}
+            sb_chat_rename := OcHit{}
+        }
+        sb_chat_delete_row := View{
+            width: Fill height: by(34, 24) flow: Overlay
+            View{width: Fill height: Fill align: Align{y: 0.5} padding: Inset{left: by(12, 8)} OcLabel{text: "Delete" draw_text +: {color: by(#(crate::chrome::ink("danger")), theme.color_fg_app)}}}
+            sb_chat_delete := OcHit{}
+        }
     }
 
     // ============================================================ HEADER
@@ -2046,18 +2152,37 @@ impl Section {
     }
 }
 
+/// What the helpers below look a path up in: the module's root view, or
+/// one of its containers (#21: `ChromeRuntime::sync` roots its lookups at
+/// the container that holds them).
+pub trait Find {
+    fn find(&self, cx: &Cx, path: &[LiveId]) -> WidgetRef;
+}
+
+impl Find for View {
+    fn find(&self, cx: &Cx, path: &[LiveId]) -> WidgetRef {
+        self.widget(cx, path)
+    }
+}
+
+impl Find for WidgetRef {
+    fn find(&self, cx: &Cx, path: &[LiveId]) -> WidgetRef {
+        self.widget(cx, path)
+    }
+}
+
 /// Set a widget's visibility by a path.
-pub fn show<W: Widget>(cx: &mut Cx, root: &W, path: &[LiveId], on: bool) {
-    root.widget(cx, path).set_visible(cx, on);
+pub fn show<W: Find>(cx: &mut Cx, root: &W, path: &[LiveId], on: bool) {
+    root.find(cx, path).set_visible(cx, on);
 }
 
 /// Set a label's text by a path.
-pub fn text<W: Widget>(cx: &mut Cx, root: &W, path: &[LiveId], value: &str) {
-    root.widget(cx, path).set_text(cx, value);
+pub fn text<W: Find>(cx: &mut Cx, root: &W, path: &[LiveId], value: &str) {
+    root.find(cx, path).set_text(cx, value);
 }
 
 /// Flip a toggle's four layers.
-pub fn set_toggle<W: Widget>(cx: &mut Cx, root: &W, toggle: LiveId, on: bool) {
+pub fn set_toggle<W: Find>(cx: &mut Cx, root: &W, toggle: LiveId, on: bool) {
     show(cx, root, &[toggle, live_id!(tg_on)], on);
     show(cx, root, &[toggle, live_id!(tg_off)], !on);
     show(cx, root, &[toggle, live_id!(tg_knob_on)], on);
@@ -2093,7 +2218,7 @@ pub fn notify_row(s: &crate::attention::AttentionSettings) -> NotifyRow {
     }
 }
 
-pub fn sync_notify_row<W: Widget>(cx: &mut Cx, view: &W, s: &crate::attention::AttentionSettings) {
+pub fn sync_notify_row<W: Find>(cx: &mut Cx, view: &W, s: &crate::attention::AttentionSettings) {
     let row = notify_row(s);
     show(cx, view, ids!(tg_notify), row.toggle.is_some());
     set_toggle(cx, view, live_id!(tg_notify), row.toggle == Some(true));
@@ -2112,13 +2237,13 @@ pub fn sync_notify_row<W: Widget>(cx: &mut Cx, view: &W, s: &crate::attention::A
 }
 
 /// Flip a radio's two layers.
-pub fn set_radio<W: Widget>(cx: &mut Cx, root: &W, radio: LiveId, on: bool) {
+pub fn set_radio<W: Find>(cx: &mut Cx, root: &W, radio: LiveId, on: bool) {
     show(cx, root, &[radio, live_id!(rd_on)], on);
     show(cx, root, &[radio, live_id!(rd_off)], !on);
 }
 
 /// Label + select a segment of a segmented control.
-pub fn set_segment<W: Widget>(cx: &mut Cx, root: &W, seg: LiveId, label: &str, on: bool) {
+pub fn set_segment<W: Find>(cx: &mut Cx, root: &W, seg: LiveId, label: &str, on: bool) {
     let label = crate::desk::title(label);
     let label: &str = &label;
     text(cx, root, &[seg, live_id!(sg_text_on)], label);
@@ -2225,6 +2350,8 @@ pub struct ChromeRuntime {
     /// That "⋯" button's leading edge, module-local: a Mac's pull-down hangs
     /// from it.
     pub menu_anchor_left: f64,
+    /// The open chat context menu's anchor, module-local (x, y): the press.
+    pub chat_menu_at: Option<(f64, f64)>,
     /// The geometry key last applied (frame margins, drawer width) — the
     /// runtime script-apply runs only when it changes.
     pub applied: String,
@@ -2283,6 +2410,11 @@ pub enum Intent {
     Query(String),
     /// Commit the rename form.
     RenameCommit(String),
+    /// Open the context menu of the chat at store `index`, at the press
+    /// (window coordinates).
+    ChatMenu(usize, (f64, f64)),
+    /// Commit the chat rename field.
+    RenameChat(String),
     /// Close the settings surface.
     CloseSettings,
     /// Open the settings surface.
@@ -2318,6 +2450,12 @@ impl ChromeRuntime {
         // Stop dialog's backdrop "click" again on the next press. A modal
         // surface also swallows everything under it (top-most first).
         let sb = sidebar::snapshot();
+        // A chat rename's field, read before any surface's branch below: a
+        // keystroke or its losing the keys is never dropped behind one.
+        if sb.renaming_chat.is_some() {
+            let list = view.portal_list(cx, ids!(thread_list));
+            out.extend(rename_field_intent(cx, &list, actions));
+        }
         if settings::snapshot().stop_pending {
             // The Stop dialog: ONLY server_stop_confirm sends; Cancel and the
             // backdrop close it with no RPC.
@@ -2329,8 +2467,12 @@ impl ChromeRuntime {
             }
             return out;
         }
-        if sb.menu_for.is_some() || sb.renaming.is_some() || sidebar::sort_menu_open() {
-            if sidebar::sort_menu_open() {
+        // (A chat menu that offers nothing any more is not drawn, so it
+        // holds no clicks either.)
+        let chat_menu = sidebar::chat_menu(store);
+        let sort_open = sidebar::sort_menu_open();
+        if sb.menu_for.is_some() || sb.renaming.is_some() || chat_menu.is_some() || sort_open {
+            if sort_open {
                 use sidebar::Sort;
                 for (hit, sort) in [
                     (live_id!(sb_sort_recent), Sort::Recent),
@@ -2340,6 +2482,38 @@ impl ChromeRuntime {
                     if c(cx, hit) {
                         out.push(Intent::Sort(sort));
                     }
+                }
+            }
+            // A right-click (or a long press) outside the open menu: on a
+            // chat row it opens that row's menu there, anywhere else it
+            // closes the menu; on the menu itself it does nothing.
+            if sb.renaming.is_none() {
+                let shown = if chat_menu.is_some() {
+                    ids!(sb_chat_menu)
+                } else if sort_open {
+                    ids!(sb_sort_menu)
+                } else {
+                    ids!(sb_menu)
+                };
+                let menu = view.widget(cx, shown).area().rect(cx);
+                let list = view.portal_list(cx, ids!(thread_list));
+                let row = sidebar_list_clicks(cx, &list, store, actions).into_iter().find_map(|click| match click {
+                    TreeClick::ChatMenu(i, at) => Some((i, at)),
+                    _ => None,
+                });
+                let elsewhere = row_menu_press(&view.view(cx, ids!(sb_menu_ctx)), actions);
+                if let Some(intent) = open_menu_press(menu, row, elsewhere) {
+                    out.push(intent);
+                    return out;
+                }
+            }
+            if let Some(m) = chat_menu {
+                if m.rename && c(cx, live_id!(sb_chat_rename)) {
+                    out.push(Intent::Action("session.rename", m.index));
+                }
+                // #18's own confirmation, in the row.
+                if m.delete && c(cx, live_id!(sb_chat_delete)) {
+                    out.push(Intent::Action("session.delete", m.index));
                 }
             }
             if let Some((group, _)) = sidebar::menu_for() {
@@ -2560,6 +2734,7 @@ impl ChromeRuntime {
             out.push(match click {
                 TreeClick::Action(a, i) => Intent::Action(a, i),
                 TreeClick::Menu(i, r) => Intent::Menu(i, r),
+                TreeClick::ChatMenu(i, at) => Intent::ChatMenu(i, at),
             });
         }
         out
@@ -2584,17 +2759,30 @@ impl ChromeRuntime {
         self.compact = compact;
         let sb = sidebar::snapshot();
         let st = settings::snapshot();
+        // #21: the lookups below are rooted at the container that holds
+        // them, not at the module root. A remount in the conversation column
+        // (the composer, its seats) drops the path cache of every ancestor
+        // of what it replaced, the root's included, and each of ~200 root
+        // lookups then walked the whole tree (~900 nodes) again: 220k nodes,
+        // ~35 ms per Signal. None of these containers is such an ancestor,
+        // so their caches outlive the remount and only the five lookups that
+        // find them walk.
+        let header = view.widget(cx, ids!(oc_header));
+        let side = view.widget(cx, ids!(sidebar_dock));
+        let menu_dock = view.widget(cx, ids!(sb_menu_dock));
+        let panel = view.widget(cx, ids!(settings_drawer));
+        let stop = view.widget(cx, ids!(stop_dock));
 
         // ---- seats: the sidebar column (desktop) or drawer (compact).
         let drawer = compact && sb.drawer_open && live;
         // A desktop's collapsed sidebar leaves no column at all.
         let no_sidebar = crate::desk::active() && sb.rail && !compact;
         show(cx, view, ids!(sidebar_spacer), !compact && !no_sidebar);
-        show(cx, view, ids!(sidebar_dock), live && (!compact || drawer) && !no_sidebar);
-        show(cx, view, ids!(hd_expand), live && no_sidebar);
+        side.set_visible(cx, live && (!compact || drawer) && !no_sidebar);
+        show(cx, &header, ids!(hd_expand), live && no_sidebar);
         show(cx, view, ids!(drawer_scrim), drawer);
-        show(cx, view, ids!(drawer_close_slot), drawer);
-        show(cx, view, ids!(hd_menu), compact);
+        show(cx, &side, ids!(drawer_close_slot), drawer);
+        show(cx, &header, ids!(hd_menu), compact);
         // The drawer is min(320, w - 48) wide (NavigationSurface.module.css
         // .drawer); the desktop column is resizable, its collapsed rail 56.
         let rail = sb.rail && !compact;
@@ -2606,44 +2794,44 @@ impl ChromeRuntime {
             sidebar::bounded_width(sb.width, window_w.max(compact_max()))
         };
         show(cx, view, ids!(sidebar_resize), live && !compact && !rail && !settings_open);
-        show(cx, view, ids!(oc_sidebar_rail), rail);
-        show(cx, view, ids!(oc_sidebar_body), !rail);
-        show(cx, view, ids!(oc_sidebar_foot), !rail);
-        show(cx, view, ids!(sidebar_header), !rail);
+        show(cx, &side, ids!(oc_sidebar_rail), rail);
+        show(cx, &side, ids!(oc_sidebar_body), !rail);
+        show(cx, &side, ids!(oc_sidebar_foot), !rail);
+        show(cx, &side, ids!(sidebar_header), !rail);
         // Visibility survives a host style reapply, so explicitly follow the
         // current style when a phone becomes a Mac window and vice versa.
-        show(cx, view, ids!(sidebar_brand_icon), !crate::desk::active());
-        show(cx, view, ids!(sidebar_brand_name), !crate::desk::active());
+        show(cx, &side, ids!(sidebar_brand_icon), !crate::desk::active());
+        show(cx, &side, ids!(sidebar_brand_name), !crate::desk::active());
         // The collapsed rail keeps the Fleet entry as its icon only; the web
         // drops the label (ProductSidebar.tsx:980). Left in, it clipped to 3 px.
-        show(cx, view, ids!(fleet_nav_label), !rail);
-        show(cx, view, ids!(fleet_nav_sel), !rail && crate::desk::fleet_is_selected());
-        show(cx, view, ids!(fleet_nav), !crate::desk::hosted());
-        show(cx, view, ids!(history_nav_label), !rail);
+        show(cx, &side, ids!(fleet_nav_label), !rail);
+        show(cx, &side, ids!(fleet_nav_sel), !rail && crate::desk::fleet_is_selected());
+        show(cx, &side, ids!(fleet_nav), !crate::desk::hosted());
+        show(cx, &side, ids!(history_nav_label), !rail);
         // A26 — the footer's theme toggle and Settings: icons only in the
         // rail too (ProductSidebar.tsx:995/1015); the toggle's icon and label
         // follow the appearance preference (System / Light / Dark).
         for entry in [FooterEntry::Theme, FooterEntry::Settings] {
-            show(cx, view, &[LiveId::from_str(entry.label())], !rail);
+            show(cx, &side, &[LiveId::from_str(entry.label())], !rail);
         }
         {
             let pref = crate::screens::theme::selection();
             let on = footer_theme_icon(&pref);
             for layer in ["sb_theme_ic_system", "sb_theme_ic_light", "sb_theme_ic_dark"] {
-                show(cx, view, &[LiveId::from_str(layer)], layer == on);
+                show(cx, &side, &[LiveId::from_str(layer)], layer == on);
             }
             // A24: the footer's words in the current language ("System" is
             // the theme's 跟随系统 here, `i18n::tr_ctx`).
-            text(cx, view, ids!(sb_theme_label), crate::i18n::tr_ctx("theme", theme_label(&pref)));
-            text(cx, view, ids!(sb_settings_label), &crate::desk::title(tr(a26_copy::SETTINGS)));
+            text(cx, &side, ids!(sb_theme_label), crate::i18n::tr_ctx("theme", theme_label(&pref)));
+            text(cx, &side, ids!(sb_settings_label), &crate::desk::title(tr(a26_copy::SETTINGS)));
             // Preferences holds the same choice: a desktop's sidebar keeps its room.
             if crate::desk::active() {
-                show(cx, view, ids!(sb_theme), false);
+                show(cx, &side, ids!(sb_theme), false);
             }
         }
-        show(cx, view, ids!(sidebar_collapse_slot), !compact && !rail);
+        show(cx, &side, ids!(sidebar_collapse_slot), !compact && !rail);
         if crate::screens::sidebar::take_focus_search() {
-            view.widget(cx, ids!(sb_search)).set_key_focus(cx);
+            side.widget(cx, ids!(sb_search)).set_key_focus(cx);
         }
         // Settings: the centred dialog on desktop, a full sheet on compact.
         let (frame_margin, max_w, max_h, radius) = if crate::desk::active() {
@@ -2662,7 +2850,7 @@ impl ChromeRuntime {
         let copy_phase = copy_offered
             .then(|| crate::screens::copy_button::phase(&store.active_session().unwrap_or_default()));
         let copy_pill = copy_phase.map(|p| (tr(p.label()), p != crate::screens::copy_button::Phase::Idle));
-        let tabs_shown = view.widget(cx, ids!(hd_tabs)).visible();
+        let tabs_shown = header.widget(cx, ids!(hd_tabs)).visible();
         let (left_pad, labelled) =
             header_actions_fit(crate::conv_layout::current().pane_w, compact, copy_pill, tabs_shown);
         // What lies left of the toolbar: the lights take their room where no
@@ -2678,14 +2866,14 @@ impl ChromeRuntime {
         let key = format!("{sidebar_w}|{}|{}|{max_w}|{max_h}|{compact}|{copy_offered}|{left_pad}|{bar_lead}", frame_margin.left, frame_margin.top);
         if self.applied != key {
             self.applied = key;
-            let mut col = view.widget(cx, ids!(threads_column));
+            let mut col = side.widget(cx, ids!(threads_column));
             script_apply_eval!(cx, col, { width: #(sidebar_w) });
             // A26 — the footer rows (Fleet, the theme toggle, Settings): in
             // the collapsed rail their icons sit on the rail buttons' centre
             // line (`.collapsed .settings { justify-content: center }`).
             let row_pad = Inset { left: footer_row_inset(rail), right: 0.0, top: 0.0, bottom: 0.0 };
             for row in ["fleet_nav_row", "sb_theme_row", "sb_settings_row"] {
-                let mut r = view.widget(cx, &[LiveId::from_str(row)]);
+                let mut r = side.widget(cx, &[LiveId::from_str(row)]);
                 script_apply_eval!(cx, r, { padding: #(row_pad) });
             }
             // The desktop spacer reserves the column + its 1 px rule.
@@ -2701,7 +2889,7 @@ impl ChromeRuntime {
                 max_width: #(max_w)
                 max_height: #(max_h)
             });
-            let mut panel = view.widget(cx, ids!(settings_drawer));
+            let mut panel = panel.clone();
             script_apply_eval!(cx, panel, { draw_bg +: { border_radius: #(radius) } });
             // Judge fix: on the phone shells a TextInput draws at the touch
             // height (44 px), so inside the desktop's 34 px box its bottom
@@ -2714,12 +2902,12 @@ impl ChromeRuntime {
             } else {
                 34.0
             };
-            let mut search = view.widget(cx, ids!(sb_search_box));
+            let mut search = side.widget(cx, ids!(sb_search_box));
             script_apply_eval!(cx, search, { height: #(search_h) });
             // The header actions' reserve (`header_actions_fit`): labelled
             // pills when the pane holds them beside the tabs and the title,
             // icon-only otherwise (always on compact).
-            let mut left = view.widget(cx, ids!(hd_left));
+            let mut left = header.widget(cx, ids!(hd_left));
             let pad = Inset { left: bar_lead, right: left_pad, top: 0.0, bottom: 0.0 };
             script_apply_eval!(cx, left, { padding: #(pad) });
             // A13 — the web's phone header (`AppProduct.module.css`, max-width
@@ -2729,23 +2917,23 @@ impl ChromeRuntime {
             let (tab, bar) = if compact || !labelled { (4.0, 3.0) } else { (10.0, 9.0) };
             let tab = Inset { left: tab, right: tab, top: 0.0, bottom: 0.0 };
             let bar = Inset { left: bar, right: bar, top: 0.0, bottom: 0.0 };
-            let mut v = view.widget(cx, ids!(hd_tab_chat_pad));
+            let mut v = header.widget(cx, ids!(hd_tab_chat_pad));
             script_apply_eval!(cx, v, { padding: #(tab) });
-            let mut v = view.widget(cx, ids!(hd_tab_traj_pad));
+            let mut v = header.widget(cx, ids!(hd_tab_traj_pad));
             script_apply_eval!(cx, v, { padding: #(tab) });
-            let mut v = view.widget(cx, ids!(hd_tab_chat_barpad));
+            let mut v = header.widget(cx, ids!(hd_tab_chat_barpad));
             script_apply_eval!(cx, v, { padding: #(bar) });
-            let mut v = view.widget(cx, ids!(hd_tab_traj_barpad));
+            let mut v = header.widget(cx, ids!(hd_tab_traj_barpad));
             script_apply_eval!(cx, v, { padding: #(bar) });
         }
-        show(cx, view, ids!(hd_review_label), labelled);
-        show(cx, view, ids!(hd_settings_label), labelled && !crate::desk::active());
+        show(cx, &header, ids!(hd_review_label), labelled);
+        show(cx, &header, ids!(hd_settings_label), labelled && !crate::desk::active());
         // A8: the copy pill's phase label, keyed by the active Session — kept
         // beside the icon while a result shows (icon-only when idle and narrow).
-        show(cx, view, ids!(hd_copy), copy_offered);
+        show(cx, &header, ids!(hd_copy), copy_offered);
         if let Some((label, busy)) = copy_pill {
-            text(cx, view, ids!(hd_copy_label), &crate::desk::title(label));
-            show(cx, view, ids!(hd_copy_label), labelled || busy);
+            text(cx, &header, ids!(hd_copy_label), &crate::desk::title(label));
+            show(cx, &header, ids!(hd_copy_label), labelled || busy);
         }
 
         // ---- header: the active session's title + its workspace path.
@@ -2762,20 +2950,20 @@ impl ChromeRuntime {
             .and_then(|a| store.domains.session.workspace_root(a))
             .or_else(|| std::env::var("OCTOS_WORKSPACE_CWD").ok())
             .unwrap_or_default();
-        text(cx, view, ids!(hd_title), &title);
+        text(cx, &header, ids!(hd_title), &title);
         // n11o (E9 6): a Mac's toolbar names the workspace by its folder, as
         // Finder's and Xcode's windows do; Settings › General has the path.
         if crate::desk::active() {
             // n12g (E10 2): a renamed workspace is called by its new name here
             // too, as its sidebar group is.
             let name = sb.names.get(&root).cloned().unwrap_or_else(|| crate::desk::folder_name(&root));
-            text(cx, view, ids!(hd_path), &name);
+            text(cx, &header, ids!(hd_path), &name);
         } else {
-            text(cx, view, ids!(hd_path), &root);
+            text(cx, &header, ids!(hd_path), &root);
         }
         // An empty path line still takes its height and lifts a lone title
         // above the tabs' centre line; without a path the title centres.
-        show(cx, view, ids!(hd_path), !root.is_empty());
+        show(cx, &header, ids!(hd_path), !root.is_empty());
         // Board 10: the defaults strip shows above an EMPTY conversation —
         // a New chat's (A19b: not a Session whose history is still loading,
         // or could not be read: that one is not empty, its rows are coming).
@@ -2786,26 +2974,26 @@ impl ChromeRuntime {
             && !self.history_unsettled;
         // Nothing on screen, nothing to copy or review, whatever its history is doing.
         self.toolbar_off = crate::desk::active() && live && self.no_rows;
-        show(cx, view, ids!(hd_copy_veil), self.toolbar_off);
-        show(cx, view, ids!(hd_review_veil), self.toolbar_off);
+        show(cx, &header, ids!(hd_copy_veil), self.toolbar_off);
+        show(cx, &header, ids!(hd_review_veil), self.toolbar_off);
         // A desktop's composer names the model and the permissions; Settings has the rest.
         let defaults_strip = live && empty && !crate::desk::active();
-        show(cx, view, ids!(hd_defaults), defaults_strip);
+        show(cx, &header, ids!(hd_defaults), defaults_strip);
         if defaults_strip {
             // A13: on a phone the one line ends at a whole segment, then "…"
             // (the label's own ellipsis stays the safety net). The label's
             // width: the strip's insets (16 + 8), its spacing (8), Change (72).
             let line = settings::defaults_line(store);
             let line = if compact { fit_segments(&line, window_w - 104.0) } else { line };
-            text(cx, view, ids!(hd_defaults_text), &line);
+            text(cx, &header, ids!(hd_defaults_text), &line);
         }
         // Board 12: held by another client.
         let held = held_by_other(store);
-        show(cx, view, ids!(hd_held), live && held.is_some());
+        show(cx, &header, ids!(hd_held), live && held.is_some());
         if let Some(who) = held {
             text(
                 cx,
-                view,
+                &header,
                 ids!(hd_held_text),
                 // A24: the fallback holder name is copy (a driver id is data).
                 &tr_with(
@@ -2817,50 +3005,54 @@ impl ChromeRuntime {
 
         // ---- sidebar controls.
         let grouped = sb.mode == sidebar::Mode::Grouped;
-        set_segment(cx, view, live_id!(sb_seg_ws), tr("By workspace"), grouped);
-        set_segment(cx, view, live_id!(sb_seg_all), tr("All"), !grouped);
+        set_segment(cx, &side, live_id!(sb_seg_ws), tr("By workspace"), grouped);
+        set_segment(cx, &side, live_id!(sb_seg_all), crate::i18n::tr_ctx("sidebar", "All"), !grouped);
         // A Mac's segments fit their words, in every language (the template's
         // widths are the English ones).
         if crate::desk::active() {
             use crate::screens::board3::ui::{text_w, Face};
             let face = |s: &str| (text_w(s, 12.0, Face::Regular) + 16.0).ceil().max(34.0);
-            let key = format!("{}|{}", tr("By workspace"), tr("All"));
+            let all_word = crate::i18n::tr_ctx("sidebar", "All");
+            let key = format!("{}|{}", tr("By workspace"), all_word);
             if self.seg_words != key {
-                let (ws, all) = (face(tr("By workspace")), face(tr("All")));
-                let mut seg = view.widget(cx, ids!(sb_seg_ws));
+                let (ws, all) = (face(tr("By workspace")), face(all_word));
+                let mut seg = side.widget(cx, ids!(sb_seg_ws));
                 script_apply_eval!(cx, seg, { width: #(ws) });
-                let mut seg = view.widget(cx, ids!(sb_seg_all));
+                let mut seg = side.widget(cx, ids!(sb_seg_all));
                 script_apply_eval!(cx, seg, { width: #(all) });
                 self.seg_words = key;
             }
         }
-        text(cx, view, ids!(sb_sort_label), tr(sb.sort.label()));
-        show(cx, view, ids!(sb_search_clear_row), !sb.query.is_empty());
+        text(cx, &side, ids!(sb_sort_label), tr(sb.sort.label()));
+        show(cx, &side, ids!(sb_search_clear_row), !sb.query.is_empty());
         if sb.query.is_empty() {
             // `search.clear` emptied the state: empty the field too.
-            let field = view.text_input(cx, ids!(sb_search));
+            let field = side.text_input(cx, ids!(sb_search));
             if !field.text().is_empty() {
                 field.set_text(cx, "");
             }
         }
         // The workspace menu: anchored at the "⋯", the rename form in place.
+        // A chat's context menu takes the same layer, at the press.
         let menu = sidebar::menu_for();
         let renaming = sidebar::renaming();
         let sort_open = sidebar::sort_menu_open();
-        show(cx, view, ids!(sb_menu_dock), live && (menu.is_some() || renaming.is_some() || sort_open));
-        show(cx, view, ids!(sb_menu), menu.is_some() || (renaming.is_some() && !crate::desk::active()));
-        show(cx, view, ids!(sb_sort_menu), sort_open);
-        show(cx, view, ids!(sb_list_spinner), live && crate::flow::session_list_loading());
+        let chat_menu = sidebar::chat_menu(store);
+        menu_dock.set_visible(cx, live && (menu.is_some() || renaming.is_some() || chat_menu.is_some() || sort_open));
+        show(cx, &menu_dock, ids!(sb_menu), chat_menu.is_none() && (menu.is_some() || (renaming.is_some() && !crate::desk::active())));
+        show(cx, &menu_dock, ids!(sb_chat_menu), chat_menu.is_some());
+        show(cx, &menu_dock, ids!(sb_sort_menu), sort_open);
+        show(cx, &side, ids!(sb_list_spinner), live && crate::flow::session_list_loading());
         if sort_open {
             use sidebar::Sort;
-            show(cx, view, ids!(sb_sort_recent_on), sb.sort == Sort::Recent);
-            show(cx, view, ids!(sb_sort_oldest_on), sb.sort == Sort::Oldest);
-            show(cx, view, ids!(sb_sort_fixed_on), sb.sort == Sort::Fixed);
-            text(cx, view, ids!(sb_sort_recent_word), tr(Sort::Recent.label()));
-            text(cx, view, ids!(sb_sort_oldest_word), tr(Sort::Oldest.label()));
-            text(cx, view, ids!(sb_sort_fixed_word), tr(Sort::Fixed.label()));
+            show(cx, &menu_dock, ids!(sb_sort_recent_on), sb.sort == Sort::Recent);
+            show(cx, &menu_dock, ids!(sb_sort_oldest_on), sb.sort == Sort::Oldest);
+            show(cx, &menu_dock, ids!(sb_sort_fixed_on), sb.sort == Sort::Fixed);
+            text(cx, &menu_dock, ids!(sb_sort_recent_word), tr(Sort::Recent.label()));
+            text(cx, &menu_dock, ids!(sb_sort_oldest_word), tr(Sort::Oldest.label()));
+            text(cx, &menu_dock, ids!(sb_sort_fixed_word), tr(Sort::Fixed.label()));
             // Under its control, its trailing edge on the control's.
-            let r = view.widget(cx, ids!(sb_sort)).area().rect(cx);
+            let r = side.widget(cx, ids!(sb_sort)).area().rect(cx);
             let (ox, oy) = self.origin;
             let at = if crate::desk::active() {
                 // A Mac's pop-up (E7 2): the chosen order's row over the control,
@@ -2871,18 +3063,18 @@ impl ChromeRuntime {
                     Sort::Oldest => 1.0,
                     Sort::Fixed => 2.0,
                 };
-                let words = view.widget(cx, ids!(sb_sort_label)).area().rect(cx);
+                let words = side.widget(cx, ids!(sb_sort_label)).area().rect(cx);
                 let left = (words.pos.x - ox - 29.0).min((window_w - 132.0 - 8.0).max(8.0)).max(8.0);
                 let top = (r.pos.y - oy + r.size.y / 2.0 - (5.0 + 24.0 * k + 12.0)).max(8.0);
                 Inset { left, top, right: 0.0, bottom: 0.0 }
             } else {
                 Inset { left: (r.pos.x - ox + r.size.x - 132.0).max(8.0), top: r.pos.y - oy + r.size.y + 2.0, right: 0.0, bottom: 0.0 }
             };
-            let mut m = view.widget(cx, ids!(sb_sort_menu));
+            let mut m = menu_dock.widget(cx, ids!(sb_sort_menu));
             script_apply_eval!(cx, m, { margin: #(at) });
         }
-        show(cx, view, ids!(sb_menu_items), renaming.is_none());
-        show(cx, view, ids!(sb_rename_form), renaming.is_some());
+        show(cx, &menu_dock, ids!(sb_menu_items), renaming.is_none());
+        show(cx, &menu_dock, ids!(sb_rename_form), renaming.is_some());
         // A Mac renames the row in place (E7 6): the field where the group's name is.
         if crate::desk::active() && renaming.is_some() {
             let group = renaming.as_ref().and_then(|key| sidebar::snapshot().last_groups.iter().position(|g| &g.key == key));
@@ -2897,7 +3089,7 @@ impl ChromeRuntime {
                     bottom: 0.0,
                 };
                 let w = (r.size.x + 4.0).min((window_w - at.left).max(40.0));
-                let mut place = view.widget(cx, ids!(sb_rename_place));
+                let mut place = menu_dock.widget(cx, ids!(sb_rename_place));
                 script_apply_eval!(cx, place, { margin: #(at) width: #(w) });
             }
         }
@@ -2906,9 +3098,20 @@ impl ChromeRuntime {
             // over the content; the phone's lies along the sidebar.
             let lead = if crate::desk::active() { self.menu_anchor_left } else { ax - 200.0 };
             let (mx, my) = (lead.max(8.0).min((window_w - 208.0).max(8.0)), ay + 4.0);
-            let mut m = view.widget(cx, ids!(sb_menu));
+            let mut m = menu_dock.widget(cx, ids!(sb_menu));
             let at = Inset { left: mx, top: my, right: 0.0, bottom: 0.0 };
             script_apply_eval!(cx, m, { margin: #(at) });
+        }
+        if let (Some(m), Some((px, py))) = (chat_menu, self.chat_menu_at) {
+            show(cx, &menu_dock, ids!(sb_chat_rename_row), m.rename);
+            show(cx, &menu_dock, ids!(sb_chat_delete_row), m.delete);
+            // 168 wide, 34 a row + 8: kept inside the window.
+            let h = 34.0 * (m.rename as u8 + m.delete as u8) as f64 + 8.0;
+            let mx = px.min(window_w - 176.0).max(8.0);
+            let my = py.min(window_h - h - 8.0).max(8.0);
+            let mut c = menu_dock.widget(cx, ids!(sb_chat_menu));
+            let at = Inset { left: mx, top: my, right: 0.0, bottom: 0.0 };
+            script_apply_eval!(cx, c, { margin: #(at) });
         }
 
         // ---- Settings.
@@ -2918,125 +3121,125 @@ impl ChromeRuntime {
             let nav = LiveId::from_str(&format!("set_nav_{}", s.id()));
             let rail = LiveId::from_str(&format!("set_rail_{}", s.id()));
             let sec = LiveId::from_str(&format!("sec_{}", s.id()));
-            show(cx, view, &[nav, live_id!(nv_on)], on);
-            show(cx, view, &[rail, live_id!(rl_on)], on);
-            show(cx, view, &[rail, live_id!(rl_on_icon)], on);
-            show(cx, view, &[rail, live_id!(rl_off_icon)], !on);
-            show(cx, view, &[sec], on);
+            show(cx, &panel, &[nav, live_id!(nv_on)], on);
+            show(cx, &panel, &[rail, live_id!(rl_on)], on);
+            show(cx, &panel, &[rail, live_id!(rl_on_icon)], on);
+            show(cx, &panel, &[rail, live_id!(rl_off_icon)], !on);
+            show(cx, &panel, &[sec], on);
             // On the shell's own kernel there is nothing to connect or forget.
             let offered = !(crate::desk::hosted() && s == Section::Connection);
-            show(cx, view, &[nav], offered);
-            show(cx, view, &[rail], offered);
+            show(cx, &panel, &[nav], offered);
+            show(cx, &panel, &[rail], offered);
         }
-        show(cx, view, ids!(set_provider_edit), !crate::desk::hosted());
-        show(cx, view, ids!(set_provider_help), !crate::desk::hosted());
-        show(cx, view, ids!(set_provider_hosted), crate::desk::hosted());
-        show(cx, view, ids!(set_provider_open), crate::desk::hosted());
-        show(cx, view, ids!(set_server_rule), !crate::desk::hosted());
-        show(cx, view, ids!(set_server_row), !crate::desk::hosted());
-        show(cx, view, ids!(set_about_rule), !crate::desk::hosted());
-        show(cx, view, ids!(set_about_server_row), !crate::desk::hosted());
+        show(cx, &panel, ids!(set_provider_edit), !crate::desk::hosted());
+        show(cx, &panel, ids!(set_provider_help), !crate::desk::hosted());
+        show(cx, &panel, ids!(set_provider_hosted), crate::desk::hosted());
+        show(cx, &panel, ids!(set_provider_open), crate::desk::hosted());
+        show(cx, &panel, ids!(set_server_rule), !crate::desk::hosted());
+        show(cx, &panel, ids!(set_server_row), !crate::desk::hosted());
+        show(cx, &panel, ids!(set_about_rule), !crate::desk::hosted());
+        show(cx, &panel, ids!(set_about_server_row), !crate::desk::hosted());
         // A Mac keeps a preference when it changes: there is no button, and words only if that fails.
         let prefs_failed = crate::screens::a9_prefs::snapshot().error.is_some();
-        show(cx, view, ids!(set_footer), st.section == Section::Preferences && (!crate::desk::active() || prefs_failed));
-        show(cx, view, ids!(set_nav), !compact);
-        show(cx, view, ids!(set_rail), compact);
-        show(cx, view, ids!(set_close_slot), !compact);
-        show(cx, view, ids!(set_foot_row), !compact);
-        text(cx, view, ids!(set_done_label), crate::i18n::tr_ctx("button", "Done"));
-        show(cx, view, ids!(prefs_save_slot), st.section == Section::Preferences && !crate::desk::active());
-        text(cx, view, ids!(set_title), tr(st.section.title()));
+        show(cx, &panel, ids!(set_footer), st.section == Section::Preferences && (!crate::desk::active() || prefs_failed));
+        show(cx, &panel, ids!(set_nav), !compact);
+        show(cx, &panel, ids!(set_rail), compact);
+        show(cx, &panel, ids!(set_close_slot), !compact);
+        show(cx, &panel, ids!(set_foot_row), !compact);
+        text(cx, &panel, ids!(set_done_label), crate::i18n::tr_ctx("button", "Done"));
+        show(cx, &panel, ids!(prefs_save_slot), st.section == Section::Preferences && !crate::desk::active());
+        text(cx, &panel, ids!(set_title), tr(st.section.title()));
         // General.
-        sync_notify_row(cx, view, &crate::attention::settings());
+        sync_notify_row(cx, &panel, &crate::attention::settings());
         let endpoint = server_label();
         // A9: the web's five connection states (a9_settings::status_of) with
         // the status dot; the origin on the right.
         {
             use crate::screens::a9_settings::{self as a9s, Dot};
             let status = a9s::status_of(&store.connection(), false);
-            text(cx, view, ids!(set_server_status), tr(status.copy()));
+            text(cx, &panel, ids!(set_server_status), tr(status.copy()));
             let dot = status.dot();
-            show(cx, view, ids!(set_server_dot_ok), dot == Dot::Ok);
-            show(cx, view, ids!(set_server_dot_busy), dot == Dot::Busy);
-            show(cx, view, ids!(set_server_dot_err), dot == Dot::Err);
-            show(cx, view, ids!(set_server_dot_idle), dot == Dot::Idle);
-            text(cx, view, ids!(set_server_value), &server_word());
+            show(cx, &panel, ids!(set_server_dot_ok), dot == Dot::Ok);
+            show(cx, &panel, ids!(set_server_dot_busy), dot == Dot::Busy);
+            show(cx, &panel, ids!(set_server_dot_err), dot == Dot::Err);
+            show(cx, &panel, ids!(set_server_dot_idle), dot == Dot::Idle);
+            text(cx, &panel, ids!(set_server_value), &server_word());
             let rows = a9s::info_rows(store, &store.domains.profile.current().unwrap_or_default());
             let ws = rows.iter().find(|r| r.title == "Current workspace");
             let profile = rows.iter().find(|r| r.title == "Profile");
-            show(cx, view, ids!(set_ws_row), ws.is_some());
+            show(cx, &panel, ids!(set_ws_row), ws.is_some());
             if let Some(r) = ws {
-                text(cx, view, ids!(set_ws_value), &r.value);
+                text(cx, &panel, ids!(set_ws_value), &r.value);
                 // n11o (E9 6): under the person's home a Mac writes `~/…`.
                 if crate::desk::active() {
-                    text(cx, view, ids!(set_ws_path), &crate::desk::home_path(&r.description));
+                    text(cx, &panel, ids!(set_ws_path), &crate::desk::home_path(&r.description));
                 } else {
-                    text(cx, view, ids!(set_ws_path), &r.description);
+                    text(cx, &panel, ids!(set_ws_path), &r.description);
                 }
             }
-            show(cx, view, ids!(set_profile_row), profile.is_some() && !crate::desk::hosted());
+            show(cx, &panel, ids!(set_profile_row), profile.is_some() && !crate::desk::hosted());
             if let Some(r) = profile {
-                text(cx, view, ids!(set_profile_value), &r.value);
+                text(cx, &panel, ids!(set_profile_value), &r.value);
             }
         }
-        show(cx, view, ids!(set_stop_row), settings::can_stop_server(store));
+        show(cx, &panel, ids!(set_stop_row), settings::can_stop_server(store));
         // Permissions. A15: the radio the SERVER's selection matches (none
         // when it matches no preset, e.g. Write · Network allowed), and the
         // readback is what the server reports, not a preset's static copy.
         let preset = st.saving.or_else(|| settings::preset_of(store));
-        set_radio(cx, view, live_id!(pm_ask_radio), preset == Some(settings::Preset::Ask));
-        set_radio(cx, view, live_id!(pm_ws_radio), preset == Some(settings::Preset::Workspace));
-        set_radio(cx, view, live_id!(pm_full_radio), preset == Some(settings::Preset::Full));
-        text(cx, view, ids!(set_perm_readback), &settings::permission_readback(store));
+        set_radio(cx, &panel, live_id!(pm_ask_radio), preset == Some(settings::Preset::Ask));
+        set_radio(cx, &panel, live_id!(pm_ws_radio), preset == Some(settings::Preset::Workspace));
+        set_radio(cx, &panel, live_id!(pm_full_radio), preset == Some(settings::Preset::Full));
+        text(cx, &panel, ids!(set_perm_readback), &settings::permission_readback(store));
         // A desktop's radios always say which is in use.
         let custom = settings::permission_summary(store).filter(|_| crate::desk::active() && preset.is_none());
-        show(cx, view, ids!(perm_custom), custom.is_some());
-        show(cx, view, ids!(set_perm_readback), custom.is_none());
-        set_radio(cx, view, live_id!(pm_custom_radio), custom.is_some());
+        show(cx, &panel, ids!(perm_custom), custom.is_some());
+        show(cx, &panel, ids!(set_perm_readback), custom.is_none());
+        set_radio(cx, &panel, live_id!(pm_custom_radio), custom.is_some());
         if let Some(words) = custom {
-            text(cx, view, ids!(perm_custom_help), &words);
+            text(cx, &panel, ids!(perm_custom_help), &words);
         }
         let state_line = if st.saving.is_some() {
             Some(tr("Saving…").to_owned())
         } else {
             st.last_error.as_ref().map(|e| tr_with("Failed: {value0}", &[("value0", e)]))
         };
-        show(cx, view, ids!(set_perm_state), state_line.is_some());
+        show(cx, &panel, ids!(set_perm_state), state_line.is_some());
         if let Some(line) = state_line {
-            text(cx, view, ids!(set_perm_state), &line);
+            text(cx, &panel, ids!(set_perm_state), &line);
         }
         // Model.
-        text(cx, view, &[live_id!(set_model), live_id!(vb_text)], &settings::model_of(store));
+        text(cx, &panel, &[live_id!(set_model), live_id!(vb_text)], &settings::model_of(store));
         let thinking = settings::thinking_of(store);
         // A24: one control, one language — "Off" / "On" are native-supplement
         // entries, "High" the web's (关 | 开 | 高).
-        set_segment(cx, view, live_id!(th_off), tr("Off"), thinking == settings::Thinking::Off);
-        set_segment(cx, view, live_id!(th_on), tr("On"), thinking == settings::Thinking::On);
-        set_segment(cx, view, live_id!(th_high), tr("High"), thinking == settings::Thinking::High);
-        show(cx, view, ids!(set_models_row), crate::screens::dialog::advertises(store, "profile/llm/list"));
+        set_segment(cx, &panel, live_id!(th_off), tr("Off"), thinking == settings::Thinking::Off);
+        set_segment(cx, &panel, live_id!(th_on), tr("On"), thinking == settings::Thinking::On);
+        set_segment(cx, &panel, live_id!(th_high), tr("High"), thinking == settings::Thinking::High);
+        show(cx, &panel, ids!(set_models_row), crate::screens::dialog::advertises(store, "profile/llm/list"));
         // Capabilities (A36): the rows this server can serve.
         {
             let rows = settings::capability_rows(store);
             let on = |id: &str| rows.contains(&id);
-            show(cx, view, ids!(set_cap_skills_row), on("skills"));
-            show(cx, view, ids!(set_cap_mcp_row), on("mcp"));
-            show(cx, view, ids!(set_cap_rule_mcp), on("skills") && on("mcp"));
-            show(cx, view, ids!(set_cap_tools_row), on("tools"));
-            show(cx, view, ids!(set_cap_rule_tools), on("tools") && (on("skills") || on("mcp")));
+            show(cx, &panel, ids!(set_cap_skills_row), on("skills"));
+            show(cx, &panel, ids!(set_cap_mcp_row), on("mcp"));
+            show(cx, &panel, ids!(set_cap_rule_mcp), on("skills") && on("mcp"));
+            show(cx, &panel, ids!(set_cap_tools_row), on("tools"));
+            show(cx, &panel, ids!(set_cap_rule_tools), on("tools") && (on("skills") || on("mcp")));
             // A36b — Memory, ruled off from whichever row stands above it.
-            show(cx, view, ids!(set_cap_memory_row), on("memory"));
-            show(cx, view, ids!(set_cap_rule_memory), on("memory") && (on("skills") || on("mcp") || on("tools")));
-            show(cx, view, ids!(set_cap_none), rows.is_empty());
+            show(cx, &panel, ids!(set_cap_memory_row), on("memory"));
+            show(cx, &panel, ids!(set_cap_rule_memory), on("memory") && (on("skills") || on("mcp") || on("tools")));
+            show(cx, &panel, ids!(set_cap_none), rows.is_empty());
         }
         // Sandbox (new-chat defaults).
-        set_toggle(cx, view, live_id!(tg_sb_write), st.sandbox.workspace_write);
-        set_toggle(cx, view, live_id!(tg_sb_network), st.sandbox.network);
-        set_toggle(cx, view, live_id!(tg_sb_read), st.sandbox.read_outside);
+        set_toggle(cx, &panel, live_id!(tg_sb_write), st.sandbox.workspace_write);
+        set_toggle(cx, &panel, live_id!(tg_sb_network), st.sandbox.network);
+        set_toggle(cx, &panel, live_id!(tg_sb_read), st.sandbox.read_outside);
         // Connection / About. A Mac names the server as it names a computer; its
         // address is in This Device's Details, opened on purpose.
         text(
             cx,
-            view,
+            &panel,
             ids!(set_conn_value),
             &format!(
                 "{} · {}",
@@ -3049,28 +3252,28 @@ impl ChromeRuntime {
             let prefs = crate::screens::a9_prefs::snapshot();
             // A24: the options are the web's own labels, never translated.
             let zh = prefs.current.language == "zh";
-            set_segment(cx, view, live_id!(lang_en), "English", !zh);
-            set_segment(cx, view, live_id!(lang_zh), "简体中文", zh);
-            set_toggle(cx, view, live_id!(tg_vim), prefs.current.vim_mode);
+            set_segment(cx, &panel, live_id!(lang_en), "English", !zh);
+            set_segment(cx, &panel, live_id!(lang_zh), "简体中文", zh);
+            set_toggle(cx, &panel, live_id!(tg_vim), prefs.current.vim_mode);
             let status = if crate::desk::active() { prefs.error.unwrap_or("") } else { prefs.status() };
-            text(cx, view, ids!(prefs_status), tr(status));
-            show(cx, view, ids!(prefs_status), !crate::desk::active() || !status.is_empty());
+            text(cx, &panel, ids!(prefs_status), tr(status));
+            show(cx, &panel, ids!(prefs_status), !crate::desk::active() || !status.is_empty());
             // A26 — the display palette: the chosen row's radio is on.
-            text(cx, view, ids!(pal_title), tr(a26_copy::PALETTE_TITLE));
-            text(cx, view, ids!(pal_help), &crate::desk::command(a26_copy::PALETTE_HELP, tr(a26_copy::PALETTE_HELP)));
+            text(cx, &panel, ids!(pal_title), tr(a26_copy::PALETTE_TITLE));
+            text(cx, &panel, ids!(pal_help), &crate::desk::command(a26_copy::PALETTE_HELP, tr(a26_copy::PALETTE_HELP)));
             for id in crate::screens::a9_prefs::DISPLAY_THEMES {
                 let row = LiveId::from_str(&format!("pal_{id}"));
                 let on = prefs.current.theme == id;
-                show(cx, view, &[row, live_id!(rd_on)], on);
-                show(cx, view, &[row, live_id!(rd_off)], !on);
-                text(cx, view, &[row, live_id!(pl_title)], crate::i18n::tr_ctx("theme", theme_label(id)));
+                show(cx, &panel, &[row, live_id!(rd_on)], on);
+                show(cx, &panel, &[row, live_id!(rd_off)], !on);
+                text(cx, &panel, &[row, live_id!(pl_title)], crate::i18n::tr_ctx("theme", theme_label(id)));
             }
         }
-        text(cx, view, ids!(set_about_version), &tr_with("Version {version}", &[("version", env!("CARGO_PKG_VERSION"))]));
+        text(cx, &panel, ids!(set_about_version), &tr_with("Version {version}", &[("version", env!("CARGO_PKG_VERSION"))]));
         let methods = store.domains.config.supported_methods().len();
         text(
             cx,
-            view,
+            &panel,
             ids!(set_about_server),
             &if methods > 0 && !crate::desk::active() {
                 tr_with("{server} · {methods} protocol methods advertised", &[("server", &server_label()), ("methods", &methods.to_string())])
@@ -3081,9 +3284,9 @@ impl ChromeRuntime {
         let _ = s_open;
 
         // ---- the Stop dialog.
-        show(cx, view, ids!(stop_dock), live && st.stop_pending);
-        show(cx, view, ids!(stop_error), st.stop_failed);
-        text(cx, view, ids!(stop_confirm_label), &crate::desk::title(tr(if st.stop_busy { "Stopping…" } else { "Stop server" })));
+        stop.set_visible(cx, live && st.stop_pending);
+        show(cx, &stop, ids!(stop_error), st.stop_failed);
+        text(cx, &stop, ids!(stop_confirm_label), &crate::desk::title(tr(if st.stop_busy { "Stopping…" } else { "Stop server" })));
 
         // ---- A24: the static shell's copy in the current language (on the
         // first sync and after every switch; `i18n::tree`).
@@ -3383,7 +3586,7 @@ fn group_name_rect(group: usize) -> Option<Rect> {
 /// the shell's `draw_walk`). One template per row kind, every value from the
 /// projection — nothing measured, nothing hardcoded.
 pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode_store::Store, focus_row: Option<usize>) {
-    use crate::screens::sidebar::{project, now_ms, split_chars, Row, Status};
+    use crate::screens::sidebar::{project, now_ms, split_chars, Row, RowDelete, Status};
     let proj = project(store, now_ms());
     list.set_item_range(cx, 0, proj.rows.len());
     while let Some(id) = list.next_visible_item(cx) {
@@ -3403,8 +3606,46 @@ pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode
                     note_group_name(*group, item.widget(cx, ids!(sb_g_label)).area().rect(cx));
                 }
             }
-            Row::Session { title, time, status, selected, matched, aside, .. } => {
+            Row::Session { title, time, status, selected, matched, aside, delete, renaming, .. } => {
                 let item = list.item(cx, id, id!(SbRowTpl));
+                // #18 — the delete ×, or the confirmation in place of the row.
+                // A rename puts its field in place of both.
+                {
+                    let asking = matches!(delete, RowDelete::Confirming | RowDelete::Deleting) && !*renaming;
+                    let plain = !asking && !*renaming;
+                    item.widget(cx, ids!(sb_r_body)).set_visible(cx, plain);
+                    item.widget(cx, ids!(sb_r_ctx)).set_visible(cx, plain);
+                    item.widget(cx, ids!(sb_r_open)).set_visible(cx, plain);
+                    // A Mac's source list draws no × on its rows: the row's
+                    // context menu holds Delete.
+                    let cross = *delete == RowDelete::Offered && !crate::desk::active();
+                    item.widget(cx, ids!(sb_r_del)).set_visible(cx, plain && cross);
+                    item.widget(cx, ids!(sb_r_del_room)).set_visible(cx, cross);
+                    item.widget(cx, ids!(sb_r_ask)).set_visible(cx, asking);
+                    item.widget(cx, ids!(sb_r_rename)).set_visible(cx, *renaming);
+                    if *renaming {
+                        // The field follows the rename's own text (a row
+                        // redrawn into another item keeps what was typed).
+                        let typed = crate::screens::sidebar::chat_title();
+                        let field = item.text_input(cx, ids!(sb_r_rename_input));
+                        if field.text() != typed {
+                            field.set_text(cx, &typed);
+                        }
+                    }
+                    if asking {
+                        let busy = *delete == RowDelete::Deleting;
+                        item.label(cx, ids!(sb_r_ask_title)).set_text(cx, title);
+                        item.widget(cx, ids!(sb_r_ask_q)).set_visible(cx, !busy);
+                        item.widget(cx, ids!(sb_r_ask_no_box)).set_visible(cx, !busy);
+                        item.widget(cx, ids!(sb_r_ask_yes_box)).set_visible(cx, !busy);
+                        item.widget(cx, ids!(sb_r_ask_busy)).set_visible(cx, busy);
+                        // A24: a list row is drawn from data (the static pass skips lists).
+                        item.label(cx, ids!(sb_r_ask_q)).set_text(cx, tr("Delete?"));
+                        item.label(cx, ids!(sb_r_ask_no_label)).set_text(cx, tr("Cancel"));
+                        item.label(cx, ids!(sb_r_ask_yes_label)).set_text(cx, tr("Delete"));
+                        item.label(cx, ids!(sb_r_ask_busy)).set_text(cx, tr("Deleting…"));
+                    }
+                }
                 // A29 — the aside marker (`screens::sidebar` sets it only on
                 // a Session that is not on screen).
                 {
@@ -3448,6 +3689,21 @@ pub fn draw_sidebar_list(cx: &mut Cx2d, list: &mut PortalList, store: &octoscode
                 }
                 item.label(cx, ids!(sb_r_time)).set_text(cx, time);
                 item.draw_all_unscoped(cx);
+                // A rename just started: the field takes the keys, its text
+                // selected (typing replaces the title). A row redrawn into
+                // another item hands them to that item's field.
+                if *renaming {
+                    let started = crate::screens::sidebar::take_focus_chat_title();
+                    if started || crate::screens::sidebar::chat_title_item() != Some(id) {
+                        crate::screens::sidebar::set_chat_title_item(id);
+                        item.widget(cx, ids!(sb_r_rename_input)).set_key_focus(cx);
+                    }
+                    if started {
+                        if let Some(mut f) = item.text_input(cx, ids!(sb_r_rename_input)).borrow_mut() {
+                            f.select_all(cx);
+                        };
+                    }
+                }
             }
             Row::Note(text) => {
                 let item = list.item(cx, id, id!(SbNoteTpl));
@@ -3476,11 +3732,15 @@ pub enum TreeClick {
     Action(&'static str, usize),
     /// The "⋯" of group `index`, with the button's rect (the menu anchors to it).
     Menu(usize, Rect),
+    /// A right-click (or a long press) on the chat at store `index`, at
+    /// the press (window coordinates).
+    ChatMenu(usize, (f64, f64)),
 }
 
 /// Route the tree's row clicks: group header -> `workspace.toggle`, "⋯" ->
-/// `workspace.menu`, session row -> `session.open` with its STORE index,
-/// "Clear search" -> `search.clear`.
+/// `workspace.menu`, session row -> `session.open` with its STORE index (its
+/// × / confirmation -> `session.delete[.cancel|.confirm]`), "Clear search" ->
+/// `search.clear`.
 pub fn sidebar_list_clicks(cx: &mut Cx, list: &PortalListRef, store: &octoscode_store::Store, actions: &Actions) -> Vec<TreeClick> {
     use crate::screens::sidebar::{project, now_ms, Row};
     let mut out = Vec::new();
@@ -3504,8 +3764,24 @@ pub fn sidebar_list_clicks(cx: &mut Cx, list: &PortalListRef, store: &octoscode_
                     out.push(TreeClick::Action("workspace.toggle", *group));
                 }
             }
-            Row::Session { store_index, .. } => {
-                if item.button(cx, ids!(sb_r_open)).clicked(actions) {
+            Row::Session { store_index, renaming, .. } => {
+                // The rename field is read by `rename_field_intent`.
+                if *renaming {
+                    continue;
+                }
+                // The context menu: a secondary press, or a long press (touch).
+                if let Some(at) = row_menu_press(&item.view(cx, ids!(sb_r_ctx)), actions) {
+                    out.push(TreeClick::ChatMenu(*store_index, at));
+                    continue;
+                }
+                // #18 — the × and the confirmation sit above the open hit.
+                if item.button(cx, ids!(sb_r_del_hit)).clicked(actions) {
+                    out.push(TreeClick::Action("session.delete", *store_index));
+                } else if item.button(cx, ids!(sb_r_ask_no)).clicked(actions) {
+                    out.push(TreeClick::Action("session.delete.cancel", *store_index));
+                } else if item.button(cx, ids!(sb_r_ask_yes)).clicked(actions) {
+                    out.push(TreeClick::Action("session.delete.confirm", *store_index));
+                } else if item.button(cx, ids!(sb_r_open)).clicked(actions) {
                     out.push(TreeClick::Action("session.open", *store_index));
                 }
             }
@@ -3518,6 +3794,53 @@ pub fn sidebar_list_clicks(cx: &mut Cx, list: &PortalListRef, store: &octoscode_
         }
     }
     out
+}
+
+/// The chat rename field in its row: its live text is mirrored into the
+/// sidebar state (a row redrawn into another item keeps it); Return saves;
+/// Escape or the field losing the keys (a click elsewhere) keeps the title.
+///
+/// Only the item holding the keys counts: a field the row left (redrawn
+/// into another item) losing them is the hand-over, not a cancel.
+fn rename_field_intent(cx: &mut Cx, list: &PortalListRef, actions: &Actions) -> Option<Intent> {
+    use crate::screens::sidebar;
+    let at = sidebar::chat_title_item()?;
+    let (_, item) = list.items_with_actions(actions).into_iter().find(|(i, _)| *i == at)?;
+    let field = item.text_input(cx, ids!(sb_r_rename_input));
+    if let Some(t) = field.changed(actions) {
+        sidebar::set_chat_title(&t);
+    }
+    if let Some((t, _)) = field.returned(actions) {
+        return Some(Intent::RenameChat(t));
+    }
+    if field.escaped(actions) || field.key_focus_lost(actions) {
+        return Some(Intent::Action("session.rename.cancel", 0));
+    }
+    None
+}
+
+/// What a right-click (or a long press) does while a menu is open: on a
+/// chat row outside the menu it opens that row's menu there, anywhere else
+/// outside the menu it closes it, on the menu itself nothing. `row` is a
+/// chat row's press, `elsewhere` the menu layer's (window coordinates).
+fn open_menu_press(menu: Rect, row: Option<(usize, (f64, f64))>, elsewhere: Option<(f64, f64)>) -> Option<Intent> {
+    let outside = |at: (f64, f64)| !menu.contains(dvec2(at.0, at.1));
+    match row {
+        Some((i, at)) if outside(at) => Some(Intent::ChatMenu(i, at)),
+        _ => elsewhere.filter(|at| outside(*at)).map(|_| Intent::CloseMenu),
+    }
+}
+
+/// Where a chat row's context menu was asked for: a press of the secondary
+/// mouse button, or a long press (touch has no right button).
+fn row_menu_press(ctx: &ViewRef, actions: &Actions) -> Option<(f64, f64)> {
+    actions.filter_widget_actions_cast::<ViewAction>(ctx.widget_uid()).find_map(|a| match a {
+        ViewAction::FingerDown(e) if e.device.mouse_button().is_some_and(|b| b.contains(MouseButton::SECONDARY)) => {
+            Some((e.abs.x, e.abs.y))
+        }
+        ViewAction::FingerLongPress(e) => Some((e.abs.x, e.abs.y)),
+        _ => None,
+    })
 }
 
 /// The board-2 capture fixture (`OCTOSCODE_BOARD2_SEED`, the
@@ -3704,5 +4027,19 @@ mod tests {
                 assert!(f.is_file(), "missing icon {}", f.display());
             }
         }
+    }
+
+    /// A right-click while a menu is open: another chat row's menu opens at
+    /// the press, anywhere else outside the menu closes it, and the menu
+    /// itself (a row drawn under it included) ignores it.
+    #[test]
+    fn a_right_click_outside_the_open_menu_moves_or_closes_it() {
+        let menu = Rect { pos: dvec2(140.0, 320.0), size: dvec2(168.0, 76.0) };
+        let on_menu = (200.0, 350.0);
+        assert_eq!(open_menu_press(menu, Some((2, (120.0, 360.0))), Some((120.0, 360.0))), Some(Intent::ChatMenu(2, (120.0, 360.0))));
+        assert_eq!(open_menu_press(menu, None, Some((700.0, 400.0))), Some(Intent::CloseMenu));
+        assert_eq!(open_menu_press(menu, Some((1, on_menu)), Some(on_menu)), None);
+        assert_eq!(open_menu_press(menu, None, Some(on_menu)), None);
+        assert_eq!(open_menu_press(menu, None, None), None);
     }
 }

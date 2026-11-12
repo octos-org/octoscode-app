@@ -326,12 +326,20 @@ struct SessionTurns {
     /// Hydrate's server foreground turn: (id, interrupting).
     hydrated_active: Option<(String, bool)>,
     timed_out_start: Option<String>,
-    steering_enabled: bool,
+    steering_disabled: bool,
     steer_in_flight: bool,
     steer_unknown: bool,
     terminal_receipts: VecDeque<String>,
     steer_admitted: HashSet<String>,
     retained_steers: Vec<RetainedSteer>,
+}
+
+fn can_send_pending_now(st: &SessionTurns) -> bool {
+    let Some(active) = &st.queue.active else { return false };
+    st.attempted.contains(&active.turn_id) && st.dispatching.is_none()
+        && st.interrupting.is_none() && st.recovery.is_none()
+        && !st.steer_in_flight && !st.steer_unknown
+        && (!st.queue.pending.is_empty() || st.retained_steers.iter().any(|s| s.sent && s.owner_turn_id == active.turn_id))
 }
 
 impl SessionTurns {
@@ -383,7 +391,7 @@ impl Composer {
     }
 
     pub fn steering_enabled(&self, session: &str) -> bool {
-        self.read(session, |st, _| st.is_some_and(|s| s.steering_enabled))
+        self.read(session, |st, _| st.is_none_or(|s| !s.steering_disabled))
     }
 
     pub fn dispatching_turn(&self, session: &str) -> Option<String> {
@@ -439,6 +447,24 @@ impl Composer {
         })
     }
 
+    /// Interrupt only an accepted turn with known pending input. Accepted
+    /// steers are resent solely when returned by turn/steer_dropped.
+    pub fn can_send_pending_now(&self, session: &str) -> bool {
+        self.read(session, |st, _| st.is_some_and(can_send_pending_now))
+    }
+
+    pub fn begin_send_pending_now(&self, session: &str, turn_id: &str) -> bool {
+        self.with(session, |st, _| {
+            if !can_send_pending_now(st) || st.queue.active.as_ref().map(|t| t.turn_id.as_str()) != Some(turn_id) {
+                return false;
+            }
+            // Unlike Stop, do not restore the old prompt into the user's draft.
+            st.queue.take_interrupt_prompt(turn_id);
+            st.interrupting = Some(turn_id.to_owned());
+            true
+        })
+    }
+
     pub fn generation(&self) -> u64 {
         *self.generation.lock().unwrap()
     }
@@ -457,7 +483,7 @@ impl Composer {
     pub fn submit(&self, session: &str, turn: PromptTurn) -> Submit {
         self.with(session, |st, _| {
             let active = st.queue.active.clone();
-            let steerable = st.steering_enabled
+            let steerable = !st.steering_disabled
                 && st.recovery.is_none()
                 && active.as_ref().is_some_and(|a| st.attempted.contains(&a.turn_id))
                 && st.dispatching.is_none()
@@ -466,7 +492,7 @@ impl Composer {
                 && !st.steer_in_flight
                 && !st.steer_unknown
                 && turn.media.is_empty()
-                && turn.reasoning_effort.is_none();
+                && active.as_ref().is_some_and(|a| a.reasoning_effort == turn.reasoning_effort);
             if !steerable {
                 return enqueue_inner(st, turn);
             }
@@ -484,7 +510,7 @@ impl Composer {
 
     /// "Steer now" on the queued chip (conversation-08 board: `1 queued ·
     /// Steer now · ✕`): take the queue's head and steer it into the accepted
-    /// active turn, the explicit form of the web's steering opt-in.
+    /// active turn, explicitly steering a prompt previously queued for later.
     pub fn steer_head(&self, session: &str) -> Submit {
         self.with(session, |st, _| {
             let Some(active) = st.queue.active.clone() else { return Submit::Refused };
@@ -499,8 +525,8 @@ impl Composer {
                 return Submit::Refused;
             }
             let head = st.queue.pending.pop_front().expect("non-empty");
-            if !head.media.is_empty() {
-                // Media cannot ride a steer: keep it queued.
+            if !head.media.is_empty() || head.reasoning_effort != active.reasoning_effort {
+                // Media and changed effort cannot ride a steer: keep it queued.
                 st.queue.pending.push_front(head);
                 return Submit::Refused;
             }
@@ -516,7 +542,7 @@ impl Composer {
 
     /// `setSteeringEnabled` (`/steer [on|off]`, `intent.ts:96-108`).
     pub fn set_steering(&self, session: &str, enabled: bool) {
-        self.with(session, |st, _| st.steering_enabled = enabled);
+        self.with(session, |st, _| st.steering_disabled = !enabled);
     }
 
     // ------------------------------------------------------- dispatch
@@ -1397,18 +1423,77 @@ mod tests {
         assert_eq!(c.ownership("s"), Ownership::LocalOwner);
     }
 
+    #[test]
+    fn unchanged_thinking_effort_can_steer_but_a_new_effort_queues() {
+        let c = Composer::default();
+        let mut owner = t("owner");
+        owner.reasoning_effort = Some("high".into());
+        c.enqueue("s", owner);
+        c.begin_dispatch("s", "owner");
+        c.finish_dispatch("s", "owner", StartOutcome::Accepted);
+        let mut correction = t("correction");
+        correction.reasoning_effort = Some("high".into());
+        assert!(matches!(c.submit("s", correction), Submit::Steer { .. }));
+        c.steer_sent("s", "correction");
+        c.finish_steer("s", "correction", Ok(("owner".into(), true)));
+        let mut changed = t("next");
+        changed.reasoning_effort = Some("low".into());
+        assert!(matches!(c.submit("s", changed), Submit::Queued(_)));
+    }
+
+    #[test]
+    fn send_pending_now_waits_for_terminal_without_restoring_original_prompt() {
+        let c = Composer::default();
+        c.enqueue("s", t("owner"));
+        c.enqueue("s", t("next"));
+        assert!(!c.can_send_pending_now("s"));
+        c.begin_dispatch("s", "owner");
+        assert!(!c.can_send_pending_now("s"));
+        c.finish_dispatch("s", "owner", StartOutcome::Accepted);
+        assert!(!c.begin_send_pending_now("other", "owner"));
+        assert!(!c.begin_send_pending_now("s", "wrong"));
+        assert!(c.begin_send_pending_now("s", "owner"));
+        assert!(!c.begin_send_pending_now("s", "owner"));
+        assert_eq!(c.snapshot("s").active.unwrap().turn_id, "owner");
+        let fx = c.settle("s", "owner", false);
+        assert_eq!(fx.start.unwrap().turn_id, "next");
+        assert!(fx.restore.is_none());
+    }
+
+    #[test]
+    fn send_pending_now_replays_only_returned_steers() {
+        for returned in [true, false] {
+            let c = Composer::default();
+            c.enqueue("s", t("owner"));
+            c.begin_dispatch("s", "owner");
+            c.finish_dispatch("s", "owner", StartOutcome::Accepted);
+            assert!(matches!(c.submit("s", t("correction")), Submit::Steer { .. }));
+            assert!(!c.can_send_pending_now("s"));
+            c.steer_sent("s", "correction");
+            c.finish_steer("s", "correction", Ok(("owner".into(), true)));
+            assert!(c.begin_send_pending_now("s", "owner"));
+            if returned {
+                c.steer_dropped("s", "owner", &["correction".into()]);
+                c.steer_dropped("s", "owner", &["correction".into()]);
+            }
+            let fx = c.settle("s", "owner", false);
+            assert_eq!(fx.start.map(|t| t.turn_id), returned.then(|| "correction".into()));
+            assert!(fx.restore.is_none());
+        }
+    }
+
     // ---- turn-steering.test.ts:95 / :107 / :141 / :160
     #[test]
-    fn steering_defaults_off_and_steers_into_the_accepted_owner_when_on() {
+    fn steering_defaults_on_but_waits_for_the_accepted_owner() {
         let c = Composer::default();
         c.enqueue("s", t("owner"));
         assert!(matches!(c.submit("s", t("early")), Submit::Queued(_)), "queues before ACK");
         c.remove_pending("s", "early");
         c.begin_dispatch("s", "owner");
-        assert!(matches!(c.submit("s", t("x")), Submit::Queued(_)), "steering is opt-in");
+        assert!(matches!(c.submit("s", t("x")), Submit::Queued(_)), "start still awaits ACK");
         c.remove_pending("s", "x");
         c.finish_dispatch("s", "owner", StartOutcome::Accepted);
-        c.set_steering("s", true);
+        assert!(c.steering_enabled("s"));
         match c.submit("s", t("steer me")) {
             Submit::Steer { expected_turn_id, turn } => {
                 assert_eq!(expected_turn_id, "owner");

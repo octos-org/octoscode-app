@@ -233,3 +233,13 @@ fn the_conversation_tables_keep_their_pinned_shapes() {
     assert_eq!(octoscode_module::bindings::ACTIONS.len(), 9);
     assert_eq!(octoscode_module::actions::unrouted(), vec!["answer.expand"]);
 }
+
+#[test]
+fn ctrl_x_sends_pending_and_tab_queues_only_in_an_active_conversation() {
+    assert_eq!(keys::resolve(KeyCode::KeyX, false, true, false, false, false, false, None, true, true), KeyAction::SendPendingNow);
+    assert_eq!(keys::resolve(KeyCode::KeyX, false, true, false, false, true, false, None, true, true), KeyAction::Ignore);
+    assert_eq!(r(KeyCode::KeyX, false, true, false, false), KeyAction::Ignore);
+    assert_eq!(r(KeyCode::KeyX, false, false, false, true), KeyAction::Ignore);
+    assert_eq!(keys::resolve(KeyCode::Tab, false, false, false, false, false, false, None, true, false), KeyAction::ComposerQueue);
+    assert_eq!(keys::resolve(KeyCode::Tab, false, false, false, false, false, false, None, true, true), KeyAction::Ignore);
+}

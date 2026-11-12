@@ -831,6 +831,14 @@ pub struct Conversation {
     /// A12 — the outage's attempt count before the current transport
     /// started (each transport counts its own re-dials from 1).
     attempt_base: Mutex<u32>,
+    /// The server closed the socket with `auth_expired`
+    /// ([`TransportEvent::AuthExpired`]): the transport stopped, and nothing
+    /// re-dials with the refused credential. The Connect card reads it once
+    /// ([`Conversation::take_auth_expired`]).
+    auth_expired: std::sync::atomic::AtomicBool,
+    /// Whether the Connect card already reported `auth_expired` (a separate
+    /// flag: the link's no-re-dial decision must keep reading the first).
+    auth_expired_reported: std::sync::atomic::AtomicBool,
     /// A15 — the last turn edge (`<turn>:start|end`) that re-listed the
     /// catalog (a turn's end arrives both bare and as an envelope).
     catalog_edge: Mutex<Option<String>>,
@@ -992,6 +1000,50 @@ pub fn is_live_turn(store: &Store, ui: &FlowUi, session: &str, turn: &str) -> bo
         || (store.domains.turn.is_in_flight(turn) && store.domains.turn.owner(turn).as_deref() == Some(session))
 }
 
+/// #19 — where a **New chat** was asked for: the sidebar's New chat (any
+/// workspace), or a workspace's "New chat here" / the picker (that folder;
+/// `None` = the server's default, the sidebar's path-less group).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NewChatScope<'a> {
+    Any,
+    Workspace(Option<&'a str>),
+}
+
+/// #19 — what a New chat reads of the active chat ([`keeps_empty_chat`]).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ActiveChat {
+    /// This connection minted it (`new_chat`): the server held no turn of it
+    /// before this client created it.
+    pub minted_here: bool,
+    /// Its open was accepted (its history read committed: a record) or is
+    /// still going out; a refused open is not.
+    pub open_live: bool,
+    /// Nothing in its transcript: no prompt, answer, tool row or notice.
+    pub transcript_empty: bool,
+    /// A turn is queued, starting or running in it.
+    pub turn_pending: bool,
+    /// The composer holds unsent text, images or a returned prompt for it.
+    pub draft: bool,
+    /// The workspace the server opened it in.
+    pub workspace_root: Option<String>,
+}
+
+/// #19 — a New chat keeps the active chat (focus stays on it) instead of
+/// minting another only when nothing was ever said in it — a chat this
+/// client created, accepted by the server, with no turn and no draft — and,
+/// for a workspace's New chat, only when it is that workspace's.
+pub fn keeps_empty_chat(chat: &ActiveChat, scope: NewChatScope<'_>) -> bool {
+    let empty = chat.minted_here && chat.open_live && chat.transcript_empty && !chat.turn_pending && !chat.draft;
+    let same_place = match scope {
+        NewChatScope::Any => true,
+        NewChatScope::Workspace(path) => {
+            let norm = |p: &str| p.trim_end_matches('/').to_owned();
+            chat.workspace_root.as_deref().map(norm) == path.map(norm)
+        }
+    };
+    empty && same_place
+}
+
 /// A4 — the HTTP origin for the media endpoints (`media.ts:14-35`): `ws` ->
 /// `http`, `wss` -> `https`, no query, and a socket path
 /// (`…/api/ui-protocol/ws`) or `/` reduced to the origin prefix; no trailing
@@ -1017,6 +1069,18 @@ pub fn http_base_of(base: &str) -> String {
     u.to_string().trim_end_matches('/').to_owned()
 }
 
+/// What a solo login ([`Conversation::solo_login`]) answered.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SoloLogin {
+    /// A session token for the local solo owner, and the owner's user id.
+    Session { token: String, user: String },
+    /// A `--solo` server with no local profile yet: nothing to log in to.
+    NoProfile,
+    /// No solo login here: not a loopback address, not a `--solo` server,
+    /// unreachable, or a malformed answer.
+    Unavailable,
+}
+
 impl Conversation {
     /// Build a conversation and spawn its transport. `waker` wakes the UI
     /// thread (makepad's `SignalToUI`) after each event is queued.
@@ -1036,27 +1100,13 @@ impl Conversation {
     /// chain still guards the session.
     pub async fn discover_solo_profile(base: &str) -> Option<String> {
         // Step 1: the solo login (anonymous) mints an admin session token.
-        let url = format!("{}/api/auth/solo", base.trim_end_matches('/'));
-        let call = reqwest::Client::new()
-            .post(&url)
-            .json(&serde_json::json!({}))
-            .send();
-        let resp = tokio::time::timeout(std::time::Duration::from_secs(15), call)
-            .await
-            .ok()?
-            .ok()?;
-        let body: serde_json::Value = tokio::time::timeout(
-            std::time::Duration::from_secs(15),
-            resp.json(),
-        )
-        .await
-        .ok()?
-        .ok()?;
-        let token = body.get("token")?.as_str()?.to_owned();
-        let solo_id = body.get("user")?.get("id")?.as_str()?.to_owned();
-        if solo_id.is_empty() {
+        let SoloLogin::Session {
+            token,
+            user: solo_id,
+        } = Self::solo_login(base).await
+        else {
             return None;
-        }
+        };
         // Step 2 (the outer loop's device finding): an EXISTING profile can
         // still have NO runtime — turn/start dies with -32603 "No
         // ProfileRuntime registered" (the device: 'octoscode-desktop' had no
@@ -1091,6 +1141,49 @@ impl Conversation {
             }
         }
         Some(solo_id)
+    }
+
+    /// The solo login (`POST api/auth/solo`): an anonymous login an
+    /// `octos serve --solo` answers for loopback requests only, with a
+    /// session token and its local user. A non-loopback address is never
+    /// asked (the server would refuse it, and an unreachable host would hold
+    /// the connect until the timeout). The token is a credential: never
+    /// logged.
+    pub async fn solo_login(base: &str) -> SoloLogin {
+        let base = http_base_of(base);
+        if octoscode_client::pairing::loopback_origin(&base).is_none() {
+            return SoloLogin::Unavailable;
+        }
+        let call = reqwest::Client::new()
+            .post(format!("{base}/api/auth/solo"))
+            .json(&serde_json::json!({}))
+            .send();
+        let Ok(Ok(resp)) = tokio::time::timeout(std::time::Duration::from_secs(15), call).await
+        else {
+            return SoloLogin::Unavailable;
+        };
+        // octos-cli `solo_auth.rs`: a `--solo` server with no local owner yet
+        // answers 404 (the web's login page then shows its create form).
+        if resp.status() == reqwest::StatusCode::NOT_FOUND {
+            return SoloLogin::NoProfile;
+        }
+        let body = tokio::time::timeout(
+            std::time::Duration::from_secs(15),
+            resp.json::<serde_json::Value>(),
+        )
+        .await;
+        let Ok(Ok(body)) = body else {
+            return SoloLogin::Unavailable;
+        };
+        let field = |v: Option<&serde_json::Value>| {
+            v.and_then(|v| v.as_str()).unwrap_or_default().to_owned()
+        };
+        let token = field(body.get("token"));
+        let user = field(body.get("user").and_then(|u| u.get("id")));
+        if token.is_empty() || user.is_empty() {
+            return SoloLogin::Unavailable;
+        }
+        SoloLogin::Session { token, user }
     }
 
     pub fn connect(
@@ -1172,6 +1265,9 @@ impl Conversation {
         profile: &str,
     ) -> (Self, tokio::sync::mpsc::Receiver<TransportEvent>) {
         let store = Arc::new(Store::new());
+        if base == HOST_ORIGIN {
+            store.connection.set_hosted();
+        }
         let mut registry = Registry::new();
         octoscode_client::domains::register_all(&mut registry, store.clone());
         let trace = TraceSink::new();
@@ -1223,6 +1319,8 @@ impl Conversation {
                 transport_suspended: Mutex::new(false),
                 link,
                 attempt_base: Mutex::new(0),
+                auth_expired: std::sync::atomic::AtomicBool::new(false),
+                auth_expired_reported: std::sync::atomic::AtomicBool::new(false),
                 catalog_edge: Mutex::new(None),
                 remember_opens: Mutex::new(false),
                 open_watch: Mutex::new(None),
@@ -2483,6 +2581,17 @@ impl Conversation {
     /// when `turn_id` is a live turn OF `session` ([`is_live_turn`]); on a
     /// mismatch nothing is sent — a Stop never reaches another Session's turn.
     pub async fn interrupt_in(&self, session: &str, turn_id: &str) -> Result<serde_json::Value, ClientError> {
+        self.interrupt_with_delivery(session, turn_id, false).await
+    }
+
+    pub async fn send_pending_now_in(&self, session: &str) -> Result<serde_json::Value, ClientError> {
+        let Some(active) = self.store.domains.composer.snapshot(session).active else {
+            return Ok(serde_json::Value::Null);
+        };
+        self.interrupt_with_delivery(session, &active.turn_id, true).await
+    }
+
+    async fn interrupt_with_delivery(&self, session: &str, turn_id: &str, send_pending: bool) -> Result<serde_json::Value, ClientError> {
         if !self.is_live_turn_of(session, turn_id) {
             makepad_widgets::log!(
                 "[octoscode] turn/interrupt not sent: {turn_id} is not a live turn of {session}"
@@ -2497,6 +2606,9 @@ impl Conversation {
         let session = session.to_owned();
         let composer = &self.store.domains.composer;
         let known = composer.snapshot(&session).active.map(|a| a.turn_id).as_deref() == Some(turn_id);
+        if send_pending && !known {
+            return Ok(serde_json::Value::Null);
+        }
         if known {
             if composer.dispatching_turn(&session).as_deref() == Some(turn_id) {
                 self.store.domains.session.timeline.upsert_notice(
@@ -2510,7 +2622,12 @@ impl Conversation {
                 makepad_widgets::SignalToUI::set_ui_signal();
                 return Ok(serde_json::Value::Null);
             }
-            if !composer.begin_interrupt(&session, turn_id) {
+            let admitted = if send_pending {
+                composer.begin_send_pending_now(&session, turn_id)
+            } else {
+                composer.begin_interrupt(&session, turn_id)
+            };
+            if !admitted {
                 return Ok(serde_json::Value::Null);
             }
         }
@@ -2689,6 +2806,42 @@ impl Conversation {
             .any(|f| f == crate::screens::session_defaults::SANDBOX_FEATURE);
         let sandbox = crate::screens::session_defaults::open_sandbox(&defaults.value, advertised);
         self.open_workspace_with(&id, cwd, sandbox).await
+    }
+
+    /// #19 — the active chat a New chat keeps instead of minting another
+    /// ([`keeps_empty_chat`]); `None` = mint one. Read from this client's
+    /// state: a chat it did not mint (a resumed or listed one) is never kept,
+    /// whatever its transcript shows.
+    pub fn empty_chat_to_keep(&self, scope: NewChatScope<'_>) -> Option<String> {
+        let session = self.session_id();
+        if self.store.active_session().as_deref() != Some(session.as_str())
+            || !self.fresh_ids.lock().unwrap().contains(&session)
+        {
+            return None;
+        }
+        let queue = self.store.domains.composer.snapshot(&session);
+        // Still going out: the candidate this open began (a refusal disposes it).
+        let generation = self.generation();
+        let opening = self
+            .candidate
+            .lock()
+            .unwrap()
+            .as_ref()
+            .is_some_and(|c| c.session == session && c.generation == generation);
+        let text = self.ui.lock().unwrap().draft();
+        let chat = ActiveChat {
+            minted_here: true,
+            open_live: opening
+                || (self.store.domains.session.is_record(&session)
+                    && !self.history.lock().unwrap().contains_key(&session)),
+            transcript_empty: self.store.domains.session.timeline.len(&session) == 0,
+            turn_pending: queue.active.is_some() || !queue.pending.is_empty() || self.live_turn_of(&session).is_some(),
+            draft: !text.trim().is_empty()
+                || crate::screens::media::drafts_for_session(&session).is_some_and(|d| !d.is_empty())
+                || crate::screens::composer_drafts::pending(self, &session) > 0,
+            workspace_root: self.store.domains.session.workspace_root(&session),
+        };
+        keeps_empty_chat(&chat, scope).then_some(session)
     }
 
     /// A15 — fold one ACCEPTED canonical hydrate into `session`'s transcript:
@@ -2996,6 +3149,12 @@ impl Conversation {
                     conn.note_outage(&self.http_base, None, false);
                 }
             }
+            (C::Failed, _) if self.auth_expired.load(std::sync::atomic::Ordering::SeqCst) => {
+                // A fresh transport would carry the same refused credential:
+                // no outage to retain, the window returns to the Connect card.
+                conn.end_outage();
+                self.link.mark_dead();
+            }
             (C::Failed, _) => {
                 if conn.ever_live() && conn.note_outage(&self.http_base, None, false) {
                     // Retained: a fresh transport keeps re-dialing (its own
@@ -3014,6 +3173,13 @@ impl Conversation {
             }
             _ => {}
         }
+    }
+
+    /// Whether the server ended this connection with `auth_expired`, once:
+    /// the Connect card reports it a single time.
+    pub fn take_auth_expired(&self) -> bool {
+        use std::sync::atomic::Ordering::SeqCst;
+        self.auth_expired.load(SeqCst) && !self.auth_expired_reported.swap(true, SeqCst)
     }
 
     /// A12 — the banner's "Retry now": re-dial at once instead of waiting
@@ -3233,6 +3399,14 @@ impl Conversation {
     /// turn. Returns an empty id (no turn) rather than an error: refusing an
     /// empty prompt is not a failure.
     pub async fn submit_draft(&self) -> Result<String, ClientError> {
+        self.submit_draft_with_delivery(false).await
+    }
+
+    pub async fn queue_composer(&self) -> Result<String, ClientError> {
+        self.submit_draft_with_delivery(true).await
+    }
+
+    async fn submit_draft_with_delivery(&self, queue_only: bool) -> Result<String, ClientError> {
         let text = self.ui.lock().unwrap().draft();
         if text.trim().is_empty() {
             // #32h: this was ::log::debug! + Ok — the invisible silent drop
@@ -3307,7 +3481,7 @@ impl Conversation {
             return Ok(String::new());
         }
         // A7 — `/steer [on|off]` (`intent.ts:96-108`, `set-steer`): the
-        // Session's local steering opt-in. Never sent to the model.
+        // Session's local steering preference. Never sent to the model.
         if let Some((name, args)) = crate::screens::palette::parse_command_invocation(&text) {
             if matches!(name.to_ascii_lowercase().as_str(), "steer" | "steer-mid-turn" | "steermode") {
                 let receipt = self.steer_command(&args);
@@ -3459,7 +3633,7 @@ impl Conversation {
                 return Ok(String::new());
             }
         };
-        self.submit_prompt(text, media).await
+        self.submit_prompt_with_delivery(text, media, queue_only).await
     }
 
     /// Flush the in-memory [`TraceSink`] transitions into the frame file
@@ -3528,6 +3702,15 @@ impl Conversation {
 
     fn dispatch(&self, evt: &TransportEvent) -> FlowEvent {
         match evt {
+            TransportEvent::AuthExpired => {
+                self.auth_expired
+                    .store(true, std::sync::atomic::Ordering::SeqCst);
+                makepad_widgets::log!(
+                    "[octoscode] link: {} closed the connection (auth_expired)",
+                    self.http_base
+                );
+                FlowEvent::Other("auth_expired".to_owned())
+            }
             TransportEvent::ConnectionState(s) => {
                 // A12 — a voluntary leave (Disconnect / Forget / a confirmed
                 // stop: the store reads Offline) is final for this
@@ -3642,7 +3825,18 @@ impl Conversation {
                 if let (Some(req), Some(actual)) =
                     (requested.as_deref(), r.opened.workspace_root.as_deref())
                 {
-                    if !req.is_empty() && req != actual {
+                    // A hosted kernel and this client share a filesystem. The
+                    // coding scope resolves symlinks before opening a session;
+                    // that spelling change must not look like another folder.
+                    // Remote paths belong to the server, so keep their exact
+                    // comparison. Failed resolutions establish no additional identity.
+                    let same_workspace = req == actual || (self.is_hosted()
+                        && std::path::Path::new(req).is_absolute()
+                        && std::path::Path::new(actual).is_absolute()
+                        && std::fs::canonicalize(req).ok()
+                            .zip(std::fs::canonicalize(actual).ok())
+                            .is_some_and(|(requested, opened)| requested == opened));
+                    if !req.is_empty() && !same_workspace {
                         ::log::warn!(
                             "octoscode: session/open returned workspace {actual:?} for requested {req:?} — open rejected"
                         );
@@ -3833,6 +4027,20 @@ impl Conversation {
                 }
                 if let Some((session, generation, _)) = tracked {
                     self.settle_open_attempt(session, generation, OpenPhase::Ready);
+                }
+                // Both picker entrypoints defer hosted navigation until this
+                // accepted reply. Use the same root as the session, and retire
+                // only this request's alias from the bounded navigation cache.
+                if self.is_hosted() && explicit {
+                    if let (Some(requested), Some(opened)) =
+                        (requested.as_deref(), r.opened.workspace_root.as_deref())
+                    {
+                        let recents = crate::screens::recents::remember_hosted_workspace(
+                            &*crate::screens::recents::store(), &crate::screens::recents::endpoint(),
+                            requested, opened, crate::screens::recents::now_ms(),
+                        );
+                        crate::screens::board1::set_recent_workspaces(recents);
+                    }
                 }
                 self.settle_open_watch(Ok(r.opened.session_id.0.clone()));
                 FlowEvent::WorkspaceOpened(r.opened.session_id.0.clone())
@@ -4422,6 +4630,7 @@ fn trace_params(evt: &TransportEvent) -> serde_json::Value {
 fn trace_method(evt: &TransportEvent) -> String {
     match evt {
         TransportEvent::ConnectionState(s) => format!("state:{s:?}"),
+        TransportEvent::AuthExpired => "auth_expired".to_owned(),
         TransportEvent::CapabilityNegotiated(_) => "capabilities".to_owned(),
         TransportEvent::RpcResult(LifecycleResult::SessionOpen(_))
         | TransportEvent::SessionOpenTracked { .. } => "session/open".to_owned(),
@@ -4643,5 +4852,136 @@ mod tests {
             "the id is profile-scoped, like the web's bindWebSessionIdToProfile; got {a:?}"
         );
         assert!(a.starts_with("dsflash:api:code-"), "OctosCode's own chat id, as the web's is web-<uuid>; got {a:?}");
+    }
+
+    fn empty_chat(root: Option<&str>) -> ActiveChat {
+        ActiveChat {
+            minted_here: true,
+            open_live: true,
+            transcript_empty: true,
+            turn_pending: false,
+            draft: false,
+            workspace_root: root.map(str::to_owned),
+        }
+    }
+
+    /// #19 — a New chat keeps an active chat nothing was said in, and mints
+    /// one whenever the active chat has a turn, a draft or server history.
+    #[test]
+    fn issue19_a_new_chat_keeps_only_an_empty_chat() {
+        let chat = empty_chat(Some("/w/app"));
+        assert!(keeps_empty_chat(&chat, NewChatScope::Any), "an empty chat is kept");
+        let not_kept = [
+            ("a turn in its transcript", ActiveChat { transcript_empty: false, ..chat.clone() }),
+            ("a turn queued or running", ActiveChat { turn_pending: true, ..chat.clone() }),
+            ("an unsent draft", ActiveChat { draft: true, ..chat.clone() }),
+            ("a chat this client did not mint", ActiveChat { minted_here: false, ..chat.clone() }),
+            ("a refused open / a failed history read", ActiveChat { open_live: false, ..chat.clone() }),
+        ];
+        for (why, c) in not_kept {
+            assert!(!keeps_empty_chat(&c, NewChatScope::Any), "{why}: a new chat is minted");
+            assert!(!keeps_empty_chat(&c, NewChatScope::Workspace(Some("/w/app"))), "{why} (workspace)");
+        }
+    }
+
+    /// #19 — a workspace's New chat keeps the empty chat only when it is
+    /// that workspace's; another workspace's empty chat gets a new one.
+    #[test]
+    fn issue19_a_workspace_new_chat_keeps_only_that_workspaces_empty_chat() {
+        let chat = empty_chat(Some("/w/app"));
+        assert!(keeps_empty_chat(&chat, NewChatScope::Workspace(Some("/w/app"))));
+        assert!(keeps_empty_chat(&chat, NewChatScope::Workspace(Some("/w/app/"))), "a trailing slash is the same folder");
+        assert!(!keeps_empty_chat(&chat, NewChatScope::Workspace(Some("/w/other"))), "another workspace");
+        assert!(!keeps_empty_chat(&chat, NewChatScope::Workspace(None)), "the server-default group is not /w/app");
+        // The path-less group is the chat whose workspace the server never named.
+        let unnamed = empty_chat(None);
+        assert!(keeps_empty_chat(&unnamed, NewChatScope::Workspace(None)));
+        assert!(!keeps_empty_chat(&unnamed, NewChatScope::Workspace(Some("/w/app"))));
+        assert!(keeps_empty_chat(&unnamed, NewChatScope::Any), "the sidebar's New chat keeps it wherever it is");
+    }
+
+    /// A loopback HTTP stub: answers ONE request with `status` and `body`,
+    /// and returns the request line it saw.
+    fn one_shot_http(
+        status: &'static str,
+        body: &'static str,
+    ) -> (String, std::thread::JoinHandle<String>) {
+        use std::io::{Read, Write};
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").expect("bind");
+        let addr = listener.local_addr().expect("addr").to_string();
+        let server = std::thread::spawn(move || {
+            let (mut stream, _) = listener.accept().expect("accept");
+            let mut buf = [0u8; 4096];
+            let n = stream.read(&mut buf).unwrap_or(0);
+            let line = String::from_utf8_lossy(&buf[..n])
+                .lines()
+                .next()
+                .unwrap_or_default()
+                .to_owned();
+            let resp = format!(
+                "HTTP/1.1 {status}\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{body}",
+                body.len()
+            );
+            let _ = stream.write_all(resp.as_bytes());
+            line
+        });
+        (addr, server)
+    }
+
+    /// The solo login a tokenless connect carries: the session token and
+    /// the local user, from the HTTP origin of whatever address was typed
+    /// (here the socket URL).
+    #[tokio::test]
+    async fn the_solo_login_returns_the_session_token_and_user() {
+        let (addr, server) = one_shot_http(
+            "200 OK",
+            r#"{"token":"solo-session","user":{"id":"solotest"}}"#,
+        );
+        let got = Conversation::solo_login(&format!("ws://{addr}/api/ui-protocol/ws")).await;
+        assert_eq!(
+            got,
+            SoloLogin::Session {
+                token: "solo-session".to_owned(),
+                user: "solotest".to_owned(),
+            }
+        );
+        assert_eq!(server.join().unwrap(), "POST /api/auth/solo HTTP/1.1");
+    }
+
+    /// A `--solo` server with no local owner yet answers 404: the connect
+    /// says so instead of dialing with an empty token.
+    #[tokio::test]
+    async fn a_solo_server_without_a_profile_answers_no_profile() {
+        let (addr, server) = one_shot_http("404 Not Found", "{}");
+        assert_eq!(
+            Conversation::solo_login(&format!("http://{addr}")).await,
+            SoloLogin::NoProfile
+        );
+        server.join().unwrap();
+    }
+
+    /// A server that refuses the solo login (not `--solo`): no session, so
+    /// the connect keeps its empty token.
+    #[tokio::test]
+    async fn a_refused_solo_login_is_unavailable() {
+        let (addr, server) = one_shot_http("403 Forbidden", "{}");
+        assert_eq!(
+            Conversation::solo_login(&format!("http://{addr}")).await,
+            SoloLogin::Unavailable
+        );
+        server.join().unwrap();
+    }
+
+    /// A non-loopback address is never asked: the server only honours a
+    /// loopback solo login, and an unreachable host would hold the connect
+    /// until the timeout (192.0.2.1 is TEST-NET-1, it never answers).
+    #[tokio::test]
+    async fn a_remote_address_is_not_asked() {
+        let started = std::time::Instant::now();
+        assert_eq!(
+            Conversation::solo_login("http://192.0.2.1:50190").await,
+            SoloLogin::Unavailable
+        );
+        assert!(started.elapsed() < std::time::Duration::from_secs(1));
     }
 }

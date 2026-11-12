@@ -161,6 +161,35 @@ struct Inner {
     /// background record's event, cleared when it is selected
     /// (`session-record-manager.ts:449` / `:1207`).
     unread: std::collections::HashSet<String>,
+    /// Renames the server confirmed (`session/title.set`) that a listing may
+    /// not reflect yet, by session id.
+    renamed: HashMap<String, Renamed>,
+}
+
+/// A confirmed rename and the titles a listing read before it may still
+/// carry (`None` = untitled).
+#[derive(Debug, Default)]
+struct Renamed {
+    title: String,
+    stale: Vec<Option<String>>,
+}
+
+/// A title as the server's rows compare: trimmed, `None` when blank.
+fn trimmed_title(title: Option<&str>) -> Option<String> {
+    title.map(str::trim).filter(|t| !t.is_empty()).map(str::to_owned)
+}
+
+/// The title a server row about `id` shows: a listing still carrying a
+/// pre-rename title (read before the rename was confirmed) keeps the
+/// confirmed one; any other title is the server catching up (or a later
+/// rename elsewhere) and retires the hold.
+fn hold_rename(renamed: &mut HashMap<String, Renamed>, id: &str, server: Option<&str>) -> Option<String> {
+    let held = renamed.get(id)?;
+    if held.stale.contains(&trimmed_title(server)) {
+        return Some(held.title.clone());
+    }
+    renamed.remove(id);
+    None
 }
 
 /// A22 — the known registry's bound (`known-session-registry.ts:57`).
@@ -227,6 +256,11 @@ impl Sessions {
         let mut i = self.inner.lock().unwrap();
         let server_ids: Vec<String> = sessions.iter().map(|s| s.id.clone()).collect();
         let mut merged = sessions;
+        for row in merged.iter_mut() {
+            if let Some(t) = hold_rename(&mut i.renamed, &row.id, row.title.as_deref()) {
+                row.title = Some(t);
+            }
+        }
         for known in i.sessions.drain(..) {
             if !server_ids.contains(&known.id) {
                 merged.push(known);
@@ -263,6 +297,10 @@ impl Sessions {
         if n > KNOWN_MAX {
             i.known.drain(..n - KNOWN_MAX);
         }
+        let title = match title {
+            Some(t) => Some(hold_rename(&mut i.renamed, id, Some(&t)).unwrap_or(t)),
+            None => None,
+        };
         match i.sessions.iter_mut().find(|s| s.id == id) {
             Some(existing) => {
                 if let Some(title) = title {
@@ -280,6 +318,41 @@ impl Sessions {
         }
     }
 
+    /// The server renamed a session (`session/title.set` answered): its row
+    /// reads the new title at once, and a listing read before the rename
+    /// (still carrying an earlier title) does not put that one back; the
+    /// first listing with any other title retires the hold. Returns whether
+    /// the session is listed.
+    pub fn set_title(&self, id: &str, title: &str) -> bool {
+        let mut i = self.inner.lock().unwrap();
+        let Some(row) = i.sessions.iter_mut().find(|s| s.id == id) else { return false };
+        let before = trimmed_title(row.title.as_deref());
+        row.title = Some(title.to_owned());
+        let held = i.renamed.entry(id.to_owned()).or_default();
+        // A rename on top of an unconfirmed one: either earlier title may
+        // still come back from a listing.
+        if !held.title.is_empty() {
+            let prior = trimmed_title(Some(&std::mem::take(&mut held.title)));
+            if !held.stale.contains(&prior) {
+                held.stale.push(prior);
+            }
+        }
+        if !held.stale.contains(&before) {
+            held.stale.push(before);
+        }
+        let now = trimmed_title(Some(title));
+        held.stale.retain(|t| *t != now);
+        held.title = title.to_owned();
+        true
+    }
+
+    /// The title to show for `id` when a listing outside this store (Session
+    /// history's catalog) reports `server`: the confirmed rename while that
+    /// listing still carries a pre-rename title (see [`Self::set_title`]).
+    pub fn held_title(&self, id: &str, server: Option<&str>) -> Option<String> {
+        hold_rename(&mut self.inner.lock().unwrap().renamed, id, server)
+    }
+
     /// A8 — drop a row the app added for a placeholder that failed its
     /// verification (the web evicts only an idle, never-confirmed record).
     pub fn forget(&self, id: &str) {
@@ -289,6 +362,7 @@ impl Sessions {
         i.listed_under.remove(id);
         i.records.retain(|r| r != id);
         i.unread.remove(id);
+        i.renamed.remove(id);
         if i.active.as_deref() == Some(id) {
             i.active = None;
         }
@@ -318,6 +392,11 @@ impl Sessions {
             i.listed_under.remove(id);
         }
         let mut merged = rows;
+        for row in merged.iter_mut() {
+            if let Some(t) = hold_rename(&mut i.renamed, &row.id, row.title.as_deref()) {
+                row.title = Some(t);
+            }
+        }
         for id in &listed {
             i.listed_under.insert(id.clone(), workspace.to_owned());
         }

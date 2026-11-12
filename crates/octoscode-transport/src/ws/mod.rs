@@ -177,6 +177,19 @@ async fn run_state_machine(
                     break;
                 }
             }
+            LiveExit::AuthExpired => {
+                // The upgrade succeeded, so `attempt` was reset above: a
+                // re-dial would be accepted and closed again at once, in a
+                // loop with no backoff. The credential is the problem.
+                log::warn!("ws: closed with auth_expired; not reconnecting");
+                emit(&events, TransportEvent::AuthExpired).await;
+                emit(
+                    &events,
+                    TransportEvent::ConnectionState(ConnectionState::Failed),
+                )
+                .await;
+                break;
+            }
         }
     }
     shared.registry.cancel_all();
@@ -187,6 +200,18 @@ async fn run_state_machine(
 enum LiveExit {
     Disconnect,
     Reconnect,
+    /// The server closed with 1008 `auth_expired` ([`is_auth_expired`]).
+    AuthExpired,
+}
+
+/// The server's re-authentication signal: close code 1008 (policy) with the
+/// reason `auth_expired` (octos-cli `ui_protocol_transport.rs`, the close it
+/// sends before rejecting a request it cannot authorize).
+fn is_auth_expired(frame: Option<&tokio_tungstenite::tungstenite::protocol::CloseFrame>) -> bool {
+    frame.is_some_and(|f| {
+        f.code == tokio_tungstenite::tungstenite::protocol::frame::coding::CloseCode::Policy
+            && f.reason == "auth_expired"
+    })
 }
 
 async fn run_live(
@@ -239,6 +264,9 @@ async fn run_live(
                         }
                     }
                     Ok(WsMessage::Pong(_)) | Ok(WsMessage::Frame(_)) => {}
+                    Ok(WsMessage::Close(frame)) if is_auth_expired(frame.as_ref()) => {
+                        return LiveExit::AuthExpired;
+                    }
                     Ok(WsMessage::Close(_)) => return LiveExit::Reconnect,
                     Err(e) => {
                         log::warn!("ws: read error: {e}");

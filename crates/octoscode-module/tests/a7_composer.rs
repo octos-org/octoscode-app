@@ -208,6 +208,11 @@ fn submit(conv: &Arc<Conversation>, text: &str) -> tokio::task::JoinHandle<Strin
     tokio::spawn(async move { c.submit_draft().await.unwrap_or_default() })
 }
 
+async fn queue(conv: &Arc<Conversation>, text: &str) {
+    conv.set_draft(text);
+    conv.queue_composer().await.unwrap();
+}
+
 fn notices(conv: &Conversation) -> Vec<(String, String)> {
     let session = conv.session_id();
     conv.store
@@ -247,8 +252,8 @@ async fn a_prompt_while_a_turn_runs_queues_fifo_and_drains_on_the_terminal() {
     assert_eq!(conv.ui().lock().unwrap().draft(), "", "the composer clears on admission");
 
     // While it runs, later prompts queue: no second turn/start races it.
-    submit(&conv, "two").await.unwrap();
-    submit(&conv, "three").await.unwrap();
+    queue(&conv, "two").await;
+    queue(&conv, "three").await;
     let snap = conv.store.domains.composer.snapshot(&session);
     assert_eq!(snap.pending.iter().map(|p| p.text.as_str()).collect::<Vec<_>>(), ["two", "three"]);
     tokio::time::sleep(Duration::from_millis(150)).await;
@@ -307,7 +312,7 @@ async fn a_typed_collision_keeps_the_text_and_waits_for_the_other_clients_turn()
     assert_eq!(conv.store.domains.composer.ownership(&session), Ownership::Observed);
 
     // A prompt sent now waits behind the occupier, then goes once it ends.
-    submit(&conv, "after").await.unwrap();
+    queue(&conv, "after").await;
     tokio::time::sleep(Duration::from_millis(150)).await;
     assert_eq!(server.params_of("turn/start").len(), 1);
     server.notify("turn/completed", json!({"session_id": session, "turn_id": OCCUPIER}));
@@ -354,8 +359,8 @@ async fn steer_now_steers_into_the_captured_turn_and_a_refused_steer_is_restored
     let session = conv.session_id();
     let owner = submit(&conv, "work").await.unwrap();
     server.wait_for("turn/start", 1).await;
-    submit(&conv, "also add a test").await.unwrap();
-    submit(&conv, "and docs").await.unwrap();
+    queue(&conv, "also add a test").await;
+    queue(&conv, "and docs").await;
     assert!(conv.can_steer(), "turn/steer + event.turn_steer_dropped.v1 advertised");
     assert!(conv.store.domains.composer.can_steer_now(&session));
 
@@ -411,7 +416,7 @@ async fn returned_steering_goes_back_to_the_queue_on_steer_dropped() {
     let session = conv.session_id();
     let owner = submit(&conv, "work").await.unwrap();
     server.wait_for("turn/start", 1).await;
-    submit(&conv, "late steer").await.unwrap();
+    queue(&conv, "late steer").await;
     assert!(conv.steer_queued_head().await);
     // Core could not drain it before the turn ended: it comes back first.
     server.notify(
@@ -529,7 +534,7 @@ async fn ownership_is_kept_by_a_hydrate_and_handed_off_by_a_reconnect() {
     assert_eq!(hydrates[1]["include"], json!(["messages", "turns"]));
     until("observed after reconnect", || conv.store.domains.composer.ownership(&session) == Ownership::Observed).await;
     // A prompt now queues behind the observed turn; its terminal releases it.
-    submit(&conv, "next").await.unwrap();
+    queue(&conv, "next").await;
     let active = turn.lock().unwrap().clone();
     server.notify("turn/completed", json!({"session_id": session, "turn_id": active}));
     assert_eq!(texts(&server.wait_for("turn/start", 2).await), ["long job", "next"]);
@@ -552,7 +557,7 @@ async fn another_clients_turn_started_is_observed_and_the_composer_queues_behind
         json!({"session_id": session, "turn_id": OCCUPIER, "timestamp": "2026-10-01T10:00:00Z"}),
     );
     until("adopted", || conv.store.domains.composer.ownership(&session) == Ownership::Observed).await;
-    submit(&conv, "mine").await.unwrap();
+    queue(&conv, "mine").await;
     tokio::time::sleep(Duration::from_millis(150)).await;
     assert!(server.params_of("turn/start").is_empty(), "never raced over another client's turn");
     server.notify("turn/completed", json!({"session_id": session, "turn_id": OCCUPIER}));
@@ -590,4 +595,38 @@ async fn stop_before_the_ack_sends_no_interrupt_and_an_interrupted_prompt_return
     assert_eq!(server.params_of("turn/interrupt").len(), 1, "Stop is de-duplicated");
     server.notify("turn/error", json!({"session_id": session, "turn_id": owner, "code": "interrupted", "message": "Stopped"}));
     until("the prompt returns", || conv.ui().lock().unwrap().draft() == "stop me").await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn default_steering_and_send_now_preserve_draft_and_dispatch_only_after_terminal() {
+    let _g = lock();
+    let server = Server::start(Arc::new(|m: &str, p: &Value| {
+        base(m, p).unwrap_or(match m {
+            "turn/start" => Reply::Ok(json!({"accepted": true})),
+            "turn/steer" => Reply::Ok(json!({"turn_id": p["expected_turn_id"], "steered": true})),
+            _ => Reply::Ok(json!({})),
+        })
+    })).await;
+    let conv = connected(&server).await;
+    let session = conv.session_id();
+    let owner = submit(&conv, "original").await.unwrap();
+    server.wait_for("turn/start", 1).await;
+    assert!(conv.store.domains.composer.steering_enabled(&session));
+    submit(&conv, "correction").await.unwrap();
+    assert_eq!(server.wait_for("turn/steer", 1).await[0]["expected_turn_id"], owner);
+    queue(&conv, "later task").await;
+    conv.set_draft("unfinished draft");
+    // Live notifications, like Core, prove that this is still the owner turn.
+    server.notify("turn/started", json!({"session_id": session, "turn_id": owner}));
+    until("live owner", || conv.ui().lock().unwrap().turn_active()).await;
+    conv.send_pending_now_in(&session).await.unwrap();
+    conv.send_pending_now_in(&session).await.unwrap();
+    assert_eq!(server.wait_for("turn/interrupt", 1).await.len(), 1);
+    assert_eq!(server.params_of("turn/start").len(), 1);
+    assert_eq!(conv.ui().lock().unwrap().draft(), "unfinished draft");
+    server.notify("turn/steer_dropped", json!({"session_id": session, "turn_id": owner, "inputs": ["correction"], "reason": "interrupted"}));
+    server.notify("turn/completed", json!({"session_id": session, "turn_id": owner}));
+    assert_eq!(texts(&server.wait_for("turn/start", 2).await), ["original", "correction"]);
+    assert_eq!(conv.ui().lock().unwrap().draft(), "unfinished draft");
+    assert_eq!(conv.store.domains.composer.snapshot(&session).pending[0].text, "later task");
 }

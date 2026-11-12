@@ -115,7 +115,7 @@ To build the optional OctoSense host as well:
 ```sh
 tools/build-macos.sh --octosense --release
 MAKEPAD_WM_TEST_APP=octoscode OCTOSCODE_DESIGN_DIR="$PWD/design" \
-  .forks/octosense-host/target/release/octosense --module octoscode
+  .forks/octosense/target/release/octosense --module octoscode
 ```
 
 Here `--release` applies to both executables (the default on the default branch). This optional host is not included in the

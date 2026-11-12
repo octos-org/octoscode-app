@@ -147,6 +147,8 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Model unavailable", "模型不可用"),
     ("No models are configured for this profile.", "此配置档案未配置模型。"),
     ("This configured model is unavailable.", "此已配置的模型不可用。"),
+    ("Queue (Tab)", "排队（Tab）"),
+    ("Send now (Ctrl+X)", "立即发送（Ctrl+X）"),
     ("Steer now", "立即引导"),
     ("\u{21b3} read-only peer \u{b7} {value0} \u{b7} steer from the master", "\u{21b3} 只读同侪 \u{b7} {value0} \u{b7} 请从主会话引导"),
     ("Couldn't confirm \u{2014} waiting for the previous attempt to expire", "无法确认 \u{2014} 正在等待上一次尝试过期"),
@@ -227,6 +229,10 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Stored for this server only", "仅为此服务器保存"),
     ("Pair with a link instead", "改用链接配对"),
     ("Use local solo server", "使用本地单人服务器"),
+    (
+        "This solo server has no local profile yet. Create one in the server's web app (/app/ on the same address), then connect again.",
+        "此单人服务器还没有本地配置档案。请先在服务器的网页应用（同一地址下的 /app/）中创建，然后重新连接。",
+    ),
     ("Last tried {value0} \u{b7}", "上次尝试 {value0} \u{b7}"),
     ("Can't reach {value0}", "无法连接 {value0}"),
     ("check the address", "检查地址"),
@@ -251,6 +257,10 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
         "请确认服务器正在运行。如需认证，请输入其令牌。",
     ),
     ("Check that your server is running and your token is current.", "请确认服务器正在运行且令牌仍然有效。"),
+    (
+        "The server no longer accepts this connection's credentials. Connect again, or check your token.",
+        "服务器已不再接受此连接的凭据。请重新连接，或检查令牌。",
+    ),
     ("Connect to a server first.", "请先连接服务器。"),
     // ---- board 1: pairing (screens/pairing.rs, screens/board1.rs)
     ("Pair with Octos", "与 Octos 配对"),
@@ -465,6 +475,9 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Memory refresh is off for this profile.", "此配置档案的记忆刷新已关闭。"),
     // The kind filter's "All" (the bare key is the sidebar's "In one list").
     ("memory|All", "全部"),
+    // The sidebar's flat view (`tr_ctx("sidebar", "All")`): the web's
+    // "In one list" reads 统一列表; the segment beside 工作区 reads 列表.
+    ("sidebar|All", "列表"),
     ("Knowledge", "知识"),
     ("Episodes", "经历"),
     ("Documents", "文档"),
@@ -678,6 +691,8 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ("Could not load sessions.", "无法加载会话。"),
     ("Couldn't delete the session: {value0}", "无法删除会话：{value0}"),
     ("Delete?", "删除？"),
+    ("Couldn't delete that chat.", "无法删除该会话。"),
+    ("Couldn't rename that chat.", "无法重命名该会话。"),
     ("Open a different session", "打开其他会话"),
     ("Thought process", "思考过程"),
     ("{seconds} s \u{b7} {words} words", "{seconds} 秒 \u{b7} {words} 词"),
