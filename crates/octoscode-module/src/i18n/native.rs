@@ -407,6 +407,9 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
     ),
     ("20 MiB per image", "每张图片不超过 20 MiB"),
     ("Couldn't upload the images.", "无法上传图片。"),
+    // n12g (E10 3): a desktop's + attaches to the composer; a chip's line, the refusal's toast.
+    ("Couldn’t upload", "无法上传"),
+    ("Couldn’t attach these images", "无法附加这些图片"),
     ("Could not select these images.", "无法选择这些图片。"),
     (
         "Upload was not confirmed. Retry explicitly; the server may retain an earlier upload.",

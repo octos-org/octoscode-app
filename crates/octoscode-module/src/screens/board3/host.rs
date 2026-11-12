@@ -1334,6 +1334,35 @@ pub fn note_turn_busy(busy: bool) {
     super::seats::note_turn_busy(&mut st.seats, busy);
 }
 
+/// n12g (E10 3) — a desktop's +: what the open panel chose joins this chat's
+/// draft straight away, shown in the composer (no sheet), and goes up with the
+/// next message. A choice the draft refuses (a fifth image, another type, too
+/// large) says why in a toast and attaches nothing.
+pub fn attach_chosen(conv: &crate::flow::Conversation, paths: &[std::path::PathBuf]) {
+    let drafts = crate::screens::media::drafts_for_conv(conv);
+    {
+        let mut st = state();
+        st.img.session = conv.session_id();
+        st.img.profile = conv.profile();
+    }
+    match super::images::select_paths(&drafts, paths) {
+        Ok(added) => {
+            let mut st = state();
+            st.img.error = None;
+            st.img.paths.extend(added);
+        }
+        Err(e) => {
+            crate::screens::toasts::push(crate::i18n::tr("Couldn’t attach these images"), crate::i18n::tr(&e));
+        }
+    }
+    wake();
+}
+
+/// n12g (E10 3): the local file an attached image was read from (its thumbnail).
+pub fn image_path(id: &str) -> Option<String> {
+    state().img.paths.iter().find(|(d, _)| d == id).map(|(_, p)| p.clone())
+}
+
 /// Files the platform picker (or a drop) handed over while the images
 /// dialog is open.
 pub fn files_chosen(paths: &[std::path::PathBuf]) {

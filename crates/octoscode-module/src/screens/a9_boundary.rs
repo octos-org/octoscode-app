@@ -190,6 +190,53 @@ pub fn lower_crash(frame: &Frame) -> Option<Lowered> {
     let page = crate::desk::current().content;
     d.rule("a9_cr_bg", "width: Fill height: Fill", if mac { page.as_str() } else { tok::SURFACE2 });
     if mac {
+        // n12g (E10 4): a Mac's recovery page reads as its alert does: the
+        // window's title in the title bar, the app's icon over a centred
+        // block, the title in bold and the words centred under it, the
+        // buttons stacked with the default on top (the kit's alert rule for
+        // three). The block sits in the window's middle.
+        let copy_label = match c.copy {
+            CopyState::Idle => "Copy diagnostics",
+            CopyState::Copied => "Copied",
+            CopyState::Failed => "Copy failed",
+        };
+        let bar = crate::desk::bar_h();
+        d.view("a9_cr_frame", "width: Fill height: Fill flow: Down");
+        d.view("a9_cr_titlebar", &format!("width: Fill height: {bar} flow: Right align: Align{{x: 0.5 y: 0.5}}"));
+        d.text("a9_cr_window_title", "OctosCode", &Txt::new(13.0, Face::Semibold, tok::TEXT));
+        d.close();
+        d.view(
+            "a9_cr_middle",
+            &format!("width: Fill height: Fill flow: Down align: Align{{x: 0.5 y: 0.5}} padding: Inset{{bottom: {bar}}}"),
+        );
+        d.view(
+            "a9_cr_card",
+            &format!("width: {} height: Fit flow: Down align: Align{{x: 0.5 y: 0.0}} padding: Inset{{left: 16 right: 16}}", ui::ALERT_W),
+        );
+        ui::app_icon(&mut d, "a9_cr_icon");
+        d.unseen("a9_cr_eyebrow", tr("OctosCode stopped rendering"));
+        ui::alert_words(
+            &mut d,
+            ("a9_cr_title", tr("Client view unavailable")),
+            &[("a9_cr_body", tr("The client could not recover this view. Closing its connection may have stopped running work. Octos keeps persisted history; unsent drafts and queued messages may be lost when you reload."))],
+        );
+        d.unseen("a9_cr_report", &c.report);
+        ui::alert_buttons(
+            &mut d,
+            &[
+                ui::AlertButton::new("a9_cr_report_link", "Report this crash ↗", ACTION_REPORT, Btn::Outline),
+                ui::AlertButton::new("a9_cr_copy", copy_label, ACTION_COPY, Btn::Outline),
+                ui::AlertButton::new("a9_cr_reload", "Reload app", ACTION_RELOAD, Btn::Primary),
+            ],
+        );
+        d.close(); // card
+        d.close(); // middle
+        d.close(); // frame
+        d.close(); // root
+        let taps = d.taps.clone();
+        return Some(Lowered { dsl: d.finish(), taps, inputs: Vec::new() });
+    }
+    if mac {
         d.view("a9_cr_card", &format!("width: {} height: Fit flow: Down spacing: 10", w.min(520.0)));
     } else {
         d.surface(

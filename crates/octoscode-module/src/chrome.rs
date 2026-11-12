@@ -2766,7 +2766,10 @@ impl ChromeRuntime {
         // n11o (E9 6): a Mac's toolbar names the workspace by its folder, as
         // Finder's and Xcode's windows do; Settings › General has the path.
         if crate::desk::active() {
-            text(cx, view, ids!(hd_path), &crate::desk::folder_name(&root));
+            // n12g (E10 2): a renamed workspace is called by its new name here
+            // too, as its sidebar group is.
+            let name = sb.names.get(&root).cloned().unwrap_or_else(|| crate::desk::folder_name(&root));
+            text(cx, view, ids!(hd_path), &name);
         } else {
             text(cx, view, ids!(hd_path), &root);
         }

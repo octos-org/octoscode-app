@@ -4539,6 +4539,27 @@ impl OctoscodeView {
                     }),
                     peer_readonly: screens::peers::readonly_slug(&store, session),
                     seat_status: seat::status(session),
+                    // n12g (E10 3): what a desktop's + attached to the next message.
+                    attachments: if crate::desk::active() {
+                        use screens::media::DraftStatus;
+                        screens::media::drafts_for_session(session)
+                            .map(|d| d.entries())
+                            .unwrap_or_default()
+                            .into_iter()
+                            .map(|e| fluid::AttachmentChip {
+                                detail: match e.status {
+                                    DraftStatus::Uploading => i18n::tr("Uploading…").to_owned(),
+                                    DraftStatus::Error => i18n::tr("Couldn’t upload").to_owned(),
+                                    DraftStatus::Selected | DraftStatus::Ready => crate::desk::file_size(e.bytes),
+                                },
+                                failed: e.status == DraftStatus::Error,
+                                path: screens::board3::host::image_path(&e.id),
+                                name: e.name,
+                            })
+                            .collect()
+                    } else {
+                        Vec::new()
+                    },
                 }
             }
         };
@@ -6956,6 +6977,15 @@ impl OctoscodeView {
                         self.composer_extra_tap(which);
                     }
                 }
+                // n12g (E10 3): an attached image's x in the composer (a desktop's).
+                for i in 0..screens::media::MAX_TURN_IMAGES {
+                    let id = LiveId::from_str(&format!("composer_att_remove_{i}"));
+                    if self.view.button(cx, &[live_id!(queue_splash), id]).clicked(actions) {
+                        makepad_widgets::log!("[octoscode] composer attachment {i} removed");
+                        self.perform_action(cx, "b3.img.remove", i);
+                        self.sync_composer_extras(cx);
+                    }
+                }
                 // A29 — the aside's Close and its collapse chevron
                 // (screens/btw.rs), owned by screens::sessions' `aside.*`.
                 for (id, action) in [
@@ -7006,6 +7036,16 @@ impl OctoscodeView {
                     match action.downcast_ref::<FileDialogAction>() {
                         Some(FileDialogAction::FileSelected { id, paths }) if *id == live_id!(b3_images) => {
                             makepad_widgets::log!("[octoscode] board3 images chosen: {}", paths.len());
+                            // n12g (E10 3): a desktop's + attaches what the panel chose to the
+                            // composer itself (no sheet); they go up with the message.
+                            if crate::desk::active() && std::mem::take(&mut self.plus_picking) {
+                                let conv = { self.bridge.lock().unwrap().conv.clone() };
+                                if let Some(conv) = conv {
+                                    screens::board3::host::attach_chosen(&conv, paths);
+                                }
+                                self.sync_composer_extras(cx);
+                                continue;
+                            }
                             if std::mem::take(&mut self.plus_picking) {
                                 let conv = { self.bridge.lock().unwrap().conv.clone() };
                                 if let Some(out) = conv.and_then(|conv| screens::board3::host::command("images", "", &conv)) {

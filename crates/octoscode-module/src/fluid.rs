@@ -1119,10 +1119,14 @@ pub struct ComposerRowFit {
 impl ComposerRowFit {
     /// Every part of the row that is not one of the two labels.
     pub fn fixed_w(&self) -> f64 {
-        // plus | pill | spacer | model | mic | send: four gaps.
+        // plus | pill | spacer | model | mic | send: four gaps. n12g (E10 1): a
+        // desktop draws no mic, so its row is two square controls and three
+        // gaps; counting the mic held 32 points back from the labels, and the
+        // permission pop-up cut its words beside an empty stretch of row.
+        let (controls, gaps) = crate::desk::by((3.0, 4.0), (2.0, 3.0));
         2.0 * self.pad_x
-            + 3.0 * composer_control()
-            + 4.0 * self.gap
+            + controls * composer_control()
+            + gaps * self.gap
             + 2.0 * self.pill_pad
             + 2.0 * self.model_pad
             + COMPOSER_CHEVRON_GAP
@@ -1158,7 +1162,9 @@ pub fn composer_row_fit_for(m: &Metrics, approval: &str, model: &str) -> Compose
     let mut fit = composer_row_fit(m);
     let room = (m.composer_w - fit.fixed_w()).max(0.0).floor();
     let need = |s: &str, face: Ui| (text_w(s, composer_row_px(), face) * 1.06 + 4.0).ceil();
-    let (a, mo) = (need(approval, Ui::Regular), need(model, Ui::Medium));
+    // A desktop's model pop-up draws its name in the regular face, as its permission one does.
+    let model_face = if crate::desk::active() { Ui::Regular } else { Ui::Medium };
+    let (a, mo) = (need(approval, Ui::Regular), need(model, model_face));
     let half = (room / 2.0).floor();
     let approval_max = if a + mo <= room || a <= half {
         a
@@ -1355,6 +1361,22 @@ pub struct ComposerExtras {
     /// ("Handing back control…" / "Resuming chat…") or the last failure
     /// (`true` = error tone).
     pub seat_status: Option<(String, bool)>,
+    /// n12g (E10 3): on a desktop, the images + attached to this chat's next
+    /// message, in order (each its own chip with a remove control).
+    pub attachments: Vec<AttachmentChip>,
+}
+
+/// n12g (E10 3) — one attached image as a desktop's composer shows it, as Mail
+/// and Messages show theirs: a thumbnail, the name, a line under it (the size,
+/// "Uploading…" while it goes up with the message, or why it didn't) and ×.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct AttachmentChip {
+    pub name: String,
+    pub detail: String,
+    /// Its upload failed: the line is in the alert ink.
+    pub failed: bool,
+    /// The local file it was read from, for its thumbnail.
+    pub path: Option<String>,
 }
 
 /// A7 — the queued chip (conversation-08 `queued_row`: `1 queued · Steer
@@ -1378,10 +1400,56 @@ pub fn composer_extras(x: &ComposerExtras, m: &Metrics) -> String {
     if let Some(slug) = &x.peer_readonly {
         out.push_str(&peer_readonly_row(slug, m));
     }
+    if !x.attachments.is_empty() && x.peer_readonly.is_none() {
+        out.push_str(&attachment_strip(&x.attachments));
+    }
     if out.is_empty() {
         return String::new();
     }
     format!("composer_extras := View{{width: Fill height: Fit flow: Down spacing: 8 padding: Inset{{bottom: 8}}\n{out}}}\n")
+}
+
+/// n12g (E10 3) — the images attached to the next message, a row of chips
+/// over the composer (`composer_att_<i>`, its × `composer_att_remove_<i>`,
+/// routed by the host to the draft's remove).
+fn attachment_strip(chips: &[AttachmentChip]) -> String {
+    let name_style = style(Face::Regular, 12.0, 16.0);
+    let detail_style = style(Face::Regular, 11.0, 14.0);
+    let mut out = String::from("composer_atts := View{width: Fill height: Fit flow: Right{wrap: true} spacing: 6\n");
+    for (i, c) in chips.iter().enumerate() {
+        let thumb = match &c.path {
+            Some(p) => format!(
+                "RoundedView{{width: 28 height: 28 flow: Overlay draw_bg +: {{color: {TIP} border_radius: 3}}\n\
+                 composer_att_{i}_img := Image{{width: Fill height: Fill fit: ImageFit.Biggest src: file_resource({p:?})}}}}\n"
+            ),
+            None => format!(
+                "View{{width: 28 height: 28 align: Align{{x: 0.5 y: 0.5}}\n{}}}\n",
+                svg(&format!("composer_att_{i}_glyph"), "b3_image.svg", 16.0, MUTED)
+            ),
+        };
+        let ink = if c.failed { crate::desk::danger_on_face() } else { MUTED };
+        out.push_str(&format!(
+            "composer_att_{i} := RoundedView{{width: Fit height: 40 flow: Right align: Align{{y: 0.5}} spacing: 8 \
+             padding: Inset{{left: 6 right: 2}}\n\
+             draw_bg +: {{color: {SURFACE} border_radius: 4 border_size: 1.0 border_color: {BORDER}}}\n\
+             {thumb}\
+             View{{width: Fit height: Fit flow: Down spacing: 1\n{name}{detail}}}\n\
+             View{{width: 22 height: 22 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n{x}{remove}}}\n\
+             }}\n",
+            name = label(
+                &format!("composer_att_{i}_name"),
+                &c.name,
+                &name_style,
+                INK,
+                "width: Fit height: Fit max_width: 180 max_lines: 1 text_overflow: TextOverflow.Ellipsis",
+            ),
+            detail = label(&format!("composer_att_{i}_detail"), &c.detail, &detail_style, ink, "width: Fit height: Fit"),
+            x = svg(&format!("composer_att_{i}_x"), "b3_x_small.svg", 10.0, MUTED),
+            remove = hit(&format!("composer_att_remove_{i}"), 11.0),
+        ));
+    }
+    out.push_str("}\n");
+    out
 }
 
 fn queue_chip(queued: usize, steer: bool, m: &Metrics) -> String {

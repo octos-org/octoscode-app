@@ -3423,6 +3423,25 @@ impl Conversation {
             makepad_widgets::log!("[octoscode] submit held: the last response's outcome is unknown");
             return Ok(String::new());
         }
+        // n12g (E10 3): a desktop's + attaches without a sheet, so what it
+        // attached goes up with the message, as Mail sends its attachments:
+        // every image not yet uploaded is uploaded here first. One that fails
+        // keeps the prompt and the draft (below), and its chip says so.
+        if crate::desk::active() {
+            let drafts = crate::screens::media::drafts_for_session(&session);
+            // A second Send while they go up waits for the first: the chips say "Uploading…".
+            if drafts.as_ref().is_some_and(|d| d.uploading()) {
+                makepad_widgets::log!("[octoscode] submit held: attachments still uploading (draft kept)");
+                return Ok(String::new());
+            }
+            let pending = drafts.is_some_and(|d| !d.upload_candidates().is_empty());
+            if pending {
+                match crate::screens::board3::images::upload(self).await {
+                    Ok(note) => makepad_widgets::log!("[octoscode] attachments uploaded before the send: {note}"),
+                    Err(e) => makepad_widgets::log!("[octoscode] attachments upload before the send failed: {e}"),
+                }
+            }
+        }
         // A4 — the AttachmentsDialog's draft rides THIS turn when every image
         // is uploaded; any row not yet uploaded refuses the send and keeps
         // both the prompt and the draft (`session-composer-drafts.ts:183-188`).

@@ -59,7 +59,11 @@ fn catalog_rows(st: &SwitchState, store: &Store) -> Vec<Row> {
     let current_profile = store.domains.profile.current();
     catalog.iter().map(|item| Row {
         id: item.target.key(), title:item.title.clone(),
-        tag:format!("{} · {}", item.target.profile, item.target.cwd.as_deref().unwrap_or("Profile history")),
+        tag:format!("{} · {}", item.target.profile, match item.target.cwd.as_deref() {
+            // n12g (E10 2): a desktop names the workspace as its sidebar does (a rename's name, else its folder).
+            Some(cwd) if crate::desk::active() && !cwd.trim().is_empty() => crate::screens::sidebar::renamed(cwd).unwrap_or_else(|| ui::leaf(cwd)),
+            cwd => cwd.unwrap_or("Profile history").to_owned(),
+        }),
         when:item.updated_at.as_deref().and_then(ui::parse_iso_ms).map(|ms| ui::rel_time(ui::now_ms(), ms)).unwrap_or_default(),
         current:active.as_deref() == Some(item.target.session.as_str()) && current_profile.as_deref() == Some(item.target.profile.as_str()) && item.target.cwd == current_root,
     }).collect()
@@ -130,6 +134,10 @@ pub fn rows(store: &Store) -> Vec<Row> {
         .map(|s| {
             let root = store.domains.session.workspace_root(&s.id);
             let tag = match &root {
+                // n12g (E10 2): a desktop calls a renamed workspace by its new name, as the sidebar does.
+                Some(r) if !r.is_empty() && crate::desk::active() => {
+                    crate::screens::sidebar::renamed(r).unwrap_or_else(|| ui::leaf(r))
+                }
                 Some(r) if !r.is_empty() => ui::leaf(r),
                 _ if crate::desk::active() => String::new(),
                 _ => s.id.split(':').next().unwrap_or("").to_owned(),
