@@ -864,12 +864,15 @@ script_mod! {
         // clicked "⋯" by sync_chrome (margin within this full-window layer);
         // a click anywhere else closes it. A chat row's context menu shares
         // the layer, anchored at the press. `sb_menu_ctx` sees every press
-        // here (`capture_overload`, under the rest) so a right-click outside
-        // the open menu closes it, or opens the chat row's menu under it.
+        // here (`capture_overload`, under the rest) so a long press outside
+        // the open menu closes it, or opens the chat row's menu under it (a
+        // right-click is read from the press itself: `chrome::secondary_press`).
+        // It only watches: it never takes the keyboard, so a press in a Mac's
+        // rename field (`sb_rename_place`) leaves the keys in the field.
         sb_menu_dock := View {
             width: Fill height: Fill flow: Overlay
             visible: false
-            sb_menu_ctx := View {width: Fill height: Fill cursor: MouseCursor.Default capture_overload: true}
+            sb_menu_ctx := View {width: Fill height: Fill cursor: MouseCursor.Default capture_overload: true grab_key_focus: false}
             sb_menu_dismiss := mod.widgets.OcBackdrop {}
             sb_menu := mod.widgets.OcWorkspaceMenu {}
             sb_sort_menu := mod.widgets.OcSortMenu {}
@@ -5353,18 +5356,38 @@ impl OctoscodeView {
         }
     }
 
+    /// The store and whether Settings shows: what the chrome's presses read.
+    fn chrome_inputs(&self) -> (Arc<Store>, bool) {
+        let b = self.bridge.lock().unwrap();
+        let open = b.ui.lock().map(|u| u.settings_open()).unwrap_or(false) || chrome_env().1;
+        (b.store.clone(), open)
+    }
+
     fn handle_chrome(&mut self, cx: &mut Cx, actions: &Actions) {
-        let (store, settings_open) = {
-            let b = self.bridge.lock().unwrap();
-            let open = b.ui.lock().map(|u| u.settings_open()).unwrap_or(false) || chrome_env().1;
-            (b.store.clone(), open)
-        };
+        let (store, settings_open) = self.chrome_inputs();
         let mut rt = std::mem::take(&mut self.chrome);
         let intents = rt.clicks(cx, &self.view, &store, settings_open, actions);
         self.chrome = rt;
         if intents.is_empty() {
             return;
         }
+        self.apply_chrome_intents(cx, &store, intents);
+    }
+
+    /// A right-click in the window: a chat row's menu, read from the press
+    /// itself (`chrome::secondary_press`). Not while a dialog holds the
+    /// window: what is under it takes no press.
+    fn chat_menu_press(&mut self, cx: &mut Cx, at: (f64, f64)) {
+        if self.shortcut_facts(cx).in_dialog {
+            return;
+        }
+        let (store, settings_open) = self.chrome_inputs();
+        if let Some(intent) = chrome::secondary_press(cx, &self.view, &store, settings_open, at) {
+            self.apply_chrome_intents(cx, &store, vec![intent]);
+        }
+    }
+
+    fn apply_chrome_intents(&mut self, cx: &mut Cx, store: &octoscode_store::Store, intents: Vec<chrome::Intent>) {
         let was_renaming = screens::sidebar::renaming();
         for intent in intents {
             makepad_widgets::log!("[octoscode] chrome: {intent:?}");
@@ -5384,7 +5407,7 @@ impl OctoscodeView {
                     self.chrome.chat_menu_at = Some((x - ox, y - oy));
                     self.perform_action(cx, "session.menu", i);
                 }
-                chrome::Intent::RenameChat(t) => self.rename_chat(&store, &t),
+                chrome::Intent::RenameChat(t) => self.rename_chat(store, &t),
                 chrome::Intent::Query(q) => {
                     screens::sidebar::set_query(&q);
                 }
@@ -6756,6 +6779,13 @@ impl OctoscodeView {
                 host_makepad::forget_row_menu(cx);
             } else {
                 return;
+            }
+        }
+        // A right-click: a chat row's menu (`chat_menu_press`). The shell
+        // hands this window only a press it is in front for.
+        if let Event::MouseDown(e) = event {
+            if e.button.contains(MouseButton::SECONDARY) {
+                self.chat_menu_press(cx, (e.abs.x, e.abs.y));
             }
         }
         // A29 — a scroll in the transcript, or a press inside it, ends the
