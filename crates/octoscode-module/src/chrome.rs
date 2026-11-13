@@ -546,10 +546,13 @@ script_mod! {
                     // #18 — room for the delete × laid over the row below.
                     sb_r_del_room := View{width: 18 height: 1 visible: false}
                 }
-                // The row's context menu: a right-click (or a long press)
-                // anywhere on it. It shares the press with the hits above
-                // (`capture_overload`), which act on the primary button only.
-                sb_r_ctx := View{width: Fill height: Fill cursor: by(MouseCursor.Hand, MouseCursor.Default) capture_overload: true}
+                // The row's context menu by touch: a long press anywhere on
+                // it (a right-click is read from the press itself:
+                // `secondary_press`). It shares the press with the hits above
+                // (`capture_overload`), which act on the primary button only,
+                // and never takes the keyboard: a press in the row's rename
+                // field leaves the keys in the field.
+                sb_r_ctx := View{width: Fill height: Fill cursor: by(MouseCursor.Hand, MouseCursor.Default) capture_overload: true grab_key_focus: false}
                 sb_r_open := OcRowHit{}
                 // #18 — the delete ×, ABOVE the row's open hit (later siblings
                 // take the press first); never on the open chat.
@@ -2484,9 +2487,10 @@ impl ChromeRuntime {
                     }
                 }
             }
-            // A right-click (or a long press) outside the open menu: on a
-            // chat row it opens that row's menu there, anywhere else it
-            // closes the menu; on the menu itself it does nothing.
+            // A long press outside the open menu (a right-click is
+            // `secondary_press`'s): on a chat row it opens that row's menu
+            // there, anywhere else it closes the menu; on the menu itself it
+            // does nothing.
             if sb.renaming.is_none() {
                 let shown = if chat_menu.is_some() {
                     ids!(sb_chat_menu)
@@ -3769,7 +3773,8 @@ pub fn sidebar_list_clicks(cx: &mut Cx, list: &PortalListRef, store: &octoscode_
                 if *renaming {
                     continue;
                 }
-                // The context menu: a secondary press, or a long press (touch).
+                // The context menu by touch: a long press (a right-click is
+                // `secondary_press`'s).
                 if let Some(at) = row_menu_press(&item.view(cx, ids!(sb_r_ctx)), actions) {
                     out.push(TreeClick::ChatMenu(*store_index, at));
                     continue;
@@ -3831,14 +3836,60 @@ fn open_menu_press(menu: Rect, row: Option<(usize, (f64, f64))>, elsewhere: Opti
     }
 }
 
-/// Where a chat row's context menu was asked for: a press of the secondary
-/// mouse button, or a long press (touch has no right button).
+/// Where a chat row's context menu was asked for by touch: a long press
+/// (touch has no right button). A right-click is read from the press itself
+/// ([`secondary_press`]): OctoSense's makepad makes a view's press the
+/// primary button's, so no view reports a right-click there.
 fn row_menu_press(ctx: &ViewRef, actions: &Actions) -> Option<(f64, f64)> {
     actions.filter_widget_actions_cast::<ViewAction>(ctx.widget_uid()).find_map(|a| match a {
-        ViewAction::FingerDown(e) if e.device.mouse_button().is_some_and(|b| b.contains(MouseButton::SECONDARY)) => {
-            Some((e.abs.x, e.abs.y))
-        }
         ViewAction::FingerLongPress(e) => Some((e.abs.x, e.abs.y)),
+        _ => None,
+    })
+}
+
+/// A right-click at `at` (window coordinates), read from the press itself:
+/// OctoSense's makepad makes a view's press the primary button's (a right
+/// click isn't a click), so the rows' `sb_r_ctx` and the menu layer's
+/// `sb_menu_ctx` never report one there. The outcome is a long press's: on
+/// a chat row it opens that row's menu; with a menu open, a press outside
+/// it opens the menu of the row under it or closes it. Nothing during a
+/// workspace rename, nor while Settings shows.
+pub fn secondary_press(cx: &mut Cx, view: &View, store: &octoscode_store::Store, settings_open: bool, at: (f64, f64)) -> Option<Intent> {
+    use crate::screens::sidebar;
+    let sb = sidebar::snapshot();
+    if settings_open || sb.renaming.is_some() {
+        return None;
+    }
+    let list = view.portal_list(cx, ids!(thread_list));
+    let first = list.first_id();
+    let drawn: Vec<(usize, Rect)> = (first..=first + list.visible_items())
+        .filter_map(|id| list.get_item(id).map(|(_, item)| (id, item.area().rect(cx))))
+        .collect();
+    let rows = sidebar::project(store, sidebar::now_ms()).rows;
+    let row = chat_row_under(&rows, &drawn, at).map(|i| (i, at));
+    let chat_menu = sidebar::chat_menu(store);
+    let sort_open = sidebar::sort_menu_open();
+    if sb.menu_for.is_some() || chat_menu.is_some() || sort_open {
+        let shown = if chat_menu.is_some() {
+            ids!(sb_chat_menu)
+        } else if sort_open {
+            ids!(sb_sort_menu)
+        } else {
+            ids!(sb_menu)
+        };
+        let menu = view.widget(cx, shown).area().rect(cx);
+        return open_menu_press(menu, row, Some(at));
+    }
+    row.map(|(i, at)| Intent::ChatMenu(i, at))
+}
+
+/// The chat row a right-click at `at` lands on, as its store index: `drawn`
+/// holds each drawn list item's id and rect. Only a chat row has a menu, and
+/// not while its title is a field.
+fn chat_row_under(rows: &[crate::screens::sidebar::Row], drawn: &[(usize, Rect)], at: (f64, f64)) -> Option<usize> {
+    use crate::screens::sidebar::Row;
+    drawn.iter().find_map(|(id, rect)| match rows.get(*id) {
+        Some(Row::Session { store_index, renaming: false, .. }) if rect.contains(dvec2(at.0, at.1)) => Some(*store_index),
         _ => None,
     })
 }
@@ -4041,5 +4092,36 @@ mod tests {
         assert_eq!(open_menu_press(menu, Some((1, on_menu)), Some(on_menu)), None);
         assert_eq!(open_menu_press(menu, None, Some(on_menu)), None);
         assert_eq!(open_menu_press(menu, None, None), None);
+    }
+
+    /// A right-click is read from the press itself: it lands on the chat
+    /// row under it, never on a workspace header, a row being renamed or
+    /// the space beside the rows.
+    #[test]
+    fn a_right_click_finds_the_chat_row_under_it() {
+        use crate::screens::sidebar::{Row, RowDelete, Status};
+        let chat = |store_index, renaming| Row::Session {
+            store_index,
+            title: "Search drops the last character".into(),
+            time: "6:18 PM".into(),
+            status: Status::Idle,
+            selected: false,
+            matched: None,
+            aside: None,
+            delete: RowDelete::None,
+            renaming,
+        };
+        let rows = vec![
+            Row::Group { group: 0, label: "lumen".into(), count: 2, expanded: true, menu_open: false },
+            chat(4, false),
+            chat(7, true),
+        ];
+        let row = |y: f64| Rect { pos: dvec2(60.0, y), size: dvec2(204.0, 28.0) };
+        let drawn = [(0, row(200.0)), (1, row(228.0)), (2, row(256.0))];
+        assert_eq!(chat_row_under(&rows, &drawn, (90.0, 240.0)), Some(4), "a chat row");
+        assert_eq!(chat_row_under(&rows, &drawn, (90.0, 210.0)), None, "a workspace header has no chat menu");
+        assert_eq!(chat_row_under(&rows, &drawn, (90.0, 270.0)), None, "nor has a row being renamed");
+        assert_eq!(chat_row_under(&rows, &drawn, (300.0, 240.0)), None, "beside the rows");
+        assert_eq!(chat_row_under(&rows, &[], (90.0, 240.0)), None, "no row drawn");
     }
 }
